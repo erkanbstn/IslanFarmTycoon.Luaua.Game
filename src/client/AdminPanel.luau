@@ -89,7 +89,7 @@ local function create(parent: ScreenGui): UiKit.Window
 	})
 	UiKit.text(
 		created.list,
-		"Para işlemleri yalnızca kendi kasanı değiştirir. Hava ve mevsim bu sunucudaki herkesi etkiler.",
+		"Para işlemleri yalnızca kendi kasanı değiştirir. Hava, mevsim, saat ve ışıklar bu sunucudaki herkesi etkiler.",
 		"Caption"
 	).LayoutOrder =
 		1
@@ -217,6 +217,48 @@ local function create(parent: ScreenGui): UiKit.Window
 	).LayoutOrder =
 		18
 
+	-- Gün-gece, ışık ve test araçları (sonradan eklenen özellikleri denemek için)
+	local times = {
+		{ id = "dawn", label = "Şafak" },
+		{ id = "noon", label = "Öğle" },
+		{ id = "dusk", label = "Akşam" },
+		{ id = "night", label = "Gece" },
+		{ id = "auto", label = "Otomatik saat" },
+	}
+	local lightModes = {
+		{ id = "on", label = "Işıklar hep açık" },
+		{ id = "off", label = "Işıklar hep kapalı" },
+		{ id = "auto", label = "Otomatik ışık" },
+	}
+	local lightLevels = {
+		{ id = "dim", label = "Çok kısık" },
+		{ id = "low", label = "Kısık" },
+		{ id = "normal", label = "Normal" },
+		{ id = "strong", label = "Güçlü" },
+	}
+	UiKit.text(created.list, "Gün ve gece", "Heading").LayoutOrder = 19
+	local timeStatus = UiKit.text(created.list, "", "Caption")
+	timeStatus.LayoutOrder = 20
+	choices("setTime", times, 21)
+	UiKit.text(created.list, "Gece ışıkları", "Heading").LayoutOrder = 24
+	local lightStatus = UiKit.text(created.list, "", "Caption")
+	lightStatus.LayoutOrder = 25
+	choices("setLights", lightModes, 26)
+	UiKit.text(created.list, "Işık parlaklığı", "Heading").LayoutOrder = 28
+	local levelStatus = UiKit.text(created.list, "", "Caption")
+	levelStatus.LayoutOrder = 29
+	choices("setLightLevel", lightLevels, 30)
+	UiKit.text(created.list, "Test araçları (yalnızca kendi çiftliğin)", "Heading").LayoutOrder = 33
+	UiKit.text(
+		created.list,
+		"Açma ve doldurma, seçili (bulunduğun) ada içindir. Hayvanları yetişkin yapmak büyüme animasyonunu, açmak tabela ve eklentileri, doldurmak yoğunluğu denemek içindir. Para harcamaz.",
+		"Caption"
+	).LayoutOrder =
+		34
+	choices("growAll", { { id = "now", label = "Bütün hayvanları büyüt" } }, 35)
+	choices("unlockIslands", { { id = "now", label = "Bu adadaki her şeyi aç (eklentiler dahil)" } }, 36)
+	choices("fillSlots", { { id = "now", label = "Bu adadaki bütün slotları hayvanla doldur" } }, 37)
+
 	local function choiceLabel(options: { { id: string, label: string } }, value: string): string
 		for _, option in options do
 			if option.id == value then
@@ -235,6 +277,17 @@ local function create(parent: ScreenGui): UiKit.Window
 		local selectedSeason = if typeof(seasonOverride) == "string" and seasonOverride ~= ""
 			then seasonOverride
 			else "auto"
+		local function selectedOf(attribute: string): string
+			local value = ReplicatedStorage:GetAttribute(attribute)
+			return if typeof(value) == "string" and value ~= "" then value else "auto"
+		end
+		local selectedTime = selectedOf("AdminClockId")
+		local selectedLights = selectedOf("AdminLightsId")
+		local selectedLevel = ReplicatedStorage:GetAttribute("AdminLightLevelId")
+		selectedLevel = if typeof(selectedLevel) == "string" and selectedLevel ~= "" then selectedLevel else "normal"
+		timeStatus.Text = `Seçim: {choiceLabel(times, selectedTime)}`
+		lightStatus.Text = `Seçim: {choiceLabel(lightModes, selectedLights)}`
+		levelStatus.Text = `Seçim: {choiceLabel(lightLevels, selectedLevel :: string)}`
 		weatherStatus.Text = `Seçim: {choiceLabel(weather, selectedWeather)}`
 		seasonStatus.Text = `Seçim: {choiceLabel(seasons, selectedSeason)}`
 		persistence.Text = if player:GetAttribute("DataPersistent") == false
@@ -250,6 +303,9 @@ local function create(parent: ScreenGui): UiKit.Window
 		for _, control in controls do
 			local selected = (control.action == "setWeather" and control.value == selectedWeather)
 				or (control.action == "setSeason" and control.value == selectedSeason)
+				or (control.action == "setTime" and control.value == selectedTime)
+				or (control.action == "setLights" and control.value == selectedLights)
+				or (control.action == "setLightLevel" and control.value == selectedLevel)
 			UiKit.setVariant(
 				control.button,
 				if busy then "disabled" elseif selected or control.value == nil then "primary" else "secondary"
@@ -260,6 +316,9 @@ local function create(parent: ScreenGui): UiKit.Window
 	local connections = {
 		ReplicatedStorage:GetAttributeChangedSignal("AdminWeatherOverride"):Connect(update),
 		ReplicatedStorage:GetAttributeChangedSignal("AdminSeasonOverride"):Connect(update),
+		ReplicatedStorage:GetAttributeChangedSignal("AdminClockId"):Connect(update),
+		ReplicatedStorage:GetAttributeChangedSignal("AdminLightsId"):Connect(update),
+		ReplicatedStorage:GetAttributeChangedSignal("AdminLightLevelId"):Connect(update),
 		player:GetAttributeChangedSignal("DataPersistent"):Connect(update),
 	}
 	local stopState = ClientState.onChanged(updateBalance)

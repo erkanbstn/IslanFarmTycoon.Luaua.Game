@@ -259,6 +259,32 @@ function FarmMath.getAnimalPrice(save: PlayerSave, animalId: string): number
 	return math.floor(animalConfig.price * Config.ANIMAL_PRICE_GROWTH ^ owned)
 end
 
+-- Bu türün konabileceği açık bölgelerdeki toplam boş yer
+function FarmMath.getFreeSlots(save: PlayerSave, animalId: string): number
+	local free = 0
+	for _, zoneId in Config.ZONE_ORDER do
+		local zone = Config.ZONES[zoneId]
+		if zone and table.find(zone.allowedAnimals, animalId) and save.unlockedZones[zoneId] then
+			free += math.max(0, zone.capacity - FarmMath.countInZone(save, zoneId))
+		end
+	end
+	return free
+end
+
+-- Ardışık `count` hayvanın toplam fiyatı: her yeni hayvan bir öncekinden ANIMAL_PRICE_GROWTH kadar pahalıdır.
+function FarmMath.getBulkPrice(save: PlayerSave, animalId: string, count: number): number
+	local animalConfig = Config.ANIMALS[animalId]
+	if not animalConfig or count < 1 then
+		return math.huge
+	end
+	local owned = FarmMath.countAnimals(save, animalId)
+	local total = 0
+	for index = 0, count - 1 do
+		total += math.floor(animalConfig.price * Config.ANIMAL_PRICE_GROWTH ^ (owned + index))
+	end
+	return total
+end
+
 function FarmMath.findReplaceableFish(save: PlayerSave): GameTypes.AnimalRecord?
 	for _, animal in save.animals do
 		local zone = Config.ZONES[animal.zoneId]

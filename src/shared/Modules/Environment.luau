@@ -57,6 +57,45 @@ function Environment.getNextSeason(): Config.SeasonConfig
 	return Config.SEASONS[1]
 end
 
+-- Gün-gece: sunucu saatinden türetilir, herkes aynı saati görür (client Lighting.ClockTime'a yazar).
+Environment.CLOCK_PRESETS = { dawn = 6.5, noon = 12, dusk = 18.5, night = 23 } :: { [string]: number }
+Environment.LIGHT_LEVELS = { dim = 0.4, low = 0.7, normal = 1, strong = 1.5 } :: { [string]: number }
+local CLOCK_ID_ATTR = "AdminClockId"
+local LIGHTS_ID_ATTR = "AdminLightsId"
+local LIGHT_LEVEL_ID_ATTR = "AdminLightLevelId"
+
+-- Yönetici saat seçtiyse gün-gece o saatte sabit kalır.
+function Environment.getClockTime(now: number?): number
+	local overrideId = ReplicatedStorage:GetAttribute(CLOCK_ID_ATTR)
+	local preset = if typeof(overrideId) == "string" then Environment.CLOCK_PRESETS[overrideId] else nil
+	if preset then
+		return preset
+	end
+	local time = now or Workspace:GetServerTimeNow()
+	return (Config.DAY_START_HOUR + time / Config.DAY_SECONDS * 24) % 24
+end
+
+local function smoothstep(from: number, to: number, x: number): number
+	local t = math.clamp((x - from) / (to - from), 0, 1)
+	return t * t * (3 - 2 * t)
+end
+
+-- Işık kaynakları: akşam 17-18 arası yanar; sabah güneş iyice doğana (6.5) kadar yanık kalır, 7.5'te tamamen söner.
+function Environment.getLightFactor(clock: number): number
+	if clock >= 12 then
+		return smoothstep(17, 18, clock)
+	end
+	return 1 - smoothstep(6.5, 7.5, clock)
+end
+
+-- 0 = tam gündüz, 1 = tam gece; akşam 17.5-19.5 arası kararır, sabah 4.5-6.5 arası aydınlanır.
+function Environment.getNightFactor(clock: number): number
+	if clock >= 12 then
+		return smoothstep(17.5, 19.5, clock)
+	end
+	return 1 - smoothstep(4.5, 6.5, clock)
+end
+
 -- Mevsim + hava toplam gelir çarpanı (en az 0.2)
 function Environment.getIncomeMultiplier(animalId: string): number
 	local seasonMod = Environment.getSeason().incomeModifiers[animalId] or 0
@@ -78,7 +117,31 @@ function Environment.describeModifiers(modifiers: { [string]: number }): string
 	return table.concat(parts, " · ")
 end
 
+-- Yönetici gece ışıkları: "on" hep açık, "off" hep kapalı, nil otomatik
+function Environment.getLightsOverride(): string?
+	local id = ReplicatedStorage:GetAttribute(LIGHTS_ID_ATTR)
+	return if id == "on" or id == "off" then id else nil
+end
+
+-- Işık parlaklığı çarpanı (varsayılan 1)
+function Environment.getLightMultiplier(): number
+	local id = ReplicatedStorage:GetAttribute(LIGHT_LEVEL_ID_ATTR)
+	return (if typeof(id) == "string" then Environment.LIGHT_LEVELS[id] else nil) or 1
+end
+
 -- Sunucu tarafı yazıcılar (SeasonService)
+function Environment.setClockOverride(id: string?)
+	ReplicatedStorage:SetAttribute(CLOCK_ID_ATTR, id)
+end
+
+function Environment.setLightsOverride(id: string?)
+	ReplicatedStorage:SetAttribute(LIGHTS_ID_ATTR, id)
+end
+
+function Environment.setLightLevel(id: string?)
+	ReplicatedStorage:SetAttribute(LIGHT_LEVEL_ID_ATTR, id)
+end
+
 function Environment.setSeason(season: Config.SeasonConfig, endsAt: number)
 	ReplicatedStorage:SetAttribute(SEASON_ATTR, season.id)
 	ReplicatedStorage:SetAttribute(SEASON_ENDS_ATTR, endsAt)

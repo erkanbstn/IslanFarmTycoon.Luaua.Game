@@ -3,6 +3,7 @@
 -- Konum: plot içindeki "BarnSpot" parçası (LookVector = kapı yönü).
 -- BarnSpot yoksa başlangıç bölgesinin zemini kullanılır.
 
+local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Studio plugin'i modülleri kopyalayıp taze Config ile çalıştırır; o durumda yanımızdaki "Shared" kullanılır.
@@ -52,6 +53,48 @@ local function getBarnFrame(plot: Model): CFrame?
 	return nil
 end
 
+-- Kapının iki yanında fener direkleri (tüm seviyelerde); geceleri DayNight (client) yakar.
+local function addLanterns(barn: Model, frame: CFrame, doorW: number, depth: number)
+	for _, x in { -doorW / 2 - 1.6, doorW / 2 + 1.6 } do
+		local lamp = makePart(
+			"LanternPost",
+			Vector3.new(0.4, 7.6, 0.4),
+			frame * CFrame.new(x, 3.8, -(depth / 2 + 1.1)),
+			Color3.fromRGB(50, 40, 30),
+			barn
+		)
+		local lantern = makePart(
+			"Lantern",
+			Vector3.new(0.9, 1.1, 0.9),
+			lamp.CFrame * CFrame.new(0, 4.2, 0),
+			Color3.fromRGB(205, 175, 115),
+			barn
+		)
+		lantern.Material = Enum.Material.SmoothPlastic
+		lantern:SetAttribute("NightColor", Color3.fromRGB(255, 214, 130))
+		CollectionService:AddTag(lantern, "NightLight")
+		local light = Instance.new("PointLight")
+		light.Color = Color3.fromRGB(255, 205, 130)
+		light.Range = 22
+		light.Brightness = 1.1
+		light.Shadows = false
+		light.Enabled = false
+		light.Parent = lantern
+	end
+end
+
+local function glowWindow(window: Part)
+	window:SetAttribute("NightColor", Color3.fromRGB(255, 219, 140))
+	CollectionService:AddTag(window, "NightWindow")
+	local light = Instance.new("PointLight")
+	light.Color = Color3.fromRGB(255, 205, 130)
+	light.Range = 9
+	light.Brightness = 0.5
+	light.Shadows = false
+	light.Enabled = false
+	light.Parent = window
+end
+
 local function addTierDetails(
 	barn: Model,
 	frame: CFrame,
@@ -77,25 +120,27 @@ local function addTierDetails(
 			TRIM_COLOR,
 			barn
 		)
-		makePart(
+		local hayloft = makePart(
 			"HayloftWindow",
 			Vector3.new(3, 2, 0.2),
 			frame * CFrame.new(0, 1 + wallH * 0.72, depth / 2 - 0.35),
 			Color3.fromRGB(90, 120, 150),
 			barn
-		).Material =
-			Enum.Material.Glass
+		)
+		hayloft.Material = Enum.Material.Glass
+		glowWindow(hayloft)
 	end
 	if level >= 3 then
 		for _, side in { -1, 1 } do
-			makePart(
+			local sideWindow = makePart(
 				"SideWindow",
 				Vector3.new(0.2, 2.2, 2.2),
 				frame * CFrame.new(side * (width / 2 - 0.35), 1 + wallH * 0.55, 1.5),
 				Color3.fromRGB(90, 120, 150),
 				barn
-			).Material =
-				Enum.Material.Glass
+			)
+			sideWindow.Material = Enum.Material.Glass
+			glowWindow(sideWindow)
 		end
 		local silo = makePart(
 			"Silo",
@@ -122,23 +167,6 @@ local function addTierDetails(
 			barn
 		).Material =
 			Enum.Material.Brick
-		for _, x in { -doorW / 2 - 1.2, doorW / 2 + 1.2 } do
-			local lamp = makePart(
-				"LanternPost",
-				Vector3.new(0.35, 4, 0.35),
-				frame * CFrame.new(x, 3, -(depth / 2 + 0.8)),
-				Color3.fromRGB(50, 40, 30),
-				barn
-			)
-			makePart(
-				"Lantern",
-				Vector3.new(0.9, 1.1, 0.9),
-				lamp.CFrame * CFrame.new(0, 2.2, 0),
-				Color3.fromRGB(255, 210, 120),
-				barn
-			).Material =
-				Enum.Material.Neon
-		end
 	end
 end
 
@@ -147,9 +175,10 @@ local function buildBarn(parent: Instance, frame: CFrame, barnLevel: number)
 	local levelConfig = Config.getBarnLevelConfig(barnLevel)
 	local tier = math.clamp(barnLevel, 1, 4)
 
-	local width, depth = 14, 10
-	local wallH = 7
-	local doorW, doorH = 5, 5
+	-- Karakter (~5.5 stud) rahatça girsin: geniş ve yüksek kapı, yüksek iç mekân.
+	local width, depth = 18, 12
+	local wallH = 11
+	local doorW, doorH = 8, 8.5
 
 	local barn = Instance.new("Model")
 	barn.Name = "Barn"
@@ -203,6 +232,34 @@ local function buildBarn(parent: Instance, frame: CFrame, barnLevel: number)
 	)
 
 	addTierDetails(barn, frame, tier, width, depth, wallH, doorW)
+	addLanterns(barn, frame, doorW, depth)
+
+	-- Giriş basamağı (zemin 1 stud yüksekte) ve içeride samanlık/fıçılar
+	makePart(
+		"DoorStep",
+		Vector3.new(doorW, 0.5, 2.4),
+		frame * CFrame.new(0, 0.25, -(depth / 2 + 1.2)),
+		STONE_COLOR,
+		barn
+	).Material =
+		Enum.Material.Cobblestone
+	local hayColor = Color3.fromRGB(225, 195, 110)
+	for index, offset in { Vector3.new(-6.2, 0, 4), Vector3.new(-6.2, 0, 1.6), Vector3.new(6.2, 0, 4) } do
+		makePart(
+			"HayBale",
+			Vector3.new(2.6, 1.6, 1.6),
+			frame * CFrame.new(offset + Vector3.new(0, 1.8, 0)),
+			hayColor,
+			barn
+		).Material =
+			Enum.Material.Fabric
+		if index == 1 then
+			makePart("HayBale", Vector3.new(2.6, 1.6, 1.6), frame * CFrame.new(-6.2, 3.4, 3), hayColor, barn).Material =
+				Enum.Material.Fabric
+		end
+	end
+	local rail = makePart("StallRail", Vector3.new(0.3, 2.6, 5), frame * CFrame.new(6.2, 2.3, -1.2), TRIM_COLOR, barn)
+	rail.CanCollide = false
 
 	-- Beşik çatı: iki eğik levha
 	local angle = math.rad(28)
@@ -233,6 +290,15 @@ local function buildBarn(parent: Instance, frame: CFrame, barnLevel: number)
 	})
 
 	barn:SetAttribute("VisualCreatedAt", game:GetService("Workspace"):GetServerTimeNow())
+	do
+		local parts = 0
+		for _, descendant in barn:GetDescendants() do
+			if descendant:IsA("BasePart") then
+				parts += 1
+			end
+		end
+		barn:SetAttribute("PartCount", parts)
+	end
 	barn.PrimaryPart = floor
 	barn.Parent = parent
 end

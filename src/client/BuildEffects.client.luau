@@ -13,7 +13,7 @@ local FRESH_SECONDS = 3
 local MAX_POPS = 8
 local MAX_SPARKLES = 60
 
-type Pop = { scale: number, pivot: CFrame, changedPivot: boolean, started: number }
+type Pop = { scale: number, pivot: CFrame, changedPivot: boolean, started: number, watch: RBXScriptConnection? }
 type Candidate = { stableFrames: number, expiresAt: number, connections: { RBXScriptConnection } }
 type Spark = { part: BasePart, origin: Vector3, velocity: Vector3, born: number, life: number }
 local pops: { [Model]: Pop } = {}
@@ -68,6 +68,9 @@ local function finishPop(model: Model)
 	end
 	pops[model] = nil
 	activePops -= 1
+	if pop.watch then
+		pop.watch:Disconnect()
+	end
 	-- Model stream-out sırasında da eski ölçeğine dönsün; sonraki stream-in küçülmüş başlamasın.
 	pcall(function()
 		model:ScaleTo(pop.scale)
@@ -96,6 +99,21 @@ local function popIn(model: Model): boolean
 	if not model:IsDescendantOf(Workspace) or not model:FindFirstChildWhichIsA("BasePart", true) then
 		return false
 	end
+	-- ScaleTo, sonradan gelen (henüz çoğalmamış) parçaları yanlış ölçekler; dev hayvanların nedeni buydu.
+	-- Sunucu parça sayısını yazar; model tamamen gelmeden efekt başlamaz, sayı yoksa efekt oynatılmaz.
+	local expected = model:GetAttribute("PartCount")
+	if typeof(expected) ~= "number" then
+		return false
+	end
+	local parts = 0
+	for _, descendant in model:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			parts += 1
+		end
+	end
+	if parts ~= expected then
+		return false
+	end
 	local camera = Workspace.CurrentCamera
 	if not camera or (model:GetPivot().Position - camera.CFrame.Position).Magnitude > 100 then
 		return false
@@ -117,6 +135,11 @@ local function popIn(model: Model): boolean
 	}
 	pops[model] = pop
 	activePops += 1
+	pop.watch = model.DescendantAdded:Connect(function(added: Instance)
+		if added:IsA("BasePart") then
+			finishPop(model)
+		end
+	end)
 	model:SetAttribute("BuildPopActive", true)
 	local ok = pcall(function()
 		if pop.changedPivot then

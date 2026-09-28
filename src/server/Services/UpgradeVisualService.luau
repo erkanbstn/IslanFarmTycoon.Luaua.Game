@@ -13,6 +13,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local GameTypes = require(Shared:WaitForChild("GameTypes"))
 local WorldUi = require(Shared:WaitForChild("WorldUi"))
+local WorldDecor = require(script.Parent:WaitForChild("WorldDecor"))
 
 type PlayerSave = GameTypes.PlayerSave
 type Builder = (model: Model, base: CFrame) -> ()
@@ -727,6 +728,15 @@ local function buildUpgrade(upgradeId: string, spot: BasePart, parent: Instance)
 	local built = model :: Model
 	built.Name = upgradeId
 	built:SetAttribute("UpgradeVisualVersion", VISUAL_VERSION)
+	for _, descendant in built:GetDescendants() do
+		if
+			descendant:IsA("BasePart")
+			and descendant.Name:find("Window")
+			and descendant.Material == Enum.Material.Glass
+		then
+			WorldDecor.markNightWindow(descendant)
+		end
+	end
 	if upgradeId == "fishing_boat" then
 		-- Hareket sadece client görselidir; tüm parçalar sunucuda da fizik dışıdır.
 		for _, descendant in built:GetDescendants() do
@@ -763,6 +773,15 @@ local function buildUpgrade(upgradeId: string, spot: BasePart, parent: Instance)
 		prompt:SetAttribute("ProductionRecipe", recipe)
 		WorldUi.configureProximityPrompt(prompt)
 		prompt.Parent = anchor
+	end
+	do
+		local parts = 0
+		for _, descendant in built:GetDescendants() do
+			if descendant:IsA("BasePart") then
+				parts += 1
+			end
+		end
+		built:SetAttribute("PartCount", parts)
 	end
 	built:SetAttribute("VisualCreatedAt", game:GetService("Workspace"):GetServerTimeNow())
 	built.Parent = parent

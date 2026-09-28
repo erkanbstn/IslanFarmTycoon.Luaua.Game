@@ -16,7 +16,12 @@ function PurchaseController.isPending(): boolean
 	return pending ~= nil
 end
 
-function PurchaseController.submit(remote: Remotes.EventName, value: string): boolean
+-- Yerel bildirim isteği (ör. yetersiz bakiye ön kontrolü); arayüz bunu bildirim olarak gösterir.
+function PurchaseController.notify(success: boolean, message: string)
+	completed:Fire(success, message)
+end
+
+function PurchaseController.submit(remote: Remotes.EventName, value: string, extra: number?): boolean
 	local state = ClientState.get()
 	if pending or not state then
 		return false
@@ -26,7 +31,7 @@ function PurchaseController.submit(remote: Remotes.EventName, value: string): bo
 	pending = id
 	sentAt = os.clock()
 	changed:Fire()
-	Remotes.get(remote):FireServer(value, id, state.activeMainFarmId or "1")
+	Remotes.get(remote):FireServer(value, id, state.activeMainFarmId or "1", extra)
 	task.delay(10, function()
 		if pending ~= id then
 			return

@@ -158,6 +158,8 @@ local Config = {
 	-- Mevsimler sırayla döner; tüm sunucularda aynı anda değişir (saat os.time'a bağlı).
 	-- Hava her sunucuda rastgele, mevsime uygun olarak birkaç dakikada bir değişir.
 	SEASON_SECONDS = 900, -- 15 dakika; dört mevsimlik döngü bir saat sürer.
+	DAY_SECONDS = 480, -- Bir gün-gece döngüsü (24 oyun saati) gerçek 8 dakikadır; tüm sunucuda aynı anda ilerler.
+	DAY_START_HOUR = 9, -- Sunucu saati 0 iken oyun saati
 	WEATHER_SECONDS_MIN = 150,
 	WEATHER_SECONDS_MAX = 270,
 	SEASONS = {
@@ -222,6 +224,7 @@ local Config = {
 	OFFLINE_EARNING_RATE = 0.5,
 	OFFLINE_MAX_HOURS = 8,
 	ANIMAL_PRICE_GROWTH = 1.1,
+	BULK_MULTIPLIERS = { 1, 2, 3, 5 }, -- Pazarda toplu alım çarpanları
 
 	-- Bir hayvanın her evrede kaldığı süre (saniye). Yetişkin olunca tam gelir verir.
 	GROWTH_SECONDS = {
@@ -784,6 +787,48 @@ function Config.getZoneUpgrade(zoneId: string): UpgradeConfig?
 		end
 	end
 	return nil
+end
+
+-- Yükseltmenin hangi adaya ait olduğu (ahır ve ana ada bonusları her zaman "home").
+-- Arayüz sekmeleri ve yönetici test araçları aynı eşlemeyi kullanır.
+function Config.getUpgradeIsland(upgrade: UpgradeConfig): string
+	if upgrade.kind == "barn" then
+		return "home"
+	end
+	if upgrade.kind == "island" and upgrade.islandId then
+		return upgrade.islandId
+	end
+	if upgrade.kind == "zone" and upgrade.zoneId then
+		local zone = Config.ZONES[upgrade.zoneId]
+		if zone then
+			return zone.island
+		end
+	end
+	if upgrade.kind == "extension" and upgrade.extensionId then
+		local extension = Config.EXTENSIONS[upgrade.extensionId]
+		if extension then
+			return extension.island
+		end
+	end
+	local boostIsland: { [string]: string } = {
+		silo = "home",
+		milk_machine = "home",
+		milk_factory = "home",
+		fish_farm = "home",
+		fishing_boat = "home",
+		auto_collector = "home",
+		egg_factory = "poultry",
+		hatchery = "poultry",
+		golden_horseshoe = "horse",
+		horse_training = "horse",
+		cheese_dairy = "goat",
+	}
+	local mapped = boostIsland[upgrade.id]
+	if mapped then
+		return mapped
+	end
+	local stage = Config.ROADMAP_STAGES[upgrade.stage]
+	return if stage and stage.island then stage.island else "home"
 end
 
 function Config.getExtension(extensionId: string): ExtensionConfig?

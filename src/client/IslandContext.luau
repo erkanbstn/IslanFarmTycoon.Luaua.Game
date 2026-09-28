@@ -25,48 +25,7 @@ end
 
 -- Yükseltmenin hangi ada sekmesinde listeleneceği (ahır ve ana ada bonusları her zaman "home").
 function IslandContext.upgradeIsland(upgrade: Config.UpgradeConfig): string
-	if upgrade.kind == "barn" then
-		return "home"
-	end
-	if upgrade.kind == "island" and upgrade.islandId then
-		return upgrade.islandId
-	end
-	if upgrade.kind == "zone" and upgrade.zoneId then
-		local zone = Config.ZONES[upgrade.zoneId]
-		if zone then
-			return zone.island
-		end
-	end
-	if upgrade.kind == "extension" and upgrade.extensionId then
-		local extension = Config.getExtension(upgrade.extensionId)
-		if extension then
-			return extension.island
-		end
-	end
-	local boostHome: { [string]: boolean } = {
-		silo = true,
-		milk_machine = true,
-		milk_factory = true,
-		fish_farm = true,
-		fishing_boat = true,
-		auto_collector = true,
-	}
-	if boostHome[upgrade.id] then
-		return "home"
-	end
-	local boostByIsland: { [string]: string } = {
-		egg_factory = "poultry",
-		hatchery = "poultry",
-		golden_horseshoe = "horse",
-		horse_training = "horse",
-		cheese_dairy = "goat",
-	}
-	local mapped = boostByIsland[upgrade.id]
-	if mapped then
-		return mapped
-	end
-	local stage = Config.ROADMAP_STAGES[upgrade.stage]
-	return if stage and stage.island then stage.island else "home"
+	return Config.getUpgradeIsland(upgrade)
 end
 
 function IslandContext.hasAnimal(animalId: string): boolean

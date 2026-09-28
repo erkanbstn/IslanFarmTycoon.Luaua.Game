@@ -453,13 +453,9 @@ function IslandSpecialization.syncProductionSites(parent: Instance, surfaceCf: C
 		end
 		return
 	end
-	if not folder then
-		folder = Instance.new("Folder")
-		folder.Name = "ProductionSites"
-		folder.Parent = parent
-	else
-		folder:ClearAllChildren()
-	end
+	-- Hangi üretim alanları kurulacak? Aynıysa dokunma: her yenilemede silinip yeniden kurulunca
+	-- tabelalar ve zeminler ekranda baştan çiziliyordu (ör. her hayvan alımında).
+	local built: { string } = {}
 	for id, site in IslandSpecialization.SITES do
 		if site.island ~= islandId then
 			continue
@@ -468,7 +464,23 @@ function IslandSpecialization.syncProductionSites(parent: Instance, surfaceCf: C
 		if upgradeId and save.purchased[upgradeId] ~= true then
 			continue
 		end
-		productionSite(folder, surfaceCf, id, site)
+		table.insert(built, id)
+	end
+	table.sort(built)
+	local signature = table.concat(built, ",")
+	if folder and folder:GetAttribute("Signature") == signature then
+		return
+	end
+	if not folder then
+		folder = Instance.new("Folder")
+		folder.Name = "ProductionSites"
+		folder.Parent = parent
+	else
+		folder:ClearAllChildren()
+	end
+	folder:SetAttribute("Signature", signature)
+	for _, id in built do
+		productionSite(folder, surfaceCf, id, IslandSpecialization.SITES[id])
 	end
 end
 

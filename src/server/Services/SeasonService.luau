@@ -112,6 +112,31 @@ function SeasonService.setAdminWeather(id: string?): boolean
 	return true
 end
 
+-- Gün-gece ve ışık testi: saat/ışık durumu yalnızca görünümdür, gelire etkisi yoktur.
+function SeasonService.setAdminClock(id: string?): boolean
+	if id ~= nil and (typeof(id) ~= "string" or not Environment.CLOCK_PRESETS[id]) then
+		return false
+	end
+	Environment.setClockOverride(id)
+	return true
+end
+
+function SeasonService.setAdminLights(id: string?): boolean
+	if id ~= nil and id ~= "on" and id ~= "off" then
+		return false
+	end
+	Environment.setLightsOverride(id)
+	return true
+end
+
+function SeasonService.setAdminLightLevel(id: string?): boolean
+	if id ~= nil and (typeof(id) ~= "string" or not Environment.LIGHT_LEVELS[id]) then
+		return false
+	end
+	Environment.setLightLevel(id)
+	return true
+end
+
 function SeasonService.setAdminSeason(id: string?): boolean
 	local index: number? = nil
 	if id ~= nil then

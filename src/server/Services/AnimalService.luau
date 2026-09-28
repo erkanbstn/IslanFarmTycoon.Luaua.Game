@@ -18,13 +18,21 @@ local Metrics = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChil
 
 local AnimalService = {}
 
-function AnimalService.tryBuy(player: Player, animalId: unknown): (boolean, string?)
+function AnimalService.tryBuy(player: Player, animalId: unknown, count: unknown?): (boolean, string?)
 	if not RateLimiter.allow(player, "purchase", 0.2) then
 		return false, nil -- Spam; sessizce yoksay
 	end
 
 	if typeof(animalId) ~= "string" or not RateLimiter.validId(animalId) or not Config.ANIMALS[animalId] then
 		return false, "Bilinmeyen hayvan"
+	end
+	-- Toplu alım: yalnızca izin verilen çarpanlar; miktar ve fiyat sunucuda hesaplanır.
+	local amount = 1
+	if count ~= nil then
+		if typeof(count) ~= "number" or count % 1 ~= 0 or not table.find(Config.BULK_MULTIPLIERS, count) then
+			return false, "Geçersiz miktar"
+		end
+		amount = count :: number
 	end
 	local data = PlayerDataService.tryGet(player)
 	if not data or player:GetAttribute("WorldReady") ~= true or not PlotService.getPlot(player) then
@@ -35,21 +43,31 @@ function AnimalService.tryBuy(player: Player, animalId: unknown): (boolean, stri
 	if not zoneId then
 		return false, reason
 	end
+	local free = FarmMath.getFreeSlots(data, animalId)
+	if free < amount then
+		return false, `Yeterli yer yok ({free} boş yer var)`
+	end
 
-	local price = FarmMath.getAnimalPrice(data, animalId)
+	local price = FarmMath.getBulkPrice(data, animalId, amount)
 	EconomyService.settlePlayer(player)
 	if not PlayerDataService.trySpend(player, price) then
 		return false, `Yeterli para yok ({FarmMath.formatMoney(price)})`
 	end
 
 	local bornAt = DateTime.now().UnixTimestampMillis / 1000
-	table.insert(data.animals, {
-		uid = HttpService:GenerateGUID(false),
-		animalId = animalId,
-		zoneId = zoneId,
-		stage = "calf",
-		bornAt = bornAt,
-	})
+	for _ = 1, amount do
+		local targetZone = FarmMath.findZoneForAnimal(data, animalId)
+		if not targetZone then
+			break -- Yukarıdaki boş yer denetimi nedeniyle olmaması gerekir
+		end
+		table.insert(data.animals, {
+			uid = HttpService:GenerateGUID(false),
+			animalId = animalId,
+			zoneId = targetZone,
+			stage = "calf",
+			bornAt = bornAt,
+		})
+	end
 	PlayerDataService.pushState(player)
 	PlayerDataService.requestSave(player)
 	Metrics.increment("AnimalsPurchased")
@@ -149,24 +167,33 @@ end
 
 function AnimalService.init()
 	Remotes.get("RequestBuyAnimal").OnServerEvent
-		:Connect(function(player: Player, animalId: unknown, requestId: unknown, expectedFarmId: unknown)
-			if not RateLimiter.acceptRequest(player, requestId) then
-				return
-			end
-			local data = PlayerDataService.tryGet(player)
-			if not data or expectedFarmId ~= data.activeMainFarmId then
-				if RateLimiter.allow(player, "farmContextReply", 0.5) then
-					respond(player, requestId, false, "Etkin çiftlik değişti; işlemi yeni çiftlikte tekrar seç.")
+		:Connect(
+			function(player: Player, animalId: unknown, requestId: unknown, expectedFarmId: unknown, count: unknown)
+				if not RateLimiter.acceptRequest(player, requestId) then
+					return
 				end
-				return
+				local data = PlayerDataService.tryGet(player)
+				if not data or expectedFarmId ~= data.activeMainFarmId then
+					if RateLimiter.allow(player, "farmContextReply", 0.5) then
+						respond(
+							player,
+							requestId,
+							false,
+							"Etkin çiftlik değişti; işlemi yeni çiftlikte tekrar seç."
+						)
+					end
+					return
+				end
+				local ok, err = AnimalService.tryBuy(player, animalId, count)
+				if ok then
+					local animalConfig = Config.ANIMALS[animalId :: string]
+					err = if typeof(count) == "number" and count > 1
+						then `{count} {animalConfig.displayName} geldi!`
+						else `Yeni {animalConfig.displayName} geldi!`
+				end
+				respond(player, requestId, ok, err)
 			end
-			local ok, err = AnimalService.tryBuy(player, animalId)
-			if ok then
-				local animalConfig = Config.ANIMALS[animalId :: string]
-				err = `Yeni {animalConfig.displayName} geldi!`
-			end
-			respond(player, requestId, ok, err)
-		end)
+		)
 
 	Remotes.get("RequestReplaceFish").OnServerEvent
 		:Connect(function(player: Player, uid: unknown, requestId: unknown, expectedFarmId: unknown)

@@ -7,6 +7,7 @@
 -- oturduğu için hesaplanandan 1-2 stud yukarıda çıkıp yerdeki ince parçaları (yol, platform, ağıl
 -- zemini) gömüyordu. Kum, üst parçanın altında kalacak şekilde alçak tutulur.
 
+local CollectionService = game:GetService("CollectionService")
 local Workspace = game:GetService("Workspace")
 
 local WorldDecor = {}
@@ -283,6 +284,140 @@ function WorldDecor.flowerPatch(parent: Instance, base: CFrame, seed: number)
 	end
 end
 
+local GRASS_COLORS = {
+	Color3.fromRGB(88, 152, 64),
+	Color3.fromRGB(104, 168, 70),
+	Color3.fromRGB(72, 136, 58),
+	Color3.fromRGB(126, 176, 78),
+}
+
+export type GrassRect = { x: number, z: number, hx: number, hz: number }
+export type GrassSpec = {
+	count: number,
+	seed: number,
+	-- Yuvarlak alan (ada): merkezden iç/dış yarıçap
+	minRadius: number?,
+	maxRadius: number?,
+	-- Dikdörtgen alan (bölge): x -halfX..halfX, z zMin..zMax
+	halfX: number?,
+	zMin: number?,
+	zMax: number?,
+	avoid: { GrassRect }?, -- yerel koordinatta çim çıkmayacak dikdörtgenler (yol, bina, bölge)
+	flowerChance: number?,
+}
+
+-- Çapraz iki ince levhadan oluşan çim tutamları ve ara sıra çiçekler. Çarpışmaz, sorgulanmaz.
+-- base: ada/bölge yüzeyinde (Y yüzeyde) CFrame. Sabit tohum: aynı harita her seferinde aynı çıkar.
+function WorldDecor.grassTufts(parent: Instance, base: CFrame, spec: GrassSpec): Folder
+	local random = Random.new(spec.seed)
+	local folder = Instance.new("Folder")
+	folder.Name = "GrassTufts"
+	folder.Parent = parent
+	local avoid = spec.avoid or {}
+	local flowerChance = spec.flowerChance or 0.12
+	local placed, attempts = 0, 0
+	while placed < spec.count and attempts < spec.count * 8 do
+		attempts += 1
+		local x, z
+		if spec.maxRadius then
+			local minR = spec.minRadius or 0
+			local angle = random:NextNumber(0, math.pi * 2)
+			local r = math.sqrt(random:NextNumber(minR * minR, spec.maxRadius * spec.maxRadius))
+			x, z = math.cos(angle) * r, math.sin(angle) * r
+		else
+			local halfX = spec.halfX or 10
+			x = random:NextNumber(-halfX, halfX)
+			z = random:NextNumber(spec.zMin or -10, spec.zMax or 10)
+		end
+		local blocked = false
+		for _, rect in avoid do
+			if math.abs(x - rect.x) < rect.hx and math.abs(z - rect.z) < rect.hz then
+				blocked = true
+				break
+			end
+		end
+		if blocked then
+			continue
+		end
+		placed += 1
+		local yaw = random:NextNumber(0, math.pi)
+		local height = random:NextNumber(0.7, 1.3)
+		local color = GRASS_COLORS[random:NextInteger(1, #GRASS_COLORS)]
+		local origin = base * CFrame.new(x, 0, z) * CFrame.Angles(0, yaw, 0)
+		for blade = 0, 1 do
+			local p = part(
+				folder,
+				"Tuft",
+				Vector3.new(0.14, height, random:NextNumber(0.9, 1.5)),
+				origin
+					* CFrame.Angles(0, blade * math.pi / 2, random:NextNumber(-0.12, 0.12))
+					* CFrame.new(0, height / 2 - 0.05, 0),
+				color,
+				Enum.Material.Grass
+			)
+			p.CanCollide, p.CanQuery, p.CastShadow = false, false, false
+		end
+		if random:NextNumber() < flowerChance then
+			local stemH = random:NextNumber(0.9, 1.4)
+			local stem = part(
+				folder,
+				"Stem",
+				Vector3.new(0.12, stemH, 0.12),
+				origin * CFrame.new(0.5, stemH / 2, 0.4),
+				Color3.fromRGB(70, 130, 60),
+				Enum.Material.SmoothPlastic
+			)
+			local bloom = ball(
+				folder,
+				"Bloom",
+				0.5,
+				origin * CFrame.new(0.5, stemH, 0.4),
+				FLOWER_COLORS[random:NextInteger(1, #FLOWER_COLORS)],
+				Enum.Material.SmoothPlastic
+			)
+			for _, p in { stem, bloom } do
+				p.CanCollide, p.CanQuery, p.CastShadow = false, false, false
+			end
+		end
+	end
+	return folder
+end
+
+-- Düz çimen zeminde renk çeşitliliği: hafif farklı tonda, çok ince yassı daireler.
+function WorldDecor.grassPatches(
+	parent: Instance,
+	base: CFrame,
+	count: number,
+	minRadius: number,
+	maxRadius: number,
+	seed: number
+)
+	local random = Random.new(seed)
+	local folder = Instance.new("Folder")
+	folder.Name = "GrassPatches"
+	folder.Parent = parent
+	for _ = 1, count do
+		local angle = random:NextNumber(0, math.pi * 2)
+		local r = random:NextNumber(minRadius, maxRadius)
+		local diameter = random:NextNumber(6, 14)
+		local tone = random:NextNumber(-14, 16)
+		local p = part(
+			folder,
+			"Patch",
+			Vector3.new(0.05, diameter, diameter),
+			base * CFrame.new(math.cos(angle) * r, 0.03, math.sin(angle) * r) * CFrame.Angles(0, 0, math.rad(90)),
+			Color3.fromRGB(
+				math.clamp(96 + tone, 0, 255),
+				math.clamp(160 + tone, 0, 255),
+				math.clamp(74 + tone * 0.6, 0, 255)
+			),
+			Enum.Material.Grass
+		)
+		p.Shape = Enum.PartType.Cylinder
+		p.CanCollide, p.CanQuery, p.CastShadow = false, false, false
+	end
+end
+
 ---------------------------------------------------------------------------
 -- Çiftlik eşyaları
 ---------------------------------------------------------------------------
@@ -292,21 +427,66 @@ function WorldDecor.lamp(parent: Instance, base: CFrame)
 	model.Name = "Lamp"
 	model.Parent = parent
 	local iron = Color3.fromRGB(45, 45, 50)
-	column(model, "Pole", 0.45, 6, base * CFrame.new(0, 3, 0), iron, Enum.Material.Metal)
-	part(model, "Arm", Vector3.new(1.4, 0.2, 0.2), base * CFrame.new(0.6, 5.9, 0), iron, Enum.Material.Metal)
+	column(model, "Pole", 0.5, 9.4, base * CFrame.new(0, 4.7, 0), iron, Enum.Material.Metal)
+	part(model, "Arm", Vector3.new(1.8, 0.22, 0.22), base * CFrame.new(0.8, 9.3, 0), iron, Enum.Material.Metal)
+	-- Fener geceleri yanar: DayNight (client) "NightLight" etiketli parçaların ışığını ve parlamasını yönetir.
 	local lantern = part(
 		model,
 		"Lantern",
-		Vector3.new(0.7, 0.9, 0.7),
-		base * CFrame.new(1.2, 5.3, 0),
-		Color3.fromRGB(255, 210, 120),
-		Enum.Material.Neon
+		Vector3.new(0.8, 1, 0.8),
+		base * CFrame.new(1.6, 8.6, 0),
+		Color3.fromRGB(205, 175, 115),
+		Enum.Material.SmoothPlastic
 	)
-	part(model, "Cap", Vector3.new(0.9, 0.2, 0.9), base * CFrame.new(1.2, 5.85, 0), iron, Enum.Material.Metal)
+	lantern:SetAttribute("NightColor", Color3.fromRGB(255, 214, 130))
+	CollectionService:AddTag(lantern, "NightLight")
+	part(model, "Cap", Vector3.new(1, 0.2, 1), base * CFrame.new(1.6, 9.25, 0), iron, Enum.Material.Metal)
 	local light = Instance.new("PointLight")
-	light.Color = Color3.fromRGB(255, 200, 120)
-	light.Range = 14
-	light.Brightness = 1.2
+	light.Color = Color3.fromRGB(255, 205, 130)
+	light.Range = 32
+	light.Brightness = 3
+	light.Shadows = false
+	light.Enabled = false
+	light.Parent = lantern
+end
+
+-- Pencere geceleri içeriden yanar: DayNight (client) "NightWindow" parçasını parlatır ve ışığını açar.
+function WorldDecor.markNightWindow(window: BasePart)
+	window:SetAttribute("NightColor", Color3.fromRGB(255, 219, 140))
+	CollectionService:AddTag(window, "NightWindow")
+	local light = Instance.new("PointLight")
+	light.Color = Color3.fromRGB(255, 205, 130)
+	light.Range = 10
+	light.Brightness = 0.6
+	light.Shadows = false
+	light.Enabled = false
+	light.Parent = window
+end
+
+-- Alçak fener: iskele, balık kafesi yürüme yolu gibi balıkçı noktaları için. Geceleri yanar (DayNight).
+function WorldDecor.smallLamp(parent: Instance, base: CFrame)
+	local model = Instance.new("Model")
+	model.Name = "SmallLamp"
+	model.Parent = parent
+	local iron = Color3.fromRGB(45, 45, 50)
+	column(model, "Pole", 0.3, 3.6, base * CFrame.new(0, 1.8, 0), iron, Enum.Material.Metal)
+	local lantern = part(
+		model,
+		"Lantern",
+		Vector3.new(0.7, 0.8, 0.7),
+		base * CFrame.new(0, 4, 0),
+		Color3.fromRGB(205, 175, 115),
+		Enum.Material.SmoothPlastic
+	)
+	lantern:SetAttribute("NightColor", Color3.fromRGB(255, 214, 130))
+	CollectionService:AddTag(lantern, "NightLight")
+	part(model, "Cap", Vector3.new(0.9, 0.18, 0.9), base * CFrame.new(0, 4.5, 0), iron, Enum.Material.Metal)
+	local light = Instance.new("PointLight")
+	light.Color = Color3.fromRGB(255, 205, 130)
+	light.Range = 20
+	light.Brightness = 2
+	light.Shadows = false
+	light.Enabled = false
 	light.Parent = lantern
 end
 

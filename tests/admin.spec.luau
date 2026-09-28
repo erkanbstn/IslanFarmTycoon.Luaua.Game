@@ -106,8 +106,51 @@ return function(policy: any, createService: any, createLimiter: any, config: any
 			table.insert(overrides, { kind = "season", id = id })
 			return true
 		end,
+		setAdminClock = function(id: string?): boolean
+			table.insert(overrides, { kind = "clock", id = id })
+			return id == nil or id == "night"
+		end,
+		setAdminLights = function(id: string?): boolean
+			table.insert(overrides, { kind = "lights", id = id })
+			return id == nil or id == "on" or id == "off"
+		end,
+		setAdminLightLevel = function(id: string?): boolean
+			table.insert(overrides, { kind = "level", id = id })
+			return id == nil or id == "dim"
+		end,
 	}
-	local service = createService(fakeGame, remotes, dataService, economy, seasons, limiter)
+	local refreshes = 0
+	local plots = {
+		refreshPlayerWorld = function(player: any)
+			assert(player == owner, "world refresh must target owner only")
+			refreshes += 1
+		end,
+	}
+	local farmMath = {
+		applyDerived = function(save: any)
+			save.derived = true
+			save.unlockedZones = { poultry = save.purchased.island_poultry == true }
+		end,
+		countInZone = function(save: any, zoneId: string): number
+			local count = 0
+			for _, animal in save.animals do
+				if animal.zoneId == zoneId and animal.extensionId == nil then
+					count += 1
+				end
+			end
+			return count
+		end,
+		countInExtension = function(save: any, extensionId: string): number
+			local count = 0
+			for _, animal in save.animals do
+				if animal.extensionId == extensionId then
+					count += 1
+				end
+			end
+			return count
+		end,
+	}
+	local service = createService(fakeGame, remotes, dataService, economy, plots, farmMath, seasons, limiter)
 	service.init()
 	service.init()
 	assert(
@@ -192,6 +235,72 @@ return function(policy: any, createService: any, createLimiter: any, config: any
 	assert(data.cash == 25, "throttled id must be consumed")
 	fire(owner, "addCash", 1e12, 127)
 	assert(data.cash == 1e12 + 25 and saves == 3, "upper bounded command must succeed after throttle window")
+	-- Gün-gece, ışık ve test araçları: yalnızca yönetici, doğrulanmış kimliklerle
+	local overridesBefore = #overrides
+	now += 1
+	fire(stranger, "setTime", "night", 200)
+	fire(stranger, "growAll", "now", 201)
+	assert(#overrides == overridesBefore and refreshes == 0, "strangers cannot use time, light or test tools")
+	now += 1
+	fire(owner, "setTime", "night", 202)
+	assert(
+		overrides[#overrides].kind == "clock" and overrides[#overrides].id == "night" and results[#results].ok,
+		"time preset"
+	)
+	now += 1
+	fire(owner, "setTime", "midday_x", 203)
+	assert(not results[#results].ok, "unknown time preset must be rejected by the service")
+	now += 1
+	fire(owner, "setLights", "on", 204)
+	assert(
+		overrides[#overrides].kind == "lights" and overrides[#overrides].id == "on" and results[#results].ok,
+		"lights on"
+	)
+	now += 1
+	fire(owner, "setLights", "auto", 205)
+	assert(overrides[#overrides].kind == "lights" and overrides[#overrides].id == nil, "auto lights clears override")
+	now += 1
+	fire(owner, "setLightLevel", "dim", 206)
+	assert(
+		overrides[#overrides].kind == "level" and overrides[#overrides].id == "dim" and results[#results].ok,
+		"light level"
+	)
+	now += 1
+	data.animals = { { animalId = "cow", zoneId = "starter", bornAt = 123, stage = "calf", uid = "a" } }
+	data.purchased = {}
+	fire(owner, "growAll", "now", 207)
+	assert(
+		data.animals[1].stage == "adult" and data.animals[1].bornAt == 0 and refreshes == 1 and results[#results].ok,
+		"growAll makes own animals adult and refreshes the world"
+	)
+	now += 1
+	owner.attributes.SelectedFarmIsland = "poultry"
+	fire(owner, "unlockIslands", "now", 208)
+	assert(
+		data.purchased.island_poultry == true and data.derived == true and refreshes == 2 and results[#results].ok,
+		"unlock opens the selected island and derives state"
+	)
+	assert(data.purchased.ext_folluk_garden == true, "unlock must include the island's extensions")
+	assert(data.purchased.island_horse == nil, "unlock must not open other islands")
+	now += 1
+	data.animals = {}
+	fire(owner, "fillSlots", "now", 209)
+	local poultryZone, extensionCount = 0, 0
+	for _, animal in data.animals do
+		assert(animal.stage == "adult" and animal.bornAt == 0, "filled animals must be adult")
+		if animal.extensionId == "folluk_garden" then
+			extensionCount += 1
+			assert(animal.animalId == "chicken" and animal.zoneId == "poultry", "extension animals use the source zone")
+		elseif animal.zoneId == "poultry" then
+			poultryZone += 1
+		end
+	end
+	assert(poultryZone == config.ZONES.poultry.capacity, "fillSlots fills the zone to capacity")
+	assert(extensionCount == config.EXTENSIONS.folluk_garden.capacity, "fillSlots fills purchased extensions")
+	now += 1
+	fire(owner, "fillSlots", "now", 210)
+	assert(#data.animals == poultryZone + extensionCount, "filling twice must not exceed capacity")
+	owner.attributes.SelectedFarmIsland = nil
 	local newcomer = makePlayer(43)
 	players.PlayerAdded.fire(newcomer)
 	assert(newcomer.attributes.IsAdmin == false, "new players receive server-derived permissions")

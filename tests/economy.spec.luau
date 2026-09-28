@@ -99,5 +99,25 @@ return function(FarmMath: any, Config: any, Environment: any)
 	save.animals[1].animalId = "seabass"
 	assert(FarmMath.getFishReplacementPrice(save) > replacementPrice, "next seabass price must grow")
 	assert(#save.animals == 10, "replacement preserves total capacity")
+	-- Toplu alım: fiyat ardışık tek tek alımlarla aynı; boş yer sayısı bölge kapasitesinden gelir.
+	local bulk = saveAt(start)
+	local cow = Config.ANIMALS.cow
+	local single = FarmMath.getAnimalPrice(bulk, "cow")
+	assert(FarmMath.getBulkPrice(bulk, "cow", 1) == single, "x1 bulk price equals the single price")
+	local expectedThree = 0
+	for index = 0, 2 do
+		expectedThree += math.floor(cow.price * Config.ANIMAL_PRICE_GROWTH ^ (1 + index))
+	end
+	assert(FarmMath.getBulkPrice(bulk, "cow", 3) == expectedThree, "x3 bulk price sums growing prices")
+	assert(FarmMath.getBulkPrice(bulk, "cow", 2) > FarmMath.getBulkPrice(bulk, "cow", 1), "more animals cost more")
+	assert(FarmMath.getBulkPrice(bulk, "cow", 0) == math.huge, "zero animals are invalid")
+	assert(FarmMath.getBulkPrice(bulk, "unknown_animal", 2) == math.huge, "unknown animal is invalid")
+	local freeBefore = FarmMath.getFreeSlots(bulk, "cow")
+	assert(freeBefore >= 1, "starter zone has free cow slots")
+	table.insert(bulk.animals, { uid = "cow-2", animalId = "cow", zoneId = "starter", bornAt = start, stage = "adult" })
+	assert(FarmMath.getFreeSlots(bulk, "cow") == freeBefore - 1, "an added animal removes one free slot")
+	assert(FarmMath.getFreeSlots(bulk, "goat") == 0, "locked zones give no free slots")
+	local multipliers = Config.BULK_MULTIPLIERS
+	assert(multipliers[1] == 1 and table.find(multipliers, 2) and table.find(multipliers, 3), "x1/x2/x3 are offered")
 	print("PASS economy: growth boundaries, integrated offline/elapsed income, cap, growth upgrade, fish pricing")
 end

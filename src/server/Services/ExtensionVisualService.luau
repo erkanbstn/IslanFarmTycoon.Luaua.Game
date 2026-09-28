@@ -46,7 +46,8 @@ end
 local function getIslandSurfaceCf(island: Model): CFrame
 	local base = island:FindFirstChild("IslandBase")
 	if base and base:IsA("BasePart") then
-		return base.CFrame * CFrame.new(0, base.Size.Y / 2, 0)
+		-- IslandBase dik duran bir silindirdir (X ekseni, Z'de 90° döndürülmüş); yüzey = eski düz çerçeve + yükseklik/2.
+		return base.CFrame * CFrame.Angles(0, 0, -math.pi / 2) * CFrame.new(0, base.Size.X / 2, 0)
 	end
 	return island:GetPivot()
 end
@@ -74,12 +75,17 @@ local function attachPrompts(
 		return
 	end
 
-	for _, name in { "BuyExtensionPrompt", "ExtensionAssignPrompt", "ExtensionUnassignPrompt" } do
-		local existing = anchor:FindFirstChild(name)
-		if existing then
-			existing:Destroy()
-		end
-	end
+	-- Etkileşim balonları tabela yazısını kapatmasın ve birbirine girmesin: direk dibindeki görünmez
+	-- bir noktaya bağlanır, "ekle" üstte "çıkar" altta durur.
+	local promptAnchor = Instance.new("Part")
+	promptAnchor.Name = "ExtensionPromptAnchor"
+	promptAnchor.Size = Vector3.one
+	promptAnchor.Transparency = 1
+	promptAnchor.Anchored = true
+	promptAnchor.CanCollide, promptAnchor.CanQuery, promptAnchor.CanTouch, promptAnchor.CastShadow =
+		false, false, false, false
+	promptAnchor.CFrame = CFrame.new(anchor.Position.X, anchor.Position.Y - 1.2, anchor.Position.Z)
+	promptAnchor.Parent = model
 
 	if not owned then
 		local buy = Instance.new("ProximityPrompt")
@@ -91,7 +97,7 @@ local function attachPrompts(
 		buy:SetAttribute("UpgradeId", upgradeId)
 		buy:SetAttribute("Locked", true)
 		configurePrompt(buy)
-		buy.Parent = anchor
+		buy.Parent = promptAnchor
 		buy.Triggered:Connect(function(player: Player)
 			if plotService().getOwner(plot) ~= player then
 				return
@@ -123,7 +129,8 @@ local function attachPrompts(
 	assign.RequiresLineOfSight = false
 	assign:SetAttribute("ExtensionId", extensionId)
 	configurePrompt(assign)
-	assign.Parent = anchor
+	assign.UIOffset = Vector2.new(0, -48)
+	assign.Parent = promptAnchor
 
 	local unassign = Instance.new("ProximityPrompt")
 	unassign.Name = "ExtensionUnassignPrompt"
@@ -136,7 +143,8 @@ local function attachPrompts(
 	unassign.GamepadKeyCode = Enum.KeyCode.ButtonX
 	unassign:SetAttribute("ExtensionId", extensionId)
 	configurePrompt(unassign)
-	unassign.Parent = anchor
+	unassign.UIOffset = Vector2.new(0, 48)
+	unassign.Parent = promptAnchor
 
 	assign.Triggered:Connect(function(player: Player)
 		if plotService().getOwner(plot) ~= player then
@@ -163,17 +171,6 @@ function ExtensionVisualService.apply(plot: Model, save: PlayerSave?)
 	if legacy then
 		legacy:Destroy()
 	end
-	local islandsFolder = plot:FindFirstChild("Islands")
-	if islandsFolder then
-		for _, island in islandsFolder:GetChildren() do
-			if island:IsA("Model") then
-				local existing = island:FindFirstChild("ExtensionVisuals")
-				if existing then
-					existing:ClearAllChildren()
-				end
-			end
-		end
-	end
 
 	for extensionId, layout in IslandSpecialization.EXTENSIONS do
 		local upgrade = Config.getExtensionUpgrade(extensionId)
@@ -185,7 +182,15 @@ function ExtensionVisualService.apply(plot: Model, save: PlayerSave?)
 			continue
 		end
 		local islandUnlocked = save ~= nil and save.unlockedIslands[layout.island] == true
+		local owned = save ~= nil and save.purchased[upgrade.id] == true
+		local count = if save ~= nil then FarmMath.countInExtension(save, extensionId) else 0
+		-- Durum değişmediyse yapıyı yeniden kurma: her yenilemede tabela ve balonlar silinip yeniden
+		-- oluşunca ekranda yanıp sönüyordu.
+		local signature = `{islandUnlocked}|{owned}|{count}|{upgrade.cost}`
 		local folder = island:FindFirstChild("ExtensionVisuals")
+		if folder and folder:GetAttribute("Signature") == signature then
+			continue
+		end
 		if folder then
 			folder:ClearAllChildren()
 		else
@@ -193,12 +198,12 @@ function ExtensionVisualService.apply(plot: Model, save: PlayerSave?)
 			folder.Name = "ExtensionVisuals"
 			folder.Parent = island
 		end
+		folder:SetAttribute("Signature", signature)
 		if not islandUnlocked then
 			continue
 		end
 
 		local surfaceCf = getIslandSurfaceCf(island)
-		local owned = save ~= nil and save.purchased[upgrade.id] == true
 		local model: Model
 		if owned then
 			model = IslandSpecialization.buildExtensionVisual(folder, surfaceCf, extensionId) :: Model

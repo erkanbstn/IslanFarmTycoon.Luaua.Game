@@ -421,6 +421,15 @@ local function buildAnimal(
 		then name
 		else `{name} ({Config.STAGE_DISPLAY[animal.stage] or animal.stage})`
 	addNameTag(visual, tag, depth) -- Balıklarda etiket suyun üstünde kalsın
+	do
+		local parts = 0
+		for _, descendant in visual:GetDescendants() do
+			if descendant:IsA("BasePart") then
+				parts += 1
+			end
+		end
+		visual:SetAttribute("PartCount", parts)
+	end
 	return visual
 end
 

@@ -21,7 +21,7 @@ local MapBuilder = {}
 
 -- Harita düzenini (adalar, bölgeler, yapı yerleri) değiştirince bunu 1 artır:
 -- oyun, place'e kaydedilmiş eski haritayı fark edip uyarır.
-local MAP_VERSION = 17
+local MAP_VERSION = 23
 
 local SURFACE_Y = 4 -- Ada ve meydan yüzeyinin yüksekliği
 local WATER_Y = 0 -- Deniz yüzeyi
@@ -176,7 +176,19 @@ local function makeDisc(
 end
 
 -- Tabelaya yaklaşınca çıkan "Adalar" düğmesi; client'taki TravelMenu dinler
+-- Tabela yazısını kapatmasın diye etkileşim balonu direğin dibinde, göz hizasının altındaki görünmez bir noktaya bağlanır.
+local function makePromptAnchor(parent: Instance, worldPosition: Vector3): Part
+	local anchor = makePart("SignPromptAnchor", Vector3.new(1, 1, 1), CFrame.new(worldPosition), Color3.new(), parent)
+	anchor.Transparency = 1
+	anchor.CanCollide = false
+	anchor.CanQuery = false
+	anchor.CanTouch = false
+	anchor.CastShadow = false
+	return anchor
+end
+
 local function addTravelPrompt(part: BasePart, objectText: string)
+	local anchor = makePromptAnchor(part.Parent or part, Vector3.new(part.Position.X, SURFACE_Y + 2, part.Position.Z))
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.Name = "TravelPrompt"
 	prompt.ActionText = "Adalara Git"
@@ -185,7 +197,7 @@ local function addTravelPrompt(part: BasePart, objectText: string)
 	prompt.HoldDuration = 0
 	prompt.MaxActivationDistance = 14
 	prompt.RequiresLineOfSight = false
-	prompt.Parent = part
+	prompt.Parent = anchor
 end
 
 -- Konuma göre sabit tohum: aynı harita her kurulumda aynı görünsün
@@ -364,6 +376,84 @@ local function buildBridgeBetween(parent: Instance, from: Vector3, to: Vector3)
 	end
 end
 
+-- Ada çimeni: yer yer ton farkı + çim tutamları/çiçekler. Yol, bölge, bina ve eklenti alanlarından kaçınır.
+local function addIslandGrass(
+	parent: Instance,
+	surfaceCf: CFrame,
+	islandId: string,
+	radius: number,
+	zones: { ZoneLayout },
+	extraAvoid: { WorldDecor.GrassRect },
+	count: number,
+	seed: number
+)
+	local avoid: { WorldDecor.GrassRect } = table.clone(extraAvoid)
+	for _, zone in zones do
+		if not zone.water then
+			table.insert(
+				avoid,
+				{ x = zone.offset.X, z = zone.offset.Z, hx = zone.size.X / 2 + 2, hz = zone.size.Z / 2 + 2 }
+			)
+		end
+	end
+	for _, site in IslandSpecialization.SITES do
+		if site.island == islandId then
+			table.insert(avoid, {
+				x = site.offset.X,
+				z = site.offset.Z,
+				hx = site.footprint.X / 2 + 4,
+				hz = site.footprint.Y / 2 + 5,
+			})
+		end
+	end
+	for _, layout in IslandSpecialization.EXTENSIONS do
+		if layout.island == islandId then
+			table.insert(avoid, {
+				x = layout.areaOffset.X,
+				z = layout.areaOffset.Z,
+				hx = layout.areaSize.X / 2 + 3,
+				hz = layout.areaSize.Z / 2 + 3,
+			})
+			table.insert(avoid, { x = layout.signOffset.X, z = layout.signOffset.Z, hx = 5, hz = 4 })
+		end
+	end
+	WorldDecor.grassPatches(parent, surfaceCf, math.floor(count / 10), 8, radius - 12, seed)
+	WorldDecor.grassTufts(parent, surfaceCf, {
+		count = count,
+		seed = seed + 1,
+		minRadius = 6,
+		maxRadius = radius - 9,
+		avoid = avoid,
+	})
+end
+
+-- Bir yol boyunca eşit aralıklı, iki yanda dönüşümlü fener direkleri; kollar yolun ortasına uzanır.
+-- from/to: ada yerel (x, z); spacing: hedef aralık; offset: yol ortasından uzaklık.
+local function lampsAlong(
+	parent: Instance,
+	at: (number, number) -> CFrame,
+	from: Vector2,
+	to: Vector2,
+	spacing: number,
+	offset: number,
+	startSide: number
+)
+	local delta = to - from
+	local length = delta.Magnitude
+	if length < 1 then
+		return
+	end
+	local direction = delta.Unit
+	local normal = Vector2.new(-direction.Y, direction.X)
+	local count = math.max(1, math.round(length / spacing))
+	for index = 1, count do
+		local side = if index % 2 == 0 then -startSide else startSide
+		local point = from + direction * (length * (index - 0.5) / count) + normal * (offset * side)
+		local toPath = -normal * side -- kol yola bakar
+		WorldDecor.lamp(parent, at(point.X, point.Y) * CFrame.Angles(0, math.atan2(-toPath.Y, toPath.X), 0))
+	end
+end
+
 -- Adaya özel süsler ve yollar (açık/kilitli fark etmez; adanın karakterini gösterir)
 local function buildSatelliteDecor(islandId: string, parent: Instance, cf: CFrame)
 	local function at(x: number, z: number): CFrame
@@ -371,7 +461,11 @@ local function buildSatelliteDecor(islandId: string, parent: Instance, cf: CFram
 	end
 	-- Ortak köprü girişi açık kalır; her adanın çalışma alanı farklı kenardadır.
 	WorldDecor.path(parent, at(0, -(SATELLITE_RADIUS - 2)).Position, at(0, -11).Position, 5)
-	WorldDecor.lamp(parent, at(-5, -30))
+	-- Işıklandırma: köprü yolu boyunca eşit aralıklı, bölge çitinin dört köşesinde ve üretim alanı önünde.
+	lampsAlong(parent, at, Vector2.new(0, -(SATELLITE_RADIUS - 6)), Vector2.new(0, -12), 20, 3.9, -1)
+	for _, corner in { Vector2.new(-19, -13), Vector2.new(19, -13), Vector2.new(-19, 17), Vector2.new(19, 17) } do
+		WorldDecor.lamp(parent, at(corner.X, corner.Y) * CFrame.Angles(0, if corner.X > 0 then math.pi else 0, 0))
+	end
 	if islandId == "goat" then
 		WorldDecor.pineTree(parent, at(30, 11), seedFrom(cf))
 		WorldDecor.bush(parent, at(23, -25), 23)
@@ -386,6 +480,25 @@ local function buildSatelliteDecor(islandId: string, parent: Instance, cf: CFram
 		WorldDecor.bush(parent, at(25, 25), 21 + #islandId)
 	end
 	IslandSpecialization.build(parent, islandId, cf * CFrame.new(0, SURFACE_Y, 0))
+	local layoutZone = nil
+	for _, satellite in SATELLITES do
+		if satellite.id == islandId then
+			layoutZone = satellite.zone
+		end
+	end
+	addIslandGrass(
+		parent,
+		cf * CFrame.new(0, SURFACE_Y, 0),
+		islandId,
+		SATELLITE_RADIUS,
+		if layoutZone then { layoutZone } else {},
+		{
+			{ x = 0, z = -30, hx = 4, hz = 22 }, -- köprü yolu
+			{ x = 0, z = 26, hx = 9, hz = 7 }, -- üretim binası yeri
+		},
+		45,
+		seedFrom(cf)
+	)
 end
 
 -- Uzman ada: gövde, bölge, tabela (satın alma düğmesiyle), uzaktan görünen ad, bina yeri, köprü
@@ -438,10 +551,67 @@ local function buildSatellite(
 	end
 	buildSatelliteDecor(layout.id, islandModel, cf)
 
-	-- Köprünün yanında ada tabelası: ad + özellik; kilitliyken "Satın Al" düğmesi
-	local signCf = cf * CFrame.new(10, SURFACE_Y + 4, -(SATELLITE_RADIUS - 8))
+	-- Satılık ada süsü: henüz alınmamış adada "SATILIK" flamaları ve taş yığınları; ada açılınca gizlenir
+	-- (PlotService). Böylece kilitli ada bomboş toprak yerine sahipsiz ama davetkar bir yer gibi görünür.
+	local forSale = Instance.new("Model")
+	forSale.Name = "LockedDecor"
+	forSale.Parent = islandModel
+	for index, spot in { Vector2.new(-27, -9), Vector2.new(27, -9), Vector2.new(-25, 25), Vector2.new(25, 25) } do
+		local base = cf * CFrame.new(spot.X, SURFACE_Y, spot.Y) * CFrame.Angles(0, math.rad(index * 40), 0)
+		local pole = makePart(
+			"SalePole",
+			Vector3.new(0.45, 10, 0.45),
+			base * CFrame.new(0, 5, 0),
+			Color3.fromRGB(120, 85, 55),
+			forSale
+		)
+		pole.Material = Enum.Material.Wood
+		local banner = makePart(
+			"SaleBanner",
+			Vector3.new(4.2, 2.4, 0.2),
+			base * CFrame.new(2.3, 8.6, 0),
+			Color3.fromRGB(196, 60, 52),
+			forSale
+		)
+		banner.Material = Enum.Material.Fabric
+		for _, face in { Enum.NormalId.Front, Enum.NormalId.Back } do
+			WorldUi.sign(banner, face, { text = "SATILIK", textColor = Color3.fromRGB(255, 240, 210) })
+		end
+		for rock = 1, 3 do
+			local stone = makePart(
+				"SaleStone",
+				Vector3.new(1.6 + rock * 0.5, 1.2 + rock * 0.2, 1.8 + rock * 0.4),
+				base * CFrame.new(rock * 1.3 - 3.4, 0.5, 1.6 + rock * 0.5) * CFrame.Angles(0.1 * rock, rock, 0.05),
+				Color3.fromRGB(120, 118, 110),
+				forSale
+			)
+			stone.Material = Enum.Material.Slate
+		end
+	end
+
+	-- Köprü girişinin yanında, yolun dışında tek direkli küçük ada tabelası: ad + özellik;
+	-- kilitliyken "Satın Al" düğmesi. Alt kenarı karakter boyunun üstünde, yürümeye engel olmaz.
+	local signX, signZ = 9.5, -(SATELLITE_RADIUS - 8)
 	local frameColor = Color3.fromRGB(140, 100, 60)
-	local sign = makePart("IslandSign", Vector3.new(12, 3.4, 0.5), signCf, Color3.fromRGB(85, 60, 40), islandModel)
+	local boardWidth = 6.4
+	-- İki yan direk tabelanın DIŞINDA durur; tahta direklerin içine girmez, yolun ortası boş kalır.
+	for _, side in { -1, 1 } do
+		local post = makePart(
+			"SignPost",
+			Vector3.new(0.5, 8.4, 0.5),
+			cf * CFrame.new(signX + side * (boardWidth / 2 + 0.35), SURFACE_Y + 4.2, signZ),
+			frameColor,
+			islandModel
+		)
+		post.Material = Enum.Material.Wood
+	end
+	local sign = makePart(
+		"IslandSign",
+		Vector3.new(boardWidth, 2.2, 0.35),
+		cf * CFrame.new(signX, SURFACE_Y + 6.6, signZ),
+		Color3.fromRGB(85, 60, 40),
+		islandModel
+	)
 	sign.Material = Enum.Material.WoodPlanks
 	for _, face in { Enum.NormalId.Front, Enum.NormalId.Back } do
 		WorldUi.sign(
@@ -450,16 +620,7 @@ local function buildSatellite(
 			{ icon = islandConfig.icon, title = islandConfig.displayName, text = islandConfig.trait }
 		)
 	end
-	for _, x in { -6.3, 6.3 } do
-		local post = makePart(
-			"SignPost",
-			Vector3.new(0.7, 6, 0.7),
-			cf * CFrame.new(10 + x, SURFACE_Y + 3, -(SATELLITE_RADIUS - 8)),
-			frameColor,
-			islandModel
-		)
-		post.Material = Enum.Material.Wood
-	end
+	local promptAnchor = makePromptAnchor(islandModel, (cf * CFrame.new(signX, SURFACE_Y + 2, signZ - 1.5)).Position)
 	if upgrade then
 		local prompt = Instance.new("ProximityPrompt")
 		prompt.Name = "BuyIslandPrompt"
@@ -471,8 +632,7 @@ local function buildSatellite(
 		prompt.RequiresLineOfSight = false
 		prompt:SetAttribute("UpgradeId", upgrade.id)
 		prompt:SetAttribute("Locked", true)
-		WorldUi.configureProximityPrompt(prompt)
-		prompt.Parent = sign
+		prompt.Parent = promptAnchor
 	end
 
 	-- Uzaktan görünen ad (kilitliyken fiyatı da yazar; metni PlotService günceller)
@@ -562,8 +722,40 @@ local function decorateHome(decor: Instance, islandCf: CFrame, plotIndex: number
 		WorldDecor.flowerPatch(decor, at(spot.X, spot.Y), plotIndex + index)
 	end
 
-	for _, spot in { Vector2.new(-4.8, -34), Vector2.new(4.8, -20), Vector2.new(-4.8, 18) } do
-		WorldDecor.lamp(decor, at(spot.X, spot.Y))
+	-- Işıklandırma: her yol kendi uzunluğuna göre eşit aralıklı; ağıl köşeleri ve balıkçı noktaları ayrıca.
+	local function homeAt(x: number, z: number): CFrame
+		return at(x, z)
+	end
+	lampsAlong(decor, homeAt, Vector2.new(0, -64), Vector2.new(0, 26), 26, 4.6, -1) -- ana yol
+	lampsAlong(decor, homeAt, Vector2.new(-30, -16), Vector2.new(30, -16), 32, 3.8, 1) -- ağıllar arası yol
+	lampsAlong(decor, homeAt, Vector2.new(-15, 28), Vector2.new(-42, 52), 30, 3.8, 1) -- sol köprü yolu
+	lampsAlong(decor, homeAt, Vector2.new(15, 28), Vector2.new(42, 52), 30, 3.8, -1) -- sağ köprü yolu
+	lampsAlong(decor, homeAt, Vector2.new(-16, 32), Vector2.new(-16, 66), 34, 3.8, 1) -- güney yol
+	for _, corner in { Vector2.new(-37, -12), Vector2.new(37, -12), Vector2.new(-37, 16), Vector2.new(37, 16) } do
+		WorldDecor.lamp(decor, at(corner.X, corner.Y) * CFrame.Angles(0, if corner.X > 0 then math.pi else 0, 0))
+	end
+	-- Ahır girişi
+	for _, x in { -12, 12 } do
+		WorldDecor.lamp(decor, at(x, 30) * CFrame.Angles(0, if x > 0 then math.pi else 0, 0))
+	end
+
+	-- Balıkçı noktaları: yalnızca balık kafesi yürüme yolunun dört köşesinde ve iskelenin iki ucunda alçak fener
+	local dockFrame = islandCf * CFrame.lookAt(DOCK_START, FISH_PEN_CENTER)
+	for _, distance in { 3, DOCK_LENGTH - 3 } do
+		local base = dockFrame * CFrame.new(2.4, 0, -distance)
+		WorldDecor.smallLamp(decor, CFrame.new(base.Position.X, DOCK_SURFACE_Y, base.Position.Z))
+	end
+	local ring = FISH_PEN_SIZE.X / 2 + FISH_WALKWAY_WIDTH / 2
+	for _, offset in
+		{
+			Vector2.new(-ring, -ring),
+			Vector2.new(ring, -ring),
+			Vector2.new(-ring, ring),
+			Vector2.new(ring, ring),
+		}
+	do
+		local world = islandCf * CFrame.new(FISH_PEN_CENTER.X + offset.X, SURFACE_Y - 0.3, FISH_PEN_CENTER.Z + offset.Y)
+		WorldDecor.smallLamp(decor, world)
 	end
 
 	-- Ahırın önünde fıçılar ve sandıklar
@@ -667,23 +859,24 @@ local function buildIsland(plotIndex: number, islandCf: CFrame): Model
 	})
 
 	-- Ada tabelası: üstte ada adı, altta sahibi. Yaklaşınca "Adalar" menüsü açılır (TravelMenu).
-	local signCf = islandCf * CFrame.new(0, SURFACE_Y + 5, -56)
+	-- Tabela yolun üstünde durur ama alt kenarı karakter boyunun çok üstünde; direkler yolun dışında.
+	local signCf = islandCf * CFrame.new(0, SURFACE_Y + 8, -56)
 	local frameColor = Color3.fromRGB(140, 100, 60)
-	local sign = makePart("PlotSign", Vector3.new(11, 3.2, 0.5), signCf, Color3.fromRGB(85, 60, 40), plotModel)
+	local sign = makePart("PlotSign", Vector3.new(9, 2.8, 0.5), signCf, Color3.fromRGB(85, 60, 40), plotModel)
 	sign.Material = Enum.Material.WoodPlanks
 	for _, face in { Enum.NormalId.Front, Enum.NormalId.Back } do
 		WorldUi.sign(sign, face, { icon = islandIcon, title = islandName, text = "Boş Ada" })
 	end
-	for _, y in { -1.75, 1.75 } do
+	for _, y in { -1.55, 1.55 } do
 		local frame =
-			makePart("SignFrame", Vector3.new(11.6, 0.3, 0.7), signCf * CFrame.new(0, y, 0), frameColor, plotModel)
+			makePart("SignFrame", Vector3.new(9.4, 0.3, 0.7), signCf * CFrame.new(0, y, 0), frameColor, plotModel)
 		frame.Material = Enum.Material.Wood
 	end
-	for _, x in { -5.8, 5.8 } do
+	for _, x in { -4.9, 4.9 } do
 		local post = makePart(
 			"SignPost",
-			Vector3.new(0.7, 7, 0.7),
-			islandCf * CFrame.new(x, SURFACE_Y + 3.5, -56),
+			Vector3.new(0.6, 9.6, 0.6),
+			islandCf * CFrame.new(x, SURFACE_Y + 4.8, -56),
 			frameColor,
 			plotModel
 		)
@@ -739,6 +932,17 @@ local function buildIsland(plotIndex: number, islandCf: CFrame): Model
 	decor.Parent = plotModel
 	decorateHome(decor, islandCf, plotIndex)
 	IslandSpecialization.build(decor, "home", islandCf * CFrame.new(0, SURFACE_Y, 0))
+	addIslandGrass(decor, islandCf * CFrame.new(0, SURFACE_Y, 0), "home", ISLAND_RADIUS, HOME_ZONES, {
+		{ x = 0, z = -20, hx = 5, hz = 52 }, -- ana yol
+		{ x = 0, z = -16, hx = 22, hz = 4 },
+		{ x = 0, z = 40, hx = 13, hz = 10 }, -- ahır
+		{ x = -31, z = 33, hx = 5, hz = 5 }, -- silo
+		{ x = 31, z = 33, hx = 5, hz = 5 }, -- süt makinesi
+		{ x = 24, z = -40, hx = 5, hz = 5 },
+		{ x = 0, z = -45, hx = 7, hz = 7 }, -- doğma noktası
+		{ x = -36, z = 41, hx = 22, hz = 5 }, -- köprü yolları
+		{ x = 36, z = 41, hx = 22, hz = 5 },
+	}, 140, plotIndex * 97)
 
 	local islandsFolder = Instance.new("Folder")
 	islandsFolder.Name = "Islands"

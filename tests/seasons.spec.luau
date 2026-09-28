@@ -45,5 +45,50 @@ return function(visuals: any, createEnvironment: any, config: any)
 	assert(environment.getSeasonProgress(now + config.SEASON_SECONDS / 2) == 0.5, "Progress midpoint")
 	assert(environment.getSeasonProgress(now - 10) == 0, "Progress lower clamp")
 	assert(environment.getSeasonProgress(now + config.SEASON_SECONDS + 10) == 1, "Progress upper clamp")
+	-- Gün-gece: sunucu saatinden türetilir, sınırlı, sürekli; yönetici seçimi saati sabitler.
+	local dayLength = config.DAY_SECONDS
+	for step = 0, 200 do
+		local clock = environment.getClockTime(step / 200 * dayLength)
+		assert(clock >= 0 and clock < 24, "Clock must stay within 24 hours")
+		local night = environment.getNightFactor(clock)
+		assert(night >= 0 and night <= 1, "Night factor must stay bounded")
+	end
+	assert(math.abs(environment.getClockTime(0) - config.DAY_START_HOUR) < 0.000001, "Day starts at configured hour")
+	assert(
+		math.abs(environment.getClockTime(dayLength) - config.DAY_START_HOUR) < 0.000001,
+		"Clock must repeat after one day"
+	)
+	assert(environment.getNightFactor(12) == 0 and environment.getNightFactor(23) == 1, "Noon is day, 23:00 is night")
+	assert(environment.getNightFactor(2) == 1 and environment.getNightFactor(8) == 0, "Night ends after dawn")
+	assert(
+		environment.getNightFactor(18.5) > 0 and environment.getNightFactor(18.5) < 1,
+		"Dusk must be a gradual transition"
+	)
+	assert(math.abs(environment.getNightFactor(24) - environment.getNightFactor(0)) < 0.000001, "Midnight seam")
+	-- Işıklar akşam yanar; sabah güneş iyice doğmadan sönmez.
+	assert(environment.getLightFactor(12) == 0 and environment.getLightFactor(18.5) == 1, "Lights: day off, evening on")
+	assert(environment.getLightFactor(3) == 1 and environment.getLightFactor(6) == 1, "Lights stay on until sunrise")
+	assert(environment.getLightFactor(6.5) == 1, "Lights must still be fully on when the sun is just rising")
+	assert(environment.getLightFactor(8) == 0, "Lights are off in full daylight")
+	assert(
+		environment.getLightFactor(7) > 0 and environment.getLightFactor(7) < 1,
+		"Lights fade out gradually after sunrise"
+	)
+	assert(environment.getLightFactor(24) == environment.getLightFactor(0), "Light factor midnight seam")
+	attributes.AdminClockId = "night"
+	assert(environment.getClockTime(0) == 23, "Admin night preset freezes the clock")
+	attributes.AdminClockId = "not_a_preset"
+	assert(math.abs(environment.getClockTime(0) - config.DAY_START_HOUR) < 0.000001, "Unknown preset is ignored")
+	attributes.AdminClockId = nil
+	assert(environment.getLightsOverride() == nil and environment.getLightMultiplier() == 1, "Lights default to auto/1")
+	attributes.AdminLightsId = "on"
+	attributes.AdminLightLevelId = "dim"
+	assert(environment.getLightsOverride() == "on" and environment.getLightMultiplier() < 1, "Light overrides apply")
+	attributes.AdminLightsId = "bogus"
+	attributes.AdminLightLevelId = "bogus"
+	assert(
+		environment.getLightsOverride() == nil and environment.getLightMultiplier() == 1,
+		"Unknown light ids ignored"
+	)
 	print("PASS seasons: duration, synchronized timer, cycle boundaries, shedding, accumulation and thaw")
 end

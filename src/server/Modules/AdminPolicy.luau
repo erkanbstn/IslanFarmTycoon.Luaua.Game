@@ -22,7 +22,16 @@ function AdminPolicy.validCash(value: unknown, positiveOnly: boolean?): boolean
 end
 
 function AdminPolicy.validAction(value: unknown): boolean
-	return value == "setCash" or value == "addCash" or value == "setWeather" or value == "setSeason"
+	return value == "setCash"
+		or value == "addCash"
+		or value == "setWeather"
+		or value == "setSeason"
+		or value == "setTime"
+		or value == "setLights"
+		or value == "setLightLevel"
+		or value == "growAll"
+		or value == "unlockIslands"
+		or value == "fillSlots"
 end
 
 return AdminPolicy

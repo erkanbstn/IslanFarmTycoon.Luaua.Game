@@ -3,6 +3,8 @@
 -- Bölge açılınca kurulur, kapanınca (ada boşalınca) silinir; kilitli bölge çıplak toprak görünür.
 -- Koordinatlar bölge zemininin merkezine göre: -Z ön (doğma noktası), +Z arka.
 
+local WorldDecor = require(script.Parent:WaitForChild("WorldDecor"))
+
 local ZoneVisualService = {}
 
 type Builder = (decor: Model, origin: CFrame, size: Vector3) -> ()
@@ -161,40 +163,95 @@ local BUILDERS: { [string]: Builder } = {
 		end
 	end,
 
-	-- Kümes: ayaklar üstünde küçük ev, rampa, folluklar, yemlik
+	-- Kümes: içine girilebilen, basamaklı kümes evi; içinde tünek ve folluklar
 	poultry = function(decor, o, size)
 		local hx, hz = size.X / 2, size.Z / 2
-		local coop = o * CFrame.new(-(hx - 6), 0, hz - 4.5)
+		local coop = o * CFrame.new(-(hx - 6.5), 0, hz - 4.6)
 		local wall = Color3.fromRGB(235, 205, 145)
-		for _, x in { -3.5, 3.5 } do
-			for _, z in { -2, 2 } do
-				part(decor, "Stilt", Vector3.new(0.5, 1.4, 0.5), coop * CFrame.new(x, 0.7, z), DARK_WOOD)
+		local floorTop, wallH = 1.4, 8
+		local doorW, doorH = 4.6, 6.6
+		for _, x in { -4.4, 0, 4.4 } do
+			for _, z in { -3.4, 3.4 } do
+				part(decor, "Stilt", Vector3.new(0.6, 1, 0.6), coop * CFrame.new(x, 0.5, z), DARK_WOOD)
 			end
 		end
-		part(decor, "CoopBody", Vector3.new(8, 4, 5), coop * CFrame.new(0, 3.4, 0), wall, Enum.Material.WoodPlanks)
-		slopedRoof(decor, coop, 9, -3, 3, 5.6, 6.8)
-		part(decor, "Door", Vector3.new(1.4, 1.8, 0.1), coop * CFrame.new(1.8, 2.4, -2.55), Color3.fromRGB(40, 30, 25))
 		part(
 			decor,
-			"Window",
-			Vector3.new(1.4, 1, 0.1),
-			coop * CFrame.new(-1.8, 3.8, -2.55),
-			Color3.fromRGB(120, 180, 220),
-			Enum.Material.Glass
+			"CoopFloor",
+			Vector3.new(10, 0.4, 8),
+			coop * CFrame.new(0, floorTop - 0.2, 0),
+			WOOD,
+			Enum.Material.WoodPlanks
 		)
+		local wallY = floorTop + wallH / 2
 		part(
 			decor,
-			"Ramp",
-			Vector3.new(1.4, 0.2, 3.4),
-			coop * CFrame.new(1.8, 0.8, -4.1) * CFrame.Angles(math.rad(-25), 0, 0),
-			WOOD
+			"CoopBack",
+			Vector3.new(10, wallH, 0.4),
+			coop * CFrame.new(0, wallY, 3.8),
+			wall,
+			Enum.Material.WoodPlanks
 		)
-		for i = 0, 2 do
-			local nest = o * CFrame.new(hx - 3 - i * 2.4, 0, hz - 2)
-			part(decor, "NestBox", Vector3.new(2, 1.4, 2), nest * CFrame.new(0, 0.7, 0), WOOD)
-			part(decor, "Nest", Vector3.new(1.6, 0.1, 1.6), nest * CFrame.new(0, 1.45, 0), STRAW, Enum.Material.Fabric)
+		for _, x in { -1, 1 } do
+			part(
+				decor,
+				"CoopSide",
+				Vector3.new(0.4, wallH, 8),
+				coop * CFrame.new(x * 4.8, wallY, 0),
+				wall,
+				Enum.Material.WoodPlanks
+			)
+			local frontW = (10 - doorW) / 2
+			part(
+				decor,
+				"CoopFront",
+				Vector3.new(frontW, wallH, 0.4),
+				coop * CFrame.new(x * (doorW / 2 + frontW / 2), wallY, -3.8),
+				wall,
+				Enum.Material.WoodPlanks
+			)
+		end
+		part(
+			decor,
+			"CoopHeader",
+			Vector3.new(doorW, wallH - doorH, 0.4),
+			coop * CFrame.new(0, floorTop + doorH + (wallH - doorH) / 2, -3.8),
+			wall,
+			Enum.Material.WoodPlanks
+		)
+		slopedRoof(decor, coop, 11, -4.6, 4.6, floorTop + wallH + 0.4, floorTop + wallH + 2)
+		WorldDecor.markNightWindow(
+			part(
+				decor,
+				"Window",
+				Vector3.new(2.4, 1.8, 0.1),
+				coop * CFrame.new(-2.6, floorTop + 5.2, 3.55),
+				Color3.fromRGB(120, 180, 220),
+				Enum.Material.Glass
+			)
+		)
+		-- Kapıya üç basamak (yerden zemine)
+		for i = 1, 3 do
+			part(
+				decor,
+				"CoopStep",
+				Vector3.new(doorW, floorTop * i / 3, 1.2),
+				coop * CFrame.new(0, floorTop * i / 3 / 2, -4.6 - (3 - i) * 1.2),
+				WOOD,
+				Enum.Material.WoodPlanks
+			)
+		end
+		-- İçeride tünek ve folluklar
+		part(decor, "Perch", Vector3.new(8, 0.3, 0.3), coop * CFrame.new(0, floorTop + 2.2, 2.4), DARK_WOOD).CanCollide =
+			false
+		for i = -1, 1 do
+			local nest = coop * CFrame.new(i * 2.8, floorTop, 3)
+			part(decor, "NestBox", Vector3.new(2, 1.2, 1.6), nest * CFrame.new(0, 0.6, 0), WOOD)
+			part(decor, "Nest", Vector3.new(1.6, 0.1, 1.2), nest * CFrame.new(0, 1.25, 0), STRAW, Enum.Material.Fabric).CanCollide =
+				false
 		end
 		feedTrough(decor, o * CFrame.new(4, 0, -(hz - 4)), 5)
+		waterTrough(decor, o * CFrame.new(9, 0, -(hz - 4)), 3)
 	end,
 
 	-- At ahırı: arkada bölmeli, çatılı ahır; önde otlama alanı
@@ -245,15 +302,15 @@ local BUILDERS: { [string]: Builder } = {
 		part(
 			decor,
 			"BackWall",
-			Vector3.new(size.X - 2, 5, 0.8),
-			o * CFrame.new(0, 2.5, zBack),
+			Vector3.new(size.X - 2, 8, 0.8),
+			o * CFrame.new(0, 4, zBack),
 			Color3.fromRGB(150, 120, 90),
 			Enum.Material.WoodPlanks
 		)
 		for _, x in { -(hx - 1), hx - 1 } do
-			part(decor, "Post", Vector3.new(0.8, 4.8, 0.8), o * CFrame.new(x, 2.4, zFront), DARK_WOOD)
+			part(decor, "Post", Vector3.new(0.8, 7.2, 0.8), o * CFrame.new(x, 3.6, zFront), DARK_WOOD)
 		end
-		slopedRoof(decor, o, size.X, zFront - 0.5, zBack + 0.6, 4.9, 5.9)
+		slopedRoof(decor, o, size.X, zFront - 0.5, zBack + 0.6, 7.3, 8.6)
 		part(
 			decor,
 			"Straw",
@@ -348,6 +405,29 @@ function ZoneVisualService.apply(zone: Instance, zoneId: string, unlocked: boole
 	decor:SetAttribute("VisualCreatedAt", game:GetService("Workspace"):GetServerTimeNow())
 	local origin = ground.CFrame * CFrame.new(0, ground.Size.Y / 2, 0)
 	builder(decor, origin, ground.Size)
+	-- Çimenli zeminlere çim tutamı ve çiçek (ön/orta şerit; arkadaki barınak ve yemlikler hariç)
+	if ground.Material == Enum.Material.Grass and zoneId ~= "fishpen" then
+		local backReserve = ground:GetAttribute("BackReserve")
+		local reserve = if typeof(backReserve) == "number" then backReserve else 4
+		local hz = ground.Size.Z / 2
+		WorldDecor.grassTufts(decor, origin, {
+			count = 30,
+			seed = #zoneId * 131 + math.floor(ground.Position.X + ground.Position.Z),
+			halfX = ground.Size.X / 2 - 2,
+			zMin = -hz + 2,
+			zMax = hz - reserve - 8,
+			flowerChance = 0.18,
+		})
+	end
+	do
+		local parts = 0
+		for _, descendant in decor:GetDescendants() do
+			if descendant:IsA("BasePart") then
+				parts += 1
+			end
+		end
+		decor:SetAttribute("PartCount", parts)
+	end
 	decor.Parent = zone
 end
 

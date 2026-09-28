@@ -178,8 +178,8 @@ function PlotService.teleportToIsland(player: Player, islandId: unknown): boolea
 			if island:GetAttribute("FarmIslandId") == islandId then
 				local sign = island:FindFirstChild("IslandSign")
 				if sign and sign:IsA("BasePart") then
-					-- Tabela köprü girişinin 10 stud sağındadır. Orta şerit, ağıl ve binaların önünde boş kalır.
-					target = sign.CFrame * CFrame.new(-10, 1, 4) * CFrame.Angles(0, math.pi, 0)
+					-- Tabela köprü girişinin 9,5 stud sağındadır; köprü ekseninin ortasına, tabelanın biraz gerisine iner.
+					target = sign.CFrame * CFrame.new(-9.5, -2, 4) * CFrame.Angles(0, math.pi, 0)
 				end
 				break
 			end
@@ -280,12 +280,14 @@ end
 
 -- Uzman adalar: açıksa yeşil zemin + özellik, kilitliyse toprak rengi + fiyat ve "Satın Al" düğmesi.
 -- data nil ise (boş çiftlik) hepsi kilitli görünür.
-local LOCKED_ISLAND_COLOR = Color3.fromRGB(150, 122, 90)
+-- Kilitli ada: sönük ama yeşil çayır (kuru toprak yerine); üstünde SATILIK flamaları durur.
+local LOCKED_ISLAND_COLOR = Color3.fromRGB(120, 140, 92)
 
 local function islandSurfaceCf(island: Model): CFrame
 	local base = island:FindFirstChild("IslandBase")
 	if base and base:IsA("BasePart") then
-		return base.CFrame * CFrame.new(0, base.Size.Y / 2, 0)
+		-- IslandBase dik duran bir silindirdir (X ekseni, Z'de 90° döndürülmüş); yüzey = eski düz çerçeve + yükseklik/2.
+		return base.CFrame * CFrame.Angles(0, 0, -math.pi / 2) * CFrame.new(0, base.Size.X / 2, 0)
 	end
 	return island:GetPivot()
 end
@@ -310,8 +312,20 @@ local function applyIslandState(plot: Model, data: PlayerSave?)
 		if base and base:IsA("BasePart") and base:GetAttribute("Locked") ~= not unlocked then
 			local openColor = base:GetAttribute("OpenColor")
 			base.Color = if unlocked and typeof(openColor) == "Color3" then openColor else LOCKED_ISLAND_COLOR
-			base.Material = if unlocked then Enum.Material.Grass else Enum.Material.Ground
+			base.Material = Enum.Material.Grass
 			base:SetAttribute("Locked", not unlocked)
+			-- Satılık flamaları ve taşlar yalnızca kilitli adada görünür.
+			local forSale = island:FindFirstChild("LockedDecor")
+			if forSale then
+				for _, item in forSale:GetDescendants() do
+					if item:IsA("BasePart") then
+						item.Transparency = if unlocked then 1 else 0
+						item.CanCollide = not unlocked and item.Name == "SaleStone"
+					elseif item:IsA("SurfaceGui") then
+						item.Enabled = not unlocked
+					end
+				end
+			end
 		end
 
 		local anchor = island:FindFirstChild("IslandLabelAnchor")
@@ -335,7 +349,7 @@ local function applyIslandState(plot: Model, data: PlayerSave?)
 
 		local sign = island:FindFirstChild("IslandSign")
 		if sign then
-			local prompt = sign:FindFirstChild("BuyIslandPrompt")
+			local prompt = island:FindFirstChild("BuyIslandPrompt", true)
 			if prompt and prompt:IsA("ProximityPrompt") then
 				-- Görünürlüğü client (IslandPrompts) belirler: sadece sahibine ve kilitliyse
 				prompt:SetAttribute("Locked", not unlocked)

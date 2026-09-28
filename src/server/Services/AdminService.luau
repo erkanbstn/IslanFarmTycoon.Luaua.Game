@@ -5,8 +5,10 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
+local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 local PlayerDataService = require(script.Parent:WaitForChild("PlayerDataService"))
 local EconomyService = require(script.Parent:WaitForChild("EconomyService"))
+local PlotService = require(script.Parent:WaitForChild("PlotService"))
 local SeasonService = require(script.Parent:WaitForChild("SeasonService"))
 local AdminPolicy = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("AdminPolicy"))
 local RateLimiter = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("RateLimiter"))
@@ -50,7 +52,93 @@ local function execute(player: Player, action: string, value: unknown): (boolean
 		PlayerDataService.requestSave(player)
 		return true, "Para güncellendi"
 	end
+	if action == "growAll" or action == "unlockIslands" or action == "fillSlots" then
+		-- Test aracı: yalnızca yöneticinin kendi profili; para harcamaz, sonuç normal kayıt akışına girer.
+		if player:GetAttribute("WorldReady") ~= true then
+			return false, "Çiftliğin henüz hazır değil"
+		end
+		local data = PlayerDataService.tryGet(player)
+		if not data then
+			return false, "Kayıt oturumu artık etkin değil"
+		end
+		local selected = player:GetAttribute("SelectedFarmIsland")
+		local islandId = if typeof(selected) == "string" and Config.FARM_ISLANDS[selected] then selected else "home"
+		local message = ""
+		if action == "growAll" then
+			for _, animal in data.animals do
+				animal.bornAt = 0
+				animal.stage = "adult"
+			end
+			message = "Bütün hayvanlar yetişkin oldu"
+		elseif action == "unlockIslands" then
+			-- Seçili adadaki HER şey: ada, bölgeler, güçlendirmeler ve eklentiler (ön koşullarıyla birlikte).
+			local function unlock(upgradeId: string)
+				local upgrade = Config.getUpgrade(upgradeId)
+				if not upgrade or data.purchased[upgradeId] then
+					return
+				end
+				for _, requiredId in upgrade.requires do
+					unlock(requiredId)
+				end
+				data.purchased[upgradeId] = true
+			end
+			for _, upgrade in Config.UPGRADES do
+				if Config.getUpgradeIsland(upgrade) == islandId then
+					unlock(upgrade.id)
+				end
+			end
+			FarmMath.applyDerived(data)
+			message = `{Config.FARM_ISLANDS[islandId].displayName}: her şey açıldı`
+		else
+			-- Seçili adadaki bütün bölgeleri ve satın alınmış eklentileri yetişkin hayvanla doldur.
+			local serial = 0
+			local function addAnimal(animalId: string, zoneId: string, extensionId: string?)
+				serial += 1
+				table.insert(data.animals, {
+					uid = string.format("adm%d_%d_%d", os.time(), math.floor(os.clock() * 1000), serial),
+					animalId = animalId,
+					zoneId = zoneId,
+					stage = "adult",
+					bornAt = 0,
+					extensionId = extensionId,
+				})
+			end
+			local added = 0
+			for zoneId, zone in Config.ZONES do
+				if zone.island == islandId and data.unlockedZones[zoneId] then
+					for _ = FarmMath.countInZone(data, zoneId) + 1, zone.capacity do
+						addAnimal(zone.allowedAnimals[1], zoneId, nil)
+						added += 1
+					end
+				end
+			end
+			for extensionId, extension in Config.EXTENSIONS do
+				local upgrade = Config.getExtensionUpgrade(extensionId)
+				if extension.island == islandId and upgrade and data.purchased[upgrade.id] then
+					for _ = FarmMath.countInExtension(data, extensionId) + 1, extension.capacity do
+						addAnimal(extension.animalId, extension.sourceZoneId, extensionId)
+						added += 1
+					end
+				end
+			end
+			message = `{Config.FARM_ISLANDS[islandId].displayName}: {added} hayvan eklendi`
+		end
+		PlayerDataService.pushState(player)
+		PlayerDataService.requestSave(player)
+		PlotService.refreshPlayerWorld(player)
+		return true, message
+	end
 	local id = value :: string
+	if action == "setTime" then
+		local ok = SeasonService.setAdminClock(if id == "auto" then nil else id)
+		return ok, if ok then "Saat güncellendi" else "Bilinmeyen saat"
+	elseif action == "setLights" then
+		local ok = SeasonService.setAdminLights(if id == "auto" then nil else id)
+		return ok, if ok then "Işık modu güncellendi" else "Bilinmeyen ışık modu"
+	elseif action == "setLightLevel" then
+		local ok = SeasonService.setAdminLightLevel(if id == "auto" then nil else id)
+		return ok, if ok then "Işık parlaklığı güncellendi" else "Bilinmeyen parlaklık"
+	end
 	if action == "setWeather" and id ~= "auto" and not Config.WEATHER[id] then
 		return false, "Bilinmeyen hava"
 	end

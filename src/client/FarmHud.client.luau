@@ -256,18 +256,42 @@ local shopWindow = UiKit.window(screenGui, {
 local shopInfo = UiKit.text(shopWindow.list, "Hayvanlar yavru doğar, büyüdükçe daha çok kazandırır.", "Caption")
 shopInfo.LayoutOrder = 0
 
+-- Toplu alım çarpanı: x1 / x2 / x3 / x5. Düğmedeki fiyat, o kadar hayvanın toplam fiyatıdır.
+local shopMultiplier = 1
+local multiplierButtons: { [number]: TextButton } = {}
+local multiplierRow = Instance.new("Frame")
+multiplierRow.Name = "Multipliers"
+multiplierRow.BackgroundTransparency = 1
+multiplierRow.Size = UDim2.new(1, 0, 0, 32)
+multiplierRow.LayoutOrder = 1
+multiplierRow.Parent = shopWindow.list
+UiKit.list(multiplierRow, 4, true)
+for index, multiplier in Config.BULK_MULTIPLIERS do
+	local button = UiKit.button(multiplierRow, `x{multiplier}`, "secondary")
+	button.LayoutOrder = index
+	button.Size = UDim2.new(1 / #Config.BULK_MULTIPLIERS, -3, 1, 0)
+	multiplierButtons[multiplier] = button
+end
+
+-- Seçili çarpana göre gerçekte alınacak adet (boş yer yetmezse azalır)
+local function bulkCount(state: PlayerSave, animalId: string): number
+	return math.max(1, math.min(shopMultiplier, FarmMath.getFreeSlots(state, animalId)))
+end
+
 local animalCards: { [string]: UiKit.Card } = {}
 for index, animalId in Config.ANIMAL_ORDER do
-	local card = UiKit.card(shopWindow.list, index, Config.ANIMALS[animalId].icon)
+	local card = UiKit.card(shopWindow.list, index + 1, Config.ANIMALS[animalId].icon)
 	animalCards[animalId] = card
 	card.action.Activated:Connect(function()
 		if card.action.Active then
-			PurchaseController.submit("RequestBuyAnimal", animalId)
+			local state = ClientState.get()
+			local count = if state then bulkCount(state, animalId) else 1
+			PurchaseController.submit("RequestBuyAnimal", animalId, if count > 1 then count else nil)
 		end
 	end)
 end
 
-local replacementCard = UiKit.card(shopWindow.list, #Config.ANIMAL_ORDER + 1, Config.ANIMALS.seabass.icon)
+local replacementCard = UiKit.card(shopWindow.list, #Config.ANIMAL_ORDER + 2, Config.ANIMALS.seabass.icon)
 replacementCard.title.Text = "Hamsiyi levrekle değiştir"
 replacementCard.action.Activated:Connect(function()
 	local state = ClientState.get()
@@ -292,6 +316,49 @@ local roadmapInfo = UiKit.text(
 	"Caption"
 )
 roadmapInfo.LayoutOrder = 0
+
+-- Ada sekmeleri: gitmeden her adanın yol haritasını/yükseltmelerini görmek için (açık adalar).
+local islandTabUpdaters: { (state: PlayerSave) -> () } = {}
+local function addIslandTabs(window: UiKit.Window)
+	local row = Instance.new("Frame")
+	row.Name = "IslandTabs"
+	row.BackgroundTransparency = 1
+	row.Size = UDim2.new(1, 0, 0, 34)
+	row.LayoutOrder = -1
+	row.Parent = window.list
+	UiKit.list(row, 4, true)
+	local buttons: { [string]: TextButton } = {}
+	for index, islandId in Config.FARM_ISLAND_ORDER do
+		local island = Config.FARM_ISLANDS[islandId]
+		local button = UiKit.button(row, (string.gsub(island.displayName, " Adası$", "")), "secondary")
+		button.LayoutOrder = index
+		button.Size = UDim2.new(1 / #Config.FARM_ISLAND_ORDER, -3, 1, 0)
+		-- Her sekmede aynı yazı boyutu; uzun ad kesilir, boyut oynamaz.
+		button.TextScaled = false
+		button.TextSize = 14
+		button.TextTruncate = Enum.TextTruncate.AtEnd
+		buttons[islandId] = button
+		button.Activated:Connect(function()
+			local state = ClientState.get()
+			if state and state.unlockedIslands[islandId] then
+				Remotes.get("RequestTravelIsland"):FireServer(islandId, true)
+			end
+		end)
+	end
+	table.insert(islandTabUpdaters, function(state: PlayerSave)
+		local selected = IslandContext.get()
+		for islandId, button in buttons do
+			UiKit.setVariant(
+				button,
+				if islandId == selected
+					then "primary"
+					elseif state.unlockedIslands[islandId] then "secondary"
+					else "disabled"
+			)
+		end
+	end)
+end
+addIslandTabs(roadmapWindow)
 
 local upgradeCards: { [string]: UiKit.Card } = {}
 type ExtensionHudRow = { row: Frame, add: TextButton, remove: TextButton }
@@ -384,6 +451,7 @@ local upgradesInfo = UiKit.text(
 	"Caption"
 )
 upgradesInfo.LayoutOrder = 0
+addIslandTabs(upgradesWindow)
 local upgradesEmpty = UiKit.text(
 	upgradesWindow.list,
 	"Tüm yükseltmeleri aldın. Çiftliğini hayvanlarla büyütmeye devam edebilirsin.",
@@ -454,7 +522,8 @@ local function layoutToasts()
 end
 stats:GetPropertyChangedSignal("AbsoluteSize"):Connect(layoutToasts)
 PurchaseController.Completed:Connect(function(success: boolean, message: string?)
-	if message then
+	-- Adalar penceresi açıkken bildirimi pencerenin kendi bildirim alanı gösterir (üstte, pencerenin önünde)
+	if message and not IslandManager.isOpen() then
 		showToast(message, if success then "success" else "error")
 	end
 end)
@@ -545,7 +614,10 @@ local function updateSeasonBar()
 		then "Mevsim sabit"
 		else `Sonra: {Environment.getNextSeason().displayName}`
 	weatherChip.Text = weather.icon
-	weatherTitle.Text = weather.displayName
+	local clockHour = Environment.getClockTime(now)
+	local dayPart = if Environment.getNightFactor(clockHour) >= 0.5 then "Gece" else "Gündüz"
+	weatherTitle.Text =
+		string.format("%s · %02d:%02d %s", weather.displayName, clockHour // 1, (clockHour % 1) * 60 // 1, dayPart)
 end
 
 local function updateProductionBadge(state: PlayerSave?)
@@ -626,7 +698,8 @@ local function updateShop(state: PlayerSave, content: boolean)
 		end
 		local animalConfig = Config.ANIMALS[animalId]
 		local zoneId, reason, block = FarmMath.findZoneForAnimal(state, animalId)
-		local price = FarmMath.getAnimalPrice(state, animalId)
+		local count = bulkCount(state, animalId)
+		local price = FarmMath.getBulkPrice(state, animalId, count)
 		if content then
 			card.title.Text = `{animalConfig.displayName}  {UiKit.colorText(
 				`x{FarmMath.countAnimals(state, animalId)}`,
@@ -644,10 +717,13 @@ local function updateShop(state: PlayerSave, content: boolean)
 		else
 			setPurchaseButton(
 				card.action,
-				FarmMath.formatMoney(price),
+				if count > 1 then `x{count} · {FarmMath.formatMoney(price)}` else FarmMath.formatMoney(price),
 				if state.cash >= price then "primary" else "warning"
 			)
 		end
+	end
+	for multiplier, button in multiplierButtons do
+		UiKit.setVariant(button, if multiplier == shopMultiplier then "primary" else "secondary")
 	end
 	local fish = if IslandContext.get() == "home" then FarmMath.findReplaceableFish(state) else nil
 	replacementCard.frame.Visible = fish ~= nil
@@ -663,11 +739,24 @@ local function updateShop(state: PlayerSave, content: boolean)
 	end
 end
 
+for multiplier, button in multiplierButtons do
+	button.Activated:Connect(function()
+		shopMultiplier = multiplier
+		local state = ClientState.get()
+		if state then
+			updateShop(state, true)
+		end
+	end)
+end
+
 local function updateRoadmap(state: PlayerSave, content: boolean)
 	local selectedIsland = IslandContext.get()
+	for _, updateTabs in islandTabUpdaters do
+		updateTabs(state)
+	end
 	if content then
 		roadmapInfo.Text =
-			`Seçili: {IslandContext.name()}\nBu adanın gelişim adımları. Ada değiştirmek ve yeni ada açmak için Adalar.`
+			`Seçili: {IslandContext.name()}\nYukarıdaki sekmelerden adaya gitmeden yol haritasına bakabilirsin. Yeni ada açmak ve ışınlanmak için Adalar.`
 	end
 	local ownedPerStage: { [number]: number } = {}
 	local totalPerStage: { [number]: number } = {}
@@ -729,7 +818,7 @@ local function updateUpgrades(state: PlayerSave, content: boolean)
 	local selectedIsland = IslandContext.get()
 	if content then
 		upgradesInfo.Text =
-			`Seçili: {IslandContext.name()}\nAçık yükseltmeler üstte; alınanlar listeden çıkar. Ada değiştirmek için Adalar.`
+			`Seçili: {IslandContext.name()}\nAçık yükseltmeler üstte; alınanlar listeden çıkar. Üstteki sekmelerden ada seçebilirsin.`
 		upgradesEmpty.Text =
 			`{IslandContext.name()} yükseltmeleri tamamlandı. Sıradaki yatırımını seçmek için Adalar'ı aç.`
 	end

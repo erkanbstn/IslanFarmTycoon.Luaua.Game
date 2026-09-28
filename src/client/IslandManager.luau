@@ -22,6 +22,7 @@ local pending: number? = nil
 local resultMessage = ""
 local resultOk = false
 local LIMIT = Config.MAIN_FARM_LIMIT or 6
+local notifyHook: ((message: string, kind: string?) -> ())? = nil
 
 type Offer = { id: string, name: string, icon: string, ownerUserId: number? }
 
@@ -117,6 +118,9 @@ Remotes.get("MainFarmResult").OnClientEvent:Connect(function(id: unknown, ok: un
 	resultMessage = if typeof(message) == "string"
 		then message
 		else if ok then "Ana çiftlik hazır." else "İşlem uygulanamadı."
+	if notifyHook then
+		notifyHook(resultMessage, if ok then "success" else "error")
+	end
 	update()
 end)
 
@@ -138,6 +142,9 @@ local function create(): UiKit.Window
 	})
 	created.frame.BackgroundColor3 = UiKit.Color.Surface
 	created.frame.BackgroundTransparency = 0
+	-- Bu pencerenin önünde görünen bildirim alanı: yetersiz bakiye, satın alma sonucu vb.
+	local notify = UiKit.toastHost(screen)
+	notifyHook = notify
 	local info = UiKit.text(created.list, "", "Caption")
 	info.LayoutOrder = 0
 	local feedback = UiKit.text(created.list, "", "Caption")
@@ -155,12 +162,47 @@ local function create(): UiKit.Window
 	local _, mainMeta = UiKit.sectionHeader(created.list, "Ana çiftliklerim", 2)
 	local ownedList = section(3)
 	local ownedCards: { [string]: UiKit.Card } = {}
+	-- Etkin çiftlik kartındaki ok: bu çiftliğe bağlı küçük adalar kartın altında açılır/kapanır.
+	local specialtyOpen = false
+	local applySpecialtyOpen: () -> () = function() end
+	local arrows: { [string]: TextButton } = {}
 	for index = 1, LIMIT do
 		local id = tostring(index)
 		local card = UiKit.card(ownedList, index, "🏝️")
 		card.frame.BackgroundColor3 = UiKit.Color.SurfaceRaised
 		card.frame.Visible = false
 		ownedCards[id] = card
+		local row = card.icon.Parent :: Frame
+		local texts = card.title.Parent :: Frame
+		texts.Size = UDim2.new(1, -96, 0, 0)
+		local arrow = Instance.new("TextButton")
+		arrow.Name = "SpecialtyArrow"
+		arrow.AnchorPoint = Vector2.new(1, 0)
+		arrow.Position = UDim2.new(1, 0, 0, 5)
+		arrow.Size = UDim2.fromOffset(32, 32)
+		arrow.BackgroundColor3 = UiKit.Color.Surface
+		arrow.Text = ""
+		arrow.AutoButtonColor = true
+		arrow.Visible = false
+		arrow.Parent = row
+		UiKit.corner(arrow, 8)
+		-- Aşağı bakan ok (çizilmiş iki çubuk); kapalıyken sağa döner
+		for _, side in { -1, 1 } do
+			local bar = Instance.new("Frame")
+			bar.AnchorPoint = Vector2.new(0.5, 0.5)
+			bar.Size = UDim2.fromOffset(12, 3)
+			bar.Position = UDim2.new(0.5, side * 3.5, 0.5, -1)
+			bar.Rotation = -side * 45
+			bar.BackgroundColor3 = UiKit.Color.Gold
+			bar.BorderSizePixel = 0
+			bar.Parent = arrow
+			UiKit.corner(bar, 2)
+		end
+		arrow.Activated:Connect(function()
+			specialtyOpen = not specialtyOpen
+			applySpecialtyOpen()
+		end)
+		arrows[id] = arrow
 		card.action.Activated:Connect(function()
 			if card.action.Active then
 				submit("select", id)
@@ -205,33 +247,49 @@ local function create(): UiKit.Window
 		card.action.Activated:Connect(function()
 			-- Model stream edilmemiş olabilir; sahiplik sunucu listesinden okunur, sunucu yine doğrular
 			if card.action.Active and isKnown(id) and ownerOf(id) == nil then
+				local state = ClientState.get()
+				local price = if state and Config.MAIN_FARM_PRICES
+					then Config.MAIN_FARM_PRICES[#summaries(state) + 1]
+					else nil
+				if state and typeof(price) == "number" and state.cash < price then
+					-- Sunucuya gitmeden hemen bildir
+					if notifyHook then
+						notifyHook(
+							`Yeterli para yok: yeni ana çiftlik {FarmMath.formatMoney(price)} (kasanda {FarmMath.formatMoney(
+								state.cash
+							)})`,
+							"error"
+						)
+					end
+					return
+				end
 				submit("buy", id)
 			end
 		end)
 	end
-	local specialtyTitle, specialtyMeta = UiKit.sectionHeader(created.list, "Bu çiftliğe bağlı küçük adalar", 7)
-	local specialtyInfo = UiKit.text(created.list, "", "Caption")
-	specialtyInfo.LayoutOrder = 8
-	local specialtyList = section(9)
-	-- Açılır/kapanır bölüm: kapalıyken liste yer kaplamaz, "Meydana git" ve ziyaret listesi yukarıda kalır.
-	local specialtyOpen = false
-	local function applySpecialtyOpen()
-		specialtyInfo.Visible = specialtyOpen
-		specialtyList.Visible = specialtyOpen
-		specialtyMeta.Text = if specialtyOpen then "Kapat" else "Aç"
+	local specialtyBox = Instance.new("Frame")
+	specialtyBox.Name = "SpecialtyBox"
+	specialtyBox.BackgroundTransparency = 1
+	specialtyBox.Size = UDim2.new(1, 0, 0, 0)
+	specialtyBox.AutomaticSize = Enum.AutomaticSize.Y
+	specialtyBox.LayoutOrder = 3
+	specialtyBox.Visible = false
+	UiKit.list(specialtyBox, 8)
+	local specialtyInfo = UiKit.text(specialtyBox, "", "Caption")
+	specialtyInfo.LayoutOrder = 1
+	local specialtyList = Instance.new("Frame")
+	specialtyList.BackgroundTransparency = 1
+	specialtyList.Size = UDim2.new(1, 0, 0, 0)
+	specialtyList.AutomaticSize = Enum.AutomaticSize.Y
+	specialtyList.LayoutOrder = 2
+	specialtyList.Parent = specialtyBox
+	UiKit.list(specialtyList, 8)
+	applySpecialtyOpen = function()
+		specialtyBox.Visible = specialtyOpen
+		for _, arrow in arrows do
+			arrow.Rotation = if specialtyOpen then 0 else -90
+		end
 	end
-	local specialtyToggle = Instance.new("TextButton")
-	specialtyToggle.Name = "SpecialtyToggle"
-	specialtyToggle.BackgroundTransparency = 1
-	specialtyToggle.Text = ""
-	specialtyToggle.Size = UDim2.fromScale(1, 1)
-	specialtyToggle.ZIndex = specialtyTitle.ZIndex + 5
-	specialtyToggle.Parent = specialtyTitle.Parent
-	specialtyToggle.Activated:Connect(function()
-		specialtyOpen = not specialtyOpen
-		applySpecialtyOpen()
-	end)
-	specialtyMeta.Size = UDim2.new(0, 60, 1, 0)
 	applySpecialtyOpen()
 	local specialtyCards: { [string]: UiKit.Card } = {}
 	for index, id in Config.FARM_ISLAND_ORDER do
@@ -256,6 +314,18 @@ local function create(): UiKit.Window
 					update()
 				end)
 			elseif island.upgradeId then
+				local upgrade = Config.getUpgrade(island.upgradeId)
+				if upgrade and state.cash < upgrade.cost then
+					if notifyHook then
+						notifyHook(
+							`Yeterli para yok: {island.displayName} {FarmMath.formatMoney(upgrade.cost)} (kasanda {FarmMath.formatMoney(
+								state.cash
+							)})`,
+							"error"
+						)
+					end
+					return
+				end
 				PurchaseController.submit("RequestBuyUpgrade", island.upgradeId)
 			end
 		end)
@@ -369,6 +439,13 @@ local function create(): UiKit.Window
 			end
 			card.frame.Visible = true
 			local isActive = farm.id == activeId
+			local arrow = arrows[farm.id]
+			if arrow then
+				arrow.Visible = isActive
+			end
+			if isActive then
+				specialtyBox.Parent = card.frame
+			end
 			local physical = farm.plotId and plotsById[farm.plotId]
 			if not physical and farm.id == "1" and not (state :: any).mainFarmSummaries then
 				for _, plot in plotsById do
@@ -489,6 +566,10 @@ local function create(): UiKit.Window
 	return created
 end
 
+function IslandManager.isOpen(): boolean
+	return window ~= nil and (window :: UiKit.Window).isOpen()
+end
+
 function IslandManager.open()
 	if not window then
 		window = create()
@@ -501,6 +582,12 @@ PurchaseController.Changed:Connect(update)
 IslandContext.Changed:Connect(function()
 	travelling = false
 	update()
+end)
+-- Satın alma sonuçları (küçük ada açma vb.) pencere açıkken pencerenin bildirim alanında gösterilir.
+PurchaseController.Completed:Connect(function(success: boolean, message: string?)
+	if message and notifyHook and IslandManager.isOpen() then
+		notifyHook(message, if success then "success" else "error")
+	end
 end)
 player:GetAttributeChangedSignal("DataStatus"):Connect(update)
 player.CharacterAdded:Connect(function()
