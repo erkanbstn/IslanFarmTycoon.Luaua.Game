@@ -1,0 +1,16 @@
+# Rojo build çıktıları
+*.rbxl
+*.rbxlx
+*.rbxm
+*.rbxmx
+*.lock
+sourcemap.json
+.tools/
+.test-build/
+build/
+!assets/**/*.rbxm
+!assets/**/*.rbxmx
+
+# Editör / sistem
+.DS_Store
+Thumbs.db

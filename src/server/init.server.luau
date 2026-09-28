@@ -1,0 +1,215 @@
+--!strict
+-- Sunucu giriş noktası (ServerScriptService/Server)
+-- Oyun mantığı, veri kaydı ve doğrulama burada yapılır. Client'a asla güvenme.
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Config = require(Shared:WaitForChild("Config"))
+local Remotes = require(Shared:WaitForChild("Remotes"))
+local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
+
+local Services = script:WaitForChild("Services")
+local PlayerDataService = require(Services:WaitForChild("PlayerDataService"))
+local PlotService = require(Services:WaitForChild("PlotService"))
+local UpgradeService = require(Services:WaitForChild("UpgradeService"))
+local AnimalService = require(Services:WaitForChild("AnimalService"))
+local EconomyService = require(Services:WaitForChild("EconomyService"))
+local SeasonService = require(Services:WaitForChild("SeasonService"))
+local OrderService = require(Services:WaitForChild("OrderService"))
+local MainFarmService = require(Services:WaitForChild("MainFarmService"))
+local ProductionService = require(Services:WaitForChild("ProductionService"))
+local AdminService = require(Services:WaitForChild("AdminService"))
+local RateLimiter = require(script:WaitForChild("Modules"):WaitForChild("RateLimiter"))
+
+-- Karakter, veri yüklenip ada atandıktan SONRA yüklenir: böylece oyuncu önce meydanda doğup
+-- sonra ışınlanmaz, doğrudan kendi adasında doğar (default.project.json'da da kapalı).
+Players.CharacterAutoLoads = false
+-- Oyunda ölüm yok (CharacterSafety.client); yine de bir şey olursa hemen yeniden doğ
+Players.RespawnTime = 1
+
+Remotes.init()
+
+PlayerDataService.init()
+SeasonService.init(function()
+	-- Hava/mevsim değişmeden önce eski çarpanla geçen süreyi kapat.
+	for _, player in Players:GetPlayers() do
+		EconomyService.settlePlayer(player)
+	end
+end)
+local mapReady, mapError = pcall(PlotService.init)
+if not mapReady then
+	warn(`[Server] Harita hazırlanamadı: {mapError}`)
+end
+UpgradeService.init()
+AnimalService.init()
+EconomyService.init()
+OrderService.init()
+AdminService.init()
+ProductionService.init()
+MainFarmService.init()
+
+local TELEPORT_COOLDOWN = 1.5
+local lastTeleportAt: { [Player]: number } = {}
+
+local function canTeleport(player: Player): boolean
+	if not PlayerDataService.tryGet(player) or player:GetAttribute("WorldReady") ~= true then
+		return false
+	end
+	local now = os.clock()
+	if now - (lastTeleportAt[player] or 0) < TELEPORT_COOLDOWN then
+		return false
+	end
+	lastTeleportAt[player] = now
+	return true
+end
+
+Remotes.get("RequestPlayerState").OnServerEvent:Connect(function(player: Player)
+	if RateLimiter.allow(player, "snapshot", 2) then
+		PlayerDataService.pushState(player)
+	end
+end)
+
+Remotes.get("RequestGoHome").OnServerEvent:Connect(function(player: Player)
+	if canTeleport(player) then
+		PlotService.teleportHome(player)
+	end
+end)
+
+Remotes.get("RequestTravelIsland").OnServerEvent
+	:Connect(function(player: Player, islandId: unknown, selectOnly: unknown)
+		if
+			typeof(islandId) ~= "string"
+			or #islandId > 32
+			or (selectOnly ~= nil and typeof(selectOnly) ~= "boolean")
+		then
+			return
+		end
+		-- Menü seçimi seyahat bekleme süresini tüketmez; yürüyerek açılan menüden hemen gidilebilir.
+		if selectOnly == true then
+			if not RateLimiter.allow(player, "islandSelection", 0.3) then
+				return
+			end
+		elseif not canTeleport(player) then
+			if RateLimiter.allow(player, "travelReply", 1.5) then
+				Remotes.get("Notify"):FireClient(player, "Seyahat için kısa bir süre bekleyip yeniden dene.", "info")
+			end
+			return
+		end
+		local ok = if selectOnly == true
+			then PlotService.selectIsland(player, islandId)
+			else PlotService.teleportToIsland(player, islandId)
+		if not ok then
+			Remotes.get("Notify")
+				:FireClient(player, "Bu ada henüz açık değil veya seyahat için hazır değil.", "error")
+		end
+	end)
+
+-- Tabeladaki "Adalar" menüsü: "hub" = meydan, diğerleri plotId
+Remotes.get("RequestTravel").OnServerEvent:Connect(function(player: Player, target: unknown)
+	if typeof(target) ~= "string" or #target > 16 or not canTeleport(player) then
+		return
+	end
+	if target == "hub" then
+		PlotService.teleportToHub(player)
+	elseif not PlotService.teleportToPlot(player, target) then
+		Remotes.get("Notify"):FireClient(player, "Böyle bir ada yok.", "error")
+	end
+end)
+
+-- CharacterAutoLoads kapalı olduğu için ölünce yeniden doğmayı biz yönetiyoruz
+local function setupRespawn(player: Player)
+	player.CharacterAdded:Connect(function(character: Model)
+		local humanoid = character:WaitForChild("Humanoid", 10)
+		if humanoid and humanoid:IsA("Humanoid") then
+			humanoid.BreakJointsOnDeath = false
+			humanoid.Died:Connect(function()
+				task.wait(Players.RespawnTime)
+				if player.Parent and PlayerDataService.tryGet(player) then
+					local ok, err = pcall(function()
+						player:LoadCharacter()
+					end)
+					if not ok then
+						warn(`[Spawn] Yeniden doğma başarısız: {err}`)
+					end
+				end
+			end)
+		end
+	end)
+end
+
+local function onPlayerAdded(player: Player)
+	player:SetAttribute("SelectedFarmIsland", "home")
+	player:SetAttribute("WorldReady", false)
+	if not mapReady then
+		player:Kick("Harita hazırlanamadı. Lütfen başka bir sunucuya katıl.")
+		return
+	end
+	setupRespawn(player)
+
+	-- 1) Adayı hemen ver ve karakteri orada doğur (kayıt verisini beklemeden)
+	local hasPlot = PlotService.assign(player)
+	if not hasPlot then
+		player:Kick("Sunucuda boş ada kalmadı. Lütfen başka bir sunucuya katıl.")
+		return
+	end
+
+	-- 2) Kaydı arka planda yükle; gelince ada (hayvanlar, binalar) ve arayüz dolar
+	local data = PlayerDataService.load(player) -- yield eder
+	if not data or not player.Parent then
+		return
+	end
+	local prepared, prepareError = pcall(function()
+		assert(
+			PlotService.restoreMainFarms(player, PlayerDataService.getFarmIds(player), data.activeMainFarmId),
+			"Owned farm allocation failed"
+		)
+		PlotService.refreshPlayerWorld(player)
+		if not player.Character then
+			player:LoadCharacter()
+		end
+	end)
+	if not prepared then
+		warn(`[Server] Çiftlik hazırlanamadı: {prepareError}`)
+		player:SetAttribute("DataError", "Çiftlik hazırlanamadı. Lütfen yeniden katıl.")
+		PlayerDataService.release(player)
+		if player.Parent then
+			player:Kick("Çiftlik hazırlanamadı. Lütfen yeniden katıl.")
+		end
+		return
+	end
+	if not player.Parent then
+		return
+	end
+	player:SetAttribute("WorldReady", true)
+	EconomyService.startPlayer(player)
+	PlayerDataService.pushState(player)
+
+	Remotes.get("Notify"):FireClient(player, `{Config.GAME_NAME}'a hoş geldin! Yol Haritası'ndan ilerle.`, "info")
+	local offline = PlayerDataService.takeOfflineEarnings(player)
+	if offline > 0 then
+		Remotes.get("Notify")
+			:FireClient(player, `Sen yokken hayvanların depoya {FarmMath.formatMoney(offline)} biriktirdi!`, "money")
+	end
+	print(`[Server] {player.Name} katıldı.`)
+end
+
+local function onPlayerRemoving(player: Player)
+	lastTeleportAt[player] = nil
+	EconomyService.stopPlayer(player)
+	player:SetAttribute("WorldReady", false)
+	local released, releaseError = pcall(PlotService.release, player)
+	if not released then
+		warn(`[Server] Ada temizliği başarısız: {releaseError}`)
+	end
+	PlayerDataService.release(player) -- Kaydeder (yield eder)
+	print(`[Server] {player.Name} ayrıldı.`)
+end
+
+Players.PlayerAdded:Connect(onPlayerAdded)
+Players.PlayerRemoving:Connect(onPlayerRemoving)
+
+for _, player in Players:GetPlayers() do
+	task.spawn(onPlayerAdded, player)
+end

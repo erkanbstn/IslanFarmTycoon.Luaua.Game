@@ -1,0 +1,131 @@
+--!strict
+-- Yol haritası satın alımları (bölgeler, ahır seviyeleri, güçlendirmeler).
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Config = require(Shared:WaitForChild("Config"))
+local Remotes = require(Shared:WaitForChild("Remotes"))
+local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
+
+local PlayerDataService = require(script.Parent:WaitForChild("PlayerDataService"))
+local PlotService = require(script.Parent:WaitForChild("PlotService"))
+local EconomyService = require(script.Parent:WaitForChild("EconomyService"))
+local RateLimiter = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("RateLimiter"))
+local Metrics = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("Metrics"))
+
+local UpgradeService = {}
+
+function UpgradeService.tryBuy(player: Player, upgradeId: unknown): (boolean, string?)
+	if not RateLimiter.allow(player, "purchase", 0.2) then
+		return false, nil
+	end
+	if typeof(upgradeId) ~= "string" or not RateLimiter.validId(upgradeId) then
+		return false, "Geçersiz istek"
+	end
+	local upgrade = Config.getUpgrade(upgradeId)
+	if not upgrade then
+		return false, "Bilinmeyen yükseltme"
+	end
+	local data = PlayerDataService.tryGet(player)
+	if not data or player:GetAttribute("WorldReady") ~= true or not PlotService.getPlot(player) then
+		return false, "Veri henüz yüklenmedi"
+	end
+
+	local status, missing = FarmMath.getUpgradeStatus(data, upgrade.id)
+	if status == "owned" then
+		return false, "Buna zaten sahipsin"
+	elseif status == "locked" then
+		return false, `Önce: {table.concat(missing, ", ")}`
+	end
+
+	EconomyService.settlePlayer(player)
+	if not PlayerDataService.trySpend(player, upgrade.cost) then
+		return false, `Yeterli para yok ({FarmMath.formatMoney(upgrade.cost)})`
+	end
+
+	local previousSpeeds: { [string]: number } = {}
+	if upgrade.growthSpeed or upgrade.growthBoost then
+		for _, animal in data.animals do
+			previousSpeeds[animal.animalId] = FarmMath.getGrowthSpeed(data, animal.animalId)
+		end
+	end
+	data.purchased[upgrade.id] = true
+	FarmMath.applyDerived(data)
+	FarmMath.preserveGrowthProgress(data, previousSpeeds, DateTime.now().UnixTimestampMillis / 1000)
+	PlayerDataService.pushState(player)
+	PlayerDataService.requestSave(player)
+	Metrics.increment("UpgradesPurchased")
+	PlotService.refreshPlayerWorld(player)
+	return true, nil
+end
+
+-- Satın al ve sonucu oyuncuya bildir (yol haritası düğmesi ve ada tabelası ortak kullanır)
+local function buyAndNotify(player: Player, upgradeId: unknown, requestId: unknown)
+	if not RateLimiter.acceptRequest(player, requestId) then
+		return
+	end
+	local ok, err = UpgradeService.tryBuy(player, upgradeId)
+	if ok then
+		local upgrade = Config.getUpgrade(upgradeId :: string)
+		if upgrade and upgrade.kind == "island" and upgrade.islandId then
+			local island = Config.FARM_ISLANDS[upgrade.islandId]
+			err = `{upgrade.displayName} açıldı! {island.trait}`
+		elseif upgrade then
+			err = `{upgrade.displayName} alındı!`
+		end
+	end
+	if not ok and err == nil then
+		if typeof(requestId) ~= "number" or not RateLimiter.allow(player, "purchaseThrottleReply", 0.5) then
+			return
+		end
+		err = "Çok hızlı işlem yapıyorsun; biraz bekle."
+	end
+	if not ok then
+		Metrics.increment("PurchaseRejected")
+	end
+	if typeof(requestId) == "number" then
+		Remotes.get("PurchaseResult"):FireClient(player, requestId, ok, err)
+	else
+		Remotes.get("Notify"):FireClient(player, err, if ok then "success" else "error")
+	end
+end
+
+function UpgradeService.init()
+	Remotes.get("RequestBuyUpgrade").OnServerEvent
+		:Connect(function(player: Player, upgradeId: unknown, requestId: unknown, expectedFarmId: unknown)
+			local data = PlayerDataService.tryGet(player)
+			if not data or expectedFarmId ~= data.activeMainFarmId then
+				if typeof(requestId) == "number" and RateLimiter.allow(player, "farmContextReply", 0.5) then
+					Remotes.get("PurchaseResult"):FireClient(
+						player,
+						requestId,
+						false,
+						"Etkin çiftlik değişti; işlemi yeni çiftlikte tekrar seç."
+					)
+				end
+				return
+			end
+			buyAndNotify(player, upgradeId, requestId)
+		end)
+
+	-- Kilitli adanın tabelasındaki "Satın Al" düğmesi: sadece takımadanın sahibi alabilir
+	for _, plot in PlotService.getAllPlots() do
+		for _, prompt in plot:GetDescendants() do
+			if not prompt:IsA("ProximityPrompt") or prompt.Name ~= "BuyIslandPrompt" then
+				continue
+			end
+			prompt.Triggered:Connect(function(player: Player)
+				if PlotService.getOwner(plot) ~= player or PlotService.getPlot(player) ~= plot then
+					if RateLimiter.allow(player, "invalidPrompt", 1) then
+						Remotes.get("Notify"):FireClient(player, "Bu ada başka bir çiftliğe ait.", "error")
+					end
+					return
+				end
+				buyAndNotify(player, prompt:GetAttribute("UpgradeId"), nil)
+			end)
+		end
+	end
+end
+
+return UpgradeService

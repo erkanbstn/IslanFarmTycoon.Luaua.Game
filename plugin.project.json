@@ -1,0 +1,6 @@
+{
+  "name": "AhirTycoonHarita",
+  "tree": {
+    "$path": "plugin/MapTool.server.luau"
+  }
+}

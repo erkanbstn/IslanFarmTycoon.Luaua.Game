@@ -1,0 +1,26 @@
+{
+  "name": "AhirTycoonTests",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "Shared": { "$path": "src/shared" }
+    },
+    "ServerStorage": {
+      "Assets": { "$path": "assets" }
+    },
+    "ServerScriptService": {
+      "Server": {
+        "$className": "Folder",
+        "Modules": { "$path": "src/server/Modules" },
+        "Services": { "$path": "src/server/Services" }
+      },
+      "Tests": { "$path": "tests" }
+    },
+    "Players": {
+      "$properties": { "CharacterAutoLoads": false }
+    },
+    "Workspace": {
+      "$attributes": { "StudioNonPersistentData": true }
+    }
+  }
+}

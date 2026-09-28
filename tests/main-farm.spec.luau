@@ -1,0 +1,300 @@
+--!strict
+return function(
+	createService: any,
+	createEconomy: any,
+	createLimiter: any,
+	profiles: any,
+	codec: any,
+	config: any,
+	farmMath: any
+)
+	local function signal(): any
+		local handlers = {}
+		return {
+			Connect = function(_self: any, cb: any)
+				table.insert(handlers, cb)
+			end,
+			fire = function(...: any)
+				for _, cb in handlers do
+					cb(...)
+				end
+			end,
+		}
+	end
+	local now, serial = 1000, 0
+	local function uid(): string
+		serial += 1
+		return `farm-test-{serial}`
+	end
+	local data = assert(
+		codec.decode({
+			version = 3,
+			cash = 300000,
+			stored = 17,
+			purchased = { "zone_pasture" },
+			animals = { { uid = "old-cow", animalId = "cow", zoneId = "starter", bornAt = 0 } },
+			production = {},
+		}, config, farmMath, now, uid),
+		"legacy migration"
+	)
+	assert(
+		data.activeMainFarmId == "1"
+			and #profiles.ids(data) == 1
+			and data.purchased.zone_pasture
+			and data.animals[1].uid == "old-cow",
+		"v3 assets migrate unchanged to primary farm"
+	)
+	local player: any = {
+		attributes = { WorldReady = true },
+		GetAttribute = function(self: any, key: string): any
+			return self.attributes[key]
+		end,
+		SetAttribute = function(self: any, key: string, value: any)
+			self.attributes[key] = value
+		end,
+	}
+	local active = true
+	local players = { PlayerRemoving = signal() }
+	local node: any = {
+		WaitForChild = function(): any
+			return {}
+		end,
+	}
+	local engine = {
+		GetService = function(_self: any, name: string): any
+			if name == "Players" then
+				return players
+			elseif name == "HttpService" then
+				return { GenerateGUID = uid }
+			else
+				return node
+			end
+		end,
+	}
+	local request = { OnServerEvent = signal() }
+	local results = {}
+	local remotes = {
+		get = function(name: string): any
+			if name == "RequestMainFarmAction" then
+				return request
+			end
+			return {
+				FireClient = function(_self: any, _p: any, id: number, ok: boolean, msg: string)
+					table.insert(results, { id = id, ok = ok, message = msg })
+				end,
+			}
+		end,
+	}
+	local pushes, saves = 0, 0
+	local resolver: any = nil
+	local dataService = {
+		tryGet = function(): any
+			return if active then data else nil
+		end,
+		getFarmIds = function(): any
+			return profiles.ids(data)
+		end,
+		getFarmView = function(_p: any, id: string): any
+			return profiles.view(data, id)
+		end,
+		setActiveMainFarm = function(_p: any, id: string): boolean
+			return profiles.select(data, id)
+		end,
+		setMainFarmOffersResolver = function(_fn: any) end,
+		setFarmPlotResolver = function(fn: any)
+			resolver = fn
+		end,
+		pushState = function()
+			pushes += 1
+		end,
+		requestSave = function()
+			saves += 1
+		end,
+		pushEconomy = function() end,
+	}
+	local mappings: any = { ["1"] = "1" }
+	local occupied: any = { ["1"] = true, ["6"] = true }
+	local fakePlot = {
+		FindFirstChild = function(): any
+			return nil
+		end,
+	}
+	local failSelect = false
+	local plots = {
+		getPlot = function(): any
+			return fakePlot
+		end,
+		getAllOwned = function(): any
+			local result = {}
+			for id in mappings do
+				result[id] = fakePlot
+			end
+			return result
+		end,
+		getMainFarmOffers = function(): any
+			return {}
+		end,
+		getMainFarmPlotId = function(_p: any, id: string): string?
+			return mappings[id]
+		end,
+		reserveMainFarm = function(_p: any, id: string, target: string): boolean
+			if occupied[target] then
+				return false
+			end
+			occupied[target] = true
+			mappings[id] = target
+			return true
+		end,
+		selectMainFarm = function(_p: any, id: string): boolean
+			return not (failSelect and id ~= "1") and data.mainFarms[id] ~= nil
+		end,
+		cancelMainFarmReservation = function(_p: any, id: string)
+			local target = mappings[id]
+			if target then
+				occupied[target] = nil
+			end
+			mappings[id] = nil
+		end,
+		refreshPlayerWorld = function() end,
+		teleportHome = function() end,
+	}
+	local clock = {
+		clock = function(): number
+			return now
+		end,
+	}
+	local dateTime = {
+		now = function(): any
+			return { UnixTimestampMillis = now * 1000 }
+		end,
+	}
+	local limiter = createLimiter(engine, clock)
+	local orderFarms = {}
+	local economy = createEconomy(
+		engine,
+		{},
+		dataService,
+		plots,
+		{
+			update = function(_p: any, _elapsed: number, _a: number, _b: number, farm: any)
+				table.insert(orderFarms, farm)
+			end,
+		},
+		limiter,
+		{ Color = { Blue = {}, Red = {}, Gold = {} } },
+		{ setTag = function() end },
+		{ increment = function() end },
+		clock,
+		dateTime,
+		{}
+	)
+	economy.startPlayer(player)
+	local service = createService(engine, remotes, dataService, plots, economy, limiter, dateTime, function() end)
+	service.init()
+	service.init()
+	assert(resolver ~= nil, "live physical summary resolver must be registered")
+	local sequence = 0
+	local function fire(action: any, target: any): any
+		now += 0.7
+		sequence += 1
+		request.OnServerEvent.fire(player, action, target, sequence)
+		return results[#results]
+	end
+	local before = data.cash
+	assert(
+		not fire("buy", "6").ok and data.cash == before and #profiles.ids(data) == 1,
+		"occupied physical plot must not charge or create logical farm"
+	)
+	failSelect = true
+	assert(
+		not fire("buy", "2").ok and data.cash == before and data.mainFarms["2"] == nil and mappings["2"] == nil,
+		"injected selection failure rolls back reservation and never charges"
+	)
+	failSelect = false
+	assert(fire("buy", "2").ok, "empty main plot can be bought")
+	assert(
+		data.cash == before - config.MAIN_FARM_PRICES[2] and data.activeMainFarmId == "2",
+		"buy charges server price and selects new independent farm"
+	)
+	assert(
+		not data.purchased.zone_pasture and #data.animals == config.STARTING_COW_COUNT,
+		"new farm starts separately without copying old upgrades"
+	)
+	local boughtSequence = sequence
+	request.OnServerEvent.fire(player, "buy", "3", boughtSequence)
+	assert(#profiles.ids(data) == 2, "duplicate buy cannot create another farm")
+	data.stored = 23
+	data.purchased.silo = true
+	local cash = data.cash
+	assert(
+		fire("select", "1").ok and data.purchased.zone_pasture and not data.purchased.silo,
+		"selection restores the correct upgrade set"
+	)
+	assert(data.cash == cash, "switch cannot mint or reset shared wallet")
+	assert(
+		profiles.view(data, "2").stored >= 23 and profiles.view(data, "2").purchased.silo,
+		"old active scalars and tables survive switch"
+	)
+	assert(not fire("select", "6").ok and data.activeMainFarmId == "1", "unowned logical farm cannot be selected")
+	economy.settlePlayer(player)
+	local oldStored = data.stored
+	local second = profiles.view(data, "2")
+	second.stored = 0
+	local secondIncome = farmMath.computeIncomePerSecond(second)
+	local firstIncome = farmMath.computeIncomePerSecond(data)
+	now += 10
+	economy.settlePlayer(player)
+	assert(
+		math.abs(data.stored - oldStored - firstIncome * 10) < 0.001
+			and math.abs(second.stored - secondIncome * 10) < 0.001,
+		"every owned farm earns using its own animals and upgrades"
+	)
+	second.purchased.auto_collector = true
+	local cashBeforeAuto = data.cash
+	local storedBeforeAuto = second.stored
+	now += 2
+	economy.settlePlayer(player)
+	assert(
+		second.stored == 0 and math.abs(data.cash - cashBeforeAuto - storedBeforeAuto - secondIncome * 2) < 0.001,
+		"inactive auto collector pays shared wallet exactly once"
+	)
+	local encoded = codec.encode(data, now)
+	assert(
+		encoded.version == 4 and encoded.mainFarms["1"] and encoded.mainFarms["2"],
+		"all independent farms are persisted in protected schema4"
+	)
+	data.purchased.zone_pasture = nil
+	assert(
+		table.find(encoded.mainFarms["1"].purchased, "zone_pasture") ~= nil,
+		"write snapshot cannot alias active purchased table"
+	)
+	local roundtrip = assert(codec.decode(encoded, config, farmMath, now, uid), "multi farm reload")
+	assert(
+		roundtrip.cash == encoded.cash and roundtrip.purchased.zone_pasture and roundtrip.mainFarms["2"].purchased.silo,
+		"wallet and independent farm state roundtrip"
+	)
+	local later = assert(codec.decode(encoded, config, farmMath, now + 86400, uid), "offline multi farm reload")
+	for _, id in profiles.ids(later) do
+		local farm = profiles.view(later, id)
+		assert(farm.stored <= farmMath.getStorageCap(farm), "offline income stays capped per farm")
+	end
+	local malformed = table.clone(encoded)
+	malformed.activeMainFarmId = "6"
+	assert(codec.decode(malformed, config, farmMath, now, uid) == nil, "missing active farm fails closed")
+	malformed = table.clone(encoded)
+	malformed.mainFarms = table.clone(encoded.mainFarms)
+	malformed.mainFarms["7"] = encoded.mainFarms["2"]
+	assert(codec.decode(malformed, config, farmMath, now, uid) == nil, "farm count/ID cannot exceed Config")
+	active = false
+	assert(not fire("buy", "3").ok, "inactive profile cannot buy")
+	active = true
+	data.cash = 0
+	assert(not fire("buy", "3").ok and mappings["3"] == nil, "insufficient cash cannot reserve physical plot")
+	assert(
+		pushes == saves + 1 and saves >= 2 and #orderFarms > 1,
+		"all farm mutations persist and passive farms feed order progress"
+	)
+	print(
+		"PASS main farm economy: real buy/select, occupied/no-money/replay guards, shared wallet, v3 migration, independent/all-farm income, offline caps and snapshots"
+	)
+end
