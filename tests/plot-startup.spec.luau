@@ -87,7 +87,9 @@ return function(createPlotService: any, Config: any)
 			},
 			{ applyForPlayer = noop },
 			{ apply = noop },
-			{ apply = noop }
+			{ apply = noop },
+			{ apply = noop },
+			{ syncProductionSites = noop, syncMilkLoadingDecor = noop }
 		)
 		return {
 			service = service,

@@ -209,10 +209,30 @@ local function create(): UiKit.Window
 			end
 		end)
 	end
-	UiKit.sectionHeader(created.list, "Bu çiftliğe bağlı küçük adalar", 7)
+	local specialtyTitle, specialtyMeta = UiKit.sectionHeader(created.list, "Bu çiftliğe bağlı küçük adalar", 7)
 	local specialtyInfo = UiKit.text(created.list, "", "Caption")
 	specialtyInfo.LayoutOrder = 8
 	local specialtyList = section(9)
+	-- Açılır/kapanır bölüm: kapalıyken liste yer kaplamaz, "Meydana git" ve ziyaret listesi yukarıda kalır.
+	local specialtyOpen = false
+	local function applySpecialtyOpen()
+		specialtyInfo.Visible = specialtyOpen
+		specialtyList.Visible = specialtyOpen
+		specialtyMeta.Text = if specialtyOpen then "Kapat" else "Aç"
+	end
+	local specialtyToggle = Instance.new("TextButton")
+	specialtyToggle.Name = "SpecialtyToggle"
+	specialtyToggle.BackgroundTransparency = 1
+	specialtyToggle.Text = ""
+	specialtyToggle.Size = UDim2.fromScale(1, 1)
+	specialtyToggle.ZIndex = specialtyTitle.ZIndex + 5
+	specialtyToggle.Parent = specialtyTitle.Parent
+	specialtyToggle.Activated:Connect(function()
+		specialtyOpen = not specialtyOpen
+		applySpecialtyOpen()
+	end)
+	specialtyMeta.Size = UDim2.new(0, 60, 1, 0)
+	applySpecialtyOpen()
 	local specialtyCards: { [string]: UiKit.Card } = {}
 	for index, id in Config.FARM_ISLAND_ORDER do
 		if id == "home" then

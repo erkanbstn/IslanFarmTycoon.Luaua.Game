@@ -116,12 +116,20 @@ function FarmMath.getAnimalMultiplier(save: PlayerSave, animalId: string, neutra
 end
 
 -- Yetişkin bir hayvanın şu anki saniyelik geliri
-function FarmMath.getAnimalIncome(save: PlayerSave, animalId: string): number
+function FarmMath.getAnimalIncome(save: PlayerSave, animalId: string, animal: GameTypes.AnimalRecord?): number
 	local animalConfig = Config.ANIMALS[animalId]
 	if not animalConfig then
 		return 0
 	end
-	return animalConfig.baseIncomePerSecond * FarmMath.getAnimalMultiplier(save, animalId)
+	local income = animalConfig.baseIncomePerSecond * FarmMath.getAnimalMultiplier(save, animalId)
+	if animal and animal.extensionId then
+		local extension = Config.getExtension(animal.extensionId)
+		local upgrade = if extension then Config.getExtensionUpgrade(extension.id) else nil
+		if extension and upgrade and save.purchased[upgrade.id] then
+			income *= 1 + extension.incomeBonus
+		end
+	end
+	return income
 end
 
 function FarmMath.computeIncomePerSecond(save: PlayerSave): number
@@ -132,12 +140,7 @@ function FarmMath.computeIncomePerSecond(save: PlayerSave): number
 			continue
 		end
 		local stageMul = Config.STAGE_INCOME_MULTIPLIER[animal.stage] or 1
-		local income = incomeByAnimal[animal.animalId]
-		if income == nil then
-			income = FarmMath.getAnimalIncome(save, animal.animalId)
-			incomeByAnimal[animal.animalId] = income
-		end
-		total += income * stageMul
+		total += FarmMath.getAnimalIncome(save, animal.animalId, animal) * stageMul
 	end
 	return total
 end
@@ -161,14 +164,20 @@ function FarmMath.computeIncomeOverInterval(
 		if not animalConfig or not save.unlockedZones[animal.zoneId] then
 			continue
 		end
-		local rate = rates[animal.animalId]
 		local speed = speeds[animal.animalId]
-		if rate == nil or speed == nil then
-			rate = animalConfig.baseIncomePerSecond
-				* FarmMath.getAnimalMultiplier(save, animal.animalId, neutralWeather)
+		if speed == nil then
 			speed = FarmMath.getGrowthSpeed(save, animal.animalId)
-			rates[animal.animalId] = rate
 			speeds[animal.animalId] = speed
+		end
+		local rate = if neutralWeather
+			then animalConfig.baseIncomePerSecond * FarmMath.getAnimalMultiplier(save, animal.animalId, true)
+			else FarmMath.getAnimalIncome(save, animal.animalId, animal)
+		if neutralWeather and animal.extensionId then
+			local extension = Config.getExtension(animal.extensionId)
+			local upgrade = if extension then Config.getExtensionUpgrade(extension.id) else nil
+			if extension and upgrade and save.purchased[upgrade.id] then
+				rate *= 1 + extension.incomeBonus
+			end
 		end
 		local start = math.max(startedAt, animal.bornAt)
 		local youngAt = animal.bornAt + Config.GROWTH_SECONDS.calf / speed
@@ -206,11 +215,29 @@ end
 function FarmMath.countInZone(save: PlayerSave, zoneId: string): number
 	local count = 0
 	for _, animal in save.animals do
-		if animal.zoneId == zoneId then
+		if animal.zoneId == zoneId and (animal.extensionId == nil or animal.extensionId == "") then
 			count += 1
 		end
 	end
 	return count
+end
+
+function FarmMath.countInExtension(save: PlayerSave, extensionId: string): number
+	local count = 0
+	for _, animal in save.animals do
+		if animal.extensionId == extensionId then
+			count += 1
+		end
+	end
+	return count
+end
+
+function FarmMath.getExtensionStatus(save: PlayerSave, extensionId: string): (UpgradeStatus, { string })
+	local upgrade = Config.getExtensionUpgrade(extensionId)
+	if not upgrade then
+		return "locked", {}
+	end
+	return FarmMath.getUpgradeStatus(save, upgrade.id)
 end
 
 function FarmMath.countAnimals(save: PlayerSave, animalId: string): number
@@ -255,6 +282,17 @@ function FarmMath.getFishReplacementPrice(save: PlayerSave): number
 end
 
 export type ZoneBlock = "full" | "locked"
+
+-- Bu hayvan türü için en az bir bölge açık mı? (ada seçimi shop'u gizlemesin)
+function FarmMath.hasUnlockedAnimalZone(save: PlayerSave, animalId: string): boolean
+	for _, zoneId in Config.ZONE_ORDER do
+		local zone = Config.ZONES[zoneId]
+		if zone and table.find(zone.allowedAnimals, animalId) and save.unlockedZones[zoneId] then
+			return true
+		end
+	end
+	return false
+end
 
 -- Hayvanın konabileceği ilk açık ve boş alanı döner; yoksa (nil, sebep metni, engel türü)
 function FarmMath.findZoneForAnimal(save: PlayerSave, animalId: string): (string?, string?, ZoneBlock?)

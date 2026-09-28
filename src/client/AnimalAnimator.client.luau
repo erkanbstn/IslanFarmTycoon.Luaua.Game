@@ -23,6 +23,8 @@ type AnimalState = {
 	target: Vector3?,
 	waitUntil: number,
 	phase: number,
+	track: boolean,
+	trackAngle: number,
 }
 
 local states: { [Model]: AnimalState } = {}
@@ -63,16 +65,20 @@ local function trackReady(instance: Instance)
 		end
 	end
 
+	local movement = instance:GetAttribute("MovementStyle")
+	local isTrack = movement == "track"
 	states[instance] = {
 		model = instance,
 		area = area,
 		halfSize = size / 2,
 		heightOffset = heightOffset,
-		position = position,
+		position = if isTrack then Vector3.new(0, 0, size.Z / 2 - 2) else position,
 		yaw = yaw,
 		target = nil,
 		waitUntil = os.clock() + random:NextNumber(0, 4),
 		phase = random:NextNumber(0, math.pi * 2),
+		track = isTrack,
+		trackAngle = random:NextNumber(0, math.pi * 2),
 	}
 	-- İlk karede doğru yerde görünsün
 	instance:PivotTo(area * CFrame.new(position.X, heightOffset, position.Z) * CFrame.Angles(0, yaw, 0))
@@ -151,7 +157,14 @@ RunService.RenderStepped:Connect(function(dt: number)
 		end
 
 		local moving = false
-		if state.target == nil then
+		if state.track then
+			state.trackAngle += dt * 0.9
+			local rx = math.min(state.halfSize.X, 6)
+			local rz = math.min(state.halfSize.Z, 14)
+			state.position = Vector3.new(math.cos(state.trackAngle) * rx, 0, math.sin(state.trackAngle) * rz)
+			state.yaw = state.trackAngle + math.pi / 2
+			moving = true
+		elseif state.target == nil then
 			if now >= state.waitUntil then
 				state.target = randomPoint(state)
 			end

@@ -8,7 +8,7 @@ local connections: { [ProximityPrompt]: { RBXScriptConnection } } = {}
 local function discover(instance: Instance)
 	if
 		not instance:IsA("ProximityPrompt")
-		or (instance.Name ~= "BuyIslandPrompt" and instance.Name ~= "ProductionPrompt")
+		or (instance.Name ~= "BuyIslandPrompt" and instance.Name ~= "BuyExtensionPrompt" and instance.Name ~= "ProductionPrompt" and instance.Name ~= "ExtensionAssignPrompt" and instance.Name ~= "ExtensionUnassignPrompt")
 		or connections[instance]
 	then
 		return
@@ -22,9 +22,17 @@ local function discover(instance: Instance)
 	end
 	local owner = plot
 	local function update()
-		instance.Enabled = owner:GetAttribute("OwnerUserId") == localPlayer.UserId
+		local isOwner = owner:GetAttribute("OwnerUserId") == localPlayer.UserId
 			and owner:GetAttribute("MainFarmId") == localPlayer:GetAttribute("ActiveMainFarmId")
-			and (instance.Name == "ProductionPrompt" or instance:GetAttribute("Locked") == true)
+		if
+			instance.Name == "ProductionPrompt"
+			or instance.Name == "ExtensionAssignPrompt"
+			or instance.Name == "ExtensionUnassignPrompt"
+		then
+			instance.Enabled = isOwner
+		else
+			instance.Enabled = isOwner and instance:GetAttribute("Locked") == true
+		end
 	end
 	connections[instance] = {
 		instance:GetAttributeChangedSignal("Locked"):Connect(update),

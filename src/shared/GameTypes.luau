@@ -8,6 +8,7 @@ export type AnimalRecord = {
 	zoneId: string,
 	stage: AnimalStage,
 	bornAt: number, -- os.time(); evre buradan hesaplanır (oyuncu çevrimdışıyken de büyür)
+	extensionId: string?, -- Doluysa hayvan eklentide; zoneId ana bölgeyi tutar (kapasite sayımı)
 }
 
 export type OrderRecord = {

@@ -97,6 +97,19 @@ export type UpgradeConfig = {
 	growthBoost: { [string]: number }?, -- animalId -> büyüme hızı çarpanı
 	storageBonus: number?, -- Depo kapasitesine ek (0.25 = +%25)
 	autoCollect: boolean?, -- Depo yerine para doğrudan kasaya
+	extensionId: string?, -- kind == "extension" → Config.EXTENSIONS
+}
+
+export type ExtensionConfig = {
+	id: string,
+	displayName: string,
+	description: string,
+	icon: string,
+	island: string,
+	sourceZoneId: string,
+	animalId: string,
+	capacity: number,
+	incomeBonus: number, -- 0.5 = +%50 gelir (eklentideki hayvanlar)
 }
 
 local Config = {
@@ -348,9 +361,9 @@ local Config = {
 		{
 			id = "barn_3",
 			displayName = "Ahır Sv.3",
-			description = "Tüm gelir x1.4 · Depo 3.000",
+			description = "Tüm gelir x1.4 · Depo 3.000 · At Adası için gerekli",
 			icon = "🏠",
-			stage = 3,
+			stage = 1,
 			cost = 1800,
 			requires = { "barn_2" },
 			kind = "barn",
@@ -408,7 +421,7 @@ local Config = {
 			displayName = "Ahır Sv.4",
 			description = "Tüm gelir x1.7 · Depo 10.000",
 			icon = "🏰",
-			stage = 5,
+			stage = 1,
 			cost = 6000,
 			requires = { "barn_3" },
 			kind = "barn",
@@ -469,7 +482,76 @@ local Config = {
 			requires = { "island_horse" },
 			kind = "boost",
 		},
+		{
+			id = "ext_folluk_garden",
+			displayName = "Folluk Bahçesi",
+			description = "6 tavuk · kümes yerini boşaltır · +%50 gelir",
+			icon = "🐔",
+			stage = 3,
+			cost = 1400,
+			requires = { "island_poultry" },
+			kind = "extension",
+			extensionId = "folluk_garden",
+		},
+		{
+			id = "ext_training_course",
+			displayName = "Koşu ve Engel Parkuru",
+			description = "4 at · hara yerini boşaltır · +%50 gelir",
+			icon = "🏇",
+			stage = 4,
+			cost = 2200,
+			requires = { "island_horse" },
+			kind = "extension",
+			extensionId = "training_course",
+		},
+		{
+			id = "ext_rocky_terraces",
+			displayName = "Kayalık Otlak Terasları",
+			description = "5 keçi · ağıl yerini boşaltır · +%50 gelir",
+			icon = "🐐",
+			stage = 5,
+			cost = 3200,
+			requires = { "island_goat" },
+			kind = "extension",
+			extensionId = "rocky_terraces",
+		},
 	} :: { UpgradeConfig },
+
+	EXTENSIONS = {
+		folluk_garden = {
+			id = "folluk_garden",
+			displayName = "Folluk Bahçesi",
+			description = "Kümes dışı tavuklar",
+			icon = "🐔",
+			island = "poultry",
+			sourceZoneId = "poultry",
+			animalId = "chicken",
+			capacity = 6,
+			incomeBonus = 0.5,
+		},
+		training_course = {
+			id = "training_course",
+			displayName = "Koşu Parkuru",
+			description = "Antrenman atları",
+			icon = "🏇",
+			island = "horse",
+			sourceZoneId = "stable",
+			animalId = "horse",
+			capacity = 4,
+			incomeBonus = 0.5,
+		},
+		rocky_terraces = {
+			id = "rocky_terraces",
+			displayName = "Kayalık Teraslar",
+			description = "Teras otlak keçileri",
+			icon = "🐐",
+			island = "goat",
+			sourceZoneId = "goatpen",
+			animalId = "goat",
+			capacity = 5,
+			incomeBonus = 0.5,
+		},
+	} :: { [string]: ExtensionConfig },
 
 	-- Tek bir ücretli parti çevrimdışında tamamlanabilir; otomatik tekrar üretmez.
 	PRODUCTION_ORDER = { "dairy", "hatchery", "horse_training", "cheese", "fish_dispatch" },
@@ -698,6 +780,19 @@ end
 function Config.getZoneUpgrade(zoneId: string): UpgradeConfig?
 	for _, upgrade in Config.UPGRADES do
 		if upgrade.kind == "zone" and upgrade.zoneId == zoneId then
+			return upgrade
+		end
+	end
+	return nil
+end
+
+function Config.getExtension(extensionId: string): ExtensionConfig?
+	return Config.EXTENSIONS[extensionId]
+end
+
+function Config.getExtensionUpgrade(extensionId: string): UpgradeConfig?
+	for _, upgrade in Config.UPGRADES do
+		if upgrade.kind == "extension" and upgrade.extensionId == extensionId then
 			return upgrade
 		end
 	end

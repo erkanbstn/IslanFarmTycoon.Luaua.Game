@@ -21,7 +21,7 @@ local MapBuilder = {}
 
 -- Harita düzenini (adalar, bölgeler, yapı yerleri) değiştirince bunu 1 artır:
 -- oyun, place'e kaydedilmiş eski haritayı fark edip uyarır.
-local MAP_VERSION = 13
+local MAP_VERSION = 17
 
 local SURFACE_Y = 4 -- Ada ve meydan yüzeyinin yüksekliği
 local WATER_Y = 0 -- Deniz yüzeyi
@@ -471,6 +471,7 @@ local function buildSatellite(
 		prompt.RequiresLineOfSight = false
 		prompt:SetAttribute("UpgradeId", upgrade.id)
 		prompt:SetAttribute("Locked", true)
+		WorldUi.configureProximityPrompt(prompt)
 		prompt.Parent = sign
 	end
 

@@ -14,6 +14,8 @@ local Config = require(Shared:WaitForChild("Config"))
 local GameTypes = require(Shared:WaitForChild("GameTypes"))
 local WorldUi = require(Shared:WaitForChild("WorldUi"))
 
+local ExtensionAreas = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("ExtensionAreas"))
+
 type PlayerSave = GameTypes.PlayerSave
 
 local AnimalVisualService = {}
@@ -382,7 +384,13 @@ function AnimalVisualService.clear(plot: Model)
 	end
 end
 
-local function buildAnimal(animal: GameTypes.AnimalRecord, ground: BasePart, slot: number, capacity: number): Model
+local function buildAnimal(
+	animal: GameTypes.AnimalRecord,
+	ground: BasePart,
+	slot: number,
+	capacity: number,
+	movementStyle: string?
+): Model
 	local visual = createAnimalVisual(animal.animalId, animal.stage)
 	visual.Name = `{animal.animalId}_{animal.uid}`
 	visual:SetAttribute("VisualCreatedAt", game:GetService("Workspace"):GetServerTimeNow())
@@ -396,10 +404,14 @@ local function buildAnimal(animal: GameTypes.AnimalRecord, ground: BasePart, slo
 	visual:SetAttribute("Uid", animal.uid)
 	visual:SetAttribute("Stage", animal.stage)
 	visual:SetAttribute("ZoneId", animal.zoneId)
+	visual:SetAttribute("ExtensionId", animal.extensionId or "")
 	-- Client'taki AnimalAnimator hayvanı bu alan içinde gezdirir
 	visual:SetAttribute("AreaCFrame", areaCf)
 	visual:SetAttribute("AreaSize", areaSize)
 	visual:SetAttribute("HeightOffset", visual:GetPivot().Position.Y - areaCf.Position.Y)
+	if movementStyle then
+		visual:SetAttribute("MovementStyle", movementStyle)
+	end
 	CollectionService:AddTag(visual, "Animal")
 
 	local animalConfig = Config.ANIMALS[animal.animalId]
@@ -409,6 +421,26 @@ local function buildAnimal(animal: GameTypes.AnimalRecord, ground: BasePart, slo
 		then name
 		else `{name} ({Config.STAGE_DISPLAY[animal.stage] or animal.stage})`
 	addNameTag(visual, tag, depth) -- Balıklarda etiket suyun üstünde kalsın
+	return visual
+end
+
+local function buildAnimalInArea(
+	animal: GameTypes.AnimalRecord,
+	areaCf: CFrame,
+	areaSize: Vector3,
+	slot: number,
+	capacity: number,
+	movementStyle: string?
+): Model
+	local ground = Instance.new("Part")
+	ground.Size = Vector3.new(areaSize.X, 1, areaSize.Z)
+	ground.CFrame = areaCf
+	ground.Anchored = true
+	ground.Transparency = 1
+	ground.CanCollide = false
+	ground.CanQuery = false
+	local visual = buildAnimal(animal, ground, slot, capacity, movementStyle)
+	ground:Destroy()
 	return visual
 end
 
@@ -434,29 +466,50 @@ function AnimalVisualService.refresh(plot: Model, data: PlayerSave)
 	end
 
 	local perZoneCount: { [string]: number } = {}
+	local perExtensionCount: { [string]: number } = {}
 	local keep: { [string]: boolean } = {}
 	for _, animal in data.animals do
 		if not data.unlockedZones[animal.zoneId] then
 			continue
 		end
-		local ground = findZoneGround(plot, animal.zoneId)
-		local zoneConfig = Config.ZONES[animal.zoneId]
-		if not ground or not zoneConfig then
-			continue
-		end
-		perZoneCount[animal.zoneId] = (perZoneCount[animal.zoneId] or 0) + 1
 
 		local existing = existingByUid[animal.uid]
+		local existingExt = if existing then existing:GetAttribute("ExtensionId") else nil
 		if
 			existing
 			and existing:GetAttribute("Stage") == animal.stage
 			and existing:GetAttribute("ZoneId") == animal.zoneId
+			and existingExt == (animal.extensionId or "")
 		then
 			keep[animal.uid] = true
 			continue
 		end
 
-		local visual = buildAnimal(animal, ground, perZoneCount[animal.zoneId], zoneConfig.capacity)
+		local visual: Model
+		if animal.extensionId and animal.extensionId ~= "" then
+			local areaCf, areaSize, movement = ExtensionAreas.find(plot, animal.extensionId)
+			local extension = Config.getExtension(animal.extensionId)
+			if not areaCf or not areaSize or not extension then
+				continue
+			end
+			perExtensionCount[animal.extensionId] = (perExtensionCount[animal.extensionId] or 0) + 1
+			visual = buildAnimalInArea(
+				animal,
+				areaCf,
+				areaSize,
+				perExtensionCount[animal.extensionId],
+				extension.capacity,
+				movement
+			)
+		else
+			local ground = findZoneGround(plot, animal.zoneId)
+			local zoneConfig = Config.ZONES[animal.zoneId]
+			if not ground or not zoneConfig then
+				continue
+			end
+			perZoneCount[animal.zoneId] = (perZoneCount[animal.zoneId] or 0) + 1
+			visual = buildAnimal(animal, ground, perZoneCount[animal.zoneId], zoneConfig.capacity, nil)
+		end
 		if existing then
 			existing:Destroy()
 		end

@@ -294,6 +294,8 @@ local roadmapInfo = UiKit.text(
 roadmapInfo.LayoutOrder = 0
 
 local upgradeCards: { [string]: UiKit.Card } = {}
+type ExtensionHudRow = { row: Frame, add: TextButton, remove: TextButton }
+local extensionHudRows: { [string]: ExtensionHudRow } = {}
 local stageMeta: { [number]: TextLabel } = {}
 local stageGroups: { [number]: { GuiObject } } = {}
 do
@@ -341,6 +343,28 @@ do
 					PurchaseController.submit("RequestBuyUpgrade", upgrade.id)
 				end
 			end)
+			if upgrade.kind == "extension" and upgrade.extensionId then
+				local row = Instance.new("Frame")
+				row.Name = "ExtensionActions"
+				row.BackgroundTransparency = 1
+				row.Size = UDim2.new(1, 0, 0, 40)
+				row.LayoutOrder = 3
+				row.Visible = false
+				row.Parent = card.frame
+				UiKit.list(row, 8, true)
+				local add = UiKit.button(row, "Hayvan ekle", "primary")
+				add.Size = UDim2.new(0.5, -4, 1, 0)
+				local remove = UiKit.button(row, "Hayvan çıkar", "warning")
+				remove.Size = UDim2.new(0.5, -4, 1, 0)
+				local extensionId = upgrade.extensionId :: string
+				add.Activated:Connect(function()
+					Remotes.get("RequestExtensionAction"):FireServer(extensionId, "assign")
+				end)
+				remove.Activated:Connect(function()
+					Remotes.get("RequestExtensionAction"):FireServer(extensionId, "unassign")
+				end)
+				extensionHudRows[upgrade.id] = { row = row, add = add, remove = remove }
+			end
 		end
 	end
 end
@@ -591,11 +615,11 @@ end
 local function updateShop(state: PlayerSave, content: boolean)
 	if content then
 		shopInfo.Text =
-			`Seçili: {IslandContext.name()}\nHayvanlar yavru doğar, büyüdükçe daha çok kazandırır. Ada değiştirmek için Adalar.`
+			`Açık bölgelerdeki hayvanlar listelenir (ada seçimi shop'u gizlemez). Yavru doğar, büyüdükçe kazanç artar.`
 	end
 	for _, animalId in Config.ANIMAL_ORDER do
 		local card = animalCards[animalId]
-		local relevant = IslandContext.hasAnimal(animalId)
+		local relevant = FarmMath.hasUnlockedAnimalZone(state, animalId)
 		card.frame.Visible = relevant
 		if not relevant then
 			continue
@@ -649,21 +673,34 @@ local function updateRoadmap(state: PlayerSave, content: boolean)
 	local totalPerStage: { [number]: number } = {}
 	for _, upgrade in Config.UPGRADES do
 		local card = upgradeCards[upgrade.id]
-		local relevant = upgrade.kind ~= "island" and IslandContext.upgradeIsland(upgrade) == selectedIsland
+		local relevant = IslandContext.upgradeIsland(upgrade) == selectedIsland
 		card.frame.Visible = relevant
 		if not relevant then
 			continue
 		end
 		local status, missing = FarmMath.getUpgradeStatus(state, upgrade.id)
+		local extensionRow = extensionHudRows[upgrade.id]
 		if content then
 			totalPerStage[upgrade.stage] = (totalPerStage[upgrade.stage] or 0) + 1
 			if status == "owned" then
 				ownedPerStage[upgrade.stage] = (ownedPerStage[upgrade.stage] or 0) + 1
 			end
-			card.detail.Text = if status == "locked"
-				then `Önce: {table.concat(missing, ", ")}`
-				else upgrade.description
+			if status == "owned" and upgrade.kind == "extension" and upgrade.extensionId then
+				local extension = Config.getExtension(upgrade.extensionId)
+				local inExt = if extension then FarmMath.countInExtension(state, upgrade.extensionId) else 0
+				local cap = if extension then extension.capacity else 0
+				card.detail.Text = `{upgrade.description} · Dolu: {inExt}/{cap}`
+			else
+				card.detail.Text = if status == "locked"
+					then `Önce: {table.concat(missing, ", ")}`
+					else upgrade.description
+			end
 			card.frame.BackgroundTransparency = if status == "owned" then 0.5 else 0
+		end
+		if extensionRow then
+			local ownedExtension = status == "owned"
+			extensionRow.row.Visible = ownedExtension
+			card.action.Visible = not ownedExtension
 		end
 		local variant: UiKit.Variant = if status == "owned"
 			then "owned"
@@ -677,10 +714,11 @@ local function updateRoadmap(state: PlayerSave, content: boolean)
 		)
 	end
 	if content then
-		for stageIndex, stage in Config.ROADMAP_STAGES do
+		for stageIndex in Config.ROADMAP_STAGES do
+			local stageVisible = (ownedPerStage[stageIndex] or 0) > 0 or (totalPerStage[stageIndex] or 0) > 0
 			stageMeta[stageIndex].Text = `{ownedPerStage[stageIndex] or 0}/{totalPerStage[stageIndex] or 0}`
 			for _, item in stageGroups[stageIndex] do
-				item.Visible = (stage.island or "home") == selectedIsland
+				item.Visible = stageVisible
 			end
 		end
 	end
@@ -697,7 +735,7 @@ local function updateUpgrades(state: PlayerSave, content: boolean)
 	end
 	for index, upgrade in Config.UPGRADES do
 		local card = directUpgradeCards[upgrade.id]
-		local relevant = upgrade.kind ~= "island" and IslandContext.upgradeIsland(upgrade) == selectedIsland
+		local relevant = IslandContext.upgradeIsland(upgrade) == selectedIsland
 		if not relevant then
 			card.frame.Visible = false
 			continue
@@ -722,6 +760,26 @@ local function updateUpgrades(state: PlayerSave, content: boolean)
 	if content then
 		upgradesEmpty.Visible = remaining == 0
 		nextIslandButton.Visible = remaining == 0
+		if remaining == 0 then
+			local pendingUpgrade: Config.UpgradeConfig? = nil
+			local pendingIsland: string? = nil
+			for _, upgrade in Config.UPGRADES do
+				local islandId = IslandContext.upgradeIsland(upgrade)
+				if islandId == selectedIsland then
+					continue
+				end
+				if FarmMath.getUpgradeStatus(state, upgrade.id) == "available" then
+					pendingUpgrade = upgrade
+					pendingIsland = islandId
+					break
+				end
+			end
+			if pendingUpgrade and pendingIsland then
+				local islandName = Config.FARM_ISLANDS[pendingIsland].displayName
+				upgradesEmpty.Text =
+					`Bu adada açık yükseltme kalmadı. Sırada: {pendingUpgrade.displayName} ({islandName} — Adalar menüsünden o adayı seç, Yol Haritası'na bak).`
+			end
+		end
 		upgradesInfo.Visible = true
 	end
 end
@@ -731,7 +789,7 @@ local function updateBadges(state: PlayerSave)
 	local animals, upgrades = 0, 0
 	for _, animalId in Config.ANIMAL_ORDER do
 		if
-			IslandContext.hasAnimal(animalId)
+			FarmMath.hasUnlockedAnimalZone(state, animalId)
 			and FarmMath.findZoneForAnimal(state, animalId)
 			and state.cash >= FarmMath.getAnimalPrice(state, animalId)
 		then

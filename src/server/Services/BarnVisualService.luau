@@ -1,5 +1,5 @@
 --!strict
--- Ahır binasını seviyeye göre büyüterek kurar.
+-- Ahır binası: sabit ayak izi; seviye yükseldikçe malzeme ve ek parçalar değişir (ölçekleme yok).
 -- Konum: plot içindeki "BarnSpot" parçası (LookVector = kapı yönü).
 -- BarnSpot yoksa başlangıç bölgesinin zemini kullanılır.
 
@@ -13,8 +13,10 @@ local WorldUi = require(Shared:WaitForChild("WorldUi"))
 local BarnVisualService = {}
 
 local WALL_COLOR = Color3.fromRGB(170, 45, 38)
+local WALL_ACCENT = Color3.fromRGB(200, 75, 55)
 local TRIM_COLOR = Color3.fromRGB(240, 235, 225)
 local ROOF_COLOR = Color3.fromRGB(70, 60, 55)
+local STONE_COLOR = Color3.fromRGB(120, 118, 110)
 
 local function makePart(name: string, size: Vector3, cframe: CFrame, color: Color3, parent: Instance): Part
 	local part = Instance.new("Part")
@@ -50,14 +52,104 @@ local function getBarnFrame(plot: Model): CFrame?
 	return nil
 end
 
+local function addTierDetails(
+	barn: Model,
+	frame: CFrame,
+	level: number,
+	width: number,
+	depth: number,
+	wallH: number,
+	doorW: number
+)
+	if level >= 2 then
+		makePart(
+			"StoneBase",
+			Vector3.new(width + 1.2, 1.2, depth + 1.2),
+			frame * CFrame.new(0, 0.6, 0),
+			STONE_COLOR,
+			barn
+		).Material =
+			Enum.Material.Cobblestone
+		makePart(
+			"TrimBand",
+			Vector3.new(width + 0.4, 0.5, depth + 0.4),
+			frame * CFrame.new(0, 1.25 + wallH * 0.55, 0),
+			TRIM_COLOR,
+			barn
+		)
+		makePart(
+			"HayloftWindow",
+			Vector3.new(3, 2, 0.2),
+			frame * CFrame.new(0, 1 + wallH * 0.72, depth / 2 - 0.35),
+			Color3.fromRGB(90, 120, 150),
+			barn
+		).Material =
+			Enum.Material.Glass
+	end
+	if level >= 3 then
+		for _, side in { -1, 1 } do
+			makePart(
+				"SideWindow",
+				Vector3.new(0.2, 2.2, 2.2),
+				frame * CFrame.new(side * (width / 2 - 0.35), 1 + wallH * 0.55, 1.5),
+				Color3.fromRGB(90, 120, 150),
+				barn
+			).Material =
+				Enum.Material.Glass
+		end
+		local silo = makePart(
+			"Silo",
+			Vector3.new(3.5, 8, 3.5),
+			frame * CFrame.new(width / 2 + 2.2, 4.5, depth / 2 - 2),
+			TRIM_COLOR,
+			barn
+		)
+		silo.Material = Enum.Material.Metal
+	end
+	if level >= 4 then
+		makePart(
+			"UpperWall",
+			Vector3.new(width - 0.5, wallH * 0.35, depth - 0.5),
+			frame * CFrame.new(0, 1 + wallH * 0.82, 0),
+			WALL_ACCENT,
+			barn
+		)
+		makePart(
+			"Chimney",
+			Vector3.new(1.4, 4.5, 1.4),
+			frame * CFrame.new(-width / 2 + 2, 1 + wallH + 2.2, depth / 2 - 2),
+			STONE_COLOR,
+			barn
+		).Material =
+			Enum.Material.Brick
+		for _, x in { -doorW / 2 - 1.2, doorW / 2 + 1.2 } do
+			local lamp = makePart(
+				"LanternPost",
+				Vector3.new(0.35, 4, 0.35),
+				frame * CFrame.new(x, 3, -(depth / 2 + 0.8)),
+				Color3.fromRGB(50, 40, 30),
+				barn
+			)
+			makePart(
+				"Lantern",
+				Vector3.new(0.9, 1.1, 0.9),
+				lamp.CFrame * CFrame.new(0, 2.2, 0),
+				Color3.fromRGB(255, 210, 120),
+				barn
+			).Material =
+				Enum.Material.Neon
+		end
+	end
+end
+
 -- frame: zemin yüzeyinde, LookVector (-Z) kapı yönü
 local function buildBarn(parent: Instance, frame: CFrame, barnLevel: number)
 	local levelConfig = Config.getBarnLevelConfig(barnLevel)
-	local s = if levelConfig then levelConfig.barnScale else 1
+	local tier = math.clamp(barnLevel, 1, 4)
 
-	local width, depth = 14 * s, 10 * s
-	local wallH = 7 * s
-	local doorW, doorH = 5 * s, 5 * s
+	local width, depth = 14, 10
+	local wallH = 7
+	local doorW, doorH = 5, 5
 
 	local barn = Instance.new("Model")
 	barn.Name = "Barn"
@@ -70,14 +162,15 @@ local function buildBarn(parent: Instance, frame: CFrame, barnLevel: number)
 		barn
 	)
 	local wallY = 1 + wallH / 2
+	local wallColor = if tier >= 4 then WALL_ACCENT else WALL_COLOR
 
-	makePart("WallBack", Vector3.new(width, wallH, 1), frame * CFrame.new(0, wallY, depth / 2 - 0.5), WALL_COLOR, barn)
+	makePart("WallBack", Vector3.new(width, wallH, 1), frame * CFrame.new(0, wallY, depth / 2 - 0.5), wallColor, barn)
 	for _, side in { -1, 1 } do
 		makePart(
 			"WallSide",
 			Vector3.new(1, wallH, depth),
 			frame * CFrame.new(side * (width / 2 - 0.5), wallY, 0),
-			WALL_COLOR,
+			wallColor,
 			barn
 		)
 		local frontW = (width - doorW) / 2
@@ -85,7 +178,7 @@ local function buildBarn(parent: Instance, frame: CFrame, barnLevel: number)
 			"WallFront",
 			Vector3.new(frontW, wallH, 1),
 			frame * CFrame.new(side * (doorW / 2 + frontW / 2), wallY, -(depth / 2 - 0.5)),
-			WALL_COLOR,
+			wallColor,
 			barn
 		)
 		-- Beyaz köşe direkleri
@@ -105,9 +198,11 @@ local function buildBarn(parent: Instance, frame: CFrame, barnLevel: number)
 		"WallFrontTop",
 		Vector3.new(doorW, aboveDoorH, 1),
 		frame * CFrame.new(0, aboveDoorY, -(depth / 2 - 0.5)),
-		WALL_COLOR,
+		wallColor,
 		barn
 	)
+
+	addTierDetails(barn, frame, tier, width, depth, wallH, doorW)
 
 	-- Beşik çatı: iki eğik levha
 	local angle = math.rad(28)

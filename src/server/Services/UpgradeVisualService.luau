@@ -761,6 +761,7 @@ local function buildUpgrade(upgradeId: string, spot: BasePart, parent: Instance)
 		prompt.RequiresLineOfSight = false
 		prompt.KeyboardKeyCode = Enum.KeyCode.E
 		prompt:SetAttribute("ProductionRecipe", recipe)
+		WorldUi.configureProximityPrompt(prompt)
 		prompt.Parent = anchor
 	end
 	built:SetAttribute("VisualCreatedAt", game:GetService("Workspace"):GetServerTimeNow())

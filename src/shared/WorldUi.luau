@@ -270,4 +270,9 @@ function WorldUi.floatingMoney(parent: BasePart, text: string, reducedMotion: bo
 	return gui
 end
 
+-- Satın alma / etkileşim balonunu tabela yazısının üstünde göster (yazıyı kapatmaması için).
+function WorldUi.configureProximityPrompt(prompt: ProximityPrompt)
+	prompt.UIOffset = Vector2.new(0, -92)
+end
+
 return WorldUi

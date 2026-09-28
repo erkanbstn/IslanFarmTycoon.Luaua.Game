@@ -30,6 +30,8 @@ local AnimalVisualService = require(script.Parent:WaitForChild("AnimalVisualServ
 local BarnVisualService = require(script.Parent:WaitForChild("BarnVisualService"))
 local UpgradeVisualService = require(script.Parent:WaitForChild("UpgradeVisualService"))
 local ZoneVisualService = require(script.Parent:WaitForChild("ZoneVisualService"))
+local ExtensionVisualService = require(script.Parent:WaitForChild("ExtensionVisualService"))
+local IslandSpecialization = require(script.Parent:WaitForChild("IslandSpecialization"))
 
 type PlayerSave = GameTypes.PlayerSave
 
@@ -252,12 +254,19 @@ local function applyZoneState(plot: Model, data: PlayerSave?)
 		ZoneVisualService.apply(zone, zoneId, unlocked)
 
 		if data and unlocked then
-			setZoneLabel(
-				zone,
-				`{zoneConfig.displayName} · {FarmMath.countInZone(data, zoneId)}/{zoneConfig.capacity}`,
-				zoneConfig.icon,
-				false
-			)
+			local label = `{zoneConfig.displayName} · {FarmMath.countInZone(data, zoneId)}/{zoneConfig.capacity}`
+			for extensionId, extension in Config.EXTENSIONS do
+				if extension.sourceZoneId == zoneId then
+					local upgrade = Config.getExtensionUpgrade(extensionId)
+					if upgrade and data.purchased[upgrade.id] then
+						local inExt = FarmMath.countInExtension(data, extensionId)
+						if inExt > 0 then
+							label ..= ` · {extension.displayName}: {inExt}/{extension.capacity}`
+						end
+					end
+				end
+			end
+			setZoneLabel(zone, label, zoneConfig.icon, false)
 		elseif data and not data.unlockedIslands[zoneConfig.island] then
 			-- Ada kilitliyse etiketi ada tabelası anlatıyor; burada sadece ad
 			setZoneLabel(zone, zoneConfig.displayName, "🔒", true)
@@ -272,6 +281,14 @@ end
 -- Uzman adalar: açıksa yeşil zemin + özellik, kilitliyse toprak rengi + fiyat ve "Satın Al" düğmesi.
 -- data nil ise (boş çiftlik) hepsi kilitli görünür.
 local LOCKED_ISLAND_COLOR = Color3.fromRGB(150, 122, 90)
+
+local function islandSurfaceCf(island: Model): CFrame
+	local base = island:FindFirstChild("IslandBase")
+	if base and base:IsA("BasePart") then
+		return base.CFrame * CFrame.new(0, base.Size.Y / 2, 0)
+	end
+	return island:GetPivot()
+end
 
 local function applyIslandState(plot: Model, data: PlayerSave?)
 	local islands = plot:FindFirstChild("Islands")
@@ -306,6 +323,16 @@ local function applyIslandState(plot: Model, data: PlayerSave?)
 			WorldUi.setTag(label, `{islandConfig.displayName}{price}`, "🔒", UiTheme.Color.Red)
 		end
 
+		local spec = island:FindFirstChild("Specialization")
+		if spec and typeof(islandId) == "string" then
+			local surfaceCf = islandSurfaceCf(island)
+			IslandSpecialization.syncProductionSites(spec, surfaceCf, islandId, data)
+			if islandId == "home" then
+				local milkOwned = data ~= nil and data.purchased.milk_factory == true
+				IslandSpecialization.syncMilkLoadingDecor(spec, surfaceCf, milkOwned)
+			end
+		end
+
 		local sign = island:FindFirstChild("IslandSign")
 		if sign then
 			local prompt = sign:FindFirstChild("BuyIslandPrompt")
@@ -326,6 +353,7 @@ local function renderFarm(plot: Model, data: PlayerSave)
 	applyIslandState(plot, data)
 	applyZoneState(plot, data)
 	UpgradeVisualService.apply(plot, data)
+	ExtensionVisualService.apply(plot, data)
 	AnimalVisualService.refresh(plot, data)
 end
 
@@ -350,6 +378,7 @@ local function resetPlot(plot: Model)
 	applyIslandState(plot, nil)
 	applyZoneState(plot, nil)
 	UpgradeVisualService.apply(plot, nil)
+	ExtensionVisualService.apply(plot, nil)
 	AnimalVisualService.clear(plot)
 	local collector = plot:FindFirstChild("Collector")
 	if collector then

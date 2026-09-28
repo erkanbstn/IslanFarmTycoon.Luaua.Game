@@ -117,7 +117,7 @@ Remotes.get("EconomyTick").OnClientEvent
 task.spawn(function()
 	while not current do
 		ClientState.requestSnapshot()
-		task.wait(3)
+		task.wait(1)
 	end
 end)
 return ClientState

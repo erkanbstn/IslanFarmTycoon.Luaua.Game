@@ -28,12 +28,14 @@ export type EventName =
 	| "AdminResult"
 	| "RequestProductionAction"
 	| "ProductionResult"
+	| "RequestExtensionAction"
 
 local EVENTS = {
 	"RequestMainFarmAction", -- buy physicalPlotId / select logicalFarmId, requestId
 	"MainFarmResult", -- requestId, success, message
 	"RequestProductionAction", -- start/sell/keep, recipeId, jobUid?, requestId
 	"ProductionResult", -- requestId, success, message
+	"RequestExtensionAction", -- assign / unassign, extensionId
 	"RequestAdminAction", -- Sadece sunucudaki AdminPolicy'nin izin verdiği hesap.
 	"AdminResult", -- Sunucu -> yetkili client (requestId, success, message).
 	"Notify", -- Sunucu -> Client bilgi mesajı (message, kind?)

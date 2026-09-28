@@ -141,11 +141,12 @@ local function decodeFarm(
 			local animalId = entry.animalId
 			local zoneId = entry.zoneId
 			local zone = if typeof(zoneId) == "string" then config.ZONES[zoneId] else nil
+			local pendingExtension = typeof(entry.extensionId) == "string" and entry.extensionId ~= ""
 			if
 				not zone
 				or not save.unlockedZones[zoneId]
 				or not table.find(zone.allowedAnimals, animalId)
-				or farmMath.countInZone(save, zoneId) >= zone.capacity
+				or (not pendingExtension and farmMath.countInZone(save, zoneId) >= zone.capacity)
 			then
 				zoneId = farmMath.findZoneForAnimal(save, animalId)
 				repairs += 1
@@ -159,12 +160,30 @@ local function decodeFarm(
 			if bornAt ~= entry.bornAt then
 				repairs += 1
 			end
+			local extensionId: string? = nil
+			if typeof(entry.extensionId) == "string" and entry.extensionId ~= "" then
+				local extension = config.getExtension(entry.extensionId)
+				local upgrade = if extension then config.getExtensionUpgrade(extension.id) else nil
+				if
+					extension
+					and upgrade
+					and save.purchased[upgrade.id]
+					and animalId == extension.animalId
+					and zoneId == extension.sourceZoneId
+					and farmMath.countInExtension(save, extension.id) < extension.capacity
+				then
+					extensionId = extension.id
+				else
+					repairs += 1
+				end
+			end
 			table.insert(save.animals, {
 				uid = uniqueUid(entry.uid),
 				animalId = animalId,
 				zoneId = zoneId,
 				bornAt = bornAt,
 				stage = farmMath.getStage(bornAt, now, farmMath.getGrowthSpeed(save, animalId)),
+				extensionId = extensionId,
 			})
 		end
 	else
@@ -190,10 +209,13 @@ end
 local function encodeFarm(save: any, now: number): { [string]: any }
 	local animals = {}
 	for _, animal in save.animals do
-		table.insert(
-			animals,
-			{ uid = animal.uid, animalId = animal.animalId, zoneId = animal.zoneId, bornAt = animal.bornAt }
-		)
+		table.insert(animals, {
+			uid = animal.uid,
+			animalId = animal.animalId,
+			zoneId = animal.zoneId,
+			bornAt = animal.bornAt,
+			extensionId = animal.extensionId,
+		})
 	end
 	local purchased = {}
 	for id, owned in save.purchased do

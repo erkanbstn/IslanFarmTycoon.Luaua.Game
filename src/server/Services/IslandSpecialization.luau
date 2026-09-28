@@ -8,6 +8,51 @@ local WorldDecor = require(script.Parent:WaitForChild("WorldDecor"))
 local IslandSpecialization = {}
 
 export type Site = { island: string, offset: Vector3, footprint: Vector2, title: string, icon: string }
+-- Ada eklentileri: haritada yalnızca slot; görünüm satın alınca ExtensionVisualService kurar.
+export type ExtensionLayout = {
+	id: string,
+	island: string,
+	areaOffset: Vector3,
+	areaSize: Vector3,
+	signOffset: Vector3,
+	title: string,
+	icon: string,
+	movement: string, -- "wander" | "track"
+}
+
+IslandSpecialization.EXTENSIONS = {
+	folluk_garden = {
+		id = "folluk_garden",
+		island = "poultry",
+		areaOffset = Vector3.new(25, 0, 3),
+		areaSize = Vector3.new(14, 0, 25),
+		signOffset = Vector3.new(25, 0, -14),
+		title = "Folluk bahçesi",
+		icon = "🐔",
+		movement = "wander",
+	},
+	training_course = {
+		id = "training_course",
+		island = "horse",
+		areaOffset = Vector3.new(-26, 0, 0),
+		areaSize = Vector3.new(20, 0, 32),
+		signOffset = Vector3.new(-23, 0, -24),
+		title = "Koşu parkuru",
+		icon = "🐎",
+		movement = "track",
+	},
+	rocky_terraces = {
+		id = "rocky_terraces",
+		island = "goat",
+		areaOffset = Vector3.new(-26, 0, 0),
+		areaSize = Vector3.new(16, 0, 28),
+		signOffset = Vector3.new(-24, 0, -22),
+		title = "Kayalık otlak terasları",
+		icon = "🐐",
+		movement = "wander",
+	},
+} :: { [string]: ExtensionLayout }
+
 IslandSpecialization.SITES = {
 	milk_factory = {
 		island = "home",
@@ -31,6 +76,13 @@ IslandSpecialization.SITES = {
 		icon = "🐎",
 	},
 } :: { [string]: Site }
+
+-- Üretim alanı görünümü için alınmış olması gereken yol haritası öğesi
+IslandSpecialization.SITE_UPGRADE_ID = {
+	milk_factory = "milk_factory",
+	hatchery = "hatchery",
+	horse_training = "horse_training",
+} :: { [string]: string }
 
 local WOOD = Color3.fromRGB(131, 93, 58)
 local CREAM = Color3.fromRGB(235, 224, 192)
@@ -134,7 +186,6 @@ local function horse(parent: Instance, cf: CFrame)
 			rail.CanCollide = false
 		end
 	end
-	sign(parent, cf * CFrame.new(-23, 0, -24), "Koşu ve engel parkuru", "🐎")
 	WorldDecor.path(parent, (cf * CFrame.new(-3, 0, -24)).Position, (cf * CFrame.new(-19, 0, -24)).Position, 3)
 	WorldDecor.path(parent, (cf * CFrame.new(3, 0, -17)).Position, (cf * CFrame.new(25, 0, -13)).Position, 3)
 	WorldDecor.barrel(parent, cf * CFrame.new(30, 0, 17))
@@ -193,7 +244,6 @@ local function poultry(parent: Instance, cf: CFrame)
 		straw.CanCollide = false
 		WorldDecor.flowerPatch(parent, cf * CFrame.new(21, 0, 18 + index), index * 13)
 	end
-	sign(parent, cf * CFrame.new(25, 0, -14), "Folluk bahçesi", "🐔")
 	WorldDecor.path(parent, (cf * CFrame.new(3, 0, -20)).Position, (cf * CFrame.new(23, 0, -19)).Position, 3)
 	WorldDecor.path(parent, (cf * CFrame.new(-3, 0, -17)).Position, (cf * CFrame.new(-25, 0, -7)).Position, 3)
 	WorldDecor.crate(parent, cf * CFrame.new(-20, 0, 21), 2)
@@ -238,7 +288,6 @@ local function goat(parent: Instance, cf: CFrame)
 		end
 		WorldDecor.bush(terraces, base * CFrame.new(-3, height + 0.15, 1.5), index * 17)
 	end
-	sign(parent, cf * CFrame.new(-24, 0, -22), "Kayalık otlak terasları", "🐐")
 	WorldDecor.path(parent, (cf * CFrame.new(-3, 0, -25)).Position, (cf * CFrame.new(-23, 0, -23)).Position, 3)
 	-- Peynirhanenin önündeki yükleme alanı, ahırın arka şeridinden ayrıdır.
 	surface(
@@ -273,24 +322,165 @@ local function home(parent: Instance, cf: CFrame)
 	WorldDecor.crate(parent, cf * CFrame.new(56, 0, -20), 2.2)
 end
 
+local function createExtensionSlot(parent: Instance, surfaceCf: CFrame, layout: ExtensionLayout)
+	local anchor = part(
+		parent,
+		`ExtensionSlot_{layout.id}`,
+		Vector3.new(2, 1, 2),
+		surfaceCf * CFrame.new(layout.signOffset.X, 0.5, layout.signOffset.Z),
+		Color3.new(1, 1, 1),
+		Enum.Material.SmoothPlastic
+	)
+	anchor.Transparency = 1
+	anchor.CanCollide = false
+	anchor:SetAttribute("ExtensionId", layout.id)
+	local areaCf = surfaceCf * CFrame.new(layout.areaOffset)
+	anchor:SetAttribute("AreaCFrame", areaCf)
+	anchor:SetAttribute("AreaSize", layout.areaSize)
+	anchor:SetAttribute("MovementStyle", layout.movement)
+end
+
+function IslandSpecialization.buildExtensionVisual(parent: Instance, surfaceCf: CFrame, extensionId: string): Model?
+	local layout = IslandSpecialization.EXTENSIONS[extensionId]
+	if not layout then
+		return nil
+	end
+	local wrapper = Instance.new("Model")
+	wrapper.Name = extensionId
+	wrapper.Parent = parent
+	if extensionId == "folluk_garden" then
+		poultry(wrapper, surfaceCf)
+	elseif extensionId == "training_course" then
+		horse(wrapper, surfaceCf)
+	elseif extensionId == "rocky_terraces" then
+		goat(wrapper, surfaceCf)
+	end
+	-- Satın alınan eklentide de tabela olsun: etkileşim balonları rastgele bir yapı parçasına değil buna bağlanır.
+	sign(wrapper, surfaceCf * CFrame.new(layout.signOffset.X, 0, layout.signOffset.Z), layout.title, layout.icon)
+	local areaCf = surfaceCf * CFrame.new(layout.areaOffset)
+	wrapper:SetAttribute("AreaCFrame", areaCf)
+	wrapper:SetAttribute("AreaSize", layout.areaSize)
+	wrapper:SetAttribute("MovementStyle", layout.movement)
+	wrapper:SetAttribute("ExtensionId", extensionId)
+	return wrapper
+end
+
+function IslandSpecialization.buildForSaleSign(
+	parent: Instance,
+	surfaceCf: CFrame,
+	extensionId: string,
+	priceText: string
+): Model
+	local layout = IslandSpecialization.EXTENSIONS[extensionId]
+	local wrapper = Instance.new("Model")
+	wrapper.Name = `ForSale_{extensionId}`
+	wrapper.Parent = parent
+	if layout then
+		local cf = surfaceCf * CFrame.new(layout.signOffset.X, 0, layout.signOffset.Z)
+		local board = part(
+			wrapper,
+			"ForSaleSign",
+			Vector3.new(7, 2, 0.35),
+			cf * CFrame.new(0, 3.1, 0),
+			WOOD,
+			Enum.Material.WoodPlanks
+		)
+		part(wrapper, "SignPost", Vector3.new(0.45, 2.1, 0.45), cf * CFrame.new(0, 1.05, 0), WOOD, Enum.Material.Wood)
+		WorldUi.sign(board, Enum.NormalId.Front, {
+			title = layout.title,
+			text = `Satılık · {priceText}`,
+			icon = layout.icon,
+		})
+		createExtensionSlot(wrapper, surfaceCf, layout)
+	end
+	wrapper:SetAttribute("ExtensionId", extensionId)
+	return wrapper
+end
+
+local function stripLegacyProductionDecor(parent: Instance)
+	for _, child in parent:GetChildren() do
+		if child:IsA("Folder") and (child.Name == "ProductionSites" or child.Name == "MilkLoadingDecor") then
+			continue
+		end
+		if child:IsA("Folder") then
+			continue
+		end
+		if string.sub(child.Name, 1, 14) == "ExtensionSlot_" then
+			continue
+		end
+		local legacyPart = child:IsA("BasePart")
+			and (
+				child.Name == "ProductionPad"
+				or child.Name == "SpecialtySign"
+				or child.Name == "SignPost"
+				or child.Name == "LoadingBayStripe"
+			)
+		local legacyModel = child:IsA("Model") and (child.Name == "Crate" or child.Name:find("Path") ~= nil)
+		if legacyPart or legacyModel then
+			child:Destroy()
+		end
+	end
+	local legacyDecor = parent:FindFirstChild("MilkLoadingDecor")
+	if legacyDecor then
+		legacyDecor:Destroy()
+	end
+end
+
+function IslandSpecialization.syncMilkLoadingDecor(parent: Instance, surfaceCf: CFrame, enabled: boolean)
+	local folder = parent:FindFirstChild("MilkLoadingDecor")
+	if not enabled then
+		if folder then
+			folder:Destroy()
+		end
+		return
+	end
+	if folder then
+		return
+	end
+	folder = Instance.new("Folder")
+	folder.Name = "MilkLoadingDecor"
+	folder.Parent = parent
+	home(folder, surfaceCf)
+end
+
+-- İlgili yol haritası öğesi alındığında üretim tabelası + zemin (ada açık olmalı).
+function IslandSpecialization.syncProductionSites(parent: Instance, surfaceCf: CFrame, islandId: string, save: any?)
+	stripLegacyProductionDecor(parent)
+	local folder = parent:FindFirstChild("ProductionSites")
+	if not save or save.unlockedIslands[islandId] ~= true then
+		if folder then
+			folder:Destroy()
+		end
+		return
+	end
+	if not folder then
+		folder = Instance.new("Folder")
+		folder.Name = "ProductionSites"
+		folder.Parent = parent
+	else
+		folder:ClearAllChildren()
+	end
+	for id, site in IslandSpecialization.SITES do
+		if site.island ~= islandId then
+			continue
+		end
+		local upgradeId = IslandSpecialization.SITE_UPGRADE_ID[id]
+		if upgradeId and save.purchased[upgradeId] ~= true then
+			continue
+		end
+		productionSite(folder, surfaceCf, id, site)
+	end
+end
+
 function IslandSpecialization.build(parent: Instance, islandId: string, surfaceCf: CFrame)
 	local model = Instance.new("Model")
 	model.Name = "Specialization"
 	model:SetAttribute("FarmIslandId", islandId)
 	model.Parent = parent
-	for id, site in IslandSpecialization.SITES do
-		if site.island == islandId then
-			productionSite(model, surfaceCf, id, site)
+	for _, layout in IslandSpecialization.EXTENSIONS do
+		if layout.island == islandId then
+			createExtensionSlot(model, surfaceCf, layout)
 		end
-	end
-	if islandId == "home" then
-		home(model, surfaceCf)
-	elseif islandId == "horse" then
-		horse(model, surfaceCf)
-	elseif islandId == "poultry" then
-		poultry(model, surfaceCf)
-	elseif islandId == "goat" then
-		goat(model, surfaceCf)
 	end
 end
 

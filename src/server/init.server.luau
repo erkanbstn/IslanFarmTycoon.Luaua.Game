@@ -21,6 +21,7 @@ local OrderService = require(Services:WaitForChild("OrderService"))
 local MainFarmService = require(Services:WaitForChild("MainFarmService"))
 local ProductionService = require(Services:WaitForChild("ProductionService"))
 local AdminService = require(Services:WaitForChild("AdminService"))
+local ExtensionService = require(Services:WaitForChild("ExtensionService"))
 local RateLimiter = require(script:WaitForChild("Modules"):WaitForChild("RateLimiter"))
 
 -- Karakter, veri yüklenip ada atandıktan SONRA yüklenir: böylece oyuncu önce meydanda doğup
@@ -43,6 +44,7 @@ if not mapReady then
 	warn(`[Server] Harita hazırlanamadı: {mapError}`)
 end
 UpgradeService.init()
+ExtensionService.init()
 AnimalService.init()
 EconomyService.init()
 OrderService.init()
@@ -52,6 +54,7 @@ MainFarmService.init()
 
 local TELEPORT_COOLDOWN = 1.5
 local lastTeleportAt: { [Player]: number } = {}
+local joining: { [Player]: boolean } = {}
 
 local function canTeleport(player: Player): boolean
 	if not PlayerDataService.tryGet(player) or player:GetAttribute("WorldReady") ~= true then
@@ -140,10 +143,15 @@ local function setupRespawn(player: Player)
 end
 
 local function onPlayerAdded(player: Player)
+	if joining[player] then
+		return
+	end
+	joining[player] = true
 	player:SetAttribute("SelectedFarmIsland", "home")
 	player:SetAttribute("WorldReady", false)
 	if not mapReady then
 		player:Kick("Harita hazırlanamadı. Lütfen başka bir sunucuya katıl.")
+		joining[player] = nil
 		return
 	end
 	setupRespawn(player)
@@ -152,14 +160,18 @@ local function onPlayerAdded(player: Player)
 	local hasPlot = PlotService.assign(player)
 	if not hasPlot then
 		player:Kick("Sunucuda boş ada kalmadı. Lütfen başka bir sunucuya katıl.")
+		joining[player] = nil
 		return
 	end
 
 	-- 2) Kaydı arka planda yükle; gelince ada (hayvanlar, binalar) ve arayüz dolar
 	local data = PlayerDataService.load(player) -- yield eder
 	if not data or not player.Parent then
+		joining[player] = nil
 		return
 	end
+	-- Arayüz veri beklerken çiftlik kuruluyor; snapshot'ı erken gönder.
+	PlayerDataService.pushState(player)
 	local prepared, prepareError = pcall(function()
 		assert(
 			PlotService.restoreMainFarms(player, PlayerDataService.getFarmIds(player), data.activeMainFarmId),
@@ -177,9 +189,11 @@ local function onPlayerAdded(player: Player)
 		if player.Parent then
 			player:Kick("Çiftlik hazırlanamadı. Lütfen yeniden katıl.")
 		end
+		joining[player] = nil
 		return
 	end
 	if not player.Parent then
+		joining[player] = nil
 		return
 	end
 	player:SetAttribute("WorldReady", true)
@@ -193,9 +207,11 @@ local function onPlayerAdded(player: Player)
 			:FireClient(player, `Sen yokken hayvanların depoya {FarmMath.formatMoney(offline)} biriktirdi!`, "money")
 	end
 	print(`[Server] {player.Name} katıldı.`)
+	joining[player] = nil
 end
 
 local function onPlayerRemoving(player: Player)
+	joining[player] = nil
 	lastTeleportAt[player] = nil
 	EconomyService.stopPlayer(player)
 	player:SetAttribute("WorldReady", false)

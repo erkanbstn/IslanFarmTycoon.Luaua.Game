@@ -104,6 +104,8 @@ return function(createService: any, config: any)
 		{ applyForPlayer = noop },
 		{ apply = noop },
 		{ apply = noop },
+		{ apply = noop },
+		{ syncProductionSites = noop, syncMilkLoadingDecor = noop },
 		vectors,
 		frames
 	)
