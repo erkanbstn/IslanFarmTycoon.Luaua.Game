@@ -16,12 +16,13 @@ local WorldUi = require(Shared:WaitForChild("WorldUi"))
 local BarnVisualService = require(script.Parent:WaitForChild("BarnVisualService"))
 local WorldDecor = require(script.Parent:WaitForChild("WorldDecor"))
 local IslandSpecialization = require(script.Parent:WaitForChild("IslandSpecialization"))
+local HomeBuildings = require(script.Parent:WaitForChild("HomeBuildings"))
 
 local MapBuilder = {}
 
 -- Harita düzenini (adalar, bölgeler, yapı yerleri) değiştirince bunu 1 artır:
 -- oyun, place'e kaydedilmiş eski haritayı fark edip uyarır.
-local MAP_VERSION = 24
+local MAP_VERSION = 26
 
 local SURFACE_Y = 4 -- Ada ve meydan yüzeyinin yüksekliği
 local WATER_Y = 0 -- Deniz yüzeyi
@@ -765,6 +766,17 @@ local function decorateHome(decor: Instance, islandCf: CFrame, plotIndex: number
 	WorldDecor.crate(decor, at(-11.4, 27.6), 1.6)
 	WorldDecor.mailbox(decor, at(8, -53))
 
+	-- Ana ada yapıları (HomeBuildings): her genel adada aynı düzen; ön (-Z) yönü yaw ile çevrilir.
+	local east, west = math.rad(-90), math.rad(90) -- ön yüz +X / -X
+	HomeBuildings.market(decor, at(-13, -40) * CFrame.Angles(0, east, 0))
+	HomeBuildings.farmhouse(decor, at(46, 6) * CFrame.Angles(0, west, 0))
+	HomeBuildings.windmill(decor, at(-49, -18) * CFrame.Angles(0, east, 0))
+	HomeBuildings.well(decor, at(-24, 21))
+	HomeBuildings.vegetableGarden(decor, at(-43, 10))
+	HomeBuildings.orchard(decor, at(40, 20))
+	HomeBuildings.beehives(decor, at(-42, -27))
+	HomeBuildings.granary(decor, at(-46, 32) * CFrame.Angles(0, east, 0))
+
 	-- Ana adadan balık kafesine iskele (LookVector kafese bakar)
 	WorldDecor.dock(
 		decor,
@@ -942,6 +954,14 @@ local function buildIsland(plotIndex: number, islandCf: CFrame): Model
 		{ x = 0, z = -45, hx = 7, hz = 7 }, -- doğma noktası
 		{ x = -36, z = 41, hx = 22, hz = 5 }, -- köprü yolları
 		{ x = 36, z = 41, hx = 22, hz = 5 },
+		{ x = -13, z = -40, hx = 6, hz = 7 }, -- pazar tezgâhı
+		{ x = 44, z = 6, hx = 10, hz = 10 }, -- çiftlik evi
+		{ x = -49, z = -18, hx = 8, hz = 8 }, -- yel değirmeni
+		{ x = -24, z = 21, hx = 5, hz = 5 }, -- kuyu
+		{ x = -43, z = 10, hx = 9, hz = 8 }, -- sebze bahçesi
+		{ x = 44, z = 27, hx = 9, hz = 11 }, -- meyve bahçesi
+		{ x = -42, z = -27, hx = 7, hz = 7 }, -- arı kovanları
+		{ x = -46, z = 32, hx = 8, hz = 9 }, -- ambar
 	}, 140, plotIndex * 97)
 
 	local islandsFolder = Instance.new("Folder")

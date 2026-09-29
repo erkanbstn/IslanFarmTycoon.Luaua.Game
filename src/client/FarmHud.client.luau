@@ -6,6 +6,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
+local ProximityPromptService = game:GetService("ProximityPromptService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -245,6 +246,12 @@ local islandsButton = UiKit.menuButton(dock, "🧭", "Adalar", Color.Blue, if ha
 islandsButton.Activated:Connect(IslandManager.open)
 local goalsButton = UiKit.menuButton(dock, "🏆", "Çiftliğim", Color.Gold, nil)
 goalsButton.Activated:Connect(goalsWindow.open)
+-- Pazar tezgâhı (adadaki sipariş panosu): yaklaşıp etkileşince Çiftliğim penceresi açılır
+ProximityPromptService.PromptTriggered:Connect(function(prompt: ProximityPrompt, who: Player?)
+	if prompt.Name == "MarketPrompt" and (not who or who == localPlayer) then
+		goalsWindow.open()
+	end
+end)
 local homeButton = UiKit.menuButton(dock, "🏠", "Adama Dön", Color.Orange, nil)
 local settingsButton = UiKit.menuButton(dock, "⚙️", "Ayarlar", Color.TextMuted, nil)
 local adminButton = UiKit.menuButton(dock, "🔑", "Yönetici", Color.Gold, nil)

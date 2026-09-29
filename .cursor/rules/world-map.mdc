@@ -15,6 +15,12 @@ alwaysApply: false
 - Harita sözleşmesi (Plots/Zones/Islands/BuildSpots/HubSpawn) `validate()` içindedir; yeni zorunlu
   parça eklersen oraya ve `tests/world.spec.luau`'ya ekle.
 
+## Ana ada yapıları
+- `HomeBuildings.luau` (Services): pazar tezgâhı (`MarketPrompt` → Çiftliğim penceresi), çiftlik evi, yel değirmeni
+  (kanatlar `Windmill` etiketi, döndürme `Windmill.client`), kuyu, sebze bahçesi, meyve bahçesi, arı kovanları, ambar.
+  `MapBuilder.decorateHome` çağırır; yerleri `addIslandGrass` kaçınma listesinde de tutulur. Kapılar >= 4.6 x 6.6 stud.
+- Ada temaları çiftlik numarasına bağlanır (Çiftlik 1 = Papatya ...); genel ada çekirdeği hepsinde ortaktır.
+
 ## Gece ışıkları
 - Işık kaynağı parçası `NightLight` (fener, Neon) veya `NightWindow` (pencere, SmoothPlastic)
   etiketi + `NightColor` özniteliği + `Enabled = false` bir `PointLight` alır.
