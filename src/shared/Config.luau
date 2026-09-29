@@ -46,6 +46,14 @@ export type BarnLevelConfig = {
 
 -- Oyuncunun takımadasındaki adalar. "home" herkese ücretsiz; diğerleri yol haritasından açılır
 -- ve her biri yeni bir hayvanı + kendine özel bir bonusu getirir.
+-- Ada teması: her ana çiftlik numarasının (= fiziksel ada numarası) kendi 3 küçük adası vardır.
+-- satellites sırası = harita yuvası sırası (erken, orta, geç); hepsi FARM_ISLANDS'ta tanımlı olmalıdır.
+export type ThemeConfig = {
+	id: string,
+	displayName: string,
+	satellites: { string },
+}
+
 export type FarmIslandConfig = {
 	id: string,
 	displayName: string,
@@ -465,6 +473,9 @@ local Config = {
 		chicken = { id = "", volume = 0.45 },
 		horse = { id = "", volume = 0.5 },
 		goat = { id = "", volume = 0.5 },
+		duck = { id = "", volume = 0.45 },
+		sheep = { id = "", volume = 0.5 },
+		pig = { id = "", volume = 0.5 },
 	} :: { [string]: SoundConfig },
 
 	-- Bir hayvanın her evrede kaldığı süre (saniye). Yetişkin olunca tam gelir verir.
@@ -486,7 +497,8 @@ local Config = {
 		{ level = 4, displayName = "Büyük Çiftlik", barnScale = 1.7, storageCap = 10000, incomeMultiplier = 1.7 },
 	} :: { BarnLevelConfig },
 
-	FARM_ISLAND_ORDER = { "home", "poultry", "horse", "goat" },
+	-- Bütün ada türleri; hangi çiftlikte hangilerinin olduğunu THEMES belirler.
+	FARM_ISLAND_ORDER = { "home", "poultry", "duck", "horse", "sheep", "goat", "pig" },
 	FARM_ISLANDS = {
 		home = {
 			id = "home",
@@ -515,7 +527,39 @@ local Config = {
 			trait = "Serin iklim: depo kapasitesi +%25",
 			upgradeId = "island_goat",
 		},
+		duck = {
+			id = "duck",
+			displayName = "Ördek Adası",
+			icon = "🦆",
+			trait = "Göl kenarında ördekler 2 kat hızlı büyür",
+			upgradeId = "island_duck",
+		},
+		sheep = {
+			id = "sheep",
+			displayName = "Koyun Adası",
+			icon = "🐑",
+			trait = "Yün: koyunlar +%25 gelir getirir",
+			upgradeId = "island_sheep",
+		},
+		pig = {
+			id = "pig",
+			displayName = "Domuz Adası",
+			icon = "🐖",
+			trait = "Trüf ormanı: domuzlar +%25 gelir getirir",
+			upgradeId = "island_pig",
+		},
 	} :: { [string]: FarmIslandConfig },
+
+	-- Temalar: dizi sırası = ana çiftlik numarası = fiziksel ada numarası (Çiftlik 1 her zaman Papatya).
+	-- Her tema erken (Ahır Sv.2), orta (Sv.3) ve geç (Sv.4) birer ada türü içerir; hiçbir tema diğeriyle aynı değildir.
+	THEMES = {
+		{ id = "papatya", displayName = "Klasik Çayır", satellites = { "poultry", "horse", "goat" } },
+		{ id = "lale", displayName = "Yün ve Göl", satellites = { "duck", "sheep", "goat" } },
+		{ id = "aycicegi", displayName = "Güneşli Tarla", satellites = { "poultry", "sheep", "pig" } },
+		{ id = "gul", displayName = "Göl ve Hara", satellites = { "duck", "horse", "pig" } },
+		{ id = "yonca", displayName = "Dağ ve Orman", satellites = { "poultry", "horse", "pig" } },
+		{ id = "kiraz", displayName = "Meyve ve Göl", satellites = { "duck", "sheep", "pig" } },
+	} :: { ThemeConfig },
 
 	-- Yol haritası aşamaları: adalar + onlarla paralel ilerleyen Deniz dalı
 	ROADMAP_STAGES = {
@@ -524,6 +568,9 @@ local Config = {
 		{ name = "Tavuk Adası", island = "poultry" },
 		{ name = "At Adası", island = "horse" },
 		{ name = "Keçi Adası", island = "goat" },
+		{ name = "Ördek Adası", island = "duck" },
+		{ name = "Koyun Adası", island = "sheep" },
+		{ name = "Domuz Adası", island = "pig" },
 	} :: { RoadmapStage },
 
 	UPGRADES = {
@@ -611,7 +658,7 @@ local Config = {
 		{
 			id = "barn_3",
 			displayName = "Ahır Sv.3",
-			description = "Tüm gelir x1.4 · Depo 3.000 · At Adası için gerekli",
+			description = "Tüm gelir x1.4 · Depo 3.000 · Orta adalar için gerekli",
 			icon = "🏠",
 			stage = 1,
 			cost = 1800,
@@ -669,7 +716,7 @@ local Config = {
 		{
 			id = "barn_4",
 			displayName = "Ahır Sv.4",
-			description = "Tüm gelir x1.7 · Depo 10.000",
+			description = "Tüm gelir x1.7 · Depo 10.000 · Son adalar için gerekli",
 			icon = "🏰",
 			stage = 1,
 			cost = 6000,
@@ -684,10 +731,82 @@ local Config = {
 			icon = "🐐",
 			stage = 5,
 			cost = 7500,
-			requires = { "island_horse" },
+			requires = { "barn_4" },
 			kind = "island",
 			islandId = "goat",
 			storageBonus = 0.25,
+		},
+		-- Aşama 6: Ördek Adası (erken ada: Ahır Sv.2)
+		{
+			id = "island_duck",
+			displayName = "Ördek Adası",
+			description = "Ördek açılır · Göl kenarında 2 kat hızlı büyür",
+			icon = "🦆",
+			stage = 6,
+			cost = 950,
+			requires = { "barn_2" },
+			kind = "island",
+			islandId = "duck",
+			growthBoost = { duck = 2 },
+		},
+		{
+			id = "duck_house",
+			displayName = "Ördek Kulübesi",
+			description = "Ördek geliri +%60",
+			icon = "🏠",
+			stage = 6,
+			cost = 2600,
+			requires = { "island_duck" },
+			kind = "boost",
+			incomeBoost = { duck = 0.6 },
+		},
+		-- Aşama 7: Koyun Adası (orta ada: Ahır Sv.3)
+		{
+			id = "island_sheep",
+			displayName = "Koyun Adası",
+			description = "Koyun açılır · Yün: koyunlar +%25 gelir",
+			icon = "🐑",
+			stage = 7,
+			cost = 3600,
+			requires = { "barn_3" },
+			kind = "island",
+			islandId = "sheep",
+			incomeBoost = { sheep = 0.25 },
+		},
+		{
+			id = "wool_mill",
+			displayName = "Yün Değirmeni",
+			description = "Koyun geliri +%75",
+			icon = "🧶",
+			stage = 7,
+			cost = 8500,
+			requires = { "island_sheep" },
+			kind = "boost",
+			incomeBoost = { sheep = 0.75 },
+		},
+		-- Aşama 8: Domuz Adası (geç ada: Ahır Sv.4)
+		{
+			id = "island_pig",
+			displayName = "Domuz Adası",
+			description = "Domuz açılır · Trüf ormanı: domuzlar +%25 gelir",
+			icon = "🐖",
+			stage = 8,
+			cost = 7800,
+			requires = { "barn_4" },
+			kind = "island",
+			islandId = "pig",
+			incomeBoost = { pig = 0.25 },
+		},
+		{
+			id = "truffle_kitchen",
+			displayName = "Trüf Mutfağı",
+			description = "Domuz geliri 2 katı",
+			icon = "🍄",
+			stage = 8,
+			cost = 12500,
+			requires = { "island_pig" },
+			kind = "boost",
+			incomeBoost = { pig = 1 },
 		},
 		{
 			id = "cheese_dairy",
@@ -885,7 +1004,7 @@ local Config = {
 
 	-- Bölgeler. Sıra önemli: hayvan alınınca ilk açık & boş alana konur.
 	-- Bir bölge, adası açıksa ve (varsa) kendi yol haritası öğesi alınmışsa açıktır.
-	ZONE_ORDER = { "starter", "pasture", "fishpen", "poultry", "stable", "goatpen" },
+	ZONE_ORDER = { "starter", "pasture", "fishpen", "poultry", "pond", "stable", "sheepfold", "goatpen", "pigpen" },
 	ZONES = {
 		starter = {
 			id = "starter",
@@ -935,9 +1054,33 @@ local Config = {
 			capacity = 8,
 			allowedAnimals = { "goat" },
 		},
+		pond = {
+			id = "pond",
+			displayName = "Ördek Gölü",
+			icon = "🦆",
+			island = "duck",
+			capacity = 12,
+			allowedAnimals = { "duck" },
+		},
+		sheepfold = {
+			id = "sheepfold",
+			displayName = "Koyun Ağılı",
+			icon = "🐑",
+			island = "sheep",
+			capacity = 8,
+			allowedAnimals = { "sheep" },
+		},
+		pigpen = {
+			id = "pigpen",
+			displayName = "Domuz Çiftliği",
+			icon = "🐖",
+			island = "pig",
+			capacity = 8,
+			allowedAnimals = { "pig" },
+		},
 	} :: { [string]: ZoneConfig },
 
-	ANIMAL_ORDER = { "cow", "anchovy", "chicken", "seabass", "horse", "goat" },
+	ANIMAL_ORDER = { "cow", "anchovy", "chicken", "duck", "seabass", "horse", "sheep", "goat", "pig" },
 	ANIMALS = {
 		cow = {
 			id = "cow",
@@ -987,6 +1130,30 @@ local Config = {
 			price = 2000,
 			baseIncomePerSecond = 24,
 		},
+		duck = {
+			id = "duck",
+			displayName = "Ördek",
+			icon = "🦆",
+			product = "Ördek yumurtası",
+			price = 400,
+			baseIncomePerSecond = 5.5,
+		},
+		sheep = {
+			id = "sheep",
+			displayName = "Koyun",
+			icon = "🐑",
+			product = "Yün",
+			price = 1400,
+			baseIncomePerSecond = 13,
+		},
+		pig = {
+			id = "pig",
+			displayName = "Domuz",
+			icon = "🐖",
+			product = "Trüf",
+			price = 2200,
+			baseIncomePerSecond = 26,
+		},
 	} :: { [string]: AnimalConfig },
 
 	STAGE_INCOME_MULTIPLIER = {
@@ -1007,6 +1174,25 @@ local Config = {
 		zone_stable = "island_horse",
 	} :: { [string]: string },
 }
+
+-- Ana çiftlik numarasına (= fiziksel ada numarasına) bağlı tema; bilinmeyen numara ilk temayı kullanır.
+function Config.getTheme(farmId: string?): ThemeConfig
+	local index = if farmId then tonumber(farmId) else nil
+	return Config.THEMES[if index and index % 1 == 0 then index else 1] or Config.THEMES[1]
+end
+
+-- Bu çiftlikte bulunan adalar: ana ada + temanın 3 küçük adası
+function Config.getThemeIslands(farmId: string?): { string }
+	local islands = { "home" }
+	for _, islandId in Config.getTheme(farmId).satellites do
+		table.insert(islands, islandId)
+	end
+	return islands
+end
+
+function Config.themeHasIsland(farmId: string?, islandId: string): boolean
+	return islandId == "home" or table.find(Config.getTheme(farmId).satellites, islandId) ~= nil
+end
 
 function Config.getBarnLevelConfig(level: number): BarnLevelConfig?
 	for _, entry in Config.BARN_LEVELS do
@@ -1132,6 +1318,9 @@ function Config.getUpgradeIsland(upgrade: UpgradeConfig): string
 		golden_horseshoe = "horse",
 		horse_training = "horse",
 		cheese_dairy = "goat",
+		duck_house = "duck",
+		wool_mill = "sheep",
+		truffle_kitchen = "pig",
 	}
 	local mapped = boostIsland[upgrade.id]
 	if mapped then

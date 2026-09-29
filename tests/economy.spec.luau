@@ -189,5 +189,78 @@ return function(FarmMath: any, Config: any, Environment: any)
 	assert(FarmMath.getFreeSlots(bulk, "goat") == 0, "locked zones give no free slots")
 	local multipliers = Config.BULK_MULTIPLIERS
 	assert(multipliers[1] == 1 and table.find(multipliers, 2) and table.find(multipliers, 3), "x1/x2/x3 are offered")
+	-- Ada temaları: her çiftlik numarası kendi 3 küçük adasına sahip, temalar birbirinden farklı
+	assert(#Config.THEMES == Config.MAP_PLOT_COUNT, "one theme per physical island")
+	local seenThemes: { [string]: boolean } = {}
+	for index, theme in Config.THEMES do
+		assert(#theme.satellites == 3, `theme {index} needs exactly 3 small islands`)
+		local key = table.concat(theme.satellites, ",")
+		assert(not seenThemes[key], `theme {index} repeats another theme`)
+		seenThemes[key] = true
+		local lastBarn = 0
+		for _, islandId in theme.satellites do
+			local island = Config.FARM_ISLANDS[islandId]
+			assert(island and island.upgradeId, `island {islandId} must be purchasable`)
+			local upgrade = Config.getUpgrade(island.upgradeId)
+			assert(
+				upgrade and upgrade.kind == "island" and upgrade.islandId == islandId,
+				"island upgrade must open its island"
+			)
+			-- Bağımsızlık: ada yalnızca ahır seviyesine bağlıdır, yoksa tema sırası bozulur
+			local barnLevel = 0
+			for _, required in upgrade.requires do
+				local level = tonumber(string.match(required, "^barn_(%d)$"))
+				assert(level, `island {islandId} must only require barn levels, got {required}`)
+				barnLevel = math.max(barnLevel, level)
+			end
+			assert(barnLevel >= lastBarn, `theme {index} lists islands from early to late`)
+			lastBarn = barnLevel
+			local hasZone = false
+			for _, zone in Config.ZONES do
+				if zone.island == islandId then
+					hasZone = true
+					for _, animalId in zone.allowedAnimals do
+						assert(Config.ANIMALS[animalId], `zone animal {animalId} must exist`)
+					end
+				end
+			end
+			assert(hasZone, `island {islandId} needs a zone`)
+		end
+	end
+	assert(
+		Config.getTheme("1").satellites[1] == "poultry" and Config.getTheme(nil).id == Config.THEMES[1].id,
+		"farm 1 is the classic theme"
+	)
+	assert(
+		Config.getTheme("99").id == Config.THEMES[1].id and Config.getTheme("x").id == Config.THEMES[1].id,
+		"unknown farm ids use the first theme"
+	)
+	assert(
+		Config.themeHasIsland("2", "duck") and not Config.themeHasIsland("2", "poultry"),
+		"themes limit the available islands"
+	)
+	assert(Config.themeHasIsland("1", "home"), "the main island is always present")
+	local themed = saveAt(start)
+	themed.activeMainFarmId = "2"
+	local owned, total = FarmMath.countIslands(themed)
+	assert(owned == 1 and total == 4, "every farm has the main island plus three small islands")
+	local nextIsland = FarmMath.getNextIsland(themed)
+	assert(nextIsland and nextIsland.id == "duck", "the cheapest island of the farm's theme comes next")
+	themed.activeMainFarmId = "1"
+	assert(FarmMath.getNextIsland(themed).id == "poultry", "farm 1 starts with the poultry island")
+	local view = saveAt(start)
+	view.farmId = "3"
+	assert(
+		table.find(FarmMath.themeIslands(view), "pig") and not table.find(FarmMath.themeIslands(view), "goat"),
+		"inactive farm views use their own farm id"
+	)
+	for _, upgrade in Config.UPGRADES do
+		if upgrade.kind == "boost" or upgrade.kind == "island" then
+			assert(
+				Config.FARM_ISLANDS[Config.getUpgradeIsland(upgrade)],
+				`upgrade {upgrade.id} must map to a real island`
+			)
+		end
+	end
 	print("PASS economy: growth boundaries, integrated offline/elapsed income, cap, growth upgrade, fish pricing")
 end

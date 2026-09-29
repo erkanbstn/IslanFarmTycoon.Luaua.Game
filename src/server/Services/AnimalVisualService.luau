@@ -274,7 +274,152 @@ local function buildSeabass(model: Model, s: number)
 	buildFishModel(model, s * 1.4, Color3.fromRGB(110, 120, 130), Color3.fromRGB(230, 232, 235), 2.4)
 end
 
+local function buildDuck(model: Model, s: number)
+	local white = Color3.fromRGB(252, 250, 240)
+	local yellow = Color3.fromRGB(248, 190, 50)
+	local orange = Color3.fromRGB(245, 140, 40)
+	local dark = Color3.fromRGB(30, 30, 30)
+	local legH = 0.5 * s
+	local body = block(model, "Body", Vector3.new(1.5, 1.2, 2.1) * s, CFrame.new(0, legH + 0.6 * s, 0), white)
+	local neck =
+		block(model, "Neck", Vector3.new(0.6, 0.9, 0.6) * s, body.CFrame * CFrame.new(0, 0.85 * s, -0.75 * s), white)
+	local head =
+		block(model, "Head", Vector3.new(0.85, 0.8, 0.9) * s, neck.CFrame * CFrame.new(0, 0.65 * s, -0.1 * s), white)
+	block(model, "Bill", Vector3.new(0.6, 0.22, 0.55) * s, head.CFrame * CFrame.new(0, -0.1 * s, -0.7 * s), orange)
+	block(
+		model,
+		"Tail",
+		Vector3.new(0.7, 0.5, 0.5) * s,
+		body.CFrame * CFrame.new(0, 0.35 * s, 1.15 * s) * CFrame.Angles(math.rad(25), 0, 0),
+		white
+	)
+	for _, x in { -1, 1 } do
+		block(
+			model,
+			"Eye",
+			Vector3.new(0.1, 0.16, 0.16) * s,
+			head.CFrame * CFrame.new(x * 0.44 * s, 0.12 * s, -0.25 * s),
+			dark
+		)
+		block(
+			model,
+			"Wing",
+			Vector3.new(0.2, 0.8, 1.3) * s,
+			body.CFrame * CFrame.new(x * 0.8 * s, 0.05 * s, 0.15 * s),
+			Color3.fromRGB(235, 232, 220)
+		)
+		block(model, "Foot", Vector3.new(0.45, 0.14, 0.7) * s, CFrame.new(x * 0.4 * s, 0.07 * s, -0.1 * s), yellow)
+		block(model, "Leg", Vector3.new(0.14 * s, legH, 0.14 * s), CFrame.new(x * 0.4 * s, legH / 2, 0), orange)
+	end
+	model.PrimaryPart = body
+end
+
+local function buildSheep(model: Model, s: number)
+	local wool = Color3.fromRGB(245, 242, 232)
+	local face = Color3.fromRGB(60, 52, 48)
+	local dark = Color3.fromRGB(25, 22, 20)
+	local legH = 1.3 * s
+	local body = block(model, "Body", Vector3.new(2.2, 1.9, 3) * s, CFrame.new(0, legH + 0.95 * s, 0), wool)
+	body.Material = Enum.Material.Fabric
+	for _, offset in
+		{
+			Vector3.new(-0.7, 1.1, -0.8),
+			Vector3.new(0.7, 1.1, -0.2),
+			Vector3.new(-0.5, 1.1, 0.9),
+			Vector3.new(0.6, 1.05, 1.1),
+		}
+	do
+		local tuft = block(model, "Wool", Vector3.new(1.1, 0.9, 1.1) * s, body.CFrame * CFrame.new(offset * s), wool)
+		tuft.Material = Enum.Material.Fabric
+	end
+	local head =
+		block(model, "Head", Vector3.new(1, 1.1, 1.2) * s, body.CFrame * CFrame.new(0, 0.5 * s, -1.9 * s), face)
+	block(model, "Fringe", Vector3.new(1.2, 0.5, 0.9) * s, head.CFrame * CFrame.new(0, 0.75 * s, 0.2 * s), wool).Material =
+		Enum.Material.Fabric
+	for _, x in { -1, 1 } do
+		block(
+			model,
+			"Ear",
+			Vector3.new(0.6, 0.22, 0.35) * s,
+			head.CFrame * CFrame.new(x * 0.75 * s, 0.25 * s, 0.1 * s) * CFrame.Angles(0, 0, x * math.rad(-25)),
+			face
+		)
+		block(
+			model,
+			"Eye",
+			Vector3.new(0.1, 0.2, 0.2) * s,
+			head.CFrame * CFrame.new(x * 0.51 * s, 0.15 * s, -0.4 * s),
+			Color3.fromRGB(240, 240, 235)
+		)
+		for _, z in { -1, 1 } do
+			block(
+				model,
+				"Leg",
+				Vector3.new(0.4 * s, legH, 0.4 * s),
+				CFrame.new(x * 0.7 * s, legH / 2, z * 1.05 * s),
+				face
+			)
+			block(model, "Hoof", Vector3.new(0.45, 0.2, 0.45) * s, CFrame.new(x * 0.7 * s, 0.1 * s, z * 1.05 * s), dark)
+		end
+	end
+	model.PrimaryPart = body
+end
+
+local function buildPig(model: Model, s: number)
+	local pink = Color3.fromRGB(245, 175, 180)
+	local darkPink = Color3.fromRGB(225, 140, 150)
+	local dark = Color3.fromRGB(35, 30, 30)
+	local legH = 0.9 * s
+	local body = block(model, "Body", Vector3.new(2.2, 1.9, 3.1) * s, CFrame.new(0, legH + 0.95 * s, 0), pink)
+	local head =
+		block(model, "Head", Vector3.new(1.5, 1.4, 1.3) * s, body.CFrame * CFrame.new(0, 0.2 * s, -2.05 * s), pink)
+	block(model, "Snout", Vector3.new(0.95, 0.7, 0.4) * s, head.CFrame * CFrame.new(0, -0.15 * s, -0.8 * s), darkPink)
+	block(
+		model,
+		"Tail",
+		Vector3.new(0.2, 0.2, 0.7) * s,
+		body.CFrame * CFrame.new(0, 0.5 * s, 1.75 * s) * CFrame.Angles(math.rad(-30), 0, 0),
+		darkPink
+	)
+	for _, x in { -1, 1 } do
+		block(
+			model,
+			"Ear",
+			Vector3.new(0.45, 0.6, 0.2) * s,
+			head.CFrame * CFrame.new(x * 0.6 * s, 0.85 * s, 0.1 * s) * CFrame.Angles(math.rad(-25), 0, x * math.rad(20)),
+			darkPink
+		)
+		block(
+			model,
+			"Eye",
+			Vector3.new(0.1, 0.2, 0.2) * s,
+			head.CFrame * CFrame.new(x * 0.76 * s, 0.25 * s, -0.4 * s),
+			dark
+		)
+		block(
+			model,
+			"Nostril",
+			Vector3.new(0.12, 0.2, 0.05) * s,
+			head.CFrame * CFrame.new(x * 0.22 * s, -0.15 * s, -1.02 * s),
+			dark
+		)
+		for _, z in { -1, 1 } do
+			block(
+				model,
+				"Leg",
+				Vector3.new(0.5 * s, legH, 0.5 * s),
+				CFrame.new(x * 0.7 * s, legH / 2, z * 1.1 * s),
+				darkPink
+			)
+		end
+	end
+	model.PrimaryPart = body
+end
+
 local BUILDERS: { [string]: (Model, number) -> () } = {
+	duck = buildDuck,
+	sheep = buildSheep,
+	pig = buildPig,
 	cow = buildCow,
 	horse = buildHorse,
 	chicken = buildChicken,

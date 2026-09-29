@@ -32,6 +32,10 @@ function UpgradeService.tryBuy(player: Player, upgradeId: unknown): (boolean, st
 		return false, "Veri henüz yüklenmedi"
 	end
 
+	-- Ada teması: yalnızca bu çiftliğin adalarındaki yükseltmeler alınabilir (istemci başka ada isteyemez)
+	if not Config.themeHasIsland(data.activeMainFarmId, Config.getUpgradeIsland(upgrade)) then
+		return false, "Bu ada bu çiftlikte yok"
+	end
 	local status, missing = FarmMath.getUpgradeStatus(data, upgrade.id)
 	if status == "owned" then
 		return false, "Buna zaten sahipsin"

@@ -22,7 +22,7 @@ local MapBuilder = {}
 
 -- Harita düzenini (adalar, bölgeler, yapı yerleri) değiştirince bunu 1 artır:
 -- oyun, place'e kaydedilmiş eski haritayı fark edip uyarır.
-local MAP_VERSION = 26
+local MAP_VERSION = 27
 
 local SURFACE_Y = 4 -- Ada ve meydan yüzeyinin yüksekliği
 local WATER_Y = 0 -- Deniz yüzeyi
@@ -99,48 +99,77 @@ type SatelliteLayout = {
 	buildSpot: { upgradeId: string, offset: Vector3 }?,
 }
 
--- Uzman adalar (kendi yerel koordinatlarında -Z ana adaya, yani köprüye bakar)
-local SATELLITES: { SatelliteLayout } = {
-	{
-		id = "poultry",
-		offset = Vector3.new(-85, 0, 105),
+-- Uzman adalar (kendi yerel koordinatlarında -Z ana adaya, yani köprüye bakar).
+-- Üç yuva her ana adada aynıdır; yuvaya hangi ada türünün konacağını ana çiftlik numarasının teması belirler
+-- (Config.THEMES). Ada türünün zemini, bölgesi ve yapı noktası burada tanımlıdır.
+local SATELLITE_SLOTS = { Vector3.new(-85, 0, 105), Vector3.new(85, 0, 105), Vector3.new(0, 0, 165) }
+
+type SatelliteType = {
+	groundColor: Color3,
+	zone: ZoneLayout,
+	buildSpot: { upgradeId: string, offset: Vector3 }?,
+}
+
+local function satelliteZone(id: string, color: Color3, backReserve: number): ZoneLayout
+	return {
+		id = id,
+		offset = Vector3.new(0, 0, 2),
+		size = Vector3.new(30, 0.4, 24),
+		color = color,
+		backReserve = backReserve,
+	}
+end
+
+local SATELLITE_TYPES: { [string]: SatelliteType } = {
+	poultry = {
 		groundColor = Color3.fromRGB(150, 165, 80),
-		zone = {
-			id = "poultry",
-			offset = Vector3.new(0, 0, 2),
-			size = Vector3.new(30, 0.4, 24),
-			color = Color3.fromRGB(205, 185, 125),
-			backReserve = 8,
-		},
+		zone = satelliteZone("poultry", Color3.fromRGB(205, 185, 125), 8),
 		buildSpot = { upgradeId = "egg_factory", offset = Vector3.new(0, 0, 26) },
 	},
-	{
-		id = "horse",
-		offset = Vector3.new(85, 0, 105),
+	horse = {
 		groundColor = Color3.fromRGB(90, 150, 70),
-		zone = {
-			id = "stable",
-			offset = Vector3.new(0, 0, 2),
-			size = Vector3.new(30, 0.4, 24),
-			color = Color3.fromRGB(145, 110, 80),
-			backReserve = 8,
-		},
+		zone = satelliteZone("stable", Color3.fromRGB(145, 110, 80), 8),
 		buildSpot = { upgradeId = "golden_horseshoe", offset = Vector3.new(0, 0, 25) },
 	},
-	{
-		id = "goat",
-		offset = Vector3.new(0, 0, 165),
+	goat = {
 		groundColor = Color3.fromRGB(120, 140, 95),
-		zone = {
-			id = "goatpen",
-			offset = Vector3.new(0, 0, 2),
-			size = Vector3.new(30, 0.4, 24),
-			color = Color3.fromRGB(130, 150, 90),
-			backReserve = 5,
-		},
+		zone = satelliteZone("goatpen", Color3.fromRGB(130, 150, 90), 5),
 		buildSpot = { upgradeId = "cheese_dairy", offset = Vector3.new(0, 0, 26) },
 	},
+	duck = {
+		groundColor = Color3.fromRGB(105, 165, 100),
+		zone = satelliteZone("pond", Color3.fromRGB(88, 160, 200), 8),
+		buildSpot = { upgradeId = "duck_house", offset = Vector3.new(0, 0, 26) },
+	},
+	sheep = {
+		groundColor = Color3.fromRGB(118, 172, 88),
+		zone = satelliteZone("sheepfold", Color3.fromRGB(122, 168, 88), 6),
+		buildSpot = { upgradeId = "wool_mill", offset = Vector3.new(0, 0, 26) },
+	},
+	pig = {
+		groundColor = Color3.fromRGB(112, 128, 82),
+		zone = satelliteZone("pigpen", Color3.fromRGB(118, 92, 64), 6),
+		buildSpot = { upgradeId = "truffle_kitchen", offset = Vector3.new(0, 0, 26) },
+	},
 }
+
+-- Bir ana adanın (fiziksel ada numarası = çiftlik numarası) küçük ada yerleşimleri
+local function satelliteLayouts(plotIndex: number): { SatelliteLayout }
+	local layouts: { SatelliteLayout } = {}
+	for slot, islandId in Config.getTheme(tostring(plotIndex)).satellites do
+		local kind = SATELLITE_TYPES[islandId]
+		if kind then
+			table.insert(layouts, {
+				id = islandId,
+				offset = SATELLITE_SLOTS[slot],
+				groundColor = kind.groundColor,
+				zone = kind.zone,
+				buildSpot = kind.buildSpot,
+			})
+		end
+	end
+	return layouts
+end
 
 local function makePart(name: string, size: Vector3, cframe: CFrame, color: Color3, parent: Instance): Part
 	local part = Instance.new("Part")
@@ -282,6 +311,8 @@ local function buildZone(plotModel: Model, islandCf: CFrame, layout: ZoneLayout)
 	local ground = makePart("Ground", layout.size, center, layout.color, zoneModel)
 	ground.Material = if layout.id == "poultry" or layout.id == "stable"
 		then Enum.Material.Sand
+		elseif layout.id == "pond" then Enum.Material.Glass
+		elseif layout.id == "pigpen" then Enum.Material.Ground
 		else Enum.Material.Grass
 	ground:SetAttribute("OpenColor", layout.color)
 	ground:SetAttribute("BackReserve", layout.backReserve)
@@ -467,7 +498,23 @@ local function buildSatelliteDecor(islandId: string, parent: Instance, cf: CFram
 	for _, corner in { Vector2.new(-19, -13), Vector2.new(19, -13), Vector2.new(-19, 17), Vector2.new(19, 17) } do
 		WorldDecor.lamp(parent, at(corner.X, corner.Y) * CFrame.Angles(0, if corner.X > 0 then math.pi else 0, 0))
 	end
-	if islandId == "goat" then
+	if islandId == "pig" then
+		-- Trüf ormanı: yoğun çam ve çalı, bölgenin çevresinde
+		for index, spot in
+			{
+				Vector2.new(-13, 32),
+				Vector2.new(13, 32),
+				Vector2.new(-30, 12),
+				Vector2.new(31, 8),
+				Vector2.new(-28, -6),
+				Vector2.new(24, 27),
+			}
+		do
+			WorldDecor.pineTree(parent, at(spot.X, spot.Y), seedFrom(cf) + index * 7)
+		end
+		WorldDecor.bush(parent, at(-24, 25), 31)
+		WorldDecor.bush(parent, at(25, -25), 33)
+	elseif islandId == "goat" then
 		WorldDecor.pineTree(parent, at(30, 11), seedFrom(cf))
 		WorldDecor.bush(parent, at(23, -25), 23)
 	else
@@ -481,12 +528,7 @@ local function buildSatelliteDecor(islandId: string, parent: Instance, cf: CFram
 		WorldDecor.bush(parent, at(25, 25), 21 + #islandId)
 	end
 	IslandSpecialization.build(parent, islandId, cf * CFrame.new(0, SURFACE_Y, 0))
-	local layoutZone = nil
-	for _, satellite in SATELLITES do
-		if satellite.id == islandId then
-			layoutZone = satellite.zone
-		end
-	end
+	local layoutZone = if SATELLITE_TYPES[islandId] then SATELLITE_TYPES[islandId].zone else nil
 	addIslandGrass(
 		parent,
 		cf * CFrame.new(0, SURFACE_Y, 0),
@@ -967,7 +1009,7 @@ local function buildIsland(plotIndex: number, islandCf: CFrame): Model
 	local islandsFolder = Instance.new("Folder")
 	islandsFolder.Name = "Islands"
 	islandsFolder.Parent = plotModel
-	for _, layout in SATELLITES do
+	for _, layout in satelliteLayouts(plotIndex) do
 		buildSatellite(plotModel, islandsFolder, buildSpots, islandCf, layout)
 	end
 
@@ -1096,8 +1138,17 @@ function MapBuilder.validate()
 			assert(ground.Size.X > 0 and ground.Size.Z > 0, "[Map] Geçersiz bölge boyutu.")
 			zoneIds[zoneId] = true
 		end
-		for zoneId in Config.ZONES do
-			assert(zoneIds[zoneId], `[Map] {plot.Name}/{zoneId} bölgesi eksik.`)
+		local themeIslands = Config.getThemeIslands(plot:GetAttribute("PlotId") :: string)
+		local inTheme: { [string]: boolean } = {}
+		for _, themeIsland in themeIslands do
+			inTheme[themeIsland] = true
+		end
+		for zoneId, zone in Config.ZONES do
+			if inTheme[zone.island] then
+				assert(zoneIds[zoneId], `[Map] {plot.Name}/{zoneId} bölgesi eksik.`)
+			else
+				assert(not zoneIds[zoneId], `[Map] {plot.Name}/{zoneId} bu adanın temasında olmamalı.`)
+			end
 		end
 		local islands = plot:FindFirstChild("Islands")
 		assert(islands and islands:IsA("Folder"), `[Map] {plot.Name}/Islands eksik.`)
@@ -1114,9 +1165,12 @@ function MapBuilder.validate()
 			islandIds[islandId] = true
 		end
 		for islandId, island in Config.FARM_ISLANDS do
-			if island.upgradeId then
+			if island.upgradeId and inTheme[islandId] then
 				assert(islandIds[islandId], `[Map] {plot.Name}/{islandId} adası eksik.`)
 			end
+		end
+		for islandId in islandIds do
+			assert(inTheme[islandId], `[Map] {plot.Name}/{islandId} adası bu çiftliğin temasında değil.`)
 		end
 		local homeDecor = plot:FindFirstChild("Decor")
 		assert(
@@ -1125,12 +1179,14 @@ function MapBuilder.validate()
 		)
 		local spots = plot:FindFirstChild("BuildSpots")
 		assert(spots and spots:IsA("Folder"), `[Map] {plot.Name}/BuildSpots eksik.`)
-		for upgradeId in IslandSpecialization.SITES do
-			local spot = spots:FindFirstChild(upgradeId)
-			assert(spot and spot:IsA("BasePart"), `[Map] {plot.Name}/{upgradeId} üretim noktası eksik.`)
+		for upgradeId, site in IslandSpecialization.SITES do
+			if inTheme[site.island] then
+				local spot = spots:FindFirstChild(upgradeId)
+				assert(spot and spot:IsA("BasePart"), `[Map] {plot.Name}/{upgradeId} üretim noktası eksik.`)
+			end
 		end
 		for _, upgrade in Config.UPGRADES do
-			if upgrade.kind == "boost" then
+			if upgrade.kind == "boost" and inTheme[Config.getUpgradeIsland(upgrade)] then
 				local spot = spots:FindFirstChild(upgrade.id)
 				assert(spot and spot:IsA("BasePart"), `[Map] {plot.Name}/{upgrade.id} yapı noktası eksik.`)
 			end

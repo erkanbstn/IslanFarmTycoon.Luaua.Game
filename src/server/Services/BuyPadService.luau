@@ -31,6 +31,9 @@ local SLOTS: { [string]: { Vector2 } } = {
 	poultry = { Vector2.new(-8, -22), Vector2.new(8, -22), Vector2.new(-13, -22) },
 	horse = { Vector2.new(-8, -22), Vector2.new(8, -22), Vector2.new(-13, -22) },
 	goat = { Vector2.new(-8, -22), Vector2.new(8, -22), Vector2.new(-13, -22) },
+	duck = { Vector2.new(-8, -22), Vector2.new(8, -22), Vector2.new(-13, -22) },
+	sheep = { Vector2.new(-8, -22), Vector2.new(8, -22), Vector2.new(-13, -22) },
+	pig = { Vector2.new(-8, -22), Vector2.new(8, -22), Vector2.new(-13, -22) },
 }
 -- Ada tabelası ve eklentiler kendi görselleriyle satılır; butona girmezler.
 local EXCLUDED_KINDS: { [string]: boolean } = { island = true, extension = true }

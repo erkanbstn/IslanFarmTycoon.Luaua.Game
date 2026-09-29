@@ -36,16 +36,19 @@ local function apply(player: Player, action: unknown, target: unknown): (boolean
 			return false, "Ana çiftlik sınırına ulaştın."
 		end
 		local price = Config.MAIN_FARM_PRICES[#ids + 1]
+		-- Çiftlik numarası = seçilen fiziksel ada numarası (tema numaraya bağlıdır)
+		local plotNumber = tonumber(target)
+		if not plotNumber or plotNumber % 1 ~= 0 or plotNumber < 1 or plotNumber > Config.MAIN_FARM_LIMIT then
+			return false, "Geçersiz ana alan."
+		end
+		if data.mainFarms[tostring(plotNumber)] then
+			return false, "Bu ana çiftliğe zaten sahipsin."
+		end
 		EconomyService.settlePlayer(player)
 		if not price or data.cash < price then
 			return false, "Yeni çiftlik için yeterli para yok."
 		end
-		for index = 1, Config.MAIN_FARM_LIMIT do
-			if not data.mainFarms[tostring(index)] then
-				farmId = tostring(index)
-				break
-			end
-		end
+		farmId = tostring(plotNumber)
 		local farm = SaveCodec.newFarm(Config, FarmMath, DateTime.now().UnixTimestampMillis / 1000, function(): string
 			return HttpService:GenerateGUID(false)
 		end)

@@ -462,6 +462,16 @@ local function findFreePlot(): Model?
 	return nil
 end
 
+-- Tema, ana çiftlik numarasına bağlıdır: N numaralı çiftlik önce N numaralı fiziksel adayı kullanır
+-- (haritadaki küçük adalar ada numarasına göre kurulur). Ada doluysa (yalnızca çok oyunculu testte) nil.
+local function plotForFarm(farmId: string): Model?
+	local plot = plotModelByPlotId[farmId]
+	if plot and not ownerByPlotId[farmId] then
+		return plot
+	end
+	return nil
+end
+
 function PlotService.reserveMainFarm(player: Player, farmId: string, targetPlotId: string): boolean
 	local plot = plotModelByPlotId[targetPlotId]
 	local farms = ownedPlots[player]
@@ -492,11 +502,12 @@ function PlotService.restoreMainFarms(player: Player, farmIds: { string }, activ
 	for _, plot in table.clone(ownedPlots[player] or {}) do
 		parkPlot(plot)
 	end
-	bindPlot(player, activeId, primary)
-	activatePlot(player, activeId, primary)
+	local activeTarget = plotForFarm(activeId) or primary
+	bindPlot(player, activeId, activeTarget)
+	activatePlot(player, activeId, activeTarget)
 	for _, farmId in farmIds do
 		if farmId ~= activeId then
-			local free = findFreePlot()
+			local free = plotForFarm(farmId) or findFreePlot()
 			if free then
 				bindPlot(player, farmId, free)
 			end
@@ -516,7 +527,7 @@ function PlotService.selectMainFarm(player: Player, farmId: string): boolean
 	local target = farms[farmId]
 	if not target then
 		-- Park edilmiş kayıt için önce boş yuva kullan; doluysa yalnızca kendi etkin yuvanı değiştir.
-		target = findFreePlot() or current
+		target = plotForFarm(farmId) or findFreePlot() or current
 		if target == current then
 			parkPlot(current)
 		end
@@ -540,7 +551,7 @@ local function fillParkedFarms(player: Player): boolean
 	local changed = false
 	for _, id in ids do
 		if not farms[id] then
-			local free = findFreePlot()
+			local free = plotForFarm(id) or findFreePlot()
 			if not free then
 				break
 			end

@@ -58,6 +58,7 @@ function FarmProfiles.view(data: any, farmId: string): any
 	local farm = data.mainFarms[farmId]
 	if farm then
 		farm.cash = data.cash
+		farm.farmId = farmId
 		farm.passes = data.passes -- Oyun geçitleri hesap düzeyindedir; etkin olmayan çiftliğe de uygulanır
 	end
 	return farm

@@ -525,9 +525,12 @@ local function create(): UiKit.Window
 			UiKit.setVariant(card.action, if unavailable then "disabled" else variant)
 		end
 		specialtyInfo.Text =
-			`Bu üç küçük ada yalnızca {activeName}'i geliştirir. Seçili bölüm: {IslandContext.name()}.`
+			`Bu üç küçük ada yalnızca {activeName}'i geliştirir ({Config.getTheme(activeId).displayName}). Seçili bölüm: {IslandContext.name()}.`
+		local themeIslands = FarmMath.themeIslands(state)
 		for id, card in specialtyCards do
 			local island = Config.FARM_ISLANDS[id]
+			-- Yalnızca bu çiftliğin temasındaki küçük adalar listelenir
+			card.frame.Visible = table.find(themeIslands, id) ~= nil
 			card.title.Text = island.displayName .. (if id == IslandContext.get() then " · Seçili" else "")
 			local variant: UiKit.Variant = "primary"
 			if state.unlockedIslands[id] then

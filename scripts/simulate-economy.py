@@ -43,6 +43,11 @@ for index = 1, Config.STARTING_COW_COUNT do
 end
 FarmMath.applyDerived(save)
 
+local themeIslands = FarmMath.themeIslands(save)
+local function inTheme(upgrade: any): boolean
+	return table.find(themeIslands, Config.getUpgradeIsland(upgrade)) ~= nil
+end
+
 local now = START
 local milestones: { [string]: number } = {}
 local order: { string } = {}
@@ -135,7 +140,7 @@ for step = 1, steps do
 		end
 		local cheapest: any = nil
 		for _, upgrade in Config.UPGRADES do
-			if FarmMath.getUpgradeStatus(save, upgrade.id) == "available" and upgrade.cost <= save.cash then
+			if inTheme(upgrade) and FarmMath.getUpgradeStatus(save, upgrade.id) == "available" and upgrade.cost <= save.cash then
 				if not cheapest or upgrade.cost < cheapest.cost then
 					cheapest = upgrade
 				end

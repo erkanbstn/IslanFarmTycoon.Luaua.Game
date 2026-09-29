@@ -449,24 +449,36 @@ function FarmMath.getUpgradeStatus(save: PlayerSave, upgradeId: string): (Upgrad
 end
 
 -- Henüz açılmamış, ön koşulları tamam olan en ucuz ada (sıradaki ada hedefi)
+-- Bu çiftliğin (temasının) adaları: ana ada + 3 küçük ada. Etkin olmayan çiftlik görünümleri farmId taşır.
+function FarmMath.themeIslands(save: PlayerSave): { string }
+	return Config.getThemeIslands(save.farmId or save.activeMainFarmId)
+end
+
+-- Henüz açılmamış, en ucuz sıradaki ada (yalnızca bu çiftliğin temasındakiler)
 function FarmMath.getNextIsland(save: PlayerSave): (Config.FarmIslandConfig?, Config.UpgradeConfig?)
-	for _, islandId in Config.FARM_ISLAND_ORDER do
+	local best: Config.FarmIslandConfig? = nil
+	local bestUpgrade: Config.UpgradeConfig? = nil
+	for _, islandId in FarmMath.themeIslands(save) do
 		local island = Config.FARM_ISLANDS[islandId]
 		if island and island.upgradeId and not save.unlockedIslands[islandId] then
-			return island, Config.getUpgrade(island.upgradeId)
+			local upgrade = Config.getUpgrade(island.upgradeId)
+			if upgrade and (not bestUpgrade or upgrade.cost < bestUpgrade.cost) then
+				best, bestUpgrade = island, upgrade
+			end
 		end
 	end
-	return nil, nil
+	return best, bestUpgrade
 end
 
 function FarmMath.countIslands(save: PlayerSave): (number, number)
 	local owned = 0
-	for _, islandId in Config.FARM_ISLAND_ORDER do
+	local islands = FarmMath.themeIslands(save)
+	for _, islandId in islands do
 		if save.unlockedIslands[islandId] then
 			owned += 1
 		end
 	end
-	return owned, #Config.FARM_ISLAND_ORDER
+	return owned, #islands
 end
 
 local MONEY_SUFFIXES = { "K", "M", "B", "T", "Qa" }

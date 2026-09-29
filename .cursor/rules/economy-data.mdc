@@ -38,4 +38,9 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
 - **Sipariş panosu**: seçenekler `OrderBoard.offers` (paylaşılan, saf) ile pencereden türetilir; sunucu anahtarı yeniden çözer.
   Sipariş kaydı `target` ve `rewardFactor` taşır (üst sınırlı). Mevsim bonusu `SEASONS[x].orderBonus`.
 - **Denge ölçümü**: `python scripts/simulate-economy.py --hours 6` (ideal oyuncu, gerçek Config/FarmMath).
+- **Ada temaları**: `Config.THEMES[n]` = ana çiftlik numarası n'nin (= fiziksel ada n) 3 küçük adası. Ada türleri
+  `FARM_ISLANDS` + `ZONES` + `ANIMALS` + `UPGRADES` (island + boost) içinde tanımlıdır; ada yükseltmesi yalnızca
+  `barn_N`'e bağlanır (tema sırası bozulmasın; test doğrular). Mantık `Config.getTheme/themeHasIsland` ve
+  `FarmMath.themeIslands` ile temaya bakar; `UpgradeService.tryBuy` tema dışı adayı reddeder. Harita yuvaları
+  `MapBuilder.SATELLITE_SLOTS` + `SATELLITE_TYPES`; çiftlik n her zaman n numaralı adaya bağlanır (`PlotService.plotForFarm`).
 

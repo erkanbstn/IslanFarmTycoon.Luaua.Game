@@ -618,7 +618,8 @@ local function addIslandTabs(window: UiKit.Window)
 		local island = Config.FARM_ISLANDS[islandId]
 		local button = UiKit.button(row, (string.gsub(island.displayName, " Adası$", "")), "secondary")
 		button.LayoutOrder = index
-		button.Size = UDim2.new(1 / #Config.FARM_ISLAND_ORDER, -3, 1, 0)
+		-- Her çiftlikte en çok 4 sekme görünür (ana ada + temanın 3 küçük adası)
+		button.Size = UDim2.new(1 / 4, -3, 1, 0)
 		-- Her sekmede aynı yazı boyutu; uzun ad kesilir, boyut oynamaz.
 		button.TextScaled = false
 		button.TextSize = 14
@@ -633,7 +634,9 @@ local function addIslandTabs(window: UiKit.Window)
 	end
 	table.insert(islandTabUpdaters, function(state: PlayerSave)
 		local selected = IslandContext.get()
+		local themeIslands = FarmMath.themeIslands(state)
 		for islandId, button in buttons do
+			button.Visible = table.find(themeIslands, islandId) ~= nil
 			UiKit.setVariant(
 				button,
 				if islandId == selected
