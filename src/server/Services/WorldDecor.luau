@@ -308,6 +308,22 @@ export type GrassSpec = {
 
 -- Çapraz iki ince levhadan oluşan çim tutamları ve ara sıra çiçekler. Çarpışmaz, sorgulanmaz.
 -- base: ada/bölge yüzeyinde (Y yüzeyde) CFrame. Sabit tohum: aynı harita her seferinde aynı çıkar.
+-- Çizim maliyeti: küçük süs parçaları gölge düşürmez; çarpışmayan parçalar ışın sorgularına girmez.
+-- Kurulum/dekor bittikten sonra bir kez çağrılır (gölge haritası ve Raycast maliyetini düşürür).
+function WorldDecor.optimize(root: Instance)
+	for _, descendant in root:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			if not descendant.CanCollide then
+				descendant.CanQuery = false
+			end
+			local size = descendant.Size
+			if descendant.CastShadow and math.max(size.X, size.Y, size.Z) < 1.6 then
+				descendant.CastShadow = false
+			end
+		end
+	end
+end
+
 function WorldDecor.grassTufts(parent: Instance, base: CFrame, spec: GrassSpec): Folder
 	local random = Random.new(spec.seed)
 	local folder = Instance.new("Folder")

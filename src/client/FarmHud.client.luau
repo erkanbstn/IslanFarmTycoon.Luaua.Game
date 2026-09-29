@@ -24,8 +24,16 @@ local ProductionPanel = require(script.Parent:WaitForChild("ProductionPanel"))
 local IslandContext = require(script.Parent:WaitForChild("IslandContext"))
 local IslandManager = require(script.Parent:WaitForChild("IslandManager"))
 local Sfx = require(script.Parent:WaitForChild("Sfx"))
-local Rewards = require(Shared:WaitForChild("Modules"):WaitForChild("Rewards"))
-local OrderBoard = require(Shared:WaitForChild("Modules"):WaitForChild("OrderBoard"))
+local Hud = script.Parent:WaitForChild("Hud")
+local HudCommon = require(Hud:WaitForChild("HudCommon"))
+local StoreSection = require(Hud:WaitForChild("StoreSection"))
+local RewardsSection = require(Hud:WaitForChild("RewardsSection"))
+local BoardSection = require(Hud:WaitForChild("BoardSection"))
+local SeasonBar = require(Hud:WaitForChild("SeasonBar"))
+local IslandTabs = require(Hud:WaitForChild("IslandTabs"))
+local ShopWindow = require(Hud:WaitForChild("ShopWindow"))
+local RoadmapWindow = require(Hud:WaitForChild("RoadmapWindow"))
+local UpgradesWindow = require(Hud:WaitForChild("UpgradesWindow"))
 local TweenServiceForCash = game:GetService("TweenService")
 
 type PlayerSave = GameTypes.PlayerSave
@@ -315,226 +323,17 @@ local setGoalsBadge = UiKit.badge(goalsButton)
 -- Çiftliğim penceresi: günlük ödül ve başarımlar
 ---------------------------------------------------------------------------
 
-local dailyCard = UiKit.card(goalsWindow.list, 20, "🎁")
-dailyCard.title.Text = "Günlük ödül"
-dailyCard.action.Activated:Connect(function()
-	if dailyCard.action.Active then
-		PurchaseController.submit("RequestClaimDaily", "daily")
-	end
-end)
-local _, achievementsMeta = UiKit.sectionHeader(goalsWindow.list, "Başarımlar", 21)
-local achievementCards: { [string]: UiKit.Card } = {}
-for index, achievement in Config.ACHIEVEMENTS do
-	local card = UiKit.card(goalsWindow.list, 21 + index, achievement.icon)
-	card.title.Text = achievement.displayName
-	achievementCards[achievement.id] = card
-	card.action.Activated:Connect(function()
-		if card.action.Active then
-			PurchaseController.submit("RequestClaimAchievement", achievement.id)
-		end
-	end)
-end
-
--- Destek paketleri (oyun geçitleri ve ürünler): kimliği (id) 0 olanlar henüz satışta değildir, gizlenir.
-local STORE_ORDER = 90
-local storeHeader = UiKit.sectionHeader(storeWindow.list, "Destek paketleri", STORE_ORDER)
-type StoreEntry = { kind: string, key: string, product: Config.ProductConfig, card: UiKit.Card, shown: string }
-local storeEntries: { StoreEntry } = {}
-local storeEmpty = UiKit.text(storeWindow.list, "Dükkân çok yakında açılıyor.", "Caption", Color.TextMuted)
-storeEmpty.LayoutOrder = STORE_ORDER - 1
-for _, group in
-	{ { kind = "pass", items = Config.PRODUCTS.passes }, { kind = "product", items = Config.PRODUCTS.products } }
-do
-	local keys: { string } = {}
-	for key in group.items do
-		table.insert(keys, key)
-	end
-	table.sort(keys)
-	for _, key in keys do
-		local product = group.items[key]
-		local card = UiKit.card(storeWindow.list, STORE_ORDER + #storeEntries + 1, product.icon)
-		card.title.Text = product.displayName
-		card.detail.Text = product.description
-		card.action.Activated:Connect(function()
-			if card.action.Active then
-				Remotes.get("RequestPromptProduct"):FireServer(group.kind, key)
-			end
-		end)
-		table.insert(storeEntries, { kind = group.kind, key = key, product = product, card = card, shown = "" })
-	end
-end
-
-local function updateStore(state: PlayerSave)
-	local any = false
-	for _, entry in storeEntries do
-		local forSale = entry.product.id ~= 0
-		local owned = entry.kind == "pass" and state.passes ~= nil and state.passes[entry.key] == true
-		local signature = `{forSale}{owned}`
-		any = any or forSale
-		if signature == entry.shown then
-			continue
-		end
-		entry.shown = signature
-		entry.card.frame.Visible = forSale
-		entry.card.action.Text = if owned then "Sahipsin" else "Satın al"
-		UiKit.setVariant(entry.card.action, if owned then "owned" else "primary")
-	end
-	(storeHeader.Parent :: GuiObject).Visible = any
-	storeEmpty.Visible = not any
-end
-
-local rewardSignature = ""
+local updateStore = StoreSection.create(storeWindow.list)
+local updateRewardsSection = RewardsSection.create(goalsWindow.list, setGoalsBadge)
 local function updateRewards(state: PlayerSave?)
 	if not state then
 		return
 	end
 	updateStore(state)
-	local status = Rewards.dailyStatus(state.daily, Workspace:GetServerTimeNow())
-	local claimable = Rewards.claimableCount(state)
-	local parts: { string } = { tostring(status.canClaim), tostring(status.streak), tostring(claimable) }
-	local claimed = 0
-	for _, achievement in Config.ACHIEVEMENTS do
-		local owned = state.achievements ~= nil and state.achievements[achievement.id] == true
-		if owned then
-			claimed += 1
-		end
-		table.insert(parts, `{if owned then "c" else Rewards.progress(state, achievement)}`)
-	end
-	local pending = PurchaseController.isPending()
-	table.insert(parts, tostring(pending))
-	table.insert(parts, tostring(if status.canClaim then Rewards.dailyAmount(state, status.nextStreak) else 0))
-	local signature = table.concat(parts, "|")
-	setGoalsBadge(claimable + (if status.canClaim then 1 else 0))
-	if signature == rewardSignature then
-		return
-	end
-	rewardSignature = signature
-
-	local length = #Config.DAILY_REWARD_MULTIPLIERS
-	if status.canClaim then
-		dailyCard.detail.Text =
-			`{status.nextStreak}. gün · Ödül: {FarmMath.formatMoney(Rewards.dailyAmount(state, status.nextStreak))}`
-		dailyCard.action.Text = "Ödülü al"
-		UiKit.setVariant(dailyCard.action, if pending then "disabled" else "primary")
-	else
-		dailyCard.detail.Text = `Seri {status.streak}/{length} · Yarın yeni ödül`
-		dailyCard.action.Text = "Alındı"
-		UiKit.setVariant(dailyCard.action, "owned")
-	end
-	achievementsMeta.Text = `{claimed}/{#Config.ACHIEVEMENTS}`
-	for _, achievement in Config.ACHIEVEMENTS do
-		local card = achievementCards[achievement.id]
-		local owned = state.achievements ~= nil and state.achievements[achievement.id] == true
-		local progress = Rewards.progress(state, achievement)
-		local shown = math.min(progress, achievement.target)
-		local text = if achievement.metric == "earned"
-			then `{FarmMath.formatMoney(shown)}/{FarmMath.formatMoney(achievement.target)}`
-			else `{math.floor(shown)}/{achievement.target}`
-		card.detail.Text = `{achievement.description} · {text}`
-		if owned then
-			card.action.Text = "Alındı"
-			UiKit.setVariant(card.action, "owned")
-		elseif progress >= achievement.target then
-			card.action.Text = `Ödülü al · {FarmMath.formatMoney(achievement.reward)}`
-			UiKit.setVariant(card.action, if pending then "disabled" else "primary")
-		else
-			card.action.Text = text
-			UiKit.setVariant(card.action, "disabled")
-		end
-	end
+	updateRewardsSection(state)
 end
 
----------------------------------------------------------------------------
--- Sipariş panosu: 3 seçenek (kısa/orta/uzun) ve mevsim etkinliği bonusu
----------------------------------------------------------------------------
-
-local BOARD_ORDER = 60
-local _, boardMeta = UiKit.sectionHeader(boardWindow.list, "Sipariş panosu", BOARD_ORDER)
-local boardEvent = UiKit.text(boardWindow.list, "", "Caption", Color.Gold)
-boardEvent.LayoutOrder = BOARD_ORDER + 1
-local boardCards: { UiKit.Card } = {}
-local boardOffers: { OrderBoard.Offer } = {}
-for index = 1, #Config.ORDER_TIERS do
-	local card = UiKit.card(boardWindow.list, BOARD_ORDER + 1 + index, "📋")
-	boardCards[index] = card
-	card.action.Activated:Connect(function()
-		local offer = boardOffers[index]
-		if card.action.Active and offer then
-			PurchaseController.submit("RequestPickOrder", offer.key)
-		end
-	end)
-end
-
--- Yol haritası bitince (seviyeli geliştirmeler hariç) sipariş sistemi açılır
-local function ordersUnlocked(state: PlayerSave): boolean
-	for _, upgrade in Config.UPGRADES do
-		if not upgrade.leveled and not state.purchased[upgrade.id] then
-			return false
-		end
-	end
-	return true
-end
-
-local boardSignature = ""
-local function updateBoard(state: PlayerSave?)
-	if not state then
-		return
-	end
-	local now = Workspace:GetServerTimeNow()
-	local visible = ordersUnlocked(state)
-	local season = Environment.getSeason()
-	local bonus = season.orderBonus or 0
-	local offers = if visible then OrderBoard.offers(state, now, bonus) else {}
-	visible = visible and #offers > 0
-	local order = state.order
-	local blocked = order ~= nil and order.progress >= order.target
-	local parts: { string } =
-		{ tostring(visible), tostring(bonus), tostring(blocked), tostring(PurchaseController.isPending()) }
-	for _, offer in offers do
-		table.insert(parts, `{offer.key}{offer.animalId}{offer.reward}`)
-	end
-	if order then
-		table.insert(parts, `{order.animalId}{order.target}{order.rewardFactor or 1}`)
-	end
-	local signature = table.concat(parts, "|")
-	if signature == boardSignature then
-		return
-	end
-	boardSignature = signature
-	boardOffers = offers;
-	(boardMeta.Parent :: GuiObject).Visible = visible
-	boardEvent.Visible = visible and bonus > 0
-	if bonus > 0 and season.eventName then
-		boardEvent.Text = `{season.eventName} · Sipariş ödülü +%{math.round(bonus * 100)}`
-	end
-	local pending = PurchaseController.isPending()
-	for index, card in boardCards do
-		local offer = offers[index]
-		card.frame.Visible = visible and offer ~= nil
-		if not offer then
-			continue
-		end
-		local animal = Config.ANIMALS[offer.animalId]
-		local tier = Config.ORDER_TIERS[index]
-		card.icon.Text = animal.icon
-		card.title.Text = `{tier.displayName} · {animal.product}`
-		card.detail.Text = `{offer.units} birim · Ödül: {FarmMath.formatMoney(offer.reward)}`
-		local active = order ~= nil
-			and order.animalId == offer.animalId
-			and order.target == offer.units
-			and (order.rewardFactor or 1) == offer.rewardFactor
-		if active then
-			card.action.Text = "Aktif sipariş"
-			UiKit.setVariant(card.action, "owned")
-		elseif blocked then
-			card.action.Text = "Önce teslim et"
-			UiKit.setVariant(card.action, "disabled")
-		else
-			card.action.Text = if order and order.progress > 0 then "Seç · ilerleme sıfırlanır" else "Seç"
-			UiKit.setVariant(card.action, if pending then "disabled" else "primary")
-		end
-	end
-end
+local updateBoard = BoardSection.create(boardWindow.list)
 
 homeButton.Activated:Connect(function()
 	Remotes.get("RequestGoHome"):FireServer()
@@ -547,239 +346,12 @@ end)
 -- Sağ kenarda, alttaki menü çubuğunun üstünde kalacak kadar yukarıda
 local WINDOW_POSITION = UDim2.new(1, -12, 0.5, -30)
 
-local shopWindow = UiKit.window(screenGui, {
-	title = "Hayvan Pazarı",
-	icon = "🐄",
-	tint = Color.Green,
-	width = 330,
-	maxHeight = 430,
-	anchor = Vector2.new(1, 0.5),
-	position = WINDOW_POSITION,
-})
-local shopInfo = UiKit.text(shopWindow.list, "Hayvanlar yavru doğar, büyüdükçe daha çok kazandırır.", "Caption")
-shopInfo.LayoutOrder = 0
-
--- Toplu alım çarpanı: x1 / x2 / x3 / x5. Düğmedeki fiyat, o kadar hayvanın toplam fiyatıdır.
-local shopMultiplier = 1
-local multiplierButtons: { [number]: TextButton } = {}
-local multiplierRow = Instance.new("Frame")
-multiplierRow.Name = "Multipliers"
-multiplierRow.BackgroundTransparency = 1
-multiplierRow.Size = UDim2.new(1, 0, 0, 32)
-multiplierRow.LayoutOrder = 1
-multiplierRow.Parent = shopWindow.list
-UiKit.list(multiplierRow, 4, true)
-for index, multiplier in Config.BULK_MULTIPLIERS do
-	local button = UiKit.button(multiplierRow, `x{multiplier}`, "secondary")
-	button.LayoutOrder = index
-	button.Size = UDim2.new(1 / #Config.BULK_MULTIPLIERS, -3, 1, 0)
-	multiplierButtons[multiplier] = button
-end
-
--- Seçili çarpana göre gerçekte alınacak adet (boş yer yetmezse azalır)
-local function bulkCount(state: PlayerSave, animalId: string): number
-	return math.max(1, math.min(shopMultiplier, FarmMath.getFreeSlots(state, animalId)))
-end
-
-local animalCards: { [string]: UiKit.Card } = {}
-for index, animalId in Config.ANIMAL_ORDER do
-	local card = UiKit.card(shopWindow.list, index + 1, Config.ANIMALS[animalId].icon)
-	animalCards[animalId] = card
-	card.action.Activated:Connect(function()
-		if card.action.Active then
-			local state = ClientState.get()
-			local count = if state then bulkCount(state, animalId) else 1
-			PurchaseController.submit("RequestBuyAnimal", animalId, if count > 1 then count else nil)
-		end
-	end)
-end
-
-local replacementCard = UiKit.card(shopWindow.list, 3 * #Config.ANIMAL_ORDER + 2, Config.ANIMALS.seabass.icon)
-replacementCard.title.Text = "Hamsiyi levrekle değiştir"
-replacementCard.action.Activated:Connect(function()
-	local state = ClientState.get()
-	local fish = state and FarmMath.findReplaceableFish(state)
-	if fish and replacementCard.action.Active then
-		PurchaseController.submit("RequestReplaceFish", fish.uid)
-	end
-end)
-
-local roadmapWindow = UiKit.window(screenGui, {
-	title = "Yol Haritası",
-	icon = "🗺️",
-	tint = Color.Blue,
-	width = 330,
-	maxHeight = 430,
-	anchor = Vector2.new(1, 0.5),
-	position = WINDOW_POSITION,
-})
-local roadmapInfo = UiKit.text(
-	roadmapWindow.list,
-	"Sırayı sen seç: ucuz olanı hemen al ya da biriktirip büyüğünü al. Kilitli olanlar için önce gerekeni aç.",
-	"Caption"
-)
-roadmapInfo.LayoutOrder = 0
-
--- Ada sekmeleri: gitmeden her adanın yol haritasını/yükseltmelerini görmek için (açık adalar).
-local islandTabUpdaters: { (state: PlayerSave) -> () } = {}
-local function addIslandTabs(window: UiKit.Window)
-	local row = Instance.new("Frame")
-	row.Name = "IslandTabs"
-	row.BackgroundTransparency = 1
-	row.Size = UDim2.new(1, 0, 0, 34)
-	row.LayoutOrder = -1
-	row.Parent = window.list
-	UiKit.list(row, 4, true)
-	local buttons: { [string]: TextButton } = {}
-	for index, islandId in Config.FARM_ISLAND_ORDER do
-		local island = Config.FARM_ISLANDS[islandId]
-		local button = UiKit.button(row, (string.gsub(island.displayName, " Adası$", "")), "secondary")
-		button.LayoutOrder = index
-		-- Her çiftlikte en çok 4 sekme görünür (ana ada + temanın 3 küçük adası)
-		button.Size = UDim2.new(1 / 4, -3, 1, 0)
-		-- Her sekmede aynı yazı boyutu; uzun ad kesilir, boyut oynamaz.
-		button.TextScaled = false
-		button.TextSize = 14
-		button.TextTruncate = Enum.TextTruncate.AtEnd
-		buttons[islandId] = button
-		button.Activated:Connect(function()
-			local state = ClientState.get()
-			if state and state.unlockedIslands[islandId] then
-				Remotes.get("RequestTravelIsland"):FireServer(islandId, true)
-			end
-		end)
-	end
-	table.insert(islandTabUpdaters, function(state: PlayerSave)
-		local selected = IslandContext.get()
-		local themeIslands = FarmMath.themeIslands(state)
-		for islandId, button in buttons do
-			button.Visible = table.find(themeIslands, islandId) ~= nil
-			UiKit.setVariant(
-				button,
-				if islandId == selected
-					then "primary"
-					elseif state.unlockedIslands[islandId] then "secondary"
-					else "disabled"
-			)
-		end
-	end)
-end
-addIslandTabs(roadmapWindow)
-
-local upgradeCards: { [string]: UiKit.Card } = {}
-type ExtensionHudRow = { row: Frame, add: TextButton, remove: TextButton }
-local extensionHudRows: { [string]: ExtensionHudRow } = {}
-local stageMeta: { [number]: TextLabel } = {}
-local stageGroups: { [number]: { GuiObject } } = {}
-do
-	local order = 1
-	for stageIndex, stage in Config.ROADMAP_STAGES do
-		local stageName = stage.name
-		local header, meta = UiKit.sectionHeader(roadmapWindow.list, `Aşama {stageIndex} · {stageName}`, order)
-		stageMeta[stageIndex] = meta
-		stageGroups[stageIndex] = { header.Parent :: GuiObject }
-		order += 1
-
-		-- Aşama bir uzman adaya aitse adanın özelliği, değilse aşamanın açıklaması başlığın altında yazsın
-		local islandConfig = if stage.island then Config.FARM_ISLANDS[stage.island] else nil
-		local caption = if islandConfig and islandConfig.upgradeId
-			then `Ada özelliği: {islandConfig.trait}`
-			else stage.description
-		if caption then
-			local captionLabel = UiKit.text(roadmapWindow.list, caption, "Caption")
-			captionLabel.LayoutOrder = order
-			table.insert(stageGroups[stageIndex], captionLabel)
-			order += 1
-		end
-
-		if stageIndex == 1 then
-			local free = UiKit.card(roadmapWindow.list, order, "🎁")
-			free.title.Text = "Başlangıç hediyesi"
-			free.detail.Text = `{Config.BARN_LEVELS[1].displayName}, ana ağıl, {Config.STARTING_COW_COUNT} hayvan`
-			free.action.Text = "Alındı"
-			UiKit.setVariant(free.action, "owned")
-			table.insert(stageGroups[stageIndex], free.frame)
-			order += 1
-		end
-
-		for _, upgrade in Config.UPGRADES do
-			if upgrade.stage ~= stageIndex then
-				continue
-			end
-			local card = UiKit.card(roadmapWindow.list, order, upgrade.icon)
-			card.title.Text = upgrade.displayName
-			order += 1
-			upgradeCards[upgrade.id] = card
-			card.action.Activated:Connect(function()
-				if card.action.Active then
-					PurchaseController.submit("RequestBuyUpgrade", upgrade.id)
-				end
-			end)
-			if upgrade.kind == "extension" and upgrade.extensionId then
-				local row = Instance.new("Frame")
-				row.Name = "ExtensionActions"
-				row.BackgroundTransparency = 1
-				row.Size = UDim2.new(1, 0, 0, 40)
-				row.LayoutOrder = 3
-				row.Visible = false
-				row.Parent = card.frame
-				UiKit.list(row, 8, true)
-				local add = UiKit.button(row, "Hayvan ekle", "primary")
-				add.Size = UDim2.new(0.5, -4, 1, 0)
-				local remove = UiKit.button(row, "Hayvan çıkar", "warning")
-				remove.Size = UDim2.new(0.5, -4, 1, 0)
-				local extensionId = upgrade.extensionId :: string
-				add.Activated:Connect(function()
-					Remotes.get("RequestExtensionAction"):FireServer(extensionId, "assign")
-				end)
-				remove.Activated:Connect(function()
-					Remotes.get("RequestExtensionAction"):FireServer(extensionId, "unassign")
-				end)
-				extensionHudRows[upgrade.id] = { row = row, add = add, remove = remove }
-			end
-		end
-	end
-end
-
-local upgradesWindow = UiKit.window(screenGui, {
-	title = "Yükseltmeler",
-	icon = "🛠️",
-	tint = Color.Gold,
-	width = 330,
-	maxHeight = 430,
-	anchor = Vector2.new(1, 0.5),
-	position = WINDOW_POSITION,
-})
-local upgradesInfo = UiKit.text(
-	upgradesWindow.list,
-	"Açık yükseltmeler üstte; alınanlar bu listeden çıkar. Kısayol: U.",
-	"Caption"
-)
-upgradesInfo.LayoutOrder = 0
-addIslandTabs(upgradesWindow)
-local upgradesEmpty = UiKit.text(
-	upgradesWindow.list,
-	"Tüm yükseltmeleri aldın. Çiftliğini hayvanlarla büyütmeye devam edebilirsin.",
-	"Body"
-)
-upgradesEmpty.LayoutOrder = 1
-upgradesEmpty.Visible = false
-local nextIslandButton = UiKit.button(upgradesWindow.list, "Adalar'da sıradaki yatırımı seç", "primary")
-nextIslandButton.Size = UDim2.new(1, 0, 0, 42)
-nextIslandButton.LayoutOrder = 2
-nextIslandButton.Visible = false
-nextIslandButton.Activated:Connect(IslandManager.open)
-local directUpgradeCards: { [string]: UiKit.Card } = {}
-for index, upgrade in Config.UPGRADES do
-	local card = UiKit.card(upgradesWindow.list, index + 1, upgrade.icon)
-	card.title.Text = upgrade.displayName
-	directUpgradeCards[upgrade.id] = card
-	card.action.Activated:Connect(function()
-		if card.action.Active then
-			PurchaseController.submit("RequestBuyUpgrade", upgrade.id)
-		end
-	end)
-end
+local shop = ShopWindow.create(screenGui, WINDOW_POSITION)
+local shopWindow = shop.window
+local roadmap = RoadmapWindow.create(screenGui, WINDOW_POSITION)
+local roadmapWindow = roadmap.window
+local upgradesHud = UpgradesWindow.create(screenGui, WINDOW_POSITION)
+local upgradesWindow = upgradesHud.window
 
 local function toggleWindow(window: UiKit.Window)
 	local wasOpen = window.isOpen()
@@ -875,89 +447,7 @@ orderButton.Activated:Connect(function()
 	end
 end)
 
----------------------------------------------------------------------------
--- Sol panelde küçük mevsim/hava kartı (depo ile hedef arasında); bildirim alanından ayrı.
----------------------------------------------------------------------------
-
-local seasonBar = Instance.new("Frame")
-seasonBar.Name = "SeasonBar"
-seasonBar.BackgroundColor3 = Color.Surface
-seasonBar.LayoutOrder = 4
-seasonBar.Size = UDim2.new(1, 0, 0, 0)
-seasonBar.AutomaticSize = Enum.AutomaticSize.Y
-seasonBar.Parent = stats
-UiKit.corner(seasonBar, UiKit.Radius.Card)
-UiKit.padding(seasonBar, 8)
-UiKit.list(seasonBar, 4)
-
-local seasonHeader = Instance.new("Frame")
-seasonHeader.BackgroundTransparency = 1
-seasonHeader.Size = UDim2.new(1, 0, 0, 20)
-seasonHeader.LayoutOrder = 1
-seasonHeader.Parent = seasonBar
-local seasonChip = UiKit.iconChip(seasonHeader, "", 20, Color.Green)
-local seasonTitle = UiKit.text(seasonHeader, "", "Caption")
-seasonTitle.AutomaticSize = Enum.AutomaticSize.None
-seasonTitle.Position = UDim2.fromOffset(26, 0)
-seasonTitle.Size = UDim2.new(1, -26, 1, 0)
-seasonTitle.TextWrapped = false
-seasonTitle.TextTruncate = Enum.TextTruncate.AtEnd
-local seasonClock = UiKit.text(seasonBar, "", "Caption", Color.Gold)
-seasonClock.LayoutOrder = 2
-seasonClock.TextWrapped = false
-
-local seasonProgress, setSeasonProgress = UiKit.progressBar(seasonBar, 6)
-seasonProgress.Name = "SeasonProgress"
-seasonProgress.LayoutOrder = 3
-
-local seasonFooter = Instance.new("Frame")
-seasonFooter.BackgroundTransparency = 1
-seasonFooter.Size = UDim2.new(1, 0, 0, 20)
-seasonFooter.LayoutOrder = 4
-seasonFooter.Parent = seasonBar
-local weatherChip = UiKit.iconChip(seasonFooter, "", 20, Color.Blue)
-local weatherTitle = UiKit.text(seasonFooter, "", "Caption", Color.Text)
-weatherTitle.AutomaticSize = Enum.AutomaticSize.None
-weatherTitle.Position = UDim2.fromOffset(26, 0)
-weatherTitle.Size = UDim2.new(1, -26, 1, 0)
-weatherTitle.TextWrapped = false
-weatherTitle.TextTruncate = Enum.TextTruncate.AtEnd
-local nextSeasonLabel = UiKit.text(seasonBar, "", "Caption")
-nextSeasonLabel.LayoutOrder = 5
-
-local seasonTints: { [string]: Color3 } = {
-	spring = Color.Green,
-	summer = Color.Gold,
-	autumn = Color.Orange,
-	winter = Color.Blue,
-}
-
-local function formatClock(seconds: number): string
-	local s = math.max(0, math.ceil(seconds))
-	return string.format("%02d:%02d", s // 60, s % 60)
-end
-
-local function updateSeasonBar()
-	local season = Environment.getSeason()
-	local weather = Environment.getWeather()
-	local now = Workspace:GetServerTimeNow()
-	local progress = Environment.getSeasonProgress(now)
-	local left = math.max(0, Config.SEASON_SECONDS * (1 - progress))
-	local tint = seasonTints[season.id] or Color.Green
-	seasonChip.Text = season.icon
-	seasonChip.BackgroundColor3 = tint
-	seasonTitle.Text = season.displayName
-	seasonClock.Text = `{formatClock(left)} kaldı`
-	setSeasonProgress(progress, tint)
-	nextSeasonLabel.Text = if ReplicatedStorage:GetAttribute("AdminSeasonOverride")
-		then "Mevsim sabit"
-		else `Sonra: {Environment.getNextSeason().displayName}`
-	weatherChip.Text = weather.icon
-	local clockHour = Environment.getClockTime(now)
-	local dayPart = if Environment.getNightFactor(clockHour) >= 0.5 then "Gece" else "Gündüz"
-	weatherTitle.Text =
-		string.format("%s · %02d:%02d %s", weather.displayName, clockHour // 1, (clockHour % 1) * 60 // 1, dayPart)
-end
+local seasonBar = SeasonBar.create(stats)
 
 local function updateProductionBadge(state: PlayerSave?)
 	local ready = 0
@@ -974,7 +464,7 @@ end
 
 task.spawn(function()
 	while true do
-		updateSeasonBar()
+		seasonBar.update()
 		updateProductionBadge(ClientState.get())
 		updateRewards(ClientState.get())
 		updateBoard(ClientState.get())
@@ -986,242 +476,8 @@ end)
 -- Durum güncelleme
 ---------------------------------------------------------------------------
 
-local function secondsToText(seconds: number): string
-	return if seconds < 60 then `{math.ceil(seconds)} sn` else `{math.ceil(seconds / 60)} dk`
-end
-
-local function purchaseHint(state: PlayerSave, price: number, income: number): string
-	if state.cash >= price then
-		return "Alabilirsin!"
-	end
-	if not FarmMath.hasAutoCollect(state) then
-		if state.cash + math.floor(state.stored) >= price then
-			return "Depoyu topla; alabilecek kadar paran var."
-		end
-		if state.stored >= FarmMath.getStorageCap(state) then
-			return "Depo dolu. Devam etmek için parayı topla."
-		end
-	end
-	if income <= 0 then
-		return "Önce üretim yapan hayvan al."
-	end
-	local seconds = math.max(0, price - state.cash - state.stored) / income
-	return if FarmMath.hasAutoCollect(state)
-		then `Yaklaşık {secondsToText(seconds)} sonra`
-		else `Düzenli toplarsan yaklaşık {secondsToText(seconds)} sonra`
-end
-
-local buttonStates: { [TextButton]: string } = {}
-local function setPurchaseButton(button: TextButton, text: string, variant: UiKit.Variant)
-	local pending = PurchaseController.isPending() or localPlayer:GetAttribute("DataStatus") ~= "Active"
-	local actualVariant: UiKit.Variant = if pending then "disabled" else variant
-	local actualText = if pending and variant ~= "owned" then "Bekleniyor" else text
-	local signature = actualVariant .. actualText
-	if buttonStates[button] == signature then
-		return
-	end
-	buttonStates[button] = signature
-	button.Text = actualText
-	UiKit.setVariant(button, actualVariant)
-end
-
-local function updateShop(state: PlayerSave, content: boolean)
-	if content then
-		shopInfo.Text =
-			`Açık bölgelerdeki hayvanlar listelenir (ada seçimi shop'u gizlemez). Yavru doğar, büyüdükçe kazanç artar.`
-	end
-	for index, animalId in Config.ANIMAL_ORDER do
-		local card = animalCards[animalId]
-		local relevant = FarmMath.hasUnlockedAnimalZone(state, animalId)
-		card.frame.Visible = relevant
-		if not relevant then
-			continue
-		end
-		local animalConfig = Config.ANIMALS[animalId]
-		local zoneId, reason, block = FarmMath.findZoneForAnimal(state, animalId)
-		local count = bulkCount(state, animalId)
-		local price = FarmMath.getBulkPrice(state, animalId, count)
-		-- Alınabilenler üstte, parası yetmeyenler ortada, dolu/kilitliler altta.
-		local group = if not zoneId then 2 elseif state.cash >= price then 0 else 1
-		card.frame.LayoutOrder = index + 1 + group * #Config.ANIMAL_ORDER
-		if content then
-			card.title.Text = `{animalConfig.displayName}  {UiKit.colorText(
-				`x{FarmMath.countAnimals(state, animalId)}`,
-				Color.TextMuted
-			)}`
-			if zoneId then
-				local income = FarmMath.getAnimalIncome(state, animalId)
-				local percent = math.round((Environment.getIncomeMultiplier(animalId) - 1) * 100)
-				local effect = if percent > 0
-					then ` · Mevsim/hava: +%{percent}`
-					elseif percent < 0 then ` · Mevsim/hava: -%{-percent}`
-					else ""
-				card.detail.Text = `{animalConfig.product} · Yetişkin +${FarmMath.formatRate(income)}/sn{effect}`
-			else
-				card.detail.Text = reason or ""
-			end
-		end
-		if not zoneId then
-			setPurchaseButton(card.action, if block == "full" then "Dolu" else "Kilitli", "disabled")
-		else
-			setPurchaseButton(
-				card.action,
-				if count > 1 then `x{count} · {FarmMath.formatMoney(price)}` else FarmMath.formatMoney(price),
-				if state.cash >= price then "primary" else "warning"
-			)
-		end
-	end
-	for multiplier, button in multiplierButtons do
-		UiKit.setVariant(button, if multiplier == shopMultiplier then "primary" else "secondary")
-	end
-	local fish = if IslandContext.get() == "home" then FarmMath.findReplaceableFish(state) else nil
-	replacementCard.frame.Visible = fish ~= nil
-	if fish then
-		local price = FarmMath.getFishReplacementPrice(state)
-		replacementCard.detail.Text =
-			"Bir hamsi çıkar, yerine yavru levrek gelir. Hamsinin temel fiyatının yarısı bedelden düşülür."
-		setPurchaseButton(
-			replacementCard.action,
-			`Değiştir · {FarmMath.formatMoney(price)}`,
-			if state.cash >= price then "primary" else "warning"
-		)
-	end
-end
-
-for multiplier, button in multiplierButtons do
-	button.Activated:Connect(function()
-		shopMultiplier = multiplier
-		local state = ClientState.get()
-		if state then
-			updateShop(state, true)
-		end
-	end)
-end
-
-local function updateRoadmap(state: PlayerSave, content: boolean)
-	local selectedIsland = IslandContext.get()
-	for _, updateTabs in islandTabUpdaters do
-		updateTabs(state)
-	end
-	if content then
-		roadmapInfo.Text =
-			`Seçili: {IslandContext.name()}\nYukarıdaki sekmelerden adaya gitmeden yol haritasına bakabilirsin. Yeni ada açmak ve ışınlanmak için Adalar.`
-	end
-	local ownedPerStage: { [number]: number } = {}
-	local totalPerStage: { [number]: number } = {}
-	for _, upgrade in Config.UPGRADES do
-		local card = upgradeCards[upgrade.id]
-		local relevant = IslandContext.upgradeIsland(upgrade) == selectedIsland
-		card.frame.Visible = relevant
-		if not relevant then
-			continue
-		end
-		local status, missing = FarmMath.getUpgradeStatus(state, upgrade.id)
-		local extensionRow = extensionHudRows[upgrade.id]
-		if content then
-			totalPerStage[upgrade.stage] = (totalPerStage[upgrade.stage] or 0) + 1
-			if status == "owned" then
-				ownedPerStage[upgrade.stage] = (ownedPerStage[upgrade.stage] or 0) + 1
-			end
-			if status == "owned" and upgrade.kind == "extension" and upgrade.extensionId then
-				local extension = Config.getExtension(upgrade.extensionId)
-				local inExt = if extension then FarmMath.countInExtension(state, upgrade.extensionId) else 0
-				local cap = if extension then extension.capacity else 0
-				card.detail.Text = `{upgrade.description} · Dolu: {inExt}/{cap}`
-			else
-				card.detail.Text = if status == "locked"
-					then `Önce: {table.concat(missing, ", ")}`
-					else upgrade.description
-			end
-			card.frame.BackgroundTransparency = if status == "owned" then 0.5 else 0
-		end
-		if extensionRow then
-			local ownedExtension = status == "owned"
-			extensionRow.row.Visible = ownedExtension
-			card.action.Visible = not ownedExtension
-		end
-		local variant: UiKit.Variant = if status == "owned"
-			then "owned"
-			elseif status == "locked" then "disabled"
-			elseif state.cash >= upgrade.cost then "primary"
-			else "warning"
-		setPurchaseButton(
-			card.action,
-			if status == "owned" then "Alındı" else FarmMath.formatMoney(upgrade.cost),
-			variant
-		)
-	end
-	if content then
-		for stageIndex in Config.ROADMAP_STAGES do
-			local stageVisible = (ownedPerStage[stageIndex] or 0) > 0 or (totalPerStage[stageIndex] or 0) > 0
-			stageMeta[stageIndex].Text = `{ownedPerStage[stageIndex] or 0}/{totalPerStage[stageIndex] or 0}`
-			for _, item in stageGroups[stageIndex] do
-				item.Visible = stageVisible
-			end
-		end
-	end
-end
-
-local function updateUpgrades(state: PlayerSave, content: boolean)
-	local remaining = 0
-	local selectedIsland = IslandContext.get()
-	if content then
-		upgradesInfo.Text =
-			`Seçili: {IslandContext.name()}\nAçık yükseltmeler üstte; alınanlar listeden çıkar. Üstteki sekmelerden ada seçebilirsin.`
-		upgradesEmpty.Text =
-			`{IslandContext.name()} yükseltmeleri tamamlandı. Sıradaki yatırımını seçmek için Adalar'ı aç.`
-	end
-	for index, upgrade in Config.UPGRADES do
-		local card = directUpgradeCards[upgrade.id]
-		local relevant = IslandContext.upgradeIsland(upgrade) == selectedIsland
-		if not relevant then
-			card.frame.Visible = false
-			continue
-		end
-		local status, missing = FarmMath.getUpgradeStatus(state, upgrade.id)
-		local group = if status == "locked" then 2 elseif state.cash >= upgrade.cost then 0 else 1
-		card.frame.LayoutOrder = index + 1 + group * #Config.UPGRADES
-		if content then
-			card.frame.Visible = status ~= "owned"
-			card.detail.Text = if status == "locked"
-				then `Önce: {table.concat(missing, ", ")}`
-				else upgrade.description
-		end
-		if status ~= "owned" then
-			remaining += 1
-			setPurchaseButton(
-				card.action,
-				if status == "locked" then "Kilitli" else FarmMath.formatMoney(upgrade.cost),
-				if status == "locked" then "disabled" elseif state.cash >= upgrade.cost then "primary" else "warning"
-			)
-		end
-	end
-	if content then
-		upgradesEmpty.Visible = remaining == 0
-		nextIslandButton.Visible = remaining == 0
-		if remaining == 0 then
-			local pendingUpgrade: Config.UpgradeConfig? = nil
-			local pendingIsland: string? = nil
-			for _, upgrade in Config.UPGRADES do
-				local islandId = IslandContext.upgradeIsland(upgrade)
-				if islandId == selectedIsland then
-					continue
-				end
-				if FarmMath.getUpgradeStatus(state, upgrade.id) == "available" then
-					pendingUpgrade = upgrade
-					pendingIsland = islandId
-					break
-				end
-			end
-			if pendingUpgrade and pendingIsland then
-				local pendingIslandName = Config.FARM_ISLANDS[pendingIsland].displayName
-				upgradesEmpty.Text =
-					`Bu adada açık yükseltme kalmadı. Sırada: {pendingUpgrade.displayName} ({pendingIslandName} — Adalar menüsünden o adayı seç, Yol Haritası'na bak).`
-			end
-		end
-		upgradesInfo.Visible = true
-	end
-end
+local purchaseHint = HudCommon.purchaseHint
+local setPurchaseButton = HudCommon.setPurchaseButton
 
 local function updateBadges(state: PlayerSave)
 	updateProductionBadge(state)
@@ -1409,15 +665,15 @@ local function onState(state: PlayerSave, structural: boolean)
 		updateBadges(state)
 	end
 	if shopWindow.isOpen() and (shopDirty or cashChanged) then
-		updateShop(state, shopDirty)
+		shop.update(state, shopDirty)
 		shopDirty = false
 	end
 	if roadmapWindow.isOpen() and (roadmapDirty or cashChanged) then
-		updateRoadmap(state, roadmapDirty)
+		roadmap.update(state, roadmapDirty)
 		roadmapDirty = false
 	end
 	if upgradesWindow.isOpen() and (upgradesDirty or cashChanged) then
-		updateUpgrades(state, upgradesDirty)
+		upgradesHud.update(state, upgradesDirty)
 		upgradesDirty = false
 	end
 	lastCash = state.cash
@@ -1461,11 +717,9 @@ local function resizeHud()
 	stats.Position = if compact then UDim2.fromOffset(8, 8) else UDim2.new(0, 12, 0.5, 0)
 	stats.Size = if compact then UDim2.fromOffset(200, 0) else UDim2.fromOffset(240, 0)
 	-- Kompakt: kasa, depo çubuğu ve tek satırlık mevsim/hava; ayrıntılar Çiftliğim penceresinde.
-	nextSeasonLabel.Visible = not compact
+	seasonBar.setCompact(compact)
 	farmContextLabel.Visible = not compact
 	hintLabel.Visible = not compact
-	seasonClock.Visible = not compact
-	seasonProgress.Visible = not compact
 	-- Geniş: alt ortada yatay çubuk. Dar: sağ kenarın ortasında kısa sütun (üstteki oyuncu listesine uzanmaz).
 	dockLayout.FillDirection = if compact then Enum.FillDirection.Vertical else Enum.FillDirection.Horizontal
 	dock.AnchorPoint = if compact then Vector2.new(1, 0.5) else Vector2.new(0.5, 1)
@@ -1501,22 +755,8 @@ end
 Workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(watchCamera)
 watchCamera()
 ClientState.onChanged(onState)
--- Ada sekmeleri pencere açık olmasa da güncel kalsın (yeni açılan ada hemen tıklanabilir olsun).
--- Ayrı ve korumalı: buradaki bir hata ana arayüzün güncellenmesini asla engellemez.
-local function refreshIslandTabs()
-	local state = ClientState.get()
-	if not state then
-		return
-	end
-	for _, updateTabs in islandTabUpdaters do
-		local ok, err = pcall(updateTabs, state)
-		if not ok then
-			warn(`[FarmHud] Ada sekmeleri güncellenemedi: {err}`)
-		end
-	end
-end
-ClientState.onChanged(refreshIslandTabs)
-IslandContext.Changed:Connect(refreshIslandTabs)
+ClientState.onChanged(IslandTabs.refreshSafe)
+IslandContext.Changed:Connect(IslandTabs.refreshSafe)
 Remotes.get("Notify").OnClientEvent:Connect(function(message: string, kind: string?, amount: number?)
 	if typeof(message) == "string" then
 		showToast(message, kind)

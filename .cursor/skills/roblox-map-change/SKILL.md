@@ -15,7 +15,8 @@ description: Changes the generated island map, decor, lamps or build spots in Ma
 ```
 - [ ] 1. Değişikliği yap (Shared'ı script.Parent.Parent üzerinden arayan yedeği koru)
 - [ ] 2. MAP_VERSION +1 (yalnızca place'e kaydedilen değişiklikte)
-- [ ] 3. Yeni zorunlu parça → MapBuilder.validate() + tests/world.spec.luau
+- [ ] 3. Yeni zorunlu parça → MapBuilder.validate() + tests/world.spec.luau / tests/map-structure.spec.luau
+- [ ] 3b. Dekor bitince WorldDecor.optimize; tabela eklediysen uzun direk + CanCollide=false (yüksekliği map-structure denetler)
 - [ ] 4. rojo build (verify.ps1) + selene
 - [ ] 5. Kullanıcıya: Studio'da eklenti → "Haritayı Kur" → place'i kaydet
 ```

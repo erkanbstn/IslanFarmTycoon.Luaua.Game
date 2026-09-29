@@ -23,7 +23,7 @@ local MapBuilder = {}
 
 -- Harita düzenini (adalar, bölgeler, yapı yerleri) değiştirince bunu 1 artır:
 -- oyun, place'e kaydedilmiş eski haritayı fark edip uyarır.
-local MAP_VERSION = 31
+local MAP_VERSION = 32
 
 local SURFACE_Y = 4 -- Ada ve meydan yüzeyinin yüksekliği
 local WATER_Y = 0 -- Deniz yüzeyi
@@ -1433,6 +1433,8 @@ function MapBuilder.build(replaceGeneratedRegion: boolean?)
 		buildBridge(world, direction)
 	end
 
+	WorldDecor.optimize(plotsFolder)
+	WorldDecor.optimize(world)
 	ensureSea()
 	MapBuilder.validate()
 	print(`[Map] {count} ada oluşturuldu (harita sürümü {MAP_VERSION}).`)

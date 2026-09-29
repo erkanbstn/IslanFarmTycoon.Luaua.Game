@@ -257,6 +257,7 @@ Bu place'i Studio'da açıp Play ile saf testleri çalıştır. Dünya testi iç
 ```luau
 require(game:GetService("ServerScriptService").Server.Services.MapBuilder).ensure()
 require(game:GetService("ServerScriptService").Tests["world.spec"])()
+require(game:GetService("ServerScriptService").Tests["map-structure.spec"])()
 ```
 
 Bu komutları ayrı test place'inde kullan. Dünya testi geçici Collector/PlotId/MapVersion

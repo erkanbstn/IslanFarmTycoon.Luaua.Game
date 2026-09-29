@@ -61,6 +61,7 @@ try {
 	}
 	Invoke-Check "Pure Luau regression tests" { & $Python scripts/run-tests.py --luau $interpreter }
 	Invoke-Check "Locale key parity and UI literal coverage" { & $Python scripts/check-locales.py --strict-literals }
+	Invoke-Check "AI guide consistency" { & $Python scripts/check-ai-docs.py }
 	Invoke-Check "Pure helper type analysis (SessionLock, OrderRules, SeasonVisuals only)" {
 		& $analyzer src/server/Modules/SessionLock.luau src/server/Modules/OrderRules.luau src/shared/Modules/SeasonVisuals.luau
 	}

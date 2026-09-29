@@ -1,6 +1,6 @@
 ---
 description: Harita üretimi, dünya görselleri, gece ışıkları ve Lighting sahipliği
-globs: src/server/Services/MapBuilder.luau,src/server/Services/WorldDecor.luau,src/server/Services/*VisualService.luau,src/server/Services/IslandSpecialization.luau,plugin/**,src/client/DayNight.client.luau,src/client/WeatherEffects.client.luau,src/client/SeasonalScenery.luau
+globs: src/server/Services/MapBuilder.luau,src/server/Services/WorldDecor.luau,src/server/Services/HomeBuildings.luau,src/server/Services/HubNpcs.luau,src/server/Services/*VisualService.luau,src/server/Services/IslandSpecialization.luau,plugin/**,src/client/DayNight.client.luau,src/client/WeatherEffects.client.luau,src/client/SeasonalScenery.luau
 alwaysApply: false
 ---
 
@@ -13,13 +13,18 @@ alwaysApply: false
   ve kullanıcıya "Haritayı Kur + place kaydet" hatırlat. `*VisualService` çalışma anında kurar,
   sürüm gerekmez.
 - Harita sözleşmesi (Plots/Zones/Islands/BuildSpots/HubSpawn) `validate()` içindedir; yeni zorunlu
-  parça eklersen oraya ve `tests/world.spec.luau`'ya ekle.
+  parça eklersen oraya ve `tests/world.spec.luau` / `tests/map-structure.spec.luau`'ya ekle (Studio düzenleme modu).
 
 ## Ana ada yapıları
-- `HomeBuildings.luau` (Services): pazar tezgâhı (`MarketPrompt` → Çiftliğim penceresi), çiftlik evi, yel değirmeni
+- `HomeBuildings.luau` (Services): pazar tezgâhı (`MarketPrompt` → Hayvan Pazarı penceresi), çiftlik evi, yel değirmeni
   (kanatlar `Windmill` etiketi, döndürme `Windmill.client`), kuyu, sebze bahçesi, meyve bahçesi, arı kovanları, ambar.
   `MapBuilder.decorateHome` çağırır; yerleri `addIslandGrass` kaçınma listesinde de tutulur. Kapılar >= 4.6 x 6.6 stud.
-- Ada temaları çiftlik numarasına bağlanır (Çiftlik 1 = Papatya ...); genel ada çekirdeği hepsinde ortaktır.
+- Meydan (`MapBuilder.buildHub`): doğma noktası, Adalar tabelası ve `HubNpcs.vendor` ile 4 satıcı (`VendorPrompt`, `Action`:
+  `orders`/`store`/`roadmap`/`travel`; client `FarmHud.client` ilgili pencereyi açar). Satıcı doğma noktasından >= 15 stud uzakta durur.
+- Tabelalar (giriş, ada, "satılık"): uzun direk, tahta alt kenarı yerden >= 10 stud, tahta `CanCollide=false` (yolu kapatmaz).
+  Yeni tabela eklerken `tests/map-structure.spec.luau` bu yüksekliği denetler.
+- Dekor bitince `WorldDecor.optimize(root)`: küçük parçalar gölge düşürmez, çarpışmayanlar `CanQuery=false` olur.
+- Ada temaları çiftlik numarasına bağlanır (Çiftlik 1 = Papatya ...); genel ada çekirdeği hepsinde ortaktır; ağıl/otlak görünümü temaya göre değişir (`ZoneVisualService.THEME_LOOKS`).
 
 ## Gece ışıkları
 - Işık kaynağı parçası `NightLight` (fener, Neon) veya `NightWindow` (pencere, SmoothPlastic)

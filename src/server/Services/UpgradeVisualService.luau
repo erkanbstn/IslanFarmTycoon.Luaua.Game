@@ -947,6 +947,7 @@ local function buildUpgrade(upgradeId: string, spot: BasePart, parent: Instance)
 			WorldDecor.markNightWindow(descendant)
 		end
 	end
+	WorldDecor.optimize(built)
 	if upgradeId == "fishing_boat" then
 		-- Hareket sadece client görselidir; tüm parçalar sunucuda da fizik dışıdır.
 		for _, descendant in built:GetDescendants() do

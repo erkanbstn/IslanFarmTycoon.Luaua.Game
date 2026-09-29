@@ -823,6 +823,7 @@ function ZoneVisualService.apply(zone: Instance, zoneId: string, unlocked: boole
 		end
 		decor:SetAttribute("PartCount", parts)
 	end
+	WorldDecor.optimize(decor)
 	decor.Parent = zone
 end
 

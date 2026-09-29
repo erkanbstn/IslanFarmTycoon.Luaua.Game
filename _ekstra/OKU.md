@@ -1,9 +1,7 @@
 # Ekstra ayar dosyaları
 
-Güvenlik nedeniyle `.vscode` ve `.github` klasörleri uzaktan yazılamadı.
-Kullanmak için:
+`.github/copilot-instructions.md` proje köküne taşındı. Kalan:
 
-- `_ekstra/vscode`  klasörünü proje köküne taşı ve adını `.vscode` yap
-- `_ekstra/github`  klasörünü proje köküne taşı ve adını `.github` yap
+- `_ekstra/vscode` klasörünü proje köküne taşı ve adını `.vscode` yap (isteğe bağlı editör ayarları).
 
 Sonra bu `_ekstra` klasörünü silebilirsin.

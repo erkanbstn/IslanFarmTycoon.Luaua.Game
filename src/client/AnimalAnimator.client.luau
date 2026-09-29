@@ -25,9 +25,13 @@ type AnimalState = {
 	phase: number,
 	track: boolean,
 	trackAngle: number,
+	near: boolean, -- Kameraya yakın mı (0,3 sn'de bir güncellenir; her karede mesafe hesaplanmaz)
+	nextNearCheck: number,
+	slot: number, -- Duran hayvanların yazım kareleri dağılsın diye
 }
 
 local states: { [Model]: AnimalState } = {}
+local frameCount = 0
 local random = Random.new()
 
 local function randomPoint(state: AnimalState): Vector3
@@ -79,6 +83,9 @@ local function trackReady(instance: Instance)
 		phase = random:NextNumber(0, math.pi * 2),
 		track = isTrack,
 		trackAngle = random:NextNumber(0, math.pi * 2),
+		near = true,
+		nextNearCheck = 0,
+		slot = random:NextInteger(0, 1),
 	}
 	-- İlk karede doğru yerde görünsün
 	instance:PivotTo(area * CFrame.new(position.X, heightOffset, position.Z) * CFrame.Angles(0, yaw, 0))
@@ -141,6 +148,8 @@ RunService.RenderStepped:Connect(function(dt: number)
 	end
 	local cameraPos = camera.CFrame.Position
 	local now = os.clock()
+	local limit = if quality == "low" then 80 else ANIMATE_DISTANCE
+	frameCount += 1
 
 	for model, state in states do
 		if not model.Parent then
@@ -151,8 +160,12 @@ RunService.RenderStepped:Connect(function(dt: number)
 		if model:GetAttribute("BuildPopActive") == true then
 			continue
 		end
-		local worldPos = state.area * state.position
-		if (worldPos - cameraPos).Magnitude > (if quality == "low" then 80 else ANIMATE_DISTANCE) then
+		if now >= state.nextNearCheck then
+			state.nextNearCheck = now + 0.25 + random:NextNumber(0, 0.1)
+			local worldPos = state.area.Position + state.area:VectorToWorldSpace(state.position)
+			state.near = (worldPos - cameraPos).Magnitude <= limit
+		end
+		if not state.near then
 			continue
 		end
 
@@ -191,6 +204,9 @@ RunService.RenderStepped:Connect(function(dt: number)
 		local bob = if moving then math.abs(math.sin(state.phase)) * 0.25 else math.sin(state.phase) * 0.03
 		local localCf = CFrame.new(state.position.X, state.heightOffset + bob, state.position.Z)
 			* CFrame.Angles(0, state.yaw, 0)
-		model:PivotTo(state.area * localCf)
+		-- Duran hayvanın nefes hareketi çok küçüktür: yarım hızda yazmak yeter
+		if moving or (frameCount + state.slot) % 2 == 0 then
+			model:PivotTo(state.area * localCf)
+		end
 	end
 end)

@@ -6,13 +6,14 @@ description: Builds or changes screen UI in this Roblox project with UiKit (HUD 
 # Arayüz ekleme / düzenleme
 
 Önce `.cursor/rules/client-ui.mdc` içindeki yerleşim bölgelerini oku. Ana HUD dosyası
-`src/client/FarmHud.client.luau`; ayrı büyük paneller kendi modülünde (`ProductionPanel`,
+`src/client/FarmHud.client.luau` yalnızca orkestrasyondur; pencere ve bölümler `src/client/Hud/` altındaki modüllerdedir
+(`create(...)` + `update(state)` kalıbı, ortak `HudCommon.setPurchaseButton`). Ayrı büyük paneller kendi modülünde (`ProductionPanel`,
 `IslandManager`, `SettingsMenu`, `AdminPanel`) ve `open(screenGui)` fonksiyonu verir.
 
 ## Karar
 - Sık bakılan tek değer mi? → `Stats` paneline satır (`statRow(stats, order, icon, tint)`).
-- Ayrıntı / nadiren bakılan? → "Çiftliğim" penceresi (`goalsWindow.list`).
-- Yeni ekran/akış? → `UiKit.window` + menü karosu.
+- Ayrıntı / nadiren bakılan? → "Çiftliğim" penceresi (`goalsWindow.list`); sipariş ve dükkân kendi pencerelerinde (`boardWindow`, `storeWindow`).
+- Yeni ekran/akış? → `src/client/Hud/<Ad>.luau` modülü (`create` + `update`) + `UiKit.window` + menü karosu; ana betiğe yığma.
 
 ## Menü karosu
 ```luau

@@ -26,3 +26,7 @@ alwaysApply: false
 - Kalite ve erişilebilirlik: `EffectsQuality` ("low/medium/high") ve `ReducedMotion` öznitelikleri
   (Player) parçacık sayısını ve animasyonu sınırlar; yeni efekt ikisine de uymalı.
 - Parçacık/nesne havuzu sınırlı olsun; `Destroying`'de bağlantıları kopar, oluşturduğun nesneleri sil.
+
+- Dekor kurulumunun sonunda `WorldDecor.optimize(root)` çağır: 1,6 stud'dan küçük parçalar gölge düşürmez, çarpışmayan
+  parçalar `CanQuery=false` olur. Kare başı döngüde yakınlık testini her karede yapma; hayvan animatöründeki gibi
+  0,25 sn'de bir önbelleğe al.

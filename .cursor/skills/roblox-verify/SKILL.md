@@ -17,13 +17,14 @@ python scripts/run-tests.py
 powershell -ExecutionPolicy Bypass -File scripts/verify.ps1
 ```
 Sırasıyla: StyLua kontrol, Selene, Luau derleme, regresyon testleri, `check-locales.py
---strict-literals`, oyun/eklenti/test Rojo derlemeleri. Araçlar `rokit.toml` sürümleri ve
+--strict-literals`, yapay zeka rehber dosyaları denetimi (`check-ai-docs.py`), oyun/eklenti/test Rojo derlemeleri. Araçlar `rokit.toml` sürümleri ve
 `.tools/luau` (Luau 0.740). Eksikse: `rokit install`.
 
 ## Otomatik testin kapsamadığı (kullanıcıya açıkça söyle)
 - Studio görsel kontrol: HUD 1920x1080 / 1366x768 / telefon; gece ışıkları (yönetici: Gece + Güçlü).
 - Harita değiştiyse: eklenti "Haritayı Kur" + place kaydı, sonra Play.
 - Çok oyunculu (Test → Server + 2 Players), DataStore kesintisi, gamepad, FPS (MicroProfiler).
-- Dünya testleri: `rojo build test.project.json` place'inde `tests/run.server.luau`.
+- Dünya testleri: `rojo build test.project.json` place'inde `tests/run.server.luau`; harita yapısı için düzenleme modunda
+  `tests/map-structure.spec.luau` (README'deki Command Bar komutu).
 
 Sonuç raporunda hangi kontrolün koştuğunu ve hangisinin Studio'da bekleyeceğini ayrı yaz.

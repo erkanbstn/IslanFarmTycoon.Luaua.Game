@@ -5,6 +5,7 @@
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
@@ -39,6 +40,9 @@ local connection = RunService.Heartbeat:Connect(function(dt: number)
 		return
 	end
 	local cameraPosition = camera.CFrame.Position
+	-- Fırtınada biraz daha hızlı döner (hava her karede bir kez okunur)
+	local weather = ReplicatedStorage:GetAttribute("Weather")
+	local boost = if weather == "storm" then 2.2 elseif weather == "rain" then 1.4 else 1
 	for model, speed in blades do
 		if not model.PrimaryPart or not model:IsDescendantOf(Workspace) then
 			continue
@@ -46,9 +50,6 @@ local connection = RunService.Heartbeat:Connect(function(dt: number)
 		if (model:GetPivot().Position - cameraPosition).Magnitude > UPDATE_DISTANCE then
 			continue
 		end
-		-- Fırtınada biraz daha hızlı döner
-		local weather = game:GetService("ReplicatedStorage"):GetAttribute("Weather")
-		local boost = if weather == "storm" then 2.2 elseif weather == "rain" then 1.4 else 1
 		model:PivotTo(model:GetPivot() * CFrame.Angles(0, 0, speed * boost * dt))
 	end
 end)

@@ -11,10 +11,10 @@ Tek kaynak `src/shared/Config.luau`. Önce benzer mevcut kaydı bul ve aynı ala
 ## Nereye ne eklenir
 | İçerik | Config | Ek dokunuş |
 |---|---|---|
-| Hayvan | `ANIMALS` + `ANIMAL_ORDER` | model `assets/Animals`, `AnimalVisualService`; bir `ZONES[x].allowedAnimals` |
+| Hayvan | `ANIMALS` + `ANIMAL_ORDER` | model `assets/Animals`, `AnimalVisualService`; bir `ZONES[x].allowedAnimals` (ana ada hayvanıysa `THEMES[n].homeAnimal`) |
 | Bölge | `ZONES` (`island` alanı zorunlu) + açan `UPGRADES` (kind zone) | `MapBuilder` bölge yerleşimi → `MAP_VERSION` +1 |
 | Yükseltme | `UPGRADES` (`stage`, `requires`, `cost`) | görseli `UpgradeVisualService`; yapı noktası gerekiyorsa MapBuilder `BuildSpots` |
-| Uzman ada | `FARM_ISLANDS` + `FARM_ISLAND_ORDER` + island upgrade | MapBuilder uydu ada düzeni, `IslandSpecialization.SITES` |
+| Uzman ada | `FARM_ISLANDS` + `FARM_ISLAND_ORDER` + island upgrade + `THEMES[n].satellites` + `ROADMAP_STAGES` (**sona ekle**: `upgrade.stage` indeksidir) | MapBuilder `SATELLITE_TYPES`, `IslandSpecialization.SITES`; ana hayvanın kendi adası temada olmaz, inek yoksa `dairy` bulunur |
 | Eklenti | `EXTENSIONS` + kind extension upgrade | `ExtensionVisualService` |
 | Üretim | `PRODUCTION_RECIPES` | `ProductionRules`, `IslandSpecialization` |
 | Mevsim/hava | `SEASONS`, `WEATHER` (incomeModifiers) | `WeatherEffects` WEATHER_LOOK, `SEASON_TINT` |
@@ -32,5 +32,6 @@ Tek kaynak `src/shared/Config.luau`. Önce benzer mevcut kaydı bul ve aynı ala
 
 ## Denge ipuçları
 - Gelir = `baseIncomePerSecond` × ahır çarpanı × (1 + güçlendirmeler) × mevsim/hava × evre çarpanı.
+- Ana ada hayvanı temaya göre değişir: bölge iznini `Config.zoneAllows`, `incomeBoost.home` ile ana hayvan güçlendirmesi.
 - Yol haritası sırası `ROADMAP_STAGES` ve `requires` ile; kilitli kart "Önce: ..." gösterir.
 - Sayısal değişikliği README'deki tablolarla (mevsim, fiyat) tutarlı tut.
