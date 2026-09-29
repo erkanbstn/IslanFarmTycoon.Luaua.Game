@@ -19,7 +19,7 @@ local highest: { [Player]: number } = {}
 local initialized = false
 
 local function apply(player: Player, action: unknown, target: unknown): (boolean, string)
-	if not RateLimiter.validId(target) or (action ~= "buy" and action ~= "select") then
+	if not RateLimiter.validId(target) or (action ~= "buy" and action ~= "select" and action ~= "activate") then
 		return false, "Geçersiz çiftlik işlemi."
 	end
 	local data = PlayerDataService.tryGet(player)
@@ -73,12 +73,24 @@ local function apply(player: Player, action: unknown, target: unknown): (boolean
 		return false, "Çiftlik seçilemedi; ücret alınmadı."
 	end
 	data.cash -= charge
-	player:SetAttribute("SelectedFarmIsland", "home")
+	-- "activate": oyuncu başka bir ana çiftliğin adasına yürüdü; etkin çiftlik değişir ama karakter ışınlanmaz.
+	local walking = action == "activate"
+	if walking then
+		local active = PlayerDataService.tryGet(player)
+		local selected = player:GetAttribute("SelectedFarmIsland")
+		if not active or typeof(selected) ~= "string" or active.unlockedIslands[selected] ~= true then
+			player:SetAttribute("SelectedFarmIsland", "home")
+		end
+	else
+		player:SetAttribute("SelectedFarmIsland", "home")
+	end
 	PlayerDataService.pushState(player)
 	PlayerDataService.requestSave(player)
 	local ok, err = pcall(function()
 		PlotService.refreshPlayerWorld(player)
-		PlotService.teleportHome(player)
+		if not walking then
+			PlotService.teleportHome(player)
+		end
 	end)
 	if not ok then
 		warn(`[MainFarm] Seçim kaydedildi; görünüm yenilenemedi: {err}`)

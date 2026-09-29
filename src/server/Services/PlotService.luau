@@ -620,9 +620,11 @@ function PlotService.init()
 	MapBuilder.validate()
 	-- Place'in kapasitesi tek başına geçerli adaları kullanılamaz yapmaz.
 	-- assign() boş ada olmadığında false döner; giriş noktası yalnızca fazla oyuncuyu reddeder.
-	if Players.MaxPlayers > Config.MAP_PLOT_COUNT then
+	-- Bu place, oyuncuya özel ada haritasıdır: bütün kümeler (ana çiftlikler + küçük adalar) tek oyuncunundur.
+	-- Lobi ayrı bir place olacak (docs/LOBI_VE_ADA_MIMARISI.md); yayında bu place'in kapasitesi 1 olmalıdır.
+	if Players.MaxPlayers > 1 then
 		warn(
-			`[Map] MaxPlayers={Players.MaxPlayers}; {Config.MAP_PLOT_COUNT} ada var. Yayın ayarında kapasiteyi ada sayısına indir. Boş adalarla oyun devam ediyor.`
+			`[Map] MaxPlayers={Players.MaxPlayers}. Bu place oyuncuya özel ada haritasıdır; yayında Maximum Players 1 olmalı (lobi ayrı place). Test için fazla oyuncu boş ana çiftlikleri kullanır.`
 		)
 	end
 	collectPlotModels()

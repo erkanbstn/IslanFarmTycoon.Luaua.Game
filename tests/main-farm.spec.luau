@@ -120,6 +120,7 @@ return function(
 		end,
 	}
 	local failSelect = false
+	local teleports = 0
 	local plots = {
 		getPlot = function(): any
 			return fakePlot
@@ -156,7 +157,9 @@ return function(
 			mappings[id] = nil
 		end,
 		refreshPlayerWorld = function() end,
-		teleportHome = function() end,
+		teleportHome = function()
+			teleports += 1
+		end,
 	}
 	local clock = {
 		clock = function(): number
@@ -236,6 +239,12 @@ return function(
 		"old active scalars and tables survive switch"
 	)
 	assert(not fire("select", "6").ok and data.activeMainFarmId == "1", "unowned logical farm cannot be selected")
+	-- Yürüyerek başka çiftliğin adasına geçiş: etkin çiftlik değişir, karakter ışınlanmaz.
+	local teleportsBefore = teleports
+	assert(fire("activate", "2").ok and data.activeMainFarmId == "2", "walking onto another farm activates it")
+	assert(teleports == teleportsBefore, "activate must not teleport the character")
+	assert(not fire("activate", "6").ok and data.activeMainFarmId == "2", "unowned farm cannot be activated")
+	assert(fire("select", "1").ok and teleports == teleportsBefore + 1, "panel selection still teleports home")
 	economy.settlePlayer(player)
 	local oldStored = data.stored
 	local second = profiles.view(data, "2")

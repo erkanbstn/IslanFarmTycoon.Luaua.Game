@@ -1089,10 +1089,11 @@ local function resizeHud()
 	if not camera then
 		return
 	end
-	compact = camera.ViewportSize.X < 900 or camera.ViewportSize.Y < 650
+	-- Kısa ama geniş pencerelerde (ör. 1600x645) tam yerleşim kullanılır; yalnızca dar ya da çok kısa ekran kompakt olur.
+	compact = camera.ViewportSize.X < 900 or camera.ViewportSize.Y < 560
 	stats.AnchorPoint = if compact then Vector2.zero else Vector2.new(0, 0.5)
 	stats.Position = if compact then UDim2.fromOffset(8, 8) else UDim2.new(0, 12, 0.5, 0)
-	stats.Size = if compact then UDim2.new(1, -128, 0, 0) else UDim2.fromOffset(260, 0)
+	stats.Size = if compact then UDim2.fromOffset(200, 0) else UDim2.fromOffset(260, 0)
 	local barnRow = barnTexts.Parent
 	if barnRow and barnRow:IsA("GuiObject") then
 		barnRow.Visible = not compact
@@ -1101,57 +1102,16 @@ local function resizeHud()
 	goalCard.Visible = not compact
 	-- Mobilde hedefler ayrı pencereye taşınır; HUD oyunu kaplamaz.
 	nextSeasonLabel.Visible = not compact
-	hintLabel.Visible = not compact or localPlayer:GetAttribute("DataPersistent") == false
+	-- Kompakt: yalnızca kasa ve depo çubuğu; bağlam etiketi, ipucu ve gelir satırı dışında hiçbir şey yer kaplamaz.
+	farmContextLabel.Visible = not compact
+	hintLabel.Visible = not compact
+	seasonTitle.Visible = not compact
+	seasonClock.Visible = not compact
+	weatherTitle.Visible = not compact
 	dock.AnchorPoint = if compact then Vector2.new(1, 0) else Vector2.new(1, 0.5)
 	dock.Position = if compact then UDim2.new(1, -8, 0, 8) else UDim2.new(1, -12, 0.5, 0)
-	dock.Size = UDim2.fromOffset(if compact then 104 else 170, 0)
+	dock.Size = UDim2.fromOffset(if compact then 56 else 170, 0)
 	layoutToasts()
-	for _, button in
-		{
-			shopButton,
-			roadmapButton,
-			upgradesButton,
-			productionButton,
-			islandsButton,
-			homeButton,
-			settingsButton,
-			adminButton,
-		}
-	do
-		local icon = button:FindFirstChild("Icon", true)
-		if icon and icon:IsA("GuiObject") then
-			icon.Visible = not compact
-		end
-		local shortcut = button:FindFirstChild("Shortcut", true)
-		if shortcut and shortcut:IsA("GuiObject") then
-			shortcut.Visible = not compact
-		end
-		local row = button:FindFirstChildWhichIsA("Frame")
-		if row then
-			for _, child in row:GetChildren() do
-				if child:IsA("TextLabel") and child.Name ~= "Icon" and child.Name ~= "Shortcut" then
-					if button == upgradesButton then
-						child.TextSize = if compact then UiKit.TextSize.Caption else UiKit.TextSize.Heading
-					end
-					child.Size = UDim2.new(
-						1,
-						if compact
-							then 0
-							elseif
-								hasKeyboard
-								and button ~= upgradesButton
-								and button ~= homeButton
-								and button ~= settingsButton
-								and button ~= adminButton
-							then -66
-							else -40,
-						1,
-						0
-					)
-				end
-			end
-		end
-	end
 	redraw()
 end
 
@@ -1166,18 +1126,34 @@ local goalsWindow = UiKit.window(screenGui, {
 })
 local goalsButton = UiKit.menuButton(dock, "🏆", "Çiftliğim", Color.Gold, nil)
 goalsButton.LayoutOrder = 6
-local goalMenuRow = goalsButton:FindFirstChildWhichIsA("Frame")
-if goalMenuRow then
-	for _, child in goalMenuRow:GetChildren() do
-		if child:IsA("TextLabel") then
+-- Menü düğmesi biçimi: kompakt sağ menüde yalnızca emoji kutusu (dar sütun); pencerede ve geniş ekranda ikon + yazı.
+local function styleMenuButton(button: TextButton, iconOnly: boolean)
+	local row = button:FindFirstChildWhichIsA("Frame")
+	if not row then
+		return
+	end
+	local layout = row:FindFirstChildOfClass("UIListLayout")
+	if layout then
+		layout.HorizontalAlignment = if iconOnly then Enum.HorizontalAlignment.Center else Enum.HorizontalAlignment.Left
+	end
+	local shortcut = row:FindFirstChild("Shortcut")
+	local showShortcut = not iconOnly and hasKeyboard and shortcut ~= nil
+	if shortcut and shortcut:IsA("GuiObject") then
+		shortcut.Visible = showShortcut
+	end
+	for _, child in row:GetChildren() do
+		if child:IsA("TextLabel") and child.Name ~= "Shortcut" then
 			if child.Name == "Icon" then
-				child.Visible = false
+				child.Visible = true
 			else
-				child.Size = UDim2.fromScale(1, 1)
+				child.Visible = not iconOnly
+				child.TextSize = UiKit.TextSize.Heading
+				child.Size = UDim2.new(1, if showShortcut then -66 else -40, 1, 0)
 			end
 		end
 	end
 end
+
 local function placeGoals()
 	if not compact then
 		goalsWindow.close()
@@ -1197,6 +1173,21 @@ local function placeGoals()
 	homeButton.LayoutOrder = if compact then 10 else 6
 	settingsButton.LayoutOrder = if compact then 11 else 7
 	adminButton.LayoutOrder = if compact then 12 else 8
+	for _, button in
+		{
+			shopButton,
+			roadmapButton,
+			upgradesButton,
+			productionButton,
+			islandsButton,
+			homeButton,
+			settingsButton,
+			adminButton,
+			goalsButton,
+		}
+	do
+		styleMenuButton(button, compact and button.Parent == dock)
+	end
 end
 goalsButton.Activated:Connect(function()
 	goalsWindow.open()
@@ -1219,6 +1210,22 @@ end
 Workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(watchCamera)
 watchCamera()
 ClientState.onChanged(onState)
+-- Ada sekmeleri pencere açık olmasa da güncel kalsın (yeni açılan ada hemen tıklanabilir olsun).
+-- Ayrı ve korumalı: buradaki bir hata ana arayüzün güncellenmesini asla engellemez.
+local function refreshIslandTabs()
+	local state = ClientState.get()
+	if not state then
+		return
+	end
+	for _, updateTabs in islandTabUpdaters do
+		local ok, err = pcall(updateTabs, state)
+		if not ok then
+			warn(`[FarmHud] Ada sekmeleri güncellenemedi: {err}`)
+		end
+	end
+end
+ClientState.onChanged(refreshIslandTabs)
+IslandContext.Changed:Connect(refreshIslandTabs)
 Remotes.get("Notify").OnClientEvent:Connect(function(message: string, kind: string?)
 	if typeof(message) == "string" then
 		showToast(message, kind)

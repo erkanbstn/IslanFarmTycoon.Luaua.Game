@@ -86,15 +86,21 @@ local function summaries(state: any): { MainFarm }
 	}
 end
 
-local function submit(action: string, target: string)
+local pendingSilent = false
+
+-- silent: karakter başka çiftliğin adasına yürüyünce otomatik etkinleştirme; mesaj ve bildirim göstermez.
+local function submit(action: string, target: string, silent: boolean?)
 	if blocked() then
 		return
 	end
 	sequence += 1
 	local id = sequence
 	pending = id
-	resultMessage = "Ana çiftlik işlemi bekleniyor..."
-	resultOk = false
+	pendingSilent = silent == true
+	if not pendingSilent then
+		resultMessage = "Ana çiftlik işlemi bekleniyor..."
+		resultOk = false
+	end
 	update()
 	Remotes.get("RequestMainFarmAction"):FireServer(action, target, id)
 	task.delay(8, function()
@@ -102,8 +108,10 @@ local function submit(action: string, target: string)
 			return
 		end
 		pending = nil
-		resultMessage = "Yanıt gecikti. İstek tekrarlanmadı; çiftlik bilgileri yenileniyor."
-		resultOk = false
+		if not pendingSilent then
+			resultMessage = "Yanıt gecikti. İstek tekrarlanmadı; çiftlik bilgileri yenileniyor."
+			resultOk = false
+		end
 		ClientState.requestSnapshot()
 		update()
 	end)
@@ -114,6 +122,14 @@ Remotes.get("MainFarmResult").OnClientEvent:Connect(function(id: unknown, ok: un
 		return
 	end
 	pending = nil
+	if pendingSilent then
+		pendingSilent = false
+		if not ok then
+			ClientState.requestSnapshot()
+		end
+		update()
+		return
+	end
 	resultOk = ok
 	resultMessage = if typeof(message) == "string"
 		then message
@@ -564,6 +580,11 @@ local function create(): UiKit.Window
 		polling:Disconnect()
 	end)
 	return created
+end
+
+-- Karakter başka bir ana çiftliğin adasına yürüdü: o çiftliği etkin yap (ışınlama yok, sessiz).
+function IslandManager.activateFarm(farmId: string)
+	submit("activate", farmId, true)
 end
 
 function IslandManager.isOpen(): boolean

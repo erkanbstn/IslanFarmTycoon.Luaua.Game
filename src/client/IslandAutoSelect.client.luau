@@ -1,7 +1,8 @@
 --!strict
--- Karakter kendi çiftliğinin bir adasına (yürüyerek ya da ışınlanarak) girince o ada seçilir:
--- Yükseltmeler ve Yol Haritası otomatik o adanın listesine geçer. Ada sekmelerinden elle seçilen ada,
--- karakter başka bir adaya geçene kadar korunur.
+-- Karakter kendi çiftliklerinden birinin adasına (yürüyerek ya da ışınlanarak) girince:
+--  * O ana çiftlik etkin değilse etkin yapılır (panelden seçmekle aynı, ışınlama olmadan).
+--  * O ada seçilir: Yükseltmeler, Yol Haritası, Pazar ve diğer ada bağımlı arayüzler o adaya göre güncellenir.
+-- Ada sekmelerinden elle seçilen ada, karakter başka bir adaya geçene kadar korunur.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -11,53 +12,49 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local ClientState = require(script.Parent:WaitForChild("ClientState"))
 local IslandContext = require(script.Parent:WaitForChild("IslandContext"))
+local IslandManager = require(script.Parent:WaitForChild("IslandManager"))
 
 local player = Players.LocalPlayer
 local CHECK_INTERVAL = 0.4
-local lastDetected: string? = nil
+local lastDetected: string? = nil -- "farmId|islandId"
 
--- Etkin ana çiftliğin plot'u
-local function ownPlot(): Model?
-	local plots = Workspace:FindFirstChild("Plots")
-	if not plots then
-		return nil
+-- Silindir tabanın üstünde mi? (MapBuilder silindirleri X ekseni çevrilmiş disklerdir; yatay çap Size.Y'dedir.)
+local function inside(base: Instance?, position: Vector3): boolean
+	if not base or not base:IsA("BasePart") then
+		return false
 	end
-	local farmId = player:GetAttribute("ActiveMainFarmId")
-	for _, plot in plots:GetChildren() do
-		if
-			plot:IsA("Model")
-			and plot:GetAttribute("OwnerUserId") == player.UserId
-			and plot:GetAttribute("MainFarmId") == farmId
-		then
-			return plot
-		end
-	end
-	return nil
+	local flat = Vector3.new(position.X - base.Position.X, 0, position.Z - base.Position.Z)
+	return flat.Magnitude <= base.Size.Y / 2 - 2
 end
 
--- Karakterin üstünde durduğu ada (ana ada = "home"); hiçbirinde değilse nil
-local function islandUnderCharacter(plot: Model, position: Vector3): string?
-	local function inside(base: Instance?): boolean
-		if not base or not base:IsA("BasePart") then
-			return false
-		end
-		-- MapBuilder silindirleri X ekseni çevrilmiş disklerdir; yatay çap Size.Y'dedir.
-		local flat = Vector3.new(position.X - base.Position.X, 0, position.Z - base.Position.Z)
-		return flat.Magnitude <= base.Size.Y / 2 - 2
+-- Karakterin üstünde durduğu (çiftlik kimliği, ada); kendi çiftliklerinden hiçbirinde değilse nil
+local function locate(position: Vector3): (string?, string?)
+	local plots = Workspace:FindFirstChild("Plots")
+	if not plots then
+		return nil, nil
 	end
-	local islands = plot:FindFirstChild("Islands")
-	if islands then
-		for _, island in islands:GetChildren() do
-			local islandId = island:GetAttribute("FarmIslandId")
-			if typeof(islandId) == "string" and inside(island:FindFirstChild("IslandBase")) then
-				return islandId
+	for _, plot in plots:GetChildren() do
+		if not plot:IsA("Model") or plot:GetAttribute("OwnerUserId") ~= player.UserId then
+			continue
+		end
+		local farmId = plot:GetAttribute("MainFarmId")
+		if typeof(farmId) ~= "string" then
+			continue
+		end
+		local islands = plot:FindFirstChild("Islands")
+		if islands then
+			for _, island in islands:GetChildren() do
+				local islandId = island:GetAttribute("FarmIslandId")
+				if typeof(islandId) == "string" and inside(island:FindFirstChild("IslandBase"), position) then
+					return farmId, islandId
+				end
 			end
 		end
+		if inside(plot:FindFirstChild("PlotBase"), position) then
+			return farmId, "home"
+		end
 	end
-	if inside(plot:FindFirstChild("PlotBase")) then
-		return "home"
-	end
-	return nil
+	return nil, nil
 end
 
 local function check()
@@ -67,27 +64,40 @@ local function check()
 	if not state or not root or not root:IsA("BasePart") then
 		return
 	end
-	local plot = ownPlot()
-	if not plot then
+	local farmId, islandId = locate(root.Position)
+	if not farmId or not islandId then
 		return
 	end
-	local detected = islandUnderCharacter(plot, root.Position)
-	if detected == nil or detected == lastDetected then
+	local signature = `{farmId}|{islandId}`
+	if signature == lastDetected then
 		return
 	end
-	lastDetected = detected
-	if detected ~= IslandContext.get() and state.unlockedIslands[detected] then
-		Remotes.get("RequestTravelIsland"):FireServer(detected, true)
+
+	-- Başka bir ana çiftliğin adasına geçildi: önce çiftliği etkin yap. Etkinleşince ActiveMainFarmId
+	-- değişir, tespit sıfırlanır ve ada seçimi bir sonraki turda yapılır.
+	local activeFarm = player:GetAttribute("ActiveMainFarmId")
+	if farmId ~= activeFarm then
+		IslandManager.activateFarm(farmId)
+		return
+	end
+
+	lastDetected = signature
+	if islandId ~= IslandContext.get() and state.unlockedIslands[islandId] then
+		Remotes.get("RequestTravelIsland"):FireServer(islandId, true)
 	end
 end
 
 task.spawn(function()
 	while true do
 		task.wait(CHECK_INTERVAL)
-		check()
+		-- Tek bir hata döngüyü öldürmesin; sonraki turda yeniden denenir.
+		local ok, err = pcall(check)
+		if not ok then
+			warn(`[IslandAutoSelect] {err}`)
+		end
 	end
 end)
--- Çiftlik değişince ilk tespit yeniden yapılsın
+-- Çiftlik değişince ada tespiti yeniden yapılsın
 player:GetAttributeChangedSignal("ActiveMainFarmId"):Connect(function()
 	lastDetected = nil
 end)

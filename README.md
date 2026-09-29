@@ -46,14 +46,14 @@ Baseplate ve SpawnLocation korunur. Şablon Baseplate/SpawnLocation oyuna engels
 - **API olmadan açıkça kayıtsız test:** Play'den önce Workspace'e Boolean
   `StudioNonPersistentData = true` attribute'u ekle. HUD kayıtsız test uyarısını sürekli gösterir.
   Kalıcı kayıt testinden önce attribute'u kaldır veya false yap. Bu seçenek canlı oyunda etkisizdir.
-- **Max Players:** Game Settings → Places'te `Config.MAP_PLOT_COUNT` (6) yap; her oyuncuya bir ada düşer.
+- **Max Players:** Bu place oyuncuya özel ada haritasıdır; yayında Game Settings → Places'te 1 yap. Lobi ayrı place olacak ([mimari](docs/LOBI_VE_ADA_MIMARISI.md)). Studio'da birden fazla oyuncu denemek istersen kapasite 1'den büyükken uyarı çıkar, bu normaldir.
 - **Çok oyunculu test:** Test sekmesi → Clients and Servers → 2 oyuncu → Start.
 
 ### Play'de boş gökyüzünde kalma
 
 Studio günlüklerinde `MaxPlayers ada sayısından büyük` hatası görünüyorsa eski açılış kodu
 çalışıyordur. Güncel kod kapasite farkında uyarır; boş adaları kullanır, yalnızca ada kalmayan
-oyuncunun girişini reddeder. Yayın kapasitesini yine 6 olarak ayarla.
+oyuncunun girişini reddeder. Yayında bu place'in kapasitesi 1'dir (oyuncuya özel harita).
 
 Rojo bağlantısı koptuğunda `Haritayı Kur` eski/eksik senkronize kodları çalıştırabilir.
 Play'i durdur, Rojo'da Disconnect → Connect ile bu projeye yeniden bağlan ve sonra Play yap.
