@@ -59,6 +59,18 @@ Bu dosya Claude, Cursor, Copilot, Codex gibi AI araçlarının projeyi doğru an
 - Buton tipleri: primary = alınabilir, warning = para yetmiyor, disabled = kilitli/dolu, owned = alındı.
 - Sunucu bildirim (Notify) metinlerine emoji koyma; bildirimin türü (success/error/money/info) işareti belirler.
 
+## Yerelleştirme (diller)
+- Desteklenen diller `Config.LANGUAGES` içinde: Türkçe (kaynak), İngilizce, Almanca, Rusça.
+- Kod Türkçe metin yazmaya devam eder; `src/client/Localizer.client.luau` ekrandaki ve tabelalardaki
+  (TextLabel/TextButton/ProximityPrompt) yazıları çevirir. Sunucu bildirimleri de böyle çevrilir, sunucuda dil bilinmez.
+- **Yeni metin eklediysen** `src/shared/Locales/en.luau`, `de.luau`, `ru.luau` içine aynı Türkçe anahtarla çeviri ekle.
+  Değişken içeren metinlerde boşluğu `{}` yaz, hedefte `{1}`, `{2}` kullan (örn. `["Önce: {}"] = "Requires: {1}"`).
+  Parçalar " · ", satır sonu ve ", " ile ayrı ayrı da çevrilir; hazır ifadeyi tek başına sözlüğe eklemek yeterli.
+- Metni sunucuda parçalayıp birleştirme; olduğu gibi tam cümle kur ki sözlük eşleşebilsin. Bulunamayan metin Türkçe kalır.
+- Dil seçimi: ilk girişte Roblox dilinden (`LocaleId`), desteklenmiyorsa ülkeden algılanır. Ayarlar → Dil ile değişir ve
+  sunucuda `save.language` olarak saklanır (`RequestSetLanguage`, `SavedLanguage` özniteliği).
+- Bayraklar emoji değil, `UiKit.flag` ile şekillerle çizilir (Roblox yazı tipleri bayrak emojisini göstermez).
+
 ## Araçlar
 - Rokit (`rokit.toml`) ile: rojo, stylua, selene.
 - Lint: `selene src` · Format: `stylua src` · Senkronizasyon: `rojo serve`

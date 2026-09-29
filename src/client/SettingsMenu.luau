@@ -1,7 +1,11 @@
 --!strict
--- Görsel tercihler yalnızca bu cihazdaki açık oturum için geçerlidir.
+-- Görsel tercihler yalnızca bu cihazdaki açık oturum için geçerlidir; dil tercihi hesaba kaydedilir.
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UiKit = require(script.Parent:WaitForChild("UiKit"))
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Config = require(Shared:WaitForChild("Config"))
+local Localization = require(Shared:WaitForChild("Localization"))
 local player = Players.LocalPlayer
 local SettingsMenu = {}
 local window: UiKit.Window? = nil
@@ -15,7 +19,7 @@ end
 
 local function create(parent: ScreenGui): UiKit.Window
 	local created = UiKit.window(parent, {
-		title = "Görsel Ayarlar",
+		title = "Ayarlar",
 		icon = "⚙️",
 		tint = UiKit.Color.Blue,
 		width = 380,
@@ -25,15 +29,46 @@ local function create(parent: ScreenGui): UiKit.Window
 	})
 	UiKit.text(
 		created.list,
-		"Bu tercihler yalnızca bu oturumda geçerlidir. Gelirini ve oyun hızını değiştirmez.",
+		"Görsel tercihler yalnızca bu oturumda geçerlidir. Gelirini ve oyun hızını değiştirmez. Dil tercihin kaydedilir.",
 		"Caption"
 	).LayoutOrder =
 		1
-	UiKit.text(created.list, "Efekt kalitesi", "Heading").LayoutOrder = 2
+	-- Başlık iki dilli: dili yanlış seçen oyuncu da menüyü bulabilsin.
+	UiKit.text(created.list, "Dil / Language", "Heading").LayoutOrder = 2
+	local languageGrid = Instance.new("Frame")
+	languageGrid.BackgroundTransparency = 1
+	languageGrid.Size = UDim2.new(1, 0, 0, 0)
+	languageGrid.AutomaticSize = Enum.AutomaticSize.Y
+	languageGrid.LayoutOrder = 3
+	languageGrid.Parent = created.list
+	local grid = Instance.new("UIGridLayout")
+	grid.CellSize = UDim2.new(0.5, -4, 0, 44)
+	grid.CellPadding = UDim2.fromOffset(8, 8)
+	grid.SortOrder = Enum.SortOrder.LayoutOrder
+	grid.Parent = languageGrid
+	local languageButtons: { [string]: TextButton } = {}
+	for index, code in Config.LANGUAGE_ORDER do
+		local language = Config.LANGUAGES[code]
+		local button = UiKit.button(languageGrid, "", "secondary")
+		button.LayoutOrder = index
+		UiKit.flag(button, code, 30).Position = UDim2.new(0, 10, 0.5, -10)
+		local name = UiKit.text(button, language.name, "Body")
+		name.AutomaticSize = Enum.AutomaticSize.None
+		name.Position = UDim2.fromOffset(50, 0)
+		name.Size = UDim2.new(1, -56, 1, 0)
+		name.TextWrapped = false
+		name.TextTruncate = Enum.TextTruncate.AtEnd
+		name.Active = false
+		languageButtons[code] = button
+		button.Activated:Connect(function()
+			Localization.set(code)
+		end)
+	end
+	UiKit.text(created.list, "Efekt kalitesi", "Heading").LayoutOrder = 4
 	local choices = Instance.new("Frame")
 	choices.BackgroundTransparency = 1
 	choices.Size = UDim2.new(1, 0, 0, 44)
-	choices.LayoutOrder = 3
+	choices.LayoutOrder = 5
 	choices.Parent = created.list
 	UiKit.list(choices, 6, true)
 	local buttons: { [string]: TextButton } = {}
@@ -49,11 +84,11 @@ local function create(parent: ScreenGui): UiKit.Window
 		end)
 	end
 	local qualityInfo = UiKit.text(created.list, "", "Caption")
-	qualityInfo.LayoutOrder = 4
-	UiKit.text(created.list, "Hareket", "Heading").LayoutOrder = 5
+	qualityInfo.LayoutOrder = 6
+	UiKit.text(created.list, "Hareket", "Heading").LayoutOrder = 7
 	local motion = UiKit.button(created.list, "", "secondary")
 	motion.Size = UDim2.new(1, 0, 0, 44)
-	motion.LayoutOrder = 6
+	motion.LayoutOrder = 8
 	motion.Activated:Connect(function()
 		player:SetAttribute("ReducedMotion", player:GetAttribute("ReducedMotion") ~= true)
 	end)
@@ -62,12 +97,20 @@ local function create(parent: ScreenGui): UiKit.Window
 		"Hareketi azaltınca kuşlar, süs balıkları, hayvan gezinmesi ve şimşek kapanır; yağış azalır.",
 		"Caption"
 	).LayoutOrder =
-		7
+		9
 	local descriptions: { [string]: string } = {
 		low = "Daha az yağış ve süs hayvanı; daha kısa çizim mesafesi. Yakındaki hayvanlar akıcı hareket eder.",
 		medium = "Dengeli görünüm: azaltılmış parçacıklar, akıcı hayvan hareketleri ve satın alma animasyonu.",
 		high = "Tüm görsel efektler ve her karede hayvan hareketi. Güçlü cihazlar için.",
 	}
+	local function refreshLanguage()
+		local selected = Localization.get()
+		for code, button in languageButtons do
+			UiKit.setVariant(button, if code == selected then "primary" else "secondary")
+			-- Seçili dil tekrar tıklanabilir kalsın (kaydı yeniden gönderir); yalnızca renk değişir.
+			button.Active = true
+		end
+	end
 	local function refresh()
 		local quality = player:GetAttribute("EffectsQuality")
 		local selected = if typeof(quality) == "string" and descriptions[quality] then quality else "medium"
@@ -84,15 +127,18 @@ local function create(parent: ScreenGui): UiKit.Window
 		player:GetAttributeChangedSignal("EffectsQuality"):Connect(refresh),
 		player:GetAttributeChangedSignal("ReducedMotion"):Connect(refresh),
 	}
+	local stopLanguageWatch = Localization.onChanged(refreshLanguage)
 	created.frame.Destroying:Connect(function()
 		for _, connection in connections do
 			connection:Disconnect()
 		end
+		stopLanguageWatch()
 		if window == created then
 			window = nil
 		end
 	end)
 	refresh()
+	refreshLanguage()
 	return created
 end
 

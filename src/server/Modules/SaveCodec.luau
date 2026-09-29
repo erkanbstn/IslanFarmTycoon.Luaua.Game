@@ -309,6 +309,10 @@ function SaveCodec.decode(
 	data.cash = math.min(1e15, amount(source.cash, config.STARTING_CASH) + refundedTotal)
 	data.mainFarms = farms
 	data.activeMainFarmId = source.activeMainFarmId
+	-- Arayüz dili: yalnızca Config.LANGUAGES'taki kodlar kabul edilir; bilinmeyen değer yok sayılır.
+	if typeof(source.language) == "string" and config.LANGUAGES and config.LANGUAGES[source.language] then
+		data.language = source.language
+	end
 	return data, earnedTotal, nil, repairTotal
 end
 
@@ -324,6 +328,7 @@ function SaveCodec.encode(save: any, now: number): { [string]: any }
 		cash = amount(save.cash, 0),
 		mainFarms = farms,
 		activeMainFarmId = save.activeMainFarmId,
+		language = save.language,
 		lastSeen = now,
 	}
 end

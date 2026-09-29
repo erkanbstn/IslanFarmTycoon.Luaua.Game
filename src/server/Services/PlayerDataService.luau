@@ -321,6 +321,7 @@ function PlayerDataService.load(player: Player): PlayerSave?
 		if decodeOk and data then
 			session.data = data
 			session.offlineEarned = offlineEarned
+			player:SetAttribute("SavedLanguage", data.language or "")
 			player:SetAttribute("DataRepairCount", repairs or 0)
 			if repairs and repairs > 0 then
 				warn(`[Data] ProfileNormalized user={player.UserId} repairs={repairs}`)

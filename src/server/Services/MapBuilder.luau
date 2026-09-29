@@ -1129,7 +1129,7 @@ function MapBuilder.warnIfNoPlots()
 	if plotsFolder and hasValidPlots(plotsFolder) then
 		return
 	end
-	warn("[Map] Workspace'te ada yok. Studio'da 'Ahır Tycoon → Haritayı Kur' butonuna bas.")
+	warn("[Map] Workspace'te ada yok. Studio'da 'Island Farm Tycoon → Haritayı Kur' butonuna bas.")
 end
 
 local function getOrCreate(parent: Instance, className: string): Instance

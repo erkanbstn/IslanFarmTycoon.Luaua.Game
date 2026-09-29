@@ -30,6 +30,7 @@ export type MainFarmSummary = {
 }
 export type PlayerSave = {
 	activeMainFarmId: string,
+	language: string?, -- Seçilen arayüz dili (Config.LANGUAGES kodu); nil = Roblox dilinden algıla
 	mainFarmOffers: { { id: string, name: string, icon: string, ownerUserId: number? } }?,
 	mainFarms: { [string]: any },
 	mainFarmSummaries: { MainFarmSummary }?,

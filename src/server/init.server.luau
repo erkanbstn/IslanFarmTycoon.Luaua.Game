@@ -74,6 +74,20 @@ Remotes.get("RequestPlayerState").OnServerEvent:Connect(function(player: Player)
 	end
 end)
 
+-- Arayüz dili tercihi: yalnızca bilinen kodlar kaydedilir; çeviriyi client kendi ekranında yapar.
+Remotes.get("RequestSetLanguage").OnServerEvent:Connect(function(player: Player, code: unknown)
+	if typeof(code) ~= "string" or Config.LANGUAGES[code] == nil or not RateLimiter.allow(player, "language", 0.5) then
+		return
+	end
+	local data = PlayerDataService.tryGet(player)
+	if not data or data.language == code then
+		return
+	end
+	data.language = code
+	player:SetAttribute("SavedLanguage", code)
+	PlayerDataService.requestSave(player)
+end)
+
 Remotes.get("RequestGoHome").OnServerEvent:Connect(function(player: Player)
 	if canTeleport(player) then
 		PlotService.teleportHome(player)

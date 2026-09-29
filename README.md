@@ -1,4 +1,4 @@
-# Ahır Tycoon
+# Island Farm Tycoon
 
 Rojo + Luau ile yazılan Roblox çiftlik tycoon oyunu. Her oyuncunun kendi adası var.
 
@@ -27,9 +27,9 @@ Harita kodla üretilir ama **düzenleme modunda** kurulup place'e kaydedilir, b�
 
 1. Eklentiyi kur (bir kez; Studio'yu yeniden başlat):
    ```
-   rojo build plugin.project.json --plugin AhirTycoonHarita.rbxm
+   rojo build plugin.project.json --plugin IslandFarmTycoonHarita.rbxm
    ```
-2. Studio → **Plugins** sekmesi → **Ahır Tycoon → Haritayı Kur**. (Ctrl+Z ile geri alınır.)
+2. Studio → **Plugins** sekmesi → **Island Farm Tycoon → Haritayı Kur**. (Ctrl+Z ile geri alınır.)
 3. **Ctrl+S** ile kaydet / Publish et.
 
 `MapBuilder.luau` içinde düzeni değiştirirsen `MAP_VERSION`'ı 1 artır ve butona tekrar bas;

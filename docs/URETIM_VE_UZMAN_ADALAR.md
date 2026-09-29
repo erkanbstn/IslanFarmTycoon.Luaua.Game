@@ -46,7 +46,7 @@ ekonomi hesabını etkilemez.
 
 ## Studio'ya aktarma ve doğrulama
 
-Play'i durdur, Rojo senkronizasyonunu tamamla, **Eklentiler → Ahır Tycoon → Haritayı Kur**,
+Play'i durdur, Rojo senkronizasyonunu tamamla, **Eklentiler → Island Farm Tycoon → Haritayı Kur**,
 ardından kaydet ve Play. Bu sürümde harita düzeni değiştiği için yeniden kurulum gerekir.
 
 Studio'da ayrıca teknenin iskele/denizle hizası, tesislerin yürüme yolları, mobil panel,

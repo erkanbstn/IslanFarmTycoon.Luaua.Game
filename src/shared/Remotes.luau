@@ -29,6 +29,7 @@ export type EventName =
 	| "RequestProductionAction"
 	| "ProductionResult"
 	| "RequestExtensionAction"
+	| "RequestSetLanguage"
 
 local EVENTS = {
 	"RequestMainFarmAction", -- buy physicalPlotId / select logicalFarmId, requestId
@@ -36,6 +37,7 @@ local EVENTS = {
 	"RequestProductionAction", -- start/sell/keep, recipeId, jobUid?, requestId
 	"ProductionResult", -- requestId, success, message
 	"RequestExtensionAction", -- assign / unassign, extensionId
+	"RequestSetLanguage", -- Client -> Sunucu arayüz dili tercihi (kod); sunucu Config.LANGUAGES ile doğrular
 	"RequestAdminAction", -- Sadece sunucudaki AdminPolicy'nin izin verdiği hesap.
 	"AdminResult", -- Sunucu -> yetkili client (requestId, success, message).
 	"Notify", -- Sunucu -> Client bilgi mesajı (message, kind?)

@@ -80,7 +80,7 @@ for index, icon in icons do
 	table.insert(iconLabels, t)
 end
 
-label("Ahır Tycoon", FREDOKA, Theme.TextSize.LoadingTitle, GOLD, 58, 64)
+label("Island Farm Tycoon", FREDOKA, Theme.TextSize.LoadingTitle, GOLD, 58, 64)
 local status = label("Bağlanılıyor", BUILDER, Theme.TextSize.LoadingStatus, MUTED, 120, 64)
 ReplicatedFirst:RemoveDefaultLoadingScreen()
 

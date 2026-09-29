@@ -113,13 +113,24 @@ export type ExtensionConfig = {
 }
 
 local Config = {
-	GAME_NAME = "Ahır Tycoon",
+	GAME_NAME = "Island Farm Tycoon",
 	VERSION = "0.8.0",
 	MAIN_FARM_LIMIT = 6,
+
+	-- Arayüz dilleri. Kaynak dil Türkçe; diğerleri src/shared/Locales/<kod>.luau içinde.
+	-- countries: oyuncunun Roblox dili desteklenmiyorsa ülkesinden seçilen dil (ISO 3166-1 alpha-2).
+	LANGUAGE_ORDER = { "tr", "en", "de", "ru" },
+	LANGUAGES = {
+		tr = { code = "tr", name = "Türkçe", countries = { "TR" } },
+		en = { code = "en", name = "English", countries = {} },
+		de = { code = "de", name = "Deutsch", countries = { "DE", "AT", "CH", "LI", "LU" } },
+		ru = { code = "ru", name = "Русский", countries = { "RU", "BY", "KZ", "KG" } },
+	} :: { [string]: { code: string, name: string, countries: { string } } },
+	DEFAULT_LANGUAGE = "en",
 	MAIN_FARM_PRICES = { 0, 5000, 12000, 25000, 50000, 100000 },
 	DEBUG = false,
 
-	-- Harita normalde Studio'da "Ahır Tycoon → Haritayı Kur" butonuyla kurulup place'e kaydedilir.
+	-- Harita normalde Studio'da "Island Farm Tycoon → Haritayı Kur" butonuyla kurulup place'e kaydedilir.
 	-- true  → Place'te harita yoksa oyun başlarken kodla kurulur (güvenlik ağı).
 	-- false → Harita yoksa açılış durdurulur; eksik dünyada oyuncu oturumu başlamaz.
 	MAP_AUTO_BUILD = true,
@@ -137,7 +148,8 @@ local Config = {
 	} :: { { name: string, icon: string } },
 
 	-- Kayıt (DataStore). Studio'da çalışması için: Game Settings → Security → Enable Studio Access to API Services
-	DATASTORE_NAME = "AhirTycoon_v1",
+	-- Yayından sonra bu ad DEĞİŞMEMELİ: değişirse mevcut oyuncu kayıtları bulunamaz.
+	DATASTORE_NAME = "IslandFarmTycoon_v1",
 	AUTOSAVE_SECONDS = 60,
 
 	-- Hareket: Shift basılıyken (telefonda "Koş" düğmesiyle) koşu hızı

@@ -94,5 +94,16 @@ return function(lock: any, codec: any, config: any, farmMath: any)
 	)
 	local future = assert(codec.decode({ version = 1, lastSeen = now + 100 }, config, farmMath, now, uid))
 	assert(future.stored == 0, "future timestamp cannot award income")
+	local languageRaw = codec.encode(save, now)
+	assert(languageRaw.language == nil, "language must stay unset until the player chooses one")
+	languageRaw.language = "de"
+	local withLanguage = assert(codec.decode(languageRaw, config, farmMath, now, uid))
+	assert(withLanguage.language == "de", "chosen language must load")
+	assert(codec.encode(withLanguage, now).language == "de", "chosen language must survive saves")
+	languageRaw.language = "klingon"
+	local unknownLanguage = assert(codec.decode(languageRaw, config, farmMath, now, uid))
+	assert(unknownLanguage.language == nil, "unknown language codes must be ignored")
+	languageRaw.language = { "de" }
+	assert(assert(codec.decode(languageRaw, config, farmMath, now, uid)).language == nil, "language must be a string")
 	print("data: lock ownership, response-loss retries, revision, migration, numeric and capacity guards passed")
 end
