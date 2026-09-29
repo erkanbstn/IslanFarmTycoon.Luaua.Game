@@ -201,7 +201,7 @@ local function decodeFarm(
 	local offlineEarned = 0
 	if SessionLock.isFinite(source.lastSeen) and source.lastSeen >= 0 and source.lastSeen <= now then
 		offlineEarned = farmMath.computeOfflineEarnings(save, source.lastSeen, now)
-		save.stored += offlineEarned
+		save.cash = math.min(MAX_MONEY, save.cash + offlineEarned)
 	end
 	return save, offlineEarned, nil, repairs
 end

@@ -77,7 +77,8 @@ hatasından ayrıdır.
    ustalık hedefleri görünür. Tekrar eden ürün siparişlerinde yetişkin hayvanlar çevrimiçiyken
    üretim yapar; tamamlanan siparişi teslim edince para ve yeni sipariş alınır. Hayvan tüketilmez.
 
-Çevrimdışı kazanç en fazla 8 saatlik süreyi, büyüme aşamalarını ve boş depo alanını kullanır.
+Çevrimdışı kazanç en fazla 8 saatlik süreyi ve büyüme aşamalarını kullanır; doğrudan kasaya eklenir ve üst sınırı
+depo kapasitesinin `OFFLINE_STORAGE_MULTIPLIER` katıdır.
 Geçmiş hava kaydı tutulmadığından nötr hava/mevsim üzerinden hesaplanır. Otomatik Toplayıcı
 yalnızca çevrimiçiyken kasaya aktarır; 8 saat sınırsız veya depo üstü kazanç vaadi değildir.
 
@@ -170,8 +171,12 @@ parasını değiştiren veya istemciden keyfi kod çalıştıran bir komut bulun
 Mevsimler 15 dakikada bir sırayla döner (tüm sunucularda aynı anda; tam döngü 1 saat).
 Sonradan katılan oyuncu mevcut mevsimin kalan süresinden devam eder. Hava her sunucuda mevsime uygun
 olarak 2,5–4,5 dakikada bir değişir. Etkiler gelire eklenir; mevsim panelinde ve Pazar kartlarında görünür.
-Sağ menüdeki küçük hava kartı ilerleme çubuğu, kalan dakika/saniye ve hava durumunu gösterir;
+Sol paneldeki küçük hava kartı ilerleme çubuğu, kalan dakika/saniye ve hava durumunu gösterir;
 geniş ekranda sıradaki mevsim de görünür. Bildirimler ayrı alandadır.
+
+HUD yerleşimi: solda para/depo/mevsim/hedef paneli; menü geniş ekranda alt ortada yatay karo çubuğu,
+dar ekranda (genişlik < 900 veya yükseklik < 560) sağ kenarda üç karoluk sütun. Ahır ve sıradaki ada
+bilgisi ile dar ekranda taşınan menü karoları "Çiftliğim" penceresindedir.
 
 | Mevsim | Artış | Düşüş | Olası hava |
 |---|---|---|---|

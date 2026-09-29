@@ -43,18 +43,30 @@ ProductionPanel.bind(screenGui)
 
 local compact = false
 
+-- Çiftliğim: ahır, sıradaki ada ve (dar ekranda) hedef kartı ile ek menü karoları.
+-- Ana HUD yalnızca sık bakılan bilgiyi (para, depo, mevsim, sıradaki hedef) gösterir.
+local goalsWindow = UiKit.window(screenGui, {
+	title = "Çiftliğim",
+	icon = "🏆",
+	tint = Color.Gold,
+	width = 380,
+	maxHeight = 480,
+	anchor = Vector2.new(0.5, 0.5),
+	position = UDim2.fromScale(0.5, 0.5),
+})
+
 ---------------------------------------------------------------------------
--- Sol panel: para, gelir, ahır, depo, sıradaki hedef
+-- Sol panel: para, gelir, depo, mevsim, sıradaki hedef
 ---------------------------------------------------------------------------
 
 local stats = UiKit.panel(screenGui)
 stats.Name = "Stats"
 stats.AnchorPoint = Vector2.new(0, 0.5)
 stats.Position = UDim2.new(0, 12, 0.5, 0)
-stats.Size = UDim2.fromOffset(260, 0)
+stats.Size = UDim2.fromOffset(240, 0)
 stats.AutomaticSize = Enum.AutomaticSize.Y
-UiKit.padding(stats, 14)
-UiKit.list(stats, 10)
+UiKit.padding(stats, 12)
+UiKit.list(stats, 8)
 local farmContextLabel = UiKit.text(stats, IslandContext.name(), "Caption", Color.Gold)
 farmContextLabel.LayoutOrder = -1
 local dataHealth = UiKit.text(stats, "", "Caption", Color.Red)
@@ -62,12 +74,12 @@ dataHealth.LayoutOrder = 0
 dataHealth.Visible = false
 
 -- İkon kutusu + yanında alt alta yazılar (dönen çerçeveye yazılar eklenir)
-local function statRow(order: number, icon: string, tint: Color3): Frame
+local function statRow(parent: Instance, order: number, icon: string, tint: Color3): Frame
 	local row = Instance.new("Frame")
 	row.BackgroundTransparency = 1
 	row.Size = UDim2.new(1, 0, 0, 40)
 	row.LayoutOrder = order
-	row.Parent = stats
+	row.Parent = parent
 
 	UiKit.iconChip(row, icon, 40, tint)
 
@@ -82,13 +94,13 @@ local function statRow(order: number, icon: string, tint: Color3): Frame
 	return texts
 end
 
-local cashTexts = statRow(1, "💰", Color.Gold)
+local cashTexts = statRow(stats, 1, "💰", Color.Gold)
 local cashLabel = UiKit.text(cashTexts, "$0", "Display", Color.Gold)
 cashLabel.LayoutOrder = 1
 local incomeLabel = UiKit.text(cashTexts, "+$0/sn", "Caption")
 incomeLabel.LayoutOrder = 2
 
-local barnTexts = statRow(2, "🏚️", Color.Red)
+local barnTexts = statRow(goalsWindow.list, 1, "🏚️", Color.Red)
 local barnLabel = UiKit.text(barnTexts, "", "Heading")
 barnLabel.LayoutOrder = 1
 local barnDetail = UiKit.text(barnTexts, "", "Caption")
@@ -128,8 +140,8 @@ local islandCard = Instance.new("Frame")
 islandCard.BackgroundColor3 = Color.Surface
 islandCard.Size = UDim2.new(1, 0, 0, 0)
 islandCard.AutomaticSize = Enum.AutomaticSize.Y
-islandCard.LayoutOrder = 4
-islandCard.Parent = stats
+islandCard.LayoutOrder = 2
+islandCard.Parent = goalsWindow.list
 UiKit.corner(islandCard, UiKit.Radius.Card)
 UiKit.stroke(islandCard, 0.6).Color = Color.Gold
 UiKit.padding(islandCard, 10)
@@ -171,22 +183,37 @@ local goalDetail = UiKit.text(goalCard, "", "Caption")
 goalDetail.LayoutOrder = 3
 
 ---------------------------------------------------------------------------
--- Sağ menü
+-- Menü: geniş ekranda alt ortada yatay çubuk (sağ üstteki Roblox oyuncu listesine ve sohbete
+-- değmez); dar ekranda sağ kenarda kısa dikey sütun, diğer karolar Çiftliğim penceresinde.
 ---------------------------------------------------------------------------
 
 local dock = Instance.new("Frame")
 dock.Name = "Menu"
-dock.AnchorPoint = Vector2.new(1, 0.5)
-dock.Position = UDim2.new(1, -12, 0.5, 0)
-dock.Size = UDim2.fromOffset(170, 0)
-dock.AutomaticSize = Enum.AutomaticSize.Y
+dock.AnchorPoint = Vector2.new(0.5, 1)
+dock.Position = UDim2.new(0.5, 0, 1, -10)
+dock.Size = UDim2.new()
+dock.AutomaticSize = Enum.AutomaticSize.XY
 dock.BackgroundTransparency = 1
 dock.Parent = screenGui
-UiKit.list(dock, 8)
+local dockLayout = UiKit.list(dock, 6, true)
+
+-- Çiftliğim penceresindeki ek menü karoları (dar ekranda menüden taşınanlar)
+local moreActions = Instance.new("Frame")
+moreActions.Name = "MoreActions"
+moreActions.BackgroundTransparency = 1
+moreActions.Size = UDim2.new(1, 0, 0, 0)
+moreActions.AutomaticSize = Enum.AutomaticSize.Y
+moreActions.LayoutOrder = 10
+moreActions.Visible = false
+moreActions.Parent = goalsWindow.list
+local moreGrid = Instance.new("UIGridLayout")
+moreGrid.CellSize = UDim2.fromOffset(UiKit.MenuTileSize.X, UiKit.MenuTileSize.Y)
+moreGrid.CellPadding = UDim2.fromOffset(6, 6)
+moreGrid.SortOrder = Enum.SortOrder.LayoutOrder
+moreGrid.Parent = moreActions
 
 local hasKeyboard = UserInputService.KeyboardEnabled
 local productionButton = UiKit.menuButton(dock, "🏭", "Üretim", Color.Green, if hasKeyboard then "R" else nil)
-productionButton.LayoutOrder = 4
 productionButton.Activated:Connect(function()
 	ProductionPanel.open(screenGui)
 end)
@@ -196,20 +223,32 @@ UserInputService.InputBegan:Connect(function(input: InputObject, processed: bool
 	end
 end)
 local shopButton = UiKit.menuButton(dock, "🐄", "Pazar", Color.Green, if hasKeyboard then "P" else nil)
-shopButton.LayoutOrder = 1
 local roadmapButton = UiKit.menuButton(dock, "🗺️", "Yol Haritası", Color.Blue, if hasKeyboard then "Y" else nil)
-roadmapButton.LayoutOrder = 2
-local upgradesButton = UiKit.menuButton(dock, "🛠️", "Yükseltmeler", Color.Gold, nil)
-upgradesButton.LayoutOrder = 3
+local upgradesButton = UiKit.menuButton(dock, "🛠️", "Yükseltmeler", Color.Gold, if hasKeyboard then "U" else nil)
 local islandsButton = UiKit.menuButton(dock, "🧭", "Adalar", Color.Blue, if hasKeyboard then "I" else nil)
-islandsButton.LayoutOrder = 5
 islandsButton.Activated:Connect(IslandManager.open)
+local goalsButton = UiKit.menuButton(dock, "🏆", "Çiftliğim", Color.Gold, nil)
+goalsButton.Activated:Connect(goalsWindow.open)
 local homeButton = UiKit.menuButton(dock, "🏠", "Adama Dön", Color.Orange, nil)
-homeButton.LayoutOrder = 6
 local settingsButton = UiKit.menuButton(dock, "⚙️", "Ayarlar", Color.TextMuted, nil)
-settingsButton.LayoutOrder = 4
-local adminButton = UiKit.menuButton(dock, "🛠️", "Yönetici", Color.Gold, nil)
-adminButton.LayoutOrder = 6
+local adminButton = UiKit.menuButton(dock, "🔑", "Yönetici", Color.Gold, nil)
+
+-- Sıra ve yer: dar ekranda yalnızca "compactDock" karoları menüde kalır, diğerleri Çiftliğim'e taşınır.
+type MenuEntry = { button: TextButton, compactDock: boolean }
+local menuEntries: { MenuEntry } = {
+	{ button = shopButton, compactDock = true },
+	{ button = roadmapButton, compactDock = false },
+	{ button = upgradesButton, compactDock = true },
+	{ button = productionButton, compactDock = false },
+	{ button = islandsButton, compactDock = false },
+	{ button = goalsButton, compactDock = true },
+	{ button = homeButton, compactDock = false },
+	{ button = settingsButton, compactDock = false },
+	{ button = adminButton, compactDock = false },
+}
+for index, entry in menuEntries do
+	entry.button.LayoutOrder = index
+end
 local function updateAdminAccess()
 	adminButton.Visible = localPlayer:GetAttribute("IsAdmin") == true
 end
@@ -242,7 +281,8 @@ end)
 -- Pencereler
 ---------------------------------------------------------------------------
 
-local WINDOW_POSITION = UDim2.new(1, -194, 0.5, 0)
+-- Sağ kenarda, alttaki menü çubuğunun üstünde kalacak kadar yukarıda
+local WINDOW_POSITION = UDim2.new(1, -12, 0.5, -30)
 
 local shopWindow = UiKit.window(screenGui, {
 	title = "Hayvan Pazarı",
@@ -291,7 +331,7 @@ for index, animalId in Config.ANIMAL_ORDER do
 	end)
 end
 
-local replacementCard = UiKit.card(shopWindow.list, #Config.ANIMAL_ORDER + 2, Config.ANIMALS.seabass.icon)
+local replacementCard = UiKit.card(shopWindow.list, 3 * #Config.ANIMAL_ORDER + 2, Config.ANIMALS.seabass.icon)
 replacementCard.title.Text = "Hamsiyi levrekle değiştir"
 replacementCard.action.Activated:Connect(function()
 	local state = ClientState.get()
@@ -540,14 +580,17 @@ orderButton.Activated:Connect(function()
 end)
 
 ---------------------------------------------------------------------------
--- Sağ menüde küçük mevsim/hava kartı; bildirim alanından ayrı.
+-- Sol panelde küçük mevsim/hava kartı (depo ile hedef arasında); bildirim alanından ayrı.
 ---------------------------------------------------------------------------
 
-local seasonBar = UiKit.panel(dock)
+local seasonBar = Instance.new("Frame")
 seasonBar.Name = "SeasonBar"
-seasonBar.LayoutOrder = 10
+seasonBar.BackgroundColor3 = Color.Surface
+seasonBar.LayoutOrder = 4
 seasonBar.Size = UDim2.new(1, 0, 0, 0)
 seasonBar.AutomaticSize = Enum.AutomaticSize.Y
+seasonBar.Parent = stats
+UiKit.corner(seasonBar, UiKit.Radius.Card)
 UiKit.padding(seasonBar, 8)
 UiKit.list(seasonBar, 4)
 
@@ -689,7 +732,7 @@ local function updateShop(state: PlayerSave, content: boolean)
 		shopInfo.Text =
 			`Açık bölgelerdeki hayvanlar listelenir (ada seçimi shop'u gizlemez). Yavru doğar, büyüdükçe kazanç artar.`
 	end
-	for _, animalId in Config.ANIMAL_ORDER do
+	for index, animalId in Config.ANIMAL_ORDER do
 		local card = animalCards[animalId]
 		local relevant = FarmMath.hasUnlockedAnimalZone(state, animalId)
 		card.frame.Visible = relevant
@@ -700,6 +743,9 @@ local function updateShop(state: PlayerSave, content: boolean)
 		local zoneId, reason, block = FarmMath.findZoneForAnimal(state, animalId)
 		local count = bulkCount(state, animalId)
 		local price = FarmMath.getBulkPrice(state, animalId, count)
+		-- Alınabilenler üstte, parası yetmeyenler ortada, dolu/kilitliler altta.
+		local group = if not zoneId then 2 elseif state.cash >= price then 0 else 1
+		card.frame.LayoutOrder = index + 1 + group * #Config.ANIMAL_ORDER
 		if content then
 			card.title.Text = `{animalConfig.displayName}  {UiKit.colorText(
 				`x{FarmMath.countAnimals(state, animalId)}`,
@@ -707,7 +753,12 @@ local function updateShop(state: PlayerSave, content: boolean)
 			)}`
 			if zoneId then
 				local income = FarmMath.getAnimalIncome(state, animalId)
-				card.detail.Text = `{animalConfig.product} · Yetişkin +${FarmMath.formatRate(income)}/sn`
+				local percent = math.round((Environment.getIncomeMultiplier(animalId) - 1) * 100)
+				local effect = if percent > 0
+					then ` · Mevsim/hava: +%{percent}`
+					elseif percent < 0 then ` · Mevsim/hava: -%{-percent}`
+					else ""
+				card.detail.Text = `{animalConfig.product} · Yetişkin +${FarmMath.formatRate(income)}/sn{effect}`
 			else
 				card.detail.Text = reason or ""
 			end
@@ -830,9 +881,10 @@ local function updateUpgrades(state: PlayerSave, content: boolean)
 			continue
 		end
 		local status, missing = FarmMath.getUpgradeStatus(state, upgrade.id)
+		local group = if status == "locked" then 2 elseif state.cash >= upgrade.cost then 0 else 1
+		card.frame.LayoutOrder = index + 1 + group * #Config.UPGRADES
 		if content then
 			card.frame.Visible = status ~= "owned"
-			card.frame.LayoutOrder = index + 1 + (if status == "locked" then #Config.UPGRADES else 0)
 			card.detail.Text = if status == "locked"
 				then `Önce: {table.concat(missing, ", ")}`
 				else upgrade.description
@@ -864,9 +916,9 @@ local function updateUpgrades(state: PlayerSave, content: boolean)
 				end
 			end
 			if pendingUpgrade and pendingIsland then
-				local islandName = Config.FARM_ISLANDS[pendingIsland].displayName
+				local pendingIslandName = Config.FARM_ISLANDS[pendingIsland].displayName
 				upgradesEmpty.Text =
-					`Bu adada açık yükseltme kalmadı. Sırada: {pendingUpgrade.displayName} ({islandName} — Adalar menüsünden o adayı seç, Yol Haritası'na bak).`
+					`Bu adada açık yükseltme kalmadı. Sırada: {pendingUpgrade.displayName} ({pendingIslandName} — Adalar menüsünden o adayı seç, Yol Haritası'na bak).`
 			end
 		end
 		upgradesInfo.Visible = true
@@ -895,9 +947,11 @@ local function updateBadges(state: PlayerSave)
 			upgrades += 1
 		end
 	end
-	setShopBadge(animals)
-	setRoadmapBadge(upgrades)
+	-- Tek önerilen adım parlar: önce yükseltme (kalıcı ilerleme), yoksa hayvan. Yol haritası
+	-- yükseltmelerle aynı listeyi gösterdiği için ayrıca rozet almaz.
 	setUpgradesBadge(upgrades)
+	setShopBadge(if upgrades > 0 then 0 else animals)
+	setRoadmapBadge(0)
 end
 
 local function updateGoal(state: PlayerSave, income: number)
@@ -987,7 +1041,7 @@ end
 
 local function updateIslandGoal(state: PlayerSave, income: number)
 	local island, upgrade = FarmMath.getNextIsland(state)
-	islandCard.Visible = not compact and island ~= nil
+	islandCard.Visible = island ~= nil
 	if not island or not upgrade then
 		return
 	end
@@ -1018,7 +1072,15 @@ local function onState(state: PlayerSave, structural: boolean)
 	incomeLabel.Text = `+${FarmMath.formatRate(income)}/sn gelir`
 	barnLabel.Text = barnConfig.displayName
 	local ownedIslands, totalIslands = FarmMath.countIslands(state)
-	barnDetail.Text = `Seviye {state.barnLevel} · Ada {ownedIslands}/{totalIslands}`
+	local islandAnimals, islandCapacity = 0, 0
+	for zoneId, zone in Config.ZONES do
+		if zone.island == IslandContext.get() and state.unlockedZones[zoneId] then
+			islandAnimals += FarmMath.countInZone(state, zoneId)
+			islandCapacity += zone.capacity
+		end
+	end
+	barnDetail.Text =
+		`Seviye {state.barnLevel} · Ada {ownedIslands}/{totalIslands}\nBu ada: {islandAnimals}/{islandCapacity} hayvan`
 	local auto = FarmMath.hasAutoCollect(state)
 	if auto then
 		storageValue.Text = "Otomatik"
@@ -1030,9 +1092,9 @@ local function onState(state: PlayerSave, structural: boolean)
 	end
 	hintLabel.Text = if localPlayer:GetAttribute("DataPersistent") == false
 		then "Kayıtsız Studio testi: bu ilerleme saklanmaz."
-		elseif auto then "Otomatik toplama çevrimiçinde çalışır. Çevrimdışında depo sınırı geçerlidir."
+		elseif auto then "Otomatik toplama açık. Çevrimdışı kazanç da kasana eklenir."
 		elseif state.stored >= cap then "Depo dolu, üretim durdu! Yeşil platforma bas."
-		else "Parayı almak için yeşil platforma bas. Çevrimdışı kazanç depoyla sınırlıdır."
+		else "Parayı almak için yeşil platforma bas. Çevrimdışı kazanç kasana eklenir."
 	updateIslandGoal(state, income)
 	updateGoal(state, income)
 	shopDirty = shopDirty or structural
@@ -1093,105 +1155,30 @@ local function resizeHud()
 	compact = camera.ViewportSize.X < 900 or camera.ViewportSize.Y < 560
 	stats.AnchorPoint = if compact then Vector2.zero else Vector2.new(0, 0.5)
 	stats.Position = if compact then UDim2.fromOffset(8, 8) else UDim2.new(0, 12, 0.5, 0)
-	stats.Size = if compact then UDim2.fromOffset(200, 0) else UDim2.fromOffset(260, 0)
-	local barnRow = barnTexts.Parent
-	if barnRow and barnRow:IsA("GuiObject") then
-		barnRow.Visible = not compact
-	end
-	islandCard.Visible = not compact
-	goalCard.Visible = not compact
-	-- Mobilde hedefler ayrı pencereye taşınır; HUD oyunu kaplamaz.
+	stats.Size = if compact then UDim2.fromOffset(200, 0) else UDim2.fromOffset(240, 0)
+	-- Kompakt: kasa, depo çubuğu ve tek satırlık mevsim/hava; ayrıntılar Çiftliğim penceresinde.
 	nextSeasonLabel.Visible = not compact
-	-- Kompakt: yalnızca kasa ve depo çubuğu; bağlam etiketi, ipucu ve gelir satırı dışında hiçbir şey yer kaplamaz.
 	farmContextLabel.Visible = not compact
 	hintLabel.Visible = not compact
-	seasonTitle.Visible = not compact
 	seasonClock.Visible = not compact
-	weatherTitle.Visible = not compact
-	dock.AnchorPoint = if compact then Vector2.new(1, 0) else Vector2.new(1, 0.5)
-	dock.Position = if compact then UDim2.new(1, -8, 0, 8) else UDim2.new(1, -12, 0.5, 0)
-	dock.Size = UDim2.fromOffset(if compact then 56 else 170, 0)
+	seasonProgress.Visible = not compact
+	-- Geniş: alt ortada yatay çubuk. Dar: sağ kenarın ortasında kısa sütun (üstteki oyuncu listesine uzanmaz).
+	dockLayout.FillDirection = if compact then Enum.FillDirection.Vertical else Enum.FillDirection.Horizontal
+	dock.AnchorPoint = if compact then Vector2.new(1, 0.5) else Vector2.new(0.5, 1)
+	dock.Position = if compact then UDim2.new(1, -8, 0.5, 0) else UDim2.new(0.5, 0, 1, -10)
 	layoutToasts()
 	redraw()
 end
 
-local goalsWindow = UiKit.window(screenGui, {
-	title = "Çiftlik hedefleri",
-	icon = "🏆",
-	tint = Color.Gold,
-	width = 380,
-	maxHeight = 480,
-	anchor = Vector2.new(0.5, 0.5),
-	position = UDim2.fromScale(0.5, 0.5),
-})
-local goalsButton = UiKit.menuButton(dock, "🏆", "Çiftliğim", Color.Gold, nil)
-goalsButton.LayoutOrder = 6
--- Menü düğmesi biçimi: kompakt sağ menüde yalnızca emoji kutusu (dar sütun); pencerede ve geniş ekranda ikon + yazı.
-local function styleMenuButton(button: TextButton, iconOnly: boolean)
-	local row = button:FindFirstChildWhichIsA("Frame")
-	if not row then
-		return
-	end
-	local layout = row:FindFirstChildOfClass("UIListLayout")
-	if layout then
-		layout.HorizontalAlignment = if iconOnly then Enum.HorizontalAlignment.Center else Enum.HorizontalAlignment.Left
-	end
-	local shortcut = row:FindFirstChild("Shortcut")
-	local showShortcut = not iconOnly and hasKeyboard and shortcut ~= nil
-	if shortcut and shortcut:IsA("GuiObject") then
-		shortcut.Visible = showShortcut
-	end
-	for _, child in row:GetChildren() do
-		if child:IsA("TextLabel") and child.Name ~= "Shortcut" then
-			if child.Name == "Icon" then
-				child.Visible = true
-			else
-				child.Visible = not iconOnly
-				child.TextSize = UiKit.TextSize.Heading
-				child.Size = UDim2.new(1, if showShortcut then -66 else -40, 1, 0)
-			end
-		end
-	end
-end
-
 local function placeGoals()
-	if not compact then
-		goalsWindow.close()
-	end
 	goalCard.Parent = if compact then goalsWindow.list else stats
+	goalCard.LayoutOrder = if compact then 3 else 5
 	goalCard.Visible = true
-	goalsButton.Visible = compact
-	roadmapButton.Parent = if compact then goalsWindow.list else dock
-	roadmapButton.LayoutOrder = if compact then 9 else 2
-	productionButton.Parent = if compact then goalsWindow.list else dock
-	productionButton.LayoutOrder = if compact then 8 else 4
-	islandsButton.Parent = if compact then goalsWindow.list else dock
-	islandsButton.LayoutOrder = if compact then 7 else 5
-	homeButton.Parent = if compact then goalsWindow.list else dock
-	settingsButton.Parent = if compact then goalsWindow.list else dock
-	adminButton.Parent = if compact then goalsWindow.list else dock
-	homeButton.LayoutOrder = if compact then 10 else 6
-	settingsButton.LayoutOrder = if compact then 11 else 7
-	adminButton.LayoutOrder = if compact then 12 else 8
-	for _, button in
-		{
-			shopButton,
-			roadmapButton,
-			upgradesButton,
-			productionButton,
-			islandsButton,
-			homeButton,
-			settingsButton,
-			adminButton,
-			goalsButton,
-		}
-	do
-		styleMenuButton(button, compact and button.Parent == dock)
+	moreActions.Visible = compact
+	for _, entry in menuEntries do
+		entry.button.Parent = if compact and not entry.compactDock then moreActions else dock
 	end
 end
-goalsButton.Activated:Connect(function()
-	goalsWindow.open()
-end)
 local cameraConnection: RBXScriptConnection? = nil
 local function watchCamera()
 	if cameraConnection then

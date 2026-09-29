@@ -115,32 +115,45 @@ function FarmMath.getAnimalMultiplier(save: PlayerSave, animalId: string, neutra
 	return FarmMath.getBarnConfig(save).incomeMultiplier * (1 + bonus) * environment
 end
 
+-- Satın alınmış eklentideki hayvanın gelir çarpanı (eklenti yoksa 1)
+local function extensionFactor(save: PlayerSave, animal: GameTypes.AnimalRecord?): number
+	if animal and animal.extensionId then
+		local extension = Config.getExtension(animal.extensionId)
+		local upgrade = if extension then Config.getExtensionUpgrade(extension.id) else nil
+		if extension and upgrade and save.purchased[upgrade.id] then
+			return 1 + extension.incomeBonus
+		end
+	end
+	return 1
+end
+
 -- Yetişkin bir hayvanın şu anki saniyelik geliri
 function FarmMath.getAnimalIncome(save: PlayerSave, animalId: string, animal: GameTypes.AnimalRecord?): number
 	local animalConfig = Config.ANIMALS[animalId]
 	if not animalConfig then
 		return 0
 	end
-	local income = animalConfig.baseIncomePerSecond * FarmMath.getAnimalMultiplier(save, animalId)
-	if animal and animal.extensionId then
-		local extension = Config.getExtension(animal.extensionId)
-		local upgrade = if extension then Config.getExtensionUpgrade(extension.id) else nil
-		if extension and upgrade and save.purchased[upgrade.id] then
-			income *= 1 + extension.incomeBonus
-		end
-	end
-	return income
+	return animalConfig.baseIncomePerSecond
+		* FarmMath.getAnimalMultiplier(save, animalId)
+		* extensionFactor(save, animal)
 end
 
+-- Tür başına çarpan tek çağrı içinde önbelleğe alınır (her hayvan için yükseltme/hava taraması yapılmaz).
 function FarmMath.computeIncomePerSecond(save: PlayerSave): number
 	local total = 0
-	local incomeByAnimal: { [string]: number } = {}
+	local rates: { [string]: number } = {}
 	for _, animal in save.animals do
-		if not save.unlockedZones[animal.zoneId] then
+		local animalConfig = Config.ANIMALS[animal.animalId]
+		if not animalConfig or not save.unlockedZones[animal.zoneId] then
 			continue
 		end
+		local rate = rates[animal.animalId]
+		if rate == nil then
+			rate = animalConfig.baseIncomePerSecond * FarmMath.getAnimalMultiplier(save, animal.animalId)
+			rates[animal.animalId] = rate
+		end
 		local stageMul = Config.STAGE_INCOME_MULTIPLIER[animal.stage] or 1
-		total += FarmMath.getAnimalIncome(save, animal.animalId, animal) * stageMul
+		total += (rate :: number) * extensionFactor(save, animal) * stageMul
 	end
 	return total
 end
@@ -169,16 +182,13 @@ function FarmMath.computeIncomeOverInterval(
 			speed = FarmMath.getGrowthSpeed(save, animal.animalId)
 			speeds[animal.animalId] = speed
 		end
-		local rate = if neutralWeather
-			then animalConfig.baseIncomePerSecond * FarmMath.getAnimalMultiplier(save, animal.animalId, true)
-			else FarmMath.getAnimalIncome(save, animal.animalId, animal)
-		if neutralWeather and animal.extensionId then
-			local extension = Config.getExtension(animal.extensionId)
-			local upgrade = if extension then Config.getExtensionUpgrade(extension.id) else nil
-			if extension and upgrade and save.purchased[upgrade.id] then
-				rate *= 1 + extension.incomeBonus
-			end
+		local baseRate = rates[animal.animalId]
+		if baseRate == nil then
+			baseRate = animalConfig.baseIncomePerSecond
+				* FarmMath.getAnimalMultiplier(save, animal.animalId, neutralWeather)
+			rates[animal.animalId] = baseRate
 		end
+		local rate = (baseRate :: number) * extensionFactor(save, animal)
 		local start = math.max(startedAt, animal.bornAt)
 		local youngAt = animal.bornAt + Config.GROWTH_SECONDS.calf / speed
 		local adultAt = youngAt + Config.GROWTH_SECONDS.young / speed
@@ -196,7 +206,47 @@ function FarmMath.computeOfflineEarnings(save: PlayerSave, lastSeen: number, now
 	end
 	local endedAt = math.min(now, lastSeen + Config.OFFLINE_MAX_HOURS * 3600)
 	local potential = FarmMath.computeIncomeOverInterval(save, lastSeen, endedAt, true) * Config.OFFLINE_EARNING_RATE
-	return math.floor(math.max(0, math.min(potential, FarmMath.getStorageCap(save) - save.stored)))
+	return math.floor(math.max(0, math.min(potential, FarmMath.getOfflineCap(save))))
+end
+
+-- Çevrimdışı kazancın üst sınırı (kasaya eklenir, depoyu doldurmaz)
+function FarmMath.getOfflineCap(save: PlayerSave): number
+	return FarmMath.getStorageCap(save) * Config.OFFLINE_STORAGE_MULTIPLIER
+end
+
+-- Üretimde sayılan yetişkin hayvanlar (açık bölgede, tarifin türlerinden)
+function FarmMath.countProductionAdults(save: PlayerSave, recipe: Config.ProductionRecipeConfig, now: number): number
+	local count = 0
+	local speeds: { [string]: number } = {}
+	for _, animal in save.animals do
+		if not save.unlockedZones[animal.zoneId] or not table.find(recipe.animalIds, animal.animalId) then
+			continue
+		end
+		local speed = speeds[animal.animalId]
+		if speed == nil then
+			speed = FarmMath.getGrowthSpeed(save, animal.animalId)
+			speeds[animal.animalId] = speed
+		end
+		if FarmMath.getStage(animal.bornAt, now, speed :: number) == "adult" then
+			count += 1
+		end
+	end
+	return count
+end
+
+-- Gerekenden fazla yetişkin başına ödül artar; bonus oranı (0.5 = +%50) ve ödül döner.
+function FarmMath.getProductionReward(
+	save: PlayerSave,
+	recipe: Config.ProductionRecipeConfig,
+	now: number
+): (number, number)
+	local extra = math.clamp(
+		FarmMath.countProductionAdults(save, recipe, now) - recipe.requiredAdults,
+		0,
+		Config.PRODUCTION_MAX_BONUS_ADULTS
+	)
+	local bonus = extra * Config.PRODUCTION_BONUS_PER_ADULT
+	return math.floor(recipe.reward * (1 + bonus)), bonus
 end
 
 -- Yeni büyüme hızı yalnızca satın alımdan sonraki süreye uygulanır.

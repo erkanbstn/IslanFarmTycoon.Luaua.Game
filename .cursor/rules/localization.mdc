@@ -1,0 +1,25 @@
+---
+description: Yeni oyuncuya görünen metin eklerken çeviri kuralları (tr kaynak; en, de, ru)
+globs: src/client/**/*.luau,src/server/**/*.luau,src/shared/**/*.luau
+alwaysApply: false
+---
+
+# Yerelleştirme
+
+Kod Türkçe metin yazar; `Localizer.client.luau` TextLabel/TextButton/ProximityPrompt metnini
+`src/shared/Locales/<kod>.luau` sözlüğüyle çevirir. Sunucu dili bilmez; Notify da client'ta çevrilir.
+
+Yeni/değişen metin → aynı Türkçe anahtarı **üç dosyaya** ekle: `en.luau`, `de.luau`, `ru.luau`.
+
+```luau
+["Depo dolu. Devam etmek için parayı topla."] = "Storage full. Collect to continue.",
+["Önce: {}"] = "Requires: {1}",              -- değişken yeri {} → hedefte {1}, {2}
+["{} +%{}"] = "{1} +{2}%",
+```
+
+- Metni parçalayıp birleştirme; tam cümle kur. Localizer yine de " · ", satır sonu ve ", " ile
+  böler: ortak parçayı ("Gündüz", "Gece") tek başına sözlüğe eklemek yeterli.
+- Bulunamayan metin Türkçe kalır (hata vermez) — bu yüzden kontrol et:
+  `python scripts/check-locales.py --strict-literals` (anahtar eşitliği + UI metin kapsamı).
+- Yönetici paneli (`AdminPanel.luau`) yalnızca sahibe görünür; çeviri zorunlu değil.
+- Bayrak emoji değil, `UiKit.flag`. Dil listesi `Config.LANGUAGES`.

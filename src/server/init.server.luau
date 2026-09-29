@@ -218,7 +218,11 @@ local function onPlayerAdded(player: Player)
 	local offline = PlayerDataService.takeOfflineEarnings(player)
 	if offline > 0 then
 		Remotes.get("Notify")
-			:FireClient(player, `Sen yokken hayvanların depoya {FarmMath.formatMoney(offline)} biriktirdi!`, "money")
+			:FireClient(
+				player,
+				`Sen yokken çiftliğin {FarmMath.formatMoney(offline)} kazandı; kasana eklendi.`,
+				"money"
+			)
 	end
 	print(`[Server] {player.Name} katıldı.`)
 	joining[player] = nil

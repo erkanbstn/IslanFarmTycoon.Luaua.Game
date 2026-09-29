@@ -65,14 +65,23 @@ return function(visuals: any, createEnvironment: any, config: any)
 		"Dusk must be a gradual transition"
 	)
 	assert(math.abs(environment.getNightFactor(24) - environment.getNightFactor(0)) < 0.000001, "Midnight seam")
-	-- Işıklar akşam yanar; sabah güneş iyice doğmadan sönmez.
-	assert(environment.getLightFactor(12) == 0 and environment.getLightFactor(18.5) == 1, "Lights: day off, evening on")
-	assert(environment.getLightFactor(3) == 1 and environment.getLightFactor(6) == 1, "Lights stay on until sunrise")
-	assert(environment.getLightFactor(6.5) == 1, "Lights must still be fully on when the sun is just rising")
-	assert(environment.getLightFactor(8) == 0, "Lights are off in full daylight")
+	-- Işıklar gökyüzü karardıkça yanar; aydınlık gökyüzünde asla yanmaz.
+	assert(environment.getLightFactor(12) == 0 and environment.getLightFactor(19) == 1, "Lights: day off, evening on")
+	assert(environment.getLightFactor(3) == 1 and environment.getLightFactor(5) == 1, "Lights stay on before dawn")
+	assert(environment.getLightFactor(6.5) == 0 and environment.getLightFactor(17.5) == 0, "No lights in daylight")
+	for step = 0, 480 do
+		local clock = step * 0.05
+		if environment.getNightFactor(clock) < 0.15 then
+			assert(environment.getLightFactor(clock) == 0, `Lights must be off in a bright sky ({clock})`)
+		end
+	end
 	assert(
-		environment.getLightFactor(7) > 0 and environment.getLightFactor(7) < 1,
-		"Lights fade out gradually after sunrise"
+		environment.getLightFactor(18.3) > 0 and environment.getLightFactor(18.3) < 1,
+		"Lights fade in gradually at dusk"
+	)
+	assert(
+		environment.getLightFactor(5.6) > 0 and environment.getLightFactor(5.6) < 1,
+		"Lights fade out gradually at dawn"
 	)
 	assert(environment.getLightFactor(24) == environment.getLightFactor(0), "Light factor midnight seam")
 	attributes.AdminClockId = "night"

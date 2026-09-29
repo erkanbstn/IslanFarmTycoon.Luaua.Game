@@ -75,8 +75,8 @@ local function addLanterns(barn: Model, frame: CFrame, doorW: number, depth: num
 		CollectionService:AddTag(lantern, "NightLight")
 		local light = Instance.new("PointLight")
 		light.Color = Color3.fromRGB(255, 205, 130)
-		light.Range = 22
-		light.Brightness = 1.1
+		light.Range = 26
+		light.Brightness = 2.5
 		light.Shadows = false
 		light.Enabled = false
 		light.Parent = lantern
@@ -88,22 +88,14 @@ local function glowWindow(window: Part)
 	CollectionService:AddTag(window, "NightWindow")
 	local light = Instance.new("PointLight")
 	light.Color = Color3.fromRGB(255, 205, 130)
-	light.Range = 9
-	light.Brightness = 0.5
+	light.Range = 12
+	light.Brightness = 1.4
 	light.Shadows = false
 	light.Enabled = false
 	light.Parent = window
 end
 
-local function addTierDetails(
-	barn: Model,
-	frame: CFrame,
-	level: number,
-	width: number,
-	depth: number,
-	wallH: number,
-	doorW: number
-)
+local function addTierDetails(barn: Model, frame: CFrame, level: number, width: number, depth: number, wallH: number)
 	if level >= 2 then
 		makePart(
 			"StoneBase",
@@ -231,7 +223,7 @@ local function buildBarn(parent: Instance, frame: CFrame, barnLevel: number)
 		barn
 	)
 
-	addTierDetails(barn, frame, tier, width, depth, wallH, doorW)
+	addTierDetails(barn, frame, tier, width, depth, wallH)
 	addLanterns(barn, frame, doorW, depth)
 
 	-- Giriş basamağı (zemin 1 stud yüksekte) ve içeride samanlık/fıçılar

@@ -1,0 +1,26 @@
+---
+description: Oyun dengesi (Config), paylaşılan hesaplar (FarmMath) ve kayıt şeması
+globs: src/shared/Config.luau,src/shared/GameTypes.luau,src/shared/Modules/FarmMath.luau,src/server/Modules/SaveCodec.luau,src/server/Modules/SessionLock.luau,src/server/Modules/FarmProfiles.luau,src/server/Services/PlayerDataService.luau,src/server/Services/EconomyService.luau
+alwaysApply: false
+---
+
+# Ekonomi ve veri
+
+- Denge değerleri (fiyat, gelir, kapasite, süre, yol haritası) **yalnızca** `Config.luau`'da.
+  Tablolar: ANIMALS/ANIMAL_ORDER, ZONES, UPGRADES, ROADMAP_STAGES, FARM_ISLANDS/FARM_ISLAND_ORDER,
+  EXTENSIONS, PRODUCTION_RECIPES, BARN_LEVELS, SEASONS, WEATHER.
+- `FarmMath` saf ve paylaşılan: sunucu da client da aynı sonucu hesaplar. Roblox örneğine
+  dokunmaz (Environment dışında). Açık ada/bölge `FarmMath.applyDerived` ile `purchased`'dan türer;
+  türetilmiş alanı kayda elle yazma.
+- Döngü içinde tür başına sabit değerleri önbelleğe al (`computeIncomePerSecond` kalıbı).
+- Gelir değişmeden önce `EconomyService.settlePlayer` ile geçen süre eski çarpanla kapatılır.
+
+## Kayıt şeması
+- Kalıcı alan eklemek/değiştirmek: `GameTypes` tipi → `SaveCodec.decode` normalleştirme (eksik
+  alana varsayılan, sonlu sayı/üst sınır) → `SaveCodec.encode` → `tests/data.spec.luau`.
+- Şema sürümünü (`version`) artırıyorsan eski sürümden göç yolunu yaz; gelecekteki bilinmeyen
+  sürüm reddedilir, bilinmeyen veri varsayılanla ezilmez.
+- DataStore çağrıları yalnızca `PlayerDataService` (oturum kilidi `SessionLock`). Başka servis
+  doğrudan DataStore kullanmaz.
+
+Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/production specleri).

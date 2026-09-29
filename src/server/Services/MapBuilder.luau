@@ -21,7 +21,7 @@ local MapBuilder = {}
 
 -- Harita düzenini (adalar, bölgeler, yapı yerleri) değiştirince bunu 1 artır:
 -- oyun, place'e kaydedilmiş eski haritayı fark edip uyarır.
-local MAP_VERSION = 23
+local MAP_VERSION = 24
 
 local SURFACE_Y = 4 -- Ada ve meydan yüzeyinin yüksekliği
 local WATER_Y = 0 -- Deniz yüzeyi
@@ -557,11 +557,11 @@ local function buildSatellite(
 	forSale.Name = "LockedDecor"
 	forSale.Parent = islandModel
 	for index, spot in { Vector2.new(-27, -9), Vector2.new(27, -9), Vector2.new(-25, 25), Vector2.new(25, 25) } do
-		local base = cf * CFrame.new(spot.X, SURFACE_Y, spot.Y) * CFrame.Angles(0, math.rad(index * 40), 0)
+		local saleBase = cf * CFrame.new(spot.X, SURFACE_Y, spot.Y) * CFrame.Angles(0, math.rad(index * 40), 0)
 		local pole = makePart(
 			"SalePole",
 			Vector3.new(0.45, 10, 0.45),
-			base * CFrame.new(0, 5, 0),
+			saleBase * CFrame.new(0, 5, 0),
 			Color3.fromRGB(120, 85, 55),
 			forSale
 		)
@@ -569,7 +569,7 @@ local function buildSatellite(
 		local banner = makePart(
 			"SaleBanner",
 			Vector3.new(4.2, 2.4, 0.2),
-			base * CFrame.new(2.3, 8.6, 0),
+			saleBase * CFrame.new(2.3, 8.6, 0),
 			Color3.fromRGB(196, 60, 52),
 			forSale
 		)
@@ -581,7 +581,7 @@ local function buildSatellite(
 			local stone = makePart(
 				"SaleStone",
 				Vector3.new(1.6 + rock * 0.5, 1.2 + rock * 0.2, 1.8 + rock * 0.4),
-				base * CFrame.new(rock * 1.3 - 3.4, 0.5, 1.6 + rock * 0.5) * CFrame.Angles(0.1 * rock, rock, 0.05),
+				saleBase * CFrame.new(rock * 1.3 - 3.4, 0.5, 1.6 + rock * 0.5) * CFrame.Angles(0.1 * rock, rock, 0.05),
 				Color3.fromRGB(120, 118, 110),
 				forSale
 			)

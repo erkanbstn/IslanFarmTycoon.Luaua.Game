@@ -59,7 +59,7 @@ end
 
 -- Gün-gece: sunucu saatinden türetilir, herkes aynı saati görür (client Lighting.ClockTime'a yazar).
 Environment.CLOCK_PRESETS = { dawn = 6.5, noon = 12, dusk = 18.5, night = 23 } :: { [string]: number }
-Environment.LIGHT_LEVELS = { dim = 0.4, low = 0.7, normal = 1, strong = 1.5 } :: { [string]: number }
+Environment.LIGHT_LEVELS = { dim = 0.5, low = 0.75, normal = 1, strong = 1.5 } :: { [string]: number }
 local CLOCK_ID_ATTR = "AdminClockId"
 local LIGHTS_ID_ATTR = "AdminLightsId"
 local LIGHT_LEVEL_ID_ATTR = "AdminLightLevelId"
@@ -80,20 +80,19 @@ local function smoothstep(from: number, to: number, x: number): number
 	return t * t * (3 - 2 * t)
 end
 
--- Işık kaynakları: akşam 17-18 arası yanar; sabah güneş iyice doğana (6.5) kadar yanık kalır, 7.5'te tamamen söner.
-function Environment.getLightFactor(clock: number): number
-	if clock >= 12 then
-		return smoothstep(17, 18, clock)
-	end
-	return 1 - smoothstep(6.5, 7.5, clock)
-end
-
 -- 0 = tam gündüz, 1 = tam gece; akşam 17.5-19.5 arası kararır, sabah 4.5-6.5 arası aydınlanır.
 function Environment.getNightFactor(clock: number): number
 	if clock >= 12 then
 		return smoothstep(17.5, 19.5, clock)
 	end
 	return 1 - smoothstep(4.5, 6.5, clock)
+end
+
+-- Işık kaynakları gökyüzünün kararmasına bağlıdır: hava belirgin kararınca (≈18:05) yanar, ≈18:40'ta
+-- tam açılır; sabah ≈05:20'de sönmeye başlar, gökyüzü aydınlanmadan (≈05:55) tamamen söner.
+-- Ayrı saat aralığı kullanma: ikisi ayrışınca güpegündüz ışık yanar.
+function Environment.getLightFactor(clock: number): number
+	return smoothstep(0.2, 0.6, Environment.getNightFactor(clock))
 end
 
 -- Mevsim + hava toplam gelir çarpanı (en az 0.2)

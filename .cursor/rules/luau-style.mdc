@@ -1,0 +1,39 @@
+---
+description: Luau kod stili ve Roblox API kuralları (tüm .luau dosyaları)
+globs: **/*.luau
+alwaysApply: false
+---
+
+# Luau stili
+
+- İlk satır `--!strict`. Parametre ve dönüş tipleri yazılır; remote girdisi `unknown` alınır, sonra daraltılır.
+- Servis: `local Players = game:GetService("Players")`. `game.Workspace`, `workspace` yok.
+- Zamanlama: `task.wait/spawn/delay/defer`. `wait()`, `spawn()`, `delay()` yasak.
+- String: `` `Seviye {level}` ``. Diziler 1'den başlar. Girinti tab, StyLua biçimi (`stylua src`).
+- `require` satırı tek satırda ve `local X = require(...)` biçiminde olmalı: `scripts/run-tests.py`
+  bu satırları regex ile değiştirir. Test edilen bir modüle yeni require eklersen harness'teki
+  bağımlılık kümesini de güncelle, yoksa testler "Unexpected dependency" ile durur.
+- Selene uyarısı bırakma (gölgeleme, kullanılmayan değişken). `selene src` 0 uyarı ile bitmeli.
+- Yorumlar Türkçe ve kısa; yalnızca kodun göstermediği kısıtı anlatır.
+
+```luau
+-- ❌
+local data = game.Workspace.Plots
+spawn(function() wait(1) end)
+
+-- ✅
+local Workspace = game:GetService("Workspace")
+local plots = Workspace:FindFirstChild("Plots")
+task.delay(1, refresh)
+```
+
+## Modül yolları
+- Shared: `ReplicatedStorage:WaitForChild("Shared")`, modüller `Shared.Modules.*`.
+- Sunucu servisleri birbirini `script.Parent:WaitForChild("X")`, sunucu modülleri
+  `script.Parent.Parent:WaitForChild("Modules")` ile alır.
+- MapBuilder, WorldDecor, BarnVisualService `Shared`'ı `script.Parent.Parent` üzerinden de arar
+  (harita eklentisi modülleri kopyalar) — bu yedek aramayı silme.
+
+## Temizlik
+- Uzun ömürlü `Connect` sonuçlarını sakla; `Destroying`/`PlayerRemoving`'de kopar.
+- Oyuncu anahtarlı tablolar (`{ [Player]: T }`) `PlayerRemoving`'de temizlenir.

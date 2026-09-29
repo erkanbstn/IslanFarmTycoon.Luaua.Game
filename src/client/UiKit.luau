@@ -193,46 +193,56 @@ function UiKit.button(parent: Instance, text: string, variant: Variant): TextBut
 	return b
 end
 
--- Menü düğmesi: solda ikon kutusu, yanında yazı, sağda (klavye varsa) kısayol tuşu
+-- Menü karosu boyutu (HUD menü çubuğu ve Çiftliğim penceresindeki ızgara aynı ölçüyü kullanır)
+UiKit.MenuTileSize = Vector2.new(76, 60)
+
+-- Menü karosu: üstte ikon kutusu, altta kısa yazı, sağ üst köşede (klavye varsa) kısayol tuşu.
+-- Yazı çevirilerde uzasa da karoya sığsın diye küçülür (TextScaled + üst sınır).
 function UiKit.menuButton(parent: Instance, icon: string, text: string, tint: Color3, shortcut: string?): TextButton
 	local b = Instance.new("TextButton")
 	b.Text = ""
-	b.Size = UDim2.new(1, 0, 0, 44)
+	b.Size = UDim2.fromOffset(UiKit.MenuTileSize.X, UiKit.MenuTileSize.Y)
 	b.BackgroundColor3 = UiKit.Color.Panel
 	b.BackgroundTransparency = 0.1
 	b.AutoButtonColor = true
+	b.Selectable = true
 	b.Parent = parent
 	UiKit.corner(b, UiKit.Radius.Card)
 	UiKit.stroke(b)
-	UiKit.padding(b, 6)
 	addPressFeedback(b)
 
-	local row = Instance.new("Frame")
-	row.BackgroundTransparency = 1
-	row.Size = UDim2.fromScale(1, 1)
-	row.Parent = b
-	UiKit.list(row, 8, true)
+	local chip = UiKit.iconChip(b, icon, 30, tint)
+	chip.AnchorPoint = Vector2.new(0.5, 0)
+	chip.Position = UDim2.new(0.5, 0, 0, 6)
 
-	local chip = UiKit.iconChip(row, icon, 32, tint)
-	chip.LayoutOrder = 1
-
-	local label = UiKit.text(row, text, "Heading")
+	local label = UiKit.text(b, text, "Caption", UiKit.Color.Text)
+	label.Name = "Label"
+	label.FontFace = UiKit.Font.Bold
 	label.AutomaticSize = Enum.AutomaticSize.None
-	label.Size = UDim2.new(1, if shortcut then -66 else -40, 1, 0)
-	label.LayoutOrder = 2
+	label.AnchorPoint = Vector2.new(0.5, 1)
+	label.Position = UDim2.new(0.5, 0, 1, -4)
+	label.Size = UDim2.new(1, -6, 0, 16)
+	label.TextXAlignment = Enum.TextXAlignment.Center
+	label.TextWrapped = false
+	label.TextScaled = true
+	local fit = Instance.new("UITextSizeConstraint")
+	fit.MaxTextSize = UiKit.TextSize.Caption
+	fit.MinTextSize = 8
+	fit.Parent = label
 
 	if shortcut then
 		local key = Instance.new("TextLabel")
 		key.Name = "Shortcut"
-		key.Size = UDim2.fromOffset(20, 20)
+		key.AnchorPoint = Vector2.new(1, 0)
+		key.Position = UDim2.new(1, -4, 0, 4)
+		key.Size = UDim2.fromOffset(16, 16)
 		key.BackgroundColor3 = UiKit.Color.SurfaceRaised
 		key.Text = shortcut
 		key.FontFace = UiKit.Font.Bold
 		key.TextSize = UiKit.TextSize.Caption
 		key.TextColor3 = UiKit.Color.TextMuted
-		key.LayoutOrder = 3
-		key.Parent = row
-		UiKit.corner(key, 5)
+		key.Parent = b
+		UiKit.corner(key, 4)
 	end
 	return b
 end

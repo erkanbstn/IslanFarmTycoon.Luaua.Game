@@ -3,6 +3,15 @@
 Bu dosya Claude, Cursor, Copilot, Codex gibi AI araçlarının projeyi doğru anlaması için yazıldı.
 (`CLAUDE.md`, `.cursorrules` ve `.github/copilot-instructions.md` bu dosyaya yönlendirir.)
 
+## AI rehber seti (tek kaynak)
+- Bu dosya: her zaman geçerli temel kurallar.
+- `.cursor/rules/*.mdc`: dosya türüne göre kapsamlı kurallar (Cursor otomatik yükler; Claude için
+  eşleme tablosu `CLAUDE.md`'de). Stil, sunucu güvenliği, UI/HUD, yerelleştirme, harita/ışık,
+  ekonomi/kayıt, client performansı, testler.
+- `.cursor/skills/<ad>/SKILL.md`: adım adım iş akışları — remote ekleme, UI ekleme, içerik/denge,
+  harita değişikliği, çeviri, kayıt şeması, doğrulama. `.claude/skills/` bunlara yönlendirir.
+- Kural değişirse önce ilgili `.mdc`/`SKILL.md`'yi güncelle; aynı bilgiyi iki yere kopyalama.
+
 ## Proje
 - Roblox oyunu, **Luau** dili ile yazılıyor (C# değil, Lua değil — Luau).
 - Kod dosya sisteminde tutulur ve **Rojo** ile Roblox Studio'ya senkronize edilir.
@@ -44,6 +53,9 @@ Bu dosya Claude, Cursor, Copilot, Codex gibi AI araçlarının projeyi doğru an
   "Haritayı Kur" butonuyla düzenleme modunda kurulup place'e kaydedilir.
 - Düzen değişince `MAP_VERSION`'ı artır. MapBuilder ve BarnVisualService `Shared`'ı
   `script.Parent.Parent` üzerinden de arar (eklenti modülleri kopyalayıp çalıştırıyor) — bunu bozma.
+- Gece ışığı: parça `NightLight`/`NightWindow` etiketi + `NightColor` + kapalı `PointLight` alır
+ (`WorldDecor.lamp` / `smallLamp` / `markNightWindow`). Gece/gündüz Lighting değerlerini yalnızca
+ `DayNight.client` yazar; `WeatherEffects` pozlamayı `Lighting.WeatherExposure` özniteliğiyle bildirir.
 - Oyun dengesi (fiyat, gelir, yol haritası) sadece `src/shared/Config.luau` içinde.
 - Her oyuncunun takımadası: ana ada + uzman adalar (`Config.FARM_ISLANDS`). Bölgeler bir adaya bağlıdır
   (`ZONES[x].island`); açık adalar/bölgeler `FarmMath.applyDerived` ile `purchased`'dan türetilir.
@@ -57,6 +69,9 @@ Bu dosya Claude, Cursor, Copilot, Codex gibi AI araçlarının projeyi doğru an
 - Emoji sadece ikon kutusunda (`UiKit.iconChip`, WorldUi'nin `icon` alanı); metinlerde emoji yok.
   Kapat/bildirim işaretleri çizilir.
 - Buton tipleri: primary = alınabilir, warning = para yetmiyor, disabled = kilitli/dolu, owned = alındı.
+- HUD bölgeleri: sol orta `Stats` paneli, alt orta menü karoları (dar ekranda sağ orta 3 karo),
+ sağda pencereler, üst ortada bildirimler. Sağ üst (oyuncu listesi) ve sol üst (sohbet) boş kalır.
+ Ayrıntılı bilgi ana HUD'a değil "Çiftliğim" penceresine gider.
 - Sunucu bildirim (Notify) metinlerine emoji koyma; bildirimin türü (success/error/money/info) işareti belirler.
 
 ## Yerelleştirme (diller)
@@ -74,3 +89,5 @@ Bu dosya Claude, Cursor, Copilot, Codex gibi AI araçlarının projeyi doğru an
 ## Araçlar
 - Rokit (`rokit.toml`) ile: rojo, stylua, selene.
 - Lint: `selene src` · Format: `stylua src` · Senkronizasyon: `rojo serve`
+- Testler: `python scripts/run-tests.py` · Çeviri kapsamı: `python scripts/check-locales.py --strict-literals`
+- Tam doğrulama: `powershell -ExecutionPolicy Bypass -File scripts/verify.ps1`

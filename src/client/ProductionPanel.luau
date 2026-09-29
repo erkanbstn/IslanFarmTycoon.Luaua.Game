@@ -152,6 +152,7 @@ local function create(parent: ScreenGui): UiKit.Window
 			entry.progress.Visible = false
 			local variant: UiKit.Variant = "primary"
 			local job = state.production and state.production[id]
+			local reward, bonus = FarmMath.getProductionReward(state, recipe, now)
 			if job then
 				local remaining = math.max(0, math.ceil(job.readyAt - now))
 				entry.progress.Visible = true
@@ -162,9 +163,7 @@ local function create(parent: ScreenGui): UiKit.Window
 						remaining % 60
 					)}`
 					else "Parti hazır. Teslim ederek yeni üretime yer aç."
-				card.action.Text = if remaining > 0
-					then "Üretiliyor"
-					else `Sat · {FarmMath.formatMoney(recipe.reward)}`
+				card.action.Text = if remaining > 0 then "Üretiliyor" else `Sat · {FarmMath.formatMoney(reward)}`
 				variant = if remaining > 0 then "disabled" else "primary"
 				if recipe.output == "chicken" and remaining == 0 then
 					entry.keep.Visible = true
@@ -187,20 +186,10 @@ local function create(parent: ScreenGui): UiKit.Window
 					elseif state.cash >= upgrade.cost then "primary"
 					else "warning"
 			else
-				local adults = 0
-				for _, animal in state.animals do
-					if
-						table.find(recipe.animalIds, animal.animalId)
-						and state.unlockedZones[animal.zoneId]
-						and FarmMath.getStage(animal.bornAt, now, FarmMath.getGrowthSpeed(state, animal.animalId))
-							== "adult"
-					then
-						adults += 1
-					end
-				end
-				card.detail.Text = `{recipe.description}\n{recipe.duration} sn · Satış {FarmMath.formatMoney(
-					recipe.reward
-				)}\nYetişkin hayvan: {adults}/{recipe.requiredAdults}`
+				local adults = FarmMath.countProductionAdults(state, recipe, now)
+				local bonusLine = if bonus > 0 then `\nYetişkin bonusu: +%{math.round(bonus * 100)}` else ""
+				card.detail.Text =
+					`{recipe.description}\n{recipe.duration} sn · Satış {FarmMath.formatMoney(reward)}\nYetişkin hayvan: {adults}/{recipe.requiredAdults}{bonusLine}`
 				card.action.Text = `Başlat · {FarmMath.formatMoney(recipe.cost)}`
 				variant = if adults < recipe.requiredAdults
 					then "disabled"

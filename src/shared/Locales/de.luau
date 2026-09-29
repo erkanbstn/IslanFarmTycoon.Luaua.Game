@@ -13,7 +13,7 @@ return {
 	["Yükseltmeler"] = "Upgrades",
 	["Adalar"] = "Inseln",
 	["Ayarlar"] = "Einstellungen",
-	["Adama Dön"] = "Zurück nach Hause",
+	["Adama Dön"] = "Nach Hause",
 	["Yönetici"] = "Admin",
 	["Çiftliğim"] = "Meine Farm",
 	["Çiftlik hedefleri"] = "Farm-Ziele",
@@ -105,9 +105,9 @@ return {
 	["Kayıt bağlantısı kesildi. Ekonomi durduruldu; lütfen yeniden katıl."] = "Speicherverbindung getrennt. Die Wirtschaft ist pausiert; bitte tritt erneut bei.",
 	["Son kayıt tamamlanamadı; tekrar deneniyor."] = "Das letzte Speichern ist fehlgeschlagen; neuer Versuch.",
 	["Kayıtsız Studio testi: bu ilerleme saklanmaz."] = "Studio-Test ohne Speicherung: Dieser Fortschritt wird nicht behalten.",
-	["Otomatik toplama çevrimiçinde çalışır. Çevrimdışında depo sınırı geçerlidir."] = "Automatisches Sammeln funktioniert online. Offline gilt das Lagerlimit.",
+	["Otomatik toplama açık. Çevrimdışı kazanç da kasana eklenir."] = "Automatisches Sammeln ist an. Offline-Einnahmen gehen ebenfalls in deine Kasse.",
 	["Depo dolu, üretim durdu! Yeşil platforma bas."] = "Das Lager ist voll, die Produktion steht! Tritt auf die grüne Platte.",
-	["Parayı almak için yeşil platforma bas. Çevrimdışı kazanç depoyla sınırlıdır."] = "Tritt auf die grüne Platte, um Geld einzusammeln. Offline-Einnahmen sind durch das Lager begrenzt.",
+	["Parayı almak için yeşil platforma bas. Çevrimdışı kazanç kasana eklenir."] = "Tritt auf die grüne Platte, um Geld einzusammeln. Offline-Einnahmen gehen in deine Kasse.",
 	["Depo dolu"] = "Lager voll",
 
 	---------------------------------------------------------------------------
@@ -167,6 +167,10 @@ return {
 	["Tesisi kur"] = "Anlage bauen",
 	["Satış {}"] = "Verkauf {1}",
 	["Yetişkin hayvan: {}"] = "Erwachsene Tiere: {1}",
+	["Yetişkin bonusu: +%{}"] = "Bonus für Erwachsene: +{1}%",
+	["Mevsim/hava: +%{}"] = "Jahreszeit/Wetter: +{1}%",
+	["Mevsim/hava: -%{}"] = "Jahreszeit/Wetter: -{1}%",
+	["Bu ada: {}/{} hayvan"] = "Diese Insel: {1}/{2} Tiere",
 
 	---------------------------------------------------------------------------
 	-- Einstellungen und Ladebildschirm
@@ -197,7 +201,7 @@ return {
 	-- Server-Meldungen
 	---------------------------------------------------------------------------
 	["{}'a hoş geldin! Yol Haritası'ndan ilerle."] = "Willkommen bei {1}! Komm im Fahrplan voran.",
-	["Sen yokken hayvanların depoya {} biriktirdi!"] = "Während du weg warst, haben deine Tiere {1} im Lager gesammelt!",
+	["Sen yokken çiftliğin {} kazandı; kasana eklendi."] = "Während du weg warst, hat deine Farm {1} verdient; es wurde deiner Kasse gutgeschrieben.",
 	["Seyahat için kısa bir süre bekleyip yeniden dene."] = "Warte kurz, bevor du erneut reist.",
 	["Bu ada henüz açık değil veya seyahat için hazır değil."] = "Diese Insel ist noch nicht freigeschaltet oder nicht reisebereit.",
 	["Böyle bir ada yok."] = "Diese Insel gibt es nicht.",

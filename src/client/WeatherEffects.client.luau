@@ -180,8 +180,9 @@ local function applyLook()
 		Saturation = look.saturation,
 		Contrast = look.contrast,
 	})
-	-- Genel aydınlık: bulutlu/yağmurlu/fırtınalı havada etraf kararır
-	transition(Lighting, { ExposureCompensation = look.exposure })
+	-- Genel aydınlık: bulutlu/yağmurlu/fırtınalı havada etraf kararır. ExposureCompensation'ı
+	-- DayNight tek başına yazar (hava hedefi + gece payı); burası yalnızca hedefi bildirir.
+	Lighting:SetAttribute("WeatherExposure", look.exposure)
 	local sunRays = Lighting:FindFirstChildOfClass("SunRaysEffect")
 	if sunRays then
 		transition(sunRays, { Intensity = look.sunRays })

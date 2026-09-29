@@ -206,9 +206,10 @@ return function(createService: any, createLimiter: any, rules: any, codec: any, 
 	local readyAt = snap.mainFarms["1"].production.dairy.readyAt
 	data.production.dairy.readyAt += 100
 	assert(snap.mainFarms["1"].production.dairy.readyAt == readyAt, "in-flight datastore snapshot owns nested job copy")
-	local reloaded = assert(codec.decode(snap, config, farmMath, now + 86400, uid), "offline pending batch reloads")
+	local reloaded, offlineEarned = codec.decode(snap, config, farmMath, now + 86400, uid)
+	assert(reloaded, "offline pending batch reloads")
 	assert(
-		reloaded.production.dairy.readyAt == readyAt and reloaded.cash == data.cash,
+		reloaded.production.dairy.readyAt == readyAt and reloaded.cash == data.cash + offlineEarned,
 		"offline completion never automatically pays or repeats"
 	)
 	reloaded.production.dairy.readyAt += 1

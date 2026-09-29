@@ -13,7 +13,7 @@ return {
 	["Yükseltmeler"] = "Улучшения",
 	["Adalar"] = "Острова",
 	["Ayarlar"] = "Настройки",
-	["Adama Dön"] = "Вернуться домой",
+	["Adama Dön"] = "Домой",
 	["Yönetici"] = "Админ",
 	["Çiftliğim"] = "Моя ферма",
 	["Çiftlik hedefleri"] = "Цели фермы",
@@ -105,9 +105,9 @@ return {
 	["Kayıt bağlantısı kesildi. Ekonomi durduruldu; lütfen yeniden katıl."] = "Связь с сохранением потеряна. Экономика остановлена; пожалуйста, зайди заново.",
 	["Son kayıt tamamlanamadı; tekrar deneniyor."] = "Последнее сохранение не удалось; повторная попытка.",
 	["Kayıtsız Studio testi: bu ilerleme saklanmaz."] = "Тест в Studio без сохранения: этот прогресс не сохранится.",
-	["Otomatik toplama çevrimiçinde çalışır. Çevrimdışında depo sınırı geçerlidir."] = "Автосбор работает, пока ты в сети. Офлайн действует лимит склада.",
+	["Otomatik toplama açık. Çevrimdışı kazanç da kasana eklenir."] = "Автосбор включён. Офлайн-доход тоже идёт в кошелёк.",
 	["Depo dolu, üretim durdu! Yeşil platforma bas."] = "Склад полон, производство остановилось! Встань на зелёную платформу.",
-	["Parayı almak için yeşil platforma bas. Çevrimdışı kazanç depoyla sınırlıdır."] = "Встань на зелёную платформу, чтобы забрать деньги. Офлайн-доход ограничен складом.",
+	["Parayı almak için yeşil platforma bas. Çevrimdışı kazanç kasana eklenir."] = "Встань на зелёную платформу, чтобы забрать деньги. Офлайн-доход идёт в кошелёк.",
 	["Depo dolu"] = "Склад полон",
 
 	---------------------------------------------------------------------------
@@ -167,6 +167,10 @@ return {
 	["Tesisi kur"] = "Построить здание",
 	["Satış {}"] = "Продажа {1}",
 	["Yetişkin hayvan: {}"] = "Взрослые животные: {1}",
+	["Yetişkin bonusu: +%{}"] = "Бонус за взрослых: +{1}%",
+	["Mevsim/hava: +%{}"] = "Сезон/погода: +{1}%",
+	["Mevsim/hava: -%{}"] = "Сезон/погода: -{1}%",
+	["Bu ada: {}/{} hayvan"] = "Этот остров: {1}/{2} животных",
 
 	---------------------------------------------------------------------------
 	-- Настройки и экран загрузки
@@ -197,7 +201,7 @@ return {
 	-- Сообщения сервера
 	---------------------------------------------------------------------------
 	["{}'a hoş geldin! Yol Haritası'ndan ilerle."] = "Добро пожаловать в {1}! Продвигайся по дорожной карте.",
-	["Sen yokken hayvanların depoya {} biriktirdi!"] = "Пока тебя не было, животные накопили на складе {1}!",
+	["Sen yokken çiftliğin {} kazandı; kasana eklendi."] = "Пока тебя не было, ферма заработала {1}; деньги зачислены в кошелёк.",
 	["Seyahat için kısa bir süre bekleyip yeniden dene."] = "Немного подожди и попробуй отправиться снова.",
 	["Bu ada henüz açık değil veya seyahat için hazır değil."] = "Этот остров ещё не открыт или не готов к путешествию.",
 	["Böyle bir ada yok."] = "Такого острова нет.",

@@ -158,7 +158,7 @@ local Config = {
 
 	-- Yeni oyuncuya ücretsiz: ana ada, Küçük Ahır (Sv.1), İnek Ağılı ve bu kadar inek
 	STARTING_COW_COUNT = 2,
-	STARTING_CASH = 50,
+	STARTING_CASH = 100,
 
 	INCOME_TICK_SECONDS = 1,
 	MAX_INCOME_CATCHUP_SECONDS = 60,
@@ -231,10 +231,14 @@ local Config = {
 		},
 	} :: { [string]: WeatherConfig },
 
-	-- Oyuncu yokken de depo dolar: normal gelirin bu oranı kadar, en fazla bu kadar saat için.
-	-- Depo sınırı yine geçerli, yani büyük ahır = daha çok çevrimdışı kazanç.
+	-- Oyuncu yokken kazanç doğrudan kasaya eklenir: normal gelirin bu oranı kadar, en fazla bu kadar saat için.
+	-- Üst sınır depo kapasitesinin OFFLINE_STORAGE_MULTIPLIER katıdır; büyük ahır = daha çok çevrimdışı kazanç.
 	OFFLINE_EARNING_RATE = 0.5,
 	OFFLINE_MAX_HOURS = 8,
+	OFFLINE_STORAGE_MULTIPLIER = 4,
+	-- Üretimde gerekenden fazla her yetişkin hayvan satış ödülünü bu oranda artırır (en fazla MAX kadar hayvan).
+	PRODUCTION_BONUS_PER_ADULT = 0.25,
+	PRODUCTION_MAX_BONUS_ADULTS = 12,
 	ANIMAL_PRICE_GROWTH = 1.1,
 	BULK_MULTIPLIERS = { 1, 2, 3, 5 }, -- Pazarda toplu alım çarpanları
 
@@ -245,8 +249,14 @@ local Config = {
 	},
 
 	BARN_LEVELS = {
-		{ level = 1, displayName = "Küçük Ahır", barnScale = 1, storageCap = 250, incomeMultiplier = 1 },
-		{ level = 2, displayName = "Genişletilmiş Ahır", barnScale = 1.2, storageCap = 900, incomeMultiplier = 1.2 },
+		{ level = 1, displayName = "Küçük Ahır", barnScale = 1, storageCap = 500, incomeMultiplier = 1 },
+		{
+			level = 2,
+			displayName = "Genişletilmiş Ahır",
+			barnScale = 1.2,
+			storageCap = 1200,
+			incomeMultiplier = 1.2,
+		},
 		{ level = 3, displayName = "Çiftlik Ahırı", barnScale = 1.45, storageCap = 3000, incomeMultiplier = 1.4 },
 		{ level = 4, displayName = "Büyük Çiftlik", barnScale = 1.7, storageCap = 10000, incomeMultiplier = 1.7 },
 	} :: { BarnLevelConfig },
@@ -725,7 +735,7 @@ local Config = {
 			displayName = "Levrek",
 			icon = "🐠",
 			product = "Levrek",
-			price = 1500,
+			price = 1200,
 			baseIncomePerSecond = 16,
 		},
 		chicken = {
@@ -749,8 +759,8 @@ local Config = {
 			displayName = "Keçi",
 			icon = "🐐",
 			product = "Keçi sütü",
-			price = 2500,
-			baseIncomePerSecond = 22,
+			price = 2000,
+			baseIncomePerSecond = 24,
 		},
 	} :: { [string]: AnimalConfig },
 

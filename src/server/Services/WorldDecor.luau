@@ -443,8 +443,8 @@ function WorldDecor.lamp(parent: Instance, base: CFrame)
 	part(model, "Cap", Vector3.new(1, 0.2, 1), base * CFrame.new(1.6, 9.25, 0), iron, Enum.Material.Metal)
 	local light = Instance.new("PointLight")
 	light.Color = Color3.fromRGB(255, 205, 130)
-	light.Range = 32
-	light.Brightness = 3
+	light.Range = 40
+	light.Brightness = 4
 	light.Shadows = false
 	light.Enabled = false
 	light.Parent = lantern
@@ -456,8 +456,8 @@ function WorldDecor.markNightWindow(window: BasePart)
 	CollectionService:AddTag(window, "NightWindow")
 	local light = Instance.new("PointLight")
 	light.Color = Color3.fromRGB(255, 205, 130)
-	light.Range = 10
-	light.Brightness = 0.6
+	light.Range = 14
+	light.Brightness = 1.5
 	light.Shadows = false
 	light.Enabled = false
 	light.Parent = window
@@ -483,8 +483,8 @@ function WorldDecor.smallLamp(parent: Instance, base: CFrame)
 	part(model, "Cap", Vector3.new(0.9, 0.18, 0.9), base * CFrame.new(0, 4.5, 0), iron, Enum.Material.Metal)
 	local light = Instance.new("PointLight")
 	light.Color = Color3.fromRGB(255, 205, 130)
-	light.Range = 20
-	light.Brightness = 2
+	light.Range = 24
+	light.Brightness = 3
 	light.Shadows = false
 	light.Enabled = false
 	light.Parent = lantern

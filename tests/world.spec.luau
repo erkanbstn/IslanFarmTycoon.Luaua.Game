@@ -49,7 +49,9 @@ return function()
 	local first = plots:GetChildren()[1]
 	local second = plots:GetChildren()[2]
 	assert(first and second, "Harita testi en az iki plot gerektirir.")
-	assert(plots:GetAttribute("MapVersion") == 13, "Tabana bağlı iskele düzeni v13 olmalı.")
+	-- Tam sürüm eşleşmesini validate() yapar; burada yalnızca tabana bağlı iskele düzeninin (v13+) varlığı.
+	local mapVersion = plots:GetAttribute("MapVersion")
+	assert(typeof(mapVersion) == "number" and mapVersion >= 13, "Tabana bağlı iskele düzeni v13+ olmalı.")
 	local spots = first:FindFirstChild("BuildSpots") :: Folder
 	for _, id in { "milk_factory", "hatchery", "horse_training", "cheese_dairy", "fishing_boat" } do
 		local spot = spots:FindFirstChild(id)

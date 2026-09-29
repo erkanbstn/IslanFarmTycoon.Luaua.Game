@@ -1,0 +1,37 @@
+---
+description: Harita üretimi, dünya görselleri, gece ışıkları ve Lighting sahipliği
+globs: src/server/Services/MapBuilder.luau,src/server/Services/WorldDecor.luau,src/server/Services/*VisualService.luau,src/server/Services/IslandSpecialization.luau,plugin/**,src/client/DayNight.client.luau,src/client/WeatherEffects.client.luau,src/client/SeasonalScenery.luau
+alwaysApply: false
+---
+
+# Harita ve dünya
+
+- Harita `MapBuilder.build()` ile üretilir; Studio'da `plugin/` "Haritayı Kur" butonu düzenleme
+  modunda kurar, place kaydedilir. Sunucu `MapBuilder.validate()` ile `MapVersion`'ı doğrular:
+  uyuşmazsa oyun açılmaz.
+- MapBuilder/WorldDecor ile üretilen (place'e kaydedilen) her şeyde değişiklik → `MAP_VERSION` +1
+  ve kullanıcıya "Haritayı Kur + place kaydet" hatırlat. `*VisualService` çalışma anında kurar,
+  sürüm gerekmez.
+- Harita sözleşmesi (Plots/Zones/Islands/BuildSpots/HubSpawn) `validate()` içindedir; yeni zorunlu
+  parça eklersen oraya ve `tests/world.spec.luau`'ya ekle.
+
+## Gece ışıkları
+- Işık kaynağı parçası `NightLight` (fener, Neon) veya `NightWindow` (pencere, SmoothPlastic)
+  etiketi + `NightColor` özniteliği + `Enabled = false` bir `PointLight` alır.
+  Hazır yardımcılar: `WorldDecor.lamp`, `WorldDecor.smallLamp`, `WorldDecor.markNightWindow`.
+- `DayNight.client` bu parçaları yakar/söndürür; parlaklık = taban × rampa × yönetici çarpanı,
+  menzil de çarpanla ölçeklenir (≤ 60). Etiketsiz ışık gece/gündüz ve yönetici ayarından etkilenmez.
+- Taban değer ışığın yerel `BaseBrightness`/`BaseRange` özniteliğinde tutulur. Instance anahtarlı
+  zayıf (`__mode = "k"`) tabloya koyma: sarmalayıcı toplanır, gündüz 0'a çekilmiş değer taban sanılır.
+- Genel yoğunluk ince ayarı `DayNight` içindeki `LIGHT_BRIGHTNESS_SCALE` / `LIGHT_RANGE_SCALE`
+  (harita yeniden kurulmaz). Yanma zamanı `Environment.getLightFactor` = gecenin karanlığından
+  türetilir; ayrı saat aralığı yazma (gündüz ışık yanar).
+- Teşhis: yönetici paneli "Gece ışıkları" satırı bu ekranda izlenen lamba/ışık sayısını gösterir.
+
+## Lighting sahipliği (iki script aynı özelliğe yazmasın)
+| Özellik | Sahibi |
+|---|---|
+| ClockTime, Brightness, Ambient, OutdoorAmbient, ExposureCompensation, Bloom, NightGrade | DayNight |
+| Bulutlar, Atmosphere Haze/Density, SunRays, WeatherGrade | WeatherEffects |
+- Hava pozlaması: WeatherEffects `Lighting:SetAttribute("WeatherExposure", n)` yazar, DayNight
+  yumuşatıp gece payıyla birlikte uygular. Yeni efekt bu tabloya uymalı.

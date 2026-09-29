@@ -48,10 +48,41 @@ return function(FarmMath: any, Config: any, Environment: any)
 		regular += FarmMath.computeIncomeOverInterval(save, start + elapsed - 1, start + elapsed, true)
 	end
 	near(FarmMath.computeIncomeOverInterval(save, start, start + 180, true), regular)
-	save.stored = FarmMath.getStorageCap(save) - 7
-	near(FarmMath.computeOfflineEarnings(save, start, start + 135), 7)
+	-- Çevrimdışı kazanç kasaya gider: dolu depo onu engellemez, üst sınır depo x OFFLINE_STORAGE_MULTIPLIER.
 	save.stored = FarmMath.getStorageCap(save)
-	near(FarmMath.computeOfflineEarnings(save, start, start + 135), 0)
+	near(FarmMath.computeOfflineEarnings(save, start, start + 135), 65)
+	local offlineCap = FarmMath.getOfflineCap(save)
+	near(offlineCap, FarmMath.getStorageCap(save) * Config.OFFLINE_STORAGE_MULTIPLIER)
+	near(FarmMath.computeOfflineEarnings(save, start, start + Config.OFFLINE_MAX_HOURS * 3600), offlineCap)
+	save.stored = 0
+
+	-- Üretim ödülü: gerekenden fazla her yetişkin bonus verir, üst sınırda durur.
+	local dairy = Config.PRODUCTION_RECIPES.dairy
+	local farm = saveAt(0)
+	farm.animals = {}
+	for index = 1, dairy.requiredAdults do
+		table.insert(
+			farm.animals,
+			{ uid = `d{index}`, animalId = "cow", zoneId = "starter", bornAt = 0, stage = "adult" }
+		)
+	end
+	local baseReward, baseBonus = FarmMath.getProductionReward(farm, dairy, start)
+	assert(baseReward == dairy.reward and baseBonus == 0, "required adults only: base reward")
+	table.insert(farm.animals, { uid = "d-extra", animalId = "cow", zoneId = "starter", bornAt = 0, stage = "adult" })
+	table.insert(farm.animals, { uid = "d-calf", animalId = "cow", zoneId = "starter", bornAt = start, stage = "calf" })
+	local oneExtra = FarmMath.getProductionReward(farm, dairy, start)
+	assert(
+		oneExtra == math.floor(dairy.reward * (1 + Config.PRODUCTION_BONUS_PER_ADULT)),
+		"one extra adult adds one bonus step; calves do not count"
+	)
+	for index = 1, Config.PRODUCTION_MAX_BONUS_ADULTS + 5 do
+		table.insert(
+			farm.animals,
+			{ uid = `d-many{index}`, animalId = "cow", zoneId = "starter", bornAt = 0, stage = "adult" }
+		)
+	end
+	local _, cappedBonus = FarmMath.getProductionReward(farm, dairy, start)
+	near(cappedBonus, Config.PRODUCTION_MAX_BONUS_ADULTS * Config.PRODUCTION_BONUS_PER_ADULT)
 
 	-- Hız yükseltmesi 44 saniyelik eski ilerlemeyi 88 saniyeye dönüştürmemeli.
 	save = saveAt(start)

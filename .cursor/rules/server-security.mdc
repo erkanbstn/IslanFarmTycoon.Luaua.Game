@@ -1,0 +1,34 @@
+---
+description: Sunucu tarafı güvenlik, remote doğrulama ve servis kalıpları
+globs: src/server/**/*.luau
+alwaysApply: false
+---
+
+# Sunucu güvenliği
+
+Client'a asla güvenme: fiyat, adet, para, hasar, sahiplik, kilit durumu sunucuda hesaplanır.
+
+## Remote işleyici sırası (UpgradeService / AnimalService kalıbı)
+1. Hız sınırı: `RateLimiter.allow(player, "eylem", saniye)`; reddedilen isteğe yanıtı da
+   ayrı bir anahtarla sınırla (`"...Reply"`), yoksa yanıt spam'i olur.
+2. Tip + mantık: `typeof(x) == "string" and RateLimiter.validId(x)`, sonra `Config.X[x]` var mı.
+   Sayılarda `x == x` (NaN), sonlu, tam sayı, üst sınır kontrolü.
+3. Tekrar koruması: `RateLimiter.acceptRequest(player, requestId)` (client `PurchaseController.submit`
+   artan kimlik ve `expectedFarmId` gönderir; etkin çiftlik değiştiyse reddet).
+4. Durum: `PlayerDataService.tryGet(player)` ve `player:GetAttribute("WorldReady") == true`.
+5. Para: önce `EconomyService.settlePlayer(player)`, sonra `PlayerDataService.trySpend`.
+6. Değişiklik sonrası: `FarmMath.applyDerived(data)` → `pushState` → `requestSave` →
+   gerekiyorsa `PlotService.refreshPlayerWorld(player)` → `Metrics.increment`.
+7. Sonuç: `requestId` varsa `PurchaseResult`/`XResult`, yoksa `Notify`.
+
+## Yönetici
+- Yetki yalnızca `AdminPolicy.isAllowed(player.UserId)`. `IsAdmin` özniteliği sadece UI ipucu.
+- Yeni yönetici eylemi: `AdminPolicy.validAction` + `AdminService.execute` + `tests/admin.spec.luau`.
+
+## Bildirim metinleri
+- Emoji yok; tür (`success/error/money/info`) işareti belirler.
+- Tam cümle kur (parça birleştirme yok) ve `src/shared/Locales/{en,de,ru}.luau` içine ekle.
+
+## Yasaklar
+- `src/shared` içine gizli değer/anahtar koyma (client görür).
+- Client'tan gelen fiyat/adet/pozisyonu doğrudan kullanma; mesafe gerekiyorsa sunucu karakterden ölçer.

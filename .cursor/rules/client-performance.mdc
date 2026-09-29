@@ -1,0 +1,28 @@
+---
+description: Client görsel/efekt scriptlerinde kare başı maliyet ve streaming kuralları
+globs: src/client/**/*.client.luau,src/client/SeasonalScenery.luau,src/client/WeatherPrecip.luau
+alwaysApply: false
+---
+
+# Client performansı
+
+- Her karede (`Heartbeat`/`RenderStepped`) ağır iş yapma. Kalıp:
+  ```luau
+  local elapsed = 0
+  RunService.Heartbeat:Connect(function(dt: number)
+  	elapsed += dt
+  	if elapsed < 0.25 then
+  		return
+  	end
+  	elapsed = 0
+  	update()
+  end)
+  ```
+  `RenderStepped` yalnızca kameraya/karaktere kare kare bağlı görsel için.
+- Pencere kapalıysa güncelleme erken dönsün (`if not window.isOpen() then return end`).
+- Yeniden kurma yerine imza karşılaştır (IslandManager `visitsSignature` kalıbı).
+- Dünyadaki nesneleri tek seferlik taramayla değil `CollectionService` etiket sinyalleriyle veya
+  `DescendantAdded/Removing` ile izle: StreamingEnabled parçaları sonradan getirir/kaldırır.
+- Kalite ve erişilebilirlik: `EffectsQuality` ("low/medium/high") ve `ReducedMotion` öznitelikleri
+  (Player) parçacık sayısını ve animasyonu sınırlar; yeni efekt ikisine de uymalı.
+- Parçacık/nesne havuzu sınırlı olsun; `Destroying`'de bağlantıları kopar, oluşturduğun nesneleri sil.

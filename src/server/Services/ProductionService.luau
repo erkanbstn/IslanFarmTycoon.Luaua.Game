@@ -34,6 +34,7 @@ local function act(player: Player, action: unknown, recipeId: unknown, jobUid: u
 		return false, "Çiftliğin henüz hazır değil."
 	end
 	local now = DateTime.now().UnixTimestampMillis / 1000
+	local reward = 0
 	if action == "start" then
 		local allowed, reason = ProductionRules.canStart(data, recipe, FarmMath, now)
 		if not allowed then
@@ -70,8 +71,9 @@ local function act(player: Player, action: unknown, recipeId: unknown, jobUid: u
 				bornAt = now,
 			})
 		else
+			reward = FarmMath.getProductionReward(data, recipe, now)
 			data.production[recipe.id] = nil
-			PlayerDataService.addCash(player, recipe.reward)
+			PlayerDataService.addCash(player, reward)
 		end
 	end
 	PlayerDataService.pushState(player)
@@ -86,7 +88,7 @@ local function act(player: Player, action: unknown, recipeId: unknown, jobUid: u
 		if action == "start"
 			then "Üretim başladı!"
 			elseif action == "keep" then "Yeni civciv kümese eklendi!"
-			else `Üretim satıldı: {FarmMath.formatMoney(recipe.reward)}`
+			else `Üretim satıldı: {FarmMath.formatMoney(reward)}`
 end
 
 function ProductionService.init()

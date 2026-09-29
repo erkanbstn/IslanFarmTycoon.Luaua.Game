@@ -7,6 +7,7 @@
 
 local CollectionService = game:GetService("CollectionService")
 local Lighting = game:GetService("Lighting")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -15,20 +16,31 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Environment = require(Shared:WaitForChild("Modules"):WaitForChild("Environment"))
 
 local TICK = 0.1
+-- Hava pozlamasına geçiş hızı (saniye); WeatherEffects'in 6 sn'lik geçişiyle aynı hissi verir.
+local EXPOSURE_SMOOTHING = 2
 
+-- Gece gerçekten kararmalı; yoksa fenerler ve pencereler ortam ışığında kaybolur.
 local DAY = {
+	brightness = 2.4,
 	outdoor = Color3.fromRGB(135, 135, 150),
 	ambient = Color3.fromRGB(70, 70, 80),
 	atmosphere = Color3.fromRGB(199, 220, 235),
 	decay = Color3.fromRGB(106, 135, 165),
 }
 local NIGHT = {
-	outdoor = Color3.fromRGB(92, 104, 152),
-	ambient = Color3.fromRGB(56, 62, 96),
-	atmosphere = Color3.fromRGB(58, 72, 112),
-	decay = Color3.fromRGB(28, 36, 66),
-	tint = Color3.fromRGB(196, 208, 246),
+	brightness = 0.9,
+	exposure = -0.25,
+	outdoor = Color3.fromRGB(44, 52, 88),
+	ambient = Color3.fromRGB(26, 30, 50),
+	atmosphere = Color3.fromRGB(40, 52, 86),
+	decay = Color3.fromRGB(18, 24, 46),
+	tint = Color3.fromRGB(190, 204, 246),
 }
+local MAX_LIGHT_RANGE = 60 -- Roblox PointLight.Range üst sınırı
+-- Tüm gece ışıklarının genel yoğunluğu. Haritadaki taban değerler place'e kayıtlı olduğundan
+-- ince ayar burada yapılır (harita yeniden kurulmadan). "Normal" yönetici seviyesi = bu değerler.
+local LIGHT_BRIGHTNESS_SCALE = 0.6
+local LIGHT_RANGE_SCALE = 0.8
 local TWILIGHT_SHIFT = Color3.fromRGB(255, 150, 90)
 
 -- Sadece bu client'ta var olan gece renk düzeltmesi
@@ -52,8 +64,30 @@ local glows: { [BasePart]: Glow } = {}
 local ramp = 0
 local multiplier = 1 -- Yönetici ışık parlaklığı çarpanı
 -- Işıklar parçadan sonra çoğalabilir; bu yüzden her uygulamada çocuklar yeniden taranır.
--- Özgün parlaklık ilk görüldüğünde (henüz değiştirilmeden) saklanır.
-local baseBrightness: { [Light]: number } = setmetatable({}, { __mode = "k" })
+-- Özgün değer ışığın kendi (yerel) özniteliğinde saklanır. Zayıf anahtarlı tablo kullanılamaz:
+-- Roblox Instance sarmalayıcısını toplar, gündüz 0'a çekilmiş parlaklık "özgün" diye yeniden okunur.
+local function baseValue(light: Light, attribute: string, current: number): number
+	local stored = light:GetAttribute(attribute)
+	if typeof(stored) == "number" then
+		return stored
+	end
+	light:SetAttribute(attribute, current)
+	return current
+end
+
+local function publishCount()
+	local parts, lights = 0, 0
+	for part in glows do
+		parts += 1
+		for _, child in part:GetChildren() do
+			if child:IsA("Light") then
+				lights += 1
+			end
+		end
+	end
+	Lighting:SetAttribute("NightLightParts", parts)
+	Lighting:SetAttribute("NightLightSources", lights)
+end
 
 local function applyGlow(glow: Glow)
 	local part = glow.part
@@ -65,13 +99,14 @@ local function applyGlow(glow: Glow)
 	end
 	for _, child in part:GetChildren() do
 		if child:IsA("Light") then
-			local base = baseBrightness[child]
-			if base == nil then
-				base = child.Brightness
-				baseBrightness[child] = base
-			end
+			local base = baseValue(child, "BaseBrightness", child.Brightness)
 			child.Enabled = on
-			child.Brightness = (base :: number) * ramp * multiplier
+			child.Brightness = base * LIGHT_BRIGHTNESS_SCALE * ramp * multiplier
+			-- Parlaklık seçimi menzili de etkiler; yalnızca Brightness çarpmak gözle zor fark edilir.
+			if child:IsA("PointLight") or child:IsA("SpotLight") then
+				local range = baseValue(child, "BaseRange", child.Range)
+				child.Range = math.min(range * LIGHT_RANGE_SCALE * (0.6 + 0.4 * multiplier), MAX_LIGHT_RANGE)
+			end
 		end
 	end
 end
@@ -94,16 +129,19 @@ local function track(instance: Instance)
 	}
 	glows[instance] = glow
 	applyGlow(glow)
+	publishCount()
 	instance.ChildAdded:Connect(function(child: Instance)
 		if child:IsA("Light") and glows[instance] then
 			applyGlow(glow)
+			publishCount()
 		end
 	end)
 end
 
 local function untrack(instance: Instance)
-	if instance:IsA("BasePart") then
+	if instance:IsA("BasePart") and glows[instance] then
 		glows[instance] = nil
+		publishCount()
 	end
 end
 
@@ -119,10 +157,28 @@ end
 -- Gökyüzü ve ortam
 ---------------------------------------------------------------------------
 
-local function updateSky()
+local weatherExposure: number? = nil
+
+local function targetWeatherExposure(): number
+	local value = Lighting:GetAttribute("WeatherExposure")
+	return if typeof(value) == "number" and value == value then value else 0
+end
+
+local function updateSky(dt: number)
 	local clock = Environment.getClockTime(Workspace:GetServerTimeNow())
 	local night = Environment.getNightFactor(clock)
 	Lighting.ClockTime = clock
+	Lighting.Brightness = DAY.brightness + (NIGHT.brightness - DAY.brightness) * night
+
+	local target = targetWeatherExposure()
+	local current = weatherExposure
+	if current == nil or Players.LocalPlayer:GetAttribute("ReducedMotion") == true then
+		current = target
+	else
+		current += (target - current) * math.min(1, dt / EXPOSURE_SMOOTHING)
+	end
+	weatherExposure = current
+	Lighting.ExposureCompensation = (current :: number) + NIGHT.exposure * night
 
 	Lighting.OutdoorAmbient = DAY.outdoor:Lerp(NIGHT.outdoor, night)
 	Lighting.Ambient = DAY.ambient:Lerp(NIGHT.ambient, night)
@@ -137,9 +193,9 @@ local function updateSky()
 	end
 	local bloom = Lighting:FindFirstChildOfClass("BloomEffect")
 	if bloom then
-		-- Gece parlama azalır: fener ve pencere çevresi beyaza boğulmasın
-		bloom.Intensity = 0.5 - 0.32 * night
-		bloom.Threshold = 1.8 + 1.2 * night
+		-- Neon fenerler gece hafif bir hale alsın ama çevresi beyaza boğulmasın.
+		bloom.Intensity = 0.5 - 0.15 * night
+		bloom.Threshold = 1.8 + 0.6 * night
 	end
 	nightGrade.TintColor = Color3.new(1, 1, 1):Lerp(NIGHT.tint, night)
 	nightGrade.Saturation = -0.08 * night
@@ -160,6 +216,8 @@ local function updateSky()
 		for _, glow in glows do
 			applyGlow(glow)
 		end
+		-- Yönetici panelindeki teşhis satırı için (yalnızca bu client)
+		Lighting:SetAttribute("NightLightRamp", math.round(ramp * 100))
 	end
 end
 
@@ -168,8 +226,9 @@ local resyncAt = 0
 local connection = RunService.Heartbeat:Connect(function(dt: number)
 	elapsed += dt
 	if elapsed >= TICK then
+		local step = elapsed
 		elapsed = 0
-		updateSky()
+		updateSky(step)
 		-- Geç gelen ışık nesneleri ve yayın gecikmeleri için birkaç saniyede bir tam eşitleme
 		if os.clock() >= resyncAt then
 			resyncAt = os.clock() + 3
@@ -179,7 +238,7 @@ local connection = RunService.Heartbeat:Connect(function(dt: number)
 		end
 	end
 end)
-updateSky()
+updateSky(TICK)
 
 script.Destroying:Connect(function()
 	connection:Disconnect()

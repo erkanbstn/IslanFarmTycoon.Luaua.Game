@@ -1,0 +1,19 @@
+---
+description: Test yazma, test harness ve doğrulama komutları
+globs: tests/**,scripts/**,*.project.json,selene.toml,stylua.toml,rokit.toml
+alwaysApply: false
+---
+
+# Testler ve araçlar
+
+- Saf Luau testleri: `python scripts/run-tests.py` gerçek kaynağı birleştirip `.tools/luau` ile koşar.
+  Yeni spec: `tests/<ad>.spec.luau` bir fonksiyon döndürür → `run-tests.py` içinde `module(...)`
+  ile ekle ve en alttaki çağrı listesine yaz. Roblox servisleri gerekiyorsa `factory_args` ile
+  sahte (`game`, `task`, `os`...) enjekte edilir; bağımlılık kümesi tam eşleşmeli.
+- Studio (dünya) testleri: `test.project.json` ayrı place; `tests/run.server.luau`. Harita sürümünü
+  sabit sayıyla değil `validate()` ile kontrol et.
+- Tam doğrulama: `powershell -ExecutionPolicy Bypass -File scripts/verify.ps1`
+  (StyLua, Selene, Luau derleme, regresyon, yerelleştirme, üç Rojo derlemesi).
+- Hızlı döngü: `stylua src tests plugin` → `selene src` → `python scripts/run-tests.py`.
+- Testi geçirmek için beklentiyi gevşetme; davranış bilinçli değiştiyse testi güncelle ve nedenini
+  commit mesajında yaz.

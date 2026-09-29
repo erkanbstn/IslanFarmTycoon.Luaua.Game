@@ -105,9 +105,9 @@ return {
 	["Kayıt bağlantısı kesildi. Ekonomi durduruldu; lütfen yeniden katıl."] = "Save connection lost. The economy is paused; please rejoin.",
 	["Son kayıt tamamlanamadı; tekrar deneniyor."] = "The last save failed; retrying.",
 	["Kayıtsız Studio testi: bu ilerleme saklanmaz."] = "Unsaved Studio test: this progress will not be kept.",
-	["Otomatik toplama çevrimiçinde çalışır. Çevrimdışında depo sınırı geçerlidir."] = "Auto-collect works while you are online. The storage cap applies while offline.",
+	["Otomatik toplama açık. Çevrimdışı kazanç da kasana eklenir."] = "Auto-collect is on. Offline earnings also go to your wallet.",
 	["Depo dolu, üretim durdu! Yeşil platforma bas."] = "Storage is full and production stopped! Step on the green pad.",
-	["Parayı almak için yeşil platforma bas. Çevrimdışı kazanç depoyla sınırlıdır."] = "Step on the green pad to collect money. Offline earnings are limited by storage.",
+	["Parayı almak için yeşil platforma bas. Çevrimdışı kazanç kasana eklenir."] = "Step on the green pad to collect money. Offline earnings go to your wallet.",
 	["Depo dolu"] = "Storage full",
 
 	---------------------------------------------------------------------------
@@ -167,6 +167,10 @@ return {
 	["Tesisi kur"] = "Build facility",
 	["Satış {}"] = "Sells for {1}",
 	["Yetişkin hayvan: {}"] = "Adult animals: {1}",
+	["Yetişkin bonusu: +%{}"] = "Adult bonus: +{1}%",
+	["Mevsim/hava: +%{}"] = "Season/weather: +{1}%",
+	["Mevsim/hava: -%{}"] = "Season/weather: -{1}%",
+	["Bu ada: {}/{} hayvan"] = "This island: {1}/{2} animals",
 
 	---------------------------------------------------------------------------
 	-- Ayarlar ve yükleme ekranı
@@ -197,7 +201,7 @@ return {
 	-- Sunucu bildirimleri
 	---------------------------------------------------------------------------
 	["{}'a hoş geldin! Yol Haritası'ndan ilerle."] = "Welcome to {1}! Progress through the Roadmap.",
-	["Sen yokken hayvanların depoya {} biriktirdi!"] = "While you were away, your animals stored {1} in the barn!",
+	["Sen yokken çiftliğin {} kazandı; kasana eklendi."] = "While you were away, your farm earned {1}; it was added to your wallet.",
 	["Seyahat için kısa bir süre bekleyip yeniden dene."] = "Wait a moment before travelling again.",
 	["Bu ada henüz açık değil veya seyahat için hazır değil."] = "This island is not unlocked yet or is not ready for travel.",
 	["Böyle bir ada yok."] = "There is no such island.",

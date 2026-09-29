@@ -1,5 +1,6 @@
 --!strict
 -- Görünürlük yardımcıdır; her komutun yetkisini ve değerini sunucu yeniden doğrular.
+local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -286,7 +287,16 @@ local function create(parent: ScreenGui): UiKit.Window
 		local selectedLevel = ReplicatedStorage:GetAttribute("AdminLightLevelId")
 		selectedLevel = if typeof(selectedLevel) == "string" and selectedLevel ~= "" then selectedLevel else "normal"
 		timeStatus.Text = `Seçim: {choiceLabel(times, selectedTime)}`
-		lightStatus.Text = `Seçim: {choiceLabel(lightModes, selectedLights)}`
+		-- DayNight'ın bu ekranda izlediği parça/ışık sayısı: 0 ise etiket ya da harita sorunu vardır.
+		local function lightingNumber(attribute: string): number
+			local value = Lighting:GetAttribute(attribute)
+			return if typeof(value) == "number" then value else 0
+		end
+		local ramp = lightingNumber("NightLightRamp")
+		local parts = lightingNumber("NightLightParts")
+		local sources = lightingNumber("NightLightSources")
+		lightStatus.Text =
+			`Seçim: {choiceLabel(lightModes, selectedLights)} · Şu an ışıklar %{ramp} · Yakında {parts} lamba/pencere, {sources} ışık kaynağı`
 		levelStatus.Text = `Seçim: {choiceLabel(lightLevels, selectedLevel :: string)}`
 		weatherStatus.Text = `Seçim: {choiceLabel(weather, selectedWeather)}`
 		seasonStatus.Text = `Seçim: {choiceLabel(seasons, selectedSeason)}`
@@ -319,6 +329,9 @@ local function create(parent: ScreenGui): UiKit.Window
 		ReplicatedStorage:GetAttributeChangedSignal("AdminClockId"):Connect(update),
 		ReplicatedStorage:GetAttributeChangedSignal("AdminLightsId"):Connect(update),
 		ReplicatedStorage:GetAttributeChangedSignal("AdminLightLevelId"):Connect(update),
+		Lighting:GetAttributeChangedSignal("NightLightParts"):Connect(update),
+		Lighting:GetAttributeChangedSignal("NightLightSources"):Connect(update),
+		Lighting:GetAttributeChangedSignal("NightLightRamp"):Connect(update),
 		player:GetAttributeChangedSignal("DataPersistent"):Connect(update),
 	}
 	local stopState = ClientState.onChanged(updateBalance)

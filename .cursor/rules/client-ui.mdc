@@ -1,0 +1,34 @@
+---
+description: Ekran arayüzü (UiKit), HUD yerleşimi ve dünya tabelaları (WorldUi)
+globs: src/client/**/*.luau,src/shared/UiTheme.luau,src/shared/WorldUi.luau,src/first/**/*.luau
+alwaysApply: false
+---
+
+# Arayüz standardı
+
+- Bileşenler `src/client/UiKit.luau`: panel, window, card, button, menuButton (karo), closeButton,
+  badge, progressBar, sectionHeader, toastHost, iconChip, flag, textInput.
+- Renk/yazı/boyut `UiKit.Color / UiKit.Font / UiKit.TextSize / UiKit.Radius` (kaynak `UiTheme`).
+  Elle `Color3.fromRGB` veya font yazma.
+- Emoji yalnızca `iconChip` (ve WorldUi `icon` alanı) içinde. Buton ve metinde emoji yok.
+- Buton varyantı: primary=alınabilir, warning=para yetmiyor, disabled=kilitli/dolu, owned=alındı.
+- Dünyadaki tabela: `WorldUi.tag` / `WorldUi.sign`, güncelleme `setTag` / `setSignText`.
+
+## HUD yerleşim bölgeleri (FarmHud) — çakışma olmasın
+| Bölge | İçerik |
+|---|---|
+| Sol orta | `Stats` paneli: ada adı, para+gelir, depo, mevsim/hava kartı, sıradaki hedef |
+| Alt orta | `Menu` karo çubuğu (geniş ekran) |
+| Sağ orta | `Menu` 3 karoluk sütun (kompakt: genişlik < 900 veya yükseklik < 560) |
+| Sağ (pencere) | Pazar / Yol Haritası / Yükseltmeler pencereleri (`WINDOW_POSITION`) |
+| Üst orta | Bildirimler (toast) |
+| Sağ üst / sol üst | Roblox oyuncu listesi ve sohbet — HUD buraya bir şey koymaz |
+
+- Yeni menü girişi: `UiKit.menuButton` + `menuEntries` listesine ekle (`compactDock` = dar ekranda
+  menüde kalsın mı). Ayrıntılı/az kullanılan bilgi ana HUD'a değil "Çiftliğim" penceresine gider.
+- Pencere açılınca `redraw`; kapalı pencere içeriği `*Dirty` bayraklarıyla ertelenir.
+- Her yeni ekran metni için çeviri gerekir (localization rule). Kısa etiket seç; karo yazısı 76 px.
+
+## Performans
+- Durum güncellemesi yapısal (`structural`) ve para değişimi ayrı ele alınır; aynı metni tekrar yazma
+  (`buttonStates` imza kalıbı). Her karede UI güncelleme yok; 0.25–1 sn aralık yeterli.
