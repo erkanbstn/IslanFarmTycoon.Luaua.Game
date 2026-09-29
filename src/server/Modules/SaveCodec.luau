@@ -17,7 +17,7 @@ local function decodeFarm(
 	farmMath: any,
 	now: number,
 	newUid: () -> string
-): (any?, number, string?, number?)
+): (any?, number, string?, number?, number?)
 	local problem = SessionLock.validate(raw)
 	if problem then
 		return nil, 0, problem
@@ -105,11 +105,21 @@ local function decodeFarm(
 		then
 			return nil, 0, "Sipariş kaydı geçersiz; orijinal kayıt korunuyor"
 		end
+		-- Panodan seçilen sipariş farklı hedef ve ödül çarpanı taşıyabilir; ikisi de sınırlanır.
+		local maxUnits = config.ORDER_UNITS
+		for _, tier in config.ORDER_TIERS do
+			maxUnits = math.max(maxUnits, tier.units)
+		end
+		local target = if SessionLock.isFinite(order.target)
+			then math.clamp(math.floor(order.target), 1, maxUnits)
+			else config.ORDER_UNITS
+		local factor = if SessionLock.isFinite(order.rewardFactor) then math.clamp(order.rewardFactor, 0.5, 3) else 1
 		save.order = {
 			uid = order.uid,
 			animalId = order.animalId,
-			progress = math.clamp(amount(order.progress, 0), 0, config.ORDER_UNITS),
-			target = config.ORDER_UNITS,
+			progress = math.clamp(amount(order.progress, 0), 0, target),
+			target = target,
+			rewardFactor = factor,
 		}
 	end
 	local seen: { [string]: boolean } = {}
@@ -199,11 +209,27 @@ local function decodeFarm(
 	end
 	save.stored = math.min(save.stored, farmMath.getStorageCap(save))
 	local offlineEarned = 0
+	local grown = 0
 	if SessionLock.isFinite(source.lastSeen) and source.lastSeen >= 0 and source.lastSeen <= now then
 		offlineEarned = farmMath.computeOfflineEarnings(save, source.lastSeen, now)
 		save.cash = math.min(MAX_MONEY, save.cash + offlineEarned)
+		-- Sen yokken yetişkin olan hayvanlar (dönüş özeti için)
+		for _, animal in save.animals do
+			if
+				animal.bornAt ~= 0
+				and animal.stage == "adult"
+				and farmMath.getStage(
+						animal.bornAt,
+						source.lastSeen,
+						farmMath.getGrowthSpeed(save, animal.animalId)
+					)
+					~= "adult"
+			then
+				grown += 1
+			end
+		end
 	end
-	return save, offlineEarned, nil, repairs
+	return save, offlineEarned, nil, repairs, grown
 end
 
 local function encodeFarm(save: any, now: number): { [string]: any }
@@ -243,6 +269,7 @@ local function encodeFarm(save: any, now: number): { [string]: any }
 				animalId = save.order.animalId,
 				progress = save.order.progress,
 				target = save.order.target,
+				rewardFactor = save.order.rewardFactor,
 			}
 			else nil,
 	}
@@ -259,24 +286,24 @@ function SaveCodec.decode(
 	farmMath: any,
 	now: number,
 	newUid: () -> string
-): (any?, number, string?, number?)
+): (any?, number, string?, number?, number?)
 	local problem = SessionLock.validate(raw)
 	if problem then
 		return nil, 0, problem
 	end
 	local source: any = if typeof(raw) == "table" then raw else {}
 	if source.version ~= 4 and source.mainFarms == nil then
-		local data, earned, err, repairs = decodeFarm(raw, config, farmMath, now, newUid)
+		local data, earned, err, repairs, grown = decodeFarm(raw, config, farmMath, now, newUid)
 		if data then
 			FarmProfiles.ensure(data)
 		end
-		return data, earned, err, repairs
+		return data, earned, err, repairs, grown
 	end
 	if typeof(source.mainFarms) ~= "table" or typeof(source.activeMainFarmId) ~= "string" then
 		return nil, 0, "Çiftlik kayıtları geçersiz; orijinal kayıt korunuyor"
 	end
 	local farms = {}
-	local count, earnedTotal, repairTotal, refundedTotal = 0, 0, 0, 0
+	local count, earnedTotal, repairTotal, refundedTotal, grownTotal = 0, 0, 0, 0, 0
 	for id, rawFarm in source.mainFarms do
 		count += 1
 		local numberId = if typeof(id) == "string" then tonumber(id) else nil
@@ -293,7 +320,7 @@ function SaveCodec.decode(
 		end
 		local farmInput = table.clone(rawFarm)
 		farmInput.cash = 0 -- Cüzdan sadece kök kayıttan gelir; taşıma iadeleri ayrıca eklenir.
-		local farm, earned, err, repairs = decodeFarm(farmInput, config, farmMath, now, newUid)
+		local farm, earned, err, repairs, grown = decodeFarm(farmInput, config, farmMath, now, newUid)
 		if not farm then
 			return nil, 0, err
 		end
@@ -301,6 +328,7 @@ function SaveCodec.decode(
 		refundedTotal += farm.cash
 		earnedTotal += earned
 		repairTotal += repairs or 0
+		grownTotal += grown or 0
 	end
 	if not farms["1"] or not farms[source.activeMainFarmId] then
 		return nil, 0, "Etkin çiftlik kaydı eksik; orijinal kayıt korunuyor"
@@ -313,7 +341,42 @@ function SaveCodec.decode(
 	if typeof(source.language) == "string" and config.LANGUAGES and config.LANGUAGES[source.language] then
 		data.language = source.language
 	end
-	return data, earnedTotal, nil, repairTotal
+	-- Hesap düzeyi ilerleme: ömür boyu kazanç, günlük ödül serisi ve alınmış başarımlar (hepsi isteğe bağlı).
+	data.lifetimeEarned = amount(source.lifetimeEarned, 0)
+	local daily = source.daily
+	if
+		typeof(daily) == "table"
+		and SessionLock.isFinite(daily.day)
+		and SessionLock.isFinite(daily.streak)
+		and daily.day >= 0
+		and daily.day <= 1e7
+		and daily.day % 1 == 0
+		and daily.streak >= 1
+		and daily.streak <= #config.DAILY_REWARD_MULTIPLIERS
+		and daily.streak % 1 == 0
+	then
+		data.daily = { day = daily.day, streak = daily.streak }
+	end
+	local achievements: { [string]: boolean } = {}
+	if typeof(source.achievements) == "table" then
+		for _, achievement in config.ACHIEVEMENTS do
+			if source.achievements[achievement.id] == true then
+				achievements[achievement.id] = true
+			end
+		end
+	end
+	data.achievements = achievements
+	-- İşlenmiş satın alma makbuzları: yalnızca sınırlı sayıda kısa metin kimliği kabul edilir.
+	local receipts: { string } = {}
+	if typeof(source.receipts) == "table" then
+		for _, id in source.receipts do
+			if typeof(id) == "string" and #id > 0 and #id <= 40 and #receipts < 200 then
+				table.insert(receipts, id)
+			end
+		end
+	end
+	data.receipts = receipts
+	return data, earnedTotal, nil, repairTotal, grownTotal
 end
 
 function SaveCodec.encode(save: any, now: number): { [string]: any }
@@ -329,6 +392,10 @@ function SaveCodec.encode(save: any, now: number): { [string]: any }
 		mainFarms = farms,
 		activeMainFarmId = save.activeMainFarmId,
 		language = save.language,
+		lifetimeEarned = amount(save.lifetimeEarned, 0),
+		daily = save.daily,
+		achievements = save.achievements,
+		receipts = save.receipts,
 		lastSeen = now,
 	}
 end

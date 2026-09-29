@@ -29,6 +29,13 @@ alwaysApply: false
 - Pencere açılınca `redraw`; kapalı pencere içeriği `*Dirty` bayraklarıyla ertelenir.
 - Her yeni ekran metni için çeviri gerekir (localization rule). Kısa etiket seç; karo yazısı 76 px.
 
+## Ses ve para biçimi
+- Sesler `src/client/Sfx.luau` üzerinden çalınır (`Sfx.play("coin")`, `Sfx.playAt`); kimlikler
+  `Config.SOUNDS / AMBIENCE / ANIMAL_SOUNDS`. Boş `id` = ses yok. Ses düzeyi `SoundVolume` özniteliği
+  (Ayarlar kaydırıcısı, `UiKit.slider`). Ortam ve hayvan sesleri `Soundscape.client`.
+- Para her yerde `FarmMath.formatMoney` ile yazılır: 10.000'e kadar tam ($9,999), üstü kısaltılır
+  ($12.4K, $3.1M). Kendi biçimlendiricini yazma.
+
 ## Performans
 - Durum güncellemesi yapısal (`structural`) ve para değişimi ayrı ele alınır; aynı metni tekrar yazma
   (`buttonStates` imza kalıbı). Her karede UI güncelleme yok; 0.25–1 sn aralık yeterli.

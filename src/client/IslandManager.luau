@@ -10,6 +10,7 @@ local Remotes = require(Shared:WaitForChild("Remotes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 local UiKit = require(script.Parent:WaitForChild("UiKit"))
 local ClientState = require(script.Parent:WaitForChild("ClientState"))
+local Sfx = require(script.Parent:WaitForChild("Sfx"))
 local PurchaseController = require(script.Parent:WaitForChild("PurchaseController"))
 local IslandContext = require(script.Parent:WaitForChild("IslandContext"))
 local player = Players.LocalPlayer
@@ -130,6 +131,7 @@ Remotes.get("MainFarmResult").OnClientEvent:Connect(function(id: unknown, ok: un
 		update()
 		return
 	end
+	Sfx.play(if ok then "success" else "error")
 	resultOk = ok
 	resultMessage = if typeof(message) == "string"
 		then message

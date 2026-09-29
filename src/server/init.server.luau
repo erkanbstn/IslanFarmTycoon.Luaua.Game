@@ -8,7 +8,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
-local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 
 local Services = script:WaitForChild("Services")
 local PlayerDataService = require(Services:WaitForChild("PlayerDataService"))
@@ -22,6 +21,11 @@ local MainFarmService = require(Services:WaitForChild("MainFarmService"))
 local ProductionService = require(Services:WaitForChild("ProductionService"))
 local AdminService = require(Services:WaitForChild("AdminService"))
 local ExtensionService = require(Services:WaitForChild("ExtensionService"))
+local CollectorVisualService = require(Services:WaitForChild("CollectorVisualService"))
+local BuyPadService = require(Services:WaitForChild("BuyPadService"))
+local EngagementService = require(Services:WaitForChild("EngagementService"))
+local MonetizationService = require(Services:WaitForChild("MonetizationService"))
+local Rewards = require(Shared:WaitForChild("Modules"):WaitForChild("Rewards"))
 local RateLimiter = require(script:WaitForChild("Modules"):WaitForChild("RateLimiter"))
 
 -- Karakter, veri yüklenip ada atandıktan SONRA yüklenir: böylece oyuncu önce meydanda doğup
@@ -47,6 +51,10 @@ UpgradeService.init()
 ExtensionService.init()
 AnimalService.init()
 EconomyService.init()
+CollectorVisualService.init()
+BuyPadService.init()
+EngagementService.init()
+MonetizationService.init()
 OrderService.init()
 AdminService.init()
 ProductionService.init()
@@ -211,18 +219,19 @@ local function onPlayerAdded(player: Player)
 		return
 	end
 	player:SetAttribute("WorldReady", true)
+	-- Oyun geçitleri arka planda doğrulanır (yield eder); giriş akışını geciktirmez
+	task.spawn(MonetizationService.refreshPasses, player)
 	EconomyService.startPlayer(player)
 	PlayerDataService.pushState(player)
 
 	Remotes.get("Notify"):FireClient(player, `{Config.GAME_NAME}'a hoş geldin! Yol Haritası'ndan ilerle.`, "info")
-	local offline = PlayerDataService.takeOfflineEarnings(player)
-	if offline > 0 then
-		Remotes.get("Notify")
-			:FireClient(
-				player,
-				`Sen yokken çiftliğin {FarmMath.formatMoney(offline)} kazandı; kasana eklendi.`,
-				"money"
-			)
+	-- Dönüş özeti: sen yokken kazanılan para ve büyüyen hayvanlar (client küçük bir pencere gösterir)
+	local offline, grown = PlayerDataService.takeOfflineSummary(player)
+	if offline > 0 or grown > 0 then
+		Remotes.get("OfflineSummary"):FireClient(player, offline, grown)
+	end
+	if Rewards.dailyStatus(data.daily, DateTime.now().UnixTimestamp).canClaim then
+		Remotes.get("Notify"):FireClient(player, "Günlük ödülün hazır! Çiftliğim menüsünden al.", "info")
 	end
 	print(`[Server] {player.Name} katıldı.`)
 	joining[player] = nil

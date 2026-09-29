@@ -123,6 +123,7 @@ function EconomyService.settlePlayer(player: Player)
 		OrderService.update(player, elapsed, wallNow - elapsed, wallNow, farm)
 		if FarmMath.hasAutoCollect(farm) then
 			data.cash = math.min(1e15, data.cash + earned + farm.stored)
+			data.lifetimeEarned = math.min(1e18, (data.lifetimeEarned or 0) + earned + farm.stored)
 			farm.stored = 0
 		else
 			farm.stored = math.min(farm.stored + earned, FarmMath.getStorageCap(farm))

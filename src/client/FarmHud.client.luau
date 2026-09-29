@@ -22,6 +22,10 @@ local AdminPanel = require(script.Parent:WaitForChild("AdminPanel"))
 local ProductionPanel = require(script.Parent:WaitForChild("ProductionPanel"))
 local IslandContext = require(script.Parent:WaitForChild("IslandContext"))
 local IslandManager = require(script.Parent:WaitForChild("IslandManager"))
+local Sfx = require(script.Parent:WaitForChild("Sfx"))
+local Rewards = require(Shared:WaitForChild("Modules"):WaitForChild("Rewards"))
+local OrderBoard = require(Shared:WaitForChild("Modules"):WaitForChild("OrderBoard"))
+local TweenServiceForCash = game:GetService("TweenService")
 
 type PlayerSave = GameTypes.PlayerSave
 
@@ -97,6 +101,18 @@ end
 local cashTexts = statRow(stats, 1, "💰", Color.Gold)
 local cashLabel = UiKit.text(cashTexts, "$0", "Display", Color.Gold)
 cashLabel.LayoutOrder = 1
+-- Para toplayınca kasadaki sayı hafifçe zıplar
+local cashScale = Instance.new("UIScale")
+cashScale.Parent = cashLabel
+local function bounceCash()
+	if localPlayer:GetAttribute("ReducedMotion") == true then
+		return
+	end
+	cashScale.Scale = 1.25
+	TweenServiceForCash:Create(cashScale, TweenInfo.new(0.45, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+		Scale = 1,
+	}):Play()
+end
 local incomeLabel = UiKit.text(cashTexts, "+$0/sn", "Caption")
 incomeLabel.LayoutOrder = 2
 
@@ -272,6 +288,229 @@ local setShopBadge = UiKit.badge(shopButton)
 local setRoadmapBadge = UiKit.badge(roadmapButton)
 local setUpgradesBadge = UiKit.badge(upgradesButton)
 local setProductionBadge = UiKit.badge(productionButton)
+local setGoalsBadge = UiKit.badge(goalsButton)
+
+---------------------------------------------------------------------------
+-- Çiftliğim penceresi: günlük ödül ve başarımlar
+---------------------------------------------------------------------------
+
+local dailyCard = UiKit.card(goalsWindow.list, 20, "🎁")
+dailyCard.title.Text = "Günlük ödül"
+dailyCard.action.Activated:Connect(function()
+	if dailyCard.action.Active then
+		PurchaseController.submit("RequestClaimDaily", "daily")
+	end
+end)
+local _, achievementsMeta = UiKit.sectionHeader(goalsWindow.list, "Başarımlar", 21)
+local achievementCards: { [string]: UiKit.Card } = {}
+for index, achievement in Config.ACHIEVEMENTS do
+	local card = UiKit.card(goalsWindow.list, 21 + index, achievement.icon)
+	card.title.Text = achievement.displayName
+	achievementCards[achievement.id] = card
+	card.action.Activated:Connect(function()
+		if card.action.Active then
+			PurchaseController.submit("RequestClaimAchievement", achievement.id)
+		end
+	end)
+end
+
+-- Destek paketleri (oyun geçitleri ve ürünler): kimliği (id) 0 olanlar henüz satışta değildir, gizlenir.
+local STORE_ORDER = 90
+local storeHeader = UiKit.sectionHeader(goalsWindow.list, "Destek paketleri", STORE_ORDER)
+type StoreEntry = { kind: string, key: string, product: Config.ProductConfig, card: UiKit.Card, shown: string }
+local storeEntries: { StoreEntry } = {}
+for _, group in
+	{ { kind = "pass", items = Config.PRODUCTS.passes }, { kind = "product", items = Config.PRODUCTS.products } }
+do
+	local keys: { string } = {}
+	for key in group.items do
+		table.insert(keys, key)
+	end
+	table.sort(keys)
+	for _, key in keys do
+		local product = group.items[key]
+		local card = UiKit.card(goalsWindow.list, STORE_ORDER + #storeEntries + 1, product.icon)
+		card.title.Text = product.displayName
+		card.detail.Text = product.description
+		card.action.Activated:Connect(function()
+			if card.action.Active then
+				Remotes.get("RequestPromptProduct"):FireServer(group.kind, key)
+			end
+		end)
+		table.insert(storeEntries, { kind = group.kind, key = key, product = product, card = card, shown = "" })
+	end
+end
+
+local function updateStore(state: PlayerSave)
+	local any = false
+	for _, entry in storeEntries do
+		local forSale = entry.product.id ~= 0
+		local owned = entry.kind == "pass" and state.passes ~= nil and state.passes[entry.key] == true
+		local signature = `{forSale}{owned}`
+		any = any or forSale
+		if signature == entry.shown then
+			continue
+		end
+		entry.shown = signature
+		entry.card.frame.Visible = forSale
+		entry.card.action.Text = if owned then "Sahipsin" else "Satın al"
+		UiKit.setVariant(entry.card.action, if owned then "owned" else "primary")
+	end
+	(storeHeader.Parent :: GuiObject).Visible = any
+end
+
+local rewardSignature = ""
+local function updateRewards(state: PlayerSave?)
+	if not state then
+		return
+	end
+	updateStore(state)
+	local status = Rewards.dailyStatus(state.daily, Workspace:GetServerTimeNow())
+	local claimable = Rewards.claimableCount(state)
+	local parts: { string } = { tostring(status.canClaim), tostring(status.streak), tostring(claimable) }
+	local claimed = 0
+	for _, achievement in Config.ACHIEVEMENTS do
+		local owned = state.achievements ~= nil and state.achievements[achievement.id] == true
+		if owned then
+			claimed += 1
+		end
+		table.insert(parts, `{if owned then "c" else Rewards.progress(state, achievement)}`)
+	end
+	local pending = PurchaseController.isPending()
+	table.insert(parts, tostring(pending))
+	table.insert(parts, tostring(if status.canClaim then Rewards.dailyAmount(state, status.nextStreak) else 0))
+	local signature = table.concat(parts, "|")
+	setGoalsBadge(claimable + (if status.canClaim then 1 else 0))
+	if signature == rewardSignature then
+		return
+	end
+	rewardSignature = signature
+
+	local length = #Config.DAILY_REWARD_MULTIPLIERS
+	if status.canClaim then
+		dailyCard.detail.Text =
+			`{status.nextStreak}. gün · Ödül: {FarmMath.formatMoney(Rewards.dailyAmount(state, status.nextStreak))}`
+		dailyCard.action.Text = "Ödülü al"
+		UiKit.setVariant(dailyCard.action, if pending then "disabled" else "primary")
+	else
+		dailyCard.detail.Text = `Seri {status.streak}/{length} · Yarın yeni ödül`
+		dailyCard.action.Text = "Alındı"
+		UiKit.setVariant(dailyCard.action, "owned")
+	end
+	achievementsMeta.Text = `{claimed}/{#Config.ACHIEVEMENTS}`
+	for _, achievement in Config.ACHIEVEMENTS do
+		local card = achievementCards[achievement.id]
+		local owned = state.achievements ~= nil and state.achievements[achievement.id] == true
+		local progress = Rewards.progress(state, achievement)
+		local shown = math.min(progress, achievement.target)
+		local text = if achievement.metric == "earned"
+			then `{FarmMath.formatMoney(shown)}/{FarmMath.formatMoney(achievement.target)}`
+			else `{math.floor(shown)}/{achievement.target}`
+		card.detail.Text = `{achievement.description} · {text}`
+		if owned then
+			card.action.Text = "Alındı"
+			UiKit.setVariant(card.action, "owned")
+		elseif progress >= achievement.target then
+			card.action.Text = `Ödülü al · {FarmMath.formatMoney(achievement.reward)}`
+			UiKit.setVariant(card.action, if pending then "disabled" else "primary")
+		else
+			card.action.Text = text
+			UiKit.setVariant(card.action, "disabled")
+		end
+	end
+end
+
+---------------------------------------------------------------------------
+-- Sipariş panosu: 3 seçenek (kısa/orta/uzun) ve mevsim etkinliği bonusu
+---------------------------------------------------------------------------
+
+local BOARD_ORDER = 60
+local _, boardMeta = UiKit.sectionHeader(goalsWindow.list, "Sipariş panosu", BOARD_ORDER)
+local boardEvent = UiKit.text(goalsWindow.list, "", "Caption", Color.Gold)
+boardEvent.LayoutOrder = BOARD_ORDER + 1
+local boardCards: { UiKit.Card } = {}
+local boardOffers: { OrderBoard.Offer } = {}
+for index = 1, #Config.ORDER_TIERS do
+	local card = UiKit.card(goalsWindow.list, BOARD_ORDER + 1 + index, "📋")
+	boardCards[index] = card
+	card.action.Activated:Connect(function()
+		local offer = boardOffers[index]
+		if card.action.Active and offer then
+			PurchaseController.submit("RequestPickOrder", offer.key)
+		end
+	end)
+end
+
+-- Yol haritası bitince (seviyeli geliştirmeler hariç) sipariş sistemi açılır
+local function ordersUnlocked(state: PlayerSave): boolean
+	for _, upgrade in Config.UPGRADES do
+		if not upgrade.leveled and not state.purchased[upgrade.id] then
+			return false
+		end
+	end
+	return true
+end
+
+local boardSignature = ""
+local function updateBoard(state: PlayerSave?)
+	if not state then
+		return
+	end
+	local now = Workspace:GetServerTimeNow()
+	local visible = ordersUnlocked(state)
+	local season = Environment.getSeason()
+	local bonus = season.orderBonus or 0
+	local offers = if visible then OrderBoard.offers(state, now, bonus) else {}
+	visible = visible and #offers > 0
+	local order = state.order
+	local blocked = order ~= nil and order.progress >= order.target
+	local parts: { string } =
+		{ tostring(visible), tostring(bonus), tostring(blocked), tostring(PurchaseController.isPending()) }
+	for _, offer in offers do
+		table.insert(parts, `{offer.key}{offer.animalId}{offer.reward}`)
+	end
+	if order then
+		table.insert(parts, `{order.animalId}{order.target}{order.rewardFactor or 1}`)
+	end
+	local signature = table.concat(parts, "|")
+	if signature == boardSignature then
+		return
+	end
+	boardSignature = signature
+	boardOffers = offers;
+	(boardMeta.Parent :: GuiObject).Visible = visible
+	boardEvent.Visible = visible and bonus > 0
+	if bonus > 0 and season.eventName then
+		boardEvent.Text = `{season.eventName} · Sipariş ödülü +%{math.round(bonus * 100)}`
+	end
+	local pending = PurchaseController.isPending()
+	for index, card in boardCards do
+		local offer = offers[index]
+		card.frame.Visible = visible and offer ~= nil
+		if not offer then
+			continue
+		end
+		local animal = Config.ANIMALS[offer.animalId]
+		local tier = Config.ORDER_TIERS[index]
+		card.icon.Text = animal.icon
+		card.title.Text = `{tier.displayName} · {animal.product}`
+		card.detail.Text = `{offer.units} birim · Ödül: {FarmMath.formatMoney(offer.reward)}`
+		local active = order ~= nil
+			and order.animalId == offer.animalId
+			and order.target == offer.units
+			and (order.rewardFactor or 1) == offer.rewardFactor
+		if active then
+			card.action.Text = "Aktif sipariş"
+			UiKit.setVariant(card.action, "owned")
+		elseif blocked then
+			card.action.Text = "Önce teslim et"
+			UiKit.setVariant(card.action, "disabled")
+		else
+			card.action.Text = if order and order.progress > 0 then "Seç · ilerleme sıfırlanır" else "Seç"
+			UiKit.setVariant(card.action, if pending then "disabled" else "primary")
+		end
+	end
+end
 
 homeButton.Activated:Connect(function()
 	Remotes.get("RequestGoHome"):FireServer()
@@ -680,6 +919,8 @@ task.spawn(function()
 	while true do
 		updateSeasonBar()
 		updateProductionBadge(ClientState.get())
+		updateRewards(ClientState.get())
+		updateBoard(ClientState.get())
 		task.wait(1)
 	end
 end)
@@ -1097,6 +1338,8 @@ local function onState(state: PlayerSave, structural: boolean)
 		else "Parayı almak için yeşil platforma bas. Çevrimdışı kazanç kasana eklenir."
 	updateIslandGoal(state, income)
 	updateGoal(state, income)
+	updateRewards(state)
+	updateBoard(state)
 	shopDirty = shopDirty or structural
 	roadmapDirty = roadmapDirty or structural
 	upgradesDirty = upgradesDirty or structural
@@ -1213,8 +1456,15 @@ local function refreshIslandTabs()
 end
 ClientState.onChanged(refreshIslandTabs)
 IslandContext.Changed:Connect(refreshIslandTabs)
-Remotes.get("Notify").OnClientEvent:Connect(function(message: string, kind: string?)
+Remotes.get("Notify").OnClientEvent:Connect(function(message: string, kind: string?, amount: number?)
 	if typeof(message) == "string" then
 		showToast(message, kind)
+	end
+	-- Para toplama ödülü: ses + kasa sayısı zıplaması (yüzen yazı ve parçacık CollectorGuide'da)
+	if kind == "money" and typeof(amount) == "number" then
+		Sfx.play("coin", 0.08)
+		bounceCash()
+	elseif kind == "error" then
+		Sfx.play("error")
 	end
 end)

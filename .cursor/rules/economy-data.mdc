@@ -24,3 +24,18 @@ alwaysApply: false
   doğrudan DataStore kullanmaz.
 
 Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/production specleri).
+
+## Sonradan eklenen sistemler
+- **Seviyeli geliştirme**: `Config` sonundaki `LEVEL_CHAINS` her seviyeyi `<id>_lv<N>` yükseltmesi (`kind = "level"`,
+  `leveled = true`) olarak üretir; kayıt şeması değişmez. `kind = "boost"` verme: `MapBuilder.validate` her boost için
+  harita yapı noktası ister. `OrderRules.isUnlocked` ve "tüm yol haritası" sayımı `leveled` olanları saymaz.
+- **Hesap düzeyi alanlar** (`SaveCodec` kökü): `lifetimeEarned` (yalnızca `addCash` ve otomatik toplama artırır),
+  `daily {day, streak}`, `achievements`, `receipts` (en fazla 200), `language`. `passes` yalnızca çalışma anında
+  (`MonetizationService`, MarketplaceService'ten) yazılır, **kaydedilmez**; `FarmProfiles.view` etkin olmayan
+  çiftliğe de aktarır. Hepsi opsiyoneldir: eksik alan varsayılanla yüklenir, geçersizi atılır.
+- **Ürün kimlikleri** `Config.PRODUCTS`: `id = 0` = satışta değil. `ProcessReceipt` makbuzu `ReceiptLog` ile bir kez işler;
+  `PurchaseGranted` yalnızca `PlayerDataService.save` başarılıysa döner.
+- **Sipariş panosu**: seçenekler `OrderBoard.offers` (paylaşılan, saf) ile pencereden türetilir; sunucu anahtarı yeniden çözer.
+  Sipariş kaydı `target` ve `rewardFactor` taşır (üst sınırlı). Mevsim bonusu `SEASONS[x].orderBonus`.
+- **Denge ölçümü**: `python scripts/simulate-economy.py --hours 6` (ideal oyuncu, gerçek Config/FarmMath).
+

@@ -4,7 +4,8 @@ local OrderRules = {}
 
 function OrderRules.isUnlocked(save: any, config: any): boolean
 	for _, upgrade in config.UPGRADES do
-		if not save.purchased[upgrade.id] then
+		-- Seviyeli geliştirmeler ("kind = level") sonsuz hedeftir; siparişleri geciktirmez.
+		if not upgrade.leveled and not save.purchased[upgrade.id] then
 			return false
 		end
 	end
@@ -32,11 +33,11 @@ function OrderRules.chooseAnimal(save: any, config: any): string?
 	return available[(save.ordersCompleted or 0) % #available + 1]
 end
 
-function OrderRules.advance(progress: number, adults: number, elapsed: number, config: any): number
+function OrderRules.advance(progress: number, adults: number, elapsed: number, config: any, target: number?): number
 	if elapsed ~= elapsed or elapsed <= 0 or elapsed == math.huge or adults <= 0 then
 		return progress
 	end
-	return math.min(config.ORDER_UNITS, progress + adults * elapsed / config.ORDER_PRODUCTION_SECONDS)
+	return math.min(target or config.ORDER_UNITS, progress + adults * elapsed / config.ORDER_PRODUCTION_SECONDS)
 end
 
 function OrderRules.adultSeconds(

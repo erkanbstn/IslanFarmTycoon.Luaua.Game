@@ -6,6 +6,8 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
+local Environment = require(Shared:WaitForChild("Modules"):WaitForChild("Environment"))
+local OrderBoard = require(Shared:WaitForChild("Modules"):WaitForChild("OrderBoard"))
 local PlayerDataService = require(script.Parent:WaitForChild("PlayerDataService"))
 local RateLimiter = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("RateLimiter"))
 local OrderRules = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("OrderRules"))
@@ -65,7 +67,7 @@ function OrderService.update(player: Player, elapsed: number, startedAt: number?
 		end
 		return
 	end
-	order.progress = OrderRules.advance(order.progress, 1, adultSeconds, Config)
+	order.progress = OrderRules.advance(order.progress, 1, adultSeconds, Config, order.target)
 end
 
 function OrderService.tryClaim(player: Player, uid: unknown): (boolean, string?)
@@ -86,7 +88,8 @@ function OrderService.tryClaim(player: Player, uid: unknown): (boolean, string?)
 	if order.progress < order.target then
 		return false, "Sipariş henüz tamamlanmadı"
 	end
-	local reward = OrderRules.reward(order.animalId, Config)
+	-- Ödül: pano çarpanı ve aktif mevsim etkinliği bonusu dahil (sunucuda hesaplanır)
+	local reward = OrderBoard.claimReward(order, Environment.getSeason().orderBonus)
 	-- UID hemen tüketilir. Aynı veya gecikmiş istek ikinci ödülü alamaz.
 	data.order = nil
 	data.ordersCompleted += 1
@@ -99,7 +102,61 @@ function OrderService.tryClaim(player: Player, uid: unknown): (boolean, string?)
 	return true, `Sipariş teslim edildi: +{FarmMath.formatMoney(reward)}`
 end
 
+-- Panodan sipariş seç: seçenekler sunucuda yeniden hesaplanır (pencere eskiyse reddedilir).
+-- Etkin sipariş tamamlanmışsa önce teslim edilmelidir; aksi halde seçim ilerlemeyi sıfırlar.
+function OrderService.tryPick(player: Player, key: unknown): (boolean, string?)
+	if not RateLimiter.allow(player, "pickOrder", 0.5) then
+		return false, nil
+	end
+	local data = PlayerDataService.tryGet(player)
+	if not data or player:GetAttribute("WorldReady") ~= true then
+		return false, "Çiftliğin henüz hazır değil"
+	end
+	if not OrderRules.isUnlocked(data, Config) then
+		return false, "Sipariş panosu henüz açılmadı"
+	end
+	local offer, problem =
+		OrderBoard.resolve(data, key, DateTime.now().UnixTimestamp, Environment.getSeason().orderBonus)
+	if not offer then
+		return false, problem
+	end
+	local current = data.order
+	if current and current.progress >= current.target then
+		return false, "Önce tamamlanan siparişi teslim et"
+	end
+	data.order = {
+		uid = HttpService:GenerateGUID(false),
+		animalId = offer.animalId,
+		progress = 0,
+		target = offer.units,
+		rewardFactor = offer.rewardFactor,
+	}
+	Metrics.increment("OrdersPicked")
+	PlayerDataService.pushState(player)
+	PlayerDataService.requestSave(player)
+	return true, "Yeni sipariş seçildi"
+end
+
 function OrderService.init()
+	Remotes.get("RequestPickOrder").OnServerEvent
+		:Connect(function(player: Player, key: unknown, requestId: unknown, expectedFarmId: unknown)
+			if not RateLimiter.acceptRequest(player, requestId) then
+				return
+			end
+			local data = PlayerDataService.tryGet(player)
+			if not data or expectedFarmId ~= data.activeMainFarmId then
+				if typeof(requestId) == "number" and RateLimiter.allow(player, "farmContextReply", 0.5) then
+					Remotes.get("PurchaseResult")
+						:FireClient(player, requestId, false, "Etkin çiftlik değişti; siparişi tekrar seç.")
+				end
+				return
+			end
+			local ok, message = OrderService.tryPick(player, key)
+			if message and typeof(requestId) == "number" then
+				Remotes.get("PurchaseResult"):FireClient(player, requestId, ok, message)
+			end
+		end)
+
 	Remotes.get("RequestClaimOrder").OnServerEvent
 		:Connect(function(player: Player, uid: unknown, requestId: unknown, expectedFarmId: unknown)
 			if not RateLimiter.acceptRequest(player, requestId) then

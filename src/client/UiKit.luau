@@ -15,6 +15,7 @@ local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 
 local UiTheme = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("UiTheme"))
+local Sfx = require(script.Parent:WaitForChild("Sfx"))
 
 local UiKit = {}
 
@@ -163,6 +164,7 @@ local function addPressFeedback(target: GuiButton)
 		if not target.Active then
 			return
 		end
+		Sfx.play("click", 0.06)
 		if Players.LocalPlayer:GetAttribute("ReducedMotion") == true then
 			return
 		end
@@ -245,6 +247,101 @@ function UiKit.menuButton(parent: Instance, icon: string, text: string, tint: Co
 		UiKit.corner(key, 4)
 	end
 	return b
+end
+
+-- Kaydırıcı (0..1): çizilmiş iz, dolgu ve tutamaç. Fare ve dokunmatikle sürüklenir.
+-- Dönen ikinci değer değeri koddan ayarlar (onChanged'i tetiklemez).
+function UiKit.slider(
+	parent: Instance,
+	initial: number,
+	onChanged: (value: number) -> ()
+): (Frame, (value: number) -> ())
+	local root = Instance.new("Frame")
+	root.BackgroundTransparency = 1
+	root.Size = UDim2.new(1, 0, 0, 34)
+	root.Parent = parent
+
+	local track = Instance.new("Frame")
+	track.AnchorPoint = Vector2.new(0, 0.5)
+	track.Position = UDim2.new(0, 11, 0.5, 0)
+	track.Size = UDim2.new(1, -22, 0, 8)
+	track.BackgroundColor3 = UiKit.Color.SurfaceRaised
+	track.BorderSizePixel = 0
+	track.Parent = root
+	UiKit.corner(track, 4)
+
+	local fill = Instance.new("Frame")
+	fill.Size = UDim2.fromScale(initial, 1)
+	fill.BackgroundColor3 = UiKit.Color.Green
+	fill.BorderSizePixel = 0
+	fill.Parent = track
+	UiKit.corner(fill, 4)
+
+	local knob = Instance.new("Frame")
+	knob.AnchorPoint = Vector2.new(0.5, 0.5)
+	knob.Position = UDim2.fromScale(initial, 0.5)
+	knob.Size = UDim2.fromOffset(22, 22)
+	knob.BackgroundColor3 = UiKit.Color.Text
+	knob.BorderSizePixel = 0
+	knob.Parent = track
+	UiKit.corner(knob, 11)
+
+	local hit = Instance.new("TextButton")
+	hit.Text = ""
+	hit.BackgroundTransparency = 1
+	hit.Size = UDim2.fromScale(1, 1)
+	hit.ZIndex = 5
+	hit.Parent = root
+
+	local function set(value: number)
+		local clamped = math.clamp(value, 0, 1)
+		fill.Size = UDim2.fromScale(clamped, 1)
+		knob.Position = UDim2.fromScale(clamped, 0.5)
+	end
+	local function fromInput(position: Vector3): number
+		return math.clamp((position.X - track.AbsolutePosition.X) / math.max(track.AbsoluteSize.X, 1), 0, 1)
+	end
+	local dragging = false
+	hit.InputBegan:Connect(function(input: InputObject)
+		if
+			input.UserInputType == Enum.UserInputType.MouseButton1
+			or input.UserInputType == Enum.UserInputType.Touch
+		then
+			dragging = true
+			local value = fromInput(input.Position)
+			set(value)
+			onChanged(value)
+		end
+	end)
+	local moved = UserInputService.InputChanged:Connect(function(input: InputObject)
+		if
+			dragging
+			and (
+				input.UserInputType == Enum.UserInputType.MouseMovement
+				or input.UserInputType == Enum.UserInputType.Touch
+			)
+		then
+			local value = fromInput(input.Position)
+			set(value)
+			onChanged(value)
+		end
+	end)
+	local ended = UserInputService.InputEnded:Connect(function(input: InputObject)
+		if
+			input.UserInputType == Enum.UserInputType.MouseButton1
+			or input.UserInputType == Enum.UserInputType.Touch
+		then
+			if dragging then
+				dragging = false
+				Sfx.play("click")
+			end
+		end
+	end)
+	root.Destroying:Connect(function()
+		moved:Disconnect()
+		ended:Disconnect()
+	end)
+	return root, set
 end
 
 -- Çizilmiş X ile yuvarlak kapat düğmesi

@@ -24,6 +24,11 @@ export type EventName =
 	| "RequestTravelIsland"
 	| "DebugCycleWeather"
 	| "RequestClaimOrder"
+	| "RequestClaimDaily"
+	| "RequestPromptProduct"
+	| "RequestPickOrder"
+	| "RequestClaimAchievement"
+	| "OfflineSummary"
 	| "RequestAdminAction"
 	| "AdminResult"
 	| "RequestProductionAction"
@@ -49,6 +54,11 @@ local EVENTS = {
 	"PurchaseResult", -- Sunucu -> Client (requestId, success, message?)
 	"RequestPlayerState", -- Client hazır / tekrar eşitleme
 	"RequestClaimOrder", -- Tamamlanan siparişi teslim et (uid, requestId)
+	"RequestPickOrder", -- Sipariş panosundan seçenek seç (offerKey, requestId, expectedFarmId)
+	"RequestPromptProduct", -- Oyun geçidi/ürün satın alma penceresini aç ("pass"|"product", anahtar); fiyatı sunucu belirler
+	"RequestClaimDaily", -- Günlük giriş ödülünü al (_, requestId); sonuç PurchaseResult
+	"RequestClaimAchievement", -- Başarım ödülünü al (achievementId, requestId); sonuç PurchaseResult
+	"OfflineSummary", -- Sunucu -> Client giriş özeti (kazanılan para, yetişkin olan hayvan sayısı)
 	"RequestGoHome", -- Client -> Sunucu kendi adasına ışınlanma
 	"RequestTravelIsland", -- Kendi uzman adasına git (islandId, selectOnly?); sunucu kilidi doğrular
 	"RequestTravel", -- Client -> Sunucu başka adaya / meydana ışınlanma ("hub" veya plotId)

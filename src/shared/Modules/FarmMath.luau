@@ -66,6 +66,11 @@ function FarmMath.getGrowthSpeed(save: PlayerSave, animalId: string): number
 end
 
 function FarmMath.hasAutoCollect(save: PlayerSave): boolean
+	for key, pass in Config.PRODUCTS.passes do
+		if pass.autoCollect and save.passes and save.passes[key] then
+			return true
+		end
+	end
 	for _, upgrade in Config.UPGRADES do
 		if upgrade.autoCollect and save.purchased[upgrade.id] then
 			return true
@@ -98,6 +103,12 @@ function FarmMath.getStorageCap(save: PlayerSave): number
 			bonus += upgrade.storageBonus
 		end
 	end
+	-- Oyun geçidi: ekstra depo
+	for key, pass in Config.PRODUCTS.passes do
+		if pass.storageBonus and save.passes and save.passes[key] then
+			bonus += pass.storageBonus
+		end
+	end
 	return math.floor(FarmMath.getBarnConfig(save).storageCap * (1 + bonus))
 end
 
@@ -110,9 +121,16 @@ function FarmMath.getAnimalMultiplier(save: PlayerSave, animalId: string, neutra
 			bonus += boost[animalId]
 		end
 	end
-	-- Ahır seviyesi x güçlendirmeler x mevsim/hava
+	-- Oyun geçidi çarpanı (sunucu doğrular; client yalnızca gösterir)
+	local passFactor = 1
+	for key, pass in Config.PRODUCTS.passes do
+		if pass.incomeMultiplier and save.passes and save.passes[key] then
+			passFactor *= pass.incomeMultiplier
+		end
+	end
+	-- Ahır seviyesi x güçlendirmeler x mevsim/hava x geçit
 	local environment = if neutralWeather then 1 else Environment.getIncomeMultiplier(animalId)
-	return FarmMath.getBarnConfig(save).incomeMultiplier * (1 + bonus) * environment
+	return FarmMath.getBarnConfig(save).incomeMultiplier * (1 + bonus) * environment * passFactor
 end
 
 -- Satın alınmış eklentideki hayvanın gelir çarpanı (eklenti yoksa 1)
@@ -451,17 +469,56 @@ function FarmMath.countIslands(save: PlayerSave): (number, number)
 	return owned, #Config.FARM_ISLAND_ORDER
 end
 
--- 1234567 -> "$1,234,567"
+local MONEY_SUFFIXES = { "K", "M", "B", "T", "Qa" }
+local MONEY_ABBREVIATE_FROM = 10000
+
+-- 9999 -> "$9,999" · 12400 -> "$12.4K" · 3100000 -> "$3.1M" · 250000 -> "$250K"
+-- 10.000'e kadar tam sayı okunur; üstü kısaltılır. Bir basamak ondalık yalnızca 100'ün altında gösterilir.
 function FarmMath.formatMoney(amount: number): string
-	local formatted = tostring(math.floor(amount))
-	while true do
-		local replaced, count = string.gsub(formatted, "^(-?%d+)(%d%d%d)", "%1,%2")
-		formatted = replaced
-		if count == 0 then
-			break
-		end
+	if amount ~= amount then
+		return "$0"
 	end
-	return `${formatted}`
+	local value = math.floor(amount)
+	local sign = if value < 0 then "-" else ""
+	local absolute = math.abs(value)
+	if absolute < MONEY_ABBREVIATE_FROM then
+		local formatted = tostring(absolute)
+		while true do
+			local replaced, count = string.gsub(formatted, "^(%d+)(%d%d%d)", "%1,%2")
+			formatted = replaced
+			if count == 0 then
+				break
+			end
+		end
+		return `{sign}${formatted}`
+	end
+	local scaled = absolute
+	local index = 0
+	while scaled >= 1000 and index < #MONEY_SUFFIXES do
+		scaled /= 1000
+		index += 1
+	end
+	-- Yuvarlama 999.95K -> 1000K gibi taşmalara yol açmasın: bir üst birime geç.
+	local text = if scaled < 100 then string.format("%.1f", scaled) else string.format("%.0f", scaled)
+	if tonumber(text) :: number >= 1000 and index < #MONEY_SUFFIXES then
+		scaled /= 1000
+		index += 1
+		text = string.format("%.1f", scaled)
+	end
+	text = (string.gsub(text, "%.0$", ""))
+	return `{sign}${text}{MONEY_SUFFIXES[index]}`
+end
+
+-- Depo doluluğu: 0 = boş, 1..5 = para yığını büyüklüğü (dünyadaki yığın görseli bunu kullanır).
+function FarmMath.getStorageLevel(stored: number, cap: number): number
+	if cap <= 0 or stored < 1 then
+		return 0
+	end
+	local ratio = math.clamp(stored / cap, 0, 1)
+	if ratio >= 0.999 then
+		return 5
+	end
+	return math.clamp(math.floor(ratio * 4) + 1, 1, 4)
 end
 
 -- 2 -> "2", 2.345 -> "2.3"

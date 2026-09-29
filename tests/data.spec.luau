@@ -105,5 +105,60 @@ return function(lock: any, codec: any, config: any, farmMath: any)
 	assert(unknownLanguage.language == nil, "unknown language codes must be ignored")
 	languageRaw.language = { "de" }
 	assert(assert(codec.decode(languageRaw, config, farmMath, now, uid)).language == nil, "language must be a string")
-	print("data: lock ownership, response-loss retries, revision, migration, numeric and capacity guards passed")
+	-- Hesap düzeyi ilerleme: ömür boyu kazanç, günlük ödül serisi, alınmış başarımlar
+	local accountRaw = codec.encode(save, now)
+	assert(
+		accountRaw.daily == nil and accountRaw.lifetimeEarned == 0,
+		"new accounts start without daily or lifetime data"
+	)
+	accountRaw.lifetimeEarned = 12345
+	accountRaw.daily = { day = 100, streak = 3 }
+	accountRaw.achievements = { cows_10 = true, not_an_achievement = true }
+	local account = assert(codec.decode(accountRaw, config, farmMath, now, uid))
+	assert(account.lifetimeEarned == 12345, "lifetime earnings must load")
+	assert(account.daily and account.daily.day == 100 and account.daily.streak == 3, "daily streak must load")
+	assert(
+		account.achievements.cows_10 == true and account.achievements.not_an_achievement == nil,
+		"only known achievements load"
+	)
+	local reEncoded = codec.encode(account, now)
+	assert(
+		reEncoded.lifetimeEarned == 12345 and reEncoded.daily.streak == 3 and reEncoded.achievements.cows_10,
+		"account progress must survive saves"
+	)
+	for _, badDaily in
+		{
+			{ day = -1, streak = 1 },
+			{ day = 5, streak = 0 },
+			{ day = 5, streak = 99 },
+			{ day = 0 / 0, streak = 1 },
+			{ day = 5.5, streak = 1 },
+			"x",
+			{ day = 5 },
+		}
+	do
+		accountRaw.daily = badDaily
+		local repaired = assert(codec.decode(accountRaw, config, farmMath, now, uid))
+		assert(repaired.daily == nil, "invalid daily records must be dropped")
+	end
+	accountRaw.lifetimeEarned = 0 / 0
+	assert(
+		assert(codec.decode(accountRaw, config, farmMath, now, uid)).lifetimeEarned == 0,
+		"NaN lifetime earnings fall back to zero"
+	)
+	accountRaw.lifetimeEarned = -50
+	assert(
+		assert(codec.decode(accountRaw, config, farmMath, now, uid)).lifetimeEarned == 0,
+		"negative lifetime earnings clamp to zero"
+	)
+	accountRaw.achievements = "all"
+	assert(
+		next(assert(codec.decode(accountRaw, config, farmMath, now, uid)).achievements) == nil,
+		"non-table achievements are ignored"
+	)
+	local _, _, _, _, grown = codec.decode(codec.encode(save, now - 100000), config, farmMath, now, uid)
+	assert(typeof(grown) == "number" and grown >= 0, "decode reports animals grown while away")
+	print(
+		"data: lock ownership, response-loss retries, revision, migration, numeric, capacity and account guards passed"
+	)
 end

@@ -29,6 +29,7 @@ type Session = {
 	savedPacketRevision: number,
 	leaseExpires: number,
 	offlineEarned: number,
+	offlineGrown: number, -- Çevrimdışıyken yetişkin olan hayvan sayısı (dönüş özeti)
 	cashStat: IntValue?,
 	saveScheduled: boolean,
 	pending: {
@@ -266,6 +267,7 @@ function PlayerDataService.load(player: Player): PlayerSave?
 		savedPacketRevision = 0,
 		leaseExpires = 0,
 		offlineEarned = 0,
+		offlineGrown = 0,
 		cashStat = nil,
 		saveScheduled = false,
 		pending = nil,
@@ -316,11 +318,12 @@ function PlayerDataService.load(player: Player): PlayerSave?
 		end
 	end
 	if acquired then
-		local decodeOk, data, offlineEarned, decodeProblem, repairs =
+		local decodeOk, data, offlineEarned, decodeProblem, repairs, grown =
 			pcall(SaveCodec.decode, raw, Config, FarmMath, DateTime.now().UnixTimestampMillis / 1000, newUid)
 		if decodeOk and data then
 			session.data = data
 			session.offlineEarned = offlineEarned
+			session.offlineGrown = grown or 0
 			player:SetAttribute("SavedLanguage", data.language or "")
 			player:SetAttribute("DataRepairCount", repairs or 0)
 			if repairs and repairs > 0 then
@@ -359,6 +362,17 @@ function PlayerDataService.load(player: Player): PlayerSave?
 	Metrics.increment("ProfileLoaded")
 	player:SetAttribute("DataDirty", true)
 	return session.data
+end
+
+-- Dönüş özeti için: çevrimdışıyken kazanılan para ve yetişkin olan hayvan sayısı (bir kez okunur)
+function PlayerDataService.takeOfflineSummary(player: Player): (number, number)
+	local session = sessions[player]
+	if not session then
+		return 0, 0
+	end
+	local earned, grown = session.offlineEarned, session.offlineGrown
+	session.offlineEarned, session.offlineGrown = 0, 0
+	return earned, grown
 end
 
 function PlayerDataService.takeOfflineEarnings(player: Player): number
@@ -445,6 +459,8 @@ function PlayerDataService.addCash(player: Player, amount: number)
 		return
 	end
 	data.cash = math.min(1e15, data.cash + amount)
+	-- Ömür boyu kazanç (başarımlar): yalnızca kazanç kalemleri addCash'ten geçer, harcama düşmez.
+	data.lifetimeEarned = math.min(1e18, (data.lifetimeEarned or 0) + amount)
 	PlayerDataService.pushEconomy(player)
 end
 

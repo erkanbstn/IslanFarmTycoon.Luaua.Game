@@ -64,6 +64,19 @@ local function create(parent: ScreenGui): UiKit.Window
 			Localization.set(code)
 		end)
 	end
+	UiKit.text(created.list, "Ses", "Heading").LayoutOrder = 10
+	local volumeValue = player:GetAttribute("SoundVolume")
+	local volumeLabel = UiKit.text(created.list, "", "Caption")
+	volumeLabel.LayoutOrder = 11
+	local volumeSlider, setVolumeSlider = UiKit.slider(
+		created.list,
+		if typeof(volumeValue) == "number" then volumeValue else 0.8,
+		function(value: number)
+			player:SetAttribute("SoundVolume", value)
+		end
+	)
+	volumeSlider.LayoutOrder = 12
+	UiKit.text(created.list, "Ses düzeyi yalnızca bu oturumda geçerlidir.", "Caption").LayoutOrder = 13
 	UiKit.text(created.list, "Efekt kalitesi", "Heading").LayoutOrder = 4
 	local choices = Instance.new("Frame")
 	choices.BackgroundTransparency = 1
@@ -123,7 +136,14 @@ local function create(parent: ScreenGui): UiKit.Window
 		motion.Text = if reduced then "Hareketi azalt: Açık" else "Hareketi azalt: Kapalı"
 		UiKit.setVariant(motion, if reduced then "primary" else "secondary")
 	end
+	local function refreshVolume()
+		local value = player:GetAttribute("SoundVolume")
+		local volume = if typeof(value) == "number" then value else 0.8
+		volumeLabel.Text = `Ses düzeyi: %{math.round(volume * 100)}`
+		setVolumeSlider(volume)
+	end
 	local connections = {
+		player:GetAttributeChangedSignal("SoundVolume"):Connect(refreshVolume),
 		player:GetAttributeChangedSignal("EffectsQuality"):Connect(refresh),
 		player:GetAttributeChangedSignal("ReducedMotion"):Connect(refresh),
 	}
@@ -138,6 +158,7 @@ local function create(parent: ScreenGui): UiKit.Window
 		end
 	end)
 	refresh()
+	refreshVolume()
 	refreshLanguage()
 	return created
 end

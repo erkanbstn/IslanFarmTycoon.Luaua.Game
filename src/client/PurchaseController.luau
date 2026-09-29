@@ -3,6 +3,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Remotes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes"))
 local ClientState = require(script.Parent:WaitForChild("ClientState"))
+local Sfx = require(script.Parent:WaitForChild("Sfx"))
 local PurchaseController = {}
 local sequence = 0
 local pending: number? = nil
@@ -19,6 +20,7 @@ end
 -- Yerel bildirim isteği (ör. yetersiz bakiye ön kontrolü); arayüz bunu bildirim olarak gösterir.
 function PurchaseController.notify(success: boolean, message: string)
 	completed:Fire(success, message)
+	Sfx.play(if success then "success" else "error")
 end
 
 function PurchaseController.submit(remote: Remotes.EventName, value: string, extra: number?): boolean
@@ -49,6 +51,7 @@ Remotes.get("PurchaseResult").OnClientEvent:Connect(function(id: number, success
 		return
 	end
 	completed:Fire(success, message)
+	Sfx.play(if success then "success" else "error")
 	-- Başarılı hızlı yanıt, sunucu cooldown'u bitmeden ikinci isteğe izin vermesin.
 	task.delay(math.max(0, 0.55 - (os.clock() - sentAt)), function()
 		if pending == id then

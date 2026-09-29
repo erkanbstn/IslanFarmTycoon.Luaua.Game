@@ -130,6 +130,45 @@ return function(FarmMath: any, Config: any, Environment: any)
 	save.animals[1].animalId = "seabass"
 	assert(FarmMath.getFishReplacementPrice(save) > replacementPrice, "next seabass price must grow")
 	assert(#save.animals == 10, "replacement preserves total capacity")
+	-- Büyük sayılar kısaltılır; küçükler tam okunur.
+	local money = {
+		{ 0, "$0" },
+		{ 999, "$999" },
+		{ 9999, "$9,999" },
+		{ 10000, "$10K" },
+		{ 12400, "$12.4K" },
+		{ 99950, "$100K" },
+		{ 250000, "$250K" },
+		{ 999400, "$999K" },
+		{ 999949, "$1M" },
+		{ 3100000, "$3.1M" },
+		{ 1e9, "$1B" },
+		{ 2.5e12, "$2.5T" },
+		{ 1e15, "$1Qa" },
+		{ -5000, "-$5,000" },
+		{ -12400, "-$12.4K" },
+		{ 12.9, "$12" },
+	}
+	for _, case in money do
+		assert(
+			FarmMath.formatMoney(case[1]) == case[2],
+			`formatMoney({case[1]}) beklenen {case[2]}, sonuç {FarmMath.formatMoney(case[1])}`
+		)
+	end
+	assert(FarmMath.formatMoney(0 / 0) == "$0", "NaN must not crash formatting")
+	-- Depo yığını seviyesi: boş, kademeler ve tam dolu.
+	assert(
+		FarmMath.getStorageLevel(0, 250) == 0 and FarmMath.getStorageLevel(0.5, 250) == 0,
+		"empty storage has no pile"
+	)
+	assert(FarmMath.getStorageLevel(1, 250) == 1, "any stored money shows the smallest pile")
+	assert(FarmMath.getStorageLevel(125, 250) == 3, "half full shows a mid pile")
+	assert(FarmMath.getStorageLevel(249, 250) == 4, "almost full is level 4")
+	assert(
+		FarmMath.getStorageLevel(250, 250) == 5 and FarmMath.getStorageLevel(999, 250) == 5,
+		"full shows the top pile"
+	)
+	assert(FarmMath.getStorageLevel(5, 0) == 0, "zero capacity is safe")
 	-- Toplu alım: fiyat ardışık tek tek alımlarla aynı; boş yer sayısı bölge kapasitesinden gelir.
 	local bulk = saveAt(start)
 	local cow = Config.ANIMALS.cow

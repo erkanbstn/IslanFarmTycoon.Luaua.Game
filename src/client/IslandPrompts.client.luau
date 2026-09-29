@@ -8,7 +8,7 @@ local connections: { [ProximityPrompt]: { RBXScriptConnection } } = {}
 local function discover(instance: Instance)
 	if
 		not instance:IsA("ProximityPrompt")
-		or (instance.Name ~= "BuyIslandPrompt" and instance.Name ~= "BuyExtensionPrompt" and instance.Name ~= "ProductionPrompt" and instance.Name ~= "ExtensionAssignPrompt" and instance.Name ~= "ExtensionUnassignPrompt")
+		or (instance.Name ~= "BuyIslandPrompt" and instance.Name ~= "BuyExtensionPrompt" and instance.Name ~= "BuyPadPrompt" and instance.Name ~= "ProductionPrompt" and instance.Name ~= "ExtensionAssignPrompt" and instance.Name ~= "ExtensionUnassignPrompt")
 		or connections[instance]
 	then
 		return

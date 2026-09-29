@@ -394,6 +394,13 @@ local function resetPlot(plot: Model)
 	UpgradeVisualService.apply(plot, nil)
 	ExtensionVisualService.apply(plot, nil)
 	AnimalVisualService.clear(plot)
+	-- Toplama platformunun yanındaki para yığını eski sahibinden kalmasın
+	for _, name in { "CollectorPile", "BuyPads" } do
+		local leftover = plot:FindFirstChild(name)
+		if leftover then
+			leftover:Destroy()
+		end
+	end
 	local collector = plot:FindFirstChild("Collector")
 	if collector then
 		WorldUi.setTag(collector:FindFirstChild("CollectorBillboard"), "Depo", "💰", UiTheme.Color.Gold)

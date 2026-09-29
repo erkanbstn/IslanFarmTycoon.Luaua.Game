@@ -61,6 +61,8 @@ export type SeasonConfig = {
 	icon: string,
 	incomeModifiers: { [string]: number },
 	weather: { [string]: number }, -- Bu mevsimde görülebilecek havalar ve ağırlıkları
+	eventName: string?, -- Mevsim etkinliği adı (sipariş ödülüne bonus verir)
+	orderBonus: number?, -- Sipariş ödülü bonusu (0.3 = +%30)
 	grassColor: Color3,
 }
 
@@ -88,7 +90,8 @@ export type UpgradeConfig = {
 	stage: number, -- Yol haritasında hangi aşamada (ROADMAP_STAGES) gösterilir
 	cost: number,
 	requires: { string },
-	kind: string, -- "barn" | "zone" | "island" | "boost"
+	kind: string, -- "barn" | "zone" | "island" | "boost" | "extension" | "level"
+	leveled: boolean?, -- kind == "level": seviyeli zincir; yol haritası "tamamlandı" sayımına girmez
 	barnLevel: number?, -- kind == "barn"
 	zoneId: string?, -- kind == "zone"
 	islandId: string?, -- kind == "island"
@@ -99,6 +102,32 @@ export type UpgradeConfig = {
 	autoCollect: boolean?, -- Depo yerine para doğrudan kasaya
 	extensionId: string?, -- kind == "extension" → Config.EXTENSIONS
 }
+
+export type AchievementConfig = {
+	id: string,
+	displayName: string,
+	description: string,
+	icon: string,
+	metric: string, -- "cows" | "animals" | "islands" | "purchases" | "earned" | "orders"
+	target: number,
+	reward: number,
+}
+
+-- Oyun geçidi (gamepass) ve tek seferlik ürün (developer product). id = 0 → henüz Roblox'ta oluşturulmadı:
+-- ürün mağazada gizlenir ve satın alınamaz. Fiyat Roblox tarafında belirlenir; burada yalnızca etki vardır.
+export type ProductConfig = {
+	id: number,
+	displayName: string,
+	description: string,
+	icon: string,
+	incomeMultiplier: number?, -- Geçit: tüm hayvan gelirine çarpan
+	storageBonus: number?, -- Geçit: depo kapasitesine ek (0.5 = +%50)
+	autoCollect: boolean?, -- Geçit: baştan otomatik toplayıcı
+	effect: string?, -- Ürün: "instantProduction" | "incomePack"
+	incomeHours: number?, -- Ürün: "incomePack" kaç saatlik gelir verir
+}
+
+export type SoundConfig = { id: string, volume: number, pitch: number? }
 
 export type ExtensionConfig = {
 	id: string,
@@ -166,6 +195,14 @@ local Config = {
 	ORDER_UNITS = 12,
 	ORDER_PRODUCTION_SECONDS = 15,
 	ORDER_REWARD_MULTIPLIER = 0.5,
+	-- Sipariş panosu: aynı anda 3 seçenek (kısa/orta/uzun). units = hedef birim, rewardFactor = ödül çarpanı.
+	-- Seçenekler ORDER_BOARD_SECONDS'ta bir yenilenir (sunucu saatinden türetilir, herkeste aynı pencere).
+	ORDER_TIERS = {
+		{ id = "short", displayName = "Kısa", units = 6, rewardFactor = 1 },
+		{ id = "medium", displayName = "Orta", units = 12, rewardFactor = 1.15 },
+		{ id = "long", displayName = "Uzun", units = 24, rewardFactor = 1.4 },
+	},
+	ORDER_BOARD_SECONDS = 300,
 
 	-- Mevsimler sırayla döner; tüm sunucularda aynı anda değişir (saat os.time'a bağlı).
 	-- Hava her sunucuda rastgele, mevsime uygun olarak birkaç dakikada bir değişir.
@@ -181,6 +218,8 @@ local Config = {
 			icon = "🌸",
 			incomeModifiers = { cow = 0.2, chicken = 0.25 },
 			weather = { sunny = 4, cloudy = 3, rain = 3 },
+			eventName = "Bahar Şenliği",
+			orderBonus = 0.15,
 			grassColor = Color3.fromRGB(106, 168, 74),
 		},
 		{
@@ -189,6 +228,8 @@ local Config = {
 			icon = "☀️",
 			incomeModifiers = { anchovy = 0.3, seabass = 0.3, horse = 0.15, cow = -0.1 },
 			weather = { sunny = 6, cloudy = 2, storm = 1 },
+			eventName = "Hasat Zamanı",
+			orderBonus = 0.2,
 			grassColor = Color3.fromRGB(128, 170, 70),
 		},
 		{
@@ -197,6 +238,8 @@ local Config = {
 			icon = "🍂",
 			incomeModifiers = { horse = 0.25, goat = 0.2, chicken = -0.1 },
 			weather = { cloudy = 4, rain = 3, storm = 2, sunny = 2 },
+			eventName = "Sonbahar Pazarı",
+			orderBonus = 0.2,
 			grassColor = Color3.fromRGB(150, 150, 75),
 		},
 		{
@@ -205,6 +248,8 @@ local Config = {
 			icon = "❄️",
 			incomeModifiers = { goat = 0.3, cow = 0.15, chicken = -0.2, anchovy = -0.2, seabass = -0.2 },
 			weather = { snow = 4, cloudy = 3, sunny = 2 },
+			eventName = "Kış Festivali",
+			orderBonus = 0.3,
 			grassColor = Color3.fromRGB(175, 190, 180),
 		},
 	} :: { SeasonConfig },
@@ -241,6 +286,186 @@ local Config = {
 	PRODUCTION_MAX_BONUS_ADULTS = 12,
 	ANIMAL_PRICE_GROWTH = 1.1,
 	BULK_MULTIPLIERS = { 1, 2, 3, 5 }, -- Pazarda toplu alım çarpanları
+
+	-- Gelir modeli. Kimlikleri (id) Roblox Creator Hub'da ürünleri oluşturunca yaz; 0 = kapalı.
+	PRODUCTS = {
+		passes = {
+			double_income = {
+				id = 0,
+				displayName = "2 Kat Gelir",
+				description = "Bütün hayvanların geliri 2 kat",
+				icon = "💎",
+				incomeMultiplier = 2,
+			},
+			auto_collector = {
+				id = 0,
+				displayName = "Otomatik Toplayıcı",
+				description = "Para kendiliğinden kasana gelir",
+				icon = "🤖",
+				autoCollect = true,
+			},
+			extra_storage = {
+				id = 0,
+				displayName = "Ekstra Depo",
+				description = "Depo kapasitesi +%50",
+				icon = "📦",
+				storageBonus = 0.5,
+			},
+		} :: { [string]: ProductConfig },
+		products = {
+			instant_production = {
+				id = 0,
+				displayName = "Üretimi Bitir",
+				description = "Devam eden bütün üretimleri hemen tamamlar",
+				icon = "⚡",
+				effect = "instantProduction",
+			},
+			income_pack = {
+				id = 0,
+				displayName = "1 Saatlik Gelir",
+				description = "Anında 1 saatlik gelir kazan",
+				icon = "💰",
+				effect = "incomePack",
+				incomeHours = 1,
+			},
+		} :: { [string]: ProductConfig },
+	},
+	PRODUCT_MIN_INCOME_PACK = 500, -- Gelir paketi en az bu kadar verir
+
+	-- Günlük giriş ödülü: 7 günlük seri; bozulursa baştan başlar. Ödül, oyuncunun o anki gelirinin
+	-- DAILY_MINUTES dakikalık karşılığı x seri çarpanıdır (en az DAILY_MIN_REWARD): geç oyunda da anlamlı kalır.
+	DAILY_REWARD_MULTIPLIERS = { 1, 1.5, 2, 3, 4, 6, 10 },
+	DAILY_MINUTES = 10,
+	DAILY_MIN_REWARD = 250,
+
+	-- Başarımlar: her birinin tek seferlik para ödülü var. metric hesabı Rewards.progress içindedir.
+	ACHIEVEMENTS = {
+		{
+			id = "cows_10",
+			displayName = "İlk 10 inek",
+			description = "10 inek sahibi ol",
+			icon = "🐄",
+			metric = "cows",
+			target = 10,
+			reward = 500,
+		},
+		{
+			id = "animals_25",
+			displayName = "Küçük sürü",
+			description = "Toplam 25 hayvana ulaş",
+			icon = "🐑",
+			metric = "animals",
+			target = 25,
+			reward = 2500,
+		},
+		{
+			id = "animals_50",
+			displayName = "Büyük sürü",
+			description = "Toplam 50 hayvana ulaş",
+			icon = "🐎",
+			metric = "animals",
+			target = 50,
+			reward = 12000,
+		},
+		{
+			id = "first_island",
+			displayName = "İlk ada",
+			description = "Bir küçük ada aç",
+			icon = "🏝️",
+			metric = "islands",
+			target = 2,
+			reward = 1500,
+		},
+		{
+			id = "all_islands",
+			displayName = "Takımadanın efendisi",
+			description = "Bütün adaları aç",
+			icon = "👑",
+			metric = "islands",
+			target = 4,
+			reward = 20000,
+		},
+		{
+			id = "earned_10k",
+			displayName = "İlk 10 bin",
+			description = "Toplam 10.000 kazan",
+			icon = "💰",
+			metric = "earned",
+			target = 10000,
+			reward = 1000,
+		},
+		{
+			id = "earned_100k",
+			displayName = "Yüz bin kulübü",
+			description = "Toplam 100.000 kazan",
+			icon = "💰",
+			metric = "earned",
+			target = 100000,
+			reward = 8000,
+		},
+		{
+			id = "earned_1m",
+			displayName = "Milyoner",
+			description = "Toplam 1 milyon kazan",
+			icon = "💎",
+			metric = "earned",
+			target = 1000000,
+			reward = 60000,
+		},
+		{
+			id = "purchases_10",
+			displayName = "Yatırımcı",
+			description = "10 yükseltme al",
+			icon = "🛠️",
+			metric = "purchases",
+			target = 10,
+			reward = 3000,
+		},
+		{
+			id = "purchases_30",
+			displayName = "Çiftlik imparatoru",
+			description = "30 yükseltme al",
+			icon = "🏆",
+			metric = "purchases",
+			target = 30,
+			reward = 30000,
+		},
+		{
+			id = "orders_5",
+			displayName = "Sipariş ustası",
+			description = "5 sipariş teslim et",
+			icon = "📋",
+			metric = "orders",
+			target = 5,
+			reward = 2000,
+		},
+	} :: { AchievementConfig },
+
+	-- Ses. `id` boşsa o ses çalınmaz. Arayüz sesleri motorun kendi dosyalarını kullanır (yer tutucu);
+	-- gerçek "cha-ching", ortam ve hayvan sesleri için Creator Store'dan (Roblox'un ücretsiz sesleri)
+	-- aldığın `rbxassetid://NUMARA` kimliklerini aşağıya yaz. Kimlik doğrulaması Studio'da yapılır.
+	SOUNDS = {
+		click = { id = "rbxasset://sounds/clickfast.wav", volume = 0.35 },
+		coin = { id = "rbxasset://sounds/electronicpingshort.wav", volume = 0.55, pitch = 1.6 },
+		success = { id = "rbxasset://sounds/electronicpingshort.wav", volume = 0.45, pitch = 1.15 },
+		error = { id = "rbxasset://sounds/switch.wav", volume = 0.4, pitch = 0.7 },
+		build = { id = "rbxasset://sounds/victory.wav", volume = 0.3 },
+	} :: { [string]: SoundConfig },
+	-- Ortam döngüleri (mevsim, hava ve gece): boş kimlik = o katman yok.
+	AMBIENCE = {
+		birds = { id = "", volume = 0.35 }, -- ilkbahar/yaz gündüz
+		wind = { id = "", volume = 0.3 }, -- sonbahar/kış
+		rain = { id = "", volume = 0.45 }, -- yağmur
+		storm = { id = "", volume = 0.5 }, -- fırtına
+		night = { id = "", volume = 0.3 }, -- gece (cırcır böceği)
+	} :: { [string]: SoundConfig },
+	-- Hayvan sesleri: animalId -> ses. Yakındaki yetişkin hayvan arada bir ses çıkarır.
+	ANIMAL_SOUNDS = {
+		cow = { id = "", volume = 0.5 },
+		chicken = { id = "", volume = 0.45 },
+		horse = { id = "", volume = 0.5 },
+		goat = { id = "", volume = 0.5 },
+	} :: { [string]: SoundConfig },
 
 	-- Bir hayvanın her evrede kaldığı süre (saniye). Yetişkin olunca tam gelir verir.
 	GROWTH_SECONDS = {
@@ -790,6 +1015,69 @@ function Config.getBarnLevelConfig(level: number): BarnLevelConfig?
 		end
 	end
 	return nil
+end
+
+-- Seviyeli geliştirmeler: her zaman alınacak bir şey olsun. Her seviye ayrı bir yükseltmedir
+-- ("<id>_lv<N>"); önceki seviye olmadan alınamaz. Kayıt şeması değişmez: purchased[id] yeterlidir.
+-- kind = "level" (harita yapı noktası istemez); OrderRules ve "tüm yol haritası" sayımı bunları saymaz.
+local LEVEL_CHAINS = {
+	{
+		id = "feed_quality",
+		displayName = "Yem Kalitesi",
+		description = "Tüm hayvanların geliri +%6",
+		icon = "🌾",
+		requires = "silo",
+		costs = { 1200, 3000, 7500, 18000, 42000 },
+		effect = "income",
+		amount = 0.06,
+	},
+	{
+		id = "storage_expansion",
+		displayName = "Depo Genişletme",
+		description = "Depo kapasitesi +%12",
+		icon = "📦",
+		requires = "silo",
+		costs = { 900, 2600, 7000, 16000 },
+		effect = "storage",
+		amount = 0.12,
+	},
+	{
+		id = "fast_growth",
+		displayName = "Hızlı Büyüme",
+		description = "Hayvanlar %8 daha hızlı büyür",
+		icon = "⏩",
+		requires = "silo",
+		costs = { 2000, 6000, 15000 },
+		effect = "growth",
+		amount = 1.08,
+	},
+}
+for _, chain in LEVEL_CHAINS do
+	for level, cost in chain.costs do
+		local upgrade: UpgradeConfig = {
+			id = `{chain.id}_lv{level}`,
+			displayName = `{chain.displayName} Sv.{level}`,
+			description = chain.description,
+			icon = chain.icon,
+			stage = 1,
+			cost = cost,
+			requires = { if level == 1 then chain.requires else `{chain.id}_lv{level - 1}` },
+			kind = "level",
+			leveled = true,
+		}
+		if chain.effect == "income" then
+			local boost: { [string]: number } = {}
+			for animalId in Config.ANIMALS do
+				boost[animalId] = chain.amount
+			end
+			upgrade.incomeBoost = boost
+		elseif chain.effect == "storage" then
+			upgrade.storageBonus = chain.amount
+		else
+			upgrade.growthSpeed = chain.amount
+		end
+		table.insert(Config.UPGRADES, upgrade)
+	end
 end
 
 function Config.getUpgrade(id: string): UpgradeConfig?
