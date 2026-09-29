@@ -30,7 +30,10 @@ end
 
 function IslandContext.hasAnimal(animalId: string): boolean
 	for _, zone in Config.ZONES do
-		if zone.island == IslandContext.get() and table.find(zone.allowedAnimals, animalId) then
+		if
+			zone.island == IslandContext.get()
+			and Config.zoneAllows(zone, animalId, player:GetAttribute("ActiveMainFarmId") :: string?)
+		then
 			return true
 		end
 	end

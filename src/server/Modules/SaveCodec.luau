@@ -42,6 +42,7 @@ local function decodeFarm(
 		ordersCompleted = math.floor(amount(source.ordersCompleted, 0)),
 		order = nil,
 		production = {},
+		farmId = if typeof(source.farmId) == "string" then source.farmId else "1",
 	}
 	if source.cash ~= nil and save.cash ~= source.cash then
 		repairs += 1
@@ -155,7 +156,7 @@ local function decodeFarm(
 			if
 				not zone
 				or not save.unlockedZones[zoneId]
-				or not table.find(zone.allowedAnimals, animalId)
+				or not farmMath.zoneAllows(save, zone, animalId)
 				or (not pendingExtension and farmMath.countInZone(save, zoneId) >= zone.capacity)
 			then
 				zoneId = farmMath.findZoneForAnimal(save, animalId)
@@ -198,11 +199,12 @@ local function decodeFarm(
 		end
 	else
 		for _ = 1, config.STARTING_COW_COUNT do
-			local zoneId = farmMath.findZoneForAnimal(save, "cow")
+			local homeAnimal = config.getHomeAnimal(save.farmId)
+			local zoneId = farmMath.findZoneForAnimal(save, homeAnimal)
 			if zoneId then
 				table.insert(
 					save.animals,
-					{ uid = uniqueUid(nil), animalId = "cow", zoneId = zoneId, stage = "adult", bornAt = 0 }
+					{ uid = uniqueUid(nil), animalId = homeAnimal, zoneId = zoneId, stage = "adult", bornAt = 0 }
 				)
 			end
 		end
@@ -229,6 +231,7 @@ local function decodeFarm(
 			end
 		end
 	end
+	save.farmId = nil
 	return save, offlineEarned, nil, repairs, grown
 end
 
@@ -275,8 +278,10 @@ local function encodeFarm(save: any, now: number): { [string]: any }
 	}
 end
 
-function SaveCodec.newFarm(config: any, farmMath: any, now: number, newUid: () -> string): any
-	local farm = assert(decodeFarm(nil, config, farmMath, now, newUid), "New farm initialization failed")
+-- farmId: çiftlik numarası; başlangıç hayvanı temanın ana ada hayvanı olur
+function SaveCodec.newFarm(config: any, farmMath: any, now: number, newUid: () -> string, farmId: string?): any
+	local farm =
+		assert(decodeFarm({ farmId = farmId }, config, farmMath, now, newUid), "New farm initialization failed")
 	return FarmProfiles.extract(farm)
 end
 
@@ -319,6 +324,7 @@ function SaveCodec.decode(
 			return nil, 0, "Çiftlik kimliği geçersiz; orijinal kayıt korunuyor"
 		end
 		local farmInput = table.clone(rawFarm)
+		farmInput.farmId = id
 		farmInput.cash = 0 -- Cüzdan sadece kök kayıttan gelir; taşıma iadeleri ayrıca eklenir.
 		local farm, earned, err, repairs, grown = decodeFarm(farmInput, config, farmMath, now, newUid)
 		if not farm then

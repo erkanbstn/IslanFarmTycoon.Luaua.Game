@@ -9,6 +9,7 @@ export type ZoneConfig = {
 	island: string, -- Hangi çiftlik adasında (FARM_ISLANDS id)
 	capacity: number,
 	allowedAnimals: { string },
+	themed: boolean?, -- true: bölgenin hayvanı temanın ana ada hayvanıdır (homeAnimal)
 }
 
 export type ProductionRecipeConfig = {
@@ -51,6 +52,7 @@ export type BarnLevelConfig = {
 export type ThemeConfig = {
 	id: string,
 	displayName: string,
+	homeAnimal: string, -- Ana adanın ağıl ve otlağında yaşayan hayvan
 	satellites: { string },
 }
 
@@ -498,13 +500,20 @@ local Config = {
 	} :: { BarnLevelConfig },
 
 	-- Bütün ada türleri; hangi çiftlikte hangilerinin olduğunu THEMES belirler.
-	FARM_ISLAND_ORDER = { "home", "poultry", "duck", "horse", "sheep", "goat", "pig" },
+	FARM_ISLAND_ORDER = { "home", "dairy", "poultry", "duck", "horse", "sheep", "goat", "pig" },
 	FARM_ISLANDS = {
 		home = {
 			id = "home",
 			displayName = "Ana Ada",
 			icon = "🐄",
 			trait = "İnek çiftliğin ve ahırın burada",
+		},
+		dairy = {
+			id = "dairy",
+			displayName = "Süt Adası",
+			icon = "🐄",
+			trait = "İnekler burada 2 kat hızlı büyür",
+			upgradeId = "island_dairy",
 		},
 		poultry = {
 			id = "poultry",
@@ -553,12 +562,32 @@ local Config = {
 	-- Temalar: dizi sırası = ana çiftlik numarası = fiziksel ada numarası (Çiftlik 1 her zaman Papatya).
 	-- Her tema erken (Ahır Sv.2), orta (Sv.3) ve geç (Sv.4) birer ada türü içerir; hiçbir tema diğeriyle aynı değildir.
 	THEMES = {
-		{ id = "papatya", displayName = "Klasik Çayır", satellites = { "poultry", "horse", "goat" } },
-		{ id = "lale", displayName = "Yün ve Göl", satellites = { "duck", "sheep", "goat" } },
-		{ id = "aycicegi", displayName = "Güneşli Tarla", satellites = { "poultry", "sheep", "pig" } },
-		{ id = "gul", displayName = "Göl ve Hara", satellites = { "duck", "horse", "pig" } },
-		{ id = "yonca", displayName = "Dağ ve Orman", satellites = { "poultry", "horse", "pig" } },
-		{ id = "kiraz", displayName = "Meyve ve Göl", satellites = { "duck", "sheep", "pig" } },
+		{
+			id = "papatya",
+			displayName = "Klasik Çayır",
+			homeAnimal = "cow",
+			satellites = { "poultry", "horse", "goat" },
+		},
+		{
+			id = "lale",
+			displayName = "Yün ve Süt",
+			homeAnimal = "chicken",
+			satellites = { "dairy", "sheep", "goat" },
+		},
+		{
+			id = "aycicegi",
+			displayName = "Güneşli Tarla",
+			homeAnimal = "duck",
+			satellites = { "dairy", "poultry", "pig" },
+		},
+		{ id = "gul", displayName = "Göl ve Hara", homeAnimal = "cow", satellites = { "duck", "horse", "pig" } },
+		{
+			id = "yonca",
+			displayName = "Dağ ve Orman",
+			homeAnimal = "chicken",
+			satellites = { "dairy", "horse", "pig" },
+		},
+		{ id = "kiraz", displayName = "Meyve ve Süt", homeAnimal = "duck", satellites = { "dairy", "sheep", "pig" } },
 	} :: { ThemeConfig },
 
 	-- Yol haritası aşamaları: adalar + onlarla paralel ilerleyen Deniz dalı
@@ -571,6 +600,7 @@ local Config = {
 		{ name = "Ördek Adası", island = "duck" },
 		{ name = "Koyun Adası", island = "sheep" },
 		{ name = "Domuz Adası", island = "pig" },
+		{ name = "Süt Adası", island = "dairy" },
 	} :: { RoadmapStage },
 
 	UPGRADES = {
@@ -578,7 +608,7 @@ local Config = {
 		{
 			id = "zone_pasture",
 			displayName = "Otlak",
-			description = "+8 inek yeri",
+			description = "+8 hayvan yeri",
 			icon = "🌾",
 			stage = 1,
 			cost = 300,
@@ -610,14 +640,14 @@ local Config = {
 		},
 		{
 			id = "milk_machine",
-			displayName = "Süt Makinesi",
-			description = "İnek geliri +%50",
+			displayName = "Yem Makinesi",
+			description = "Ana ada hayvanlarının geliri +%50",
 			icon = "🥛",
 			stage = 1,
 			cost = 1200,
 			requires = { "zone_pasture" },
 			kind = "boost",
-			incomeBoost = { cow = 0.5 },
+			incomeBoost = { home = 0.5 },
 		},
 		-- Aşama 2: Deniz (adalarla paralel dal)
 		{
@@ -643,6 +673,18 @@ local Config = {
 			incomeBoost = { anchovy = 0.5, seabass = 0.5 },
 		},
 		-- Aşama 3: Tavuk Adası
+		{
+			id = "island_dairy",
+			displayName = "Süt Adası",
+			description = "İnek açılır · İnekler 2 kat hızlı büyür",
+			icon = "🐄",
+			stage = 9,
+			cost = 900,
+			requires = { "barn_2" },
+			kind = "island",
+			islandId = "dairy",
+			growthBoost = { cow = 2 },
+		},
 		{
 			id = "island_poultry",
 			displayName = "Tavuk Adası",
@@ -822,14 +864,14 @@ local Config = {
 
 		{
 			id = "milk_factory",
-			displayName = "Süt Fabrikası",
-			description = "İnek geliri +%150 · Paketli süt üretimi",
+			displayName = "Paketleme Fabrikası",
+			description = "Ana ada hayvanlarının geliri +%150 · Paketli ürün",
 			icon = "🥛",
 			stage = 3,
 			cost = 6000,
 			requires = { "milk_machine", "barn_3" },
 			kind = "boost",
-			incomeBoost = { cow = 1.5 },
+			incomeBoost = { home = 1.5 },
 		},
 		{
 			id = "hatchery",
@@ -884,6 +926,39 @@ local Config = {
 			kind = "extension",
 			extensionId = "rocky_terraces",
 		},
+		{
+			id = "ext_duck_cove",
+			displayName = "Ördek Koyu",
+			description = "6 ördek · göl yerini boşaltır · +%50 gelir",
+			icon = "🦆",
+			stage = 6,
+			cost = 1500,
+			requires = { "island_duck" },
+			kind = "extension",
+			extensionId = "duck_cove",
+		},
+		{
+			id = "ext_hillside_pasture",
+			displayName = "Yün Yamacı",
+			description = "5 koyun · ağıl yerini boşaltır · +%50 gelir",
+			icon = "🐑",
+			stage = 7,
+			cost = 4200,
+			requires = { "island_sheep" },
+			kind = "extension",
+			extensionId = "hillside_pasture",
+		},
+		{
+			id = "ext_truffle_grove",
+			displayName = "Trüf Korusu",
+			description = "4 domuz · çiftlik yerini boşaltır · +%50 gelir",
+			icon = "🐖",
+			stage = 8,
+			cost = 6500,
+			requires = { "island_pig" },
+			kind = "extension",
+			extensionId = "truffle_grove",
+		},
 	} :: { UpgradeConfig },
 
 	EXTENSIONS = {
@@ -920,10 +995,52 @@ local Config = {
 			capacity = 5,
 			incomeBonus = 0.5,
 		},
+		duck_cove = {
+			id = "duck_cove",
+			displayName = "Ördek Koyu",
+			description = "Koyda yüzen ördekler",
+			icon = "🦆",
+			island = "duck",
+			sourceZoneId = "pond",
+			animalId = "duck",
+			capacity = 6,
+			incomeBonus = 0.5,
+		},
+		hillside_pasture = {
+			id = "hillside_pasture",
+			displayName = "Yün Yamacı",
+			description = "Yamaçta otlayan koyunlar",
+			icon = "🐑",
+			island = "sheep",
+			sourceZoneId = "sheepfold",
+			animalId = "sheep",
+			capacity = 5,
+			incomeBonus = 0.5,
+		},
+		truffle_grove = {
+			id = "truffle_grove",
+			displayName = "Trüf Korusu",
+			description = "Ormanda trüf arayan domuzlar",
+			icon = "🐖",
+			island = "pig",
+			sourceZoneId = "pigpen",
+			animalId = "pig",
+			capacity = 4,
+			incomeBonus = 0.5,
+		},
 	} :: { [string]: ExtensionConfig },
 
 	-- Tek bir ücretli parti çevrimdışında tamamlanabilir; otomatik tekrar üretmez.
-	PRODUCTION_ORDER = { "dairy", "hatchery", "horse_training", "cheese", "fish_dispatch" },
+	PRODUCTION_ORDER = {
+		"dairy",
+		"hatchery",
+		"duck_eggs",
+		"horse_training",
+		"wool",
+		"cheese",
+		"truffle",
+		"fish_dispatch",
+	},
 	PRODUCTION_RECIPES = {
 		dairy = {
 			id = "dairy",
@@ -985,6 +1102,51 @@ local Config = {
 			reward = 1400,
 			output = "cash",
 		},
+		duck_eggs = {
+			id = "duck_eggs",
+			displayName = "Ördek Yumurtası Sevkiyatı",
+			description = "Göl kenarında toplanan yumurtaları paketle ve pazara gönder.",
+			icon = "🥚",
+			island = "duck",
+			upgradeId = "duck_house",
+			animalId = "duck",
+			animalIds = { "duck" },
+			requiredAdults = 3,
+			duration = 70,
+			cost = 260,
+			reward = 900,
+			output = "cash",
+		},
+		wool = {
+			id = "wool",
+			displayName = "Yün İpliği",
+			description = "Yünü eğir, iplik yap ve kangalları sat.",
+			icon = "🧶",
+			island = "sheep",
+			upgradeId = "wool_mill",
+			animalId = "sheep",
+			animalIds = { "sheep" },
+			requiredAdults = 2,
+			duration = 90,
+			cost = 700,
+			reward = 2100,
+			output = "cash",
+		},
+		truffle = {
+			id = "truffle",
+			displayName = "Trüf Sosu",
+			description = "Ormandan toplanan trüfleri sosa çevir ve şişeleri sat.",
+			icon = "🍄",
+			island = "pig",
+			upgradeId = "truffle_kitchen",
+			animalId = "pig",
+			animalIds = { "pig" },
+			requiredAdults = 2,
+			duration = 110,
+			cost = 1300,
+			reward = 3700,
+			output = "cash",
+		},
 		fish_dispatch = {
 			id = "fish_dispatch",
 			displayName = "Balık Sevkiyatı",
@@ -1004,7 +1166,18 @@ local Config = {
 
 	-- Bölgeler. Sıra önemli: hayvan alınınca ilk açık & boş alana konur.
 	-- Bir bölge, adası açıksa ve (varsa) kendi yol haritası öğesi alınmışsa açıktır.
-	ZONE_ORDER = { "starter", "pasture", "fishpen", "poultry", "pond", "stable", "sheepfold", "goatpen", "pigpen" },
+	ZONE_ORDER = {
+		"starter",
+		"pasture",
+		"fishpen",
+		"dairy",
+		"poultry",
+		"pond",
+		"stable",
+		"sheepfold",
+		"goatpen",
+		"pigpen",
+	},
 	ZONES = {
 		starter = {
 			id = "starter",
@@ -1013,6 +1186,7 @@ local Config = {
 			island = "home",
 			capacity = 6,
 			allowedAnimals = { "cow" },
+			themed = true,
 		},
 		pasture = {
 			id = "pasture",
@@ -1020,6 +1194,15 @@ local Config = {
 			icon = "🌾",
 			island = "home",
 			capacity = 8,
+			allowedAnimals = { "cow" },
+			themed = true,
+		},
+		dairy = {
+			id = "dairy",
+			displayName = "İnek Çayırı",
+			icon = "🐄",
+			island = "dairy",
+			capacity = 10,
 			allowedAnimals = { "cow" },
 		},
 		fishpen = {
@@ -1192,6 +1375,32 @@ end
 
 function Config.themeHasIsland(farmId: string?, islandId: string): boolean
 	return islandId == "home" or table.find(Config.getTheme(farmId).satellites, islandId) ~= nil
+end
+
+-- Ana adanın ağıl ve otlağında yaşayan hayvan (temaya göre)
+function Config.getHomeAnimal(farmId: string?): string
+	return Config.getTheme(farmId).homeAnimal
+end
+
+-- Bir bölgeye konabilen hayvanlar: temalı bölgelerde yalnızca çiftliğin ana ada hayvanı
+function Config.getZoneAnimals(zone: ZoneConfig, farmId: string?): { string }
+	if zone.themed then
+		return { Config.getHomeAnimal(farmId) }
+	end
+	return zone.allowedAnimals
+end
+
+function Config.zoneAllows(zone: ZoneConfig, animalId: string, farmId: string?): boolean
+	return table.find(Config.getZoneAnimals(zone, farmId), animalId) ~= nil
+end
+
+-- Bölgenin oyuncuya gösterilen adı: ağıl, çiftliğin hayvanının adını taşır
+function Config.getZoneName(zone: ZoneConfig, farmId: string?): string
+	if zone.id == "starter" then
+		local animal = Config.ANIMALS[Config.getHomeAnimal(farmId)]
+		return if animal then `{animal.displayName} Ağılı` else zone.displayName
+	end
+	return zone.displayName
 end
 
 function Config.getBarnLevelConfig(level: number): BarnLevelConfig?

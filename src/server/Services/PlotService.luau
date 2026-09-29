@@ -251,10 +251,11 @@ local function applyZoneState(plot: Model, data: PlayerSave?)
 		end
 
 		local unlocked = data ~= nil and data.unlockedZones[zoneId] == true
+		local zoneName = Config.getZoneName(zoneConfig, plot:GetAttribute("PlotId") :: string?)
 		ZoneVisualService.apply(zone, zoneId, unlocked)
 
 		if data and unlocked then
-			local label = `{zoneConfig.displayName} · {FarmMath.countInZone(data, zoneId)}/{zoneConfig.capacity}`
+			local label = `{zoneName} · {FarmMath.countInZone(data, zoneId)}/{zoneConfig.capacity}`
 			for extensionId, extension in Config.EXTENSIONS do
 				if extension.sourceZoneId == zoneId then
 					local upgrade = Config.getExtensionUpgrade(extensionId)
@@ -269,11 +270,11 @@ local function applyZoneState(plot: Model, data: PlayerSave?)
 			setZoneLabel(zone, label, zoneConfig.icon, false)
 		elseif data and not data.unlockedIslands[zoneConfig.island] then
 			-- Ada kilitliyse etiketi ada tabelası anlatıyor; burada sadece ad
-			setZoneLabel(zone, zoneConfig.displayName, "🔒", true)
+			setZoneLabel(zone, zoneName, "🔒", true)
 		else
 			local upgrade = Config.getZoneUpgrade(zoneId)
 			local price = if upgrade then ` · {FarmMath.formatMoney(upgrade.cost)}` else ""
-			setZoneLabel(zone, `{zoneConfig.displayName}{price}`, "🔒", true)
+			setZoneLabel(zone, `{zoneName}{price}`, "🔒", true)
 		end
 	end
 end

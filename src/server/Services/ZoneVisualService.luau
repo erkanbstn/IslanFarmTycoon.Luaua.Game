@@ -11,7 +11,6 @@ type Builder = (decor: Model, origin: CFrame, size: Vector3) -> ()
 
 local WOOD = Color3.fromRGB(150, 110, 70)
 local DARK_WOOD = Color3.fromRGB(100, 70, 45)
-local BARN_RED = Color3.fromRGB(170, 45, 38)
 local ROOF = Color3.fromRGB(70, 60, 55)
 local STRAW = Color3.fromRGB(225, 195, 110)
 local WATER = Color3.fromRGB(70, 160, 220)
@@ -89,6 +88,112 @@ local function feedTrough(decor: Model, cf: CFrame, length: number)
 		false
 end
 
+-- Çiftlik numarasına (= tema) göre ana adadaki inek ağılı ve otlağın görünümü
+local THEME_LOOKS: { { barn: Color3, pasture: string } } = {
+	{ barn = Color3.fromRGB(170, 45, 38), pasture = "daisy" },
+	{ barn = Color3.fromRGB(55, 105, 175), pasture = "tulip" },
+	{ barn = Color3.fromRGB(205, 150, 45), pasture = "sunflower" },
+	{ barn = Color3.fromRGB(215, 120, 140), pasture = "rose" },
+	{ barn = Color3.fromRGB(60, 105, 65), pasture = "pine" },
+	{ barn = Color3.fromRGB(225, 205, 170), pasture = "cherry" },
+}
+local currentLook = THEME_LOOKS[1]
+local barnColor = currentLook.barn
+
+local function plant(decor: Model, cf: CFrame, height: number, headColor: Color3, headSize: number)
+	part(
+		decor,
+		"Stem",
+		Vector3.new(0.2, height, 0.2),
+		cf * CFrame.new(0, height / 2, 0),
+		Color3.fromRGB(70, 130, 60),
+		Enum.Material.Grass
+	).CanCollide =
+		false
+	local head = part(
+		decor,
+		"Bloom",
+		Vector3.new(headSize, headSize, headSize),
+		cf * CFrame.new(0, height, 0),
+		headColor,
+		Enum.Material.SmoothPlastic
+	)
+	head.Shape = Enum.PartType.Ball
+	head.CanCollide = false
+end
+
+local function blossomTree(decor: Model, cf: CFrame, leaf: Color3)
+	part(decor, "Trunk", Vector3.new(0.9, 3.4, 0.9), cf * CFrame.new(0, 1.7, 0), DARK_WOOD, Enum.Material.Wood)
+	local crown =
+		part(decor, "Crown", Vector3.new(4.6, 3.8, 4.6), cf * CFrame.new(0, 4.6, 0), leaf, Enum.Material.Grass)
+	crown.Shape = Enum.PartType.Ball
+end
+
+local function rockPile(decor: Model, cf: CFrame, scale: number)
+	part(
+		decor,
+		"Rock",
+		Vector3.new(2.4, 1.6, 2) * scale,
+		cf * CFrame.new(0, 0.7 * scale, 0) * CFrame.Angles(0, 0.6, 0.1),
+		STONE_COLOR,
+		Enum.Material.Slate
+	)
+	part(
+		decor,
+		"Rock",
+		Vector3.new(1.4, 1, 1.4) * scale,
+		cf * CFrame.new(1.6 * scale, 0.4 * scale, 0.6),
+		STONE_COLOR,
+		Enum.Material.Slate
+	)
+end
+
+-- Otlağın kendine özgü süsü: ön ve orta şeritte (arkadaki balyalar ve suluk hariç)
+local PASTURE_STYLES: { [string]: (decor: Model, o: CFrame, size: Vector3) -> () } = {
+	tulip = function(decor, o, _size)
+		local colors = { Color3.fromRGB(230, 60, 80), Color3.fromRGB(250, 200, 60), Color3.fromRGB(190, 90, 200) }
+		for row = 1, 3 do
+			for i = 0, 5 do
+				plant(decor, o * CFrame.new(-10 + i * 1.6, 0, -10 + row * 1.6), 1.1, colors[row], 0.7)
+			end
+		end
+	end,
+	sunflower = function(decor, o, _size)
+		for i = 0, 7 do
+			local x = -12 + (i % 4) * 2.4
+			local z = -9 + math.floor(i / 4) * 2.6
+			plant(decor, o * CFrame.new(x, 0, z), 3.2, Color3.fromRGB(245, 195, 30), 1.5)
+		end
+	end,
+	rose = function(decor, o, size)
+		local hz = size.Z / 2
+		for i = 0, 4 do
+			local cf = o * CFrame.new(-11 + i * 2.2, 0, -(hz - 3))
+			part(
+				decor,
+				"RoseBush",
+				Vector3.new(1.8, 1.2, 1.8),
+				cf * CFrame.new(0, 0.6, 0),
+				Color3.fromRGB(60, 120, 55),
+				Enum.Material.Grass
+			).Shape =
+				Enum.PartType.Ball
+			plant(decor, cf * CFrame.new(0.3, 1, 0), 0.4, Color3.fromRGB(215, 40, 70), 0.6)
+		end
+	end,
+	pine = function(decor, o, _size)
+		WorldDecor.pineTree(decor, o * CFrame.new(-9, 0, -8), 11)
+		WorldDecor.pineTree(decor, o * CFrame.new(-12, 0, 0), 12)
+		rockPile(decor, o * CFrame.new(8, 0, -7), 1)
+		rockPile(decor, o * CFrame.new(-4, 0, 6), 0.7)
+	end,
+	cherry = function(decor, o, _size)
+		blossomTree(decor, o * CFrame.new(-9, 0, -7), Color3.fromRGB(245, 160, 190))
+		blossomTree(decor, o * CFrame.new(10, 0, 5), Color3.fromRGB(240, 140, 175))
+		blossomTree(decor, o * CFrame.new(-11, 0, 4), Color3.fromRGB(250, 180, 205))
+	end,
+}
+
 local BUILDERS: { [string]: Builder } = {
 	-- İnek barınağı: arkada çatılı, samanlı, kırmızı duvarlı ahır bölmesi
 	starter = function(decor, o, size)
@@ -108,7 +213,7 @@ local BUILDERS: { [string]: Builder } = {
 			"BackWall",
 			Vector3.new(size.X - 2, 7.5, 0.8),
 			o * CFrame.new(0, 3.75, zBack),
-			BARN_RED,
+			barnColor,
 			Enum.Material.WoodPlanks
 		)
 		for _, x in { -1, 1 } do
@@ -117,7 +222,7 @@ local BUILDERS: { [string]: Builder } = {
 				"SideWall",
 				Vector3.new(0.8, 6.5, zBack - zFront),
 				o * CFrame.new(x * (hx - 1), 3.25, (zFront + zBack) / 2),
-				BARN_RED,
+				barnColor,
 				Enum.Material.WoodPlanks
 			)
 		end
@@ -139,6 +244,11 @@ local BUILDERS: { [string]: Builder } = {
 		hayBale(decor, o * CFrame.new(hx - 2.8, 1.6, zBack - 2.5))
 	end,
 
+	-- Süt Adası çayırı: ağıl yapısı, çevresi açık
+	dairy = function(decor, o, size)
+		BUILDERS.starter(decor, o, size)
+	end,
+
 	-- Otlak: balyalar, suluk, çiçekler
 	pasture = function(decor, o, size)
 		local hx, hz = size.X / 2, size.Z / 2
@@ -146,6 +256,11 @@ local BUILDERS: { [string]: Builder } = {
 		hayBale(decor, o * CFrame.new(-(hx - 7), 0, hz - 3))
 		hayBale(decor, o * CFrame.new(-(hx - 5.5), 1.6, hz - 3))
 		waterTrough(decor, o * CFrame.new(hx - 3, 0, -(hz - 6)), 6)
+		local style = PASTURE_STYLES[currentLook.pasture]
+		if style then
+			style(decor, o, size)
+			return
+		end
 		local flowerColors =
 			{ Color3.fromRGB(250, 220, 80), Color3.fromRGB(240, 120, 160), Color3.fromRGB(250, 250, 250) }
 		for i, spot in
@@ -680,6 +795,10 @@ function ZoneVisualService.apply(zone: Instance, zoneId: string, unlocked: boole
 	decor.Name = "Decor"
 	decor:SetAttribute("VisualCreatedAt", game:GetService("Workspace"):GetServerTimeNow())
 	local origin = ground.CFrame * CFrame.new(0, ground.Size.Y / 2, 0)
+	local plot = zone.Parent and zone.Parent.Parent
+	local farmIndex = tonumber(plot and plot:GetAttribute("PlotId")) or 1
+	currentLook = THEME_LOOKS[((farmIndex - 1) % #THEME_LOOKS) + 1]
+	barnColor = currentLook.barn
 	builder(decor, origin, ground.Size)
 	-- Çimenli zeminlere çim tutamı ve çiçek (ön/orta şerit; arkadaki barınak ve yemlikler hariç)
 	if ground.Material == Enum.Material.Grass and zoneId ~= "fishpen" then

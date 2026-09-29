@@ -28,6 +28,9 @@ local PRODUCTION_RECIPES: { [string]: string } = {
 	hatchery = "hatchery",
 	horse_training = "horse_training",
 	cheese_dairy = "cheese",
+	duck_house = "duck_eggs",
+	wool_mill = "wool",
+	truffle_kitchen = "truffle",
 }
 
 local function makePart(

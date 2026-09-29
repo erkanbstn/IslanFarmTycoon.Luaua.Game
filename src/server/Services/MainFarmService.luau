@@ -51,7 +51,7 @@ local function apply(player: Player, action: unknown, target: unknown): (boolean
 		farmId = tostring(plotNumber)
 		local farm = SaveCodec.newFarm(Config, FarmMath, DateTime.now().UnixTimestampMillis / 1000, function(): string
 			return HttpService:GenerateGUID(false)
-		end)
+		end, farmId)
 		-- reserveMainFarm ve aşağıdaki mutasyonlar yield etmez: tahsis başarısızsa cüzdana dokunulmaz.
 		if not PlotService.reserveMainFarm(player, farmId, target :: string) then
 			return false, "Bu ana ada artık boş değil. Başka bir boş ada seç."

@@ -30,8 +30,8 @@ local DAY = {
 local NIGHT = {
 	brightness = 0.9,
 	exposure = -0.25,
-	outdoor = Color3.fromRGB(44, 52, 88),
-	ambient = Color3.fromRGB(26, 30, 50),
+	outdoor = Color3.fromRGB(56, 66, 106),
+	ambient = Color3.fromRGB(36, 42, 66),
 	atmosphere = Color3.fromRGB(40, 52, 86),
 	decay = Color3.fromRGB(18, 24, 46),
 	tint = Color3.fromRGB(190, 204, 246),
@@ -41,6 +41,7 @@ local MAX_LIGHT_RANGE = 60 -- Roblox PointLight.Range üst sınırı
 -- ince ayar burada yapılır (harita yeniden kurulmadan). "Normal" yönetici seviyesi = bu değerler.
 local LIGHT_BRIGHTNESS_SCALE = 0.6
 local LIGHT_RANGE_SCALE = 0.8
+local LIGHT_FADE_SECONDS = 1
 local TWILIGHT_SHIFT = Color3.fromRGB(255, 150, 90)
 
 -- Sadece bu client'ta var olan gece renk düzeltmesi
@@ -201,13 +202,18 @@ local function updateSky(dt: number)
 	nightGrade.Saturation = -0.08 * night
 	nightGrade.Brightness = 0.01 * night
 
-	local newRamp = Environment.getLightFactor(clock)
+	local targetRamp = Environment.getLightFactor(clock)
 	-- Yönetici testi: ışıkları zorla aç/kapat ve parlaklığı ayarla
 	local lightsOverride = Environment.getLightsOverride()
 	if lightsOverride == "on" then
-		newRamp = 1
+		targetRamp = 1
 	elseif lightsOverride == "off" then
-		newRamp = 0
+		targetRamp = 0
+	end
+	-- Işıklar aniden çakmasın: oyuna girişte ve ani değişimlerde ~1 sn'de yumuşakça açılır/kısılır.
+	local newRamp = targetRamp
+	if math.abs(targetRamp - ramp) > 0.01 and Players.LocalPlayer:GetAttribute("ReducedMotion") ~= true then
+		newRamp = ramp + (targetRamp - ramp) * math.min(1, dt / LIGHT_FADE_SECONDS)
 	end
 	local newMultiplier = Environment.getLightMultiplier()
 	if math.abs(newRamp - ramp) > 0.005 or (newRamp == 0) ~= (ramp == 0) or newMultiplier ~= multiplier then

@@ -740,7 +740,7 @@ function HomeBuildings.granary(parent: Instance, base: CFrame)
 end
 
 ---------------------------------------------------------------------------
--- Pazar tezgâhı: sipariş panosuna erişim (MarketPrompt; client Çiftliğim penceresini açar)
+-- Pazar tezgâhı: hayvan pazarına erişim (MarketPrompt; client Pazar penceresini açar)
 ---------------------------------------------------------------------------
 
 function HomeBuildings.market(parent: Instance, base: CFrame)
@@ -817,7 +817,7 @@ function HomeBuildings.market(parent: Instance, base: CFrame)
 		Enum.Material.WoodPlanks,
 		false
 	)
-	WorldUi.sign(board, Enum.NormalId.Front, { icon = "📋", title = "Pazar", text = "Sipariş panosu" })
+	WorldUi.sign(board, Enum.NormalId.Front, { icon = "🐄", title = "Pazar", text = "Hayvan pazarı" })
 	-- Etkileşim: tezgâhın önünde, tabelayı kapatmayan alçak nokta
 	local anchor = part(
 		stall,
@@ -832,7 +832,7 @@ function HomeBuildings.market(parent: Instance, base: CFrame)
 	anchor.CanQuery = false
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.Name = "MarketPrompt"
-	prompt.ActionText = "Sipariş panosu"
+	prompt.ActionText = "Hayvan al"
 	prompt.ObjectText = "Pazar"
 	prompt.KeyboardKeyCode = Enum.KeyCode.E
 	prompt.HoldDuration = 0

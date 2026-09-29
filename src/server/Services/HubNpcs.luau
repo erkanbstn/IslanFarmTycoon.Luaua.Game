@@ -1,0 +1,143 @@
+--!strict
+-- Meydandaki satıcı NPC'ler: blok gövdeli figürler, önlerinde tezgâh ve etkileşim noktası.
+-- Her NPC bir "VendorPrompt" taşır; `Action` özniteliği client'ta hangi pencerenin açılacağını belirler.
+-- Haritaya kaydedilir (MapBuilder çağırır). Yerel çerçeve: -Z ön, taban zemin yüzeyinde.
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- Studio harita eklentisi modülleri kopyalayıp çalıştırır; o durumda yanımızdaki "Shared" kullanılır.
+local Shared = script.Parent.Parent:FindFirstChild("Shared") or ReplicatedStorage:WaitForChild("Shared")
+local WorldUi = require(Shared:WaitForChild("WorldUi"))
+
+local HubNpcs = {}
+
+export type NpcSpec = {
+	name: string,
+	title: string,
+	icon: string,
+	action: string, -- "orders" | "store" | "roadmap" | "upgrades" | "travel"
+	prompt: string,
+	shirt: Color3,
+	hat: Color3,
+	awning: Color3,
+}
+
+local WOOD = Color3.fromRGB(150, 110, 70)
+local DARK_WOOD = Color3.fromRGB(100, 70, 45)
+local SKIN = Color3.fromRGB(240, 200, 165)
+local PANTS = Color3.fromRGB(70, 75, 95)
+
+local function part(parent: Instance, name: string, size: Vector3, cf: CFrame, color: Color3, material: Enum.Material)
+	local p = Instance.new("Part")
+	p.Name = name
+	p.Size = size
+	p.CFrame = cf
+	p.Color = color
+	p.Material = material
+	p.Anchored = true
+	p.CanTouch = false
+	p.TopSurface, p.BottomSurface = Enum.SurfaceType.Smooth, Enum.SurfaceType.Smooth
+	p.Parent = parent
+	return p
+end
+
+local function figure(model: Model, base: CFrame, spec: NpcSpec)
+	for _, x in { -0.55, 0.55 } do
+		part(model, "Leg", Vector3.new(0.9, 2.6, 1), base * CFrame.new(x, 1.3, 0), PANTS, Enum.Material.Fabric)
+		part(
+			model,
+			"Arm",
+			Vector3.new(0.8, 2.4, 0.9),
+			base * CFrame.new(x * 2.2, 3.9, -0.2),
+			spec.shirt,
+			Enum.Material.Fabric
+		)
+	end
+	part(model, "Torso", Vector3.new(2.6, 2.8, 1.4), base * CFrame.new(0, 4, 0), spec.shirt, Enum.Material.Fabric)
+	local head = part(model, "Head", Vector3.one * 1.9, base * CFrame.new(0, 6.1, 0), SKIN, Enum.Material.SmoothPlastic)
+	head.Shape = Enum.PartType.Ball
+	for _, x in { -0.4, 0.4 } do
+		local eye = part(
+			model,
+			"Eye",
+			Vector3.one * 0.25,
+			base * CFrame.new(x, 6.25, -0.85),
+			Color3.fromRGB(40, 40, 45),
+			Enum.Material.SmoothPlastic
+		)
+		eye.Shape = Enum.PartType.Ball
+		eye.CanCollide = false
+	end
+	-- Şapka: geniş kenar + alçak tepe
+	part(model, "HatBrim", Vector3.new(3.2, 0.25, 3.2), base * CFrame.new(0, 6.95, 0), spec.hat, Enum.Material.Fabric)
+	part(model, "HatTop", Vector3.new(1.9, 0.9, 1.9), base * CFrame.new(0, 7.4, 0), spec.hat, Enum.Material.Fabric)
+end
+
+function HubNpcs.vendor(parent: Instance, base: CFrame, spec: NpcSpec)
+	local model = Instance.new("Model")
+	model.Name = `Vendor_{spec.action}`
+	model.Parent = parent
+
+	-- Satıcı tezgâhın arkasında durur, tezgâh -Z (meydan) yönüne bakar
+	figure(model, base * CFrame.new(0, 0, 1.6), spec)
+	part(model, "Counter", Vector3.new(7, 2.6, 2.2), base * CFrame.new(0, 1.3, -1.6), WOOD, Enum.Material.WoodPlanks)
+	part(
+		model,
+		"CounterTop",
+		Vector3.new(7.4, 0.3, 2.6),
+		base * CFrame.new(0, 2.75, -1.6),
+		DARK_WOOD,
+		Enum.Material.WoodPlanks
+	)
+	for _, x in { -3.3, 3.3 } do
+		part(model, "Post", Vector3.new(0.4, 8.4, 0.4), base * CFrame.new(x, 4.2, -2.5), DARK_WOOD, Enum.Material.Wood)
+	end
+	-- Tente: öne doğru alçalan kumaş
+	local awning = part(
+		model,
+		"Awning",
+		Vector3.new(8.2, 0.3, 6),
+		base * CFrame.new(0, 8.6, -0.6) * CFrame.Angles(math.rad(-10), 0, 0),
+		spec.awning,
+		Enum.Material.Fabric
+	)
+	awning.CanCollide = false
+	part(
+		model,
+		"Backdrop",
+		Vector3.new(7, 6.4, 0.4),
+		base * CFrame.new(0, 3.2, 3.6),
+		DARK_WOOD,
+		Enum.Material.WoodPlanks
+	)
+
+	-- Tabela: tentenin önünde
+	local board = part(
+		model,
+		"Sign",
+		Vector3.new(6.4, 2.2, 0.3),
+		base * CFrame.new(0, 10, -3.4),
+		Color3.fromRGB(85, 60, 40),
+		Enum.Material.WoodPlanks
+	)
+	board.CanCollide = false
+	WorldUi.sign(board, Enum.NormalId.Front, { icon = spec.icon, title = spec.title, text = spec.name })
+
+	local anchor =
+		part(model, "VendorPromptAnchor", Vector3.one, base * CFrame.new(0, 3, -3.6), WOOD, Enum.Material.SmoothPlastic)
+	anchor.Transparency = 1
+	anchor.CanCollide = false
+	anchor.CanQuery = false
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.Name = "VendorPrompt"
+	prompt.ActionText = spec.prompt
+	prompt.ObjectText = spec.name
+	prompt.KeyboardKeyCode = Enum.KeyCode.E
+	prompt.HoldDuration = 0
+	prompt.MaxActivationDistance = 10
+	prompt.RequiresLineOfSight = false
+	prompt:SetAttribute("Action", spec.action)
+	prompt.Parent = anchor
+end
+
+return HubNpcs

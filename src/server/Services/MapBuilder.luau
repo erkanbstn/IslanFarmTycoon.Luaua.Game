@@ -17,12 +17,13 @@ local BarnVisualService = require(script.Parent:WaitForChild("BarnVisualService"
 local WorldDecor = require(script.Parent:WaitForChild("WorldDecor"))
 local IslandSpecialization = require(script.Parent:WaitForChild("IslandSpecialization"))
 local HomeBuildings = require(script.Parent:WaitForChild("HomeBuildings"))
+local HubNpcs = require(script.Parent:WaitForChild("HubNpcs"))
 
 local MapBuilder = {}
 
 -- Harita düzenini (adalar, bölgeler, yapı yerleri) değiştirince bunu 1 artır:
 -- oyun, place'e kaydedilmiş eski haritayı fark edip uyarır.
-local MAP_VERSION = 27
+local MAP_VERSION = 31
 
 local SURFACE_Y = 4 -- Ada ve meydan yüzeyinin yüksekliği
 local WATER_Y = 0 -- Deniz yüzeyi
@@ -121,6 +122,10 @@ local function satelliteZone(id: string, color: Color3, backReserve: number): Zo
 end
 
 local SATELLITE_TYPES: { [string]: SatelliteType } = {
+	dairy = {
+		groundColor = Color3.fromRGB(104, 168, 84),
+		zone = satelliteZone("dairy", Color3.fromRGB(112, 176, 88), 8),
+	},
 	poultry = {
 		groundColor = Color3.fromRGB(150, 165, 80),
 		zone = satelliteZone("poultry", Color3.fromRGB(205, 185, 125), 8),
@@ -301,7 +306,7 @@ local function buildZone(plotModel: Model, islandCf: CFrame, layout: ZoneLayout)
 	end
 
 	local zoneModel = Instance.new("Model")
-	zoneModel.Name = zoneConfig.displayName
+	zoneModel.Name = Config.getZoneName(zoneConfig, plotModel:GetAttribute("PlotId") :: string?)
 	zoneModel:SetAttribute("ZoneId", layout.id)
 	zoneModel.Parent = plotModel:FindFirstChild("Zones")
 
@@ -641,8 +646,8 @@ local function buildSatellite(
 	for _, side in { -1, 1 } do
 		local post = makePart(
 			"SignPost",
-			Vector3.new(0.5, 8.4, 0.5),
-			cf * CFrame.new(signX + side * (boardWidth / 2 + 0.35), SURFACE_Y + 4.2, signZ),
+			Vector3.new(0.5, 15.4, 0.5),
+			cf * CFrame.new(signX + side * (boardWidth / 2 + 0.35), SURFACE_Y + 7.7, signZ),
 			frameColor,
 			islandModel
 		)
@@ -651,11 +656,12 @@ local function buildSatellite(
 	local sign = makePart(
 		"IslandSign",
 		Vector3.new(boardWidth, 2.2, 0.35),
-		cf * CFrame.new(signX, SURFACE_Y + 6.6, signZ),
+		cf * CFrame.new(signX, SURFACE_Y + 13.6, signZ),
 		Color3.fromRGB(85, 60, 40),
 		islandModel
 	)
 	sign.Material = Enum.Material.WoodPlanks
+	sign.CanCollide = false
 	for _, face in { Enum.NormalId.Front, Enum.NormalId.Back } do
 		WorldUi.sign(
 			sign,
@@ -914,7 +920,7 @@ local function buildIsland(plotIndex: number, islandCf: CFrame): Model
 
 	-- Ada tabelası: üstte ada adı, altta sahibi. Yaklaşınca "Adalar" menüsü açılır (TravelMenu).
 	-- Tabela yolun üstünde durur ama alt kenarı karakter boyunun çok üstünde; direkler yolun dışında.
-	local signCf = islandCf * CFrame.new(0, SURFACE_Y + 8, -56)
+	local signCf = islandCf * CFrame.new(0, SURFACE_Y + 16, -56)
 	local frameColor = Color3.fromRGB(140, 100, 60)
 	local sign = makePart("PlotSign", Vector3.new(9, 2.8, 0.5), signCf, Color3.fromRGB(85, 60, 40), plotModel)
 	sign.Material = Enum.Material.WoodPlanks
@@ -926,11 +932,12 @@ local function buildIsland(plotIndex: number, islandCf: CFrame): Model
 			makePart("SignFrame", Vector3.new(9.4, 0.3, 0.7), signCf * CFrame.new(0, y, 0), frameColor, plotModel)
 		frame.Material = Enum.Material.Wood
 	end
-	for _, x in { -4.9, 4.9 } do
+	sign.CanCollide = false
+	for _, x in { -5.4, 5.4 } do
 		local post = makePart(
 			"SignPost",
-			Vector3.new(0.6, 9.6, 0.6),
-			islandCf * CFrame.new(x, SURFACE_Y + 4.8, -56),
+			Vector3.new(0.7, 18, 0.7),
+			islandCf * CFrame.new(x, SURFACE_Y + 9, -56),
 			frameColor,
 			plotModel
 		)
@@ -1031,6 +1038,67 @@ local function buildHub(parent: Instance)
 		local angle = (i - 0.5) / 6 * math.pi * 2
 		local p = Vector3.new(math.sin(angle), 0, math.cos(angle)) * (HUB_RADIUS - 4)
 		WorldDecor.lamp(hub, CFrame.lookAt(p + Vector3.new(0, SURFACE_Y, 0), Vector3.new(0, SURFACE_Y, 0)))
+	end
+
+	-- Satıcı NPC'ler: köprü aralarında, yüzleri meydanın ortasına dönük
+	local vendors: { { angle: number, spec: HubNpcs.NpcSpec } } = {
+		{
+			angle = 90,
+			spec = {
+				name = "Tüccar Tarık",
+				title = "Siparişler",
+				icon = "📋",
+				action = "orders",
+				prompt = "Siparişlere bak",
+				shirt = Color3.fromRGB(70, 130, 90),
+				hat = Color3.fromRGB(120, 85, 50),
+				awning = Color3.fromRGB(190, 70, 55),
+			},
+		},
+		{
+			angle = 150,
+			spec = {
+				name = "Gezgin Satıcı",
+				title = "Dükkân",
+				icon = "🎒",
+				action = "store",
+				prompt = "Paketlere bak",
+				shirt = Color3.fromRGB(150, 90, 170),
+				hat = Color3.fromRGB(60, 50, 90),
+				awning = Color3.fromRGB(120, 80, 170),
+			},
+		},
+		{
+			angle = 210,
+			spec = {
+				name = "Rehber Rana",
+				title = "Yol Haritası",
+				icon = "🗺️",
+				action = "roadmap",
+				prompt = "Konuş",
+				shirt = Color3.fromRGB(60, 120, 190),
+				hat = Color3.fromRGB(230, 200, 90),
+				awning = Color3.fromRGB(60, 120, 190),
+			},
+		},
+		{
+			angle = 270,
+			spec = {
+				name = "Kaptan Kemal",
+				title = "Adalar",
+				icon = "⚓",
+				action = "travel",
+				prompt = "Adalara Git",
+				shirt = Color3.fromRGB(235, 235, 240),
+				hat = Color3.fromRGB(30, 50, 100),
+				awning = Color3.fromRGB(240, 240, 245),
+			},
+		},
+	}
+	for _, vendor in vendors do
+		local rad = math.rad(vendor.angle)
+		local pos = Vector3.new(math.sin(rad), 0, math.cos(rad)) * 24 + Vector3.new(0, SURFACE_Y, 0)
+		HubNpcs.vendor(hub, CFrame.lookAt(pos, Vector3.new(0, SURFACE_Y, 0)), vendor.spec)
 	end
 
 	local spawn = Instance.new("SpawnLocation")

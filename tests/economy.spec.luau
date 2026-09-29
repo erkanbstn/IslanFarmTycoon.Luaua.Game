@@ -236,7 +236,7 @@ return function(FarmMath: any, Config: any, Environment: any)
 		"unknown farm ids use the first theme"
 	)
 	assert(
-		Config.themeHasIsland("2", "duck") and not Config.themeHasIsland("2", "poultry"),
+		Config.themeHasIsland("2", "dairy") and not Config.themeHasIsland("2", "poultry"),
 		"themes limit the available islands"
 	)
 	assert(Config.themeHasIsland("1", "home"), "the main island is always present")
@@ -245,7 +245,7 @@ return function(FarmMath: any, Config: any, Environment: any)
 	local owned, total = FarmMath.countIslands(themed)
 	assert(owned == 1 and total == 4, "every farm has the main island plus three small islands")
 	local nextIsland = FarmMath.getNextIsland(themed)
-	assert(nextIsland and nextIsland.id == "duck", "the cheapest island of the farm's theme comes next")
+	assert(nextIsland and nextIsland.id == "dairy", "the cheapest island of the farm's theme comes next")
 	themed.activeMainFarmId = "1"
 	assert(FarmMath.getNextIsland(themed).id == "poultry", "farm 1 starts with the poultry island")
 	local view = saveAt(start)
@@ -262,5 +262,71 @@ return function(FarmMath: any, Config: any, Environment: any)
 			)
 		end
 	end
+	-- Üretim tarifleri ve eklentiler: her biri gerçek bir ada, bölge, hayvan ve yükseltmeye bağlı olmalı
+	for id, recipe in Config.PRODUCTION_RECIPES do
+		assert(table.find(Config.PRODUCTION_ORDER, id), `recipe {id} must be listed in PRODUCTION_ORDER`)
+		local upgrade = Config.getUpgrade(recipe.upgradeId)
+		assert(upgrade and upgrade.kind == "boost", `recipe {id} needs a boost upgrade`)
+		assert(Config.getUpgradeIsland(upgrade) == recipe.island, `recipe {id} island must match its building`)
+		assert(Config.ANIMALS[recipe.animalId], `recipe {id} animal must exist`)
+		assert(
+			recipe.reward > recipe.cost and recipe.duration > 0 and recipe.requiredAdults >= 1,
+			`recipe {id} must be profitable`
+		)
+	end
+	for _, id in Config.PRODUCTION_ORDER do
+		assert(Config.PRODUCTION_RECIPES[id], `PRODUCTION_ORDER entry {id} must exist`)
+	end
+	for id, extension in Config.EXTENSIONS do
+		local zone = Config.ZONES[extension.sourceZoneId]
+		assert(zone and zone.island == extension.island, `extension {id} source zone must be on its island`)
+		assert(
+			table.find(zone.allowedAnimals, extension.animalId),
+			`extension {id} animal must live in its source zone`
+		)
+		assert(extension.capacity < zone.capacity, `extension {id} must not exceed its source zone`)
+		local upgrade = Config.getExtensionUpgrade(id)
+		assert(
+			upgrade and Config.getUpgradeIsland(upgrade) == extension.island,
+			`extension {id} needs an upgrade on its island`
+		)
+		assert(
+			table.find(upgrade.requires, Config.FARM_ISLANDS[extension.island].upgradeId),
+			`extension {id} requires its island`
+		)
+	end
+	-- Ana ada hayvanı: her tema kendi hayvanıyla başlar; o hayvanın ayrıca küçük adası olmaz, inek bir yerde bulunur
+	local homeAnimals: { [string]: boolean } = {}
+	for index, theme in Config.THEMES do
+		local farmId = tostring(index)
+		assert(Config.ANIMALS[theme.homeAnimal], `theme {index} home animal must exist`)
+		homeAnimals[theme.homeAnimal] = true
+		local hasCow = theme.homeAnimal == "cow"
+		for _, islandId in theme.satellites do
+			for _, zone in Config.ZONES do
+				if zone.island == islandId then
+					assert(
+						not table.find(zone.allowedAnimals, theme.homeAnimal),
+						`theme {index} repeats its home animal on {islandId}`
+					)
+					hasCow = hasCow or table.find(zone.allowedAnimals, "cow") ~= nil
+				end
+			end
+		end
+		assert(hasCow, `theme {index} must offer cows on the home or a small island`)
+		local themeFarm = saveAt(start)
+		themeFarm.activeMainFarmId = farmId
+		assert(
+			FarmMath.findZoneForAnimal(themeFarm, theme.homeAnimal) == "starter",
+			`theme {index} home animal lives in the starter zone`
+		)
+		local other = if theme.homeAnimal == "cow" then "chicken" else "cow"
+		assert(
+			not FarmMath.findZoneForAnimal(themeFarm, other)
+				or Config.ZONES[FarmMath.findZoneForAnimal(themeFarm, other) :: string].island ~= "home",
+			`theme {index} home zones reject other animals`
+		)
+	end
+	assert(homeAnimals.cow and homeAnimals.chicken and homeAnimals.duck, "home animals differ between farms")
 	print("PASS economy: growth boundaries, integrated offline/elapsed income, cap, growth upgrade, fish pricing")
 end

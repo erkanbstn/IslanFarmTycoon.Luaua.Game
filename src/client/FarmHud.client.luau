@@ -60,6 +60,26 @@ local goalsWindow = UiKit.window(screenGui, {
 	position = UDim2.fromScale(0.5, 0.5),
 })
 
+-- Sipariş panosu ve destek dükkânı kendi pencerelerinde (Çiftliğim'e karışmaz)
+local boardWindow = UiKit.window(screenGui, {
+	title = "Sipariş Panosu",
+	icon = "📋",
+	tint = Color.Green,
+	width = 380,
+	maxHeight = 480,
+	anchor = Vector2.new(0.5, 0.5),
+	position = UDim2.fromScale(0.5, 0.5),
+})
+local storeWindow = UiKit.window(screenGui, {
+	title = "Destek Dükkânı",
+	icon = "🎒",
+	tint = Color.Blue,
+	width = 380,
+	maxHeight = 480,
+	anchor = Vector2.new(0.5, 0.5),
+	position = UDim2.fromScale(0.5, 0.5),
+})
+
 ---------------------------------------------------------------------------
 -- Sol panel: para, gelir, depo, mevsim, sıradaki hedef
 ---------------------------------------------------------------------------
@@ -246,12 +266,6 @@ local islandsButton = UiKit.menuButton(dock, "🧭", "Adalar", Color.Blue, if ha
 islandsButton.Activated:Connect(IslandManager.open)
 local goalsButton = UiKit.menuButton(dock, "🏆", "Çiftliğim", Color.Gold, nil)
 goalsButton.Activated:Connect(goalsWindow.open)
--- Pazar tezgâhı (adadaki sipariş panosu): yaklaşıp etkileşince Çiftliğim penceresi açılır
-ProximityPromptService.PromptTriggered:Connect(function(prompt: ProximityPrompt, who: Player?)
-	if prompt.Name == "MarketPrompt" and (not who or who == localPlayer) then
-		goalsWindow.open()
-	end
-end)
 local homeButton = UiKit.menuButton(dock, "🏠", "Adama Dön", Color.Orange, nil)
 local settingsButton = UiKit.menuButton(dock, "⚙️", "Ayarlar", Color.TextMuted, nil)
 local adminButton = UiKit.menuButton(dock, "🔑", "Yönetici", Color.Gold, nil)
@@ -323,9 +337,11 @@ end
 
 -- Destek paketleri (oyun geçitleri ve ürünler): kimliği (id) 0 olanlar henüz satışta değildir, gizlenir.
 local STORE_ORDER = 90
-local storeHeader = UiKit.sectionHeader(goalsWindow.list, "Destek paketleri", STORE_ORDER)
+local storeHeader = UiKit.sectionHeader(storeWindow.list, "Destek paketleri", STORE_ORDER)
 type StoreEntry = { kind: string, key: string, product: Config.ProductConfig, card: UiKit.Card, shown: string }
 local storeEntries: { StoreEntry } = {}
+local storeEmpty = UiKit.text(storeWindow.list, "Dükkân çok yakında açılıyor.", "Caption", Color.TextMuted)
+storeEmpty.LayoutOrder = STORE_ORDER - 1
 for _, group in
 	{ { kind = "pass", items = Config.PRODUCTS.passes }, { kind = "product", items = Config.PRODUCTS.products } }
 do
@@ -336,7 +352,7 @@ do
 	table.sort(keys)
 	for _, key in keys do
 		local product = group.items[key]
-		local card = UiKit.card(goalsWindow.list, STORE_ORDER + #storeEntries + 1, product.icon)
+		local card = UiKit.card(storeWindow.list, STORE_ORDER + #storeEntries + 1, product.icon)
 		card.title.Text = product.displayName
 		card.detail.Text = product.description
 		card.action.Activated:Connect(function()
@@ -364,6 +380,7 @@ local function updateStore(state: PlayerSave)
 		UiKit.setVariant(entry.card.action, if owned then "owned" else "primary")
 	end
 	(storeHeader.Parent :: GuiObject).Visible = any
+	storeEmpty.Visible = not any
 end
 
 local rewardSignature = ""
@@ -432,13 +449,13 @@ end
 ---------------------------------------------------------------------------
 
 local BOARD_ORDER = 60
-local _, boardMeta = UiKit.sectionHeader(goalsWindow.list, "Sipariş panosu", BOARD_ORDER)
-local boardEvent = UiKit.text(goalsWindow.list, "", "Caption", Color.Gold)
+local _, boardMeta = UiKit.sectionHeader(boardWindow.list, "Sipariş panosu", BOARD_ORDER)
+local boardEvent = UiKit.text(boardWindow.list, "", "Caption", Color.Gold)
 boardEvent.LayoutOrder = BOARD_ORDER + 1
 local boardCards: { UiKit.Card } = {}
 local boardOffers: { OrderBoard.Offer } = {}
 for index = 1, #Config.ORDER_TIERS do
-	local card = UiKit.card(goalsWindow.list, BOARD_ORDER + 1 + index, "📋")
+	local card = UiKit.card(boardWindow.list, BOARD_ORDER + 1 + index, "📋")
 	boardCards[index] = card
 	card.action.Activated:Connect(function()
 		local offer = boardOffers[index]
@@ -678,8 +695,7 @@ do
 		if stageIndex == 1 then
 			local free = UiKit.card(roadmapWindow.list, order, "🎁")
 			free.title.Text = "Başlangıç hediyesi"
-			free.detail.Text =
-				`{Config.BARN_LEVELS[1].displayName}, {Config.ZONES.starter.displayName}, {Config.STARTING_COW_COUNT} inek`
+			free.detail.Text = `{Config.BARN_LEVELS[1].displayName}, ana ağıl, {Config.STARTING_COW_COUNT} hayvan`
 			free.action.Text = "Alındı"
 			UiKit.setVariant(free.action, "owned")
 			table.insert(stageGroups[stageIndex], free.frame)
@@ -785,6 +801,37 @@ upgradesButton.Activated:Connect(function()
 	toggleWindow(upgradesWindow)
 end)
 
+-- Meydandaki satıcı NPC'ler: mevcut pencereleri açar (satın alma yine sunucuda doğrulanır)
+local vendorActions: { [string]: () -> () } = {
+	orders = function()
+		boardWindow.open()
+	end,
+	store = function()
+		storeWindow.open()
+	end,
+	roadmap = function()
+		roadmapWindow.open()
+	end,
+	travel = IslandManager.open,
+}
+ProximityPromptService.PromptTriggered:Connect(function(prompt: ProximityPrompt, who: Player?)
+	if who and who ~= localPlayer then
+		return
+	end
+	-- Adadaki pazar tezgâhı: hayvan pazarını açar (sağ menüdeki "Pazar" ile aynı)
+	if prompt.Name == "MarketPrompt" then
+		shopWindow.open()
+		return
+	end
+	if prompt.Name ~= "VendorPrompt" then
+		return
+	end
+	local action = prompt:GetAttribute("Action")
+	local handler = if typeof(action) == "string" then vendorActions[action] else nil
+	if handler then
+		handler()
+	end
+end)
 -- Klavye kısayolları: P = Pazar, Y = Yol Haritası, U = Yükseltmeler, I = Adalar
 UserInputService.InputBegan:Connect(function(input: InputObject, gameProcessed: boolean)
 	if gameProcessed then
@@ -1210,8 +1257,12 @@ local function updateGoal(state: PlayerSave, income: number)
 	goalTitle.Text = "SIRADAKİ HEDEF"
 	-- İlk boş kapasiteyi kullanmayı öğret; iki inek varken daha fazla yer önermeyiz.
 	if #state.animals <= Config.STARTING_COW_COUNT and next(state.purchased) == nil then
-		goalLabel.Text = "İlk hedef: yeni bir inek"
-		goalDetail.Text = purchaseHint(state, FarmMath.getAnimalPrice(state, "cow"), income)
+		local homeAnimal = Config.getHomeAnimal(state.activeMainFarmId)
+		goalLabel.Text = if homeAnimal == "chicken"
+			then "İlk hedef: yeni bir tavuk"
+			elseif homeAnimal == "duck" then "İlk hedef: yeni bir ördek"
+			else "İlk hedef: yeni bir inek"
+		goalDetail.Text = purchaseHint(state, FarmMath.getAnimalPrice(state, homeAnimal), income)
 		return
 	end
 	local best: Config.UpgradeConfig? = nil

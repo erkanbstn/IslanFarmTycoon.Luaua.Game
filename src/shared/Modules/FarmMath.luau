@@ -117,8 +117,12 @@ function FarmMath.getAnimalMultiplier(save: PlayerSave, animalId: string, neutra
 	local bonus = 0
 	for _, upgrade in Config.UPGRADES do
 		local boost = upgrade.incomeBoost
-		if boost and boost[animalId] and save.purchased[upgrade.id] then
-			bonus += boost[animalId]
+		if boost and save.purchased[upgrade.id] then
+			bonus += boost[animalId] or 0
+			-- "home": çiftliğin ana ada hayvanı (temaya göre inek, tavuk veya ördek)
+			if boost.home and animalId == Config.getHomeAnimal(save.farmId or save.activeMainFarmId) then
+				bonus += boost.home
+			end
 		end
 	end
 	-- Oyun geçidi çarpanı (sunucu doğrular; client yalnızca gösterir)
@@ -327,12 +331,17 @@ function FarmMath.getAnimalPrice(save: PlayerSave, animalId: string): number
 	return math.floor(animalConfig.price * Config.ANIMAL_PRICE_GROWTH ^ owned)
 end
 
+-- Bölge bu çiftlikte bu hayvanı kabul ediyor mu? (ana ada bölgeleri temaya göre değişir)
+function FarmMath.zoneAllows(save: PlayerSave, zone: Config.ZoneConfig, animalId: string): boolean
+	return Config.zoneAllows(zone, animalId, save.farmId or save.activeMainFarmId)
+end
+
 -- Bu türün konabileceği açık bölgelerdeki toplam boş yer
 function FarmMath.getFreeSlots(save: PlayerSave, animalId: string): number
 	local free = 0
 	for _, zoneId in Config.ZONE_ORDER do
 		local zone = Config.ZONES[zoneId]
-		if zone and table.find(zone.allowedAnimals, animalId) and save.unlockedZones[zoneId] then
+		if zone and FarmMath.zoneAllows(save, zone, animalId) and save.unlockedZones[zoneId] then
 			free += math.max(0, zone.capacity - FarmMath.countInZone(save, zoneId))
 		end
 	end
@@ -381,7 +390,7 @@ export type ZoneBlock = "full" | "locked"
 function FarmMath.hasUnlockedAnimalZone(save: PlayerSave, animalId: string): boolean
 	for _, zoneId in Config.ZONE_ORDER do
 		local zone = Config.ZONES[zoneId]
-		if zone and table.find(zone.allowedAnimals, animalId) and save.unlockedZones[zoneId] then
+		if zone and FarmMath.zoneAllows(save, zone, animalId) and save.unlockedZones[zoneId] then
 			return true
 		end
 	end
@@ -395,7 +404,7 @@ function FarmMath.findZoneForAnimal(save: PlayerSave, animalId: string): (string
 
 	for _, zoneId in Config.ZONE_ORDER do
 		local zone = Config.ZONES[zoneId]
-		if not zone or not table.find(zone.allowedAnimals, animalId) then
+		if not zone or not FarmMath.zoneAllows(save, zone, animalId) then
 			continue
 		end
 		if save.unlockedZones[zoneId] then

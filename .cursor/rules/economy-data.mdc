@@ -43,4 +43,8 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
   `barn_N`'e bağlanır (tema sırası bozulmasın; test doğrular). Mantık `Config.getTheme/themeHasIsland` ve
   `FarmMath.themeIslands` ile temaya bakar; `UpgradeService.tryBuy` tema dışı adayı reddeder. Harita yuvaları
   `MapBuilder.SATELLITE_SLOTS` + `SATELLITE_TYPES`; çiftlik n her zaman n numaralı adaya bağlanır (`PlotService.plotForFarm`).
+- **Ana ada hayvanı**: `theme.homeAnimal` (inek/tavuk/ördek) `starter` ve `pasture` bölgelerinin (`themed = true`) hayvanını
+  belirler; bölge izni her yerde `Config.zoneAllows`/`FarmMath.zoneAllows` ile sorulur (`allowedAnimals`'a doğrudan bakma).
+  `incomeBoost.home` çiftliğin ana ada hayvanına uygulanır. Ana hayvanın kendi küçük adası temada olmaz; inek yoksa `dairy`
+  (Süt Adası) küçük adası temada bulunur (test doğrular). `ROADMAP_STAGES` sırası `upgrade.stage` indeksidir: yeni aşamayı sona ekle.
 
