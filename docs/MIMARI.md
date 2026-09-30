@@ -41,7 +41,7 @@ Bağımlılık yönü alttan üste: `Core` ← `Effects` ← `Ui` ← `Interacti
 |---|---|---|---|
 | 1 | `Core/` | Durum, satın alma, yerelleştirme, ses yardımcısı | `ClientState`, `PurchaseController`, `IslandContext`, `Localizer`, `Sfx`, `EffectSettings` (ReducedMotion/EffectsQuality önbelleği), `ClientBootstrap` |
 | 2 | `Effects/` | Görsel/işitsel atmosfer (oyun durumuna dokunmaz) | `DayNight`, `WeatherEffects`, `WeatherPrecip`, `SeasonalScenery`, `Underwater`, `Graphics`, `Birds`, `FishLife`, `SeabedLife`, `ShoreIce`, `BuildEffects`, `AnimalAnimator`, `BoatAnimator`, `Windmill`, `Soundscape` |
-| 3 | `Ui/` | Ekran arayüzü ve dünyada duran arayüz | `UiKit`, `FarmHud` (yalnızca orkestrasyon), `Hud/*` (pencere ve bölümler), `IslandManager` (Adalar menüsü), `IncomeBubbles`, `SettingsMenu`, `AdminPanel`, `ProductionPanel`, `TravelMenu` |
+| 3 | `Ui/` | Ekran arayüzü ve dünyada duran arayüz | `UiKit`, `FarmHud` (yalnızca orkestrasyon), `Hud/*` (pencere ve bölümler; `StatsPanel`, `GoalCard`, `MenuBar`, `Celebration` ana HUD parçaları), `IslandManager` (Adalar menüsü), `IncomeBubbles`, `SettingsMenu`, `AdminPanel`, `ProductionPanel`, `TravelMenu` |
 | 4 | `Interaction/` | Oyuncunun dünyayla etkileşimi | `BuyPads`, `CollectorGuide`, `GoldenAnimal`, `HubNpcs`, `IslandAutoSelect`, `IslandPrompts`, `Sprint`, `CharacterSafety`, `WelcomeBack` |
 | — | `init.client.luau` | Giriş noktası | Yalnızca karşılama günlüğü |
 
@@ -88,5 +88,5 @@ Kural: `shared` sunucu ya da istemci klasörlerine bağlanmaz.
 
 ## Bilinen mimari borç
 
-- `MapBuilder` (~1500), `UpgradeVisualService` (~1200), `FarmHud` (~1100) büyük dosyalar; bölümlere ayrılabilir.
+- `MapBuilder` (~1500) ve `UpgradeVisualService` (~1200) büyük dosyalar; bölümlere ayrılabilir.
 - `Presentation` ↔ `Services` döngüsü (`PlotService` görselleri çağırır, bazı görseller servisleri okur) tembel `require` ile kırılıyor; bir arayüz (olay) katmanıyla kaldırılabilir.

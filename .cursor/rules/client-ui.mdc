@@ -27,11 +27,11 @@ Katman: `src/client/Ui/` (UiKit, FarmHud, `Hud/*`, paneller, `IslandManager`, `I
 | Üst orta | Bildirimler (toast) |
 | Sağ üst / sol üst | Roblox oyuncu listesi ve sohbet — HUD buraya bir şey koymaz |
 
-- **Menü kademeli açılır** (`FarmHud.updateMenuVisibility` / `setMenuTile`): yeni oyuncu yalnızca Pazar, Çiftliğim, Ayarlar'ı görür; diğer karolar ihtiyaç doğunca belirir ve 8 sn vurgulanır.
-  Yeni karo eklerken ne zaman görüneceğini (`updateMenuVisibility`) belirle; hepsini baştan gösterme.
-- Sol panel: ipucu satırı (`hintWanted`) yalnızca sorun varken görünür; hedef kartı tek hedef gösterir, deneyimli oyuncuda altına "bekleyen iş" satırları (`pendingChores`) ve büyük hedef için biriktirirken "Hızlı kazanç" önerisi gelir.
-- Yeni yapı/geliştirme kilometre taşı kutlaması `celebrate` ile (durum farkından `detectMilestone`); yeni kilometre taşı türü eklersen oraya ekle.
-- Yeni menü girişi: `UiKit.menuButton` + `menuEntries` listesine ekle (`compactDock` = dar ekranda
+- **Menü kademeli açılır** (`Hud/MenuBar` içinde `updateVisibility` / `setMenuTile`): yeni oyuncu yalnızca Pazar, Çiftliğim, Ayarlar'ı görür; diğer karolar ihtiyaç doğunca belirir ve 8 sn vurgulanır.
+  Yeni karo eklerken ne zaman görüneceğini (`MenuBar` `updateVisibility`) belirle; hepsini baştan gösterme.
+- Sol panel: ipucu satırı (`StatsPanel` içinde `hintWanted`) yalnızca sorun varken görünür; hedef kartı (`Hud/GoalCard`) tek hedef gösterir, deneyimli oyuncuda altına "bekleyen iş" satırları (`pendingChores`) ve büyük hedef için biriktirirken "Hızlı kazanç" önerisi gelir.
+- Yeni yapı/geliştirme kilometre taşı kutlaması `Hud/Celebration` ile (durum farkından `detectMilestone`); yeni kilometre taşı türü eklersen oraya ekle.
+- Yeni menü girişi: `Hud/MenuBar` içinde `UiKit.menuButton` + `menuEntries` listesine ekle (`compactDock` = dar ekranda
   menüde kalsın mı). Ayrıntılı/az kullanılan bilgi ana HUD'a değil "Çiftliğim" penceresine gider.
 - Pencere açılınca `redraw`; kapalı pencere içeriği `*Dirty` bayraklarıyla ertelenir.
 - Her yeni ekran metni için çeviri gerekir (localization rule). Kısa etiket seç; karo yazısı 76 px.
@@ -47,8 +47,8 @@ Katman: `src/client/Ui/` (UiKit, FarmHud, `Hud/*`, paneller, `IslandManager`, `I
 - Durum güncellemesi yapısal (`structural`) ve para değişimi ayrı ele alınır; aynı metni tekrar yazma
   (`buttonStates` imza kalıbı). Her karede UI güncelleme yok; 0.25–1 sn aralık yeterli.
 
-- HUD ana betiği `src/client/Ui/FarmHud.client.luau` yalnızca orkestrasyondur (sol panel, menü, durum dağıtımı). Pencereler ve
-  bölümler `src/client/Ui/Hud/` altındadır: `ShopWindow`, `RoadmapWindow`, `UpgradesWindow`, `IslandTabs`, `StoreSection`,
+- HUD ana betiği `src/client/Ui/FarmHud.client.luau` yalnızca orkestrasyondur (ekranı kurar, modülleri bağlar, durumu dağıtır). Pencereler ve
+  bölümler `src/client/Ui/Hud/` altındadır: `StatsPanel` (sol panel), `GoalCard` (hedef/ada kartları), `MenuBar` (alt menü + rozetler), `Celebration`, `ShopWindow`, `RoadmapWindow`, `UpgradesWindow`, `IslandTabs`, `StoreSection`,
   `RewardsSection`, `BoardSection`, `ItemShopWindow` + `InventoryWindow` (+ ortak `ItemText`), `SeasonBar`, `Onboarding` (ilk adımlar: durumdan türetilir, `UiKit.pulse` vurgusu + `TutorialGuide` özniteliğiyle CollectorGuide ışını), ortak `HudCommon` (`setPurchaseButton`, `purchaseHint`). Yeni pencere/bölüm
   eklerken ana betiğe yığmak yerine buraya `create(...)` + `update(state)` kalıbıyla yeni modül yaz.
 - Mevsim/hava: ReplicatedStorage attribute'larını doğrudan okuma/dinleme; `Environment.getSeason()/getWeather()` ve `Environment.onChanged` kullan (asa ile oyuncuya özel katman otomatik uygulanır).
