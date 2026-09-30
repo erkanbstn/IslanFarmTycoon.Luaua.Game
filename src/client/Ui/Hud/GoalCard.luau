@@ -1,5 +1,5 @@
 --!strict
--- Sol paneldeki "sıradaki hedef" kartı ve Çiftliğim penceresindeki "sıradaki ada" kartı.
+-- Sol paneldeki "sıradaki hedef" ve "sıradaki ada" kartları.
 -- Hedef metinleri durumdan türetilir (yalnızca gösterim; satın almayı sunucu doğrular). Yeni oyuncuda
 -- Onboarding adımları, deneyimli oyuncuda bekleyen işler ve "hızlı kazanç" önerisi gösterilir.
 
@@ -26,19 +26,19 @@ local setPurchaseButton = HudCommon.setPurchaseButton
 local GoalCard = {}
 
 export type Hud = {
-	card: Frame, -- hedef kartı (geniş ekranda sol panelde, kompaktta Çiftliğim listesinde durur)
+	card: Frame, -- hedef kartı (sol panelde)
 	updateGoal: (state: PlayerSave, income: number) -> (),
 	updateIsland: (state: PlayerSave, income: number) -> (),
 }
 
-function GoalCard.create(stats: Frame, goalsList: Instance, onboarding: Onboarding.Hud): Hud
+function GoalCard.create(stats: Frame, onboarding: Onboarding.Hud): Hud
 	-- Sıradaki ada kartı: oyuncunun uzun vadeli amacı
 	local islandCard = Instance.new("Frame")
 	islandCard.BackgroundColor3 = Color.Surface
 	islandCard.Size = UDim2.new(1, 0, 0, 0)
 	islandCard.AutomaticSize = Enum.AutomaticSize.Y
-	islandCard.LayoutOrder = 2
-	islandCard.Parent = goalsList
+	islandCard.LayoutOrder = 6
+	islandCard.Parent = stats
 	UiKit.corner(islandCard, UiKit.Radius.Card)
 	UiKit.stroke(islandCard, 0.6).Color = Color.Gold
 	UiKit.padding(islandCard, 10)

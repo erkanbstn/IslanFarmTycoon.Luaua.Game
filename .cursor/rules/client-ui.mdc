@@ -19,20 +19,20 @@ Katman: `src/client/Ui/` (UiKit, FarmHud, `Hud/*`, paneller, `IslandManager`, `I
 ## HUD yerleşim bölgeleri (FarmHud) — çakışma olmasın
 | Bölge | İçerik |
 |---|---|
-| Sol orta | `Stats` paneli: ada adı, para+gelir, depo, mevsim/hava kartı, sıradaki hedef |
-| Alt orta | `Menu` karo çubuğu (geniş ekran) |
-| Sağ orta | `Menu` 3 karoluk sütun (kompakt: genişlik < 900 veya yükseklik < 560) |
+| Sol orta | `Stats` paneli (sola kayarak kapanır; sağ kenarında sekme): ada adı, para+gelir, ahır, depo, mevsim/hava kartı, sıradaki hedef ve sıradaki ada |
+| Üst orta | `MenuTop` karo çubuğu: Pazar, Yükseltmeler, Yol Haritası, Üretim, Adalar (bildirimler bunun altında) |
+| Sağ orta | `MenuSide` karo sütunu: Envanter, Ödüller, Adama Dön, Ayarlar, (yönetici) Yönetici |
 | Sağ (pencere) | Pazar / Yol Haritası / Yükseltmeler pencereleri (`WINDOW_POSITION`) |
-| Orta (pencere) | Çiftliğim, Sipariş Panosu, Destek Dükkânı (henüz kapalı, sonraki Robux turu için), Eşya Dükkânı, Envanter (birbirini kapatır: `openCenter`; meydan satıcıları ve pazar tezgâhı ilgili pencereyi açar) |
+| Orta (pencere) | Ödüller (günlük ödül, mevsim hedefi, başarımlar), Sipariş Panosu, Destek Dükkânı (henüz kapalı, sonraki Robux turu için), Eşya Dükkânı, Envanter (birbirini kapatır: `openCenter`; meydan satıcıları ve pazar tezgâhı ilgili pencereyi açar) |
 | Üst orta | Bildirimler (toast) |
 | Sağ üst / sol üst | Roblox oyuncu listesi ve sohbet — HUD buraya bir şey koymaz |
 
-- **Menü kademeli açılır** (`Hud/MenuBar` içinde `updateVisibility` / `setMenuTile`): yeni oyuncu yalnızca Pazar, Çiftliğim, Ayarlar'ı görür; diğer karolar ihtiyaç doğunca belirir ve 8 sn vurgulanır.
+- **Menü kademeli açılır** (`Hud/MenuBar` içinde `updateVisibility` / `setMenuTile`): yeni oyuncu yalnızca Pazar, Ödüller, Ayarlar'ı görür; diğer karolar ihtiyaç doğunca belirir ve 8 sn vurgulanır.
   Yeni karo eklerken ne zaman görüneceğini (`MenuBar` `updateVisibility`) belirle; hepsini baştan gösterme.
 - Sol panel: ipucu satırı (`StatsPanel` içinde `hintWanted`) yalnızca sorun varken görünür; hedef kartı (`Hud/GoalCard`) tek hedef gösterir, deneyimli oyuncuda altına "bekleyen iş" satırları (`pendingChores`) ve büyük hedef için biriktirirken "Hızlı kazanç" önerisi gelir.
 - Yeni yapı/geliştirme kilometre taşı kutlaması `Hud/Celebration` ile (durum farkından `detectMilestone`); yeni kilometre taşı türü eklersen oraya ekle.
 - Yeni menü girişi: `Hud/MenuBar` içinde `UiKit.menuButton` + `menuEntries` listesine ekle (`compactDock` = dar ekranda
-  menüde kalsın mı). Ayrıntılı/az kullanılan bilgi ana HUD'a değil "Çiftliğim" penceresine gider.
+  menüde kalsın mı). Ayrıntılı/az kullanılan bilgi ana HUD'a değil ilgili pencereye gider (ödül ve başarımlar "Ödüller" penceresinde).
 - Pencere açılınca `redraw`; kapalı pencere içeriği `*Dirty` bayraklarıyla ertelenir.
 - Her yeni ekran metni için çeviri gerekir (localization rule). Kısa etiket seç; karo yazısı 76 px.
 
@@ -48,7 +48,7 @@ Katman: `src/client/Ui/` (UiKit, FarmHud, `Hud/*`, paneller, `IslandManager`, `I
   (`buttonStates` imza kalıbı). Her karede UI güncelleme yok; 0.25–1 sn aralık yeterli.
 
 - HUD ana betiği `src/client/Ui/FarmHud.client.luau` yalnızca orkestrasyondur (ekranı kurar, modülleri bağlar, durumu dağıtır). Pencereler ve
-  bölümler `src/client/Ui/Hud/` altındadır: `StatsPanel` (sol panel), `GoalCard` (hedef/ada kartları), `MenuBar` (alt menü + rozetler), `Celebration`, `ShopWindow`, `RoadmapWindow`, `UpgradesWindow`, `IslandTabs`, `StoreSection`,
+  bölümler `src/client/Ui/Hud/` altındadır: `StatsPanel` (sol panel), `GoalCard` (hedef/ada kartları), `MenuBar` (üst menü çubuğu + sağ sütun + rozetler), `Celebration`, `ShopWindow`, `RoadmapWindow`, `UpgradesWindow`, `IslandTabs`, `StoreSection`,
   `RewardsSection`, `BoardSection`, `ItemShopWindow` + `InventoryWindow` (+ ortak `ItemText`), `SeasonBar`, `Onboarding` (ilk adımlar: durumdan türetilir, `UiKit.pulse` vurgusu + `TutorialGuide` özniteliğiyle CollectorGuide ışını), ortak `HudCommon` (`setPurchaseButton`, `purchaseHint`). Yeni pencere/bölüm
   eklerken ana betiğe yığmak yerine buraya `create(...)` + `update(state)` kalıbıyla yeni modül yaz.
 - Mevsim/hava: ReplicatedStorage attribute'larını doğrudan okuma/dinleme; `Environment.getSeason()/getWeather()` ve `Environment.onChanged` kullan (asa ile oyuncuya özel katman otomatik uygulanır).

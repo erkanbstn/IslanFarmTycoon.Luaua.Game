@@ -101,9 +101,9 @@ Yeni dosya eklerken `docs/MIMARI.md`'deki "Yeni şey nereye?" tablosuna bak.
 - Emoji sadece ikon kutusunda (`UiKit.iconChip`, WorldUi'nin `icon` alanı); metinlerde emoji yok.
   Kapat/bildirim işaretleri çizilir.
 - Buton tipleri: primary = alınabilir, warning = para yetmiyor, disabled = kilitli/dolu, owned = alındı.
-- HUD bölgeleri: sol orta `Stats` paneli, alt orta menü karoları (dar ekranda sağ orta 3 karo),
+- HUD bölgeleri: sol orta `Stats` paneli (sola kayarak kapanır), üst orta menü çubuğu (Pazar, Yükseltmeler, Yol Haritası, Üretim, Adalar), sağ orta menü sütunu (Envanter, Ödüller, Adama Dön, Ayarlar),
  sağda pencereler, üst ortada bildirimler. Sağ üst (oyuncu listesi) ve sol üst (sohbet) boş kalır.
- Menü karoları kademeli açılır (yeni oyuncu Pazar/Çiftliğim/Ayarlar görür); ipucu satırı yalnızca sorun varken çıkar. Ayrıntılı bilgi ana HUD'a değil "Çiftliğim" penceresine gider. Sipariş Panosu, Eşya Dükkânı, Envanter, Pazar, Yol Haritası ve Yükseltmeler
+ Menü karoları kademeli açılır (yeni oyuncu Pazar/Ödüller/Ayarlar görür); ipucu satırı yalnızca sorun varken çıkar. Ayrıntılı bilgi ana HUD'a değil ilgili pencereye (ödüller "Ödüller" penceresine) gider. Sipariş Panosu, Eşya Dükkânı, Envanter, Pazar, Yol Haritası ve Yükseltmeler
   ayrı pencerelerdir; pencere ve bölüm kodu `src/client/Ui/Hud/` altında, `FarmHud.client.luau` yalnızca orkestrasyondur.
 - Sunucu bildirim (Notify) metinlerine emoji koyma; bildirimin türü (success/error/money/info) işareti belirler.
 

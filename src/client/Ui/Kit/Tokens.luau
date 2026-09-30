@@ -20,7 +20,7 @@ Tokens.Radius = {
 	Button = 8,
 }
 
--- Menü karosu boyutu (HUD menü çubuğu ve Çiftliğim penceresindeki ızgara aynı ölçüyü kullanır)
+-- Menü karosu boyutu (HUD üst menü çubuğu ve sağ menü sütunu aynı ölçüyü kullanır)
 Tokens.MenuTileSize = Vector2.new(76, 60)
 
 return Tokens

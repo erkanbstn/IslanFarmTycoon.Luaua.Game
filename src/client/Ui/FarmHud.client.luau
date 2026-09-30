@@ -61,10 +61,9 @@ ProductionPanel.bind(screenGui)
 
 local compact = false
 
--- Çiftliğim: ahır, sıradaki ada ve (dar ekranda) hedef kartı ile ek menü karoları.
--- Ana HUD yalnızca sık bakılan bilgiyi (para, depo, mevsim, sıradaki hedef) gösterir.
-local goalsWindow = UiKit.window(screenGui, {
-	title = "Çiftliğim",
+-- Ödüller: günlük ödül, mevsim hedefi ve başarımlar.
+local rewardsWindow = UiKit.window(screenGui, {
+	title = "Ödüller",
 	icon = "🏆",
 	tint = Color.Gold,
 	width = 380,
@@ -84,7 +83,7 @@ local function openCenter(window: UiKit.Window)
 	window.open()
 end
 
--- Sipariş panosu ve destek dükkânı kendi pencerelerinde (Çiftliğim'e karışmaz)
+-- Sipariş panosu ve destek dükkânı kendi pencerelerinde (Ödüller'e karışmaz)
 local boardWindow = UiKit.window(screenGui, {
 	title = "Sipariş Panosu",
 	icon = "📋",
@@ -103,7 +102,7 @@ local storeWindow = UiKit.window(screenGui, {
 	anchor = Vector2.new(0.5, 0.5),
 	position = UDim2.fromScale(0.5, 0.5),
 })
-table.insert(centerWindows, goalsWindow)
+table.insert(centerWindows, rewardsWindow)
 table.insert(centerWindows, boardWindow)
 table.insert(centerWindows, storeWindow)
 -- Eşya Dükkânı (meydandaki satıcı) ve Envanter: ortadaki pencereler, birbirini kapatır
@@ -116,14 +115,14 @@ table.insert(centerWindows, inventoryPanel.window)
 -- Sol panel, menü ve hedef kartları (oluşturma sırası ekrandaki üst üste binmeyi belirler)
 ---------------------------------------------------------------------------
 
-local statsHud = StatsPanel.create(screenGui, goalsWindow.list)
-local menu = MenuBar.create(screenGui, goalsWindow.list)
+local statsHud = StatsPanel.create(screenGui)
+local menu = MenuBar.create(screenGui)
 local onboarding = Onboarding.create(menu.shopButton, menu.upgradesButton)
-local goal = GoalCard.create(statsHud.frame, goalsWindow.list, onboarding)
+local goal = GoalCard.create(statsHud.frame, onboarding)
 local celebrate = Celebration.create(screenGui)
 
-menu.goalsButton.Activated:Connect(function()
-	openCenter(goalsWindow)
+menu.rewardsButton.Activated:Connect(function()
+	openCenter(rewardsWindow)
 end)
 menu.inventoryButton.Activated:Connect(function()
 	if inventoryPanel.window.isOpen() then
@@ -134,11 +133,11 @@ menu.inventoryButton.Activated:Connect(function()
 end)
 
 ---------------------------------------------------------------------------
--- Çiftliğim penceresi: günlük ödül ve başarımlar
+-- Ödüller penceresi: günlük ödül ve başarımlar
 ---------------------------------------------------------------------------
 
 local updateStore = StoreSection.create(storeWindow.list)
-local updateRewardsSection = RewardsSection.create(goalsWindow.list, menu.setGoalsBadge)
+local updateRewardsSection = RewardsSection.create(rewardsWindow.list, menu.setRewardsBadge)
 local function updateRewards(state: PlayerSave?)
 	if not state then
 		return
@@ -157,8 +156,8 @@ end)
 -- Pencereler
 ---------------------------------------------------------------------------
 
--- Sağ kenarda, alttaki menü çubuğunun üstünde kalacak kadar yukarıda
-local WINDOW_POSITION = UDim2.new(1, -12, 0.5, -30)
+-- Sağ kenarda, sağ menü sütununun (76 px + boşluk) soluna yaslı
+local WINDOW_POSITION = UDim2.new(1, -96, 0.5, 0)
 
 local shop = ShopWindow.create(screenGui, WINDOW_POSITION)
 local shopWindow = shop.window
@@ -245,15 +244,10 @@ UserInputService.InputBegan:Connect(function(input: InputObject, gameProcessed: 
 end)
 local showToast = UiKit.toastHost(screenGui)
 local toastHolder = screenGui:FindFirstChild("Toasts") :: Frame
-local function layoutToasts()
-	toastHolder.AnchorPoint = if compact then Vector2.zero else Vector2.new(0.5, 0)
-	toastHolder.Position = if compact
-		then UDim2.fromOffset(8, statsHud.frame.AbsoluteSize.Y + 20)
-		else UDim2.new(0.5, 0, 0, 12)
-	-- Dar ekranda sağ menüyü ve hava kartını bildirimlerin dışında tut.
-	toastHolder.Size = UDim2.new(1, if compact then -128 else -24, 0, 0)
-end
-statsHud.frame:GetPropertyChangedSignal("AbsoluteSize"):Connect(layoutToasts)
+-- Bildirimler üst menü çubuğunun (60 px) altında, sağ menü sütununa ve sol panele taşmadan durur.
+toastHolder.AnchorPoint = Vector2.new(0.5, 0)
+toastHolder.Position = UDim2.new(0.5, 0, 0, 80)
+toastHolder.Size = UDim2.new(1, -240, 0, 0)
 PurchaseController.Completed:Connect(function(success: boolean, message: string?)
 	-- Adalar penceresi açıkken bildirimi pencerenin kendi bildirim alanı gösterir (üstte, pencerenin önünde)
 	if message and not IslandManager.isOpen() then
@@ -382,20 +376,11 @@ local function resizeHud()
 	-- Kısa ama geniş pencerelerde (ör. 1600x645) tam yerleşim kullanılır; yalnızca dar ya da çok kısa ekran kompakt olur.
 	compact = camera.ViewportSize.X < 900 or camera.ViewportSize.Y < 560
 	statsHud.setCompact(compact)
-	-- Kompakt: kasa, depo çubuğu ve tek satırlık mevsim/hava; ayrıntılar Çiftliğim penceresinde.
+	-- Kompakt: kasa, depo çubuğu ve tek satırlık mevsim/hava.
 	seasonBar.setCompact(compact)
-	-- Geniş: alt ortada yatay çubuk. Dar: sağ kenarın ortasında kısa sütun (üstteki oyuncu listesine uzanmaz).
-	menu.setCompact(compact)
-	layoutToasts()
 	redraw()
 end
 
-local function placeGoals()
-	goal.card.Parent = if compact then goalsWindow.list else statsHud.frame
-	goal.card.LayoutOrder = if compact then 3 else 5
-	goal.card.Visible = true
-	menu.place(compact)
-end
 local cameraConnection: RBXScriptConnection? = nil
 local function watchCamera()
 	if cameraConnection then
@@ -403,13 +388,9 @@ local function watchCamera()
 	end
 	local camera = Workspace.CurrentCamera
 	if camera then
-		cameraConnection = camera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
-			resizeHud()
-			placeGoals()
-		end)
+		cameraConnection = camera:GetPropertyChangedSignal("ViewportSize"):Connect(resizeHud)
 	end
 	resizeHud()
-	placeGoals()
 end
 Workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(watchCamera)
 watchCamera()

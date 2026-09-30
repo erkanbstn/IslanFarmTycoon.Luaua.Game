@@ -1,5 +1,5 @@
 --!strict
--- Çiftliğim penceresi: günlük ödül ve başarımlar.
+-- Ödüller penceresi: günlük ödül, mevsim hedefi ve başarımlar.
 
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -16,8 +16,8 @@ type PlayerSave = GameTypes.PlayerSave
 
 local RewardsSection = {}
 
--- setGoalsBadge: Çiftliğim düğmesindeki "alınabilir ödül" rozeti
-function RewardsSection.create(list: Instance, setGoalsBadge: (number) -> ()): (PlayerSave) -> ()
+-- setRewardsBadge: Ödüller düğmesindeki "alınabilir ödül" rozeti
+function RewardsSection.create(list: Instance, setRewardsBadge: (number) -> ()): (PlayerSave) -> ()
 	local dailyCard = UiKit.card(list, 20, "🎁")
 	dailyCard.title.Text = "Günlük ödül"
 	dailyCard.action.Activated:Connect(function()
@@ -117,7 +117,7 @@ function RewardsSection.create(list: Instance, setGoalsBadge: (number) -> ()): (
 		table.insert(parts, tostring(pending))
 		table.insert(parts, tostring(if status.canClaim then Rewards.dailyAmount(state, status.nextStreak) else 0))
 		local signature = table.concat(parts, "|")
-		setGoalsBadge(claimable + (if status.canClaim then 1 else 0))
+		setRewardsBadge(claimable + (if status.canClaim then 1 else 0))
 		if signature == rewardSignature then
 			return
 		end

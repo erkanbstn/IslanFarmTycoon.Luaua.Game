@@ -251,7 +251,7 @@ local function onPlayerAdded(player: Player)
 		Remotes.get("OfflineSummary"):FireClient(player, offline, grown)
 	end
 	if Rewards.dailyStatus(data.daily, DateTime.now().UnixTimestamp).canClaim then
-		Remotes.get("Notify"):FireClient(player, "Günlük ödülün hazır! Çiftliğim menüsünden al.", "info")
+		Remotes.get("Notify"):FireClient(player, "Günlük ödülün hazır! Ödüller menüsünden al.", "info")
 	end
 	print(`[Server] {player.Name} katıldı.`)
 	joining[player] = nil

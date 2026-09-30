@@ -1,6 +1,6 @@
 --!strict
--- Sol orta "Stats" paneli: para + gelir, depo çubuğu, ipucu satırı ve ahır satırı (Çiftliğim penceresinde).
--- Mevsim kartı (SeasonBar) ve hedef kartı (GoalCard) aynı panele eklenir.
+-- Sol orta "Stats" paneli: para + gelir, ahır, depo çubuğu ve ipucu satırı; sola kayarak kapanır (sağ kenarındaki sekme).
+-- Mevsim kartı (SeasonBar) ile hedef/ada kartları (GoalCard) aynı panele eklenir.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -27,7 +27,7 @@ export type Hud = {
 	bounceCash: () -> (),
 }
 
-function StatsPanel.create(screenGui: ScreenGui, goalsList: Instance): Hud
+function StatsPanel.create(screenGui: ScreenGui): Hud
 	local stats = UiKit.panel(screenGui)
 	stats.Name = "Stats"
 	stats.AnchorPoint = Vector2.new(0, 0.5)
@@ -81,7 +81,7 @@ function StatsPanel.create(screenGui: ScreenGui, goalsList: Instance): Hud
 	local incomeLabel = UiKit.text(cashTexts, "+$0/sn", "Caption")
 	incomeLabel.LayoutOrder = 2
 
-	local barnTexts = statRow(goalsList, 1, "🏚️", Color.Red)
+	local barnTexts = statRow(stats, 2, "🏚️", Color.Red)
 	local barnLabel = UiKit.text(barnTexts, "", "Heading")
 	barnLabel.LayoutOrder = 1
 	local barnDetail = UiKit.text(barnTexts, "", "Caption")
@@ -184,13 +184,91 @@ function StatsPanel.create(screenGui: ScreenGui, goalsList: Instance): Hud
 		hintLabel.Visible = hintWanted and not compact
 	end
 
+	-- Açılır/kapanır panel: sola kayar, sağ kenarındaki küçük sekme ile açılıp kapanır.
+	-- Varsayılan: geniş ekranda açık, dar ekranda kapalı; oyuncu sekmeye basınca seçimi korunur.
+	local collapsed = false
+	local userChoice = false
+	local positionTween: Tween? = nil
+
+	local tab = Instance.new("TextButton")
+	tab.Name = "StatsToggle"
+	tab.Text = ""
+	tab.AnchorPoint = Vector2.new(0, 0.5)
+	tab.Size = UDim2.fromOffset(26, 60)
+	tab.BackgroundColor3 = Color.Panel
+	tab.BackgroundTransparency = 0.05
+	tab.AutoButtonColor = true
+	tab.Parent = screenGui
+	UiKit.corner(tab, UiKit.Radius.Card)
+	UiKit.stroke(tab, 0.6)
+	-- Ok işareti font karakteri değil, çizilmiş iki çubuk (kapatırken "<", açarken ">")
+	local arms: { Frame } = {}
+	for index = 1, 2 do
+		local arm = Instance.new("Frame")
+		arm.AnchorPoint = Vector2.new(0.5, 0.5)
+		arm.Position = UDim2.new(0.5, 0, 0.5, if index == 1 then -4 else 4)
+		arm.Size = UDim2.fromOffset(12, 2)
+		arm.BackgroundColor3 = Color.Text
+		arm.BorderSizePixel = 0
+		arm.Parent = tab
+		UiKit.corner(arm, 1)
+		arms[index] = arm
+	end
+
+	local function expandedPosition(): UDim2
+		return if compact then UDim2.fromOffset(8, 8) else UDim2.new(0, 12, 0.5, 0)
+	end
+	local function panelWidth(): number
+		return if compact then 200 else 240
+	end
+	local function followTab()
+		tab.Position = UDim2.fromOffset(
+			stats.AbsolutePosition.X + stats.AbsoluteSize.X + 6,
+			stats.AbsolutePosition.Y + stats.AbsoluteSize.Y / 2
+		)
+	end
+	stats:GetPropertyChangedSignal("AbsolutePosition"):Connect(followTab)
+	stats:GetPropertyChangedSignal("AbsoluteSize"):Connect(followTab)
+
+	local function applyPosition(animate: boolean)
+		local base = expandedPosition()
+		local target = if collapsed then base + UDim2.fromOffset(-(panelWidth() + 24), 0) else base
+		-- Kapalıyken "<" yerine ">" (joint sağda), açıkken "<" (joint solda)
+		arms[1].Rotation = if collapsed then 45 else -45
+		arms[2].Rotation = if collapsed then -45 else 45
+		if positionTween then
+			positionTween:Cancel()
+			positionTween = nil
+		end
+		if animate and localPlayer:GetAttribute("ReducedMotion") ~= true then
+			local tween = TweenService:Create(
+				stats,
+				TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+				{ Position = target }
+			)
+			positionTween = tween
+			tween:Play()
+		else
+			stats.Position = target
+		end
+	end
+
+	tab.Activated:Connect(function()
+		userChoice = true
+		collapsed = not collapsed
+		applyPosition(true)
+	end)
+
 	local function setCompact(value: boolean)
 		compact = value
+		if not userChoice then
+			collapsed = value
+		end
 		stats.AnchorPoint = if compact then Vector2.zero else Vector2.new(0, 0.5)
-		stats.Position = if compact then UDim2.fromOffset(8, 8) else UDim2.new(0, 12, 0.5, 0)
-		stats.Size = if compact then UDim2.fromOffset(200, 0) else UDim2.fromOffset(240, 0)
+		stats.Size = UDim2.fromOffset(panelWidth(), 0)
 		farmContextLabel.Visible = not compact
 		hintLabel.Visible = hintWanted and not compact
+		applyPosition(false)
 	end
 
 	return {

@@ -12,12 +12,12 @@ description: Builds or changes screen UI in this Roblox project with UiKit (HUD 
 
 ## Karar
 - Sık bakılan tek değer mi? → `Stats` paneline satır (`statRow(stats, order, icon, tint)`).
-- Ayrıntı / nadiren bakılan? → "Çiftliğim" penceresi (`goalsWindow.list`); sipariş ve dükkân kendi pencerelerinde (`boardWindow`, `storeWindow`).
+- Ayrıntı / nadiren bakılan? → ilgili pencere (ödül/başarım: `rewardsWindow.list`); sipariş ve dükkân kendi pencerelerinde (`boardWindow`, `storeWindow`).
 - Yeni ekran/akış? → `src/client/Ui/Hud/<Ad>.luau` modülü (`create` + `update`) + `UiKit.window` + menü karosu; ana betiğe yığma.
 
 ## Menü karosu
 ```luau
-local questsButton = UiKit.menuButton(dock, "📜", "Görevler", Color.Blue, if hasKeyboard then "G" else nil)
+local questsButton = UiKit.menuButton(topBar, "📜", "Görevler", Color.Blue, if hasKeyboard then "G" else nil)
 questsButton.Activated:Connect(QuestsPanel.open)
 -- menuEntries listesine sırayla ekle; compactDock=true yalnızca en sık kullanılanlar (≤ 3-4)
 { button = questsButton, compactDock = false },
