@@ -11,6 +11,15 @@ function Metrics.increment(name: string, amount: number?)
 	folder:SetAttribute(name, (if typeof(current) == "number" then current else 0) + (amount or 1))
 end
 
+function Metrics.set(name: string, value: number)
+	folder:SetAttribute(name, value)
+end
+
+function Metrics.max(name: string, value: number)
+	local current = folder:GetAttribute(name)
+	folder:SetAttribute(name, math.max(if typeof(current) == "number" then current else 0, value))
+end
+
 function Metrics.duration(name: string, seconds: number)
 	Metrics.increment(`{name}Count`)
 	Metrics.increment(`{name}Seconds`, seconds)

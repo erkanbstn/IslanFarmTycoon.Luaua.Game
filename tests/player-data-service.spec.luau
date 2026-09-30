@@ -80,6 +80,13 @@ return function(createService: any, Config: any)
 			end
 			return copy(self.raw)
 		end
+		store.extra = {}
+		function store:SetAsync(key: string, value: any)
+			self.extra[key] = copy(value)
+		end
+		function store:GetAsync(key: string): any
+			return copy(self.extra[key])
+		end
 		local ids = 0
 		local services: any = {
 			DataStoreService = {
@@ -91,6 +98,19 @@ return function(createService: any, Config: any)
 				GenerateGUID = function(): string
 					ids += 1
 					return `test-id-{ids}`
+				end,
+				JSONEncode = function(_self: any, value: any): string
+					local function encode(item: any): string
+						if typeof(item) ~= "table" then
+							return tostring(item)
+						end
+						local parts = {}
+						for key, child in item do
+							table.insert(parts, `{key}:{encode(child)}`)
+						end
+						return `\{{table.concat(parts, ",")}\}`
+					end
+					return encode(value)
 				end,
 			},
 			ReplicatedStorage = {
@@ -140,7 +160,17 @@ return function(createService: any, Config: any)
 				return { UnixTimestampMillis = (2000000000 + clock) * 1000 }
 			end,
 		}
-		local metrics = { increment = function() end, duration = function() end }
+		local metrics: any = { values = {}, counters = {} }
+		function metrics.increment(name: string, amount: number?)
+			metrics.counters[name] = (metrics.counters[name] or 0) + (amount or 1)
+		end
+		function metrics.duration() end
+		function metrics.set(name: string, value: number)
+			metrics.values[name] = value
+		end
+		function metrics.max(name: string, value: number)
+			metrics.values[name] = math.max(metrics.values[name] or 0, value)
+		end
 		local player: any = { UserId = 42, Name = "Fixture", Parent = true, attributes = {} }
 		function player:SetAttribute(name: string, value: any)
 			self.attributes[name] = value
@@ -151,10 +181,14 @@ return function(createService: any, Config: any)
 		return {
 			service = createService(engine, tasks, instances, time, remotes, dateTime, metrics, function() end),
 			store = store,
+			metrics = metrics,
 			player = player,
 			call = call,
 			tasks = tasks,
 			runUntil = runUntil,
+			advance = function(seconds: number)
+				clock += seconds
+			end,
 		}
 	end
 	local function loaded(): any
@@ -301,6 +335,109 @@ return function(createService: any, Config: any)
 		return t.service.load(t.player)
 	end) == nil, "future schema must fail load")
 	assert(t.store.raw.version == 999 and t.store.raw.cash == 12345, "future record stays intact")
+	-- Ölçüm: her kayıtta boyut yazılır ve sayaçlar güncellenir
+	t = loaded()
+	t.service.addCash(t.player, 5)
+	assert(
+		t.call(function()
+			return t.service.save(t.player)
+		end),
+		"measured save succeeds"
+	)
+	assert((t.metrics.values.SaveBytesLast or 0) > 100, "payload size is measured")
+	assert(t.metrics.values.SaveBytesMax == t.metrics.values.SaveBytesLast, "largest payload is tracked")
+	assert(t.player.attributes.DataBytes == t.metrics.values.SaveBytesLast, "size is published for diagnostics")
+
+	-- Yedek: ilk başarılı kayıtta yazılır, aralık dolmadan tekrar yazılmaz, sonra diğer yuvaya döner
+	local backupKey1, backupKey2 = "player_42_backup1", "player_42_backup2"
+	t.runUntil(function(): boolean
+		return t.store.extra[backupKey1] ~= nil
+	end)
+	local first = t.store.extra[backupKey1]
+	assert(
+		first._session == nil and first._revision == nil and first._backupAt ~= nil,
+		"backup omits lock and revision"
+	)
+	assert(first.cash == Config.STARTING_CASH + 5, "backup holds the saved progress")
+	t.service.addCash(t.player, 10)
+	assert(
+		t.call(function()
+			return t.service.save(t.player)
+		end),
+		"second save inside the interval"
+	)
+	t.runUntil(function(): boolean
+		return true
+	end)
+	assert(
+		t.store.extra[backupKey2] == nil and t.store.extra[backupKey1].cash == first.cash,
+		"no backup before the interval"
+	)
+	for _ = 1, 7 do
+		t.advance(100)
+		assert(
+			t.call(function()
+				return t.service.save(t.player)
+			end),
+			"periodic save keeps the lease"
+		)
+	end
+	t.service.addCash(t.player, 20)
+	assert(
+		t.call(function()
+			return t.service.save(t.player)
+		end),
+		"save after the interval"
+	)
+	t.runUntil(function(): boolean
+		return t.store.extra[backupKey2] ~= nil
+	end)
+	assert(t.store.extra[backupKey2].cash == Config.STARTING_CASH + 15, "second backup rotates to the other slot")
+
+	-- Kurtarma: asıl kayıt bozulursa en yeni çözülebilir yedekten açılır; bozuk kayıt karantinaya alınır
+	assert(
+		t.call(function()
+			return t.service.release(t.player)
+		end),
+		"release before corruption"
+	)
+	local corrupt = { version = 4, mainFarms = 5, activeMainFarmId = "1", _revision = t.store.raw._revision }
+	t.store.raw = corrupt
+	t.player.Parent = true
+	local recovered = t.call(function()
+		return t.service.load(t.player)
+	end)
+	assert(recovered, "a corrupt primary opens from the backup")
+	assert(recovered.cash == Config.STARTING_CASH + 15, "newest backup is used")
+	assert(
+		t.player.attributes.DataRecovered == true and t.metrics.counters.ProfileRecovered == 1,
+		"recovery is flagged"
+	)
+	assert(
+		t.store.extra["player_42_quarantine"] and t.store.extra["player_42_quarantine"].mainFarms == 5,
+		"the corrupt record is kept in quarantine"
+	)
+
+	-- Gelecek sürüm: yedekle ezilmez (yükleme reddedilir, karantina yok)
+	local future = fixture()
+	future.store.raw = { version = 99, _revision = 3 }
+	future.store.extra["player_42_backup1"] = { version = 4, _backupAt = 1 }
+	assert(not future.call(function()
+		return future.service.load(future.player)
+	end), "future schema is rejected")
+	assert(
+		future.store.extra["player_42_quarantine"] == nil,
+		"a rejected future record is never quarantined or replaced"
+	)
+
+	-- Yedek yoksa bozuk kayıt yine kapalı kalır (veri uydurulmaz)
+	local noBackup = fixture()
+	noBackup.store.raw = { version = 4, mainFarms = 5, activeMainFarmId = "1" }
+	assert(not noBackup.call(function()
+		return noBackup.service.load(noBackup.player)
+	end), "corrupt primary without backup fails closed")
+	assert(noBackup.player.attributes.DataStatus == "Failed", "failure is shown to the player")
+
 	print(
 		"PASS player-data service: retries, uncertain responses, save/release overlap, leave during load, retained final save, ownership/lease loss, future schema"
 	)

@@ -28,3 +28,9 @@ Kayıt kaybı geri alınamaz; her adımı test et.
 - Studio'da store adı `_Studio` eki alır; canlı veriyle test etme.
 - Hesap düzeyi tercih alanlarında (dil, grafik) doğrulama listesi `Config`'tedir; tanınmayan değer yok sayılır, yanlış tür reddedilmez ama atılır.
 - Para/sayı sınırı: `SaveCodec` MAX_MONEY ve `SessionLock.isFinite`.
+
+## Yedek ve ölçüm (`Modules/SaveBackup`, `PlayerDataService`)
+- Her başarılı kayıtta (en fazla 10 dakikada bir) asıl anahtarın yanına dönüşümlü iki yedek yazılır: `player_<id>_backup1/2` (oturum kilidi ve revizyon içermez, `_backupAt` taşır).
+- Asıl kayıt çözülemezse (bozuk) yükleme en yeni çözülebilir yedekle açılır; bozuk kayıt önce `player_<id>_quarantine` anahtarına kopyalanır (yazılamazsa kurtarma yapılmaz). Gelecek sürüm kayıt yedekle ezilmez (kilit kaydı reddeder).
+- Ölçüm: `ServerStorage.Diagnostics` özniteliklerinde `SaveBytesLast/Max`, `SaveSizeWarning`, `SaveWriteMaxSeconds`, `SaveFailed`, `BackupWritten/Failed`, `ProfileRecovered`; oyuncu özniteliği `DataBytes`, `DataBackupAt`, `DataRecovered`. Boyut uyarı eşikleri 3,0 MB / 3,8 MB (sınır 4 MB).
+- Yeni bir kayıt alanı eklerken boyutu düşün; yedek yalnızca ham yükü kopyaladığından şema değişikliği ek iş gerektirmez.

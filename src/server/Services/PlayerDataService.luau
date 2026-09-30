@@ -15,6 +15,7 @@ local SessionLock = require(script.Parent.Parent.Modules.SessionLock)
 local SaveCodec = require(script.Parent.Parent.Modules.SaveCodec)
 local FarmProfiles = require(script.Parent.Parent.Modules.FarmProfiles)
 local Metrics = require(script.Parent.Parent.Modules.Metrics)
+local SaveBackup = require(script.Parent.Parent.Modules.SaveBackup)
 
 type PlayerSave = GameTypes.PlayerSave
 type Session = {
@@ -32,6 +33,10 @@ type Session = {
 	offlineGrown: number, -- Çevrimdışıyken yetişkin olan hayvan sayısı (dönüş özeti)
 	cashStat: IntValue?,
 	saveScheduled: boolean,
+	lastBackupAt: number, -- son yedek yazma zamanı (os.time)
+	backupSlot: number, -- dönüşümlü yedek yuvası
+	sizeLevel: string, -- son bildirilen kayıt boyutu seviyesi (ok/warn/critical)
+	recovered: boolean, -- asıl kayıt bozuk olduğu için yedekten açıldı
 	pending: {
 		payload: { [string]: any },
 		token: string,
@@ -133,6 +138,7 @@ end
 -- Snapshot, anahtar kilidine girdikten sonra alınır. Retry aynı payload/token ile yapılır.
 local function write(player: Player, session: Session, release: boolean, deadline: number): boolean
 	local key = keyFor(player)
+	local startedAt = os.clock()
 	if not lockKey(key, deadline) then
 		return false
 	end
@@ -150,6 +156,23 @@ local function write(player: Player, session: Session, release: boolean, deadlin
 			busyKeys[key] = nil
 			fail(player, session, `Kayıt hazırlanamadı: {payload}`)
 			return false
+		end
+		local measured, encoded = pcall(function()
+			return HttpService:JSONEncode(payload)
+		end)
+		if measured and typeof(encoded) == "string" then
+			local bytes = #encoded
+			Metrics.set("SaveBytesLast", bytes)
+			Metrics.max("SaveBytesMax", bytes)
+			player:SetAttribute("DataBytes", bytes)
+			local level = SaveBackup.sizeLevel(bytes)
+			if level ~= session.sizeLevel then
+				session.sizeLevel = level
+				if level ~= "ok" then
+					Metrics.increment("SaveSizeWarning")
+					warn(`[Data] SaveSize{level} user={player.UserId} bytes={bytes}/4194304`)
+				end
+			end
 		end
 		session.pending = {
 			payload = payload,
@@ -205,6 +228,25 @@ local function write(player: Player, session: Session, release: boolean, deadlin
 			player:SetAttribute("DataError", "")
 			success = true
 			Metrics.increment("SaveSucceeded")
+			Metrics.duration("SaveWrite", os.clock() - startedAt)
+			if SaveBackup.due(os.time(), session.lastBackupAt) then
+				session.lastBackupAt = os.time()
+				session.backupSlot = SaveBackup.nextSlot(session.backupSlot)
+				local slotKey = SaveBackup.slotKey(key, session.backupSlot)
+				local stamped = SaveBackup.stamp(operation.payload, os.time())
+				task.spawn(function()
+					local written, backupError = pcall(function()
+						(store :: DataStore):SetAsync(slotKey, stamped)
+					end)
+					if written then
+						Metrics.increment("BackupWritten")
+						player:SetAttribute("DataBackupAt", stamped._backupAt)
+					else
+						Metrics.increment("BackupFailed")
+						warn(`[Data] BackupFailed user={player.UserId}: {backupError}`)
+					end
+				end)
+			end
 			break
 		end
 		lastError = rejection or tostring(result)
@@ -224,6 +266,7 @@ local function write(player: Player, session: Session, release: boolean, deadlin
 		return write(player, session, true, deadline)
 	end
 	if not success then
+		Metrics.increment("SaveFailed")
 		player:SetAttribute("DataError", lastError)
 		if ownershipLost or os.time() >= session.leaseExpires then
 			fail(player, session, lastError)
@@ -250,6 +293,41 @@ function PlayerDataService.get(player: Player): PlayerSave
 	return data
 end
 
+-- Asıl kayıt çözülemiyorsa (bozuk): önce olduğu gibi karantina anahtarına kopyalanır, sonra en yeni çözülebilir yedek döner.
+-- Karantina yazılamazsa kurtarma yapılmaz (asıl kayıt ezilmez).
+local function recoverFromBackup(player: Player, key: string, corrupt: unknown, now: number): { [string]: any }?
+	local activeStore = store
+	if not activeStore then
+		return nil
+	end
+	local candidates: { unknown } = {}
+	for slot = 1, SaveBackup.SLOTS do
+		local ok, value = pcall(function()
+			return (activeStore :: DataStore):GetAsync(SaveBackup.slotKey(key, slot))
+		end)
+		if ok and value ~= nil then
+			table.insert(candidates, value)
+		end
+	end
+	for _, candidate in SaveBackup.newestFirst(candidates) do
+		local decoded = pcall(function()
+			local data = SaveCodec.decode(candidate, Config, FarmMath, now, newUid)
+			assert(data, "backup does not decode")
+		end)
+		if decoded then
+			local quarantined = pcall(function()
+				(activeStore :: DataStore):SetAsync(SaveBackup.quarantineKey(key), corrupt)
+			end)
+			if not quarantined then
+				warn(`[Data] RecoveryAborted user={player.UserId}: karantina yazılamadı`)
+				return nil
+			end
+			return candidate
+		end
+	end
+	return nil
+end
+
 function PlayerDataService.load(player: Player): PlayerSave?
 	if sessions[player] or shutdownDeadline then
 		return nil
@@ -270,6 +348,10 @@ function PlayerDataService.load(player: Player): PlayerSave?
 		offlineGrown = 0,
 		cashStat = nil,
 		saveScheduled = false,
+		lastBackupAt = 0,
+		backupSlot = 0,
+		sizeLevel = "ok",
+		recovered = false,
 		pending = nil,
 	}
 	sessions[player] = session
@@ -318,9 +400,8 @@ function PlayerDataService.load(player: Player): PlayerSave?
 		end
 	end
 	if acquired then
-		local decodeOk, data, offlineEarned, decodeProblem, repairs, grown =
-			pcall(SaveCodec.decode, raw, Config, FarmMath, DateTime.now().UnixTimestampMillis / 1000, newUid)
-		if decodeOk and data then
+		local decodeNow = DateTime.now().UnixTimestampMillis / 1000
+		local function adopt(data: any, offlineEarned: number, repairs: number?, grown: number?)
 			session.data = data
 			session.offlineEarned = offlineEarned
 			session.offlineGrown = grown or 0
@@ -330,8 +411,28 @@ function PlayerDataService.load(player: Player): PlayerSave?
 			if repairs and repairs > 0 then
 				warn(`[Data] ProfileNormalized user={player.UserId} repairs={repairs}`)
 			end
+		end
+		local decodeOk, data, offlineEarned, decodeProblem, repairs, grown =
+			pcall(SaveCodec.decode, raw, Config, FarmMath, decodeNow, newUid)
+		if decodeOk and data then
+			adopt(data, offlineEarned, repairs, grown)
 		else
 			problem = if decodeOk then decodeProblem else tostring(data)
+			-- Bozuk asıl kayıt: en yeni çözülebilir yedekten aç (asıl kayıt karantinaya alınır, sonraki kayıtla düzelir)
+			local backup = if session.persistent and raw ~= nil
+				then recoverFromBackup(player, key, raw, decodeNow)
+				else nil
+			if backup then
+				local backupOk, backupData, backupEarned, _, backupRepairs, backupGrown =
+					pcall(SaveCodec.decode, backup, Config, FarmMath, decodeNow, newUid)
+				if backupOk and backupData then
+					adopt(backupData, backupEarned, backupRepairs, backupGrown)
+					session.recovered = true
+					warn(`[Data] ProfileRecovered user={player.UserId}: {problem}`)
+					problem = nil
+					Metrics.increment("ProfileRecovered")
+				end
+			end
 		end
 	end
 	session.loaded = true
@@ -362,6 +463,10 @@ function PlayerDataService.load(player: Player): PlayerSave?
 	status(player, session, "Active", nil)
 	Metrics.increment("ProfileLoaded")
 	player:SetAttribute("DataDirty", true)
+	player:SetAttribute("DataRecovered", session.recovered)
+	if session.recovered then
+		PlayerDataService.requestSave(player) -- asıl kayıt kısa sürede yedekten düzelir
+	end
 	return session.data
 end
 
