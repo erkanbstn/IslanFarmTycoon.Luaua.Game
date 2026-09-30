@@ -4,30 +4,20 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Config = require(Shared:WaitForChild("Config"))
 local WorldUi = require(Shared:WaitForChild("WorldUi"))
 
 export type Builder = (model: Model, base: CFrame) -> ()
 
 local METAL = Color3.fromRGB(190, 195, 200)
 local GOLD = Color3.fromRGB(255, 200, 60)
-local PRODUCTION_RECIPES: { [string]: string } = {
-	milk_factory = "dairy",
-	hatchery = "hatchery",
-	horse_training = "horse_training",
-	cheese_dairy = "cheese",
-	duck_house = "duck_eggs",
-	wool_mill = "wool",
-	truffle_kitchen = "truffle",
-	-- Ürün merkezleri (depoya ürün üretir)
-	milk_center = "milk_goods",
-	egg_center = "egg_goods",
-	down_workshop = "down_goods",
-	cheese_cellar = "cheese_goods",
-	wool_loom = "wool_goods",
-	meat_smokehouse = "meat_goods",
-	horseshoe_forge = "horseshoe_goods",
-	fish_cannery = "fish_goods",
-}
+-- Bina id -> üretim tarifi kimliği (Config'ten türetilir). Balıkçı Teknesi gezindiği için dünyada prompt/işaret taşımaz.
+local PRODUCTION_RECIPES: { [string]: string } = {}
+for recipeId, recipe in Config.PRODUCTION_RECIPES do
+	if recipe.upgradeId ~= "fishing_boat" then
+		PRODUCTION_RECIPES[recipe.upgradeId] = recipeId
+	end
+end
 
 local function makePart(
 	model: Model,

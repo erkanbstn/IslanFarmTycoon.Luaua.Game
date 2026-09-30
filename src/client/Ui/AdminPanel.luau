@@ -366,6 +366,15 @@ local function create(parent: ScreenGui): UiKit.Window
 	return created
 end
 
+function AdminPanel.toggle(parent: ScreenGui)
+	local current = window
+	if current and current.isOpen() then
+		current.close()
+		return
+	end
+	AdminPanel.open(parent)
+end
+
 function AdminPanel.open(parent: ScreenGui)
 	if player:GetAttribute("IsAdmin") ~= true then
 		return

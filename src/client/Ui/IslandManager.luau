@@ -596,6 +596,14 @@ function IslandManager.isOpen(): boolean
 	return window ~= nil and (window :: UiKit.Window).isOpen()
 end
 
+function IslandManager.toggle()
+	if IslandManager.isOpen() then
+		(window :: UiKit.Window).close()
+	else
+		IslandManager.open()
+	end
+end
+
 function IslandManager.open()
 	if not window then
 		window = create()

@@ -122,7 +122,11 @@ local goal = GoalCard.create(statsHud.frame, onboarding)
 local celebrate = Celebration.create(screenGui)
 
 menu.rewardsButton.Activated:Connect(function()
-	openCenter(rewardsWindow)
+	if rewardsWindow.isOpen() then
+		rewardsWindow.close()
+	else
+		openCenter(rewardsWindow)
+	end
 end)
 menu.inventoryButton.Activated:Connect(function()
 	if inventoryPanel.window.isOpen() then
@@ -240,7 +244,7 @@ UserInputService.InputBegan:Connect(function(input: InputObject, gameProcessed: 
 	elseif input.KeyCode == Enum.KeyCode.U then
 		toggleWindow(upgradesWindow)
 	elseif input.KeyCode == Enum.KeyCode.I then
-		IslandManager.open()
+		IslandManager.toggle()
 	elseif input.KeyCode == Enum.KeyCode.B then
 		if inventoryPanel.window.isOpen() then
 			inventoryPanel.window.close()
@@ -253,7 +257,7 @@ local showToast = UiKit.toastHost(screenGui)
 local toastHolder = screenGui:FindFirstChild("Toasts") :: Frame
 -- Bildirimler üst menü çubuğunun (60 px) altında, sağ menü sütununa ve sol panele taşmadan durur.
 toastHolder.AnchorPoint = Vector2.new(0.5, 0)
-toastHolder.Position = UDim2.new(0.5, 0, 0, 80)
+toastHolder.Position = UDim2.new(0.5, 0, 0, 74)
 toastHolder.Size = UDim2.new(1, -240, 0, 0)
 PurchaseController.Completed:Connect(function(success: boolean, message: string?)
 	-- Adalar penceresi açıkken bildirimi pencerenin kendi bildirim alanı gösterir (üstte, pencerenin önünde)

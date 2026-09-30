@@ -133,6 +133,16 @@ local function buildUpgrade(upgradeId: string, spot: BasePart, parent: Instance)
 	built.Parent = parent
 end
 
+-- Bu bina için haritada yapım alanı (tabela + "Satın al") kurulabiliyor mu? Kurulabiliyorsa yerdeki kaide ona ek olmaz.
+function UpgradeVisualService.hasBuildSite(plot: Model, upgradeId: string): boolean
+	local spots = plot:FindFirstChild("BuildSpots")
+	local spot = if spots then spots:FindFirstChild(upgradeId) else nil
+	return spot ~= nil
+		and spot:IsA("BasePart")
+		and spot:GetAttribute("BoatPatrolX") == nil
+		and BUILDERS[upgradeId] ~= nil
+end
+
 function UpgradeVisualService.apply(plot: Model, save: PlayerSave?)
 	local spots = plot:FindFirstChild("BuildSpots")
 	if not spots then

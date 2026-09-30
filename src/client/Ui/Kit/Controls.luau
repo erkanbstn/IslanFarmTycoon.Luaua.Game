@@ -108,13 +108,15 @@ function Controls.menuButton(parent: Instance, icon: string, text: string, tint:
 	local b = Instance.new("TextButton")
 	b.Text = ""
 	b.Size = UDim2.fromOffset(Tokens.MenuTileSize.X, Tokens.MenuTileSize.Y)
-	b.BackgroundColor3 = Tokens.Color.Panel
-	b.BackgroundTransparency = 0.1
+	-- Zemin karonun rengine doğru tonlanır: sıradaki karolar renkten ayırt edilir
+	b.BackgroundColor3 = Tokens.Color.Panel:Lerp(tint, 0.32)
+	b.BackgroundTransparency = 0.06
 	b.AutoButtonColor = true
 	b.Selectable = true
 	b.Parent = parent
 	Base.corner(b, Tokens.Radius.Card)
-	Base.stroke(b)
+	local tileStroke = Base.stroke(b, 0.55)
+	tileStroke.Color = tint
 	addPressFeedback(b)
 
 	local chip = Base.iconChip(b, icon, 30, tint)

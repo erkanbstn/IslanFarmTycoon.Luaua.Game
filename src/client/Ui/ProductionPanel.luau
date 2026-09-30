@@ -313,6 +313,16 @@ function ProductionPanel.open(parent: ScreenGui, recipeId: string?)
 	refresh()
 end
 
+-- Menü düğmesi/kısayol: açıksa kapatır
+function ProductionPanel.toggle(parent: ScreenGui)
+	local current = window
+	if current and current.isOpen() then
+		current.close()
+		return
+	end
+	ProductionPanel.open(parent)
+end
+
 function ProductionPanel.bind(parent: ScreenGui)
 	screen = parent
 end

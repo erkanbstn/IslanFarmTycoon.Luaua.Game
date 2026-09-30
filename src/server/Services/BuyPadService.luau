@@ -21,6 +21,8 @@ local WorldUi = require(Shared:WaitForChild("WorldUi"))
 local PlayerDataService = require(script.Parent:WaitForChild("PlayerDataService"))
 local PlotService = require(script.Parent:WaitForChild("PlotService"))
 local UpgradeService = require(script.Parent:WaitForChild("UpgradeService"))
+local UpgradeVisualService =
+	require(script.Parent.Parent:WaitForChild("Presentation"):WaitForChild("UpgradeVisualService"))
 
 local BuyPadService = {}
 
@@ -59,11 +61,17 @@ local function surfaceFrame(plot: Model, islandId: string): CFrame?
 end
 
 -- Bir adada gösterilecek yükseltmeler: satın alınabilir olanlar, en ucuzdan başlayarak
-function BuyPadService.pickUpgrades(save: any, islandId: string, limit: number): { Config.UpgradeConfig }
+function BuyPadService.pickUpgrades(
+	save: any,
+	islandId: string,
+	limit: number,
+	skip: ((upgradeId: string) -> boolean)?
+): { Config.UpgradeConfig }
 	local result: { Config.UpgradeConfig } = {}
 	for _, upgrade in Config.UPGRADES do
 		if
 			not EXCLUDED_KINDS[upgrade.kind]
+			and not (skip ~= nil and skip(upgrade.id))
 			and Config.getUpgradeIsland(upgrade) == islandId
 			and FarmMath.getUpgradeStatus(save, upgrade.id) == "available"
 		then
@@ -188,6 +196,13 @@ function BuyPadService.buyFromWorld(player: Player, plot: Model, upgradeId: stri
 	if not upgrade then
 		return
 	end
+	local owned = PlayerDataService.tryGet(player)
+	if owned and owned.purchased[upgradeId] then
+		-- Başka menüden alınmış: kaide/tabela eski kalmış olabilir; uyarı vermeden dünyayı tazele
+		BuyPadService.apply(plot, owned)
+		PlotService.refreshPlayerWorld(player)
+		return
+	end
 	local ok, err = UpgradeService.tryBuy(player, upgradeId)
 	if ok then
 		Remotes.get("Notify"):FireClient(player, `{upgrade.displayName} alındı!`, "success")
@@ -211,7 +226,10 @@ function BuyPadService.apply(plot: Model, save: any)
 		if save.unlockedIslands[islandId] ~= true then
 			continue
 		end
-		for index, upgrade in BuyPadService.pickUpgrades(save, islandId, #slots) do
+		local function hasSite(upgradeId: string): boolean
+			return UpgradeVisualService.hasBuildSite(plot, upgradeId)
+		end
+		for index, upgrade in BuyPadService.pickUpgrades(save, islandId, #slots, hasSite) do
 			-- Fiyat takılı alet indirimine göre değişir: imzaya girer ki düğmeler eski fiyatla kalmasın
 			local cost = FarmMath.getUpgradeCost(save, upgrade)
 			table.insert(wanted, { island = islandId, upgrade = upgrade, slot = slots[index], cost = cost })

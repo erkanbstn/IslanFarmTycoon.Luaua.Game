@@ -10,7 +10,7 @@ local CollectionService = game:GetService("CollectionService")
 local JobMarks = {}
 
 local TAG = "JobSite"
-local ATTRIBUTES = { "JobKind", "JobStartedAt", "JobEndsAt", "JobCount", "JobCapacity" }
+local ATTRIBUTES = { "JobKind", "JobStartedAt", "JobEndsAt", "JobCount", "JobCapacity", "JobLabel" }
 
 -- İlerleme çubuğunun bağlanacağı görünmez nokta: verilen parçanın (tabela) ya da modelin üstünde.
 function JobMarks.ensureAnchor(model: Model, near: BasePart?, height: number?): Instance
@@ -51,7 +51,7 @@ end
 function JobMarks.setProduction(
 	model: Instance,
 	job: { readyAt: number, startedAt: number? }?,
-	recipe: { duration: number }
+	recipe: { duration: number, displayName: string? }
 )
 	if not job then
 		JobMarks.clear(model)
@@ -60,6 +60,7 @@ function JobMarks.setProduction(
 	model:SetAttribute("JobKind", "production")
 	model:SetAttribute("JobStartedAt", job.startedAt or (job.readyAt - recipe.duration))
 	model:SetAttribute("JobEndsAt", job.readyAt)
+	model:SetAttribute("JobLabel", recipe.displayName)
 	model:SetAttribute("JobCount", nil)
 	model:SetAttribute("JobCapacity", nil)
 end

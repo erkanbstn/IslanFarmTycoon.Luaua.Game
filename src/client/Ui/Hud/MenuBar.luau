@@ -53,7 +53,7 @@ function MenuBar.create(screenGui: ScreenGui): Hud
 	local topBar = Instance.new("Frame")
 	topBar.Name = "MenuTop"
 	topBar.AnchorPoint = Vector2.new(0.5, 0)
-	topBar.Position = UDim2.new(0.5, 0, 0, 8)
+	topBar.Position = UDim2.new(0.5, 0, 0, 2)
 	topBar.Size = UDim2.new()
 	topBar.AutomaticSize = Enum.AutomaticSize.XY
 	topBar.BackgroundTransparency = 1
@@ -74,11 +74,11 @@ function MenuBar.create(screenGui: ScreenGui): Hud
 	local hasKeyboard = UserInputService.KeyboardEnabled
 	local productionButton = UiKit.menuButton(topBar, "🏭", "Üretim", Color.Green, if hasKeyboard then "R" else nil)
 	productionButton.Activated:Connect(function()
-		ProductionPanel.open(screenGui)
+		ProductionPanel.toggle(screenGui)
 	end)
 	UserInputService.InputBegan:Connect(function(input: InputObject, processed: boolean)
 		if not processed and input.KeyCode == Enum.KeyCode.R then
-			ProductionPanel.open(screenGui)
+			ProductionPanel.toggle(screenGui)
 		end
 	end)
 	local shopButton = UiKit.menuButton(topBar, "🐄", "Pazar", Color.Green, if hasKeyboard then "P" else nil)
@@ -87,7 +87,7 @@ function MenuBar.create(screenGui: ScreenGui): Hud
 	local upgradesButton =
 		UiKit.menuButton(topBar, "🛠️", "Yükseltmeler", Color.Gold, if hasKeyboard then "U" else nil)
 	local islandsButton = UiKit.menuButton(topBar, "🧭", "Adalar", Color.Blue, if hasKeyboard then "I" else nil)
-	islandsButton.Activated:Connect(IslandManager.open)
+	islandsButton.Activated:Connect(IslandManager.toggle)
 	local inventoryButton =
 		UiKit.menuButton(sideBar, "🎒", "Envanter", Color.Orange, if hasKeyboard then "B" else nil)
 	local rewardsButton = UiKit.menuButton(sideBar, "🏆", "Ödüller", Color.Gold, nil)
@@ -109,16 +109,16 @@ function MenuBar.create(screenGui: ScreenGui): Hud
 	localPlayer:GetAttributeChangedSignal("IsAdmin"):Connect(updateAdminAccess)
 	adminButton.Activated:Connect(function()
 		if localPlayer:GetAttribute("IsAdmin") == true then
-			AdminPanel.open(screenGui)
+			AdminPanel.toggle(screenGui)
 		end
 	end)
 	UserInputService.InputBegan:Connect(function(input: InputObject, processed: boolean)
 		if not processed and input.KeyCode == Enum.KeyCode.F8 and localPlayer:GetAttribute("IsAdmin") == true then
-			AdminPanel.open(screenGui)
+			AdminPanel.toggle(screenGui)
 		end
 	end)
 	settingsButton.Activated:Connect(function()
-		SettingsMenu.open(screenGui)
+		SettingsMenu.toggle(screenGui)
 	end)
 
 	local setShopBadge = UiKit.badge(shopButton)

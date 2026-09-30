@@ -146,7 +146,8 @@ local function update(model: Model, entry: Entry)
 			then `{count}/{capacity} · {remaining}`
 			else remaining
 	else
-		entry.label.Text = `Üretimde · {remaining}`
+		local title = model:GetAttribute("JobLabel")
+		entry.label.Text = if typeof(title) == "string" then `{title} · {remaining}` else `Üretimde · {remaining}`
 	end
 	entry.gui.Enabled = true
 end

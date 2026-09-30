@@ -177,6 +177,15 @@ local function create(parent: ScreenGui): UiKit.Window
 	return created
 end
 
+function SettingsMenu.toggle(parent: ScreenGui)
+	local current = window
+	if current and current.isOpen() then
+		current.close()
+		return
+	end
+	SettingsMenu.open(parent)
+end
+
 function SettingsMenu.open(parent: ScreenGui)
 	local current = window
 	if current and current.frame.Parent ~= parent then

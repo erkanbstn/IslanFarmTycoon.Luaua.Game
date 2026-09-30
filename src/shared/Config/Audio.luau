@@ -8,7 +8,7 @@ return {
 	-- gerçek "cha-ching", ortam ve hayvan sesleri için Creator Store'dan (Roblox'un ücretsiz sesleri)
 	-- aldığın `rbxassetid://NUMARA` kimliklerini aşağıya yaz. Kimlik doğrulaması Studio'da yapılır.
 	SOUNDS = {
-		click = { id = "rbxasset://sounds/clickfast.wav", volume = 0.35 },
+		click = { id = "rbxasset://sounds/clickfast.wav", volume = 0.1, pitch = 0.92 },
 		coin = { id = "rbxasset://sounds/electronicpingshort.wav", volume = 0.55, pitch = 1.6 },
 		success = { id = "rbxasset://sounds/electronicpingshort.wav", volume = 0.45, pitch = 1.15 },
 		error = { id = "rbxasset://sounds/switch.wav", volume = 0.4, pitch = 0.7 },

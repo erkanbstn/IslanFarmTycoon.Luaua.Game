@@ -18,6 +18,12 @@ local IslandManager = require(script.Parent.Parent:WaitForChild("Ui"):WaitForChi
 local player = Players.LocalPlayer
 local CHECK_INTERVAL = 0.4
 local lastDetected: string? = nil -- "farmId|islandId"
+-- Sunucu seçimi hız sınırı yüzünden düşürebilir: seçim tutana kadar (en fazla birkaç kez) yeniden istenir.
+local pendingIsland: string? = nil
+local retriesLeft = 0
+local nextRetryAt = 0
+local RETRY_SECONDS = 0.8
+local MAX_RETRIES = 6
 
 -- Silindir tabanın üstünde mi? (MapBuilder silindirleri X ekseni çevrilmiş disklerdir; yatay çap Size.Y'dedir.)
 local function inside(base: Instance?, position: Vector3): boolean
@@ -71,6 +77,15 @@ local function check()
 	end
 	local signature = `{farmId}|{islandId}`
 	if signature == lastDetected then
+		if pendingIsland then
+			if IslandContext.selected() == pendingIsland or retriesLeft <= 0 then
+				pendingIsland = nil
+			elseif os.clock() >= nextRetryAt then
+				retriesLeft -= 1
+				nextRetryAt = os.clock() + RETRY_SECONDS
+				Remotes.get("RequestTravelIsland"):FireServer(pendingIsland, true)
+			end
+		end
 		return
 	end
 
@@ -87,9 +102,13 @@ local function check()
 		-- Açık ada: gerçek seçim (sunucu); varsa önizleme silinir
 		IslandContext.setPreview(nil)
 		if islandId ~= IslandContext.selected() then
+			pendingIsland, retriesLeft, nextRetryAt = islandId, MAX_RETRIES, os.clock() + RETRY_SECONDS
 			Remotes.get("RequestTravelIsland"):FireServer(islandId, true)
+		else
+			pendingIsland = nil
 		end
 	else
+		pendingIsland = nil
 		-- Kilitli ada: paneller yalnızca bakmak için o adayı gösterir (satın alma kartı dahil)
 		IslandContext.setPreview(islandId)
 	end
