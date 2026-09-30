@@ -143,7 +143,6 @@ return function(Config: any, FarmMath: any)
 			barnLevel = 1,
 			unlockedIslands = {},
 			unlockedZones = {},
-			ordersCompleted = 0,
 			production = {},
 			activeMainFarmId = tostring(index),
 		}

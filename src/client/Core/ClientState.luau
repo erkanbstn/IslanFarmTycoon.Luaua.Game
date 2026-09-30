@@ -57,15 +57,12 @@ Remotes.get("PlayerState").OnClientEvent:Connect(function(state: PlayerSave, nex
 		return
 	end
 	-- Farklı event kanallarında daha yeni para paketi önce geldiyse yapısal veriyi
-	-- yine uygula, ancak para/sipariş ilerlemesini eski snapshot'a geri döndürme.
+	-- yine uygula, ancak para/depo miktarını eski snapshot'a geri döndürme.
 	local packet = latestEconomy
 	if packet and nextRevision < packet.revision then
 		state.cash = packet.cash
 		if state.activeMainFarmId == packet.farmId then
 			state.stored = packet.stored
-			if state.order and state.order.uid == packet.orderUid and packet.orderProgress then
-				state.order.progress = packet.orderProgress
-			end
 		end
 	end
 	snapshotRevision = nextRevision
@@ -76,43 +73,36 @@ Remotes.get("PlayerState").OnClientEvent:Connect(function(state: PlayerSave, nex
 end)
 
 Remotes.get("EconomyTick").OnClientEvent
-	:Connect(
-		function(cash: number, stored: number, nextRevision: number, orderProgress: number?, activeMainFarmId: string?)
-			if not current then
-				ClientState.requestSnapshot()
-				return
-			end
-			if typeof(nextRevision) ~= "number" or nextRevision <= revision then
-				return
-			end
-			if nextRevision > revision + 1 then
-				ClientState.requestSnapshot()
-			end
-			if typeof(cash) ~= "number" or typeof(stored) ~= "number" then
-				return
-			end
-			local farmId = activeMainFarmId or "1"
-			latestEconomy = {
-				cash = cash,
-				stored = stored,
-				revision = nextRevision,
-				farmId = farmId,
-				orderProgress = orderProgress,
-				orderUid = if current.activeMainFarmId == farmId and current.order then current.order.uid else nil,
-			}
-			revision = nextRevision
-			current.cash = cash
-			if current.activeMainFarmId == farmId then
-				current.stored = stored
-				if current.order and typeof(orderProgress) == "number" then
-					current.order.progress = orderProgress
-				end
-			else
-				ClientState.requestSnapshot()
-			end
-			emit(false)
+	:Connect(function(cash: number, stored: number, nextRevision: number, activeMainFarmId: string?)
+		if not current then
+			ClientState.requestSnapshot()
+			return
 		end
-	)
+		if typeof(nextRevision) ~= "number" or nextRevision <= revision then
+			return
+		end
+		if nextRevision > revision + 1 then
+			ClientState.requestSnapshot()
+		end
+		if typeof(cash) ~= "number" or typeof(stored) ~= "number" then
+			return
+		end
+		local farmId = activeMainFarmId or "1"
+		latestEconomy = {
+			cash = cash,
+			stored = stored,
+			revision = nextRevision,
+			farmId = farmId,
+		}
+		revision = nextRevision
+		current.cash = cash
+		if current.activeMainFarmId == farmId then
+			current.stored = stored
+		else
+			ClientState.requestSnapshot()
+		end
+		emit(false)
+	end)
 
 task.spawn(function()
 	while not current do

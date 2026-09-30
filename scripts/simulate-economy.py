@@ -50,7 +50,6 @@ local save: any = {
 	barnLevel = 1,
 	unlockedIslands = {},
 	unlockedZones = {},
-	ordersCompleted = 0,
 	production = {},
 	activeMainFarmId = FARM,
 }

@@ -10,9 +10,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local GameTypes = require(Shared:WaitForChild("GameTypes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
-local ClientState = require(script.Parent.Parent.Parent:WaitForChild("Core"):WaitForChild("ClientState"))
 local IslandContext = require(script.Parent.Parent.Parent:WaitForChild("Core"):WaitForChild("IslandContext"))
-local PurchaseController = require(script.Parent.Parent.Parent:WaitForChild("Core"):WaitForChild("PurchaseController"))
 local UiKit = require(script.Parent.Parent:WaitForChild("UiKit"))
 local HudCommon = require(script.Parent:WaitForChild("HudCommon"))
 local Onboarding = require(script.Parent:WaitForChild("Onboarding"))
@@ -21,7 +19,6 @@ type PlayerSave = GameTypes.PlayerSave
 
 local Color = UiKit.Color
 local purchaseHint = HudCommon.purchaseHint
-local setPurchaseButton = HudCommon.setPurchaseButton
 
 local GoalCard = {}
 
@@ -79,19 +76,7 @@ function GoalCard.create(stats: Frame, onboarding: Onboarding.Hud): Hud
 	local goalDetail = UiKit.text(goalCard, "", "Caption")
 	goalDetail.LayoutOrder = 3
 
-	local orderButton = UiKit.button(goalCard, "Siparişi teslim et", "primary")
-	orderButton.Size = UDim2.new(1, 0, 0, 40)
-	orderButton.LayoutOrder = 4
-	orderButton.Visible = false
-	orderButton.Activated:Connect(function()
-		local state = ClientState.get()
-		if state and state.order and orderButton.Active then
-			PurchaseController.submit("RequestClaimOrder", state.order.uid)
-		end
-	end)
-
 	local function updateGoalMain(state: PlayerSave, income: number)
-		orderButton.Visible = false
 		goalTitle.Text = "SIRADAKİ HEDEF"
 		-- İlk adımlar: hayvan al → parayı topla → ilk yükseltme (durumdan türetilir, vurgular Onboarding'de)
 		local cheapest: Config.UpgradeConfig? = nil
@@ -232,20 +217,8 @@ function GoalCard.create(stats: Frame, onboarding: Onboarding.Hud): Hud
 				state,
 				"fishpen"
 			)} levrek`
-		if state.order then
-			local order = state.order
-			local animal = Config.ANIMALS[order.animalId]
-			goalDetail.Text =
-				`{animal.product}: {math.floor(order.progress)}/{order.target} · Teslim edilen: {state.ordersCompleted}`
-			orderButton.Visible = true
-			setPurchaseButton(
-				orderButton,
-				"Siparişi teslim et",
-				if order.progress >= order.target then "primary" else "disabled"
-			)
-		else
-			goalDetail.Text = "Yetişkin hayvanların sıradaki sipariş için hazırlanıyor."
-		end
+		local delivered = if state.contracts then state.contracts.completed else 0
+		goalDetail.Text = `Ahır siparişi: ürün merkezlerinde üret, depodan teslim et · Teslim edilen: {delivered}`
 	end
 
 	local function updateIslandGoal(state: PlayerSave, income: number)
@@ -297,9 +270,6 @@ function GoalCard.create(stats: Frame, onboarding: Onboarding.Hud): Hud
 		end
 		if #chores < 2 and FarmMath.getReadyContractCount(state, now, 0) > 0 then
 			table.insert(chores, "Ahır siparişi teslime hazır")
-		end
-		if #chores < 2 and state.order and state.order.progress >= state.order.target then
-			table.insert(chores, "Sipariş teslime hazır")
 		end
 		return chores
 	end

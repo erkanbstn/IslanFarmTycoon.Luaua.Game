@@ -70,8 +70,6 @@ local function decodeFarm(
 		barnLevel = 1,
 		unlockedIslands = {},
 		unlockedZones = {},
-		ordersCompleted = math.floor(amount(source.ordersCompleted, 0)),
-		order = nil,
 		production = {},
 		farmId = if typeof(source.farmId) == "string" then source.farmId else "1",
 	}
@@ -209,35 +207,6 @@ local function decodeFarm(
 				optionId = optionId,
 			}
 		end
-	end
-	if source.order ~= nil then
-		local order = source.order
-		if
-			typeof(order) ~= "table"
-			or typeof(order.uid) ~= "string"
-			or #order.uid == 0
-			or #order.uid > 64
-			or typeof(order.animalId) ~= "string"
-			or not config.ANIMALS[order.animalId]
-		then
-			return nil, 0, "Sipariş kaydı geçersiz; orijinal kayıt korunuyor"
-		end
-		-- Panodan seçilen sipariş farklı hedef ve ödül çarpanı taşıyabilir; ikisi de sınırlanır.
-		local maxUnits = config.ORDER_UNITS
-		for _, tier in config.ORDER_TIERS do
-			maxUnits = math.max(maxUnits, tier.units)
-		end
-		local target = if SessionLock.isFinite(order.target)
-			then math.clamp(math.floor(order.target), 1, maxUnits)
-			else config.ORDER_UNITS
-		local factor = if SessionLock.isFinite(order.rewardFactor) then math.clamp(order.rewardFactor, 0.5, 3) else 1
-		save.order = {
-			uid = order.uid,
-			animalId = order.animalId,
-			progress = math.clamp(amount(order.progress, 0), 0, target),
-			target = target,
-			rewardFactor = factor,
-		}
 	end
 	-- Yapı geliştirme seviyeleri (isteğe bağlı; bölge ya da tesis): tanınmayan hedef atılır, seviye sıkıştırılır
 	save.expansions = {}
@@ -463,16 +432,6 @@ local function encodeFarm(save: any, now: number): { [string]: any }
 		purchased = purchased,
 		animals = animals,
 		lastSeen = now,
-		ordersCompleted = math.floor(amount(save.ordersCompleted, 0)),
-		order = if save.order
-			then {
-				uid = save.order.uid,
-				animalId = save.order.animalId,
-				progress = save.order.progress,
-				target = save.order.target,
-				rewardFactor = save.order.rewardFactor,
-			}
-			else nil,
 	}
 end
 

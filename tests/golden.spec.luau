@@ -11,7 +11,6 @@ return function(Golden: any, Config: any, FarmMath: any)
 			barnLevel = 1,
 			unlockedIslands = {},
 			unlockedZones = {},
-			ordersCompleted = 0,
 			production = {},
 			activeMainFarmId = "1",
 		}

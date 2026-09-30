@@ -65,11 +65,6 @@ local Config = {
 	INCOME_TICK_SECONDS = Core.INCOME_TICK_SECONDS,
 	MAX_INCOME_CATCHUP_SECONDS = Core.MAX_INCOME_CATCHUP_SECONDS,
 	FISH_REPLACEMENT_REFUND_RATE = Core.FISH_REPLACEMENT_REFUND_RATE,
-	ORDER_UNITS = Core.ORDER_UNITS,
-	ORDER_PRODUCTION_SECONDS = Core.ORDER_PRODUCTION_SECONDS,
-	ORDER_REWARD_MULTIPLIER = Core.ORDER_REWARD_MULTIPLIER,
-	ORDER_TIERS = Core.ORDER_TIERS,
-	ORDER_BOARD_SECONDS = Core.ORDER_BOARD_SECONDS,
 	-- Weather
 	SEASON_SECONDS = Weather.SEASON_SECONDS,
 	DAY_SECONDS = Weather.DAY_SECONDS,
@@ -199,7 +194,7 @@ end
 
 -- Seviyeli geliştirmeler: her zaman alınacak bir şey olsun. Her seviye ayrı bir yükseltmedir
 -- ("<id>_lv<N>"); önceki seviye olmadan alınamaz. Kayıt şeması değişmez: purchased[id] yeterlidir.
--- kind = "level" (harita yapı noktası istemez); OrderRules ve "tüm yol haritası" sayımı bunları saymaz.
+-- kind = "level" (harita yapı noktası istemez); "tüm yol haritası" sayımı bunları saymaz.
 local LEVEL_CHAINS = {
 	{
 		id = "feed_quality",

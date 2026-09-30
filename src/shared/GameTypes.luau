@@ -21,14 +21,6 @@ export type AnimalRecord = {
 	task: AnimalTask?, -- Süreli görev (üretim ya da eklenti); süre bitince temizlenir
 }
 
-export type OrderRecord = {
-	uid: string,
-	animalId: string,
-	progress: number,
-	target: number,
-	rewardFactor: number?, -- Sipariş panosundaki seçeneğin ödül çarpanı (yoksa 1)
-}
-
 export type ContractsRecord = {
 	window: number, -- teslimlerin ait olduğu pano penceresi (FarmMath.Contracts.window)
 	done: { [string]: boolean }, -- teslim edilen teklif anahtarları ("<pencere>:<sıra>")
@@ -89,8 +81,6 @@ export type PlayerSave = {
 	goods: { [string]: number }?, -- Ahır deposu: ürün kimliği (Config.GOODS) -> miktar (her tür en fazla ahırın goodsCap değeri); yoksa 0
 	lineage: { [string]: number }?, -- Irk geliştirme seviyeleri (animalId -> 1..Config.LINEAGE.maxLevel); yoksa 0
 	animals: { AnimalRecord },
-	ordersCompleted: number,
-	order: OrderRecord?,
 
 	-- Aşağıdakiler kaydedilmez; purchased'dan / oturumdan türetilir
 	barnLevel: number,

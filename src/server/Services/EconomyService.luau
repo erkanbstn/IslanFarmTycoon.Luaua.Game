@@ -15,7 +15,6 @@ local WorldUi = require(Shared:WaitForChild("WorldUi"))
 
 local PlayerDataService = require(script.Parent:WaitForChild("PlayerDataService"))
 local PlotService = require(script.Parent:WaitForChild("PlotService"))
-local OrderService = require(script.Parent:WaitForChild("OrderService"))
 local RateLimiter = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("RateLimiter"))
 local Metrics = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("Metrics"))
 
@@ -120,7 +119,6 @@ function EconomyService.settlePlayer(player: Player)
 			continue
 		end
 		local earned = FarmMath.computeIncomeOverInterval(farm, wallNow - elapsed, wallNow)
-		OrderService.update(player, elapsed, wallNow - elapsed, wallNow, farm)
 		if FarmMath.hasAutoCollect(farm) then
 			data.cash = math.min(1e15, data.cash + earned + farm.stored)
 			data.lifetimeEarned = math.min(1e18, (data.lifetimeEarned or 0) + earned + farm.stored)

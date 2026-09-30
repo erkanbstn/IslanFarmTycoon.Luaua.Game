@@ -11,7 +11,6 @@ return function(Rewards: any, Config: any, FarmMath: any)
 			barnLevel = 1,
 			unlockedIslands = {},
 			unlockedZones = {},
-			ordersCompleted = 0,
 			lifetimeEarned = 0,
 			achievements = {},
 		}
@@ -86,7 +85,7 @@ return function(Rewards: any, Config: any, FarmMath: any)
 	player.lifetimeEarned = 10000
 	assert(Rewards.isComplete(player, achievement("earned_10k")), "lifetime earnings complete the money achievement")
 	assert(Rewards.progress(save(), achievement("earned_10k")) == 0, "missing lifetimeEarned counts as zero")
-	player.ordersCompleted = 5
+	player.contracts = { window = 0, done = {}, completed = 5 }
 	assert(Rewards.isComplete(player, achievement("orders_5")), "delivered orders complete the order achievement")
 
 	local claimable = Rewards.claimableCount(player)

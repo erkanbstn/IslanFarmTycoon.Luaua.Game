@@ -28,15 +28,15 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
 ## Sonradan eklenen sistemler
 - **Seviyeli geliştirme**: `Config` sonundaki `LEVEL_CHAINS` her seviyeyi `<id>_lv<N>` yükseltmesi (`kind = "level"`,
   `leveled = true`) olarak üretir; kayıt şeması değişmez. `kind = "boost"` verme: `MapBuilder.validate` her boost için
-  harita yapı noktası ister. `OrderRules.isUnlocked` ve "tüm yol haritası" sayımı `leveled` olanları saymaz.
+  harita yapı noktası ister. "Tüm yol haritası" sayımı `leveled` olanları saymaz.
 - **Hesap düzeyi alanlar** (`SaveCodec` kökü): `lifetimeEarned` (yalnızca `addCash` ve otomatik toplama artırır),
   `daily {day, streak}`, `achievements`, `receipts` (en fazla 200), `language`, `graphics` (auto/low/medium/high; `RequestSetGraphics`, `SavedGraphics` özniteliği). `passes` yalnızca çalışma anında
   (`MonetizationService`, MarketplaceService'ten) yazılır, **kaydedilmez**; `FarmProfiles.view` etkin olmayan
   çiftliğe de aktarır. Hepsi opsiyoneldir: eksik alan varsayılanla yüklenir, geçersizi atılır.
 - **Ürün kimlikleri** `Config.PRODUCTS`: `id = 0` = satışta değil. `ProcessReceipt` makbuzu `ReceiptLog` ile bir kez işler;
   `PurchaseGranted` yalnızca `PlayerDataService.save` başarılıysa döner.
-- **Sipariş panosu**: seçenekler `OrderBoard.offers` (paylaşılan, saf) ile pencereden türetilir; sunucu anahtarı yeniden çözer.
-  Sipariş kaydı `target` ve `rewardFactor` taşır (üst sınırlı). Mevsim bonusu `SEASONS[x].orderBonus`.
+- **Sipariş panosu** yalnızca ahır siparişlerinden oluşur (aşağıda); eski zaman tabanlı sipariş (`save.order`) kaldırıldı. Mevsim bonusu `SEASONS[x].orderBonus` ahır
+  siparişi ödülüne uygulanır.
 - **Denge ölçümü**: `python scripts/simulate-economy.py --hours 8 --farm 1..6` (ideal oyuncu, gerçek Config/FarmMath; her temayı dene).
   Tempo hedefi: ilk küçük ada ~10 dk, ikinci ~30 dk, üçüncü ~1 saat, tüm yükseltmeler ~3 saat. `UPGRADES[].cost` taban fiyattır:
   `UPGRADE_COST_BASE/EXPONENT` eğrisi yükleme sırasında uygulanır (Config sonunda; ek ana çiftlik fiyatları `MAIN_FARM_PRICES` da aynı eğriden geçer, simülasyon tek çiftliği modeller); `--cost-exp/--cost-base/--price-growth` ile deneme yapılır.
@@ -85,7 +85,7 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
   `EngagementService.tryClaimGolden` (`RequestClaimGolden`) olayı yeniden hesaplar, işareti önce yazar. Görsel tamamen client'ta: `GoldenAnimal.client`
   (Highlight + hayvanın üstünde "Topla" düğmesi, fare/dokunma ile çalışır); bildirim FarmHud'da. Yeni rastgele olay eklerken aynı kalıbı izle.
 - **Tema tutarlılığı**: bir çiftlik yalnızca kendi temasındaki adaların yükseltmelerini alabilir. `FarmMath.isUpgradeInTheme` ve `getUpgradeStatus` temada olmayanı
-  `"locked"` döner; "bütün yol haritası" sayan her kural (`OrderRules.isUnlocked`, Sipariş Panosu) ve hedef/başarım hesabı temaya göre süzülür. Yeni başarım/hedef
+  `"locked"` döner; "bütün yol haritası" sayan her kural, başarım ve hedef hesabı temaya göre süzülür. Yeni başarım/hedef
   eklerken her temada ulaşılabilir olduğunu `tests/rewards.spec.luau` (başarım ulaşılabilirliği) ve `tests/economy.spec.luau` (ön koşul zinciri aynı temada) denetler.
 - **Yönetici olay araçları**: `forceMerchant/forceGolden/completeSeason/resetEvents` (AdminPolicy listesi + AdminService + AdminPanel). Zorlama yalnızca çalışma anı
   alanı `save.adminForce` ile yapılır (`Merchant.offer` ve `Golden.current` okur, SaveCodec yazmaz); mevsim hedefini `EngagementService.refreshSeasonal` tamamlar.
@@ -98,14 +98,14 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
   anahtarını `FarmMath.getEquippedBonus/getEquippedMultiplier` ile oku. Sunucu `InventoryService` (`RequestBuyItem/EquipItem/UseItem`): fiyat ve haklar sunucuda doğrulanır;
   takma/çıkarma `changeEquipment` ile geçen süreyi eski etkiyle kapatır, büyüme ilerlemesini korur, dünyayı ve karakteri yeniler. Asa gücü oyuncuya özeldir: `InventoryService.tryUse` kayıtta çalışma anı
   `envOverride { seasonId, seasonEndsAt, weatherId, weatherEndsAt }` tutar (kaydedilmez; `FarmProfiles.view` inaktif çiftliğe de taşır). `Environment.getSeason/getWeather/
-  getIncomeMultiplier/getSeasonEndsAt/getNextSeason(override?)` katmanı uygular: sunucu `save.envOverride` verir (`FarmMath` ve `OrderService` bunu yapar), client argümansız
+  getIncomeMultiplier/getSeasonEndsAt/getNextSeason(override?)` katmanı uygular: sunucu `save.envOverride` verir (`FarmMath` ve `ContractService` bunu yapar), client argümansız
   çağrılarda `Environment.setClientOverride` ile kurulan kendi katmanını kullanır (FarmHud her durumda kurar). Yeni bir mevsim/hava tüketicisi dünya attribute'unu doğrudan okumamalı,
   `Environment` üzerinden geçmeli. Dünya mevsimini/havasını yalnızca `SeasonService` (ve yönetici araçları) değiştirir. Test araçları `grantItems/clearItems`. Yeni eşya ailesi eklerken `tests/inventory.spec.luau` (pahalı kademe daha güçlü olmalı)
   ve çeviri anahtarları (ad + şablon açıklama) gerekir.
 - **Ahır deposu ve ürün merkezleri**: `Config.GOODS/GOODS_ORDER` (süt, yumurta, tüy, peynir, yün, et, nal, balık; `value` = birim para değeri) ve çiftlik
   başına `save.goods { [ürün] = miktar }` (`FarmProfiles.FIELDS`'te; `SaveCodec` bilinmeyen/sonsuz/negatif girdiyi atar, miktarı ahırın `goodsCap` değerine
   sıkıştırır). Kapasite ahır seviyesine göre (`BARN_LEVELS[n].goodsCap`, ürün türü başına). Depo işlemleri **yalnızca** `FarmMath.getGoodsAmount/getGoodsSpace/
-  addGoods/removeGoods/getGoodsWorth/getGoodsCap` ile yapılır (sipariş sistemi depoyu buradan tüketecek: `removeGoods` yetmiyorsa hiçbir şey değiştirmez).
+  addGoods/removeGoods/getGoodsWorth/getGoodsCap` ile yapılır (ahır siparişleri depoyu buradan tüketir: `removeGoods` yetmiyorsa hiçbir şey değiştirmez).
   Ürün merkezleri `PRODUCTION_RECIPES` içinde `output = "goods"`, `goodsId`, `goodsAmount` taşır (`reward` = ürünlerin para karşılığı; yalnızca gösterim ve
   tesis geliştirme maliyeti tabanı). Her hayvan türü için bir **para** (mevcut fabrika) ve bir **ürün** merkezi vardır; ürün merkezleri de aynı hayvan kuralını
   izler (`requiredAdults`, iş boyunca gelirsiz, sonra döner, bkz. Hayvan görevleri). Başlatma: `ProductionRules.canStart` depoda en az `goodsAmount` yer ister.
@@ -132,7 +132,7 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
   düşer, anahtar `save.contracts.done`'a yazılır (`save.contracts { window, done, completed }`, çiftlik başına, `FarmProfiles.FIELDS`'te; `SaveCodec` pencere/sayaç/anahtar
   sayısını sıkıştırır, bozuk kaydı reddeder); para ekleme `Services/ContractService` (`RequestFulfillContract(key, requestId, expectedFarmId)`, yanıt PurchaseResult) işidir. Yeni pencerede
   teslimler sıfırlanır. Arayüz: Sipariş Panosu penceresinin üstünde "Ahır siparişleri" bölümü (`Ui/Hud/BoardSection`), hedef kartında "Ahır siparişi teslime hazır".
-  Eski zaman tabanlı sipariş (`save.order`) ayrı ve değişmedi; ahır siparişleri yol haritasından bağımsız açılır (ilk ürün merkezi yeter).
+  Ahır siparişleri yol haritasından bağımsız açılır (ilk ürün merkezi yeter); "Sipariş teslim" başarımı `save.contracts.completed` sayar. Sayaçlar arayüz ve `Rewards` içindir.
 - **Hayvan görevleri (üretim tesisi ve eklenti)**: `AnimalRecord.task { kind = "production"|"extension", id, startedAt, endsAt }` kaydedilir
   (`SaveCodec.decodeTask`: bozuk görev atılır, hayvan korunur; çevrimdışıyken biten görev yüklemede temizlenir; eski kalıcı `extensionId` eve döner).
   Görev süresince: **üretim** → hayvan tesiste çalışır, gelir getirmez, görünmez, satılamaz; **eklenti** → `Config.EXTENSIONS[id].incomeBonus` kadar

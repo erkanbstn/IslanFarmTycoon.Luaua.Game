@@ -9,8 +9,6 @@ local FIELDS = {
 	"contracts",
 	"expansions",
 	"animals",
-	"ordersCompleted",
-	"order",
 	"production",
 	"barnLevel",
 	"unlockedIslands",

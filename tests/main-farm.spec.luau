@@ -172,17 +172,11 @@ return function(
 		end,
 	}
 	local limiter = createLimiter(engine, clock)
-	local orderFarms = {}
 	local economy = createEconomy(
 		engine,
 		{},
 		dataService,
 		plots,
-		{
-			update = function(_p: any, _elapsed: number, _a: number, _b: number, farm: any)
-				table.insert(orderFarms, farm)
-			end,
-		},
 		limiter,
 		{ Color = { Blue = {}, Red = {}, Gold = {} } },
 		{ setTag = function() end },
@@ -299,10 +293,7 @@ return function(
 	active = true
 	data.cash = 0
 	assert(not fire("buy", "3").ok and mappings["3"] == nil, "insufficient cash cannot reserve physical plot")
-	assert(
-		pushes == saves + 1 and saves >= 2 and #orderFarms > 1,
-		"all farm mutations persist and passive farms feed order progress"
-	)
+	assert(pushes == saves + 1 and saves >= 2, "all farm mutations persist")
 	print(
 		"PASS main farm economy: real buy/select, occupied/no-money/replay guards, shared wallet, v3 migration, independent/all-farm income, offline caps and snapshots"
 	)

@@ -43,7 +43,7 @@ return function(lock: any, codec: any, config: any, farmMath: any)
 		#save.animals == config.STARTING_COW_COUNT and save.cash == config.STARTING_CASH,
 		"new save defaults must match Config"
 	)
-	assert(save.ordersCompleted == 0 and save.order == nil, "older profiles must default new order fields")
+	assert(save.contracts.completed == 0 and next(save.contracts.done) == nil, "new profiles start with no barn orders")
 	local corrupt = { version = 1, cash = math.huge, stored = 0 / 0, purchased = { "unknown" }, animals = {} }
 	for i = 1, config.ZONES.starter.capacity + 4 do
 		table.insert(corrupt.animals, {
@@ -80,18 +80,6 @@ return function(lock: any, codec: any, config: any, farmMath: any)
 		"legacy missing zone must rehome the animal"
 	)
 	assert(#missingZone.animals[1].uid <= 64, "normalized IDs must fit remote validation")
-	local orderRaw = codec.encode(save, now)
-	orderRaw.mainFarms["1"].ordersCompleted = 7
-	orderRaw.mainFarms["1"].order = { uid = "order-1", animalId = "cow", progress = 3.25, target = config.ORDER_UNITS }
-	local withOrder = assert(codec.decode(orderRaw, config, farmMath, now + 100, uid))
-	assert(
-		withOrder.order.progress == 3.25 and withOrder.ordersCompleted == 7,
-		"offline time must not produce order progress"
-	)
-	assert(
-		codec.encode(withOrder, now).mainFarms["1"].order.progress == 3.25,
-		"fractional order progress must survive saves"
-	)
 	local future = assert(codec.decode({ version = 1, lastSeen = now + 100 }, config, farmMath, now, uid))
 	assert(future.stored == 0, "future timestamp cannot award income")
 	local languageRaw = codec.encode(save, now)

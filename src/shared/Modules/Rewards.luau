@@ -63,7 +63,7 @@ function Rewards.progress(save: any, achievement: Config.AchievementConfig): num
 	elseif metric == "earned" then
 		return save.lifetimeEarned or 0
 	elseif metric == "orders" then
-		return save.ordersCompleted or 0
+		return if save.contracts then save.contracts.completed else 0
 	end
 	return 0
 end

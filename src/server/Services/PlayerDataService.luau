@@ -538,14 +538,7 @@ function PlayerDataService.pushEconomy(player: Player)
 	session.packetRevision += 1
 	player:SetAttribute("DataDirty", true)
 	updateLeaderstat(session, data)
-	Remotes.get("EconomyTick"):FireClient(
-		player,
-		data.cash,
-		data.stored,
-		session.packetRevision,
-		if data.order then data.order.progress else nil,
-		data.activeMainFarmId
-	)
+	Remotes.get("EconomyTick"):FireClient(player, data.cash, data.stored, session.packetRevision, data.activeMainFarmId)
 end
 
 function PlayerDataService.init()

@@ -88,7 +88,6 @@ return function(Inventory: any, Config: any, FarmMath: any, SaveCodec: any, Sess
 			barnLevel = 1,
 			unlockedIslands = {},
 			unlockedZones = {},
-			ordersCompleted = 0,
 			production = {},
 			activeMainFarmId = "1",
 		}

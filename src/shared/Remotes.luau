@@ -32,10 +32,8 @@ export type EventName =
 	| "RequestTravel"
 	| "RequestTravelIsland"
 	| "DebugCycleWeather"
-	| "RequestClaimOrder"
 	| "RequestClaimDaily"
 	| "RequestPromptProduct"
-	| "RequestPickOrder"
 	| "RequestFulfillContract"
 	| "RequestClaimAchievement"
 	| "OfflineSummary"
@@ -59,7 +57,7 @@ local EVENTS = {
 	"AdminResult", -- Sunucu -> yetkili client (requestId, success, message).
 	"Notify", -- Sunucu -> Client bilgi mesajı (message, kind?)
 	"PlayerState", -- Sunucu -> Client kaydın tamamı (yapısal değişikliklerde)
-	"EconomyTick", -- Sunucu -> Client sadece (cash, stored); her saniye
+	"EconomyTick", -- Sunucu -> Client sadece (cash, stored, revision, farmId); her saniye
 	"RequestBuyUpgrade", -- Client -> Sunucu yol haritası satın alma (upgradeId)
 	"RequestUpgradeLineage", -- Client -> Sunucu ırk geliştirme (animalId, requestId, expectedFarmId)
 	"RequestExpandZone", -- Client -> Sunucu alan genişletme (zoneId, requestId, expectedFarmId)
@@ -74,8 +72,6 @@ local EVENTS = {
 	"RequestReplaceFish", -- Client -> Sunucu hamsiyi levrekle değiştir (uid, requestId)
 	"PurchaseResult", -- Sunucu -> Client (requestId, success, message?)
 	"RequestPlayerState", -- Client hazır / tekrar eşitleme
-	"RequestClaimOrder", -- Tamamlanan siparişi teslim et (uid, requestId)
-	"RequestPickOrder", -- Sipariş panosundan seçenek seç (offerKey, requestId, expectedFarmId)
 	"RequestFulfillContract", -- Ahır siparişini depodaki ürünlerle teslim et (offerKey, requestId, expectedFarmId); sonuç PurchaseResult
 	"RequestPromptProduct", -- Oyun geçidi/ürün satın alma penceresini aç ("pass"|"product", anahtar); fiyatı sunucu belirler
 	"RequestClaimDaily", -- Günlük giriş ödülünü al (_, requestId); sonuç PurchaseResult

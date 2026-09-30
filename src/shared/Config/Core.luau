@@ -68,20 +68,4 @@ return {
 	MAX_INCOME_CATCHUP_SECONDS = 60,
 
 	FISH_REPLACEMENT_REFUND_RATE = 0.5,
-
-	ORDER_UNITS = 12,
-
-	ORDER_PRODUCTION_SECONDS = 15,
-
-	ORDER_REWARD_MULTIPLIER = 0.5,
-
-	-- Sipariş panosu: aynı anda 3 seçenek (kısa/orta/uzun). units = hedef birim, rewardFactor = ödül çarpanı.
-	-- Seçenekler ORDER_BOARD_SECONDS'ta bir yenilenir (sunucu saatinden türetilir, herkeste aynı pencere).
-	ORDER_TIERS = {
-		{ id = "short", displayName = "Kısa", units = 6, rewardFactor = 1 },
-		{ id = "medium", displayName = "Orta", units = 12, rewardFactor = 1.15 },
-		{ id = "long", displayName = "Uzun", units = 24, rewardFactor = 1.4 },
-	},
-
-	ORDER_BOARD_SECONDS = 300,
 }
