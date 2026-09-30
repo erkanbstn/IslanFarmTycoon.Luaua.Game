@@ -151,3 +151,7 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
 - **Hesap düzeyi mi çiftlik düzeyi mi?** Çiftlik başına kalıcı alanlar `FarmProfiles.FIELDS`'tedir (stored, purchased, lineage, expansions, animals, production, ...). Hesap düzeyi alanlar
   (cash, lifetimeEarned, daily, achievements, seasonal, merchant, golden, inventory, language, graphics, receipts) kökte durur ve `SaveCodec`'te ayrı normalleştirilir. Çalışma anı alanlar (`passes`, `envOverride`, `adminForce`) kaydedilmez.
 - **Arayüz ve hesaplar aynı kaynaktan**: para/süre/kapasite/ödül gösteren her ekran `FarmMath` yardımcısını kullanır (`getUpgradeCost`, `getExpansionCost`, `getFacilityCost/Duration`, `getZoneCapacity`, `getSellPrice`); elle çarpma yazma.
+- **Büyüme süresi**: `GROWTH_SECONDS` yavru 120 sn + genç 240 sn (taban 6 dk; silo 2x, ada 2x, bölge/muska/"Hızlı Büyüme" çarpanları üstüne biner). Hızlı Büyüme her seviye x1.14.
+  Testler süreyi `Config.GROWTH_SECONDS`'tan okur; rakamı elle yazma. Değiştirince `python scripts/simulate-economy.py` ile tempoyu (kilit zamanları) kontrol et.
+- **Başarımlar**: metrikler `Rewards.progress` içindedir (cows/animals/islands/purchases/earned/orders + fish/species/zones/barn/expansions/facilities/centers/goods/items). Her başarım her temada
+  ulaşılabilir olmalı: `tests/rewards.spec` tema sınırlarını denetler; yeni metrik eklersen oraya sınır ekle. Arayüz alınabilirleri pencerenin en üstünde gösterir, ilerleme sırası yakınlığa göredir.

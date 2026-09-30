@@ -19,13 +19,20 @@ return function(FarmMath: any, Config: any, Environment: any)
 	end
 	local start = 1000000
 	local save = saveAt(start)
-	assert(FarmMath.getStage(start, start + 44, 1) == "calf", "44s: calf boundary")
-	assert(FarmMath.getStage(start, start + 45, 1) == "young", "45s: young boundary")
-	assert(FarmMath.getStage(start, start + 134, 1) == "young", "134s: still young")
-	assert(FarmMath.getStage(start, start + 135, 1) == "adult", "135s: adult boundary")
-	-- Evre alanı yetişkin olsa da geçmiş gelir doğumdan hesaplanır.
-	near(FarmMath.computeIncomeOverInterval(save, start, start + 135, true), 130.5)
-	near(FarmMath.computeOfflineEarnings(save, start, start + 135), 65)
+	local calfSeconds, youngSeconds = Config.GROWTH_SECONDS.calf, Config.GROWTH_SECONDS.young
+	local growSeconds = calfSeconds + youngSeconds
+	assert(FarmMath.getStage(start, start + calfSeconds - 1, 1) == "calf", "calf boundary")
+	assert(FarmMath.getStage(start, start + calfSeconds, 1) == "young", "young boundary")
+	assert(FarmMath.getStage(start, start + growSeconds - 1, 1) == "young", "still young")
+	assert(FarmMath.getStage(start, start + growSeconds, 1) == "adult", "adult boundary")
+	-- Evre alanı yetişkin olsa da geçmiş gelir doğumdan hesaplanır (inek saniyede 2).
+	local growIncome = 2
+		* (calfSeconds * Config.STAGE_INCOME_MULTIPLIER.calf + youngSeconds * Config.STAGE_INCOME_MULTIPLIER.young)
+	near(FarmMath.computeIncomeOverInterval(save, start, start + growSeconds, true), growIncome)
+	near(
+		FarmMath.computeOfflineEarnings(save, start, start + growSeconds),
+		math.floor(growIncome * Config.OFFLINE_EARNING_RATE)
+	)
 	near(FarmMath.computeIncomeOverInterval(save, start - 20, start, true), 0)
 	near(FarmMath.computeOfflineEarnings(save, start + 1, start), 0)
 	near(FarmMath.computeOfflineEarnings(save, 0 / 0, start), 0)
@@ -35,11 +42,11 @@ return function(FarmMath: any, Config: any, Environment: any)
 	Environment.getIncomeMultiplier = function(): number
 		return 0.2
 	end
-	local badWeather = FarmMath.computeOfflineEarnings(save, start, start + 135)
+	local badWeather = FarmMath.computeOfflineEarnings(save, start, start + growSeconds)
 	Environment.getIncomeMultiplier = function(): number
 		return 2
 	end
-	near(FarmMath.computeOfflineEarnings(save, start, start + 135), badWeather)
+	near(FarmMath.computeOfflineEarnings(save, start, start + growSeconds), badWeather)
 	Environment.getIncomeMultiplier = previousWeather
 
 	-- Scheduler gecikmesi: parçalara bölmek veya tek aralık ödemek aynı sonucu verir.
@@ -50,7 +57,10 @@ return function(FarmMath: any, Config: any, Environment: any)
 	near(FarmMath.computeIncomeOverInterval(save, start, start + 180, true), regular)
 	-- Çevrimdışı kazanç kasaya gider: dolu depo onu engellemez, üst sınır depo x OFFLINE_STORAGE_MULTIPLIER.
 	save.stored = FarmMath.getStorageCap(save)
-	near(FarmMath.computeOfflineEarnings(save, start, start + 135), 65)
+	near(
+		FarmMath.computeOfflineEarnings(save, start, start + growSeconds),
+		math.floor(growIncome * Config.OFFLINE_EARNING_RATE)
+	)
 	local offlineCap = FarmMath.getOfflineCap(save)
 	near(offlineCap, FarmMath.getStorageCap(save) * Config.OFFLINE_STORAGE_MULTIPLIER)
 	near(FarmMath.computeOfflineEarnings(save, start, start + Config.OFFLINE_MAX_HOURS * 3600), offlineCap)
@@ -90,17 +100,20 @@ return function(FarmMath: any, Config: any, Environment: any)
 	local _, cappedBonus = FarmMath.getProductionReward(farm, dairy, start)
 	near(cappedBonus, Config.PRODUCTION_MAX_BONUS_ADULTS * Config.PRODUCTION_BONUS_PER_ADULT)
 
-	-- Hız yükseltmesi 44 saniyelik eski ilerlemeyi 88 saniyeye dönüştürmemeli.
+	-- Hız yükseltmesi mevcut ilerlemeyi ikiye katlamamalı (yavru evresinin son saniyesinde yükseltme).
 	save = saveAt(start)
 	local oldSpeeds = FarmMath.snapshotGrowthSpeeds(save)
 	save.purchased.silo = true
 	FarmMath.applyDerived(save)
-	FarmMath.preserveGrowthProgress(save, oldSpeeds, start + 44)
-	near((start + 44 - save.animals[1].bornAt) * 2, 44)
+	FarmMath.preserveGrowthProgress(save, oldSpeeds, start + calfSeconds - 1)
+	near((start + calfSeconds - 1 - save.animals[1].bornAt) * 2, calfSeconds - 1)
 	assert(save.animals[1].stage == "calf", "upgrade must preserve existing growth")
-	assert(FarmMath.getStage(save.animals[1].bornAt, start + 44.5, 2) == "young", "new half-second grows at new speed")
+	assert(
+		FarmMath.getStage(save.animals[1].bornAt, start + calfSeconds - 0.5, 2) == "young",
+		"new half-second grows at new speed"
+	)
 	save.animals[1].bornAt = 0
-	FarmMath.preserveGrowthProgress(save, oldSpeeds, start + 44)
+	FarmMath.preserveGrowthProgress(save, oldSpeeds, start + calfSeconds - 1)
 	near(save.animals[1].bornAt, 0)
 
 	-- Zaten yetişkin hayvanın yetişkinlik başlangıcı hız değişiminde kaymaz.
@@ -109,7 +122,7 @@ return function(FarmMath: any, Config: any, Environment: any)
 	save.purchased.silo = true
 	FarmMath.applyDerived(save)
 	FarmMath.preserveGrowthProgress(save, oldSpeeds, start + 1000)
-	near(save.animals[1].bornAt + 135 / 2, start + 135)
+	near(save.animals[1].bornAt + growSeconds / 2, start + growSeconds)
 	assert(save.animals[1].stage == "adult", "an adult stays adult after a speed change")
 
 	-- Satış: fiyatın yarısı, en genç hayvan, son hayvan satılmaz, görevdeki (eklenti/tesis) hayvan satılmaz.

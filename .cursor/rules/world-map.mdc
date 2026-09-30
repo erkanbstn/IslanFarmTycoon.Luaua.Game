@@ -65,3 +65,9 @@ alwaysApply: false
 | UnderwaterGrade, UnderwaterBlur, `SoundService.AmbientReverb`, `Submerged` özniteliği | Underwater |
 - Hava pozlaması: WeatherEffects `Lighting:SetAttribute("WeatherExposure", n)` yazar, DayNight
   yumuşatıp gece payıyla birlikte uygular. Yeni efekt bu tabloya uymalı.
+- **Geliştirmeyle beliren yapılar**: haritaya kaydedilen süs yapıları `RevealGate` etiketli Model olarak kurulur (`RevealBarnLevel = n` ya da `RevealZoneId` + `RevealZoneLevel = n`;
+  ana ada: kuyu/tarla ahır Sv.2, değirmen/kovan/ambar Sv.3, meyve bahçesi/anıt Sv.4, çiftlik evi otlak Sv.1; iskele kulübesi balık kafesi Sv.1). `Presentation/DecorReveal.apply` (UpgradeVisualService'ten çağrılır)
+  hak edilmeyeni `ServerStorage.HiddenDecor`a alır, hak edilince eski yerine koyar; yeni bir kapılı yapıda yalnızca öznitelik + etiket yeter.
+- **Seviyeli yükseltmelerin görünen karşılığı**: bölge/tesis seviyeleri `ZoneLevelDecor` / `UpgradeSites.addFacilityProps`, Yem Kalitesi / Depo Genişletme / Hızlı Büyüme zincirleri
+  `Presentation/UpgradeLevelProps` (yem istasyonu, depo yığını, büyüme feneri) ile çizilir; her seviye yeni bir şey ekler (çarpışan parçalar katıdır, ince süsler geçilir).
+- Streaming: `default.project.json` Workspace `StreamingTargetRadius = 1024` (tüm harita yarıçapı ~450): uzak adalar yüklenip boşalmasın.

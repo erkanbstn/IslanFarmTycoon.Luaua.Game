@@ -219,12 +219,12 @@ local LEVEL_CHAINS = {
 	{
 		id = "fast_growth",
 		displayName = "Hızlı Büyüme",
-		description = "Hayvanlar %8 daha hızlı büyür",
+		description = "Hayvanlar %14 daha hızlı büyür",
 		icon = "⏩",
 		requires = "silo",
 		costs = { 2000, 6000, 15000 },
 		effect = "growth",
-		amount = 1.08,
+		amount = 1.14,
 	},
 }
 for _, chain in LEVEL_CHAINS do

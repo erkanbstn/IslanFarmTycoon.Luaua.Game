@@ -21,6 +21,7 @@ local UpgradeParts = require(script.Parent:WaitForChild("UpgradeParts"))
 local UpgradeSites = require(script.Parent:WaitForChild("UpgradeSites"))
 local JobMarks = require(script.Parent:WaitForChild("JobMarks"))
 local DecorReveal = require(script.Parent:WaitForChild("DecorReveal"))
+local UpgradeLevelProps = require(script.Parent:WaitForChild("UpgradeLevelProps"))
 local BuildersGoods = require(script.Parent:WaitForChild("UpgradeBuildersGoods"))
 local BuildersHome = require(script.Parent:WaitForChild("UpgradeBuildersHome"))
 local BuildersBarnyard = require(script.Parent:WaitForChild("UpgradeBuildersBarnyard"))
@@ -200,6 +201,8 @@ function UpgradeVisualService.apply(plot: Model, save: PlayerSave?)
 	applyLevelMarks(plot, spots, save)
 	-- Ahır/bölge seviyesine bağlı süs yapıları (değirmen, tarla, kuyu...) bu çiftliğin durumuna göre gelir/gider
 	DecorReveal.apply(plot, save)
+	-- Yem kalitesi, depo genişletme ve hızlı büyüme seviyelerinin görünen karşılığı
+	UpgradeLevelProps.apply(plot, save)
 end
 
 return UpgradeVisualService

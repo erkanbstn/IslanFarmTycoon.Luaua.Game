@@ -929,4 +929,6 @@ return {
 	["Adadaki tüm tesisleri göster"] = "Show all facilities on the island",
 
 	-- Yeni başarımlar
+	["Alınabilir başarımlar"] = "Claimable achievements",
+	["Hayvanlar %14 daha hızlı büyür"] = "Animals grow 14% faster",
 }

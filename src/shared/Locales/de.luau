@@ -929,4 +929,6 @@ return {
 	["Adadaki tüm tesisleri göster"] = "Alle Anlagen der Insel anzeigen",
 
 	-- Yeni başarımlar
+	["Alınabilir başarımlar"] = "Abholbare Erfolge",
+	["Hayvanlar %14 daha hızlı büyür"] = "Tiere wachsen 14 % schneller",
 }

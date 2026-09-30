@@ -927,4 +927,6 @@ return {
 	["Toplam {} milyar kazan"] = "Заработайте {1} млрд в сумме",
 	["{} yükseltme al"] = "Купите {1} улучшений",
 	["Adadaki tüm tesisleri göster"] = "Показать все производства острова",
+	["Alınabilir başarımlar"] = "Доступные достижения",
+	["Hayvanlar %14 daha hızlı büyür"] = "Животные растут на 14% быстрее",
 }
