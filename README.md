@@ -29,7 +29,10 @@ Harita kodla üretilir ama **düzenleme modunda** kurulup place'e kaydedilir, b�
    ```
    rojo build plugin.project.json --plugin IslandFarmTycoonHarita.rbxm
    ```
-2. Studio → **Plugins** sekmesi → **Island Farm Tycoon → Haritayı Kur**. (Ctrl+Z ile geri alınır.)
+2. Studio → **Plugins** sekmesi → **Island Farm Tycoon → Panel** ile sabit işlemler panelini aç (ya da doğrudan **Haritayı Kur** düğmesi).
+   Panelde: **Haritayı Kur**, **Haritayı Doğrula** (validate + harita yapı testi + dünya testi), **Harita Bilgisi**, **Rojo Kontrolü**, **Günlüğü Temizle**.
+   Sonuçlar panelde ve Output'ta görünür. (Harita kurulumu Ctrl+Z ile geri alınır.)
+   Testler eklentinin içinde gömülüdür; kodu değiştirince `rojo build plugin.project.json --plugin IslandFarmTycoonHarita.rbxm` ile eklentiyi yenile.
 3. **Ctrl+S** ile kaydet / Publish et.
 
 `MapBuilder.luau` içinde düzeni değiştirirsen `MAP_VERSION`'ı 1 artır ve butona tekrar bas;
@@ -260,9 +263,9 @@ Kontrol; biçim, lint, kaynak sözdizimi derlemesi, veri/ekonomi/sipariş ve tak
 Bu, tüm Roblox kodunun tür analizinin veya gerçek Studio testinin yerine geçmez.
 GitHub Actions yapılandırması da aynı kontrolleri içerir; uzak repo üzerinde henüz çalıştırılmadı.
 
-Ayrı test place'i: `rojo build test.project.json -o .test-build/tests.rbxlx`.
-Bu place'i Studio'da açıp Play ile saf testleri çalıştır. Dünya testi için aynı place'te
-**düzenleme modunda**, Command Bar'da önce test haritasını kur, sonra testi çağır:
+Harita testleri ana place'te, eklenti panelindeki **Haritayı Doğrula** düğmesiyle çalışır (Studio düzenleme modunda; Command Bar gerekmez).
+Saf testler ayrı test place'inde de çalıştırılabilir: `rojo build test.project.json -o .test-build/tests.rbxlx` dosyasını Studio'da aç, Play'e bas.
+Eski yöntem (Command Bar, test place'inde düzenleme modunda) hâlâ geçerlidir:
 
 ```luau
 require(game:GetService("ServerScriptService").Server.Services.MapBuilder).ensure()
@@ -270,8 +273,7 @@ require(game:GetService("ServerScriptService").Tests["world.spec"])()
 require(game:GetService("ServerScriptService").Tests["map-structure.spec"])()
 ```
 
-Bu komutları ayrı test place'inde kullan. Dünya testi geçici Collector/PlotId/MapVersion
-değişikliklerini geri alır. Studio dünya testi bu değişiklik paketi sırasında çalıştırılmadı.
+Dünya testi geçici Collector/PlotId/MapVersion değişikliklerini geri alır.
 
 Sunucu çalışma anında `ServerStorage.Diagnostics` attribute'ları profil yükleme, kayıt denemesi,
 hata ve sipariş sayılarını tutar. Bunlar sunucu ömrüyle sınırlıdır; harici analitik sistemi değildir.

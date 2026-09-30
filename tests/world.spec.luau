@@ -1,6 +1,7 @@
 --!strict
 -- Studio düzenleme modunda çalıştırılır; geçici harita değişiklikleri her kontrolden sonra geri alınır.
-return function()
+-- context (isteğe bağlı): eklenti taze kodu verir { mapBuilder = ... }; verilmezse oyun kodundan yüklenir.
+return function(context: any?)
 	local RunService = game:GetService("RunService")
 	assert(
 		RunService:IsStudio() and not RunService:IsRunning(),
@@ -10,7 +11,9 @@ return function()
 	local Workspace = game:GetService("Workspace")
 	local server = ServerScriptService:WaitForChild("Server")
 	local sanitizer = require(server:WaitForChild("Modules"):WaitForChild("AssetSanitizer"))
-	local mapBuilder = require(server:WaitForChild("Services"):WaitForChild("MapBuilder"))
+	local mapBuilder = if context and context.mapBuilder
+		then context.mapBuilder
+		else require(server:WaitForChild("Services"):WaitForChild("MapBuilder"))
 
 	local template = Instance.new("Model")
 	local nested = Instance.new("Folder")

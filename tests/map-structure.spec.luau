@@ -1,7 +1,8 @@
 --!strict
 -- Studio düzenleme modunda çalıştırılır (world.spec ile aynı düzen). Kayıtlı/kurulmuş haritanın yapısını denetler:
 -- tema bölgeleri, tabela yüksekliği (yolu kapatmaz), meydan satıcıları ve etkileşim noktaları.
-return function()
+-- context (isteğe bağlı): eklenti taze kodu verir { mapBuilder = ..., Config = ... }; verilmezse oyun kodundan yüklenir.
+return function(context: any?)
 	local RunService = game:GetService("RunService")
 	assert(
 		RunService:IsStudio() and not RunService:IsRunning(),
@@ -10,9 +11,14 @@ return function()
 	local ReplicatedStorage = game:GetService("ReplicatedStorage")
 	local ServerScriptService = game:GetService("ServerScriptService")
 	local Workspace = game:GetService("Workspace")
-	local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
-	local mapBuilder =
-		require(ServerScriptService:WaitForChild("Server"):WaitForChild("Services"):WaitForChild("MapBuilder"))
+	local Config = if context and context.Config
+		then context.Config
+		else require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
+	local mapBuilder = if context and context.mapBuilder
+		then context.mapBuilder
+		else require(
+			ServerScriptService:WaitForChild("Server"):WaitForChild("Services"):WaitForChild("MapBuilder")
+		)
 
 	mapBuilder.validate()
 	local plots = Workspace:FindFirstChild("Plots") :: Folder

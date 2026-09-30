@@ -10,7 +10,8 @@ alwaysApply: false
   Yeni spec: `tests/<ad>.spec.luau` bir fonksiyon döndürür → `run-tests.py` içinde `module(...)`
   ile ekle ve en alttaki çağrı listesine yaz. Roblox servisleri gerekiyorsa `factory_args` ile
   sahte (`game`, `task`, `os`...) enjekte edilir; bağımlılık kümesi tam eşleşmeli.
-- Harita yapı testi: `tests/map-structure.spec.luau` (Studio düzenleme modu; komut README'de). Yeni tabela/satıcı/tema kuralı bunu genişletir.
+- Harita yapı testi: `tests/map-structure.spec.luau` ve `tests/world.spec.luau` Studio eklentisine gömülüdür (`plugin.project.json`); panelde **Haritayı Doğrula**
+  çalıştırır. Spec `return function(context)` kalıbında kalmalı (`context.mapBuilder/Config` eklentiden taze gelir). Yeni tabela/satıcı/tema kuralı bunu genişletir.
 - Yapay zeka rehber dosyaları: `python scripts/check-ai-docs.py` (kural/skill/yönlendirme tutarlılığı; verify.ps1 içinde).
 - Studio (dünya) testleri: `test.project.json` ayrı place; `tests/run.server.luau`. Harita sürümünü
   sabit sayıyla değil `validate()` ile kontrol et.

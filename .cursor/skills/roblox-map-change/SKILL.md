@@ -18,7 +18,7 @@ description: Changes the generated island map, decor, lamps or build spots in Ma
 - [ ] 3. Yeni zorunlu parça → MapBuilder.validate() + tests/world.spec.luau / tests/map-structure.spec.luau
 - [ ] 3b. Dekor bitince WorldDecor.optimize; tabela eklediysen uzun direk + CanCollide=false (yüksekliği map-structure denetler)
 - [ ] 4. rojo build (verify.ps1) + selene
-- [ ] 5. Kullanıcıya: Studio'da eklenti → "Haritayı Kur" → place'i kaydet
+- [ ] 5. Kullanıcıya: Studio'da eklenti paneli → "Haritayı Kur" → "Haritayı Doğrula" → place'i kaydet
 ```
 
 ## Gece ışığı ekleme

@@ -1,6 +1,8 @@
 {
   "name": "IslandFarmTycoonHarita",
   "tree": {
-    "$path": "plugin/MapTool.server.luau"
+    "$path": "plugin/MapTool.server.luau",
+    "MapStructureSpec": { "$path": "tests/map-structure.spec.luau" },
+    "WorldSpec": { "$path": "tests/world.spec.luau" }
   }
 }
