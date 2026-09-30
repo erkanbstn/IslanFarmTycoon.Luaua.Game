@@ -3,9 +3,15 @@
 local OrderRules = {}
 
 function OrderRules.isUnlocked(save: any, config: any): boolean
+	local farmId = save.farmId or save.activeMainFarmId
 	for _, upgrade in config.UPGRADES do
 		-- Seviyeli geliştirmeler ("kind = level") sonsuz hedeftir; siparişleri geciktirmez.
-		if not upgrade.leveled and not save.purchased[upgrade.id] then
+		-- Bu çiftliğin temasında olmayan adaların yükseltmeleri de sayılmaz (alınamazlar).
+		if
+			not upgrade.leveled
+			and config.themeHasIsland(farmId, config.getUpgradeIsland(upgrade))
+			and not save.purchased[upgrade.id]
+		then
 			return false
 		end
 	end

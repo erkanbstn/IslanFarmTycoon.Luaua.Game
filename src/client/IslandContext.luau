@@ -6,16 +6,43 @@ local player = Players.LocalPlayer
 local IslandContext = {}
 local changed = Instance.new("BindableEvent")
 IslandContext.Changed = changed.Event
+-- Kilitli (henüz alınmamış) bir adada durulurken paneller o adayı gösterir: bu yalnızca client'ta tutulan bir önizlemedir.
+-- Sunucu kilitli adayı seçmeyi reddeder (seçim kilidi aşılamaz); gerçek bir seçim ya da çiftlik değişimi önizlemeyi siler.
+local preview: string? = nil
+
 player:GetAttributeChangedSignal("SelectedFarmIsland"):Connect(function()
+	preview = nil
 	changed:Fire()
 end)
 player:GetAttributeChangedSignal("ActiveMainFarmId"):Connect(function()
+	preview = nil
 	changed:Fire()
 end)
 
-function IslandContext.get(): string
+-- Sunucunun bildiği seçili ada (önizleme hariç)
+function IslandContext.selected(): string
 	local id = player:GetAttribute("SelectedFarmIsland")
 	return if typeof(id) == "string" and Config.FARM_ISLANDS[id] then id else "home"
+end
+
+function IslandContext.setPreview(islandId: string?)
+	if islandId ~= nil and not Config.FARM_ISLANDS[islandId] then
+		return
+	end
+	if preview == islandId then
+		return
+	end
+	preview = islandId
+	changed:Fire()
+end
+
+function IslandContext.isPreview(): boolean
+	return preview ~= nil
+end
+
+-- Panellerin gösterdiği ada: önizleme varsa o, yoksa sunucudaki seçili ada
+function IslandContext.get(): string
+	return preview or IslandContext.selected()
 end
 
 function IslandContext.name(): string

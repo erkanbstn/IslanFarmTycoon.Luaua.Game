@@ -541,6 +541,11 @@ end
 export type UpgradeStatus = "owned" | "available" | "locked"
 
 -- Yol haritası öğesinin durumu; kilitliyse eksik ön koşulların adları
+-- Yükseltme bu çiftliğin temasında var mı? (Temada olmayan adaların yükseltmeleri hiçbir zaman alınamaz.)
+function FarmMath.isUpgradeInTheme(save: PlayerSave, upgrade: Config.UpgradeConfig): boolean
+	return Config.themeHasIsland(save.farmId or save.activeMainFarmId, Config.getUpgradeIsland(upgrade))
+end
+
 function FarmMath.getUpgradeStatus(save: PlayerSave, upgradeId: string): (UpgradeStatus, { string })
 	if save.purchased[upgradeId] then
 		return "owned", {}
@@ -548,6 +553,9 @@ function FarmMath.getUpgradeStatus(save: PlayerSave, upgradeId: string): (Upgrad
 	local upgrade = Config.getUpgrade(upgradeId)
 	if not upgrade then
 		return "locked", {}
+	end
+	if not FarmMath.isUpgradeInTheme(save, upgrade) then
+		return "locked", { "Bu çiftlikte yok" }
 	end
 	local missing: { string } = {}
 	for _, requiredId in upgrade.requires do

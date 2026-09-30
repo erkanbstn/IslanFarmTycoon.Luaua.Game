@@ -487,12 +487,12 @@ local Config = {
 			reward = 3000,
 		},
 		{
-			id = "purchases_30",
+			id = "purchases_25",
 			displayName = "Çiftlik imparatoru",
-			description = "30 yükseltme al",
+			description = "25 yükseltme al",
 			icon = "🏆",
 			metric = "purchases",
-			target = 30,
+			target = 25,
 			reward = 30000,
 		},
 		{

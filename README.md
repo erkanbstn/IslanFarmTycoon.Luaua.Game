@@ -73,7 +73,7 @@ hatasından ayrıdır.
    Satın alınca alan kalkar, yerine bina kurulur.
 3. Hayvanlar her saniye **depoya** para üretir. Adadaki **yeşil platforma** basınca para kasaya geçer.
    Depo dolarsa üretim durur → oyuncu geri gelip toplamalı (ya da Otomatik Toplayıcı almalı).
-4. **Hayvan Pazarı:** İnek, tavuk, at, keçi, hamsi ve levrek. Yavru doğarlar (%25 gelir) → Genç (%60) → Yetişkin (%100).
+4. **Hayvan Pazarı:** Açık bölgelerindeki hayvanlar (tema ve açılan adalara göre: inek, tavuk, ördek, at, koyun, keçi, domuz, hamsi, levrek). Yavru doğarlar (%25 gelir) → Genç (%60) → Yetişkin (%100).
    Aynı türden aldıkça fiyat %18 artar.
 4b. **Irk geliştirme:** Pazar'da sahip olduğun her hayvan türünün kartında ikinci düğme vardır. Her seviye o türün gelirini %8 artırır (en fazla Sv.10);
    maliyet her seviyede üstel büyür. Seviyeler çiftlik başınadır ve kayıtlıdır. Bu, yol haritası bittikten sonra da para harcama yoludur. Geliştirilmiş hayvanın üstünde kademe renginde (bronz, gümüş, altın, elmas) bir yıldız ve seviye rozeti görünür.
@@ -107,7 +107,7 @@ ekranlarda kullanılabilir alana sığar. Dar ekranlarda Yol Haritası, Çiftli�
 **Üretim:** Süt fabrikası, kuluçkahane, at eğitimi, peynirhane ve balık sevkiyatı süreli
 partiler üretir. Kuluçkadaki civciv satılabilir veya boş kümese eklenebilir. Her tesiste
 tek parti kaydedilir; süre çevrimdışında da ilerler. Dar ekranda Üretim, Çiftliğim içindedir.
-Yeni tesisler ve deniz tabanına bağlı iskeleler için harita sürümü 13'te **Haritayı Kur** gerekir.
+Harita kodu değişince (`MAP_VERSION` artar) eklenti panelinden **Haritayı Kur** gerekir.
 **Adalar / I** ekranında kendi uzman adalarını açabilir, **Git ve yönet** ile ada seçebilirsin.
 Pazar, Yükseltmeler, Yol Haritası ve Üretim seçili adayı gösterir; para ortaktır, genel çiftlik bonusları yalnızca ilgili ana çiftlikte geçerlidir.
 Diğer oyuncuların çiftlikleri bu adalardan ayrı, yalnızca ziyaret olarak listelenir.

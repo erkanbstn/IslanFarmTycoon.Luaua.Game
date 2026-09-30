@@ -2,6 +2,7 @@
 -- Karakter kendi çiftliklerinden birinin adasına (yürüyerek ya da ışınlanarak) girince:
 --  * O ana çiftlik etkin değilse etkin yapılır (panelden seçmekle aynı, ışınlama olmadan).
 --  * O ada seçilir: Yükseltmeler, Yol Haritası, Pazar ve diğer ada bağımlı arayüzler o adaya göre güncellenir.
+--    Kilitli bir adaya girilince seçim sunucuda yapılamaz; paneller client'ta önizleme olarak o adayı gösterir.
 -- Ada sekmelerinden elle seçilen ada, karakter başka bir adaya geçene kadar korunur.
 
 local Players = game:GetService("Players")
@@ -82,8 +83,15 @@ local function check()
 	end
 
 	lastDetected = signature
-	if islandId ~= IslandContext.get() and state.unlockedIslands[islandId] then
-		Remotes.get("RequestTravelIsland"):FireServer(islandId, true)
+	if state.unlockedIslands[islandId] then
+		-- Açık ada: gerçek seçim (sunucu); varsa önizleme silinir
+		IslandContext.setPreview(nil)
+		if islandId ~= IslandContext.selected() then
+			Remotes.get("RequestTravelIsland"):FireServer(islandId, true)
+		end
+	else
+		-- Kilitli ada: paneller yalnızca bakmak için o adayı gösterir (satın alma kartı dahil)
+		IslandContext.setPreview(islandId)
 	end
 end
 

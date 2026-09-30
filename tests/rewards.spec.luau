@@ -151,5 +151,38 @@ return function(Rewards: any, Config: any, FarmMath: any)
 		assert(seasonal.seasonal.progress == seasonal.seasonal.target, "a claimed goal stops counting")
 	end
 
+	-- Her başarım her temada ulaşılabilir olmalı (çiftlik yalnızca kendi adalarını alabilir)
+	for index, theme in Config.THEMES do
+		local farmId = tostring(index)
+		local purchasable, capacity, cowCapacity = 0, 0, 0
+		for _, upgrade in Config.UPGRADES do
+			if Config.themeHasIsland(farmId, Config.getUpgradeIsland(upgrade)) then
+				purchasable += 1
+			end
+		end
+		for _, zone in Config.ZONES do
+			if Config.themeHasIsland(farmId, zone.island) then
+				-- Alan genişletmesiyle ulaşılabilecek en büyük kapasite
+				local maxCapacity = zone.capacity + Config.ZONE_EXPANSION.maxLevel * FarmMath.getExpansionStep(zone)
+				capacity += maxCapacity
+				if Config.zoneAllows(zone, "cow", farmId) then
+					cowCapacity += maxCapacity
+				end
+			end
+		end
+		for _, entry in Config.ACHIEVEMENTS do
+			local reachable = if entry.metric == "purchases"
+				then purchasable
+				elseif entry.metric == "animals" then capacity
+				elseif entry.metric == "cows" then cowCapacity
+				elseif entry.metric == "islands" then #Config.getThemeIslands(farmId)
+				else math.huge
+			assert(
+				entry.target <= reachable,
+				`achievement {entry.id} is unreachable in theme {index} ({theme.id}): {entry.target} > {reachable}`
+			)
+		end
+	end
+
 	print("PASS rewards: daily streak, wrap, reward scaling and achievement progress")
 end

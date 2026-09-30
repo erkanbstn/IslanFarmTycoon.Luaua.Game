@@ -40,7 +40,11 @@ function BoardSection.create(list: Instance): (PlayerSave?) -> ()
 	-- Yol haritası bitince (seviyeli geliştirmeler hariç) sipariş sistemi açılır
 	local function ordersUnlocked(state: PlayerSave): boolean
 		for _, upgrade in Config.UPGRADES do
-			if not upgrade.leveled and not state.purchased[upgrade.id] then
+			if
+				not upgrade.leveled
+				and FarmMath.isUpgradeInTheme(state, upgrade)
+				and not state.purchased[upgrade.id]
+			then
 				return false
 			end
 		end

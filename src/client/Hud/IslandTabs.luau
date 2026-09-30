@@ -40,8 +40,15 @@ function IslandTabs.add(window: UiKit.Window)
 		buttons[islandId] = button
 		button.Activated:Connect(function()
 			local state = ClientState.get()
-			if state and state.unlockedIslands[islandId] then
+			if not state then
+				return
+			end
+			if state.unlockedIslands[islandId] then
+				IslandContext.setPreview(nil)
 				Remotes.get("RequestTravelIsland"):FireServer(islandId, true)
+			else
+				-- Kilitli ada: yalnızca bakmak için (yükseltmeleri ve ada kartı görünür); sunucu seçimi değişmez
+				IslandContext.setPreview(islandId)
 			end
 		end)
 	end
@@ -50,13 +57,7 @@ function IslandTabs.add(window: UiKit.Window)
 		local themeIslands = FarmMath.themeIslands(state)
 		for islandId, button in buttons do
 			button.Visible = table.find(themeIslands, islandId) ~= nil
-			UiKit.setVariant(
-				button,
-				if islandId == selected
-					then "primary"
-					elseif state.unlockedIslands[islandId] then "secondary"
-					else "disabled"
-			)
+			UiKit.setVariant(button, if islandId == selected then "primary" else "secondary")
 		end
 	end)
 end

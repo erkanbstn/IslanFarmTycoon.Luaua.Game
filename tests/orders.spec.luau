@@ -6,6 +6,22 @@ return function(rules: any, config: any)
 		save.purchased[upgrade.id] = true
 	end
 	assert(rules.isUnlocked(save, config))
+	-- Temalı çiftlikler: yalnızca kendi adalarının yükseltmelerini alabilirler; sipariş onlarla açılmalı
+	for index in config.THEMES do
+		local farmId = tostring(index)
+		local themed: any =
+			{ purchased = {}, animals = {}, unlockedZones = { starter = true }, activeMainFarmId = farmId }
+		local missingId: string? = nil
+		for _, upgrade in config.UPGRADES do
+			if not upgrade.leveled and config.themeHasIsland(farmId, config.getUpgradeIsland(upgrade)) then
+				themed.purchased[upgrade.id] = true
+				missingId = missingId or upgrade.id
+			end
+		end
+		assert(rules.isUnlocked(themed, config), `farm {farmId} must unlock orders after its own roadmap`)
+		themed.purchased[missingId :: string] = nil
+		assert(not rules.isUnlocked(themed, config), `farm {farmId} still needs every upgrade of its own islands`)
+	end
 	assert(rules.chooseAnimal(save, config) == nil, "empty farms cannot start an order")
 	save.animals = { { animalId = "cow", stage = "calf", zoneId = "starter" } }
 	assert(rules.chooseAnimal(save, config) == nil, "orders need producing adults")

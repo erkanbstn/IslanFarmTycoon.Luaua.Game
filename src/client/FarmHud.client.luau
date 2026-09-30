@@ -590,10 +590,45 @@ local function updateGoal(state: PlayerSave, income: number)
 		goalDetail.Text = purchaseHint(state, best.cost, income)
 		return
 	end
+	-- Yükseltme kalmadı: oyun sonu yatırımları (en ucuz ırk seviyesi ya da alan genişletmesi) hedef olur
+	local lateLabel: string? = nil
+	local lateCost = math.huge
+	for _, animalId in Config.ANIMAL_ORDER do
+		local status, _, cost = FarmMath.getLineageStatus(state, animalId)
+		if status == "available" and cost < lateCost then
+			lateCost = cost
+			lateLabel =
+				`{Config.ANIMALS[animalId].displayName} · Irk Sv.{FarmMath.getLineageLevel(state, animalId) + 1} · {FarmMath.formatMoney(
+					cost
+				)}`
+		end
+	end
+	local lateIslands = FarmMath.themeIslands(state)
+	for zoneId, zone in Config.ZONES do
+		if table.find(lateIslands, zone.island) then
+			local status, _, cost = FarmMath.getExpansionStatus(state, zoneId)
+			if status == "available" and cost < lateCost then
+				lateCost = cost
+				lateLabel =
+					`{Config.getZoneName(zone, state.activeMainFarmId)} · Genişlet Sv.{FarmMath.getExpansionLevel(
+						state,
+						zoneId
+					) + 1} · {FarmMath.formatMoney(cost)}`
+			end
+		end
+	end
+	if lateLabel then
+		goalLabel.Text = lateLabel
+		goalDetail.Text = purchaseHint(state, lateCost, income)
+		return
+	end
 	goalTitle.Text = "ÇİFTLİK USTALIĞI VE SİPARİŞ"
 	local capacity = 0
-	for zoneId in Config.ZONES do
-		capacity += FarmMath.getZoneCapacity(state, zoneId)
+	local themeIslands = FarmMath.themeIslands(state)
+	for zoneId, zone in Config.ZONES do
+		if table.find(themeIslands, zone.island) then
+			capacity += FarmMath.getZoneCapacity(state, zoneId)
+		end
 	end
 	local adults = 0
 	for _, animal in state.animals do
@@ -602,7 +637,10 @@ local function updateGoal(state: PlayerSave, income: number)
 		end
 	end
 	goalLabel.Text =
-		`Ustalık: {adults}/{capacity} yetişkin · {FarmMath.countAnimals(state, "seabass")}/{Config.ZONES.fishpen.capacity} levrek`
+		`Ustalık: {adults}/{capacity} yetişkin · {FarmMath.countAnimals(state, "seabass")}/{FarmMath.getZoneCapacity(
+			state,
+			"fishpen"
+		)} levrek`
 	if state.order then
 		local order = state.order
 		local animal = Config.ANIMALS[order.animalId]

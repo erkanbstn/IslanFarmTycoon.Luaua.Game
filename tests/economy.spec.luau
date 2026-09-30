@@ -416,5 +416,59 @@ return function(FarmMath: any, Config: any, Environment: any)
 		assert(not seenLandmarks[theme.landmark], `theme {index} repeats another theme's landmark`)
 		seenLandmarks[theme.landmark] = true
 	end
+	-- Temada olmayan adanın yükseltmesi hiçbir zaman "available" olmaz (HUD hedefi ve sipariş kilidi buna dayanır)
+	local offTheme = saveAt(start)
+	offTheme.activeMainFarmId = "2"
+	offTheme.purchased.barn_2 = true
+	offTheme.purchased.barn_3 = true
+	assert(
+		FarmMath.getUpgradeStatus(offTheme, "island_horse") == "locked",
+		"an island outside the theme cannot be offered"
+	)
+	assert(
+		FarmMath.getUpgradeStatus(offTheme, "island_sheep") ~= "locked"
+			or FarmMath.getUpgradeStatus(offTheme, "barn_4") == "available",
+		"in-theme islands stay normal"
+	)
+	assert(FarmMath.isUpgradeInTheme(offTheme, Config.getUpgrade("island_sheep")), "sheep belongs to farm 2's theme")
+	-- Ulaşılabilirlik: her temada, alınabilir her yükseltmenin ön koşul zinciri de aynı temada olmalı (yoksa asla açılmaz)
+	for index in Config.THEMES do
+		local farmId = tostring(index)
+		local function inTheme(id: string): boolean
+			local upgrade = Config.getUpgrade(id)
+			return upgrade ~= nil and Config.themeHasIsland(farmId, Config.getUpgradeIsland(upgrade))
+		end
+		for _, upgrade in Config.UPGRADES do
+			if inTheme(upgrade.id) then
+				for _, requiredId in upgrade.requires do
+					assert(
+						Config.getUpgrade(requiredId) ~= nil and inTheme(requiredId),
+						`theme {index}: {upgrade.id} requires {requiredId}, which this farm can never buy`
+					)
+				end
+			end
+		end
+		-- Simülasyon: temadaki her şeyi ön koşul sırasıyla satın alabiliyor muyuz?
+		local probe = saveAt(start)
+		probe.activeMainFarmId = farmId
+		local progressed = true
+		while progressed do
+			progressed = false
+			for _, upgrade in Config.UPGRADES do
+				if FarmMath.getUpgradeStatus(probe, upgrade.id) == "available" then
+					probe.purchased[upgrade.id] = true
+					FarmMath.applyDerived(probe)
+					progressed = true
+				end
+			end
+		end
+		for _, upgrade in Config.UPGRADES do
+			if inTheme(upgrade.id) then
+				assert(probe.purchased[upgrade.id], `theme {index}: {upgrade.id} can never become available`)
+			else
+				assert(not probe.purchased[upgrade.id], `theme {index}: off-theme {upgrade.id} must stay unavailable`)
+			end
+		end
+	end
 	print("PASS economy: growth boundaries, integrated offline/elapsed income, cap, growth upgrade, fish pricing")
 end

@@ -431,7 +431,7 @@ return {
 	["Yatırımcı"] = "Investor",
 	["10 yükseltme al"] = "Buy 10 upgrades",
 	["Çiftlik imparatoru"] = "Farm emperor",
-	["30 yükseltme al"] = "Buy 30 upgrades",
+	["25 yükseltme al"] = "Buy 25 upgrades",
 	["Sipariş ustası"] = "Order master",
 	["5 sipariş teslim et"] = "Deliver 5 orders",
 	["Günlük ödül: +{}"] = "Daily reward: +{1}",
@@ -620,4 +620,5 @@ return {
 	["Hangi adaya yelken açıyoruz?"] = "Which island are we sailing to?",
 	["Adalarını gezmek için tabelaya yaklaş."] = "Step up to the sign to visit your islands.",
 	["Yapım alanı"] = "Building site",
+	["Genişlet Sv.{}"] = "Expand Lv.{1}",
 }

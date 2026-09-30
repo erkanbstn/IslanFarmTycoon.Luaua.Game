@@ -431,7 +431,7 @@ return {
 	["Yatırımcı"] = "Investor",
 	["10 yükseltme al"] = "Kaufe 10 Verbesserungen",
 	["Çiftlik imparatoru"] = "Farmkaiser",
-	["30 yükseltme al"] = "Kaufe 30 Verbesserungen",
+	["25 yükseltme al"] = "Kaufe 25 Upgrades",
 	["Sipariş ustası"] = "Auftragsmeister",
 	["5 sipariş teslim et"] = "Liefere 5 Aufträge",
 	["Günlük ödül: +{}"] = "Tägliche Belohnung: +{1}",
@@ -620,4 +620,5 @@ return {
 	["Hangi adaya yelken açıyoruz?"] = "Zu welcher Insel segeln wir?",
 	["Adalarını gezmek için tabelaya yaklaş."] = "Tritt an das Schild, um deine Inseln zu besuchen.",
 	["Yapım alanı"] = "Baustelle",
+	["Genişlet Sv.{}"] = "Ausbau Stufe {1}",
 }
