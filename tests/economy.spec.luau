@@ -447,14 +447,14 @@ return function(FarmMath: any, Config: any, Environment: any)
 	assert(FarmMath.getExpansionStatus(emptyFarm, "cheese") == "locked", "an unbuilt facility cannot be upgraded")
 	-- Her bölge ve tesis, her temada sonlu ve artan maliyetle geliştirilebilir; boş fayda demeti yok
 	for farmId in Config.THEMES do
-		local themed = saveAt(start)
-		themed.farmId = farmId
+		local costFarm = saveAt(start)
+		costFarm.farmId = farmId
 		for zoneId, zone in Config.ZONES do
 			if Config.themeHasIsland(farmId, zone.island) then
 				local previous = 0
 				for level = 0, Config.BUILD_UPGRADES.maxLevel - 1 do
-					themed.expansions = { [zoneId] = level }
-					local cost = FarmMath.getExpansionCost(themed, zoneId)
+					costFarm.expansions = { [zoneId] = level }
+					local cost = FarmMath.getExpansionCost(costFarm, zoneId)
 					assert(
 						cost > previous and cost < math.huge,
 						`zone {zoneId} cost must be finite and growing ({farmId})`
