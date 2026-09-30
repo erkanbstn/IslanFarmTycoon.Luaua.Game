@@ -116,7 +116,8 @@ Diğer oyuncuların çiftlikleri bu adalardan ayrı, yalnızca ziyaret olarak li
 Her ana çiftlik kendi ana adası ve bağlı üç küçük adasıyla ayrı ilerler; hayvan, yükseltme,
 depo ve üretim kayıtları birbirine karışmaz. Yalnızca para ortaktır. Seçili olmayan çiftlikler
 de kendi depo sınırları ve otomatik toplama yükseltmeleriyle gelir üretir.
-İlave ana çiftlik fiyatları: 5.000 / 12.000 / 25.000 / 50.000 / 100.000; üst sınır 6 çiftliktir.
+İlave ana çiftlik fiyatları `Config.MAIN_FARM_PRICES` taban değerleridir (5.000 / 12.000 / 25.000 / 50.000 / 100.000) ve yükseltmelerle aynı maliyet eğrisinden geçer
+(yaklaşık $106K / $590K / $2,4M / $9,5M / $36M); üst sınır 6 çiftliktir.
 Harita doluyken satın alma yapılmaz. Yeni oyunculara yer açılırken etkin olmayan çiftliklerin
 fiziksel görünümü geçici olarak kaldırılabilir; kayıtları ve gelirleri korunur, seçildiğinde
 oyuncunun kendi harita alanına geri yüklenir. [Ana çiftlik sistemi](docs/ANA_CIFTLIKLER.md).

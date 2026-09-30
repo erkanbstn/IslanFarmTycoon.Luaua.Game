@@ -227,7 +227,7 @@ local Config = {
 			id = "spring",
 			displayName = "İlkbahar",
 			icon = "🌸",
-			incomeModifiers = { cow = 0.2, chicken = 0.25 },
+			incomeModifiers = { cow = 0.2, chicken = 0.25, duck = 0.2, sheep = 0.2 },
 			weather = { sunny = 4, cloudy = 3, rain = 3 },
 			eventName = "Bahar Şenliği",
 			orderBonus = 0.15,
@@ -237,7 +237,15 @@ local Config = {
 			id = "summer",
 			displayName = "Yaz",
 			icon = "☀️",
-			incomeModifiers = { anchovy = 0.3, seabass = 0.3, horse = 0.15, cow = -0.1 },
+			incomeModifiers = {
+				anchovy = 0.3,
+				seabass = 0.3,
+				horse = 0.15,
+				cow = -0.1,
+				duck = 0.15,
+				sheep = -0.1,
+				pig = -0.1,
+			},
 			weather = { sunny = 6, cloudy = 2, storm = 1 },
 			eventName = "Hasat Zamanı",
 			orderBonus = 0.2,
@@ -247,7 +255,7 @@ local Config = {
 			id = "autumn",
 			displayName = "Sonbahar",
 			icon = "🍂",
-			incomeModifiers = { horse = 0.25, goat = 0.2, chicken = -0.1 },
+			incomeModifiers = { horse = 0.25, goat = 0.2, chicken = -0.1, pig = 0.25, sheep = 0.1 },
 			weather = { cloudy = 4, rain = 3, storm = 2, sunny = 2 },
 			eventName = "Sonbahar Pazarı",
 			orderBonus = 0.2,
@@ -257,7 +265,16 @@ local Config = {
 			id = "winter",
 			displayName = "Kış",
 			icon = "❄️",
-			incomeModifiers = { goat = 0.3, cow = 0.15, chicken = -0.2, anchovy = -0.2, seabass = -0.2 },
+			incomeModifiers = {
+				goat = 0.3,
+				cow = 0.15,
+				chicken = -0.2,
+				anchovy = -0.2,
+				seabass = -0.2,
+				sheep = 0.2,
+				duck = -0.15,
+				pig = 0.05,
+			},
 			weather = { snow = 4, cloudy = 3, sunny = 2 },
 			eventName = "Kış Festivali",
 			orderBonus = 0.3,
@@ -1546,13 +1563,23 @@ for _, chain in LEVEL_CHAINS do
 	end
 end
 
+-- Maliyet eğrisi: taban fiyattan ölçeklenmiş fiyat (2 anlamlı basamak). Yükseltmeler ve ek ana çiftlik fiyatları aynı eğriyi kullanır.
+local function curvedCost(base: number): number
+	if base <= Config.UPGRADE_COST_BASE then
+		return base
+	end
+	local scaled = base * (base / Config.UPGRADE_COST_BASE) ^ Config.UPGRADE_COST_EXPONENT
+	local step = 10 ^ (math.floor(math.log10(scaled)) - 1)
+	return math.floor(scaled / step + 0.5) * step
+end
+
 -- Tüm yükseltme maliyetlerine eğriyi bir kez uygula (seviye zincirleri dahil)
 for _, upgrade in Config.UPGRADES do
-	if upgrade.cost > Config.UPGRADE_COST_BASE then
-		local scaled = upgrade.cost * (upgrade.cost / Config.UPGRADE_COST_BASE) ^ Config.UPGRADE_COST_EXPONENT
-		local step = 10 ^ (math.floor(math.log10(scaled)) - 1)
-		upgrade.cost = math.floor(scaled / step + 0.5) * step
-	end
+	upgrade.cost = curvedCost(upgrade.cost)
+end
+-- Ek ana çiftlikler de aynı eğriyle (yazılı değerler taban fiyattır); ilki ücretsizdir
+for index, price in Config.MAIN_FARM_PRICES do
+	Config.MAIN_FARM_PRICES[index] = curvedCost(price)
 end
 
 function Config.getUpgrade(id: string): UpgradeConfig?
