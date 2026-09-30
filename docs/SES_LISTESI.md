@@ -1,6 +1,6 @@
 # Ses listesi (üretim ve bağlama rehberi)
 
-Oyun ses yuvalarını `src/shared/Config.luau` içinde hazır tutar; `id` boşsa o ses çalınmaz.
+Oyun ses yuvalarını `src/shared/Config/Audio.luau` içinde hazır tutar; `id` boşsa o ses çalınmaz.
 Yüklenen her ses için `rbxassetid://NUMARA` kimliğini aşağıdaki yuvaya yaz.
 
 Genel kurallar: mono ya da stereo `.wav`/`.mp3`, en fazla 7 dakika (Roblox sınırı); kısa efektler 0,2-1,5 sn,

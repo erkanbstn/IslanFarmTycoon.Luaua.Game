@@ -1,0 +1,87 @@
+--!strict
+-- Sabit ayarlar: ad, sürüm, diller, kayıt, başlangıç ve sipariş sabitleri.
+-- Gizli bilgi koyma: ReplicatedStorage client'a da gider.
+return {
+	GAME_NAME = "Island Farm Tycoon",
+
+	VERSION = "0.8.0",
+
+	MAIN_FARM_LIMIT = 6,
+
+	-- Arayüz dilleri. Kaynak dil Türkçe; diğerleri src/shared/Locales/<kod>.luau içinde.
+	-- countries: oyuncunun Roblox dili desteklenmiyorsa ülkesinden seçilen dil (ISO 3166-1 alpha-2).
+	LANGUAGE_ORDER = { "tr", "en", "de", "ru" },
+
+	-- Grafik tercihi (hesaba kaydedilir): auto = cihaza ve kare hızına göre otomatik
+	GRAPHICS_MODES = { auto = true, low = true, medium = true, high = true } :: { [string]: boolean },
+
+	LANGUAGES = {
+		tr = { code = "tr", name = "Türkçe", countries = { "TR" } },
+		en = { code = "en", name = "English", countries = {} },
+		de = { code = "de", name = "Deutsch", countries = { "DE", "AT", "CH", "LI", "LU" } },
+		ru = { code = "ru", name = "Русский", countries = { "RU", "BY", "KZ", "KG" } },
+	} :: { [string]: { code: string, name: string, countries: { string } } },
+
+	DEFAULT_LANGUAGE = "en",
+
+	MAIN_FARM_PRICES = { 0, 5000, 12000, 25000, 50000, 100000 },
+
+	DEBUG = false,
+
+	-- Harita normalde Studio'da "Island Farm Tycoon → Haritayı Kur" butonuyla kurulup place'e kaydedilir.
+	-- true  → Place'te harita yoksa oyun başlarken kodla kurulur (güvenlik ağı).
+	-- false → Harita yoksa açılış durdurulur; eksik dünyada oyuncu oturumu başlamaz.
+	MAP_AUTO_BUILD = true,
+
+	MAP_PLOT_COUNT = 6, -- Çiftlik sayısı = sunucudaki en fazla oyuncu (Game Settings'te Max Players'ı buna eşitle)
+
+	ISLAND_RING_RADIUS = 175, -- Ana adaların merkezdeki meydana uzaklığı
+
+	-- Oyuncuların ana adalarının isimleri (sırayla). MAP_PLOT_COUNT'tan azsa kalanlar "Ada N" olur.
+	PLOT_NAMES = {
+		{ name = "Papatya Adası", icon = "🌼" },
+		{ name = "Lale Adası", icon = "🌷" },
+		{ name = "Ayçiçeği Adası", icon = "🌻" },
+		{ name = "Gül Adası", icon = "🌹" },
+		{ name = "Yonca Adası", icon = "🍀" },
+		{ name = "Kiraz Adası", icon = "🍒" },
+	} :: { { name: string, icon: string } },
+
+	-- Kayıt (DataStore). Studio'da çalışması için: Game Settings → Security → Enable Studio Access to API Services
+	-- Yayından sonra bu ad DEĞİŞMEMELİ: değişirse mevcut oyuncu kayıtları bulunamaz.
+	DATASTORE_NAME = "IslandFarmTycoon_v1",
+
+	AUTOSAVE_SECONDS = 60,
+
+	-- Hareket: Shift basılıyken (telefonda "Koş" düğmesiyle) koşu hızı
+	WALK_SPEED = 16,
+
+	SPRINT_SPEED = 48, -- Yürümenin 3 katı
+
+	-- Yeni oyuncuya ücretsiz: ana ada, Küçük Ahır (Sv.1), İnek Ağılı ve bu kadar inek
+	STARTING_COW_COUNT = 2,
+
+	STARTING_CASH = 100,
+
+	INCOME_TICK_SECONDS = 1,
+
+	MAX_INCOME_CATCHUP_SECONDS = 60,
+
+	FISH_REPLACEMENT_REFUND_RATE = 0.5,
+
+	ORDER_UNITS = 12,
+
+	ORDER_PRODUCTION_SECONDS = 15,
+
+	ORDER_REWARD_MULTIPLIER = 0.5,
+
+	-- Sipariş panosu: aynı anda 3 seçenek (kısa/orta/uzun). units = hedef birim, rewardFactor = ödül çarpanı.
+	-- Seçenekler ORDER_BOARD_SECONDS'ta bir yenilenir (sunucu saatinden türetilir, herkeste aynı pencere).
+	ORDER_TIERS = {
+		{ id = "short", displayName = "Kısa", units = 6, rewardFactor = 1 },
+		{ id = "medium", displayName = "Orta", units = 12, rewardFactor = 1.15 },
+		{ id = "long", displayName = "Uzun", units = 24, rewardFactor = 1.4 },
+	},
+
+	ORDER_BOARD_SECONDS = 300,
+}

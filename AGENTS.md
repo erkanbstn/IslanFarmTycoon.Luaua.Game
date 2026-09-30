@@ -86,7 +86,7 @@ Yeni dosya eklerken `docs/MIMARI.md`'deki "Yeni şey nereye?" tablosuna bak.
 - Gece ışığı: parça `NightLight`/`NightWindow` etiketi + `NightColor` + kapalı `PointLight` alır
  (`WorldDecor.lamp` / `smallLamp` / `markNightWindow`). Gece/gündüz Lighting değerlerini yalnızca
  `DayNight.client` yazar; `WeatherEffects` pozlamayı `Lighting.WeatherExposure` özniteliğiyle bildirir.
-- Oyun dengesi (fiyat, gelir, yol haritası) sadece `src/shared/Config.luau` içinde.
+- Oyun dengesi (fiyat, gelir, yol haritası) sadece `src/shared/Config/` içinde (`init.luau` birleştirir; veri ilgili dosyada: fiyat/yükseltme `Upgrades`, hayvan/bölge `Animals`, ada/tema `Islands`, sabitler `Core`).
 - Her ana çiftlik kendi hayvanıyla başlar (`theme.homeAnimal`: inek/tavuk/ördek); inek olmayanlarda inek `dairy` (Süt Adası) küçük adasındadır.
   Bölge izni `Config.zoneAllows`/`FarmMath.zoneAllows` ile sorulur, `allowedAnimals`'a doğrudan bakılmaz.
 - Her oyuncunun takımadası: ana ada + uzman adalar (`Config.FARM_ISLANDS`). Bölgeler bir adaya bağlıdır

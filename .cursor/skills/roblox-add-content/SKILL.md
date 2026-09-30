@@ -1,12 +1,12 @@
 ---
 name: roblox-add-content
-description: Adds or rebalances game content through Config.luau in this Roblox farm tycoon (animals, zones, roadmap upgrades, specialist islands, extensions, production recipes, seasons, weather) and wires the matching visuals, translations and tests. Use when the user asks for a new animal, building, upgrade, island, recipe, price/income change or balance tweak.
+description: Adds or rebalances game content through the Config/ folder in this Roblox farm tycoon (animals, zones, roadmap upgrades, specialist islands, extensions, production recipes, seasons, weather) and wires the matching visuals, translations and tests. Use when the user asks for a new animal, building, upgrade, island, recipe, price/income change or balance tweak.
 ---
 
 # İçerik ekleme / denge
 
-Tek kaynak `src/shared/Config.luau`. Önce benzer mevcut kaydı bul ve aynı alanları doldur
-(tipler dosyanın başındaki `export type ...Config`).
+Tek kaynak `src/shared/Config/` (`Upgrades`, `Animals` = bölge/hayvan, `Islands` = ada/tema/yol haritası, `Production`, `Shop`/`Items`, `Weather`, `Core`). Önce benzer mevcut kaydı bul ve aynı alanları doldur
+(tipler `Config/Types.luau`; `Config.ZoneConfig` gibi yeniden dışa aktarılır).
 
 ## Nereye ne eklenir
 | İçerik | Config | Ek dokunuş |

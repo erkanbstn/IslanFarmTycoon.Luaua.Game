@@ -154,7 +154,7 @@ Hangi üç küçük adanın geldiği **çiftlik numarasına (tema)** bağlıdır
 | 6 | Meyve ve Süt | Ördek | Süt, Koyun, Domuz |
 
 Her ada yeni bir hayvan, kendine özel bir bonus, bir üretim tesisi ve bir eklenti alanı getirir.
-Ada ve yükseltme listesi, fiyatlar ve ön koşullar **yalnızca** `src/shared/Config.luau` içindedir; bu dosyada kopyalanmaz.
+Ada ve yükseltme listesi, fiyatlar ve ön koşullar **yalnızca** `src/shared/Config/` içindedir; bu dosyada kopyalanmaz.
 
 **Tempo hedefleri** (ideal oyuncu, `python scripts/simulate-economy.py --farm 1..6`): ilk hayvan saniyeler içinde,
 ilk küçük ada ~10 dk, ikincisi ~30 dk, üçüncüsü ~1 saat, tüm yükseltmeler ~3 saat. Yazılı yükseltme fiyatları taban
@@ -164,7 +164,7 @@ Denge değiştirirsen önce simülasyonu çalıştır; `--cost-exp` ve `--price-
 **Deniz** dalı adalarla paralel ilerler: ana adanın önündeki iskeleden gidilen yüzen balık kafesinde
 hamsi ve levrek suyun altında yüzer. Denizdeki diğer balıklar sadece süs (`FishLife`).
 
-Tüm dengeler `src/shared/Config.luau` içinde (`FARM_ISLANDS`, `UPGRADES`, `ANIMALS`, `ZONES`).
+Tüm dengeler `src/shared/Config/` içinde (`FARM_ISLANDS`, `UPGRADES`, `ANIMALS`, `ZONES`).
 Eski kayıtlar otomatik taşınır (`LEGACY_UPGRADES`); artık yaşayamayacağı bölgedeki hayvanlar
 uygun yere taşınır, yer yoksa ilk fiyatı iade edilir.
 

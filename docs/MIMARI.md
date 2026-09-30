@@ -55,7 +55,7 @@ Kurallar:
 
 | Dosya/klasör | İş |
 |---|---|
-| `Config.luau` | **Tüm oyun dengesi ve veri** (fiyat, gelir, yol haritası, profiller). Denge başka yerde yazılmaz. |
+| `Config/` | **Tüm oyun dengesi ve veri** (fiyat, gelir, yol haritası, profiller). `init.luau` parçaları birleştirir ve getter'ları tutar; veri `Core` (sabitler), `Weather`, `Economy`, `Shop`, `Items`, `Achievements`, `Audio`, `Islands` (adalar/temalar/yol haritası), `Upgrades`, `Production`, `Animals` (bölgeler/hayvanlar), tipler `Types`. Denge başka yerde yazılmaz. |
 | `GameTypes.luau` | Kayıt ve ortak tipler |
 | `Remotes.luau` | Tüm RemoteEvent adları tek listede |
 | `Modules/` | Saf mantık: `FarmMath` (tüm hesaplar), `Environment`, `Inventory`, `Rewards`, `OrderBoard`, `Merchant`, `Golden`, `SeasonVisuals` |
@@ -75,7 +75,7 @@ Kural: `shared` sunucu ya da istemci klasörlerine bağlanmaz.
 
 | Yeni şey | Yer |
 |---|---|
-| Fiyat/gelir/profil | `shared/Config.luau` |
+| Fiyat/gelir/profil | `shared/Config/` (ilgili veri dosyası) |
 | Hesap/formül | `shared/Modules/FarmMath.luau` (testle) |
 | Oyun kuralı + Remote | `server/Services/<Ad>Service.luau` + `shared/Remotes.luau` |
 | Kayıt alanı | `GameTypes` + `server/Modules/SaveCodec.luau` + test |
@@ -88,6 +88,5 @@ Kural: `shared` sunucu ya da istemci klasörlerine bağlanmaz.
 
 ## Bilinen mimari borç
 
-- `Config.luau` (~2200 satır) tek tablo; alan alan bölünmesi plugin ve test koşucusu (Config'i olduğu gibi yükler) ile birlikte yapılmalı.
 - `MapBuilder` (~1500), `UpgradeVisualService` (~1200), `FarmHud` (~1100) büyük dosyalar; bölümlere ayrılabilir.
 - `Presentation` ↔ `Services` döngüsü (`PlotService` görselleri çağırır, bazı görseller servisleri okur) tembel `require` ile kırılıyor; bir arayüz (olay) katmanıyla kaldırılabilir.

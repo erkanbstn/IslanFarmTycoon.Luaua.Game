@@ -298,7 +298,7 @@ def main() -> int:
     pieces = [
         "--!nocheck\n",
         "local Color3 = { fromRGB = function(r, g, b) return { R = r / 255, G = g / 255, B = b / 255 } end }\n",
-        module("Config", "src/shared/Config.luau").replace("return table.freeze(Config)", "return Config"),  # ayar denemeleri değiştirebilsin
+        run_tests.config_bundle(freeze=False),  # ayar denemeleri değiştirebilsin
         module("GameTypes", "src/shared/GameTypes.luau"),
         "local Environment = { getIncomeMultiplier = function() return 1 end }\n",
         module("FarmMath", "src/shared/Modules/FarmMath.luau", {"Config", "GameTypes", "Environment"}),
