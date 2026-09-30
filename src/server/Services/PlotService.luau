@@ -470,13 +470,15 @@ local function bindFarm(player: Player, farmId: string, plot: Model)
 	end
 end
 
+-- Boş adalardan rastgele biri verilir; sahipsiz adalar kilitli/boş yer tutucu olarak görünür.
 local function findFreePlot(): Model?
+	local free: { Model } = {}
 	for _, plot in plotOrder do
 		if not ownerByPlotId[plot:GetAttribute("PlotId") :: string] then
-			return plot
+			table.insert(free, plot)
 		end
 	end
-	return nil
+	return if #free > 0 then free[math.random(#free)] else nil
 end
 
 -- Kayıttaki etkin çiftliği oyuncunun adasına yükler (giriş).

@@ -133,6 +133,7 @@ return function(createService: any, config: any)
 	local other = player(2)
 	service.init()
 	assert(service.assign(owner) and service.assign(other), "fixture must allocate separate plots")
+	local ownPlot, otherPlot = service.getPlot(owner), service.getPlot(other)
 	local visited: { string } = {}
 	owner.Character = {
 		Parent = {},
@@ -140,14 +141,14 @@ return function(createService: any, config: any)
 			table.insert(visited, target.id)
 		end,
 	}
-	plots[1].children.Spawn = part("own-home")
-	plots[2].children.Spawn = part("other-home")
-	plots[1].children.Islands = {
+	ownPlot.children.Spawn = part("own-home")
+	otherPlot.children.Spawn = part("other-home")
+	ownPlot.children.Islands = {
 		GetChildren = function(): any
 			return { island("poultry", "own-poultry"), island("horse", "own-horse") }
 		end,
 	}
-	plots[2].children.Islands = {
+	otherPlot.children.Islands = {
 		GetChildren = function(): any
 			return { island("goat", "other-goat") }
 		end,
