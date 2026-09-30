@@ -445,6 +445,30 @@ return function(FarmMath: any, Config: any, Environment: any)
 	local emptyFarm = saveAt(start)
 	emptyFarm.purchased[cheese.upgradeId] = nil
 	assert(FarmMath.getExpansionStatus(emptyFarm, "cheese") == "locked", "an unbuilt facility cannot be upgraded")
+	-- Her bölge ve tesis, her temada sonlu ve artan maliyetle geliştirilebilir; boş fayda demeti yok
+	for farmId in Config.THEMES do
+		local themed = saveAt(start)
+		themed.farmId = farmId
+		for zoneId, zone in Config.ZONES do
+			if Config.themeHasIsland(farmId, zone.island) then
+				local previous = 0
+				for level = 0, Config.BUILD_UPGRADES.maxLevel - 1 do
+					themed.expansions = { [zoneId] = level }
+					local cost = FarmMath.getExpansionCost(themed, zoneId)
+					assert(
+						cost > previous and cost < math.huge,
+						`zone {zoneId} cost must be finite and growing ({farmId})`
+					)
+					previous = cost
+				end
+			end
+		end
+	end
+	for name, profile in Config.BUILD_UPGRADES.profiles do
+		for level, bundle in profile do
+			assert(next(bundle) ~= nil, `{name} level {level} must give a benefit`)
+		end
+	end
 	-- Her profilin seviye sayısı maxLevel ile aynı; her hedef bir profile bağlı
 	for name, profile in Config.BUILD_UPGRADES.profiles do
 		assert(#profile == Config.BUILD_UPGRADES.maxLevel, `{name} profile must have maxLevel levels`)
