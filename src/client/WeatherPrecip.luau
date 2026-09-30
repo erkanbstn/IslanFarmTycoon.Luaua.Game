@@ -20,6 +20,7 @@ local QUALITY = {
 	medium = { rain = 160, storm = 230, snow = 45 },
 	high = { rain = 300, storm = 390, snow = 75 },
 }
+local PRECIP_MAX_CAMERA_Y = 70 -- Kamera bunun üstündeyse yağış çizilmez
 local MAIN_SEGMENTS = 12
 local BRANCH_SEGMENTS = 4
 
@@ -161,11 +162,17 @@ function WeatherPrecip.start(): () -> ()
 		local camera = Workspace.CurrentCamera
 		local blocked = camera == nil
 		if camera then
-			blocked = Workspace:Raycast(
-				camera.CFrame.Position + Vector3.new(0, 0.2, 0),
-				Vector3.new(0, 80, 0),
-				roofParams
-			) ~= nil
+			-- Su altında yağış yok; çok yüksekten bakarken (ada üstü genel bakış) taneler yalnızca gürültü olur
+			local cameraY = camera.CFrame.Position.Y
+			if player:GetAttribute("Submerged") == true or cameraY > PRECIP_MAX_CAMERA_Y then
+				blocked = true
+			else
+				blocked = Workspace:Raycast(
+					camera.CFrame.Position + Vector3.new(0, 0.2, 0),
+					Vector3.new(0, 80, 0),
+					roofParams
+				) ~= nil
+			end
 		end
 		if blocked ~= covered then
 			rain:Clear()
@@ -190,7 +197,7 @@ function WeatherPrecip.start(): () -> ()
 		local look = camera.CFrame.LookVector
 		local forward = Vector3.new(look.X, 0, look.Z)
 		forward = if forward.Magnitude > 0.01 then forward.Unit else Vector3.new(0, 0, -1)
-		sky.CFrame = CFrame.new(position + forward * 10 + Vector3.new(0, 10, 0))
+		sky.CFrame = CFrame.new(position + forward * 16 + Vector3.new(0, 10, 0)) -- Kameraya yapışık büyük taneler olmasın
 	end
 	local function configure()
 		local weather = Environment.getWeather().id

@@ -28,10 +28,10 @@ local DAY = {
 	decay = Color3.fromRGB(106, 135, 165),
 }
 local NIGHT = {
-	brightness = 0.9,
-	exposure = -0.25,
-	outdoor = Color3.fromRGB(56, 66, 106),
-	ambient = Color3.fromRGB(36, 42, 66),
+	brightness = 1.1,
+	exposure = -0.2,
+	outdoor = Color3.fromRGB(72, 84, 128),
+	ambient = Color3.fromRGB(46, 54, 84),
 	atmosphere = Color3.fromRGB(40, 52, 86),
 	decay = Color3.fromRGB(18, 24, 46),
 	tint = Color3.fromRGB(190, 204, 246),
