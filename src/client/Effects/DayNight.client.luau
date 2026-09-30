@@ -28,10 +28,10 @@ local DAY = {
 	decay = Color3.fromRGB(106, 135, 165),
 }
 local NIGHT = {
-	brightness = 1.1,
-	exposure = -0.2,
-	outdoor = Color3.fromRGB(72, 84, 128),
-	ambient = Color3.fromRGB(46, 54, 84),
+	brightness = 0.85,
+	exposure = -0.32,
+	outdoor = Color3.fromRGB(62, 72, 112),
+	ambient = Color3.fromRGB(40, 47, 74),
 	atmosphere = Color3.fromRGB(40, 52, 86),
 	decay = Color3.fromRGB(18, 24, 46),
 	tint = Color3.fromRGB(190, 204, 246),
@@ -39,7 +39,7 @@ local NIGHT = {
 local MAX_LIGHT_RANGE = 60 -- Roblox PointLight.Range üst sınırı
 -- Tüm gece ışıklarının genel yoğunluğu. Haritadaki taban değerler place'e kayıtlı olduğundan
 -- ince ayar burada yapılır (harita yeniden kurulmadan). "Normal" yönetici seviyesi = bu değerler.
-local LIGHT_BRIGHTNESS_SCALE = 0.6
+local LIGHT_BRIGHTNESS_SCALE = 0.5
 local LIGHT_RANGE_SCALE = 0.8
 local LIGHT_FADE_SECONDS = 1
 local TWILIGHT_SHIFT = Color3.fromRGB(255, 150, 90)

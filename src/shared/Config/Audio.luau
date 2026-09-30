@@ -8,11 +8,11 @@ return {
 	-- gerçek "cha-ching", ortam ve hayvan sesleri için Creator Store'dan (Roblox'un ücretsiz sesleri)
 	-- aldığın `rbxassetid://NUMARA` kimliklerini aşağıya yaz. Kimlik doğrulaması Studio'da yapılır.
 	SOUNDS = {
-		click = { id = "rbxasset://sounds/clickfast.wav", volume = 0.1, pitch = 0.92 },
-		coin = { id = "rbxasset://sounds/electronicpingshort.wav", volume = 0.16, pitch = 1.25 },
-		success = { id = "rbxasset://sounds/electronicpingshort.wav", volume = 0.45, pitch = 1.15 },
-		error = { id = "rbxasset://sounds/switch.wav", volume = 0.4, pitch = 0.7 },
-		build = { id = "rbxasset://sounds/victory.wav", volume = 0.3 },
+		click = { id = "rbxasset://sounds/clickfast.wav", volume = 0.06, pitch = 0.92 },
+		coin = { id = "rbxasset://sounds/electronicpingshort.wav", volume = 0.09, pitch = 1.25 },
+		success = { id = "rbxasset://sounds/electronicpingshort.wav", volume = 0.2, pitch = 1.15 },
+		error = { id = "rbxasset://sounds/switch.wav", volume = 0.2, pitch = 0.7 },
+		build = { id = "rbxasset://sounds/victory.wav", volume = 0.1 },
 
 		-- Aşağıdakiler yeni yuvalar: kimlik boş (sessiz) olduğu sürece çalınmaz. Kimlik yazınca kod aynen kullanır.
 		-- Ne zaman çaldıkları docs/SESLER.md içinde listelidir (bağlantılar Interaction/EventSounds ve arayüzde).

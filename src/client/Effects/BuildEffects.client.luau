@@ -134,6 +134,16 @@ local function finishPop(model: Model)
 	model:SetAttribute("BuildPopActive", nil)
 end
 
+local quietUntil = 0
+local lastFarmId: unknown = localPlayer:GetAttribute("ActiveMainFarmId")
+localPlayer:GetAttributeChangedSignal("ActiveMainFarmId"):Connect(function()
+	local current = localPlayer:GetAttribute("ActiveMainFarmId")
+	if lastFarmId ~= nil and current ~= lastFarmId then
+		quietUntil = os.clock() + 10
+	end
+	lastFarmId = current
+end)
+
 local function popIn(model: Model): boolean
 	if activePops >= MAX_POPS or pops[model] then
 		return false
@@ -209,7 +219,8 @@ local function popIn(model: Model): boolean
 	-- Hayvanlar küçük bir toz alır; binalar ve dekor tam kurulum tozu + kutlama sesi
 	local isAnimal = model.Parent ~= nil and model.Parent.Name == "Animals"
 	dustRing(boxCf.Position - Vector3.new(0, boxSize.Y / 2, 0), if isAnimal then math.min(radius, 2.5) else radius)
-	if not isAnimal then
+	-- Kutlama sesi yalnızca girişte/yapı alımında; çiftlik (ada teması) değişince yeniden kurulan adada çalmaz
+	if not isAnimal and os.clock() >= quietUntil then
 		Sfx.play("build")
 	end
 	return true

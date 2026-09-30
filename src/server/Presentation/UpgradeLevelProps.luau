@@ -384,7 +384,7 @@ local function petFigure(parent: Model, cf: CFrame, kind: string)
 	model.Parent = parent
 end
 
-function UpgradeLevelProps.apply(plot: Model, save: PlayerSave?)
+local function applyProps(plot: Model, save: PlayerSave?)
 	local existing = plot:FindFirstChild(MODEL_NAME)
 	if not save then
 		if existing then
@@ -430,16 +430,14 @@ function UpgradeLevelProps.apply(plot: Model, save: PlayerSave?)
 	for _, entry in monument do
 		table.insert(monumentKey, `{entry.id}{entry.level}`)
 	end
-	local petCash, petGoods = FarmMath.hasPet(save, "cash"), FarmMath.hasPet(save, "goods")
-	local signature =
-		`{feed}|{storage}|{growth}|{table.concat(ids, ",")}|{table.concat(monumentKey, ",")}|{petCash}|{petGoods}`
+	local signature = `{feed}|{storage}|{growth}|{table.concat(ids, ",")}|{table.concat(monumentKey, ",")}`
 	if existing and existing:GetAttribute("Signature") == signature then
 		return
 	end
 	if existing then
 		existing:Destroy()
 	end
-	if feed + storage + growth + #monument == 0 and not petCash and not petGoods then
+	if feed + storage + growth + #monument == 0 then
 		return
 	end
 	local model = Instance.new("Model")
@@ -462,22 +460,49 @@ function UpgradeLevelProps.apply(plot: Model, save: PlayerSave?)
 			* collector.CFrame.Rotation
 		storageYard(model, base * CFrame.new(-9, 0, 0), storage)
 	end
-	if (petCash or petGoods) and collector and collector:IsA("BasePart") then
-		local base = CFrame.new(collector.Position.X, collector.Position.Y - 0.75, collector.Position.Z)
-			* collector.CFrame.Rotation
-		if petCash then
-			petFigure(model, base * CFrame.new(6, 0, 3) * CFrame.Angles(0, math.rad(-150), 0), "cash")
-		end
-		if petGoods then
-			petFigure(model, base * CFrame.new(6, 0, -3) * CFrame.Angles(0, math.rad(-30), 0), "goods")
-		end
-	end
 	local plotBase = plot:FindFirstChild("PlotBase")
 	if #monument > 0 and plotBase and plotBase:IsA("BasePart") then
 		local frame = plotBase.CFrame * CFrame.Angles(0, 0, -math.pi / 2) * CFrame.new(0, plotBase.Size.X / 2, 0)
 		lineageMonument(model, frame * CFrame.new(MONUMENT_OFFSET.X, 0, MONUMENT_OFFSET.Z), monument)
 	end
 	model.Parent = plot
+end
+
+-- Yardımcılar ayrı modelde durur: seviye/bölge değişip LevelProps yeniden kurulsa da yürüyen yardımcı kaybolmaz.
+local PETS_NAME = "PetYard"
+
+local function applyPets(plot: Model, save: PlayerSave?)
+	local existing = plot:FindFirstChild(PETS_NAME)
+	local petCash = save ~= nil and FarmMath.hasPet(save, "cash")
+	local petGoods = save ~= nil and FarmMath.hasPet(save, "goods")
+	local signature = `{petCash}|{petGoods}`
+	if existing and existing:GetAttribute("Signature") == signature then
+		return
+	end
+	if existing then
+		existing:Destroy()
+	end
+	local collector = plot:FindFirstChild("Collector")
+	if not (petCash or petGoods) or not collector or not collector:IsA("BasePart") then
+		return
+	end
+	local model = Instance.new("Model")
+	model.Name = PETS_NAME
+	model:SetAttribute("Signature", signature)
+	local base = CFrame.new(collector.Position.X, collector.Position.Y - 0.75, collector.Position.Z)
+		* collector.CFrame.Rotation
+	if petCash then
+		petFigure(model, base * CFrame.new(6, 0, 3) * CFrame.Angles(0, math.rad(-150), 0), "cash")
+	end
+	if petGoods then
+		petFigure(model, base * CFrame.new(6, 0, -3) * CFrame.Angles(0, math.rad(-30), 0), "goods")
+	end
+	model.Parent = plot
+end
+
+function UpgradeLevelProps.apply(plot: Model, save: PlayerSave?)
+	applyProps(plot, save)
+	applyPets(plot, save)
 end
 
 return UpgradeLevelProps

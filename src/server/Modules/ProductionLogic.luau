@@ -119,6 +119,7 @@ export type PetSummary = {
 	cash: number,
 	goodsMessages: { string },
 	started: number,
+	messages: { string }, -- "Yardımcı · Tesis · miktar" bildirimleri (her teslim için bir satır)
 	claims: { [string]: { cash: number, goods: number } }, -- çiftlik → yardımcının teslim ettiği parti sayısı
 }
 
@@ -136,7 +137,8 @@ function ProductionLogic.runPets(
 	config: any,
 	hooks: Hooks
 ): PetSummary
-	local summary: PetSummary = { changedFarms = {}, cash = 0, goodsMessages = {}, started = 0, claims = {} }
+	local summary: PetSummary =
+		{ changedFarms = {}, cash = 0, goodsMessages = {}, started = 0, messages = {}, claims = {} }
 	for _, farmId in farmIds do
 		local farm = getView(farmId)
 		if not farm or not farm.production then
@@ -157,6 +159,13 @@ function ProductionLogic.runPets(
 			if job and ProductionLogic.canClaimAutomatically(root, farm, recipe, job, now, farmMath) then
 				local reward, message = ProductionLogic.claim(root, farm, recipe, job, now, farmMath, config, hooks)
 				summary.cash += reward
+				local petName = if kind == "cash" then "Para Yardımcısı" else "Ürün Yardımcısı"
+				table.insert(
+					summary.messages,
+					if kind == "cash"
+						then `{petName} · {recipe.displayName} · +{farmMath.formatMoney(reward)}`
+						else `{petName} · {recipe.displayName} · {message}`
+				)
 				if message ~= "" then
 					table.insert(summary.goodsMessages, message)
 				end

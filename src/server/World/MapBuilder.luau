@@ -24,7 +24,7 @@ local MapBuilder = {}
 
 -- Harita düzenini (adalar, bölgeler, yapı yerleri) değiştirince bunu 1 artır:
 -- oyun, place'e kaydedilmiş eski haritayı fark edip uyarır.
-local MAP_VERSION = 46
+local MAP_VERSION = 47
 
 local WATER_SIZE = MapLayout.WATER_SIZE
 local WATER_DEPTH = MapLayout.WATER_DEPTH

@@ -200,14 +200,19 @@ function Houses.windmill(parent: Instance, base: CFrame)
 	local hubCf = base * CFrame.new(0, 13.5, -4.6)
 	local hub = part(blades, "Hub", Vector3.new(1.4, 1.4, 1.6), hubCf, DARK_WOOD, Enum.Material.Wood, false)
 	hub.Shape = Enum.PartType.Ball
-	for arm = 0, 3 do
-		local armCf = hubCf * CFrame.Angles(0, 0, math.rad(arm * 90 + 45))
+	-- İki tam boy kol çapraz durur (arka arkaya, aynı düzlemde değil: titreme olmasın); yelkenler yalnızca kolların dış
+	-- uçlarında durur ve birbirine girmez.
+	for arm = 0, 1 do
+		local armCf = hubCf * CFrame.Angles(0, 0, math.rad(45 + arm * 90)) * CFrame.new(0, 0, arm * 0.4)
 		part(blades, "Arm", Vector3.new(0.5, 13, 0.35), armCf, DARK_WOOD, Enum.Material.Wood, false)
+	end
+	for sail = 0, 3 do
+		local sailCf = hubCf * CFrame.Angles(0, 0, math.rad(45 + sail * 90))
 		part(
 			blades,
 			"Sail",
-			Vector3.new(2.6, 8, 0.15),
-			armCf * CFrame.new(1.7, 2.6, -0.1),
+			Vector3.new(2.6, 5.2, 0.15),
+			sailCf * CFrame.new(1.6, 3.9, -0.45),
 			Color3.fromRGB(240, 232, 210),
 			Enum.Material.Fabric,
 			false

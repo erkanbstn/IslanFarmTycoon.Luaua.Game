@@ -91,15 +91,11 @@ local function tick(player: Player)
 			warn(`[Pet] Görünüm yenilenemedi: {err}`)
 		end
 	end
-	local parts: { string } = {}
-	if summary.cash > 0 then
-		table.insert(parts, `Yardımcı · +{FarmMath.formatMoney(summary.cash)}`)
-	end
-	for _, message in summary.goodsMessages do
-		table.insert(parts, message)
-	end
-	if #parts > 0 then
-		Remotes.get("Notify"):FireClient(player, table.concat(parts, " · "), "info")
+	for index, message in summary.messages do
+		if index > 4 then
+			break
+		end
+		Remotes.get("Notify"):FireClient(player, message, "info")
 	end
 end
 
