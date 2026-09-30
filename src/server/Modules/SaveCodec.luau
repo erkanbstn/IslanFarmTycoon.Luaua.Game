@@ -401,6 +401,10 @@ function SaveCodec.decode(
 	if typeof(source.language) == "string" and config.LANGUAGES and config.LANGUAGES[source.language] then
 		data.language = source.language
 	end
+	-- Grafik tercihi: yalnızca bilinen modlar kabul edilir
+	if typeof(source.graphics) == "string" and config.GRAPHICS_MODES and config.GRAPHICS_MODES[source.graphics] then
+		data.graphics = source.graphics
+	end
 	-- Hesap düzeyi ilerleme: ömür boyu kazanç, günlük ödül serisi ve alınmış başarımlar (hepsi isteğe bağlı).
 	data.lifetimeEarned = amount(source.lifetimeEarned, 0)
 	local daily = source.daily
@@ -555,6 +559,7 @@ function SaveCodec.encode(save: any, now: number): { [string]: any }
 		mainFarms = farms,
 		activeMainFarmId = save.activeMainFarmId,
 		language = save.language,
+		graphics = save.graphics,
 		lifetimeEarned = amount(save.lifetimeEarned, 0),
 		daily = save.daily,
 		achievements = save.achievements,

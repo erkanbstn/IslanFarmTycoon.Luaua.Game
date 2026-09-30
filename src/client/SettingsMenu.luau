@@ -1,18 +1,16 @@
 --!strict
--- Görsel tercihler yalnızca bu cihazdaki açık oturum için geçerlidir; dil tercihi hesaba kaydedilir.
+-- Hareket azaltma yalnızca bu oturum içindir; dil ve grafik tercihi hesaba kaydedilir.
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UiKit = require(script.Parent:WaitForChild("UiKit"))
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
+local Remotes = require(Shared:WaitForChild("Remotes"))
 local Localization = require(Shared:WaitForChild("Localization"))
 local player = Players.LocalPlayer
 local SettingsMenu = {}
 local window: UiKit.Window? = nil
 
-if player:GetAttribute("EffectsQuality") == nil then
-	player:SetAttribute("EffectsQuality", "medium")
-end
 if player:GetAttribute("ReducedMotion") == nil then
 	player:SetAttribute("ReducedMotion", false)
 end
@@ -77,7 +75,7 @@ local function create(parent: ScreenGui): UiKit.Window
 	)
 	volumeSlider.LayoutOrder = 12
 	UiKit.text(created.list, "Ses düzeyi yalnızca bu oturumda geçerlidir.", "Caption").LayoutOrder = 13
-	UiKit.text(created.list, "Efekt kalitesi", "Heading").LayoutOrder = 4
+	UiKit.text(created.list, "Grafik kalitesi", "Heading").LayoutOrder = 4
 	local choices = Instance.new("Frame")
 	choices.BackgroundTransparency = 1
 	choices.Size = UDim2.new(1, 0, 0, 44)
@@ -86,14 +84,23 @@ local function create(parent: ScreenGui): UiKit.Window
 	UiKit.list(choices, 6, true)
 	local buttons: { [string]: TextButton } = {}
 	for index, option in
-		{ { id = "low", title = "Düşük" }, { id = "medium", title = "Orta" }, { id = "high", title = "Yüksek" } }
+		{
+			{ id = "auto", title = "Otomatik" },
+			{ id = "low", title = "Düşük" },
+			{ id = "medium", title = "Orta" },
+			{ id = "high", title = "Yüksek" },
+		}
 	do
 		local button = UiKit.button(choices, option.title, "secondary")
-		button.Size = UDim2.new(1 / 3, -4, 1, 0)
+		button.Size = UDim2.new(1 / 4, -5, 1, 0)
+		button.TextScaled = false
+		button.TextSize = 14
 		button.LayoutOrder = index
 		buttons[option.id] = button
 		button.Activated:Connect(function()
-			player:SetAttribute("EffectsQuality", option.id)
+			-- Tercih hesaba kaydedilir; uygulamayı Graphics.client yapar
+			player:SetAttribute("GraphicsMode", option.id)
+			Remotes.get("RequestSetGraphics"):FireServer(option.id)
 		end)
 	end
 	local qualityInfo = UiKit.text(created.list, "", "Caption")
@@ -112,9 +119,10 @@ local function create(parent: ScreenGui): UiKit.Window
 	).LayoutOrder =
 		9
 	local descriptions: { [string]: string } = {
-		low = "Daha az yağış ve süs hayvanı; daha kısa çizim mesafesi. Yakındaki hayvanlar akıcı hareket eder.",
-		medium = "Dengeli görünüm: azaltılmış parçacıklar, akıcı hayvan hareketleri ve satın alma animasyonu.",
-		high = "Tüm görsel efektler ve her karede hayvan hareketi. Güçlü cihazlar için.",
+		auto = "Cihazına göre başlar, akıcılık düşerse kendiliğinden iner, rahatsa yükselir.",
+		low = "Gölge, yansıma, parıltı ve bulut kapalı; az yağış ve süs hayvanı. En akıcı ve en az pil harcayan.",
+		medium = "Gölgeler, hafif yansıma ve parıltı açık; dengeli parçacık ve hayvan hareketi.",
+		high = "Keskin gölgeler, tam yansıma, güneş ışınları, ufukta odak bulanıklığı ve tüm efektler. Güçlü cihazlar için.",
 	}
 	local function refreshLanguage()
 		local selected = Localization.get()
@@ -125,13 +133,18 @@ local function create(parent: ScreenGui): UiKit.Window
 		end
 	end
 	local function refresh()
-		local quality = player:GetAttribute("EffectsQuality")
-		local selected = if typeof(quality) == "string" and descriptions[quality] then quality else "medium"
+		local mode = player:GetAttribute("GraphicsMode")
+		local selected = if typeof(mode) == "string" and descriptions[mode] then mode else "auto"
 		for id, button in buttons do
 			-- Seçili seçenek tekrar tıklanabilir; diğer seçeneklere geçiş her zaman açık.
 			UiKit.setVariant(button, if id == selected then "primary" else "secondary")
 		end
 		qualityInfo.Text = descriptions[selected]
+		if selected == "auto" then
+			local tierNames: { [string]: string } = { low = "Düşük", medium = "Orta", high = "Yüksek" }
+			local current = player:GetAttribute("EffectsQuality")
+			qualityInfo.Text ..= `\nŞu an: {tierNames[current :: string] or "Orta"}`
+		end
 		local reduced = player:GetAttribute("ReducedMotion") == true
 		motion.Text = if reduced then "Hareketi azalt: Açık" else "Hareketi azalt: Kapalı"
 		UiKit.setVariant(motion, if reduced then "primary" else "secondary")
@@ -144,6 +157,7 @@ local function create(parent: ScreenGui): UiKit.Window
 	end
 	local connections = {
 		player:GetAttributeChangedSignal("SoundVolume"):Connect(refreshVolume),
+		player:GetAttributeChangedSignal("GraphicsMode"):Connect(refresh),
 		player:GetAttributeChangedSignal("EffectsQuality"):Connect(refresh),
 		player:GetAttributeChangedSignal("ReducedMotion"):Connect(refresh),
 	}

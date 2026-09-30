@@ -205,6 +205,8 @@ local Config = {
 	-- Arayüz dilleri. Kaynak dil Türkçe; diğerleri src/shared/Locales/<kod>.luau içinde.
 	-- countries: oyuncunun Roblox dili desteklenmiyorsa ülkesinden seçilen dil (ISO 3166-1 alpha-2).
 	LANGUAGE_ORDER = { "tr", "en", "de", "ru" },
+	-- Grafik tercihi (hesaba kaydedilir): auto = cihaza ve kare hızına göre otomatik
+	GRAPHICS_MODES = { auto = true, low = true, medium = true, high = true } :: { [string]: boolean },
 	LANGUAGES = {
 		tr = { code = "tr", name = "Türkçe", countries = { "TR" } },
 		en = { code = "en", name = "English", countries = {} },

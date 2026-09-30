@@ -738,4 +738,10 @@ return {
 	["Geliştirme tamamlandı · Sv.{}"] = "Upgrade complete · Lv.{1}",
 	["Ağıllar"] = "Pens",
 	["Liman"] = "Harbor",
+	["Grafik kalitesi"] = "Graphics quality",
+	["Şu an: {}"] = "Current: {1}",
+	["Cihazına göre başlar, akıcılık düşerse kendiliğinden iner, rahatsa yükselir."] = "Starts from your device, drops by itself if the game stutters, and rises when it runs smoothly.",
+	["Gölge, yansıma, parıltı ve bulut kapalı; az yağış ve süs hayvanı. En akıcı ve en az pil harcayan."] = "Shadows, reflections, glow and clouds are off; less rain and fewer ambient animals. Smoothest and lightest on battery.",
+	["Gölgeler, hafif yansıma ve parıltı açık; dengeli parçacık ve hayvan hareketi."] = "Shadows, light reflections and glow are on; balanced particles and animal movement.",
+	["Keskin gölgeler, tam yansıma, güneş ışınları, ufukta odak bulanıklığı ve tüm efektler. Güçlü cihazlar için."] = "Sharp shadows, full reflections, sun rays, soft horizon blur and all effects. For powerful devices.",
 }

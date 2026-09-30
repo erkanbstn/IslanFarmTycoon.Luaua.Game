@@ -52,6 +52,7 @@ export type PlayerSave = {
 	golden: { key: number }?, -- Altın hayvan: ödülü alınan son pencerenin döngü numarası
 	merchant: { key: number, bought: boolean }?, -- Gezgin tüccar: son teklifin döngü numarası ve alınıp alınmadığı
 	seasonal: SeasonalGoal?, -- Şu anki mevsim hedefi (hesap düzeyi; key = mevsim numarası)
+	graphics: string?, -- Grafik tercihi (Config.GRAPHICS_MODES); nil = otomatik
 	language: string?, -- Seçilen arayüz dili (Config.LANGUAGES kodu); nil = Roblox dilinden algıla
 	mainFarmOffers: { { id: string, name: string, icon: string, ownerUserId: number? } }?,
 	mainFarms: { [string]: any },

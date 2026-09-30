@@ -43,6 +43,7 @@ export type EventName =
 	| "ProductionResult"
 	| "RequestExtensionAction"
 	| "RequestSetLanguage"
+	| "RequestSetGraphics"
 
 local EVENTS = {
 	"RequestMainFarmAction", -- buy physicalPlotId / select logicalFarmId, requestId
@@ -50,6 +51,7 @@ local EVENTS = {
 	"RequestProductionAction", -- start/sell/keep, recipeId, jobUid?, requestId
 	"ProductionResult", -- requestId, success, message
 	"RequestExtensionAction", -- assign / unassign, extensionId
+	"RequestSetGraphics", -- Client -> Sunucu grafik tercihi (auto/low/medium/high); sunucu Config.GRAPHICS_MODES ile doğrular
 	"RequestSetLanguage", -- Client -> Sunucu arayüz dili tercihi (kod); sunucu Config.LANGUAGES ile doğrular
 	"RequestAdminAction", -- Sadece sunucudaki AdminPolicy'nin izin verdiği hesap.
 	"AdminResult", -- Sunucu -> yetkili client (requestId, success, message).

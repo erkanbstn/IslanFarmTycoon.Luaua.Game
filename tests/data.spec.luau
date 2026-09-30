@@ -103,6 +103,20 @@ return function(lock: any, codec: any, config: any, farmMath: any)
 	languageRaw.language = "klingon"
 	local unknownLanguage = assert(codec.decode(languageRaw, config, farmMath, now, uid))
 	assert(unknownLanguage.language == nil, "unknown language codes must be ignored")
+	-- Grafik tercihi: bilinen mod kaydedilir, bilinmeyen/yanlış tür yok sayılır
+	local graphicsRaw = codec.encode(save, now)
+	assert(graphicsRaw.graphics == nil, "graphics must stay unset until the player chooses one")
+	graphicsRaw.graphics = "high"
+	local withGraphics = assert(codec.decode(graphicsRaw, config, farmMath, now, uid))
+	assert(withGraphics.graphics == "high", "chosen graphics mode must load")
+	assert(codec.encode(withGraphics, now).graphics == "high", "graphics mode must survive saves")
+	graphicsRaw.graphics = "ultra"
+	assert(
+		assert(codec.decode(graphicsRaw, config, farmMath, now, uid)).graphics == nil,
+		"unknown graphics mode ignored"
+	)
+	graphicsRaw.graphics = { "low" }
+	assert(assert(codec.decode(graphicsRaw, config, farmMath, now, uid)).graphics == nil, "graphics must be a string")
 	languageRaw.language = { "de" }
 	assert(assert(codec.decode(languageRaw, config, farmMath, now, uid)).language == nil, "language must be a string")
 	-- Irk geliştirme: seviyeler sıkıştırılır, tanınmayan tür atılır, bozuk kayıt reddedilir

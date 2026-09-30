@@ -98,6 +98,24 @@ Remotes.get("RequestSetLanguage").OnServerEvent:Connect(function(player: Player,
 	PlayerDataService.requestSave(player)
 end)
 
+-- Grafik tercihi: yalnızca bilinen modlar kaydedilir; uygulama client'ta (Graphics.client).
+Remotes.get("RequestSetGraphics").OnServerEvent:Connect(function(player: Player, mode: unknown)
+	if
+		typeof(mode) ~= "string"
+		or Config.GRAPHICS_MODES[mode] ~= true
+		or not RateLimiter.allow(player, "graphics", 0.5)
+	then
+		return
+	end
+	local data = PlayerDataService.tryGet(player)
+	if not data or data.graphics == mode then
+		return
+	end
+	data.graphics = mode
+	player:SetAttribute("SavedGraphics", mode)
+	PlayerDataService.requestSave(player)
+end)
+
 Remotes.get("RequestGoHome").OnServerEvent:Connect(function(player: Player)
 	if canTeleport(player) then
 		PlotService.teleportHome(player)

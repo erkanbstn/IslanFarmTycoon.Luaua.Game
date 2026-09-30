@@ -47,6 +47,12 @@
       }
     },
 
+    "MaterialService": {
+      "$properties": {
+        "Use2022Materials": true
+      }
+    },
+
     "Players": {
       "$properties": {
         "CharacterAutoLoads": false

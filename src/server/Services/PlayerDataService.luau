@@ -325,6 +325,7 @@ function PlayerDataService.load(player: Player): PlayerSave?
 			session.offlineEarned = offlineEarned
 			session.offlineGrown = grown or 0
 			player:SetAttribute("SavedLanguage", data.language or "")
+			player:SetAttribute("SavedGraphics", data.graphics or "")
 			player:SetAttribute("DataRepairCount", repairs or 0)
 			if repairs and repairs > 0 then
 				warn(`[Data] ProfileNormalized user={player.UserId} repairs={repairs}`)

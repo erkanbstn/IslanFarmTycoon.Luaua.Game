@@ -25,6 +25,10 @@ alwaysApply: false
   `DescendantAdded/Removing` ile izle: StreamingEnabled parçaları sonradan getirir/kaldırır.
 - Kalite ve erişilebilirlik: `EffectsQuality` ("low/medium/high") ve `ReducedMotion` öznitelikleri
   (Player) parçacık sayısını ve animasyonu sınırlar; yeni efekt ikisine de uymalı.
+- Grafik kademesini `Graphics.client.luau` belirler: tercih `GraphicsMode` (auto/low/medium/high, hesaba kaydedilir: `save.graphics`, `RequestSetGraphics`),
+  çözülmüş kademe `EffectsQuality`. Render profili (gölge, yansıma, parıltı, güneş ışınları, bulut, su, alan derinliği, zemin süsü) orada tek yerde
+  tanımlı; Bloom/SunRays/Clouds `Enabled`, `GlobalShadows`, `ShadowSoftness`, `EnvironmentSpecularScale` ve Terrain su alanlarını **yalnızca o betik** yazar
+  (ışık rengi/pozlama/sis: DayNight ve WeatherEffects). Yeni pahalı görsel eklersen profile bir alan ekle ve low'da kapat. Auto kademe kare hızıyla iner/çıkar.
 - Parçacık/nesne havuzu sınırlı olsun; `Destroying`'de bağlantıları kopar, oluşturduğun nesneleri sil.
 
 - Dekor kurulumunun sonunda `WorldDecor.optimize(root)` çağır: 1,6 stud'dan küçük parçalar gölge düşürmez, çarpışmayan

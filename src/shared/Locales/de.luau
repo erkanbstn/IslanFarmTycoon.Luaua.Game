@@ -738,4 +738,10 @@ return {
 	["Geliştirme tamamlandı · Sv.{}"] = "Ausbau abgeschlossen · St.{1}",
 	["Ağıllar"] = "Gehege",
 	["Liman"] = "Hafen",
+	["Grafik kalitesi"] = "Grafikqualität",
+	["Şu an: {}"] = "Aktuell: {1}",
+	["Cihazına göre başlar, akıcılık düşerse kendiliğinden iner, rahatsa yükselir."] = "Startet passend zum Gerät, sinkt bei Rucklern von selbst und steigt, wenn alles flüssig läuft.",
+	["Gölge, yansıma, parıltı ve bulut kapalı; az yağış ve süs hayvanı. En akıcı ve en az pil harcayan."] = "Schatten, Spiegelungen, Glanz und Wolken aus; weniger Regen und Ziertiere. Am flüssigsten und akkuschonend.",
+	["Gölgeler, hafif yansıma ve parıltı açık; dengeli parçacık ve hayvan hareketi."] = "Schatten, leichte Spiegelungen und Glanz an; ausgewogene Partikel und Tierbewegung.",
+	["Keskin gölgeler, tam yansıma, güneş ışınları, ufukta odak bulanıklığı ve tüm efektler. Güçlü cihazlar için."] = "Scharfe Schatten, volle Spiegelungen, Sonnenstrahlen, weiche Horizontunschärfe und alle Effekte. Für starke Geräte.",
 }
