@@ -868,4 +868,5 @@ return {
 	["Tavus Kuyruğu"] = "Pfauenschwanz",
 	["Ahır siparişi ödülü +%{}"] = "Stallauftrags-Belohnung +{1}%",
 	["Ürün merkezi verimi +%{}"] = "Ertrag der Produktionszentren +{1}%",
+	["Açık"] = "Klar",
 }

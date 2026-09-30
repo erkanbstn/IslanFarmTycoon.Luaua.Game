@@ -7,6 +7,8 @@
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
+local StartupGate = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("StartupGate"))
+StartupGate.wait(3.5)
 
 local localPlayer = Players.LocalPlayer
 

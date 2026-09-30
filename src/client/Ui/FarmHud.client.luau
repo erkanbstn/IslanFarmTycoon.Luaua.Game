@@ -54,6 +54,7 @@ local playerGui = localPlayer:WaitForChild("PlayerGui")
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "FarmHud"
 screenGui.ResetOnSpawn = false
+screenGui.IgnoreGuiInset = true -- üst menü çubuğu Roblox üst şeridinin altında değil, ekranın en üstünde durur
 screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 screenGui.Enabled = false -- Kayıt verisi gelince açılır (boş "$0" görünmesin)
 screenGui.Parent = playerGui

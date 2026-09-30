@@ -7,6 +7,8 @@ local localPlayer = Players.LocalPlayer
 
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
+local StartupGate = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("StartupGate"))
+StartupGate.wait(2.5)
 
 local WATER_Y = 0 -- Deniz yüzeyi (MapBuilder: su bloğunun üstü)
 local UPDATE_DISTANCE = 170 -- Kameradan bu uzaklıktaki sürüler hareket eder

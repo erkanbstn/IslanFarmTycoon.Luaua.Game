@@ -10,6 +10,8 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local EffectSettings = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("EffectSettings"))
 local Environment = require(Shared:WaitForChild("Modules"):WaitForChild("Environment"))
+local StartupGate = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("StartupGate"))
+StartupGate.wait(1.5)
 
 local FLOCK_COUNT = 10
 local UPDATE_DISTANCE = 320

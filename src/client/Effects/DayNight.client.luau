@@ -159,6 +159,7 @@ end
 ---------------------------------------------------------------------------
 
 local weatherExposure: number? = nil
+local firstUpdate = true
 
 local function targetWeatherExposure(): number
 	local value = Lighting:GetAttribute("WeatherExposure")
@@ -212,7 +213,11 @@ local function updateSky(dt: number)
 	end
 	-- Işıklar aniden çakmasın: oyuna girişte ve ani değişimlerde ~1 sn'de yumuşakça açılır/kısılır.
 	local newRamp = targetRamp
-	if math.abs(targetRamp - ramp) > 0.01 and Players.LocalPlayer:GetAttribute("ReducedMotion") ~= true then
+	if
+		not firstUpdate
+		and math.abs(targetRamp - ramp) > 0.01
+		and Players.LocalPlayer:GetAttribute("ReducedMotion") ~= true
+	then
 		newRamp = ramp + (targetRamp - ramp) * math.min(1, dt / LIGHT_FADE_SECONDS)
 	end
 	local newMultiplier = Environment.getLightMultiplier()
@@ -245,6 +250,9 @@ local connection = RunService.Heartbeat:Connect(function(dt: number)
 	end
 end)
 updateSky(TICK)
+firstUpdate = false
+-- Gündüz-gece ışığı ilk kez doğru kuruldu: yükleme ekranı kalkınca sahne karanlıkta kalmaz.
+Lighting:SetAttribute("DayNightReady", true)
 
 script.Destroying:Connect(function()
 	connection:Disconnect()

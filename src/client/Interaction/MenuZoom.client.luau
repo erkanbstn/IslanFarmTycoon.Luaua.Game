@@ -14,6 +14,8 @@ local playerGui = player:WaitForChild("PlayerGui")
 
 local STEP = 0.14 -- tekerlek adımı başına yüzde
 local RESTORE_SECONDS = 0.35
+local MIN_OUT_STEP = 2.5 -- uzaklaşırken adım başına en az bu kadar stud
+local MIN_THIRD_PERSON = 2 -- pencere açıkken yakınlaşma bu mesafenin altına inmez
 local defaultMin = player.CameraMinZoomDistance
 local defaultMax = player.CameraMaxZoomDistance
 local restoreAt = 0
@@ -59,8 +61,14 @@ UserInputService.InputChanged:Connect(function(input: InputObject, processed: bo
 		return
 	end
 	local distance = (camera.CFrame.Position - camera.Focus.Position).Magnitude
-	local factor = if input.Position.Z > 0 then 1 - STEP else 1 + STEP
-	local target = math.clamp(distance * factor, math.max(defaultMin, 0.5), math.min(defaultMax, 120))
+	local zoomIn = input.Position.Z > 0
+	-- Yakınlaşırken ilk kişi moduna girmez (fare kilitlenir); uzaklaşırken küçük mesafeden de en az MIN_OUT_STEP açılır.
+	local target = if zoomIn then distance * (1 - STEP) else math.max(distance * (1 + STEP), distance + MIN_OUT_STEP)
+	target =
+		math.clamp(target, math.max(defaultMin, if zoomIn then MIN_THIRD_PERSON else 0.5), math.min(defaultMax, 120))
+	if zoomIn and distance <= MIN_THIRD_PERSON then
+		return
+	end
 	player.CameraMinZoomDistance = target
 	player.CameraMaxZoomDistance = target
 	restoreLater()

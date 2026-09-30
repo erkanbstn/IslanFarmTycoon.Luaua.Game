@@ -9,6 +9,8 @@ local player = Players.LocalPlayer
 local modules = ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Modules")
 local Environment = require(modules:WaitForChild("Environment"))
 local SeasonVisuals = require(modules:WaitForChild("SeasonVisuals"))
+local StartupGate = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("StartupGate"))
+StartupGate.wait(4.5)
 
 local WATER_Y = 0
 local UPDATE_SECONDS = 2

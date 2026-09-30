@@ -211,11 +211,19 @@ while running do
 end
 
 if player:GetAttribute("DataStatus") ~= "Failed" then
+	-- Sahne ışığı (gün-gece) ve dünya nesneleri kurulmadan ekran kalkmasın: sınırlı süre beklenir.
+	status.Text = "Sahne hazırlanıyor"
+	local lighting = game:GetService("Lighting")
+	local sceneDeadline = os.clock() + 8
+	while os.clock() < sceneDeadline and (lighting:GetAttribute("DayNightReady") ~= true or not game:IsLoaded()) do
+		task.wait(0.1)
+	end
 	status.Text = "Neredeyse hazır"
 	task.wait(math.max(0.3, MIN_SECONDS - (os.clock() - started)))
 end
 
 running = false
+player:SetAttribute("LoadingDone", true) -- süs efektleri (Core/StartupGate) bunu bekler
 animConnection:Disconnect()
 
 local fade = TweenService:Create(root, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {

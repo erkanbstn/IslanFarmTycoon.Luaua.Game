@@ -868,4 +868,5 @@ return {
 	["Tavus Kuyruğu"] = "Peacock Tail",
 	["Ahır siparişi ödülü +%{}"] = "Barn order reward +{1}%",
 	["Ürün merkezi verimi +%{}"] = "Production center yield +{1}%",
+	["Açık"] = "Clear",
 }

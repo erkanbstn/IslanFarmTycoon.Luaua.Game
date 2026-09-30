@@ -92,11 +92,19 @@ function SeasonBar.create(stats: Instance): Bar
 		nextSeasonLabel.Text = if ReplicatedStorage:GetAttribute("AdminSeasonOverride")
 			then "Mevsim sabit"
 			else `Sonra: {Environment.getNextSeason().displayName}`
-		weatherChip.Text = weather.icon
 		local clockHour = Environment.getClockTime(now)
-		local dayPart = if Environment.getNightFactor(clockHour) >= 0.5 then "Gece" else "Gündüz"
-		weatherTitle.Text =
-			string.format("%s · %02d:%02d %s", weather.displayName, clockHour // 1, (clockHour % 1) * 60 // 1, dayPart)
+		local isNight = Environment.getNightFactor(clockHour) >= 0.5
+		local dayPart = if isNight then "Gece" else "Gündüz"
+		-- Gece "Güneşli" yazmak kafa karıştırır: açık hava geceleri "Açık" ve ay simgesiyle gösterilir
+		local nightClear = isNight and weather.id == "sunny"
+		weatherChip.Text = if nightClear then "🌙" else weather.icon
+		weatherTitle.Text = string.format(
+			"%s · %02d:%02d %s",
+			if nightClear then "Açık" else weather.displayName,
+			clockHour // 1,
+			(clockHour % 1) * 60 // 1,
+			dayPart
+		)
 	end
 
 	local function setCompact(compact: boolean)
