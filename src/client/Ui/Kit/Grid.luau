@@ -11,10 +11,12 @@ local Grid = {}
 
 local TILE_WIDTH = 108
 local TILE_HEIGHT = 214
+local COMPACT_TILE_HEIGHT = 124 -- aksiyon düğmesiz karolar (ör. ahır deposu)
 local GAP = 8
 
 -- Karoların dizildiği kap (yüksekliği içeriğe göre büyür); içine `Grid.tile` konur.
-function Grid.grid(parent: Instance, order: number): Frame
+-- compact: aksiyonsuz, alçak karolar için.
+function Grid.grid(parent: Instance, order: number, compact: boolean?): Frame
 	local host = Instance.new("Frame")
 	host.BackgroundTransparency = 1
 	host.Size = UDim2.new(1, 0, 0, 0)
@@ -22,7 +24,7 @@ function Grid.grid(parent: Instance, order: number): Frame
 	host.LayoutOrder = order
 	host.Parent = parent
 	local layout = Instance.new("UIGridLayout")
-	layout.CellSize = UDim2.fromOffset(TILE_WIDTH, TILE_HEIGHT)
+	layout.CellSize = UDim2.fromOffset(TILE_WIDTH, if compact then COMPACT_TILE_HEIGHT else TILE_HEIGHT)
 	layout.CellPadding = UDim2.fromOffset(GAP, GAP)
 	layout.SortOrder = Enum.SortOrder.LayoutOrder
 	layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
@@ -46,7 +48,7 @@ local function caption(parent: Instance, height: number, size: number, bold: boo
 end
 
 -- Karo: üstte ikon, altında başlık ve kısa açıklama, en altta tek aksiyon düğmesi.
-function Grid.tile(parent: Instance, order: number, icon: string): Controls.Card
+function Grid.tile(parent: Instance, order: number, icon: string, compact: boolean?): Controls.Card
 	local frame = Instance.new("Frame")
 	frame.BackgroundColor3 = Tokens.Color.Surface
 	frame.LayoutOrder = order
@@ -60,7 +62,7 @@ function Grid.tile(parent: Instance, order: number, icon: string): Controls.Card
 	local chip = Base.iconChip(frame, icon, 38, Tokens.Color.Gold)
 	chip.LayoutOrder = 1
 	local title = caption(frame, 30, 13, true, 2)
-	local detail = caption(frame, 88, 12, false, 3)
+	local detail = caption(frame, if compact then 30 else 88, 12, false, 3)
 	local action = Controls.button(frame, "", "primary")
 	action.Size = UDim2.new(1, 0, 0, 30)
 	action.TextSize = 13

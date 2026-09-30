@@ -5,6 +5,7 @@
 --   Hızlı Büyüme (fast_growth)         : her açık bölgenin sol kenarında büyüme fenerleri (kristal, halka, iri kristal ve yıldızlar)
 -- Model plot içinde "LevelProps" adıyla durur; seviyeler ya da açık bölgeler değişince imza değişir ve yeniden kurulur.
 
+local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -305,7 +306,16 @@ local function lineageMonument(model: Model, cf: CFrame, levels: { { id: string,
 end
 
 -- Yardımcılar (pet): toplama platformunun yanında durur. Para yardımcısı köpek, ürün yardımcısı kedi.
-local function petFigure(model: Model, cf: CFrame, kind: string)
+local function petFigure(parent: Model, cf: CFrame, kind: string)
+	-- Kendi Model'i ve görünmez kök parçasıyla durur; PetAnimator (istemci) bu modeli yürütür. Pivot: zemin, önü -Z.
+	local model = Instance.new("Model")
+	model.Name = `Pet_{kind}`
+	model:SetAttribute("PetKind", kind)
+	model:SetAttribute("PetHome", cf)
+	local root = piece(model, "Root", Vector3.one * 0.2, cf, Color3.new(), Enum.Material.SmoothPlastic)
+	root.Transparency = 1
+	model.PrimaryPart = root
+	CollectionService:AddTag(model, "PetFigure")
 	local fur = if kind == "cash" then Color3.fromRGB(196, 140, 84) else Color3.fromRGB(120, 120, 130)
 	local light = if kind == "cash" then Color3.fromRGB(245, 225, 190) else Color3.fromRGB(235, 235, 240)
 	piece(model, `Pet_{kind}_Body`, Vector3.new(1.6, 1.1, 2.4), cf * CFrame.new(0, 1.35, 0), fur, Enum.Material.Fabric)
@@ -371,6 +381,7 @@ local function petFigure(model: Model, cf: CFrame, kind: string)
 		if kind == "cash" then GOLD else Color3.fromRGB(90, 140, 255),
 		Enum.Material.Neon
 	)
+	model.Parent = parent
 end
 
 function UpgradeLevelProps.apply(plot: Model, save: PlayerSave?)

@@ -83,11 +83,11 @@ function InventoryWindow.create(screenGui: ScreenGui): Panel
 
 	-- Ahır deposu: ürün merkezlerinin ürettiği ürünler (meydandaki Sipariş Panosu'nda "Ahır siparişleri" olarak teslim edilir)
 	local _, goodsMeta = UiKit.sectionHeader(goodsPage, "Ahır Deposu", GOODS_ORDER)
-	local goodsGrid = UiKit.grid(goodsPage, GOODS_ORDER + 1)
+	local goodsGrid = UiKit.grid(goodsPage, GOODS_ORDER + 1, true)
 	local goodsCards: { [string]: UiKit.Card } = {}
 	for index, goodId in Config.GOODS_ORDER do
 		local good = Config.GOODS[goodId]
-		local card = UiKit.tile(goodsGrid, index, good.icon)
+		local card = UiKit.tile(goodsGrid, index, good.icon, true)
 		card.title.Text = good.displayName
 		card.action.Visible = false
 		goodsCards[goodId] = card

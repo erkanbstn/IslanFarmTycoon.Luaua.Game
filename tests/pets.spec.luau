@@ -68,6 +68,11 @@ return function(codec: any, config: any, farmMath: any, logic: any)
 	local late = run(data, now + 1000)
 	assert(late.cash > 0 and data.cash == cashBefore + late.cash, "the cash pet collects the finished batch")
 	assert(data.production.packed_milk == nil and data.production.milk_goods == nil, "claimed jobs are cleared")
+	local claims = late.claims[data.activeMainFarmId]
+	assert(
+		claims ~= nil and claims.cash == 1 and claims.goods == 1,
+		"pet deliveries are counted per kind for the walk animation"
+	)
 	assert(farmMath.getGoodsAmount(data, "milk") > 0, "the goods pet stores products in the shared barn")
 	assert(#late.goodsMessages == 1, "one barn message for the goods batch")
 	for _, animal in data.animals do

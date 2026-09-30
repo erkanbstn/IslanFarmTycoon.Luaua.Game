@@ -19,6 +19,40 @@ local PetService = {}
 local TICK_SECONDS = 2
 local initialized = false
 
+-- Yardımcıların görünür hareketi istemcide (PetAnimator); burada yalnızca plot özniteliklerine iş ve tur sayısı yazılır.
+--   PetCashJob / PetGoodsJob : çalışan partinin tesis kimliği ("" = iş yok)
+--   PetCashCycle / PetGoodsCycle : yardımcının teslim ettiği toplam parti (her artışta teslim turu oynar)
+local JOB_ATTRIBUTE = { cash = "PetCashJob", goods = "PetGoodsJob" }
+local CYCLE_ATTRIBUTE = { cash = "PetCashCycle", goods = "PetGoodsCycle" }
+
+local function publish(player: Player, data: any, claims: { cash: number, goods: number }?)
+	local plot = PlotService.getPlot(player)
+	if not plot then
+		return
+	end
+	for _, kind in { "cash", "goods" } do
+		local job = ""
+		if FarmMath.hasPet(data, kind) then
+			for _, recipeId in Config.PRODUCTION_ORDER do
+				local recipe = Config.PRODUCTION_RECIPES[recipeId]
+				local recipeKind = if recipe.output == "goods"
+					then "goods"
+					elseif recipe.output == "cash" then "cash"
+					else nil
+				if recipeKind == kind and data.purchased[recipe.upgradeId] and data.production[recipeId] then
+					job = recipe.upgradeId
+					break
+				end
+			end
+		end
+		plot:SetAttribute(JOB_ATTRIBUTE[kind], job)
+		if claims and claims[kind] > 0 then
+			local attribute = CYCLE_ATTRIBUTE[kind]
+			plot:SetAttribute(attribute, (plot:GetAttribute(attribute) or 0) + claims[kind])
+		end
+	end
+end
+
 local function tick(player: Player)
 	local data = PlayerDataService.tryGet(player)
 	if not data or player:GetAttribute("WorldReady") ~= true then
@@ -42,6 +76,7 @@ local function tick(player: Player)
 	local summary = ProductionLogic.runPets(data, PlayerDataService.getFarmIds(player), function(farmId: string): any
 		return PlayerDataService.getFarmView(player, farmId)
 	end, Config.PRODUCTION_ORDER, now, FarmMath, Config, hooks)
+	publish(player, data, summary.claims[data.activeMainFarmId])
 	if next(summary.changedFarms) == nil then
 		return
 	end

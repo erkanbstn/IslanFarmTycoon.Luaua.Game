@@ -114,7 +114,13 @@ function ProductionLogic.claim(
 	return reward, ""
 end
 
-export type PetSummary = { changedFarms: { [string]: boolean }, cash: number, goodsMessages: { string }, started: number }
+export type PetSummary = {
+	changedFarms: { [string]: boolean },
+	cash: number,
+	goodsMessages: { string },
+	started: number,
+	claims: { [string]: { cash: number, goods: number } }, -- çiftlik → yardımcının teslim ettiği parti sayısı
+}
 
 -- Yardımcılar: sahip olunan her çiftlikte (etkin ya da park edilmiş) hazır partileri teslim alır ve "otomatik tekrar"
 -- açıksa yenisini başlatır. Para yardımcısı para fabrikalarını, ürün yardımcısı ürün merkezlerini yönetir.
@@ -130,7 +136,7 @@ function ProductionLogic.runPets(
 	config: any,
 	hooks: Hooks
 ): PetSummary
-	local summary: PetSummary = { changedFarms = {}, cash = 0, goodsMessages = {}, started = 0 }
+	local summary: PetSummary = { changedFarms = {}, cash = 0, goodsMessages = {}, started = 0, claims = {} }
 	for _, farmId in farmIds do
 		local farm = getView(farmId)
 		if not farm or not farm.production then
@@ -155,6 +161,12 @@ function ProductionLogic.runPets(
 					table.insert(summary.goodsMessages, message)
 				end
 				summary.changedFarms[farmId] = true
+				local counts = summary.claims[farmId]
+				if not counts then
+					counts = { cash = 0, goods = 0 }
+					summary.claims[farmId] = counts
+				end
+				counts[kind] += 1
 			end
 			local repeatOption = if farm.autoRepeat then farm.autoRepeat[recipeId] else nil
 			if farm.production[recipeId] == nil and repeatOption ~= nil then
