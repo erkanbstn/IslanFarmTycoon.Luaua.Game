@@ -42,12 +42,18 @@ function ItemShopWindow.create(screenGui: ScreenGui): Shop
 	).LayoutOrder =
 		0
 
+	-- Kategori sekmeleri (slot başına): seçili kategorinin eşyaları ızgara karoları olarak gösterilir
 	local cards: { [string]: UiKit.Card } = {}
+	local grids: { [string]: Frame } = {}
+	local tabEntries: { { id: string, label: string } } = {}
 	for slotIndex, slotId in Config.ITEM_SLOT_ORDER do
 		local slot = Config.ITEM_SLOTS[slotId]
-		UiKit.sectionHeader(window.list, slot.displayName, slotIndex * 100)
+		table.insert(tabEntries, { id = slotId, label = slot.displayName })
+		local grid = UiKit.grid(window.list, 10)
+		grid.Visible = slotIndex == 1
+		grids[slotId] = grid
 		for position, item in ItemText.itemsOfSlot(slotId) do
-			local card = UiKit.card(window.list, slotIndex * 100 + position, item.icon)
+			local card = UiKit.tile(grid, position, item.icon)
 			card.title.Text = item.displayName
 			card.detail.Text = ItemText.describe(item)
 			cards[item.id] = card
@@ -58,6 +64,11 @@ function ItemShopWindow.create(screenGui: ScreenGui): Shop
 			end)
 		end
 	end
+	UiKit.tabs(window.list, 5, tabEntries, function(slotId: string)
+		for gridSlot, grid in grids do
+			grid.Visible = gridSlot == slotId
+		end
+	end)
 
 	local function update(state: PlayerSave)
 		for itemId, card in cards do

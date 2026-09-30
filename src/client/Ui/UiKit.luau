@@ -11,6 +11,7 @@ local Tokens = require(script.Parent:WaitForChild("Kit"):WaitForChild("Tokens"))
 local Base = require(script.Parent:WaitForChild("Kit"):WaitForChild("Base"))
 local Controls = require(script.Parent:WaitForChild("Kit"):WaitForChild("Controls"))
 local Flags = require(script.Parent:WaitForChild("Kit"):WaitForChild("Flags"))
+local Grid = require(script.Parent:WaitForChild("Kit"):WaitForChild("Grid"))
 local Windows = require(script.Parent:WaitForChild("Kit"):WaitForChild("Windows"))
 local Toasts = require(script.Parent:WaitForChild("Kit"):WaitForChild("Toasts"))
 
@@ -51,6 +52,9 @@ UiKit.slider = Controls.slider
 UiKit.closeButton = Controls.closeButton
 UiKit.badge = Controls.badge
 UiKit.card = Controls.card
+UiKit.grid = Grid.grid
+UiKit.tile = Grid.tile
+UiKit.tabs = Grid.tabs
 UiKit.flag = Flags.flag
 UiKit.window = Windows.window
 UiKit.toastHost = Toasts.toastHost

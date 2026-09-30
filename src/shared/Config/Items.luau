@@ -371,6 +371,142 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 			},
 		},
 	})
+
+	-- Ahır ve sipariş muskaları: ahır siparişi ödülünü ya da ürün merkezi verimini artırır
+	add({
+		id = "barn_charm_1",
+		displayName = "Ambar Anahtarı",
+		icon = "📿",
+		slot = "charm",
+		price = 90000,
+		effects = { goodsYield = 0.1 },
+		look = charmLook(Color3.fromRGB(200, 170, 110), 0.6),
+	})
+	add({
+		id = "barn_charm_2",
+		displayName = "Altın Ambar Anahtarı",
+		icon = "📿",
+		slot = "charm",
+		price = 700000,
+		effects = { goodsYield = 0.25 },
+		look = charmLook(Color3.fromRGB(255, 215, 90), 0.8),
+	})
+	add({
+		id = "contract_charm_1",
+		displayName = "Tüccar Defteri",
+		icon = "📿",
+		slot = "charm",
+		price = 120000,
+		effects = { contractBonus = 0.06 },
+		look = charmLook(Color3.fromRGB(120, 170, 235), 0.6),
+	})
+	add({
+		id = "contract_charm_2",
+		displayName = "Usta Tüccar Defteri",
+		icon = "📿",
+		slot = "charm",
+		price = 800000,
+		effects = { contractBonus = 0.14 },
+		look = charmLook(Color3.fromRGB(90, 140, 255), 0.8),
+	})
+
+	-- Yeni başlıklar
+	add({
+		id = "beanie",
+		displayName = "Bere",
+		icon = "🎩",
+		slot = "head",
+		price = 12000,
+		look = {
+			attach = "head",
+			parts = {
+				block({ 1.9, 0.7, 1.9 }, { 0, 0.8, 0 }, Color3.fromRGB(200, 60, 70), "Fabric"),
+				ball(0.6, { 0, 1.3, 0 }, Color3.fromRGB(250, 250, 250), "Fabric"),
+			},
+		},
+	})
+	add({
+		id = "straw_hat",
+		displayName = "Hasır Şapka",
+		icon = "🎩",
+		slot = "head",
+		price = 20000,
+		look = {
+			attach = "head",
+			parts = {
+				block({ 3.6, 0.12, 3.6 }, { 0, 0.55, 0 }, Color3.fromRGB(232, 205, 120), "Fabric"),
+				block({ 1.7, 0.9, 1.7 }, { 0, 0.95, 0 }, Color3.fromRGB(232, 205, 120), "Fabric"),
+				block({ 1.75, 0.2, 1.75 }, { 0, 0.72, 0 }, Color3.fromRGB(110, 150, 80), "Fabric"),
+			},
+		},
+	})
+	add({
+		id = "flower_crown",
+		displayName = "Çiçek Tacı",
+		icon = "🎩",
+		slot = "head",
+		price = 45000,
+		look = {
+			attach = "head",
+			parts = {
+				block({ 1.9, 0.2, 1.9 }, { 0, 0.6, 0 }, Color3.fromRGB(90, 160, 80), "Grass"),
+				ball(0.45, { -0.8, 0.75, -0.8 }, Color3.fromRGB(240, 120, 150), "SmoothPlastic"),
+				ball(0.45, { 0.8, 0.75, -0.8 }, Color3.fromRGB(250, 215, 90), "SmoothPlastic"),
+				ball(0.45, { -0.8, 0.75, 0.8 }, Color3.fromRGB(250, 215, 90), "SmoothPlastic"),
+				ball(0.45, { 0.8, 0.75, 0.8 }, Color3.fromRGB(240, 120, 150), "SmoothPlastic"),
+			},
+		},
+	})
+
+	-- Yeni sırt eşyaları
+	add({
+		id = "harvest_basket",
+		displayName = "Hasat Sepeti",
+		icon = "🧥",
+		slot = "back",
+		price = 25000,
+		look = {
+			attach = "back",
+			parts = {
+				block({ 1.8, 1.4, 1 }, { 0, 0.2, 0.95 }, Color3.fromRGB(150, 105, 60), "Wood"),
+				block({ 0.12, 1.4, 0.12 }, { -0.45, 1.3, 0.95 }, Color3.fromRGB(235, 200, 90), "Grass", { 0, 0, 10 }),
+				block({ 0.12, 1.5, 0.12 }, { 0, 1.4, 0.95 }, Color3.fromRGB(235, 200, 90), "Grass"),
+				block({ 0.12, 1.4, 0.12 }, { 0.45, 1.3, 0.95 }, Color3.fromRGB(235, 200, 90), "Grass", { 0, 0, -10 }),
+			},
+		},
+	})
+	add({
+		id = "leaf_cloak",
+		displayName = "Yaprak Pelerin",
+		icon = "🧥",
+		slot = "back",
+		price = 90000,
+		look = {
+			attach = "back",
+			parts = {
+				block({ 2.2, 3, 0.12 }, { 0, -0.1, 0.85 }, Color3.fromRGB(80, 150, 70), "Grass", { 8, 0, 0 }),
+				block({ 0.8, 1.1, 0.14 }, { -0.6, 0.9, 0.92 }, Color3.fromRGB(120, 190, 100), "Grass", { 8, 0, 20 }),
+				block({ 0.8, 1.1, 0.14 }, { 0.6, 0.5, 0.92 }, Color3.fromRGB(120, 190, 100), "Grass", { 8, 0, -20 }),
+			},
+		},
+	})
+	add({
+		id = "peacock_tail",
+		displayName = "Tavus Kuyruğu",
+		icon = "🧥",
+		slot = "back",
+		price = 500000,
+		look = {
+			attach = "back",
+			parts = {
+				block({ 0.25, 3, 0.12 }, { -1.3, 1, 0.95 }, Color3.fromRGB(40, 170, 160), "Neon", { 0, 0, 35 }),
+				block({ 0.25, 3.4, 0.12 }, { -0.65, 1.3, 0.95 }, Color3.fromRGB(50, 130, 200), "Neon", { 0, 0, 18 }),
+				block({ 0.25, 3.6, 0.12 }, { 0, 1.4, 0.95 }, Color3.fromRGB(60, 200, 130), "Neon"),
+				block({ 0.25, 3.4, 0.12 }, { 0.65, 1.3, 0.95 }, Color3.fromRGB(50, 130, 200), "Neon", { 0, 0, -18 }),
+				block({ 0.25, 3, 0.12 }, { 1.3, 1, 0.95 }, Color3.fromRGB(40, 170, 160), "Neon", { 0, 0, -35 }),
+			},
+		},
+	})
 end
 
 return Items

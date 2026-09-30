@@ -18,6 +18,10 @@ function ItemText.describe(item: Config.ItemConfig): string
 			return `Hayvanlar %{math.round((effects.growthSpeed - 1) * 100)} daha hızlı büyür`
 		elseif effects.incomeBonus then
 			return `Bütün gelir +%{math.round(effects.incomeBonus * 100)}`
+		elseif effects.contractBonus then
+			return `Ahır siparişi ödülü +%{math.round(effects.contractBonus * 100)}`
+		elseif effects.goodsYield then
+			return `Ürün merkezi verimi +%{math.round(effects.goodsYield * 100)}`
 		end
 	end
 	local power = item.power

@@ -849,4 +849,23 @@ return {
 	["Ahır deposunda yeterli ürün yok"] = "На складе амбара недостаточно товаров",
 	["Ahır siparişi: ürün merkezlerinde üret"] = "Заказ амбара: производите в производственных центрах",
 	["depodan teslim et"] = "сдавайте со склада",
+
+	-- Izgara menüler ve yeni eşyalar
+	["Yapılar"] = "Постройки",
+	["Takılı"] = "Надето",
+	["Hızlı"] = "Быстрый",
+	["Toptan"] = "Оптовый",
+	["Dev"] = "Гигантский",
+	["Ambar Anahtarı"] = "Ключ от амбара",
+	["Altın Ambar Anahtarı"] = "Золотой ключ от амбара",
+	["Tüccar Defteri"] = "Купеческая книга",
+	["Usta Tüccar Defteri"] = "Книга мастера-купца",
+	["Bere"] = "Шапочка",
+	["Hasır Şapka"] = "Соломенная шляпа",
+	["Çiçek Tacı"] = "Венок из цветов",
+	["Hasat Sepeti"] = "Корзина урожая",
+	["Yaprak Pelerin"] = "Плащ из листьев",
+	["Tavus Kuyruğu"] = "Павлиний хвост",
+	["Ahır siparişi ödülü +%{}"] = "Награда за заказ амбара +{1}%",
+	["Ürün merkezi verimi +%{}"] = "Выход производственных центров +{1}%",
 }

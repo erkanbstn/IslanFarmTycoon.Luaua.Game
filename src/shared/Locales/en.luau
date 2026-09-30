@@ -849,4 +849,23 @@ return {
 	["Ahır deposunda yeterli ürün yok"] = "Not enough goods in the barn storage",
 	["Ahır siparişi: ürün merkezlerinde üret"] = "Barn order: produce at the production centers",
 	["depodan teslim et"] = "deliver from the storage",
+
+	-- Izgara menüler ve yeni eşyalar
+	["Yapılar"] = "Buildings",
+	["Takılı"] = "Equipped",
+	["Hızlı"] = "Quick",
+	["Toptan"] = "Bulk",
+	["Dev"] = "Giant",
+	["Ambar Anahtarı"] = "Granary Key",
+	["Altın Ambar Anahtarı"] = "Golden Granary Key",
+	["Tüccar Defteri"] = "Merchant Ledger",
+	["Usta Tüccar Defteri"] = "Master Merchant Ledger",
+	["Bere"] = "Beanie",
+	["Hasır Şapka"] = "Straw Hat",
+	["Çiçek Tacı"] = "Flower Crown",
+	["Hasat Sepeti"] = "Harvest Basket",
+	["Yaprak Pelerin"] = "Leaf Cloak",
+	["Tavus Kuyruğu"] = "Peacock Tail",
+	["Ahır siparişi ödülü +%{}"] = "Barn order reward +{1}%",
+	["Ürün merkezi verimi +%{}"] = "Production center yield +{1}%",
 }

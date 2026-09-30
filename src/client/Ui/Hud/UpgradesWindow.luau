@@ -8,6 +8,7 @@ local Config = require(Shared:WaitForChild("Config"))
 local GameTypes = require(Shared:WaitForChild("GameTypes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 local UiKit = require(script.Parent.Parent:WaitForChild("UiKit"))
+local ClientState = require(script.Parent.Parent.Parent:WaitForChild("Core"):WaitForChild("ClientState"))
 local PurchaseController = require(script.Parent.Parent.Parent:WaitForChild("Core"):WaitForChild("PurchaseController"))
 local IslandContext = require(script.Parent.Parent.Parent:WaitForChild("Core"):WaitForChild("IslandContext"))
 local IslandManager = require(script.Parent.Parent:WaitForChild("IslandManager"))
@@ -38,8 +39,20 @@ function UpgradesWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Up
 	})
 	local upgradesInfo =
 		UiKit.text(upgradesWindow.list, "Ada değiştirmek için sekmeleri kullan · Kısayol: U", "Caption")
-	upgradesInfo.LayoutOrder = 0
+	upgradesInfo.LayoutOrder = -2
 	IslandTabs.add(upgradesWindow)
+	-- Kategori sekmeleri: Yapılar (satın alınacak yükseltmeler) | Geliştirmeler (bölge ve tesis seviyeleri)
+	local currentTab = "upgrades"
+	local refreshTab: (() -> ())? = nil
+	UiKit.tabs(upgradesWindow.list, 0, {
+		{ id = "upgrades", label = "Yapılar" },
+		{ id = "expansions", label = "Geliştirmeler" },
+	}, function(id: string)
+		currentTab = id
+		if refreshTab then
+			refreshTab()
+		end
+	end)
 	local upgradesEmpty = UiKit.text(
 		upgradesWindow.list,
 		"Tüm yükseltmeleri aldın. Çiftliğini hayvanlarla büyütmeye devam edebilirsin.",
@@ -119,7 +132,7 @@ function UpgradesWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Up
 			local shown = target.island == selectedIsland
 				and status ~= "max"
 				and (if target.isZone then state.unlockedZones[targetId] == true else status ~= "locked")
-			card.frame.Visible = shown
+			card.frame.Visible = shown and currentTab == "expansions"
 			if not shown then
 				continue
 			end
@@ -152,7 +165,7 @@ function UpgradesWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Up
 				)
 			end
 		end
-		(expansionHeader.Parent :: GuiObject).Visible = any
+		(expansionHeader.Parent :: GuiObject).Visible = any and currentTab == "expansions"
 	end
 
 	local function updateUpgrades(state: PlayerSave, content: boolean)
@@ -178,7 +191,7 @@ function UpgradesWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Up
 				else 1
 			card.frame.LayoutOrder = index + 1 + group * #Config.UPGRADES
 			if content then
-				card.frame.Visible = status ~= "owned"
+				card.frame.Visible = status ~= "owned" and currentTab == "upgrades"
 				card.detail.Text = if status == "locked"
 					then `Önce: {table.concat(missing, ", ")}`
 					else upgrade.description
@@ -198,8 +211,8 @@ function UpgradesWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Up
 			end
 		end
 		if content then
-			upgradesEmpty.Visible = remaining == 0
-			nextIslandButton.Visible = remaining == 0
+			upgradesEmpty.Visible = remaining == 0 and currentTab == "upgrades"
+			nextIslandButton.Visible = remaining == 0 and currentTab == "upgrades"
 			if remaining == 0 then
 				local pendingUpgrade: Config.UpgradeConfig? = nil
 				local pendingIsland: string? = nil
@@ -224,6 +237,12 @@ function UpgradesWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Up
 		end
 	end
 
+	refreshTab = function()
+		local state = ClientState.get()
+		if state then
+			updateUpgrades(state, true)
+		end
+	end
 	return { window = upgradesWindow, update = updateUpgrades }
 end
 

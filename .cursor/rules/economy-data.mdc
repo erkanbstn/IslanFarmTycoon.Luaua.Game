@@ -105,7 +105,7 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
 - **Ahır deposu ve ürün merkezleri**: `Config.GOODS/GOODS_ORDER` (süt, yumurta, tüy, peynir, yün, et, nal, balık; `value` = birim para değeri) ve çiftlik
   başına `save.goods { [ürün] = miktar }` (`FarmProfiles.FIELDS`'te; `SaveCodec` bilinmeyen/sonsuz/negatif girdiyi atar, miktarı ahırın `goodsCap` değerine
   sıkıştırır). Kapasite ahır seviyesine göre (`BARN_LEVELS[n].goodsCap`, ürün türü başına). Depo işlemleri **yalnızca** `FarmMath.getGoodsAmount/getGoodsSpace/
-  addGoods/removeGoods/getGoodsWorth/getGoodsCap` ile yapılır (ahır siparişleri depoyu buradan tüketir: `removeGoods` yetmiyorsa hiçbir şey değiştirmez).
+  addGoods/removeGoods/getGoodsWorth/getGoodsCap` ile yapılır (eşya etkileri `contractBonus` (sipariş ödülü) ve `goodsYield` (ürün merkezi verimi) ahır muskalarıdır; ahır siparişleri depoyu buradan tüketir: `removeGoods` yetmiyorsa hiçbir şey değiştirmez).
   Ürün merkezleri `PRODUCTION_RECIPES` içinde `output = "goods"`, `goodsId`, `goodsAmount` taşır (`reward` = ürünlerin para karşılığı; yalnızca gösterim ve
   tesis geliştirme maliyeti tabanı). Her hayvan türü için bir **para** (mevcut fabrika) ve bir **ürün** merkezi vardır; ürün merkezleri de aynı hayvan kuralını
   izler (`requiredAdults`, iş boyunca gelirsiz, sonra döner, bkz. Hayvan görevleri). Başlatma: `ProductionRules.canStart` depoda en az `goodsAmount` yer ister.

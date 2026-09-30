@@ -122,6 +122,8 @@ export type ItemEffects = {
 	storageBonus: number?, -- Depo kapasitesi (0.15 = +%15)
 	growthSpeed: number?, -- Büyüme hızı çarpanı (1.15 = %15 daha hızlı)
 	incomeBonus: number?, -- Bütün gelir (0.03 = +%3)
+	contractBonus: number?, -- Ahır siparişi ödülü (0.06 = +%6)
+	goodsYield: number?, -- Ürün merkezlerinin teslim miktarı (0.1 = +%10)
 }
 export type ItemPower = { kind: string, usesPerDay: number? } -- kind: season | weather; usesPerDay nil = sınırsız
 export type ItemConfig = {

@@ -19,14 +19,17 @@ return {
 	-- Depo ve arayüzde gösterim sırası (hayvan türlerinin sırasıyla aynı)
 	GOODS_ORDER = { "milk", "egg", "down", "cheese", "wool", "meat", "horseshoe", "fish" },
 
-	-- Ahır siparişleri: pano `seconds` saniyede bir yenilenir; 3 kademe (1/2/3 ürün çeşidi). Ürün merkezi zaten kaçırılan gelirin
+	-- Ahır siparişleri: pano `seconds` saniyede bir yenilenir; 6 kademe (1-4 ürün çeşidi; "toptan" tek üründen çok ister). Ürün merkezi zaten kaçırılan gelirin
 	-- üstünde ürün verdiği için çarpan küçüktür; büyük sipariş ürün başına daha çok öder (daha çok çeşit = daha çok emek).
 	GOODS_CONTRACTS = {
 		seconds = 600,
 		tiers = {
+			{ id = "quick", displayName = "Hızlı", lines = 1, units = 5, rewardFactor = 1.05 },
 			{ id = "small", displayName = "Küçük", lines = 1, units = 10, rewardFactor = 1.1 },
 			{ id = "medium", displayName = "Orta", lines = 2, units = 16, rewardFactor = 1.25 },
+			{ id = "bulk", displayName = "Toptan", lines = 1, units = 36, rewardFactor = 1.3 },
 			{ id = "large", displayName = "Büyük", lines = 3, units = 24, rewardFactor = 1.5 },
+			{ id = "grand", displayName = "Dev", lines = 4, units = 20, rewardFactor = 1.7 },
 		} :: { Types.GoodsContractTierConfig },
 	},
 }

@@ -849,4 +849,23 @@ return {
 	["Ahır deposunda yeterli ürün yok"] = "Nicht genug Waren im Stalllager",
 	["Ahır siparişi: ürün merkezlerinde üret"] = "Stallauftrag: in den Produktionszentren herstellen",
 	["depodan teslim et"] = "aus dem Lager abgeben",
+
+	-- Izgara menüler ve yeni eşyalar
+	["Yapılar"] = "Gebäude",
+	["Takılı"] = "Angelegt",
+	["Hızlı"] = "Schnell",
+	["Toptan"] = "Großhandel",
+	["Dev"] = "Riesig",
+	["Ambar Anahtarı"] = "Speicherschlüssel",
+	["Altın Ambar Anahtarı"] = "Goldener Speicherschlüssel",
+	["Tüccar Defteri"] = "Händlerbuch",
+	["Usta Tüccar Defteri"] = "Meister-Händlerbuch",
+	["Bere"] = "Mütze",
+	["Hasır Şapka"] = "Strohhut",
+	["Çiçek Tacı"] = "Blumenkranz",
+	["Hasat Sepeti"] = "Erntekorb",
+	["Yaprak Pelerin"] = "Blätterumhang",
+	["Tavus Kuyruğu"] = "Pfauenschwanz",
+	["Ahır siparişi ödülü +%{}"] = "Stallauftrags-Belohnung +{1}%",
+	["Ürün merkezi verimi +%{}"] = "Ertrag der Produktionszentren +{1}%",
 }

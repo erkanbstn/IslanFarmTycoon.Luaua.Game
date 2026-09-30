@@ -8,8 +8,12 @@ alwaysApply: false
 
 Katman: `src/client/Ui/` (UiKit, FarmHud, `Hud/*`, paneller, `IslandManager`, `IncomeBubbles`) yalnızca `Core/` ve `Effects/`'e bağlanır (bkz. `docs/MIMARI.md`).
 
-- Bileşenler `src/client/Ui/UiKit.luau` (cephe; gövde `Ui/Kit/`: Tokens, Base, Controls, Flags, Windows, Toasts — yeni bileşeni uygun dosyaya yaz, `UiKit`'e ekle): panel, window, card, button, menuButton (karo), closeButton,
+- Bileşenler `src/client/Ui/UiKit.luau` (cephe; gövde `Ui/Kit/`: Tokens, Base, Controls, Grid, Flags, Windows, Toasts — yeni bileşeni uygun dosyaya yaz, `UiKit`'e ekle): panel, window, card, button, menuButton (karo), closeButton,
   badge, progressBar, sectionHeader, toastHost, iconChip, flag, textInput.
+- **Kalabalık pencereler** dikey kart listesi yerine kategori sekmesi + ızgara kullanır: `UiKit.tabs` (sekme), `UiKit.grid` (kap) ve `UiKit.tile` (108x168 karo; `UiKit.card` ile aynı alanlar
+  — frame/icon/title/detail/action — olduğu için kart güncelleme kodu karoyla aynen çalışır; karo metni kısadır: başlık 2, açıklama 3 satır). Örnekler: Eşya Dükkânı (slot sekmeleri), Envanter (Ahır Deposu | Takılı | Eşyalarım),
+  Yükseltmeler (Yapılar | Geliştirmeler). Uzun açıklamalı ya da çok düğmeli kartlar (Pazar, Üretim) liste kalır.
+- **Pencere aç/kapa**: menü düğmesi ve kısayol açık pencereyi kapatır (toggle); kamera yakınlaştırma pencere açıkken de çalışır (`Interaction/MenuZoom.client`).
 - Renk/yazı/boyut `UiKit.Color / UiKit.Font / UiKit.TextSize / UiKit.Radius` (kaynak `UiTheme`).
   Elle `Color3.fromRGB` veya font yazma.
 - Emoji yalnızca `iconChip` (ve WorldUi `icon` alanı) içinde. Buton ve metinde emoji yok.

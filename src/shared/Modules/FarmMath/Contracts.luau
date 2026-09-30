@@ -5,6 +5,7 @@
 
 local Config = require(script.Parent.Parent.Parent:WaitForChild("Config"))
 local GameTypes = require(script.Parent.Parent.Parent:WaitForChild("GameTypes"))
+local Core = require(script.Parent:WaitForChild("Core"))
 local Goods = require(script.Parent:WaitForChild("Goods"))
 
 type PlayerSave = GameTypes.PlayerSave
@@ -90,7 +91,11 @@ function Contracts.offers(save: PlayerSave, now: number, bonus: number?): { Offe
 			lines = lines,
 			worth = worth,
 			rewardFactor = tier.rewardFactor,
-			reward = Contracts.reward(worth, tier.rewardFactor, bonus),
+			reward = Contracts.reward(
+				worth,
+				tier.rewardFactor,
+				(bonus or 0) + Core.getEquippedBonus(save, "contractBonus")
+			),
 		})
 	end
 	return offers

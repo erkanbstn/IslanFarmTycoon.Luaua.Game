@@ -53,23 +53,53 @@ function InventoryWindow.create(screenGui: ScreenGui): Panel
 	).LayoutOrder = GOODS_ORDER
 		- 1
 
+	-- Sekmeler: Ahır Deposu | Takılı | Eşyalarım (her sekme kendi sayfası; öğeler ızgara karolarıdır)
+	local pages: { [string]: Frame } = {}
+	local function newPage(id: string): Frame
+		local page = Instance.new("Frame")
+		page.Name = id
+		page.BackgroundTransparency = 1
+		page.Size = UDim2.new(1, 0, 0, 0)
+		page.AutomaticSize = Enum.AutomaticSize.Y
+		page.LayoutOrder = 0
+		page.Visible = false
+		page.Parent = window.list
+		UiKit.list(page, 8)
+		pages[id] = page
+		return page
+	end
+	local goodsPage, equippedPage, ownedPage = newPage("goods"), newPage("equipped"), newPage("owned")
+	local function showPage(id: string)
+		for pageId, page in pages do
+			page.Visible = pageId == id
+		end
+	end
+	UiKit.tabs(window.list, GOODS_ORDER, {
+		{ id = "goods", label = "Ahır Deposu" },
+		{ id = "equipped", label = "Takılı" },
+		{ id = "owned", label = "Eşyalarım" },
+	}, showPage)
+	showPage("goods")
+
 	-- Ahır deposu: ürün merkezlerinin ürettiği ürünler (meydandaki Sipariş Panosu'nda "Ahır siparişleri" olarak teslim edilir)
-	local _, goodsMeta = UiKit.sectionHeader(window.list, "Ahır Deposu", GOODS_ORDER)
+	local _, goodsMeta = UiKit.sectionHeader(goodsPage, "Ahır Deposu", GOODS_ORDER)
+	local goodsGrid = UiKit.grid(goodsPage, GOODS_ORDER + 1)
 	local goodsCards: { [string]: UiKit.Card } = {}
 	for index, goodId in Config.GOODS_ORDER do
 		local good = Config.GOODS[goodId]
-		local card = UiKit.card(window.list, GOODS_ORDER + index, good.icon)
+		local card = UiKit.tile(goodsGrid, index, good.icon)
 		card.title.Text = good.displayName
 		card.action.Visible = false
 		goodsCards[goodId] = card
 	end
 
-	-- Takılı eşyalar: slot başına bir satır
-	UiKit.sectionHeader(window.list, "Takılı eşyalar", SLOTS_ORDER)
+	-- Takılı eşyalar: slot başına bir karo
+	UiKit.sectionHeader(equippedPage, "Takılı eşyalar", SLOTS_ORDER)
+	local slotGrid = UiKit.grid(equippedPage, SLOTS_ORDER + 1)
 	local slotCards: { [string]: UiKit.Card } = {}
 	for index, slotId in Config.ITEM_SLOT_ORDER do
 		local slot = Config.ITEM_SLOTS[slotId]
-		local card = UiKit.card(window.list, SLOTS_ORDER + index, slot.icon)
+		local card = UiKit.tile(slotGrid, index, slot.icon)
 		card.title.Text = slot.displayName
 		slotCards[slotId] = card
 		card.action.Activated:Connect(function()
@@ -82,8 +112,8 @@ function InventoryWindow.create(screenGui: ScreenGui): Panel
 	end
 
 	-- Asa gücü: takılı asaya göre mevsim ya da hava seçenekleri
-	local powerHeader = UiKit.sectionHeader(window.list, "Asa gücü", POWER_ORDER)
-	local powerCard = UiKit.card(window.list, POWER_ORDER + 1, "🪄")
+	local powerHeader = UiKit.sectionHeader(equippedPage, "Asa gücü", POWER_ORDER)
+	local powerCard = UiKit.card(equippedPage, POWER_ORDER + 1, "🪄")
 	local powerRow = Instance.new("Frame")
 	powerRow.Name = "PowerRow"
 	powerRow.BackgroundTransparency = 1
@@ -117,18 +147,19 @@ function InventoryWindow.create(screenGui: ScreenGui): Panel
 	end
 
 	-- Sahip olunan eşyalar
-	UiKit.sectionHeader(window.list, "Eşyalarım", OWNED_ORDER)
+	UiKit.sectionHeader(ownedPage, "Eşyalarım", OWNED_ORDER)
 	local emptyText = UiKit.text(
-		window.list,
+		ownedPage,
 		"Henüz eşyan yok. Meydandaki Usta Ömer'den eşya alabilirsin.",
 		"Body",
 		Color.TextMuted
 	)
 	emptyText.LayoutOrder = OWNED_ORDER + 1
+	local ownedGrid = UiKit.grid(ownedPage, OWNED_ORDER + 2)
 	local ownedCards: { [string]: UiKit.Card } = {}
 	for position, itemId in Config.ITEM_ORDER do
 		local item = Config.ITEMS[itemId]
-		local card = UiKit.card(window.list, OWNED_ORDER + 1 + position, item.icon)
+		local card = UiKit.tile(ownedGrid, position, item.icon)
 		card.title.Text = item.displayName
 		card.detail.Text = ItemText.describe(item)
 		card.frame.Visible = false
@@ -174,10 +205,12 @@ function InventoryWindow.create(screenGui: ScreenGui): Panel
 			local item = if itemId then Config.ITEMS[itemId] else nil
 			if item then
 				card.icon.Text = item.icon
-				card.detail.Text = `{item.displayName} · {ItemText.describe(item)}`
+				card.title.Text = item.displayName
+				card.detail.Text = ItemText.describe(item)
 				setPurchaseButton(card.action, "Çıkar", "secondary")
 			else
 				card.icon.Text = Config.ITEM_SLOTS[slotId].icon
+				card.title.Text = Config.ITEM_SLOTS[slotId].displayName
 				card.detail.Text = "Boş"
 				setPurchaseButton(card.action, "Boş", "disabled")
 			end

@@ -54,6 +54,19 @@ return function(codec: any, config: any, farmMath: any)
 	end
 	local seasonal = farmMath.getContractOffers(save, now, 0.5)
 	assert(seasonal[1].reward == math.floor(offers[1].worth * offers[1].rewardFactor * 1.5), "season bonus applies")
+	-- Takılı muskalar: sipariş ödülü ve ürün merkezi verimi artar
+	local milkRecipe = config.PRODUCTION_RECIPES.milk_goods
+	local plainYield = farmMath.getGoodsYield(save, milkRecipe, now)
+	save.inventory = {
+		items = { contract_charm_2 = true, barn_charm_2 = true },
+		equipped = { charm = "contract_charm_2" },
+	}
+	local charmed = farmMath.getContractOffers(save, now, 0)
+	assert(charmed[1].reward > offers[1].reward, "the merchant ledger raises delivery rewards")
+	assert(charmed[1].reward == math.floor(offers[1].worth * offers[1].rewardFactor * (1 + 0.14)), "exact charm bonus")
+	save.inventory.equipped = { charm = "barn_charm_2" }
+	assert(farmMath.getGoodsYield(save, milkRecipe, now) > plainYield, "the barn key raises production center yield")
+	save.inventory = nil
 	assert(offers[1].key == `{farmMath.getContractWindow(now)}:1`, "keys carry the window")
 	assert(farmMath.getContractSecondsLeft(now) > 0, "the board has time left")
 
@@ -65,7 +78,7 @@ return function(codec: any, config: any, farmMath: any)
 
 	-- Teslim: ürünler tam düşer, ödül tekliften gelir, tekrar teslim edilemez
 	fill(save)
-	assert(farmMath.getReadyContractCount(save, now, 0) == 3, "a full barn makes every offer ready")
+	assert(farmMath.getReadyContractCount(save, now, 0) == #offers, "a full barn makes every offer ready")
 	local stock = {}
 	for _, line in offers[2].lines do
 		stock[line.goodsId] = farmMath.getGoodsAmount(save, line.goodsId)
@@ -78,7 +91,7 @@ return function(codec: any, config: any, farmMath: any)
 	assert(farmMath.isContractDone(save, offers[2]) and save.contracts.completed == beforeCompleted + 1, "marked done")
 	local again, againReason = farmMath.fulfillContract(save, offers[2].key, now + 5, 0)
 	assert(again == nil and againReason ~= nil, "the same offer cannot be delivered twice in a window")
-	assert(farmMath.getReadyContractCount(save, now, 0) == 2, "delivered offers are no longer ready")
+	assert(farmMath.getReadyContractCount(save, now, 0) == #offers - 1, "delivered offers are no longer ready")
 	for _, bad in { "", "x", "0:0", "9999999:1", {}, 5, string.rep("9", 40) } do
 		assert(farmMath.fulfillContract(save, bad, now, 0) == nil, "invalid or foreign keys are rejected")
 	end
