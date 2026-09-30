@@ -1,6 +1,7 @@
 --!strict
 -- Ana ada: zemin, bölgeler, avlu dekoru, yapı yerleri ve küçük adaların bağlanması.
 
+local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Studio plugin'i modülleri kopyalayıp taze Config ile çalıştırır; o durumda yanımızdaki "Shared" kullanılır.
@@ -191,15 +192,31 @@ local function decorateHome(decor: Instance, islandCf: CFrame, plotIndex: number
 		local spot = placed[name]
 		return at(spot.x, spot.z) * CFrame.Angles(0, spot.yaw, 0)
 	end
+	-- Kapılı yapılar: her yapı kendi Model'inde; ahır (RevealBarnLevel) ya da bölge seviyesine (RevealZoneId/RevealZoneLevel)
+	-- ulaşılınca görünür (Presentation/DecorReveal). Böylece geliştirdikçe ada gözle görülür büyür.
+	local function gated(name: string, barnLevel: number?, zoneId: string?, zoneLevel: number?): Model
+		local model = Instance.new("Model")
+		model.Name = name
+		if barnLevel then
+			model:SetAttribute("RevealBarnLevel", barnLevel)
+		end
+		if zoneId and zoneLevel then
+			model:SetAttribute("RevealZoneId", zoneId)
+			model:SetAttribute("RevealZoneLevel", zoneLevel)
+		end
+		CollectionService:AddTag(model, "RevealGate")
+		model.Parent = decor
+		return model
+	end
 	HomeBuildings.market(decor, place("market"))
-	HomeBuildings.farmhouse(decor, place("farmhouse"))
-	HomeBuildings.windmill(decor, place("windmill"))
-	HomeBuildings.well(decor, place("well"))
-	HomeBuildings.vegetableGarden(decor, place("garden"))
-	HomeBuildings.orchard(decor, place("orchard"))
-	HomeBuildings.beehives(decor, place("hives"))
-	HomeBuildings.granary(decor, place("granary"))
-	HomeBuildings.landmark(decor, place("landmark"), Config.getTheme(tostring(plotIndex)).landmark)
+	HomeBuildings.farmhouse(gated("Farmhouse", nil, "pasture", 1), place("farmhouse"))
+	HomeBuildings.well(gated("Well", 2), place("well"))
+	HomeBuildings.vegetableGarden(gated("VegetableGarden", 2), place("garden"))
+	HomeBuildings.windmill(gated("Windmill", 3), place("windmill"))
+	HomeBuildings.beehives(gated("Beehives", 3), place("hives"))
+	HomeBuildings.granary(gated("Granary", 3), place("granary"))
+	HomeBuildings.orchard(gated("Orchard", 4), place("orchard"))
+	HomeBuildings.landmark(gated("Landmark", 4), place("landmark"), Config.getTheme(tostring(plotIndex)).landmark)
 
 	-- Ana adadan balık kafesine iskele (LookVector kafese bakar)
 	WorldDecor.dock(

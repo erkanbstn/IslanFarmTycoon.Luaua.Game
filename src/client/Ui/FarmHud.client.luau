@@ -258,7 +258,7 @@ local showToast = UiKit.toastHost(screenGui)
 local toastHolder = screenGui:FindFirstChild("Toasts") :: Frame
 -- Bildirimler üst menü çubuğunun (60 px) altında, sağ menü sütununa ve sol panele taşmadan durur.
 toastHolder.AnchorPoint = Vector2.new(0.5, 0)
-toastHolder.Position = UDim2.new(0.5, 0, 0, 74)
+toastHolder.Position = UDim2.new(0.5, 0, 0, 84)
 toastHolder.Size = UDim2.new(1, -240, 0, 0)
 PurchaseController.Completed:Connect(function(success: boolean, message: string?)
 	-- Adalar penceresi açıkken bildirimi pencerenin kendi bildirim alanı gösterir (üstte, pencerenin önünde)

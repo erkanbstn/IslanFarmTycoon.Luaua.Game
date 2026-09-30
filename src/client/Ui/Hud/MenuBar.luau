@@ -53,7 +53,7 @@ function MenuBar.create(screenGui: ScreenGui): Hud
 	local topBar = Instance.new("Frame")
 	topBar.Name = "MenuTop"
 	topBar.AnchorPoint = Vector2.new(0.5, 0)
-	topBar.Position = UDim2.new(0.5, 0, 0, 4)
+	topBar.Position = UDim2.new(0.5, 0, 0, 14) -- rozetler (üst köşeden taşan sayılar) kesilmesin
 	topBar.Size = UDim2.new()
 	topBar.AutomaticSize = Enum.AutomaticSize.XY
 	topBar.BackgroundTransparency = 1

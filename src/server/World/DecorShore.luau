@@ -2,6 +2,7 @@
 -- Kıyı ve deniz: Terrain kayalık, kum plaj, kıyı kayaları, iskele direği ve iskele.
 -- WorldDecor cephesi bunları birleştirir; her zaman `WorldDecor.<ad>` ile kullan.
 
+local CollectionService = game:GetService("CollectionService")
 local Workspace = game:GetService("Workspace")
 local Parts = require(script.Parent:WaitForChild("DecorParts"))
 local Props = require(script.Parent:WaitForChild("DecorProps"))
@@ -89,50 +90,105 @@ function Shore.dock(parent: Instance, start: CFrame, length: number, surfaceY: n
 			Shore.pierPile(model, pos, surfaceY, seabedY)
 		end
 	end
-	-- İskele başında küçük balıkçı kulübesi (olta takımı ve ağ askısı)
-	local hutBase = start * CFrame.new(5.6, 0, -7)
-	local function hutPart(name: string, size: Vector3, offset: CFrame, color: Color3, material: Enum.Material)
+	-- İskele başında küçük balıkçı kulübesi: balık kafesi geliştirilince belirir (DecorReveal: RevealZoneId/RevealZoneLevel)
+	local hut = Instance.new("Model")
+	hut.Name = "FisherHut"
+	hut:SetAttribute("RevealZoneId", "fishpen")
+	hut:SetAttribute("RevealZoneLevel", 1)
+	CollectionService:AddTag(hut, "RevealGate")
+	hut.Parent = model
+	local hutBase = start * CFrame.new(5.8, 0, -8)
+	local function hutPart(
+		name: string,
+		size: Vector3,
+		offset: CFrame,
+		color: Color3,
+		material: Enum.Material,
+		collide: boolean?
+	): Part
 		local at = hutBase * offset
-		return part(
-			model,
+		local built = part(
+			hut,
 			name,
 			size,
-			CFrame.new(at.Position.X, deckY + size.Y / 2 + offset.Y - 0.3, at.Position.Z) * at.Rotation,
+			CFrame.new(at.Position.X, deckY + offset.Y, at.Position.Z) * at.Rotation,
 			color,
 			material
 		)
+		built.CanCollide = collide ~= false
+		return built
 	end
-	hutPart("HutFloor", Vector3.new(5, 0.4, 4.6), CFrame.new(0, 0.3, 0), wood, Enum.Material.WoodPlanks)
+	local paint = Color3.fromRGB(96, 140, 165)
+	local trim = Color3.fromRGB(238, 232, 218)
+	hutPart("HutFloor", Vector3.new(5.4, 0.4, 5), CFrame.new(0, 0.3, 0), wood, Enum.Material.WoodPlanks)
+	hutPart("HutBody", Vector3.new(4.6, 3, 4.4), CFrame.new(0, 2.1, 0), paint, Enum.Material.WoodPlanks)
+	for _, x in { -2.3, 2.3 } do
+		for _, z in { -2.2, 2.2 } do
+			hutPart("HutPost", Vector3.new(0.35, 3.2, 0.35), CFrame.new(x, 2.1, z), trim, Enum.Material.Wood, false)
+		end
+	end
+	-- Beşik çatı: iki eğik levha ve sırt kirişi
+	for _, side in { -1, 1 } do
+		hutPart(
+			"HutRoof",
+			Vector3.new(3.3, 0.35, 5.4),
+			CFrame.new(side * 1.45, 4.3, 0) * CFrame.Angles(0, 0, -side * math.rad(30)),
+			Color3.fromRGB(150, 70, 60),
+			Enum.Material.Slate,
+			false
+		)
+	end
 	hutPart(
-		"HutBody",
-		Vector3.new(4.6, 3.2, 4.2),
-		CFrame.new(0, 2.2, 0),
-		Color3.fromRGB(96, 140, 165),
-		Enum.Material.WoodPlanks
+		"HutRidge",
+		Vector3.new(0.3, 0.3, 5.6),
+		CFrame.new(0, 5.2, 0),
+		Color3.fromRGB(90, 60, 45),
+		Enum.Material.Wood,
+		false
 	)
-	hutPart(
-		"HutRoof",
-		Vector3.new(5.6, 0.5, 5.2),
-		CFrame.new(0, 4.3, 0),
-		Color3.fromRGB(150, 70, 60),
-		Enum.Material.Slate
-	)
+	-- Kapı (iskele tarafında), pencere ve fener
 	hutPart(
 		"HutDoor",
-		Vector3.new(0.3, 2.2, 1.4),
-		CFrame.new(-2.35, 1.9, 0),
+		Vector3.new(0.25, 2.1, 1.3),
+		CFrame.new(-2.35, 1.5, 0),
 		Color3.fromRGB(110, 72, 42),
-		Enum.Material.Wood
+		Enum.Material.Wood,
+		false
+	)
+	hutPart("HutDoorFrame", Vector3.new(0.2, 2.3, 1.6), CFrame.new(-2.3, 1.6, 0), trim, Enum.Material.Wood, false)
+	hutPart(
+		"HutWindow",
+		Vector3.new(1.1, 0.9, 0.2),
+		CFrame.new(0, 2.5, 2.25),
+		Color3.fromRGB(150, 205, 235),
+		Enum.Material.Glass,
+		false
 	)
 	hutPart(
-		"HutRack",
-		Vector3.new(0.25, 0.25, 3),
-		CFrame.new(2.4, 3.6, 0),
-		Color3.fromRGB(80, 60, 40),
-		Enum.Material.Wood
+		"HutLanternPost",
+		Vector3.new(0.2, 2.4, 0.2),
+		CFrame.new(-3.2, 1.6, -1.6),
+		Color3.fromRGB(60, 55, 50),
+		Enum.Material.Metal,
+		false
+	)
+	hutPart(
+		"HutLantern",
+		Vector3.new(0.7, 0.7, 0.7),
+		CFrame.new(-3.2, 3, -1.6),
+		Color3.fromRGB(255, 226, 150),
+		Enum.Material.Neon,
+		false
+	)
+	hutPart(
+		"HutCrate",
+		Vector3.new(1.2, 1.2, 1.2),
+		CFrame.new(-3.3, 1, 1.5),
+		Color3.fromRGB(150, 110, 70),
+		Enum.Material.WoodPlanks
 	)
 	for _, corner in { Vector2.new(-2.2, -2), Vector2.new(2.2, -2), Vector2.new(-2.2, 2), Vector2.new(2.2, 2) } do
-		Shore.pierPile(model, (hutBase * CFrame.new(corner.X, 0, corner.Y)).Position, surfaceY, seabedY)
+		Shore.pierPile(hut, (hutBase * CFrame.new(corner.X, 0, corner.Y)).Position, surfaceY, seabedY)
 	end
 	local tip = start * CFrame.new(0, 0, -length + 2)
 	Props.barrel(model, CFrame.new(tip.Position.X, deckY + 0.3, tip.Position.Z) * tip.Rotation * CFrame.new(-1.8, 0, 0))

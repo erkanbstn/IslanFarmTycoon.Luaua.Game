@@ -20,6 +20,7 @@ local WorldDecor = require(script.Parent.Parent:WaitForChild("World"):WaitForChi
 local UpgradeParts = require(script.Parent:WaitForChild("UpgradeParts"))
 local UpgradeSites = require(script.Parent:WaitForChild("UpgradeSites"))
 local JobMarks = require(script.Parent:WaitForChild("JobMarks"))
+local DecorReveal = require(script.Parent:WaitForChild("DecorReveal"))
 local BuildersGoods = require(script.Parent:WaitForChild("UpgradeBuildersGoods"))
 local BuildersHome = require(script.Parent:WaitForChild("UpgradeBuildersHome"))
 local BuildersBarnyard = require(script.Parent:WaitForChild("UpgradeBuildersBarnyard"))
@@ -83,10 +84,15 @@ local function buildUpgrade(upgradeId: string, spot: BasePart, parent: Instance)
 	WorldDecor.optimize(built)
 	if upgradeId == "fishing_boat" then
 		-- Hareket sadece client görselidir; tüm parçalar sunucuda da fizik dışıdır.
+		-- Gövde, güverte ve kamara katıdır (içinden geçilmez); korkuluk, halat, ışık gibi ince parçalar geçilir.
+		-- Tekne her oyuncunun kendi ekranında oynatıldığı için çarpışma da o oyuncunun yerel fiziğinde hesaplanır.
+		local SOLID =
+			{ Hull = true, Deck = true, JoinedBow = true, BowDeck = true, Wheelhouse = true, CabinRoof = true }
 		for _, descendant in built:GetDescendants() do
 			if descendant:IsA("BasePart") then
 				descendant.Anchored = true
-				descendant.CanCollide, descendant.CanTouch, descendant.CanQuery = false, false, false
+				descendant.CanCollide = SOLID[descendant.Name] == true
+				descendant.CanTouch, descendant.CanQuery = false, false
 			end
 		end
 		local root = makePart(built, "BoatRoot", Vector3.one * 0.1, base, METAL)
@@ -192,6 +198,8 @@ function UpgradeVisualService.apply(plot: Model, save: PlayerSave?)
 		end
 	end
 	applyLevelMarks(plot, spots, save)
+	-- Ahır/bölge seviyesine bağlı süs yapıları (değirmen, tarla, kuyu...) bu çiftliğin durumuna göre gelir/gider
+	DecorReveal.apply(plot, save)
 end
 
 return UpgradeVisualService

@@ -56,6 +56,10 @@ local function watch(instance: Instance)
 		return
 	end
 	tracked[instance] = {}
+	-- Roblox'un otomatik çevirisi kapalı: metni bu dosya çevirir (yoksa aynı yazı iki kez çevrilip bozulabilir).
+	pcall(function()
+		(instance :: any).AutoLocalize = false
+	end)
 	for _, property in properties do
 		refresh(instance, property)
 		instance:GetPropertyChangedSignal(property):Connect(function()

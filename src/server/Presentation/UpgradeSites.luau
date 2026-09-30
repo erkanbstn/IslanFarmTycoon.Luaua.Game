@@ -126,7 +126,9 @@ local function addFacilityProps(mark: Model, spotCf: CFrame, level: number)
 		p.Color = color
 		p.Material = material
 		p.Anchored = true
-		p.CanCollide, p.CanTouch, p.CanQuery = false, false, false
+		p.CanCollide = name == "Crate" or name == "Counter" or name == "AwningPost" or name == "LampPost"
+		p.CanTouch = false
+		p.CanQuery = p.CanCollide
 		if shape then
 			p.Shape = shape
 		end
