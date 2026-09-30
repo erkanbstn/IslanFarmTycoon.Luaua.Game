@@ -131,7 +131,7 @@ fiziksel görünümü geçici olarak kaldırılabilir; kayıtları ve gelirleri 
 oyuncunun kendi harita alanına geri yüklenir. [Ana çiftlik sistemi](docs/ANA_CIFTLIKLER.md).
 Ayrıntılar: [Üretim ve uzman adalar](docs/URETIM_VE_UZMAN_ADALAR.md).
 Dar ekranlarda hedefler, eve dönüş ve ayarlar **Çiftliğim** menüsündedir. Ayarlar'da düşük/orta/yüksek
-efekt kalitesi ve hareketi azaltma bulunur; tercihler bu oturum için geçerlidir.
+grafik kalitesi (Otomatik/Düşük/Orta/Yüksek; hesaba kaydedilir) ve hareketi azaltma (yalnızca bu oturum) bulunur.
 
 ## Takımada ve Yol Haritası
 
