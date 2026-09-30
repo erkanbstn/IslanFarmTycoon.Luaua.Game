@@ -160,6 +160,13 @@ def main() -> int:
                {"Config", "Remotes", "FarmMath", "PlayerDataService", "EconomyService", "PlotService", "ProductionRules", "RateLimiter"},
                "game, Remotes, PlayerDataService, EconomyService, PlotService, RateLimiter, DateTime, warn"),
         module("productionSpec", "tests/production.spec.luau"),
+        module("ExtensionServiceFactory", "src/server/Services/ExtensionService.luau",
+               {"Config", "Remotes", "FarmMath", "PlayerDataService", "EconomyService", "PlotService", "RateLimiter"},
+               "game, Remotes, PlayerDataService, EconomyService, PlotService, RateLimiter, DateTime"),
+        module("AnimalTaskServiceFactory", "src/server/Services/AnimalTaskService.luau",
+               {"PlayerDataService", "PlotService", "EconomyService"},
+               "game, task, DateTime, warn, PlayerDataService, PlotService, EconomyService"),
+        module("tasksSpec", "tests/tasks.spec.luau"),
         module("MainFarmServiceFactory", "src/server/Services/MainFarmService.luau",
                {"Config", "Remotes", "FarmMath", "PlayerDataService", "PlotService", "EconomyService", "SaveCodec", "FarmProfiles", "RateLimiter", "ProductionRules"},
                "game, Remotes, PlayerDataService, PlotService, EconomyService, RateLimiter, DateTime, warn"),
@@ -188,6 +195,7 @@ def main() -> int:
         "seasonAdminSpec(SeasonServiceFactory, EnvironmentFactory, RateLimiterFactory, Config)\n",
         "productionSpec(ProductionServiceFactory, RateLimiterFactory, ProductionRules, SaveCodec, Config, FarmMath)\n",
         "mainFarmSpec(MainFarmServiceFactory, EconomyServiceFactory, RateLimiterFactory, FarmProfiles, SaveCodec, Config, FarmMath)\n",
+        "tasksSpec(ExtensionServiceFactory, AnimalTaskServiceFactory, RateLimiterFactory, SaveCodec, Config, FarmMath)\n",
         "clientFarmStateSpec(ClientStateFactory)\n",
     ]
     output = ROOT / ".test-build" / "run.luau"

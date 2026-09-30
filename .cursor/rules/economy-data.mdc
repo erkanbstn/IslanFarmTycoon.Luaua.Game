@@ -102,7 +102,20 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
   çağrılarda `Environment.setClientOverride` ile kurulan kendi katmanını kullanır (FarmHud her durumda kurar). Yeni bir mevsim/hava tüketicisi dünya attribute'unu doğrudan okumamalı,
   `Environment` üzerinden geçmeli. Dünya mevsimini/havasını yalnızca `SeasonService` (ve yönetici araçları) değiştirir. Test araçları `grantItems/clearItems`. Yeni eşya ailesi eklerken `tests/inventory.spec.luau` (pahalı kademe daha güçlü olmalı)
   ve çeviri anahtarları (ad + şablon açıklama) gerekir.
-- **Hayvan satışı**: `Config.ANIMAL_SELL_FRACTION`; fiyat `FarmMath.getSellPrice`, satılacak hayvan `FarmMath.findSellableAnimal` (en genç, uzantıdakiler sona, çiftlikte son hayvan satılmaz). Sunucu `AnimalService.trySell` (`RequestSellAnimal`); iade `PlayerDataService.addRefund` (kazanç/başarım sayacına girmez). Pazar kartında "Sat" düğmesi.
+- **Hayvan görevleri (üretim tesisi ve eklenti)**: `AnimalRecord.task { kind = "production"|"extension", id, startedAt, endsAt }` kaydedilir
+  (`SaveCodec.decodeTask`: bozuk görev atılır, hayvan korunur; çevrimdışıyken biten görev yüklemede temizlenir; eski kalıcı `extensionId` eve döner).
+  Görev süresince: **üretim** → hayvan tesiste çalışır, gelir getirmez, görünmez, satılamaz; **eklenti** → `Config.EXTENSIONS[id].incomeBonus` kadar
+  bonus, `stayDuration` (120 sn) sonra ana bölgesine döner. Gelir `FarmMath.computeIncomeOverInterval` içinde yalnızca görev penceresiyle kesişen
+  kısma uygulanır (`taskMultiplier`: üretim 0, eklenti 1+bonus); anlık gelir `computeIncomePerSecond(save, now)`. Ana bölgedeki yer ayrılı kalır
+  (`countInZone` görevdeki hayvanı da sayar). **Bir görevi başlatmadan/bitirmeden önce her zaman `EconomyService.settlePlayer`** çağır (yoksa pencere
+  geriye dönük değişir). Üretim: `ProductionService` `FarmMath.pickProductionAnimals` ile boşta yetişkinleri verir, `job.forgone` = kaçırılan gelir
+  (`estimateForgoneIncome`); teslim ödülü `max(reward, ceil((forgone + başlatma maliyeti) * Config.PRODUCTION_MIN_RETURN))` (`getProductionReward(…, job)`):
+  tesis her zaman hayvanları yerinde bırakmaktan kârlıdır. Eklenti: `ExtensionService` (en fazla `FarmMath.getExtensionCapacity` hayvan: taban 2,
+  `Config.EXTENSION_CAPACITY_UPGRADES` iki `kind="level"` yükseltmesiyle 3 ve 4; `extensionCapacity`). Süre dolumunu `AnimalTaskService` (1 sn'de bir;
+  önce gelir kesilir, sonra görev temizlenir, dünya yenilenir) yapar. Bina üstü ilerleme: sunucu `Presentation/JobMarks` ile Model'e `JobKind/JobStartedAt/
+  JobEndsAt/JobCount/JobCapacity` yazar ve `JobSite` etiketi koyar; çubuk + yeşil tik `Interaction/JobProgress.client` çizer (üretim bitince tik,
+  teslim alınana kadar). Yeni görev türü eklersen `taskMultiplier`, `SaveCodec.decodeTask`, `AnimalTaskService` ve `tests/tasks.spec.luau`'yu güncelle.
+- **Hayvan satışı**: `Config.ANIMAL_SELL_FRACTION`; fiyat `FarmMath.getSellPrice`, satılacak hayvan `FarmMath.findSellableAnimal` (en genç, görevdekiler (tesiste/eklentide) sona, çiftlikte son hayvan satılmaz). Sunucu `AnimalService.trySell` (`RequestSellAnimal`); iade `PlayerDataService.addRefund` (kazanç/başarım sayacına girmez). Pazar kartında "Sat" düğmesi.
 - **Bölge bayrakları**: bölge geliştirme seviyesi başına ön kenarda flama (`ZoneVisualService.applyLevelFlags`, renk = `FarmMath.getBuildLevelKind`).
 - **Hesap düzeyi mi çiftlik düzeyi mi?** Çiftlik başına kalıcı alanlar `FarmProfiles.FIELDS`'tedir (stored, purchased, lineage, expansions, animals, production, ...). Hesap düzeyi alanlar
   (cash, lifetimeEarned, daily, achievements, seasonal, merchant, golden, inventory, language, graphics, receipts) kökte durur ve `SaveCodec`'te ayrı normalleştirilir. Çalışma anı alanlar (`passes`, `envOverride`, `adminForce`) kaydedilmez.

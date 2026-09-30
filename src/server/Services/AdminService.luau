@@ -156,7 +156,7 @@ local function execute(player: Player, action: string, value: unknown): (boolean
 		else
 			-- Seçili adadaki bütün bölgeleri ve satın alınmış eklentileri yetişkin hayvanla doldur.
 			local serial = 0
-			local function addAnimal(animalId: string, zoneId: string, extensionId: string?)
+			local function addAnimal(animalId: string, zoneId: string, _extensionId: string?)
 				serial += 1
 				table.insert(data.animals, {
 					uid = string.format("adm%d_%d_%d", os.time(), math.floor(os.clock() * 1000), serial),
@@ -164,7 +164,6 @@ local function execute(player: Player, action: string, value: unknown): (boolean
 					zoneId = zoneId,
 					stage = "adult",
 					bornAt = 0,
-					extensionId = extensionId,
 				})
 			end
 			local added = 0
@@ -176,16 +175,41 @@ local function execute(player: Player, action: string, value: unknown): (boolean
 					end
 				end
 			end
+			-- Satın alınmış eklentiler: ana bölgedeki boşta yetişkinleri eklentiye gönder (süreli görev; bölgeden yeni
+			-- hayvan eklenmez çünkü eklentideki hayvanın ana bölgedeki yeri ayrılı kalır).
+			local sentNow = os.time()
+			local sent = 0
 			for extensionId, extension in Config.EXTENSIONS do
 				local upgrade = Config.getExtensionUpgrade(extensionId)
 				if extension.island == islandId and upgrade and data.purchased[upgrade.id] then
-					for _ = FarmMath.countInExtension(data, extensionId) + 1, extension.capacity do
-						addAnimal(extension.animalId, extension.sourceZoneId, extensionId)
-						added += 1
+					local room = FarmMath.getExtensionCapacity(data, extensionId)
+						- FarmMath.countInExtension(data, extensionId, sentNow)
+					for _, animal in data.animals do
+						if room <= 0 then
+							break
+						end
+						if
+							animal.animalId == extension.animalId
+							and animal.zoneId == extension.sourceZoneId
+							and FarmMath.getActiveTask(animal, sentNow) == nil
+						then
+							animal.extensionId = extensionId
+							animal.task = {
+								kind = "extension",
+								id = extensionId,
+								startedAt = sentNow,
+								endsAt = sentNow + extension.stayDuration,
+							}
+							room -= 1
+							sent += 1
+						end
 					end
 				end
 			end
 			message = `{Config.FARM_ISLANDS[islandId].displayName}: {added} hayvan eklendi`
+			if sent > 0 then
+				message ..= `, {sent} hayvan eklentiye gönderildi`
+			end
 		end
 		PlayerDataService.pushState(player)
 		PlayerDataService.requestSave(player)

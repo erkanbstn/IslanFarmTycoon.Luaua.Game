@@ -17,6 +17,14 @@ return {
 
 	PRODUCTION_MAX_BONUS_ADULTS = 12,
 
+	-- Üretim tesisine verilen yetişkin hayvanlar iş boyunca gelir getirmez. Teslim ödülü, (hayvanların kaçırdığı gelir +
+	-- başlatma maliyeti) x bu orandan az olamaz: tesis her zaman hayvanları yerinde bırakmaktan daha kârlıdır.
+	PRODUCTION_MIN_RETURN = 1.4,
+
+	-- Eklentide duran hayvanlar bu süre (sn) bonus kazanır, sonra ana bölgesine döner; kapasite yükseltmeyle 2 -> 4.
+	EXTENSION_STAY_SECONDS = 120,
+	EXTENSION_CAPACITY_LEVELS = 2,
+
 	ANIMAL_PRICE_GROWTH = 1.18,
 
 	ANIMAL_SELL_FRACTION = 0.5, -- Hayvan satınca, son alınan hayvanın fiyatının bu kadarı geri gelir (kazanç sayılmaz)

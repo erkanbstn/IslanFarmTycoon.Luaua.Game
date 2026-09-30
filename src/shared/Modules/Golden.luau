@@ -49,7 +49,12 @@ function Golden.current(save: any, userId: number, now: number): Event?
 	end
 	local adults: { any } = {}
 	for _, animal in save.animals do
-		if animal.stage == "adult" and save.unlockedZones[animal.zoneId] then
+		-- Tesiste çalışan hayvan görünmez: altın hayvan olamaz
+		if
+			animal.stage == "adult"
+			and save.unlockedZones[animal.zoneId]
+			and not FarmMath.isInProduction(animal, now)
+		then
 			table.insert(adults, animal)
 		end
 	end

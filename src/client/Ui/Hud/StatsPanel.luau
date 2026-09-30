@@ -206,7 +206,7 @@ function StatsPanel.create(screenGui: ScreenGui): Hud
 	for index = 1, 2 do
 		local arm = Instance.new("Frame")
 		arm.AnchorPoint = Vector2.new(0.5, 0.5)
-		arm.Position = UDim2.new(0.5, 0, 0.5, if index == 1 then -4 else 4)
+		arm.Position = UDim2.new(0, 13, 0.5, if index == 1 then -4 else 4)
 		arm.Size = UDim2.fromOffset(12, 2)
 		arm.BackgroundColor3 = Color.Text
 		arm.BorderSizePixel = 0
@@ -214,6 +214,19 @@ function StatsPanel.create(screenGui: ScreenGui): Hud
 		UiKit.corner(arm, 1)
 		arms[index] = arm
 	end
+
+	-- Panel kapalıyken sekmenin yanında kasa görünür (panel açılınca gizlenir)
+	local tabCash = UiKit.text(tab, "$0", "Caption", Color.Gold)
+	tabCash.AutomaticSize = Enum.AutomaticSize.None
+	tabCash.AnchorPoint = Vector2.new(0, 0.5)
+	tabCash.Position = UDim2.new(0, 28, 0.5, 0)
+	tabCash.Size = UDim2.new(1, -32, 1, 0)
+	tabCash.TextXAlignment = Enum.TextXAlignment.Left
+	tabCash.Visible = false
+	cashLabel:GetPropertyChangedSignal("Text"):Connect(function()
+		tabCash.Text = cashLabel.Text
+	end)
+	tabCash.Text = cashLabel.Text
 
 	local function expandedPosition(): UDim2
 		return if compact then UDim2.fromOffset(8, 8) else UDim2.new(0, 12, 0.5, 0)
@@ -236,6 +249,8 @@ function StatsPanel.create(screenGui: ScreenGui): Hud
 		-- Kapalıyken "<" yerine ">" (joint sağda), açıkken "<" (joint solda)
 		arms[1].Rotation = if collapsed then 45 else -45
 		arms[2].Rotation = if collapsed then -45 else 45
+		tab.Size = if collapsed then UDim2.fromOffset(96, 60) else UDim2.fromOffset(26, 60)
+		tabCash.Visible = collapsed
 		if positionTween then
 			positionTween:Cancel()
 			positionTween = nil

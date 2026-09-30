@@ -155,7 +155,8 @@ export type UpgradeConfig = {
 	growthBoost: { [string]: number }?, -- animalId -> büyüme hızı çarpanı
 	storageBonus: number?, -- Depo kapasitesine ek (0.25 = +%25)
 	autoCollect: boolean?, -- Depo yerine para doğrudan kasaya
-	extensionId: string?, -- kind == "extension" → Config.EXTENSIONS
+	extensionId: string?, -- kind == "extension" → Config.EXTENSIONS; kind == "level" ile eklenti kapasite yükseltmesi
+	extensionCapacity: number?, -- Eklenti kapasite yükseltmesi: +1 hayvan (kind == "level", extensionId ile)
 }
 
 export type AchievementConfig = {
@@ -192,8 +193,9 @@ export type ExtensionConfig = {
 	island: string,
 	sourceZoneId: string,
 	animalId: string,
-	capacity: number,
-	incomeBonus: number, -- 0.5 = +%50 gelir (eklentideki hayvanlar)
+	capacity: number, -- Aynı anda eklentide durabilecek hayvan (taban); kapasite yükseltmeleriyle artar
+	incomeBonus: number, -- 1 = +%100 gelir (eklentide duran hayvanlar)
+	stayDuration: number, -- Bir hayvanın eklentide kalma süresi (saniye); sonra ana bölgesine döner
 }
 
 return {}

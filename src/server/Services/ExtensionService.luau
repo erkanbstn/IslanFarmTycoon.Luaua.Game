@@ -8,14 +8,23 @@ local Remotes = require(Shared:WaitForChild("Remotes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 
 local PlayerDataService = require(script.Parent:WaitForChild("PlayerDataService"))
+local EconomyService = require(script.Parent:WaitForChild("EconomyService"))
 local PlotService = require(script.Parent:WaitForChild("PlotService"))
 local RateLimiter = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("RateLimiter"))
 
 local ExtensionService = {}
 
+-- Eklentiler süreli çalışır: gönderilen yetişkin hayvan `stayDuration` saniye boyunca bonus gelir kazanır,
+-- sonra ana bölgesine döner (AnimalTaskService). Aynı anda en fazla FarmMath.getExtensionCapacity hayvan durur
+-- (2; kapasite yükseltmeleriyle 3 ve 4). Hayvanın ana bölgedeki yeri boşalmaz, dönünce yerine oturur.
+
 local function validateExtensionOwned(data: typeof(PlayerDataService.get(nil :: any)), extensionId: string): boolean
 	local upgrade = Config.getExtensionUpgrade(extensionId)
 	return upgrade ~= nil and data.purchased[upgrade.id] == true
+end
+
+local function nowSeconds(): number
+	return DateTime.now().UnixTimestampMillis / 1000
 end
 
 function ExtensionService.tryAssign(player: Player, extensionId: string): (boolean, string?)
@@ -30,36 +39,39 @@ function ExtensionService.tryAssign(player: Player, extensionId: string): (boole
 	if not validateExtensionOwned(data, extensionId) then
 		return false, "Eklenti satın alınmamış"
 	end
-	if FarmMath.countInExtension(data, extensionId) >= extension.capacity then
+	local now = nowSeconds()
+	if FarmMath.countInExtension(data, extensionId, now) >= FarmMath.getExtensionCapacity(data, extensionId) then
 		return false, "Eklenti dolu"
 	end
 
 	for _, animal in data.animals do
-		if animal.extensionId == extensionId then
+		if
+			animal.animalId ~= extension.animalId
+			or animal.zoneId ~= extension.sourceZoneId
+			or not data.unlockedZones[animal.zoneId]
+			or FarmMath.getActiveTask(animal, now) ~= nil
+		then
 			continue
 		end
-		if animal.animalId ~= extension.animalId then
+		-- Eklentiye yalnızca yetişkin hayvan gider (kayıtlı evre değil, süreden hesaplanan evre)
+		local speed = FarmMath.getGrowthSpeed(data, animal.animalId, animal.zoneId)
+		if FarmMath.getStage(animal.bornAt, now, speed) ~= "adult" then
 			continue
 		end
-		if animal.zoneId ~= extension.sourceZoneId then
-			continue
-		end
-		if not data.unlockedZones[animal.zoneId] then
-			continue
-		end
-		if animal.stage ~= "adult" then
-			continue
-		end
+		-- Görev başlamadan önce gelir kesilir: bonus yalnızca bu andan sonraki süreye uygulanır.
+		EconomyService.settlePlayer(player)
 		animal.extensionId = extensionId
+		animal.task = { kind = "extension", id = extensionId, startedAt = now, endsAt = now + extension.stayDuration }
 		PlayerDataService.pushState(player)
 		PlayerDataService.requestSave(player)
 		PlotService.refreshPlayerWorld(player)
 		return true, nil
 	end
 
-	return false, "Uygun yetişkin hayvan yok (ana bölgede boş slot için)"
+	return false, "Boşta yetişkin hayvan yok (ana bölgedeki yetişkinler gönderilebilir)"
 end
 
+-- Erken geri çağırma: en çok bekleyen hayvanı hemen ana bölgesine döndürür (kalan bonus süresi kaybolur).
 function ExtensionService.tryUnassign(player: Player, extensionId: string): (boolean, string?)
 	local extension = Config.getExtension(extensionId)
 	if not extension then
@@ -72,27 +84,27 @@ function ExtensionService.tryUnassign(player: Player, extensionId: string): (boo
 	if not validateExtensionOwned(data, extensionId) then
 		return false, "Eklenti satın alınmamış"
 	end
-
-	for index = #data.animals, 1, -1 do
-		local animal = data.animals[index]
-		if animal.extensionId == extensionId then
-			local zone = Config.ZONES[extension.sourceZoneId]
-			if
-				zone
-				and FarmMath.countInZone(data, extension.sourceZoneId)
-					>= FarmMath.getZoneCapacity(data, extension.sourceZoneId)
-			then
-				return false, "Ana bölge dolu; önce yer aç"
+	local now = nowSeconds()
+	local chosen: typeof(data.animals[1])? = nil
+	for _, animal in data.animals do
+		local task = FarmMath.getActiveTask(animal, now)
+		if task and task.kind == "extension" and task.id == extensionId then
+			if not chosen or (chosen.task :: any).endsAt > task.endsAt then
+				chosen = animal
 			end
-			animal.extensionId = nil
-			PlayerDataService.pushState(player)
-			PlayerDataService.requestSave(player)
-			PlotService.refreshPlayerWorld(player)
-			return true, nil
 		end
 	end
-
-	return false, "Eklentide hayvan yok"
+	if not chosen then
+		return false, "Eklentide hayvan yok"
+	end
+	-- Önce kazanılan bonus kaydedilir, sonra hayvan döner.
+	EconomyService.settlePlayer(player)
+	chosen.task = nil
+	chosen.extensionId = nil
+	PlayerDataService.pushState(player)
+	PlayerDataService.requestSave(player)
+	PlotService.refreshPlayerWorld(player)
+	return true, nil
 end
 
 function ExtensionService.init()
@@ -105,17 +117,20 @@ function ExtensionService.init()
 				return
 			end
 			local ok, err
+			local success = ""
 			if action == "assign" then
 				ok, err = ExtensionService.tryAssign(player, extensionId)
+				success = "Hayvan eklentiye gönderildi; süre dolunca geri döner."
 			elseif action == "unassign" then
 				ok, err = ExtensionService.tryUnassign(player, extensionId)
+				success = "Hayvan geri çağrıldı."
 			else
 				return
 			end
 			if not ok and err then
 				Remotes.get("Notify"):FireClient(player, err, "error")
 			elseif ok then
-				Remotes.get("Notify"):FireClient(player, "Hayvan listesi güncellendi.", "success")
+				Remotes.get("Notify"):FireClient(player, success, "success")
 			end
 		end)
 end

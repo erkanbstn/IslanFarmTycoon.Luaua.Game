@@ -48,6 +48,17 @@ IslandLayout.EXTENSIONS = {
 		icon = "🐐",
 		movement = "wander",
 	},
+	-- Keçi adasının ikinci eklentisi: doğu kıyıdaki kaya tırmanışı (kayalık teraslar batıda)
+	goat_cliffs = {
+		id = "goat_cliffs",
+		island = "goat",
+		areaOffset = Vector3.new(29, 0, 2),
+		areaSize = Vector3.new(8, 0, 22),
+		signOffset = Vector3.new(27, 0, -18),
+		title = "Kaya tırmanışı",
+		icon = "🐐",
+		movement = "wander",
+	},
 	duck_cove = {
 		id = "duck_cove",
 		island = "duck",

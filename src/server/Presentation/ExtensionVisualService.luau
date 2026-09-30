@@ -9,6 +9,7 @@ local Remotes = require(Shared:WaitForChild("Remotes"))
 local GameTypes = require(Shared:WaitForChild("GameTypes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 local InstanceUtil = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("InstanceUtil"))
+local JobMarks = require(script.Parent:WaitForChild("JobMarks"))
 local WorldUi = require(Shared:WaitForChild("WorldUi"))
 
 local IslandSpecialization = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("IslandSpecialization"))
@@ -121,11 +122,12 @@ local function attachPrompts(
 		return
 	end
 	local count = FarmMath.countInExtension(save, extensionId)
+	local capacity = FarmMath.getExtensionCapacity(save, extensionId)
 
 	local assign = Instance.new("ProximityPrompt")
 	assign.Name = "ExtensionAssignPrompt"
-	assign.ActionText = "Hayvan ekle"
-	assign.ObjectText = `{layout.title} ({count}/{ext.capacity})`
+	assign.ActionText = "Hayvan gönder"
+	assign.ObjectText = `{layout.title} ({count}/{capacity})`
 	assign.MaxActivationDistance = 12
 	assign.RequiresLineOfSight = false
 	assign:SetAttribute("ExtensionId", extensionId)
@@ -135,7 +137,7 @@ local function attachPrompts(
 
 	local unassign = Instance.new("ProximityPrompt")
 	unassign.Name = "ExtensionUnassignPrompt"
-	unassign.ActionText = "Hayvan çıkar"
+	unassign.ActionText = "Geri çağır"
 	unassign.ObjectText = layout.title
 	unassign.MaxActivationDistance = 12
 	unassign.RequiresLineOfSight = false
@@ -184,11 +186,17 @@ function ExtensionVisualService.apply(plot: Model, save: PlayerSave?)
 		end
 		local islandUnlocked = save ~= nil and save.unlockedIslands[layout.island] == true
 		local owned = save ~= nil and save.purchased[upgrade.id] == true
-		local count = if save ~= nil then FarmMath.countInExtension(save, extensionId) else 0
+		local now = DateTime.now().UnixTimestampMillis / 1000
+		local count, startedAt, endsAt = 0, nil, nil
+		local capacity = 0
+		if save ~= nil then
+			count, startedAt, endsAt = JobMarks.extensionSummary(save, extensionId, now)
+			capacity = FarmMath.getExtensionCapacity(save, extensionId)
+		end
 		-- Durum değişmediyse yapıyı yeniden kurma: her yenilemede tabela ve balonlar silinip yeniden
-		-- oluşunca ekranda yanıp sönüyordu.
+		-- oluşunca ekranda yanıp sönüyordu. Duran hayvan sayısı, kapasite ve ilk dönüş zamanı imzadadır.
 		local price = FarmMath.getUpgradeCost(save, upgrade)
-		local signature = `{islandUnlocked}|{owned}|{count}|{price}`
+		local signature = `{islandUnlocked}|{owned}|{count}|{capacity}|{endsAt or 0}|{price}`
 		local folder = island:FindFirstChild("ExtensionVisuals")
 		if folder and folder:GetAttribute("Signature") == signature then
 			continue
@@ -208,6 +216,10 @@ function ExtensionVisualService.apply(plot: Model, save: PlayerSave?)
 			model = IslandSpecialization.buildExtensionVisual(target, surfaceCf, extensionId) :: Model
 			if model then
 				model:SetAttribute("VisualCreatedAt", game:GetService("Workspace"):GetServerTimeNow())
+				-- Eklentide duran hayvanlar: tabelanın üstünde "duran/kapasite" ve ilk dönüşe kalan süre
+				local signBoard = model:FindFirstChild("SpecialtySign", true)
+				JobMarks.ensureAnchor(model, if signBoard and signBoard:IsA("BasePart") then signBoard else nil, 3)
+				JobMarks.setExtension(model, count, capacity, startedAt, endsAt)
 			end
 		else
 			model = IslandSpecialization.buildForSaleSign(target, surfaceCf, extensionId, FarmMath.formatMoney(price))

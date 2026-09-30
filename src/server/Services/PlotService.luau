@@ -277,7 +277,10 @@ local function applyZoneState(plot: Model, data: PlayerSave?)
 					if upgrade and data.purchased[upgrade.id] then
 						local inExt = FarmMath.countInExtension(data, extensionId)
 						if inExt > 0 then
-							label ..= ` · {extension.displayName}: {inExt}/{extension.capacity}`
+							label ..= ` · {extension.displayName}: {inExt}/{FarmMath.getExtensionCapacity(
+								data,
+								extensionId
+							)}`
 						end
 					end
 				end

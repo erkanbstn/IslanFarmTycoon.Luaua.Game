@@ -36,6 +36,9 @@ FarmMath.getStorageLevel = Core.getStorageLevel
 -- Counts
 FarmMath.countInZone = Counts.countInZone
 FarmMath.countInExtension = Counts.countInExtension
+FarmMath.getActiveTask = Counts.getActiveTask
+FarmMath.isInProduction = Counts.isInProduction
+FarmMath.getExtensionCapacity = Counts.getExtensionCapacity
 FarmMath.countAnimals = Counts.countAnimals
 FarmMath.zoneAllows = Counts.zoneAllows
 -- Islands
@@ -65,12 +68,14 @@ FarmMath.getFacilityCost = Expansion.getFacilityCost
 -- Production
 FarmMath.getGrowthSpeed = Production.getGrowthSpeed
 FarmMath.countProductionAdults = Production.countProductionAdults
+FarmMath.pickProductionAnimals = Production.pickProductionAnimals
 FarmMath.getProductionReward = Production.getProductionReward
 FarmMath.snapshotGrowthSpeeds = Production.snapshotGrowthSpeeds
 FarmMath.preserveGrowthProgress = Production.preserveGrowthProgress
 -- Income
 FarmMath.getAnimalMultiplier = Income.getAnimalMultiplier
 FarmMath.getAnimalIncome = Income.getAnimalIncome
+FarmMath.estimateForgoneIncome = Income.estimateForgoneIncome
 FarmMath.computeIncomePerSecond = Income.computeIncomePerSecond
 FarmMath.computeIncomeOverInterval = Income.computeIncomeOverInterval
 FarmMath.computeOfflineEarnings = Income.computeOfflineEarnings

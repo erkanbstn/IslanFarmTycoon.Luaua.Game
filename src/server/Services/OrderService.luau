@@ -51,6 +51,10 @@ function OrderService.update(player: Player, elapsed: number, startedAt: number?
 			continue
 		end
 		anyOwned = true
+		-- Üretim tesisinde çalışan hayvan bu sürede sipariş ürünü de vermez.
+		if FarmMath.isInProduction(animal, now) then
+			continue
+		end
 		adultSeconds += OrderRules.adultSeconds(
 			animal.bornAt,
 			FarmMath.getGrowthSpeed(data, animal.animalId, animal.zoneId),

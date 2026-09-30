@@ -6,19 +6,9 @@ function ProductionRules.validRequestId(value: unknown): boolean
 	return typeof(value) == "number" and value == value and value >= 1 and value <= 2147483647 and value % 1 == 0
 end
 
+-- Üretime verilebilecek boşta yetişkin sayısı (eklentide duranlar ve başka tesise verilmiş olanlar sayılmaz)
 function ProductionRules.countAdults(save: any, recipe: any, farmMath: any, now: number): number
-	local count = 0
-	for _, animal in save.animals do
-		if
-			save.unlockedZones[animal.zoneId]
-			and table.find(recipe.animalIds, animal.animalId)
-			and farmMath.getStage(animal.bornAt, now, farmMath.getGrowthSpeed(save, animal.animalId, animal.zoneId))
-				== "adult"
-		then
-			count += 1
-		end
-	end
-	return count
+	return farmMath.countProductionAdults(save, recipe, now)
 end
 
 function ProductionRules.canStart(save: any, recipe: any, farmMath: any, now: number): (boolean, string?)
@@ -29,7 +19,7 @@ function ProductionRules.canStart(save: any, recipe: any, farmMath: any, now: nu
 		return false, "Önce mevcut üretimi teslim almalısın."
 	end
 	if ProductionRules.countAdults(save, recipe, farmMath, now) < recipe.requiredAdults then
-		return false, `Bu üretim için {recipe.requiredAdults} yetişkin hayvan gerekli.`
+		return false, `Bu üretim için boşta {recipe.requiredAdults} yetişkin hayvan gerekli.`
 	end
 	return true, nil
 end

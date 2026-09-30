@@ -18,6 +18,15 @@ local ProductionService = {}
 local highestRequest: { [Player]: number } = {}
 local initialized = false
 
+-- Tesise verilmiş hayvanların görevini bitirir (süre dolduğunda zaten döndüler; yine de kayıt temizlenir).
+local function releaseProductionAnimals(data: any, recipeId: string)
+	for _, animal in data.animals do
+		if animal.task and animal.task.kind == "production" and animal.task.id == recipeId then
+			animal.task = nil
+		end
+	end
+end
+
 local function act(player: Player, action: unknown, recipeId: unknown, jobUid: unknown): (boolean, string)
 	if not RateLimiter.validId(recipeId) then
 		return false, "Geçersiz üretim."
@@ -40,13 +49,25 @@ local function act(player: Player, action: unknown, recipeId: unknown, jobUid: u
 		if not allowed then
 			return false, reason or "Üretim başlatılamadı."
 		end
+		-- Görev başlamadan önce eski durumla gelir kesilir (hayvanlar bu andan itibaren tesiste sayılır).
 		EconomyService.settlePlayer(player)
 		local startCost = FarmMath.getFacilityCost(data, recipe)
+		local animals = FarmMath.pickProductionAnimals(data, recipe, now)
+		if not animals then
+			return false, `Bu üretim için boşta {recipe.requiredAdults} yetişkin hayvan gerekli.`
+		end
 		if not PlayerDataService.trySpend(player, startCost) then
 			return false, `Yeterli para yok ({FarmMath.formatMoney(startCost)}).`
 		end
+		local duration = FarmMath.getFacilityDuration(data, recipe)
+		local readyAt = now + duration
+		-- Tesise verilen hayvanlar iş boyunca gelir getirmez; ödül bu kaybın üzerinde bir tabanla garanti edilir.
+		local forgone = FarmMath.estimateForgoneIncome(data, animals, duration)
+		for _, animal in animals do
+			animal.task = { kind = "production", id = recipe.id, startedAt = now, endsAt = readyAt }
+		end
 		data.production[recipe.id] =
-			{ uid = HttpService:GenerateGUID(false), readyAt = now + FarmMath.getFacilityDuration(data, recipe) }
+			{ uid = HttpService:GenerateGUID(false), readyAt = readyAt, startedAt = now, forgone = forgone }
 	else
 		local job = data.production[recipe.id]
 		if not job or job.uid ~= jobUid then
@@ -64,6 +85,7 @@ local function act(player: Player, action: unknown, recipeId: unknown, jobUid: u
 				return false, reason or "Kümeste yer yok; civcivi satabilirsin."
 			end
 			EconomyService.settlePlayer(player)
+			releaseProductionAnimals(data, recipe.id)
 			data.production[recipe.id] = nil
 			table.insert(data.animals, {
 				uid = HttpService:GenerateGUID(false),
@@ -73,18 +95,19 @@ local function act(player: Player, action: unknown, recipeId: unknown, jobUid: u
 				bornAt = now,
 			})
 		else
-			reward = FarmMath.getProductionReward(data, recipe, now)
+			EconomyService.settlePlayer(player)
+			reward = FarmMath.getProductionReward(data, recipe, now, job)
+			releaseProductionAnimals(data, recipe.id)
 			data.production[recipe.id] = nil
 			PlayerDataService.addCash(player, reward)
 		end
 	end
 	PlayerDataService.pushState(player)
 	PlayerDataService.requestSave(player)
-	if action == "keep" then
-		local visualOk, visualError = pcall(PlotService.refreshPlayerWorld, player)
-		if not visualOk then
-			warn(`[Production] Civciv kaydedildi fakat görünüm yenilenemedi: {visualError}`)
-		end
+	-- Hayvanlar tesise girdi/çıktı ve bina üstündeki ilerleme çubuğu değişti: dünya yenilenir.
+	local visualOk, visualError = pcall(PlotService.refreshPlayerWorld, player)
+	if not visualOk then
+		warn(`[Production] Üretim kaydedildi fakat görünüm yenilenemedi: {visualError}`)
 	end
 	return true,
 		if action == "start"

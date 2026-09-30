@@ -88,6 +88,9 @@ local Config = {
 	UPGRADE_COST_EXPONENT = Economy.UPGRADE_COST_EXPONENT,
 	BULK_MULTIPLIERS = Economy.BULK_MULTIPLIERS,
 	BUILD_UPGRADES = Economy.BUILD_UPGRADES,
+	PRODUCTION_MIN_RETURN = Economy.PRODUCTION_MIN_RETURN,
+	EXTENSION_STAY_SECONDS = Economy.EXTENSION_STAY_SECONDS,
+	EXTENSION_CAPACITY_LEVELS = Economy.EXTENSION_CAPACITY_LEVELS,
 	-- Shop
 	ITEM_SLOT_ORDER = Shop.ITEM_SLOT_ORDER,
 	ITEM_SLOTS = Shop.ITEM_SLOTS,
@@ -251,6 +254,40 @@ for _, chain in LEVEL_CHAINS do
 	end
 end
 
+-- Eklenti kapasite yükseltmeleri: her eklenti 2 hayvanla başlar; iki yükseltmeyle 3 ve 4 olur.
+-- kind = "level" (yol haritası "tamamlandı" sayımına girmez); her seviye bir öncekini ister.
+Config.EXTENSION_CAPACITY_UPGRADES = {} :: { [string]: { string } }
+do
+	local extensionUpgrades: { UpgradeConfig } = {}
+	for _, upgrade in Config.UPGRADES do
+		if upgrade.kind == "extension" and upgrade.extensionId then
+			table.insert(extensionUpgrades, upgrade)
+		end
+	end
+	for _, base in extensionUpgrades do
+		local extension = Config.EXTENSIONS[base.extensionId :: string]
+		local ids: { string } = {}
+		for level = 1, Config.EXTENSION_CAPACITY_LEVELS do
+			local id = `{base.id}_cap{level}`
+			table.insert(ids, id)
+			table.insert(Config.UPGRADES, {
+				id = id,
+				displayName = `{base.displayName} · Kapasite {extension.capacity + level}`,
+				description = `Aynı anda {extension.capacity + level} hayvan`,
+				icon = base.icon,
+				stage = base.stage,
+				cost = math.floor(base.cost * (0.5 + level)),
+				requires = { if level == 1 then base.id else `{base.id}_cap{level - 1}` },
+				kind = "level",
+				leveled = true,
+				extensionId = base.extensionId,
+				extensionCapacity = 1,
+			})
+		end
+		Config.EXTENSION_CAPACITY_UPGRADES[base.extensionId :: string] = ids
+	end
+end
+
 -- Yapı geliştirme profilleri: bölgenin/tesisin işlevine göre (varsayılan: bölge "barn", tesis "factory")
 local upgradeProfiles: { [string]: string } = {
 	poultry = "coop",
@@ -345,7 +382,7 @@ function Config.getUpgradeIsland(upgrade: UpgradeConfig): string
 			return zone.island
 		end
 	end
-	if upgrade.kind == "extension" and upgrade.extensionId then
+	if upgrade.extensionId then -- eklentiler ve kapasite yükseltmeleri (kind "extension" / "level")
 		local extension = Config.EXTENSIONS[upgrade.extensionId]
 		if extension then
 			return extension.island

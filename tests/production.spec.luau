@@ -179,9 +179,34 @@ return function(createService: any, createLimiter: any, rules: any, codec: any, 
 		not results[#results].ok and next(data.production) == nil and data.cash == before,
 		"delayed request for a different main farm cannot spend or create production"
 	)
+	local idleIncome = farmMath.computeIncomePerSecond(data, now)
 	assert(fire("start", "dairy", nil).ok, "qualified dairy starts")
 	local job = data.production.dairy
 	assert(data.cash == before - config.PRODUCTION_RECIPES.dairy.cost, "server charges exact configured cost")
+	-- Tesise verilen yetişkin inekler iş boyunca görevde: gelir getirmez, satılamaz, tekrar seçilemez.
+	local busy = 0
+	for _, animal in data.animals do
+		if animal.task then
+			busy += 1
+			assert(
+				animal.task.kind == "production" and animal.task.id == "dairy",
+				"busy animals carry the production task"
+			)
+			assert(animal.task.endsAt == job.readyAt and animal.task.startedAt == job.startedAt, "task spans the job")
+			assert(animal.animalId == "cow", "only the recipe's species is taken")
+		end
+	end
+	assert(busy == config.PRODUCTION_RECIPES.dairy.requiredAdults, "exactly the required adults are taken")
+	assert(job.forgone ~= nil and job.forgone > 0, "job records the income the animals would have earned")
+	assert(
+		farmMath.computeIncomePerSecond(data, now) < idleIncome,
+		"animals in the facility earn nothing while working"
+	)
+	assert(
+		farmMath.countProductionAdults(data, config.PRODUCTION_RECIPES.dairy, now) >= busy,
+		"own working animals still count for the bonus"
+	)
+	assert(farmMath.findSellableAnimal(data, "cow", now) == nil, "working animals cannot be sold")
 	local startSequence = sequence
 	now += 1
 	request.OnServerEvent.fire(player, "start", "dairy", nil, startSequence, data.activeMainFarmId)
@@ -193,10 +218,19 @@ return function(createService: any, createLimiter: any, rules: any, codec: any, 
 	assert(not fire("keep", "dairy", job.uid).ok and data.production.dairy == job, "cash output cannot become animal")
 	assert(fire("sell", "dairy", job.uid).ok, "ready batch sells")
 	local after = data.cash
+	local dairy = config.PRODUCTION_RECIPES.dairy
+	local floorReward = math.ceil((job.forgone + dairy.cost) * config.PRODUCTION_MIN_RETURN)
 	assert(
-		after == before - config.PRODUCTION_RECIPES.dairy.cost + config.PRODUCTION_RECIPES.dairy.reward,
-		"reward is server configured"
+		after == before - dairy.cost + math.max(dairy.reward, floorReward),
+		"reward is server configured and never below the forgone-income floor"
 	)
+	assert(
+		after - (before - dairy.cost) > job.forgone,
+		"the facility always pays more than leaving the animals in place"
+	)
+	for _, animal in data.animals do
+		assert(animal.task == nil, "animals return to their zone when the job is claimed")
+	end
 	assert(not fire("sell", "dairy", job.uid).ok and data.cash == after, "double claim cannot pay")
 	request.OnServerEvent.fire(player, "start", "dairy", nil, startSequence, data.activeMainFarmId)
 	assert(data.production.dairy == nil, "old start replay stays rejected even after claim")
@@ -212,6 +246,9 @@ return function(createService: any, createLimiter: any, rules: any, codec: any, 
 		reloaded.production.dairy.readyAt == readyAt and reloaded.cash == data.cash + offlineEarned,
 		"offline completion never automatically pays or repeats"
 	)
+	for _, animal in reloaded.animals do
+		assert(animal.task == nil, "tasks that ended while offline return the animals home on load")
+	end
 	reloaded.production.dairy.readyAt += 1
 	assert(snap.mainFarms["1"].production.dairy.readyAt == readyAt, "decoded jobs do not alias stored payload")
 	for _, invalid in
@@ -242,6 +279,7 @@ return function(createService: any, createLimiter: any, rules: any, codec: any, 
 	)
 	table.remove(data.animals)
 	visualFailure = true
+	local refreshesBefore = refreshes
 	local count = #data.animals
 	assert(fire("keep", "hatchery", job.uid).ok, "available space accepts chick")
 	local chick = data.animals[#data.animals]
@@ -250,7 +288,7 @@ return function(createService: any, createLimiter: any, rules: any, codec: any, 
 		"kept chick is a new growing animal"
 	)
 	assert(
-		chick.uid ~= job.uid and refreshes == 1 and data.production.hatchery == nil,
+		chick.uid ~= job.uid and refreshes == refreshesBefore + 1 and data.production.hatchery == nil,
 		"new UID and world refresh after single consumption"
 	)
 	assert(not fire("keep", "hatchery", job.uid).ok, "second keep cannot duplicate chick")

@@ -100,9 +100,9 @@ function RoadmapWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Roa
 					row.Visible = false
 					row.Parent = card.frame
 					UiKit.list(row, 8, true)
-					local add = UiKit.button(row, "Hayvan ekle", "primary")
+					local add = UiKit.button(row, "Hayvan gönder", "primary")
 					add.Size = UDim2.new(0.5, -4, 1, 0)
-					local remove = UiKit.button(row, "Hayvan çıkar", "warning")
+					local remove = UiKit.button(row, "Geri çağır", "warning")
 					remove.Size = UDim2.new(0.5, -4, 1, 0)
 					local extensionId = upgrade.extensionId :: string
 					add.Activated:Connect(function()
@@ -143,7 +143,7 @@ function RoadmapWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Roa
 				if status == "owned" and upgrade.kind == "extension" and upgrade.extensionId then
 					local extension = Config.getExtension(upgrade.extensionId)
 					local inExt = if extension then FarmMath.countInExtension(state, upgrade.extensionId) else 0
-					local cap = if extension then extension.capacity else 0
+					local cap = if extension then FarmMath.getExtensionCapacity(state, upgrade.extensionId) else 0
 					card.detail.Text = `{upgrade.description} · Dolu: {inExt}/{cap}`
 				else
 					card.detail.Text = if status == "locked"

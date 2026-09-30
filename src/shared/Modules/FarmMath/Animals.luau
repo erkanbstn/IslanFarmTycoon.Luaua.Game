@@ -32,18 +32,18 @@ function Animals.getSellPrice(save: PlayerSave, animalId: string): number
 	return math.floor(animalConfig.price * Config.ANIMAL_PRICE_GROWTH ^ (owned - 1) * Config.ANIMAL_SELL_FRACTION)
 end
 
--- Satılacak hayvan: aynı türün en genci (ekle/çıkar uzantısındakiler sona kalır). Çiftlikte tek hayvan kalıyorsa satılmaz
--- (gelirsiz kilitlenmeyi önler). Dönen değer kayıttaki kayıttır.
-function Animals.findSellableAnimal(save: PlayerSave, animalId: string): GameTypes.AnimalRecord?
+-- Satılacak hayvan: aynı türün en genci. Görevdeki (tesise verilmiş ya da eklentide duran) hayvan satılmaz.
+-- Çiftlikte tek hayvan kalıyorsa satılmaz (gelirsiz kilitlenmeyi önler). Dönen değer kayıttaki kayıttır.
+function Animals.findSellableAnimal(save: PlayerSave, animalId: string, now: number?): GameTypes.AnimalRecord?
 	if #save.animals <= 1 then
 		return nil
 	end
 	local best: GameTypes.AnimalRecord? = nil
 	local bestKey = math.huge
 	for _, animal in save.animals do
-		if animal.animalId == animalId then
-			-- En genç (en büyük bornAt) önce; bornAt 0 = başlangıç hayvanı en sona; uzantıdakiler hepsinden sonra
-			local key = -animal.bornAt + (if animal.extensionId then 1e18 else 0)
+		if animal.animalId == animalId and Counts.getActiveTask(animal, now) == nil then
+			-- En genç (en büyük bornAt) önce; bornAt 0 = başlangıç hayvanı en sona
+			local key = -animal.bornAt
 			if key < bestKey or best == nil then
 				best, bestKey = animal, key
 			end

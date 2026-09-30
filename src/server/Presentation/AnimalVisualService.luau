@@ -128,8 +128,10 @@ function AnimalVisualService.refresh(plot: Model, data: PlayerSave)
 	local perZoneCount: { [string]: number } = {}
 	local perExtensionCount: { [string]: number } = {}
 	local keep: { [string]: boolean } = {}
+	local now = DateTime.now().UnixTimestampMillis / 1000
 	for _, animal in data.animals do
-		if not data.unlockedZones[animal.zoneId] then
+		-- Üretim tesisine verilen hayvan iş boyunca görünmez (tesiste çalışır); süre dolunca AnimalTaskService eve döndürür.
+		if not data.unlockedZones[animal.zoneId] or FarmMath.isInProduction(animal, now) then
 			continue
 		end
 
@@ -164,7 +166,7 @@ function AnimalVisualService.refresh(plot: Model, data: PlayerSave)
 				areaCf,
 				areaSize,
 				perExtensionCount[animal.extensionId],
-				extension.capacity,
+				FarmMath.getExtensionCapacity(data, animal.extensionId),
 				movement,
 				lineageLevel
 			)

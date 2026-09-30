@@ -2,13 +2,23 @@
 
 export type AnimalStage = "calf" | "young" | "adult"
 
+-- Hayvanın geçici görevi: üretim tesisine verilmiş ("production": süre boyunca gelir getirmez) ya da
+-- eklentide duruyor ("extension": süre boyunca bonus gelir). endsAt dolunca hayvan ana bölgesine döner.
+export type AnimalTask = {
+	kind: "production" | "extension",
+	id: string, -- tarif kimliği (production) ya da eklenti kimliği (extension)
+	startedAt: number, -- os.time() (saniye)
+	endsAt: number,
+}
+
 export type AnimalRecord = {
 	uid: string,
 	animalId: string,
 	zoneId: string,
 	stage: AnimalStage,
 	bornAt: number, -- os.time(); evre buradan hesaplanır (oyuncu çevrimdışıyken de büyür)
-	extensionId: string?, -- Doluysa hayvan eklentide; zoneId ana bölgeyi tutar (kapasite sayımı)
+	extensionId: string?, -- Doluysa hayvan eklentide (task.kind == "extension" ile birlikte); zoneId ana bölgeyi tutar
+	task: AnimalTask?, -- Süreli görev (üretim ya da eklenti); süre bitince temizlenir
 }
 
 export type OrderRecord = {
@@ -19,7 +29,12 @@ export type OrderRecord = {
 	rewardFactor: number?, -- Sipariş panosundaki seçeneğin ödül çarpanı (yoksa 1)
 }
 
-export type ProductionJob = { uid: string, readyAt: number }
+export type ProductionJob = {
+	uid: string,
+	readyAt: number,
+	startedAt: number?, -- eski kayıtlarda yok
+	forgone: number?, -- tesise verilen hayvanların iş boyunca kaçırdığı gelir (ödül tabanı; eski kayıtlarda yok)
+}
 
 export type MainFarmSummary = {
 	id: string,

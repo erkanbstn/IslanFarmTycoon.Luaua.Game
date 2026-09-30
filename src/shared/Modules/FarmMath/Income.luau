@@ -9,6 +9,7 @@ local Core = require(script.Parent:WaitForChild("Core"))
 local Lineage = require(script.Parent:WaitForChild("Lineage"))
 local Expansion = require(script.Parent:WaitForChild("Expansion"))
 local Production = require(script.Parent:WaitForChild("Production"))
+local Counts = require(script.Parent:WaitForChild("Counts"))
 
 type PlayerSave = GameTypes.PlayerSave
 local isFinite = Core.isFinite
@@ -55,31 +56,49 @@ function Income.getAnimalMultiplier(
 	return Core.getBarnConfig(save).incomeMultiplier * (1 + bonus) * environment * passFactor
 end
 
--- Satın alınmış eklentideki hayvanın gelir çarpanı (eklenti yoksa 1)
-local function extensionFactor(save: PlayerSave, animal: GameTypes.AnimalRecord?): number
-	if animal and animal.extensionId then
-		local extension = Config.getExtension(animal.extensionId)
-		local upgrade = if extension then Config.getExtensionUpgrade(extension.id) else nil
-		if extension and upgrade and save.purchased[upgrade.id] then
-			return 1 + extension.incomeBonus
+-- Hayvanın görevinin gelir çarpanı: tesise verilmişse 0 (iş boyunca gelir getirmez), satın alınmış eklentide
+-- duruyorsa 1 + bonus, görevi yoksa 1. Görevin süresi (task.startedAt..endsAt) dışında uygulanmaz.
+local function taskMultiplier(save: PlayerSave, task: GameTypes.AnimalTask): number
+	if task.kind == "production" then
+		return 0
+	end
+	local extension = Config.getExtension(task.id)
+	local upgrade = if extension then Config.getExtensionUpgrade(extension.id) else nil
+	if extension and upgrade and save.purchased[upgrade.id] then
+		return 1 + extension.incomeBonus
+	end
+	return 1
+end
+
+-- Şu anki çarpan (süresi dolmuş görev sayılmaz)
+local function currentTaskFactor(save: PlayerSave, animal: GameTypes.AnimalRecord?, now: number?): number
+	if animal then
+		local task = Counts.getActiveTask(animal, now)
+		if task then
+			return taskMultiplier(save, task)
 		end
 	end
 	return 1
 end
 
 -- Yetişkin bir hayvanın şu anki saniyelik geliri
-function Income.getAnimalIncome(save: PlayerSave, animalId: string, animal: GameTypes.AnimalRecord?): number
+function Income.getAnimalIncome(
+	save: PlayerSave,
+	animalId: string,
+	animal: GameTypes.AnimalRecord?,
+	now: number?
+): number
 	local animalConfig = Config.ANIMALS[animalId]
 	if not animalConfig then
 		return 0
 	end
 	return animalConfig.baseIncomePerSecond
 		* Income.getAnimalMultiplier(save, animalId, nil, if animal then animal.zoneId else nil)
-		* extensionFactor(save, animal)
+		* currentTaskFactor(save, animal, now)
 end
 
 -- Tür başına çarpan tek çağrı içinde önbelleğe alınır (her hayvan için yükseltme/hava taraması yapılmaz).
-function Income.computeIncomePerSecond(save: PlayerSave): number
+function Income.computeIncomePerSecond(save: PlayerSave, now: number?): number
 	local total = 0
 	local rates: { [string]: number } = {}
 	for _, animal in save.animals do
@@ -95,13 +114,28 @@ function Income.computeIncomePerSecond(save: PlayerSave): number
 			rates[cacheKey] = rate
 		end
 		local stageMul = Config.STAGE_INCOME_MULTIPLIER[animal.stage] or 1
-		total += (rate :: number) * extensionFactor(save, animal) * stageMul
+		total += (rate :: number) * currentTaskFactor(save, animal, now) * stageMul
 	end
 	return total
 end
 
+-- Bir hayvanın [from, to] aralığındaki evre ağırlıklı saniyesi (yavru/genç/yetişkin gelir çarpanlarıyla).
+local function stageSeconds(animal: GameTypes.AnimalRecord, speed: number, from: number, to: number): number
+	local start = math.max(from, animal.bornAt)
+	local youngAt = animal.bornAt + Config.GROWTH_SECONDS.calf / speed
+	local adultAt = youngAt + Config.GROWTH_SECONDS.young / speed
+	local calfSeconds = math.max(0, math.min(to, youngAt) - start)
+	local youngSeconds = math.max(0, math.min(to, adultAt) - math.max(start, youngAt))
+	local adultSeconds = math.max(0, to - math.max(start, adultAt))
+	return calfSeconds * Config.STAGE_INCOME_MULTIPLIER.calf
+		+ youngSeconds * Config.STAGE_INCOME_MULTIPLIER.young
+		+ adultSeconds * Config.STAGE_INCOME_MULTIPLIER.adult
+end
+
 -- Evre sınırlarını kesen aralığı ayrı ayrı hesapla; dönüşteki yetişkin gelirini
 -- yavruluk süresine uygulama. Önbellek yalnızca bu çağrıya ait, hava/yükseltme bayatlamaz.
+-- Görev (tesis/eklenti) çarpanı yalnızca görevin süresiyle kesişen kısma uygulanır: tesiste geçen süre gelirsiz,
+-- eklentide geçen süre bonuslu, görevden önce ve sonra normal.
 function Income.computeIncomeOverInterval(
 	save: PlayerSave,
 	startedAt: number,
@@ -131,14 +165,34 @@ function Income.computeIncomeOverInterval(
 				* Income.getAnimalMultiplier(save, animal.animalId, neutralWeather, animal.zoneId)
 			rates[cacheKey] = baseRate
 		end
-		local rate = (baseRate :: number) * extensionFactor(save, animal)
-		local start = math.max(startedAt, animal.bornAt)
-		local youngAt = animal.bornAt + Config.GROWTH_SECONDS.calf / speed
-		local adultAt = youngAt + Config.GROWTH_SECONDS.young / speed
-		local calfSeconds = math.max(0, math.min(endedAt, youngAt) - start)
-		local youngSeconds = math.max(0, math.min(endedAt, adultAt) - math.max(start, youngAt))
-		local adultSeconds = math.max(0, endedAt - math.max(start, adultAt))
-		total += rate * (calfSeconds * Config.STAGE_INCOME_MULTIPLIER.calf + youngSeconds * Config.STAGE_INCOME_MULTIPLIER.young + adultSeconds * Config.STAGE_INCOME_MULTIPLIER.adult)
+		local weighted = stageSeconds(animal, speed :: number, startedAt, endedAt)
+		local task = animal.task
+		if task then
+			local from = math.max(startedAt, task.startedAt)
+			local to = math.min(endedAt, task.endsAt)
+			if to > from then
+				weighted += (taskMultiplier(save, task) - 1) * stageSeconds(animal, speed :: number, from, to)
+			end
+		end
+		total += (baseRate :: number) * weighted
+	end
+	return total
+end
+
+-- Verilen hayvanların `duration` saniye boyunca yerinde (yetişkin olarak) kazanacağı gelir. Tesise verilen hayvanlar
+-- iş boyunca gelir getirmediği için üretim ödülünün tabanı bu değerden hesaplanır.
+function Income.estimateForgoneIncome(save: PlayerSave, animals: { GameTypes.AnimalRecord }, duration: number): number
+	local total = 0
+	for _, animal in animals do
+		local animalConfig = Config.ANIMALS[animal.animalId]
+		if animalConfig then
+			total += animalConfig.baseIncomePerSecond * Income.getAnimalMultiplier(
+				save,
+				animal.animalId,
+				nil,
+				animal.zoneId
+			) * duration
+		end
 	end
 	return total
 end

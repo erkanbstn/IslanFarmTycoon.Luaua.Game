@@ -19,6 +19,7 @@ local InstanceUtil = require(script.Parent.Parent:WaitForChild("Modules"):WaitFo
 local WorldDecor = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("WorldDecor"))
 local UpgradeParts = require(script.Parent:WaitForChild("UpgradeParts"))
 local UpgradeSites = require(script.Parent:WaitForChild("UpgradeSites"))
+local JobMarks = require(script.Parent:WaitForChild("JobMarks"))
 local BuildersHome = require(script.Parent:WaitForChild("UpgradeBuildersHome"))
 local BuildersBarnyard = require(script.Parent:WaitForChild("UpgradeBuildersBarnyard"))
 local BuildersWorkshops = require(script.Parent:WaitForChild("UpgradeBuildersWorkshops"))
@@ -115,6 +116,8 @@ local function buildUpgrade(upgradeId: string, spot: BasePart, parent: Instance)
 		prompt:SetAttribute("ProductionRecipe", recipe)
 		WorldUi.configureProximityPrompt(prompt)
 		prompt.Parent = anchor
+		-- Binanın üstünde iş ilerlemesi (çubuk + yeşil tik) için işaret noktası
+		JobMarks.ensureAnchor(built, nil, 3)
 	end
 	do
 		local parts = 0
@@ -151,6 +154,15 @@ function UpgradeVisualService.apply(plot: Model, save: PlayerSave?)
 			end
 		elseif not owned and existing then
 			existing:Destroy()
+		end
+		-- Üretim tesisi: sürmekte olan iş varsa binanın üstünde ilerleme çubuğu, bitince yeşil tik gösterilir.
+		local recipeId = PRODUCTION_RECIPES[upgrade.id]
+		if owned and recipeId then
+			local built = upgradesFolder:FindFirstChild(upgrade.id)
+			local recipe = Config.PRODUCTION_RECIPES[recipeId]
+			if built and recipe then
+				JobMarks.setProduction(built, if save then save.production[recipeId] else nil, recipe)
+			end
 		end
 		-- Yapım alanı: yalnızca şu an satın alınabilen, karada bir yapı noktası olan ve görseli tanımlı binalar
 		local site = (sitesFolder :: Instance):FindFirstChild(upgrade.id)

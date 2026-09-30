@@ -137,20 +137,31 @@ return function(policy: any, createService: any, createLimiter: any, config: any
 		countInZone = function(save: any, zoneId: string): number
 			local count = 0
 			for _, animal in save.animals do
-				if animal.zoneId == zoneId and animal.extensionId == nil then
+				if animal.zoneId == zoneId then
 					count += 1
 				end
 			end
 			return count
 		end,
-		countInExtension = function(save: any, extensionId: string): number
+		countInExtension = function(save: any, extensionId: string, atTime: number?): number
 			local count = 0
 			for _, animal in save.animals do
-				if animal.extensionId == extensionId then
+				local task = animal.task
+				if task and task.kind == "extension" and task.id == extensionId and (atTime or 0) < task.endsAt then
 					count += 1
 				end
 			end
 			return count
+		end,
+		getExtensionCapacity = function(_save: any, extensionId: string): number
+			return config.EXTENSIONS[extensionId].capacity
+		end,
+		getActiveTask = function(animal: any, atTime: number?): any?
+			local task = animal.task
+			if task and (atTime or 0) < task.endsAt then
+				return task
+			end
+			return nil
 		end,
 	}
 	local service = createService(fakeGame, remotes, dataService, economy, plots, farmMath, seasons, limiter)
@@ -294,15 +305,26 @@ return function(policy: any, createService: any, createLimiter: any, config: any
 		if animal.extensionId == "folluk_garden" then
 			extensionCount += 1
 			assert(animal.animalId == "chicken" and animal.zoneId == "poultry", "extension animals use the source zone")
-		elseif animal.zoneId == "poultry" then
+			assert(
+				animal.task and animal.task.kind == "extension" and animal.task.id == "folluk_garden",
+				"extension animals carry a timed task"
+			)
+		end
+		if animal.zoneId == "poultry" then
 			poultryZone += 1
 		end
 	end
-	assert(poultryZone == config.ZONES.poultry.capacity, "fillSlots fills the zone to capacity")
-	assert(extensionCount == config.EXTENSIONS.folluk_garden.capacity, "fillSlots fills purchased extensions")
+	assert(
+		poultryZone == config.ZONES.poultry.capacity,
+		"fillSlots fills the zone to capacity (extension animals keep their zone slot)"
+	)
+	assert(
+		extensionCount == config.EXTENSIONS.folluk_garden.capacity,
+		"fillSlots sends idle adults to purchased extensions"
+	)
 	now += 1
 	fire(owner, "fillSlots", "now", 210)
-	assert(#data.animals == poultryZone + extensionCount, "filling twice must not exceed capacity")
+	assert(#data.animals == poultryZone, "filling twice must not exceed capacity")
 	-- Rastgele olay test araçları: yalnızca yönetici, çalışma anı işareti koyar / sıfırlar
 	now += 1
 	fire(stranger, "forceMerchant", "now", 211)

@@ -11,6 +11,37 @@ local function amount(value: unknown, fallback: number): number
 	return if SessionLock.isFinite(value) then math.clamp(value :: number, 0, MAX_MONEY) else fallback
 end
 
+local MAX_TASK_SECONDS = 86400
+
+-- Hayvanın süreli görevi (üretim/eklenti): bozuk ya da tanınmayan kayıt görev yok sayılır (hayvan korunur).
+local function decodeTask(value: any, config: any): any?
+	if typeof(value) ~= "table" then
+		return nil
+	end
+	local kind, id = value.kind, value.id
+	if (kind ~= "production" and kind ~= "extension") or typeof(id) ~= "string" then
+		return nil
+	end
+	if
+		(kind == "production" and not config.PRODUCTION_RECIPES[id])
+		or (kind == "extension" and not config.getExtension(id))
+	then
+		return nil
+	end
+	local startedAt, endsAt = value.startedAt, value.endsAt
+	if
+		not SessionLock.isFinite(startedAt)
+		or not SessionLock.isFinite(endsAt)
+		or startedAt < 0
+		or endsAt <= startedAt
+		or endsAt > 1e12
+		or endsAt - startedAt > MAX_TASK_SECONDS
+	then
+		return nil
+	end
+	return { kind = kind, id = id, startedAt = startedAt, endsAt = endsAt }
+end
+
 local function decodeFarm(
 	raw: unknown,
 	config: any,
@@ -108,7 +139,17 @@ local function decodeFarm(
 				return nil, 0, "Üretim kaydı geçersiz; orijinal kayıt korunuyor"
 			end
 			seenJobs[job.uid] = true
-			save.production[recipeId] = { uid = job.uid, readyAt = job.readyAt }
+			-- startedAt/forgone eski kayıtlarda yoktur (hayvan verilmemiş işler; ödül tabanı uygulanmaz)
+			local startedAt: number? = nil
+			if SessionLock.isFinite(job.startedAt) and job.startedAt >= 0 and job.startedAt <= job.readyAt then
+				startedAt = job.startedAt
+			end
+			local forgone: number? = nil
+			if SessionLock.isFinite(job.forgone) and job.forgone >= 0 then
+				forgone = math.min(job.forgone, 1e15)
+			end
+			save.production[recipeId] =
+				{ uid = job.uid, readyAt = job.readyAt, startedAt = startedAt, forgone = forgone }
 		end
 	end
 	if source.order ~= nil then
@@ -187,13 +228,15 @@ local function decodeFarm(
 			local animalId = entry.animalId
 			local zoneId = entry.zoneId
 			local zone = if typeof(zoneId) == "string" then config.ZONES[zoneId] else nil
-			local pendingExtension = typeof(entry.extensionId) == "string" and entry.extensionId ~= ""
+			-- Eski kayıt: eklentiye kalıcı atanmış hayvan (görev yok). Ana bölge dolu sayılsa da kaybolmaz; eve döner.
+			local task = decodeTask(entry.task, config)
+			local legacyExtension = task == nil and typeof(entry.extensionId) == "string" and entry.extensionId ~= ""
 			if
 				not zone
 				or not save.unlockedZones[zoneId]
 				or not farmMath.zoneAllows(save, zone, animalId)
 				or (
-					not pendingExtension
+					not legacyExtension
 					and farmMath.countInZone(save, zoneId) >= farmMath.getZoneCapacity(save, zoneId)
 				)
 			then
@@ -209,9 +252,14 @@ local function decodeFarm(
 			if bornAt ~= entry.bornAt then
 				repairs += 1
 			end
+			-- Eklenti görevi yalnızca satın alınmış eklentide, doğru tür/bölge ve kapasite içinde geçerlidir;
+			-- eski kalıcı atamalar (görevsiz extensionId) eve döner.
 			local extensionId: string? = nil
-			if typeof(entry.extensionId) == "string" and entry.extensionId ~= "" then
-				local extension = config.getExtension(entry.extensionId)
+			if legacyExtension then
+				repairs += 1
+			end
+			if task and task.kind == "extension" then
+				local extension = config.getExtension(task.id)
 				local upgrade = if extension then config.getExtensionUpgrade(extension.id) else nil
 				if
 					extension
@@ -219,10 +267,18 @@ local function decodeFarm(
 					and save.purchased[upgrade.id]
 					and animalId == extension.animalId
 					and zoneId == extension.sourceZoneId
-					and farmMath.countInExtension(save, extension.id) < extension.capacity
+					and farmMath.countInExtension(save, extension.id, task.startedAt)
+						< farmMath.getExtensionCapacity(save, extension.id)
 				then
 					extensionId = extension.id
 				else
+					task = nil
+					repairs += 1
+				end
+			elseif task and task.kind == "production" then
+				local recipe = config.PRODUCTION_RECIPES[task.id]
+				if not recipe or not save.production[recipe.id] or not table.find(recipe.animalIds, animalId) then
+					task = nil
 					repairs += 1
 				end
 			end
@@ -233,6 +289,7 @@ local function decodeFarm(
 				bornAt = bornAt,
 				stage = farmMath.getStage(bornAt, now, farmMath.getGrowthSpeed(save, animalId, zoneId)),
 				extensionId = extensionId,
+				task = task,
 			})
 		end
 	else
@@ -269,6 +326,14 @@ local function decodeFarm(
 			end
 		end
 	end
+	-- Çevrimdışıyken süresi dolan görevler (tesis/eklenti) bitti: hayvanlar ana bölgesine döner. Gelir yukarıda
+	-- görev penceresiyle hesaplandı.
+	for _, animal in save.animals do
+		if animal.task and animal.task.endsAt <= now then
+			animal.task = nil
+			animal.extensionId = nil
+		end
+	end
 	save.farmId = nil
 	return save, offlineEarned, nil, repairs, grown
 end
@@ -282,6 +347,7 @@ local function encodeFarm(save: any, now: number): { [string]: any }
 			zoneId = animal.zoneId,
 			bornAt = animal.bornAt,
 			extensionId = animal.extensionId,
+			task = animal.task,
 		})
 	end
 	local purchased = {}
@@ -305,7 +371,8 @@ local function encodeFarm(save: any, now: number): { [string]: any }
 	end
 	local production = {}
 	for recipeId, job in save.production or {} do
-		production[recipeId] = { uid = job.uid, readyAt = job.readyAt }
+		production[recipeId] =
+			{ uid = job.uid, readyAt = job.readyAt, startedAt = job.startedAt, forgone = job.forgone }
 	end
 	return {
 		version = 3,

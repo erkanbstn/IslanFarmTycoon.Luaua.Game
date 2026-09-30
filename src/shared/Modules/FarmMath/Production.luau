@@ -6,6 +6,7 @@ local Config = require(script.Parent.Parent.Parent:WaitForChild("Config"))
 local GameTypes = require(script.Parent.Parent.Parent:WaitForChild("GameTypes"))
 local Core = require(script.Parent:WaitForChild("Core"))
 local Expansion = require(script.Parent:WaitForChild("Expansion"))
+local Counts = require(script.Parent:WaitForChild("Counts"))
 
 type PlayerSave = GameTypes.PlayerSave
 
@@ -32,12 +33,22 @@ function Production.getGrowthSpeed(save: PlayerSave, animalId: string, zoneId: s
 	return speed
 end
 
--- Üretimde sayılan yetişkin hayvanlar (açık bölgede, tarifin türlerinden)
-function Production.countProductionAdults(save: PlayerSave, recipe: Config.ProductionRecipeConfig, now: number): number
-	local count = 0
+-- Yetişkin ve boşta hayvanlar (açık bölgede, tarifin türlerinden; eklentide duranlar ve başka bir tesise verilmiş
+-- olanlar sayılmaz; bu tarifin kendi işine verilmiş olanlar dönecekleri için sayılır). En yaşlıdan başlayarak sıralı.
+local function idleAdults(
+	save: PlayerSave,
+	recipe: Config.ProductionRecipeConfig,
+	now: number
+): { GameTypes.AnimalRecord }
+	local result: { GameTypes.AnimalRecord } = {}
 	local speeds: { [string]: number } = {}
 	for _, animal in save.animals do
-		if not save.unlockedZones[animal.zoneId] or not table.find(recipe.animalIds, animal.animalId) then
+		local task = Counts.getActiveTask(animal, now)
+		if
+			not save.unlockedZones[animal.zoneId]
+			or not table.find(recipe.animalIds, animal.animalId)
+			or (task ~= nil and not (task.kind == "production" and task.id == recipe.id))
+		then
 			continue
 		end
 		local cacheKey = `{animal.animalId}|{animal.zoneId}`
@@ -47,17 +58,46 @@ function Production.countProductionAdults(save: PlayerSave, recipe: Config.Produ
 			speeds[cacheKey] = speed
 		end
 		if Core.getStage(animal.bornAt, now, speed :: number) == "adult" then
-			count += 1
+			table.insert(result, animal)
 		end
 	end
-	return count
+	table.sort(result, function(a: GameTypes.AnimalRecord, b: GameTypes.AnimalRecord): boolean
+		if a.bornAt ~= b.bornAt then
+			return a.bornAt < b.bornAt
+		end
+		return a.uid < b.uid
+	end)
+	return result
 end
 
--- Gerekenden fazla yetişkin başına ödül artar; bonus oranı (0.5 = +%50) ve ödül döner.
-function Production.getProductionReward(
+function Production.countProductionAdults(save: PlayerSave, recipe: Config.ProductionRecipeConfig, now: number): number
+	return #idleAdults(save, recipe, now)
+end
+
+-- Tesise verilecek hayvanlar: boştaki yetişkinlerden requiredAdults kadarı (yetmiyorsa nil)
+function Production.pickProductionAnimals(
 	save: PlayerSave,
 	recipe: Config.ProductionRecipeConfig,
 	now: number
+): { GameTypes.AnimalRecord }?
+	local adults = idleAdults(save, recipe, now)
+	if #adults < recipe.requiredAdults then
+		return nil
+	end
+	local picked: { GameTypes.AnimalRecord } = {}
+	for index = 1, recipe.requiredAdults do
+		table.insert(picked, adults[index])
+	end
+	return picked
+end
+
+-- Gerekenden fazla yetişkin başına ödül artar; bonus oranı (0.5 = +%50) ve ödül döner.
+-- job verilirse ödül, (kaçırılan gelir + başlatma maliyeti) x PRODUCTION_MIN_RETURN tabanından az olamaz.
+function Production.getProductionReward(
+	save: PlayerSave,
+	recipe: Config.ProductionRecipeConfig,
+	now: number,
+	job: GameTypes.ProductionJob?
 ): (number, number)
 	local extra = math.clamp(
 		Production.countProductionAdults(save, recipe, now) - recipe.requiredAdults,
@@ -66,7 +106,13 @@ function Production.getProductionReward(
 	)
 	local bonus = extra * Config.PRODUCTION_BONUS_PER_ADULT
 	local facilityYield = 1 + Expansion.getBuildBonus(save, recipe.id, "yield") -- tesis geliştirmesi
-	return math.floor(recipe.reward * (1 + bonus) * facilityYield), bonus
+	local reward = math.floor(recipe.reward * (1 + bonus) * facilityYield)
+	if job and job.forgone then
+		local floorReward =
+			math.ceil((job.forgone + Expansion.getFacilityCost(save, recipe)) * Config.PRODUCTION_MIN_RETURN)
+		reward = math.max(reward, floorReward)
+	end
+	return reward, bonus
 end
 
 -- Büyüme hızı değişmeden önce her hayvanın (tür|bölge) hızını kaydeder; preserveGrowthProgress ile birlikte kullanılır.

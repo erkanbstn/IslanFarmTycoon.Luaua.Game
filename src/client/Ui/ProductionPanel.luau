@@ -80,7 +80,7 @@ local function create(parent: ScreenGui): UiKit.Window
 	})
 	UiKit.text(
 		created.list,
-		"Her tesiste bir parti üret. Süre çıkışta da ilerler; teslim etmeden yeni parti başlamaz.",
+		"Tesise yetişkin hayvanlarını ver: iş boyunca gelir getirmezler, bitince ödülle birlikte geri dönerler. Süre çıkışta da ilerler; teslim etmeden yeni parti başlamaz.",
 		"Caption"
 	).LayoutOrder =
 		0
@@ -152,16 +152,23 @@ local function create(parent: ScreenGui): UiKit.Window
 			entry.progress.Visible = false
 			local variant: UiKit.Variant = "primary"
 			local job = state.production and state.production[id]
-			local reward, bonus = FarmMath.getProductionReward(state, recipe, now)
+			local reward, bonus = FarmMath.getProductionReward(state, recipe, now, job)
 			if job then
 				local remaining = math.max(0, math.ceil(job.readyAt - now))
 				entry.progress.Visible = true
 				entry.fill(1 - remaining / FarmMath.getFacilityDuration(state, recipe), UiKit.Color.Green)
+				local working = 0
+				for _, animal in state.animals do
+					local task = animal.task
+					if task and task.kind == "production" and task.id == id then
+						working += 1
+					end
+				end
 				card.detail.Text = if remaining > 0
 					then `{recipe.description}\nKalan: {math.floor(remaining / 60)}:{string.format(
 						"%02d",
 						remaining % 60
-					)}`
+					)}\nTesisteki hayvanlar: {working}`
 					else "Parti hazır. Teslim ederek yeni üretime yer aç."
 				card.action.Text = if remaining > 0 then "Üretiliyor" else `Sat · {FarmMath.formatMoney(reward)}`
 				variant = if remaining > 0 then "disabled" else "primary"
@@ -190,11 +197,19 @@ local function create(parent: ScreenGui): UiKit.Window
 			else
 				local adults = FarmMath.countProductionAdults(state, recipe, now)
 				local bonusLine = if bonus > 0 then `\nYetişkin bonusu: +%{math.round(bonus * 100)}` else ""
-				card.detail.Text =
-					`{recipe.description}\n{FarmMath.getFacilityDuration(state, recipe)} sn · Satış {FarmMath.formatMoney(
-						reward
-					)}\nYetişkin hayvan: {adults}/{recipe.requiredAdults}{bonusLine}`
 				local startCost = FarmMath.getFacilityCost(state, recipe)
+				-- Gösterilen satış, hayvanların kaçıracağı gelirin üstündeki garantili tabanı da içerir.
+				local duration = FarmMath.getFacilityDuration(state, recipe)
+				local picked = FarmMath.pickProductionAnimals(state, recipe, now)
+				local forgone = if picked then FarmMath.estimateForgoneIncome(state, picked, duration) else 0
+				local shownReward = FarmMath.getProductionReward(
+					state,
+					recipe,
+					now,
+					{ uid = "preview", readyAt = now, forgone = forgone }
+				)
+				card.detail.Text =
+					`{recipe.description}\n{duration} sn · Satış {FarmMath.formatMoney(shownReward)}\nYetişkin hayvan: {adults}/{recipe.requiredAdults}{bonusLine}\nHayvanlar iş boyunca gelirsiz çalışır, bitince döner.`
 				card.action.Text = `Başlat · {FarmMath.formatMoney(startCost)}`
 				variant = if adults < recipe.requiredAdults
 					then "disabled"

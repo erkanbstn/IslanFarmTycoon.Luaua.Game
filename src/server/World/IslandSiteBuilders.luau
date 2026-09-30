@@ -173,6 +173,58 @@ local function goat(parent: Instance, cf: CFrame)
 	WorldDecor.barrel(parent, cf * CFrame.new(13, 0, 26))
 end
 
+-- Kaya tırmanışı: doğu kıyıda üç basamaklı yükselen kaya sırtı, basamaklar ve bayrak (keçiler tırmanıp iner)
+local function goatCliffs(parent: Instance, cf: CFrame)
+	local cliffs = Instance.new("Model")
+	cliffs.Name = "GoatCliffs"
+	cliffs.Parent = parent
+	for index = 1, 3 do
+		local height = index * 1.4
+		local base = cf * CFrame.new(35, 0, -8 + (index - 1) * 8)
+		part(
+			cliffs,
+			"CliffRock",
+			Vector3.new(6, height, 7),
+			base * CFrame.new(0, height / 2, 0),
+			ROCK,
+			Enum.Material.Rock
+		)
+		part(
+			cliffs,
+			"CliffTop",
+			Vector3.new(5.6, 0.15, 6.6),
+			base * CFrame.new(0, height + 0.075, 0),
+			Color3.fromRGB(115, 138, 79),
+			Enum.Material.Grass
+		)
+		-- Kaya yüzüne oyulmuş basamaklar: her sıra bir öncekinin üstüne çıkar
+		for step = 1, 3 do
+			local stairHeight = math.max(0.4, height - 1.2 + step * 0.4)
+			part(
+				cliffs,
+				"CliffStep",
+				Vector3.new(0.9, stairHeight, 1.2),
+				base * CFrame.new(-3.4, stairHeight / 2, -2.4 + step * 1.2),
+				ROCK,
+				Enum.Material.Slate
+			)
+		end
+		WorldDecor.bush(cliffs, base * CFrame.new(1, height + 0.15, 1.5), index * 23)
+	end
+	-- En üstte bayrak direği
+	local top = cf * CFrame.new(35, 4.2, 8)
+	part(cliffs, "FlagPole", Vector3.new(0.3, 4, 0.3), top * CFrame.new(0, 2, 0), WOOD, Enum.Material.Wood)
+	part(
+		cliffs,
+		"Flag",
+		Vector3.new(0.15, 1.2, 2),
+		top * CFrame.new(0, 3.4, 1.1),
+		Color3.fromRGB(220, 90, 60),
+		Enum.Material.Fabric
+	).CanCollide =
+		false
+end
+
 -- Ördek koyu: kıyısı kumlu, kamışlı küçük bir göl ve iskele (ördekler suyun üstünde gezinir)
 local function duckCove(parent: Instance, cf: CFrame)
 	local water = part(
@@ -406,6 +458,7 @@ return {
 	goat = goat,
 	duckCove = duckCove,
 	sheepHill = sheepHill,
+	goatCliffs = goatCliffs,
 	truffleGrove = truffleGrove,
 	home = home,
 }
