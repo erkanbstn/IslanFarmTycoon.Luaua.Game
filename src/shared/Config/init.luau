@@ -321,6 +321,12 @@ for _, recipeId in Config.PRODUCTION_ORDER do
 end
 
 -- Çiftliğin ana ada hayvanının simgesi (inek, tavuk ya da ördek)
+-- Yeni oyuncunun başlangıç parası: çiftliğin ana hayvanından (inek/tavuk/ördek) tam bir tane alacak kadar.
+function Config.getStartingCash(farmId: string?): number
+	local animal = Config.ANIMALS[Config.getHomeAnimal(farmId)]
+	return if animal then animal.price else Config.STARTING_CASH
+end
+
 function Config.getHomeAnimalIcon(farmId: string?): string
 	local animal = Config.ANIMALS[Config.getHomeAnimal(farmId)]
 	return if animal then animal.icon else "🐾"

@@ -155,3 +155,7 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
   Testler süreyi `Config.GROWTH_SECONDS`'tan okur; rakamı elle yazma. Değiştirince `python scripts/simulate-economy.py` ile tempoyu (kilit zamanları) kontrol et.
 - **Başarımlar**: metrikler `Rewards.progress` içindedir (cows/animals/islands/purchases/earned/orders + fish/species/zones/barn/expansions/facilities/centers/goods/items). Her başarım her temada
   ulaşılabilir olmalı: `tests/rewards.spec` tema sınırlarını denetler; yeni metrik eklersen oraya sınır ekle. Arayüz alınabilirleri pencerenin en üstünde gösterir, ilerleme sırası yakınlığa göredir.
+- **Başlangıç**: yeni çiftlik hayvansız başlar (`STARTING_COW_COUNT = 0`); başlangıç parası çiftliğin ana hayvanını (inek 75, tavuk 350, ördek 400) tam bir tane alacak kadardır
+  (`Config.getStartingCash(farmId)`; `STARTING_CASH` yalnızca yedek). Hayvansız profil geçerlidir (boş `animals` tablosu yeniden başlangıç hayvanı vermez). Tempo: `simulate-economy.py` ile
+  (yavru/genç gelir çarpanı 0.4/0.75 bu yüzden) ilk yükseltme ~5-7 dk, tüm yükseltmeler ~4-5 sa, ırk dahil her şey ~11-13 sa (ideal oyuncu).
+- **Para platformu**: aynı ziyarette tek toplama/bildirim (`EconomyService` `collectedOnPad`; oyuncu platformdan ~7 stud uzaklaşınca sıfırlanır).

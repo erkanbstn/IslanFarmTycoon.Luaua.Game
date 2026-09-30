@@ -58,10 +58,12 @@ return {
 
 	SPRINT_SPEED = 48, -- Yürümenin 3 katı
 
-	-- Yeni oyuncuya ücretsiz: ana ada, Küçük Ahır (Sv.1), İnek Ağılı ve bu kadar inek
-	STARTING_COW_COUNT = 2,
+	-- Yeni oyuncuya ücretsiz: ana ada, Küçük Ahır (Sv.1) ve ana ağıl. Hayvanla başlanmaz (STARTING_COW_COUNT = 0):
+	-- ilk hayvan, çiftliğin ana hayvanını (inek/tavuk/ördek) tam alacak kadar parayla alınır (Config.getStartingCash).
+	STARTING_COW_COUNT = 0,
 
-	STARTING_CASH = 100,
+	-- İnek (en ucuz ana hayvan) fiyatı: Config.getStartingCash temaya göre ana hayvanın fiyatını verir.
+	STARTING_CASH = 75,
 
 	INCOME_TICK_SECONDS = 1,
 

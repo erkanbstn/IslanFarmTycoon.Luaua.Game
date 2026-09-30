@@ -71,7 +71,7 @@ function RoadmapWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Roa
 			if stageIndex == 1 then
 				local free = UiKit.card(roadmapWindow.list, order, "🎁")
 				free.title.Text = "Başlangıç hediyesi"
-				free.detail.Text = `{Config.BARN_LEVELS[1].displayName}, ana ağıl, {Config.STARTING_COW_COUNT} hayvan`
+				free.detail.Text = `{Config.BARN_LEVELS[1].displayName}, ana ağıl, ilk hayvanın parası`
 				free.action.Text = "Alındı"
 				UiKit.setVariant(free.action, "owned")
 				table.insert(stageGroups[stageIndex], free.frame)

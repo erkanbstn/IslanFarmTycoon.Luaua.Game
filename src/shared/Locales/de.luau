@@ -931,4 +931,8 @@ return {
 	-- Yeni başarımlar
 	["Alınabilir başarımlar"] = "Abholbare Erfolge",
 	["Hayvanlar %14 daha hızlı büyür"] = "Tiere wachsen 14 % schneller",
+	["İlk hedef: ilk ineğini satın al"] = "Erstes Ziel: kaufe deine erste Kuh",
+	["İlk hedef: ilk tavuğunu satın al"] = "Erstes Ziel: kaufe dein erstes Huhn",
+	["İlk hedef: ilk ördeğini satın al"] = "Erstes Ziel: kaufe deine erste Ente",
+	["{}, ana ağıl, ilk hayvanın parası"] = "{1}, Hauptstall, Geld für dein erstes Tier",
 }

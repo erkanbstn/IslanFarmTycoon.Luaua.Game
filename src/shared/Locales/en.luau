@@ -931,4 +931,8 @@ return {
 	-- Yeni başarımlar
 	["Alınabilir başarımlar"] = "Claimable achievements",
 	["Hayvanlar %14 daha hızlı büyür"] = "Animals grow 14% faster",
+	["İlk hedef: ilk ineğini satın al"] = "First goal: buy your first cow",
+	["İlk hedef: ilk tavuğunu satın al"] = "First goal: buy your first chicken",
+	["İlk hedef: ilk ördeğini satın al"] = "First goal: buy your first duck",
+	["{}, ana ağıl, ilk hayvanın parası"] = "{1}, main pen, money for your first animal",
 }

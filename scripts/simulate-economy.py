@@ -43,7 +43,7 @@ local STEP = 5 -- saniye
 local START = 1000000
 
 local save: any = {
-	cash = Config.STARTING_CASH,
+	cash = Config.getStartingCash(FARM),
 	stored = 0,
 	purchased = {},
 	animals = {},

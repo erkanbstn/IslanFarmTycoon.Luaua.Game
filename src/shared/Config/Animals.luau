@@ -182,8 +182,8 @@ return {
 	} :: { [string]: Types.AnimalConfig },
 
 	STAGE_INCOME_MULTIPLIER = {
-		calf = 0.25,
-		young = 0.6,
+		calf = 0.4,
+		young = 0.75,
 		adult = 1,
 	} :: { [string]: number },
 

@@ -929,4 +929,8 @@ return {
 	["Adadaki tüm tesisleri göster"] = "Показать все производства острова",
 	["Alınabilir başarımlar"] = "Доступные достижения",
 	["Hayvanlar %14 daha hızlı büyür"] = "Животные растут на 14% быстрее",
+	["İlk hedef: ilk ineğini satın al"] = "Первая цель: купите первую корову",
+	["İlk hedef: ilk tavuğunu satın al"] = "Первая цель: купите первую курицу",
+	["İlk hedef: ilk ördeğini satın al"] = "Первая цель: купите первую утку",
+	["{}, ana ağıl, ilk hayvanın parası"] = "{1}, главный загон, деньги на первое животное",
 }

@@ -40,7 +40,7 @@ return function(lock: any, codec: any, config: any, farmMath: any)
 	local save, offline, problem = codec.decode(nil, config, farmMath, now, uid)
 	assert(save and not problem and offline == 0, "new save must decode without offline income")
 	assert(
-		#save.animals == config.STARTING_COW_COUNT and save.cash == config.STARTING_CASH,
+		#save.animals == config.STARTING_COW_COUNT and save.cash == config.getStartingCash("1"),
 		"new save defaults must match Config"
 	)
 	assert(save.contracts.completed == 0 and next(save.contracts.done) == nil, "new profiles start with no barn orders")

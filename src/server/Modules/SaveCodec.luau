@@ -63,7 +63,10 @@ local function decodeFarm(
 	local repairs = 0
 	-- V1/V2 → V3: eski yükseltmeler normalleştirilir; eksik üretim kuyruğu boş başlar.
 	local save: any = {
-		cash = amount(source.cash, config.STARTING_CASH),
+		cash = amount(
+			source.cash,
+			config.getStartingCash(if typeof(source.farmId) == "string" then source.farmId else "1")
+		),
 		stored = amount(source.stored, 0),
 		purchased = {},
 		animals = {},
@@ -499,7 +502,7 @@ function SaveCodec.decode(
 		return nil, 0, "Etkin çiftlik kaydı eksik; orijinal kayıt korunuyor"
 	end
 	local data: any = FarmProfiles.extract(farms[source.activeMainFarmId])
-	data.cash = math.min(1e15, amount(source.cash, config.STARTING_CASH) + refundedTotal)
+	data.cash = math.min(1e15, amount(source.cash, config.getStartingCash(source.activeMainFarmId)) + refundedTotal)
 	data.mainFarms = farms
 	data.activeMainFarmId = source.activeMainFarmId
 	-- Arayüz dili: yalnızca Config.LANGUAGES'taki kodlar kabul edilir; bilinmeyen değer yok sayılır.
