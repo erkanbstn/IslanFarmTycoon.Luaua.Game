@@ -65,6 +65,7 @@ try {
 	Invoke-Check "Pure helper type analysis (SessionLock, OrderRules, SeasonVisuals only)" {
 		& $analyzer src/server/Modules/SessionLock.luau src/server/Modules/OrderRules.luau src/shared/Modules/SeasonVisuals.luau
 	}
+	Invoke-Check "Type analysis (baseline; skipped when .tools/luau-lsp is missing)" { & $Python scripts/check-types.py }
 	Invoke-Check "Game Rojo build" { & $rojo build default.project.json -o .test-build/game.rbxlx }
 	Invoke-Check "Plugin Rojo build" { & $rojo build plugin.project.json -o .test-build/plugin.rbxmx }
 	Invoke-Check "Studio test Rojo build" { & $rojo build test.project.json -o .test-build/tests.rbxlx }

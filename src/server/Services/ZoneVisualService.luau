@@ -244,11 +244,6 @@ local BUILDERS: { [string]: Builder } = {
 		hayBale(decor, o * CFrame.new(hx - 2.8, 1.6, zBack - 2.5))
 	end,
 
-	-- Süt Adası çayırı: ağıl yapısı, çevresi açık
-	dairy = function(decor, o, size)
-		BUILDERS.starter(decor, o, size)
-	end,
-
 	-- Otlak: balyalar, suluk, çiçekler
 	pasture = function(decor, o, size)
 		local hx, hz = size.X / 2, size.Z / 2
@@ -754,6 +749,11 @@ local BUILDERS: { [string]: Builder } = {
 		end
 	end,
 }
+
+-- Süt Adası çayırı: ağıl yapısı, çevresi açık. (Tablonun kendi başlatıcısında BUILDERS henüz yerel değildir; bu yüzden sonradan atanır.)
+BUILDERS.dairy = function(decor, o, size)
+	BUILDERS.starter(decor, o, size)
+end
 
 local function getGround(zone: Instance): BasePart?
 	local ground = zone:FindFirstChild("Ground")
