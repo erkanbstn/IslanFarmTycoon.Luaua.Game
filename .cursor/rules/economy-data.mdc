@@ -50,3 +50,9 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
   `incomeBoost.home` çiftliğin ana ada hayvanına uygulanır. Ana hayvanın kendi küçük adası temada olmaz; inek yoksa `dairy`
   (Süt Adası) küçük adası temada bulunur (test doğrular). `ROADMAP_STAGES` sırası `upgrade.stage` indeksidir: yeni aşamayı sona ekle.
 
+- **Irk geliştirme** (oyun sonu para harcama yolu): `Config.LINEAGE` (maxLevel, incomePerLevel, costMultiplier, costGrowth). Seviye
+  çiftlik başına ve türe göredir: kayıt alanı `lineage { [animalId] = 1..maxLevel }` (opsiyonel; `FarmProfiles.FIELDS`'te, `SaveCodec`
+  tanınmayan türü atar, seviyeyi sıkıştırır, bozuk tabloyu reddeder). Mantık paylaşılan `FarmMath.getLineageLevel/getLineageCost/getLineageStatus`;
+  gelir etkisi `getAnimalMultiplier` içinde doğrusal (+incomePerLevel/seviye), maliyet üstel. Sunucu `UpgradeService.tryUpgradeLineage`
+  (`RequestUpgradeLineage`, en az bir yetişkin şart, `settlePlayer` sonra `trySpend`). Arayüz: Hayvan Pazarı kartlarında ikinci düğme.
+  Denge: `simulate-economy.py` tüm yükseltmelerden sonra ırk satın alır (`IRK toplam Sv.N` adımları); sonraki içerik bunu beslemeli.

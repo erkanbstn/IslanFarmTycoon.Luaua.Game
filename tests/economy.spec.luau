@@ -328,5 +328,39 @@ return function(FarmMath: any, Config: any, Environment: any)
 		)
 	end
 	assert(homeAnimals.cow and homeAnimals.chicken and homeAnimals.duck, "home animals differ between farms")
+	-- Irk geliştirme: seviye, maliyet eğrisi, yetişkin koşulu ve gelir etkisi
+	local lineageFarm = saveAt(start)
+	assert(FarmMath.getLineageLevel(lineageFarm, "cow") == 0, "lineage starts at level 0")
+	local lineageBase = FarmMath.getAnimalMultiplier(lineageFarm, "cow", true)
+	local lineageStatus, _, lineageCost = FarmMath.getLineageStatus(lineageFarm, "cow")
+	assert(
+		lineageStatus == "available" and lineageCost == FarmMath.getLineageCost("cow", 0),
+		"an adult cow unlocks lineage"
+	)
+	local previousCost = 0
+	for level = 0, Config.LINEAGE.maxLevel - 1 do
+		local cost = FarmMath.getLineageCost("cow", level)
+		assert(cost > previousCost and cost < math.huge, "lineage costs must grow with each level")
+		previousCost = cost
+	end
+	assert(FarmMath.getLineageCost("cow", Config.LINEAGE.maxLevel) == math.huge, "no level past the maximum")
+	assert(FarmMath.getLineageCost("ghost", 0) == math.huge, "unknown species cannot be upgraded")
+	lineageFarm.lineage = { cow = 2 }
+	local lineageRatio = FarmMath.getAnimalMultiplier(lineageFarm, "cow", true) / lineageBase
+	assert(
+		math.abs(lineageRatio - (1 + 2 * Config.LINEAGE.incomePerLevel)) < 1e-9,
+		"lineage levels add income linearly"
+	)
+	assert(
+		FarmMath.getAnimalMultiplier(lineageFarm, "chicken", true)
+			== FarmMath.getAnimalMultiplier(saveAt(start), "chicken", true),
+		"lineage only affects its own species"
+	)
+	lineageFarm.lineage = { cow = Config.LINEAGE.maxLevel + 50 }
+	assert(FarmMath.getLineageLevel(lineageFarm, "cow") == Config.LINEAGE.maxLevel, "levels are clamped")
+	assert(FarmMath.getLineageStatus(lineageFarm, "cow") == "max", "maximum level is reported")
+	lineageFarm.lineage = {}
+	lineageFarm.animals = { { uid = "calf", animalId = "cow", zoneId = "starter", bornAt = start, stage = "calf" } }
+	assert(FarmMath.getLineageStatus(lineageFarm, "cow") == "locked", "lineage needs an adult animal of the species")
 	print("PASS economy: growth boundaries, integrated offline/elapsed income, cap, growth upgrade, fish pricing")
 end

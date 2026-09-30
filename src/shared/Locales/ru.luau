@@ -572,4 +572,12 @@ return {
 	["Yeşil platforma basıp parayı topla"] = "Встань на зелёную платформу, чтобы собрать деньги",
 	["Hayvanların depoya para üretir; platforma basınca kasana geçer."] = "Животные зарабатывают деньги на склад; на платформе они переходят в кассу.",
 	["İlk yükseltme: {} · {}"] = "Первое улучшение: {1} · {2}",
+	["Irk Sv.{} → {}"] = "Порода ур.{1} → {2}",
+	["Irk Sv.{}"] = "Порода ур.{1}",
+	["en yüksek"] = "максимум",
+	["Irk: yetişkin gerekir"] = "Порода: нужно взрослое животное",
+	["Irk geliştirme: her seviye o türün gelirini +%{} artırır."] = "Улучшение породы: каждый уровень повышает доход вида на +{1}%.",
+	["{} ırkı Sv.{} oldu!"] = "Порода {1} теперь на уровне {2}!",
+	["Bu ırk zaten en üst seviyede"] = "Эта порода уже на максимальном уровне",
+	["Önce yetişkin bir hayvan gerekir"] = "Сначала нужно взрослое животное",
 }

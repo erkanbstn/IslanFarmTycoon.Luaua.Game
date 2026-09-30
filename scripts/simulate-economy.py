@@ -124,6 +124,7 @@ local function upgradeGain(upgrade: any): number
 	return math.max(after - before, 0)
 end
 
+local lineageTotal, lineageSpent = 0, 0
 local cashSpent = 0
 local lastReport = 0
 local reports: { string } = {}
@@ -166,6 +167,38 @@ for step = 1, steps do
 		if cheapest then
 			buyUpgrade(cheapest)
 			bought = true
+		elseif milestones["TÜM YÜKSELTMELER"] ~= nil then
+			-- Oyun sonu: tüm yükseltmeler alındıysa kasa ırk geliştirmeye gider (en iyi geri dönüş önce)
+			local bestAnimal: string? = nil
+			local bestPayback = math.huge
+			local bestCost = 0
+			for _, animalId in Config.ANIMAL_ORDER do
+				local status, _, cost = FarmMath.getLineageStatus(save, animalId)
+				if status == "available" and cost <= save.cash then
+					local before = income()
+					save.lineage = save.lineage or {}
+					save.lineage[animalId] = FarmMath.getLineageLevel(save, animalId) + 1
+					local gain = income() - before
+					save.lineage[animalId] -= 1
+					local payback = cost / math.max(gain, 0.0001)
+					if payback < bestPayback then
+						bestPayback, bestAnimal, bestCost = payback, animalId, cost
+					end
+				end
+			end
+			if bestAnimal then
+				save.cash -= bestCost
+				save.lineage = save.lineage or {}
+				save.lineage[bestAnimal] = FarmMath.getLineageLevel(save, bestAnimal) + 1
+				lineageTotal += 1
+				lineageSpent += bestCost
+				for _, mark_at in { 10, 30, 60, 90 } do
+					if lineageTotal == mark_at then
+						mark(`IRK toplam Sv.{mark_at}`)
+					end
+				end
+				bought = true
+			end
 		end
 	end
 
@@ -216,6 +249,7 @@ for _, upgrade in Config.UPGRADES do
 	end
 end
 print(string.format("Sonuç: %d/%d yükseltme alındı, kasa %s", owned, total, FarmMath.formatMoney(save.cash)))
+print(string.format("Irk geliştirme: toplam Sv.%d, harcanan %s", lineageTotal, FarmMath.formatMoney(lineageSpent)))
 """
 
 

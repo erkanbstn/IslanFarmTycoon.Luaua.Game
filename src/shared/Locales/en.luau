@@ -572,4 +572,12 @@ return {
 	["Yeşil platforma basıp parayı topla"] = "Step on the green pad to collect your money",
 	["Hayvanların depoya para üretir; platforma basınca kasana geçer."] = "Your animals earn money into storage; stepping on the pad moves it to your wallet.",
 	["İlk yükseltme: {} · {}"] = "First upgrade: {1} · {2}",
+	["Irk Sv.{} → {}"] = "Breed Lv.{1} → {2}",
+	["Irk Sv.{}"] = "Breed Lv.{1}",
+	["en yüksek"] = "max",
+	["Irk: yetişkin gerekir"] = "Breed: needs an adult",
+	["Irk geliştirme: her seviye o türün gelirini +%{} artırır."] = "Breed upgrades: each level raises that species' income by +{1}%.",
+	["{} ırkı Sv.{} oldu!"] = "{1} breed is now level {2}!",
+	["Bu ırk zaten en üst seviyede"] = "This breed is already at the top level",
+	["Önce yetişkin bir hayvan gerekir"] = "You need an adult animal first",
 }

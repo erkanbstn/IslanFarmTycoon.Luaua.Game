@@ -105,6 +105,22 @@ return function(lock: any, codec: any, config: any, farmMath: any)
 	assert(unknownLanguage.language == nil, "unknown language codes must be ignored")
 	languageRaw.language = { "de" }
 	assert(assert(codec.decode(languageRaw, config, farmMath, now, uid)).language == nil, "language must be a string")
+	-- Irk geliştirme: seviyeler sıkıştırılır, tanınmayan tür atılır, bozuk kayıt reddedilir
+	local lineageRaw = codec.encode(save, now)
+	assert(next(lineageRaw.mainFarms["1"].lineage) == nil, "new farms start without lineage")
+	lineageRaw.mainFarms["1"].lineage = { cow = 3, chicken = 99, ghost = 5, goat = -2, duck = 0 }
+	local withLineage = assert(codec.decode(lineageRaw, config, farmMath, now, uid))
+	assert(
+		withLineage.lineage.cow == 3
+			and withLineage.lineage.chicken == config.LINEAGE.maxLevel
+			and withLineage.lineage.ghost == nil
+			and withLineage.lineage.goat == nil
+			and withLineage.lineage.duck == nil,
+		"lineage levels must be clamped and unknown species dropped"
+	)
+	assert(codec.encode(withLineage, now).mainFarms["1"].lineage.cow == 3, "lineage must survive saves")
+	lineageRaw.mainFarms["1"].lineage = "broken"
+	assert(codec.decode(lineageRaw, config, farmMath, now, uid) == nil, "corrupt lineage must fail closed")
 	-- Hesap düzeyi ilerleme: ömür boyu kazanç, günlük ödül serisi, alınmış başarımlar
 	local accountRaw = codec.encode(save, now)
 	assert(

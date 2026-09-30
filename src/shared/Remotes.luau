@@ -15,6 +15,7 @@ export type EventName =
 	| "PlayerState"
 	| "EconomyTick"
 	| "RequestBuyUpgrade"
+	| "RequestUpgradeLineage"
 	| "RequestBuyAnimal"
 	| "RequestReplaceFish"
 	| "PurchaseResult"
@@ -49,6 +50,7 @@ local EVENTS = {
 	"PlayerState", -- Sunucu -> Client kaydın tamamı (yapısal değişikliklerde)
 	"EconomyTick", -- Sunucu -> Client sadece (cash, stored); her saniye
 	"RequestBuyUpgrade", -- Client -> Sunucu yol haritası satın alma (upgradeId)
+	"RequestUpgradeLineage", -- Client -> Sunucu ırk geliştirme (animalId, requestId, expectedFarmId)
 	"RequestBuyAnimal", -- Client -> Sunucu hayvan satın alma (animalId)
 	"RequestReplaceFish", -- Client -> Sunucu hamsiyi levrekle değiştir (uid, requestId)
 	"PurchaseResult", -- Sunucu -> Client (requestId, success, message?)

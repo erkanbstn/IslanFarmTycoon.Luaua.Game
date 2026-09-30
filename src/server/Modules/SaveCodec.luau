@@ -50,6 +50,23 @@ local function decodeFarm(
 	if source.stored ~= nil and save.stored ~= source.stored then
 		repairs += 1
 	end
+	-- Irk seviyeleri (isteğe bağlı): tanınmayan tür atılır, seviye 1..maxLevel'a sıkıştırılır
+	save.lineage = {}
+	if source.lineage ~= nil then
+		if typeof(source.lineage) ~= "table" then
+			return nil, 0, "Irk kaydı bozuk; orijinal kayıt korunuyor"
+		end
+		for animalId, level in source.lineage do
+			if typeof(animalId) == "string" and config.ANIMALS[animalId] and SessionLock.isFinite(level) then
+				local clamped = math.clamp(math.floor(level), 0, config.LINEAGE.maxLevel)
+				if clamped > 0 then
+					save.lineage[animalId] = clamped
+				end
+			else
+				repairs += 1
+			end
+		end
+	end
 	if typeof(source.purchased) == "table" then
 		for _, id in source.purchased do
 			if typeof(id) == "string" then
@@ -253,6 +270,12 @@ local function encodeFarm(save: any, now: number): { [string]: any }
 		end
 	end
 	table.sort(purchased)
+	local lineage = {}
+	for animalId, level in save.lineage or {} do
+		if level > 0 then
+			lineage[animalId] = level
+		end
+	end
 	local production = {}
 	for recipeId, job in save.production or {} do
 		production[recipeId] = { uid = job.uid, readyAt = job.readyAt }
@@ -260,6 +283,7 @@ local function encodeFarm(save: any, now: number): { [string]: any }
 	return {
 		version = 3,
 		production = production,
+		lineage = lineage,
 		cash = amount(save.cash, 0),
 		stored = amount(save.stored, 0),
 		purchased = purchased,

@@ -45,6 +45,7 @@ export type PlayerSave = {
 	cash: number,
 	stored: number, -- Depoda biriken, henüz toplanmamış para
 	purchased: { [string]: boolean }, -- Yol haritasından alınanlar (Config.UPGRADES id'leri)
+	lineage: { [string]: number }?, -- Irk geliştirme seviyeleri (animalId -> 1..Config.LINEAGE.maxLevel); yoksa 0
 	animals: { AnimalRecord },
 	ordersCompleted: number,
 	order: OrderRecord?,

@@ -4,6 +4,7 @@ local FarmProfiles = {}
 local FIELDS = {
 	"stored",
 	"purchased",
+	"lineage",
 	"animals",
 	"ordersCompleted",
 	"order",

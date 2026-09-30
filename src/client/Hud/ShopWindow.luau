@@ -63,9 +63,28 @@ function ShopWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Shop
 	end
 
 	local animalCards: { [string]: UiKit.Card } = {}
+	-- Irk geliştirme: sahip olunan her türün kartında ikinci düğme (oyun sonu para harcama yolu)
+	local lineageRows: { [string]: Frame } = {}
+	local lineageButtons: { [string]: TextButton } = {}
 	for index, animalId in Config.ANIMAL_ORDER do
 		local card = UiKit.card(shopWindow.list, index + 1, Config.ANIMALS[animalId].icon)
 		animalCards[animalId] = card
+		local lineageRow = Instance.new("Frame")
+		lineageRow.Name = "LineageRow"
+		lineageRow.BackgroundTransparency = 1
+		lineageRow.Size = UDim2.new(1, 0, 0, 34)
+		lineageRow.LayoutOrder = 3
+		lineageRow.Visible = false
+		lineageRow.Parent = card.frame
+		local lineageButton = UiKit.button(lineageRow, "", "secondary")
+		lineageButton.Size = UDim2.new(1, 0, 1, 0)
+		lineageRows[animalId] = lineageRow
+		lineageButtons[animalId] = lineageButton
+		lineageButton.Activated:Connect(function()
+			if lineageButton.Active then
+				PurchaseController.submit("RequestUpgradeLineage", animalId)
+			end
+		end)
 		card.action.Activated:Connect(function()
 			if card.action.Active then
 				local state = ClientState.get()
@@ -88,7 +107,9 @@ function ShopWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Shop
 	local function updateShop(state: PlayerSave, content: boolean)
 		if content then
 			shopInfo.Text =
-				`Açık bölgelerdeki hayvanlar listelenir (ada seçimi shop'u gizlemez). Yavru doğar, büyüdükçe kazanç artar.`
+				`Açık bölgelerdeki hayvanlar listelenir (ada seçimi shop'u gizlemez). Yavru doğar, büyüdükçe kazanç artar.\nIrk geliştirme: her seviye o türün gelirini +%{math.round(
+					Config.LINEAGE.incomePerLevel * 100
+				)} artırır.`
 		end
 		for index, animalId in Config.ANIMAL_ORDER do
 			local card = animalCards[animalId]
@@ -98,6 +119,20 @@ function ShopWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Shop
 				continue
 			end
 			local animalConfig = Config.ANIMALS[animalId]
+			local lineageLevel = FarmMath.getLineageLevel(state, animalId)
+			local lineageStatus, _, lineageCost = FarmMath.getLineageStatus(state, animalId)
+			lineageRows[animalId].Visible = FarmMath.countAnimals(state, animalId) > 0
+			if lineageStatus == "max" then
+				setPurchaseButton(lineageButtons[animalId], `Irk Sv.{lineageLevel} · en yüksek`, "owned")
+			elseif lineageStatus == "locked" then
+				setPurchaseButton(lineageButtons[animalId], "Irk: yetişkin gerekir", "disabled")
+			else
+				setPurchaseButton(
+					lineageButtons[animalId],
+					`Irk Sv.{lineageLevel} → {lineageLevel + 1} · {FarmMath.formatMoney(lineageCost)}`,
+					if state.cash >= lineageCost then "primary" else "warning"
+				)
+			end
 			local zoneId, reason, block = FarmMath.findZoneForAnimal(state, animalId)
 			local count = bulkCount(state, animalId)
 			local price = FarmMath.getBulkPrice(state, animalId, count)

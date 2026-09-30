@@ -64,6 +64,37 @@ function UpgradeService.tryBuy(player: Player, upgradeId: unknown): (boolean, st
 	return true, nil
 end
 
+-- Irk geliştirme: seçili çiftlikteki bir türün seviyesini bir artırır (para sunucuda düşülür)
+function UpgradeService.tryUpgradeLineage(player: Player, animalId: unknown): (boolean, string?)
+	if not RateLimiter.allow(player, "purchase", 0.2) then
+		return false, nil
+	end
+	if typeof(animalId) ~= "string" or not RateLimiter.validId(animalId) or not Config.ANIMALS[animalId] then
+		return false, "Geçersiz istek"
+	end
+	local data = PlayerDataService.tryGet(player)
+	if not data or player:GetAttribute("WorldReady") ~= true then
+		return false, "Veri henüz yüklenmedi"
+	end
+	local status, reason, cost = FarmMath.getLineageStatus(data, animalId)
+	if status == "max" then
+		return false, "Bu ırk zaten en üst seviyede"
+	elseif status == "locked" then
+		return false, reason
+	end
+	EconomyService.settlePlayer(player)
+	if not PlayerDataService.trySpend(player, cost) then
+		return false, `Yeterli para yok ({FarmMath.formatMoney(cost)})`
+	end
+	local lineage = data.lineage or {}
+	data.lineage = lineage
+	lineage[animalId] = FarmMath.getLineageLevel(data, animalId) + 1
+	PlayerDataService.pushState(player)
+	PlayerDataService.requestSave(player)
+	Metrics.increment("LineageUpgraded")
+	return true, nil
+end
+
 -- Satın al ve sonucu oyuncuya bildir (yol haritası düğmesi ve ada tabelası ortak kullanır)
 local function buyAndNotify(player: Player, upgradeId: unknown, requestId: unknown)
 	if not RateLimiter.acceptRequest(player, requestId) then
@@ -95,7 +126,46 @@ local function buyAndNotify(player: Player, upgradeId: unknown, requestId: unkno
 	end
 end
 
+local function lineageAndNotify(player: Player, animalId: unknown, requestId: unknown)
+	if not RateLimiter.acceptRequest(player, requestId) then
+		return
+	end
+	local ok, err = UpgradeService.tryUpgradeLineage(player, animalId)
+	if ok then
+		local data = PlayerDataService.tryGet(player)
+		local animal = Config.ANIMALS[animalId :: string]
+		err = `{animal.displayName} ırkı Sv.{FarmMath.getLineageLevel(data :: any, animalId :: string)} oldu!`
+	elseif err == nil then
+		if typeof(requestId) ~= "number" or not RateLimiter.allow(player, "purchaseThrottleReply", 0.5) then
+			return
+		end
+		err = "Çok hızlı işlem yapıyorsun; biraz bekle."
+	end
+	if typeof(requestId) == "number" then
+		Remotes.get("PurchaseResult"):FireClient(player, requestId, ok, err)
+	else
+		Remotes.get("Notify"):FireClient(player, err, if ok then "success" else "error")
+	end
+end
+
 function UpgradeService.init()
+	Remotes.get("RequestUpgradeLineage").OnServerEvent
+		:Connect(function(player: Player, animalId: unknown, requestId: unknown, expectedFarmId: unknown)
+			local data = PlayerDataService.tryGet(player)
+			if not data or expectedFarmId ~= data.activeMainFarmId then
+				if typeof(requestId) == "number" and RateLimiter.allow(player, "farmContextReply", 0.5) then
+					Remotes.get("PurchaseResult"):FireClient(
+						player,
+						requestId,
+						false,
+						"Etkin çiftlik değişti; işlemi yeni çiftlikte tekrar seç."
+					)
+				end
+				return
+			end
+			lineageAndNotify(player, animalId, requestId)
+		end)
+
 	Remotes.get("RequestBuyUpgrade").OnServerEvent
 		:Connect(function(player: Player, upgradeId: unknown, requestId: unknown, expectedFarmId: unknown)
 			local data = PlayerDataService.tryGet(player)

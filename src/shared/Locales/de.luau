@@ -572,4 +572,12 @@ return {
 	["Yeşil platforma basıp parayı topla"] = "Betritt die grüne Platte, um dein Geld zu sammeln",
 	["Hayvanların depoya para üretir; platforma basınca kasana geçer."] = "Deine Tiere verdienen Geld ins Lager; auf der Platte wandert es in deine Kasse.",
 	["İlk yükseltme: {} · {}"] = "Erstes Upgrade: {1} · {2}",
+	["Irk Sv.{} → {}"] = "Zucht Stufe {1} → {2}",
+	["Irk Sv.{}"] = "Zucht Stufe {1}",
+	["en yüksek"] = "Maximum",
+	["Irk: yetişkin gerekir"] = "Zucht: erwachsenes Tier nötig",
+	["Irk geliştirme: her seviye o türün gelirini +%{} artırır."] = "Zuchtverbesserung: Jede Stufe steigert das Einkommen dieser Art um +{1} %.",
+	["{} ırkı Sv.{} oldu!"] = "Die Rasse {1} ist jetzt auf Stufe {2}!",
+	["Bu ırk zaten en üst seviyede"] = "Diese Zucht ist bereits auf der höchsten Stufe",
+	["Önce yetişkin bir hayvan gerekir"] = "Du brauchst zuerst ein erwachsenes Tier",
 }

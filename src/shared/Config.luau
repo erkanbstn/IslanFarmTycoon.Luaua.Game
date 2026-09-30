@@ -300,6 +300,15 @@ local Config = {
 	UPGRADE_COST_BASE = 200,
 	UPGRADE_COST_EXPONENT = 0.95,
 	BULK_MULTIPLIERS = { 1, 2, 3, 5 }, -- Pazarda toplu alım çarpanları
+	-- Irk geliştirme (oyun sonu para harcama yolu): her hayvan türü için ayrı, çiftlik başına seviye.
+	-- Seviye n -> n+1 maliyeti = türün taban fiyatı x costMultiplier x costGrowth^n (2 anlamlı basamak).
+	-- Getiri doğrusal (her seviye incomePerLevel), maliyet üstel: sonraki seviyeler giderek pahalı, sıra bir karardır.
+	LINEAGE = {
+		maxLevel = 10,
+		incomePerLevel = 0.08,
+		costMultiplier = 25,
+		costGrowth = 1.75,
+	},
 
 	-- Gelir modeli. Kimlikleri (id) Roblox Creator Hub'da ürünleri oluşturunca yaz; 0 = kapalı.
 	PRODUCTS = {
