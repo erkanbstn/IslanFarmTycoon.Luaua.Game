@@ -62,9 +62,12 @@ hatasından ayrıdır.
 
 ## Oynanış
 
-1. Oyuncu meydanda doğar, boş bir adaya ışınlanır. Tabelada adı yazar.
+1. Oyuncu meydanda doğar, boş bir adaya ışınlanır.
+   Meydanda çeşme, bankler ve çiçeklikler vardır; satıcı NPC'ler yaklaşan oyuncuya bakar, el sallar ve kısa bir selam söyler. Tabelada adı yazar.
 2. **Ücretsiz başlangıç:** Küçük Ahır, Başlangıç Ağılı, 2 yetişkin ana ada hayvanı (temaya göre inek/tavuk/ördek), $100.
 2b. **İlk adımlar:** sol paneldeki hedef kartı yeni oyuncuyu üç adımda yönlendirir: ilk hayvanı al (Pazar düğmesi yanıp söner), parayı topla (yeşil platforma ışın çizgisi), ilk yükseltmeyi al. Durumdan türetilir; eski oyuncular atlar.
+2c. **Yapım alanları:** satın alabildiğin ama henüz almadığın binaların yeri adada kazıklı, sarı şeritli bir yapım alanı olarak görünür ve tabelasında adı ile fiyatı yazar.
+   Satın alınca alan kalkar, yerine bina kurulur.
 3. Hayvanlar her saniye **depoya** para üretir. Adadaki **yeşil platforma** basınca para kasaya geçer.
    Depo dolarsa üretim durur → oyuncu geri gelip toplamalı (ya da Otomatik Toplayıcı almalı).
 4. **Hayvan Pazarı:** İnek, tavuk, at, keçi, hamsi ve levrek. Yavru doğarlar (%25 gelir) → Genç (%60) → Yetişkin (%100).

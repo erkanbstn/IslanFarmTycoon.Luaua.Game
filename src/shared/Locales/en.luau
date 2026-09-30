@@ -611,4 +611,13 @@ return {
 	["Altın hayvan yakalandı: +{}"] = "Golden animal caught: +{1}",
 	["Altın hayvan artık burada değil"] = "The golden animal is gone",
 	["Bir hayvanın altın gibi parlıyor! Yakala ve ödülünü al."] = "One of your animals is glowing gold! Catch it and claim the reward.",
+	["Merhaba! Günün siparişlerine göz at."] = "Hello! Take a look at today's orders.",
+	["Siparişleri zamanında teslim et, ödülü büyük!"] = "Deliver orders on time, the reward is big!",
+	["Dükkânım çok yakında açılıyor!"] = "My shop opens very soon!",
+	["Destek paketleri için biraz daha sabır."] = "A little more patience for the support packs.",
+	["Sıradaki hedefini mi arıyorsun? Yol haritası bende."] = "Looking for your next goal? I have the roadmap.",
+	["Her yatırım çiftliğini büyütür, sırayı sen seç."] = "Every investment grows your farm, you pick the order.",
+	["Hangi adaya yelken açıyoruz?"] = "Which island are we sailing to?",
+	["Adalarını gezmek için tabelaya yaklaş."] = "Step up to the sign to visit your islands.",
+	["Yapım alanı"] = "Building site",
 }

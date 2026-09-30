@@ -23,7 +23,7 @@ local MapBuilder = {}
 
 -- Harita düzenini (adalar, bölgeler, yapı yerleri) değiştirince bunu 1 artır:
 -- oyun, place'e kaydedilmiş eski haritayı fark edip uyarır.
-local MAP_VERSION = 32
+local MAP_VERSION = 33
 
 local SURFACE_Y = 4 -- Ada ve meydan yüzeyinin yüksekliği
 local WATER_Y = 0 -- Deniz yüzeyi
@@ -1099,6 +1099,24 @@ local function buildHub(parent: Instance)
 		local rad = math.rad(vendor.angle)
 		local pos = Vector3.new(math.sin(rad), 0, math.cos(rad)) * 24 + Vector3.new(0, SURFACE_Y, 0)
 		HubNpcs.vendor(hub, CFrame.lookAt(pos, Vector3.new(0, SURFACE_Y, 0)), vendor.spec)
+	end
+
+	-- Meydan dekoru: boş yay üzerinde çeşme, ortaya bakan banklar ve satıcıların yanında çiçeklikler
+	local center = Vector3.new(0, SURFACE_Y, 0)
+	local function onRing(angle: number, radius: number): Vector3
+		local rad = math.rad(angle)
+		return Vector3.new(math.sin(rad), 0, math.cos(rad)) * radius + center
+	end
+	HubNpcs.fountain(hub, CFrame.new(onRing(330, 20)))
+	for _, angle in { 120, 180, 240 } do
+		local pos = onRing(angle, 15)
+		HubNpcs.bench(hub, CFrame.lookAt(pos, center))
+	end
+	for index, vendor in vendors do
+		for side, offset in { -16, 16 } do
+			local pos = onRing(vendor.angle + offset, 26)
+			HubNpcs.planter(hub, CFrame.lookAt(pos, center), index * 2 + side)
+		end
 	end
 
 	local spawn = Instance.new("SpawnLocation")

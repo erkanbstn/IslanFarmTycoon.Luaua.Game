@@ -611,4 +611,13 @@ return {
 	["Altın hayvan yakalandı: +{}"] = "Goldenes Tier gefangen: +{1}",
 	["Altın hayvan artık burada değil"] = "Das goldene Tier ist weg",
 	["Bir hayvanın altın gibi parlıyor! Yakala ve ödülünü al."] = "Eines deiner Tiere leuchtet golden! Fang es und hol dir die Belohnung.",
+	["Merhaba! Günün siparişlerine göz at."] = "Hallo! Wirf einen Blick auf die heutigen Aufträge.",
+	["Siparişleri zamanında teslim et, ödülü büyük!"] = "Liefere Aufträge rechtzeitig, die Belohnung ist groß!",
+	["Dükkânım çok yakında açılıyor!"] = "Mein Laden öffnet sehr bald!",
+	["Destek paketleri için biraz daha sabır."] = "Noch etwas Geduld für die Unterstützungspakete.",
+	["Sıradaki hedefini mi arıyorsun? Yol haritası bende."] = "Suchst du dein nächstes Ziel? Ich habe den Fahrplan.",
+	["Her yatırım çiftliğini büyütür, sırayı sen seç."] = "Jede Investition lässt deine Farm wachsen, du wählst die Reihenfolge.",
+	["Hangi adaya yelken açıyoruz?"] = "Zu welcher Insel segeln wir?",
+	["Adalarını gezmek için tabelaya yaklaş."] = "Tritt an das Schild, um deine Inseln zu besuchen.",
+	["Yapım alanı"] = "Baustelle",
 }

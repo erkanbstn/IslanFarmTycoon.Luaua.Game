@@ -12,6 +12,7 @@ local AssetSanitizer = require(script.Parent.Parent:WaitForChild("Modules"):Wait
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local GameTypes = require(Shared:WaitForChild("GameTypes"))
+local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 local WorldUi = require(Shared:WaitForChild("WorldUi"))
 local WorldDecor = require(script.Parent:WaitForChild("WorldDecor"))
 
@@ -998,6 +999,80 @@ local function buildUpgrade(upgradeId: string, spot: BasePart, parent: Instance)
 	built.Parent = parent
 end
 
+-- Yapım alanı: satın alınabilir ama henüz alınmamış bir binanın yeri. Toprak zemin, kazıklar, sarı şerit ve fiyatlı
+-- küçük bir tabela; alınınca kaldırılır ve yerine bina kurulur (oyuncu neyin nereye geleceğini görür).
+local SITE_HALF = 4.4
+
+local function buildSite(upgrade: Config.UpgradeConfig, spot: BasePart, parent: Instance)
+	local site = Instance.new("Model")
+	site.Name = upgrade.id
+	site:SetAttribute("UpgradeId", upgrade.id)
+	local base = spot.CFrame
+	local function piece(name: string, size: Vector3, offset: CFrame, color: Color3, material: Enum.Material): Part
+		local p = makePart(site, name, size, base * offset, color, material)
+		p.CanCollide = false
+		p.CanQuery = false
+		return p
+	end
+	piece(
+		"Dirt",
+		Vector3.new(SITE_HALF * 2, 0.3, SITE_HALF * 2),
+		CFrame.new(0, 0.15, 0),
+		Color3.fromRGB(128, 96, 66),
+		Enum.Material.Ground
+	)
+	local tape = Color3.fromRGB(245, 205, 60)
+	for _, corner in { Vector2.new(-1, -1), Vector2.new(1, -1), Vector2.new(1, 1), Vector2.new(-1, 1) } do
+		local stake = piece(
+			"Stake",
+			Vector3.new(0.35, 2.6, 0.35),
+			CFrame.new(corner.X * SITE_HALF, 1.3, corner.Y * SITE_HALF),
+			Color3.fromRGB(150, 110, 70),
+			Enum.Material.Wood
+		)
+		stake.CanCollide = true
+	end
+	-- Şeritler: dört kenar boyunca gerilmiş sarı bant
+	for _, side in { -1, 1 } do
+		piece(
+			"TapeX",
+			Vector3.new(SITE_HALF * 2, 0.12, 0.06),
+			CFrame.new(0, 2.2, side * SITE_HALF),
+			tape,
+			Enum.Material.Fabric
+		)
+		piece(
+			"TapeZ",
+			Vector3.new(0.06, 0.12, SITE_HALF * 2),
+			CFrame.new(side * SITE_HALF, 2.2, 0),
+			tape,
+			Enum.Material.Fabric
+		)
+	end
+	-- Fiyat tabelası: ön köşede (yürüme yolunu kapatmaz: tahta yüksekte, direk ince)
+	local pole = piece(
+		"SignPole",
+		Vector3.new(0.4, 6, 0.4),
+		CFrame.new(0, 3, -SITE_HALF - 1.4),
+		Color3.fromRGB(110, 80, 50),
+		Enum.Material.Wood
+	)
+	pole.CanCollide = true
+	local board = piece(
+		"SiteSign",
+		Vector3.new(5.6, 1.9, 0.3),
+		CFrame.new(0, 6.6, -SITE_HALF - 1.4),
+		Color3.fromRGB(85, 60, 40),
+		Enum.Material.WoodPlanks
+	)
+	WorldUi.sign(board, Enum.NormalId.Front, {
+		icon = upgrade.icon,
+		title = upgrade.displayName,
+		text = `Yapım alanı · {FarmMath.formatMoney(upgrade.cost)}`,
+	})
+	site.Parent = parent
+end
+
 function UpgradeVisualService.apply(plot: Model, save: PlayerSave?)
 	local spots = plot:FindFirstChild("BuildSpots")
 	if not spots then
@@ -1010,6 +1085,12 @@ function UpgradeVisualService.apply(plot: Model, save: PlayerSave?)
 		folder.Parent = plot
 	end
 	local upgradesFolder = folder :: Instance
+	local sitesFolder = plot:FindFirstChild("Sites")
+	if not sitesFolder then
+		sitesFolder = Instance.new("Folder")
+		sitesFolder.Name = "Sites"
+		sitesFolder.Parent = plot
+	end
 
 	for _, upgrade in Config.UPGRADES do
 		local owned = save ~= nil and save.purchased[upgrade.id] == true
@@ -1025,6 +1106,21 @@ function UpgradeVisualService.apply(plot: Model, save: PlayerSave?)
 			end
 		elseif not owned and existing then
 			existing:Destroy()
+		end
+		-- Yapım alanı: yalnızca şu an satın alınabilen, karada bir yapı noktası olan ve görseli tanımlı binalar
+		local site = (sitesFolder :: Instance):FindFirstChild(upgrade.id)
+		local spot = spots:FindFirstChild(upgrade.id)
+		local wantSite = save ~= nil
+			and not owned
+			and spot ~= nil
+			and spot:IsA("BasePart")
+			and spot:GetAttribute("BoatPatrolX") == nil
+			and BUILDERS[upgrade.id] ~= nil
+			and FarmMath.getUpgradeStatus(save, upgrade.id) == "available"
+		if wantSite and not site then
+			buildSite(upgrade, spot :: BasePart, sitesFolder :: Instance)
+		elseif not wantSite and site then
+			site:Destroy()
 		end
 	end
 end

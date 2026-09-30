@@ -109,6 +109,27 @@ return function()
 	for action in actions do
 		assert(found[action], `Meydanda '{action}' satıcısı yok.`)
 	end
+	-- Canlı meydan: satıcılar client'ın canlandırması için etiketli, dekor yerinde
+	local CollectionService = game:GetService("CollectionService")
+	for _, child in hub:GetChildren() do
+		if string.sub(child.Name, 1, 7) == "Vendor_" then
+			assert(CollectionService:HasTag(child, "HubNpc"), `{child.Name}: HubNpc etiketi eksik.`)
+			assert(
+				child:FindFirstChild("Head") and child:FindFirstChild("Torso"),
+				`{child.Name}: canlandırılacak parçalar eksik.`
+			)
+		end
+	end
+	assert(hub:FindFirstChild("Fountain"), "Meydanda çeşme eksik.")
+	local benches, planters = 0, 0
+	for _, child in hub:GetChildren() do
+		if child.Name == "Bench" then
+			benches += 1
+		elseif child.Name == "Planter" then
+			planters += 1
+		end
+	end
+	assert(benches == 3 and planters == 8, "Meydan dekoru eksik (3 bank, 8 çiçeklik).")
 	assert(hub:FindFirstChild("TravelBoard"), "Meydanda Adalar tabelası eksik.")
 	print("PASS map structure: themes, signs, vendors and prompts")
 end

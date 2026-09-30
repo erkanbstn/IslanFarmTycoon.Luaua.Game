@@ -3,6 +3,7 @@
 -- Her NPC bir "VendorPrompt" taşır; `Action` özniteliği client'ta hangi pencerenin açılacağını belirler.
 -- Haritaya kaydedilir (MapBuilder çağırır). Yerel çerçeve: -Z ön, taban zemin yüzeyinde.
 
+local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Studio harita eklentisi modülleri kopyalayıp çalıştırır; o durumda yanımızdaki "Shared" kullanılır.
@@ -76,6 +77,9 @@ end
 function HubNpcs.vendor(parent: Instance, base: CFrame, spec: NpcSpec)
 	local model = Instance.new("Model")
 	model.Name = `Vendor_{spec.action}`
+	model:SetAttribute("Action", spec.action)
+	-- Client (HubNpcs.client) etiketli satıcıları canlandırır: göz teması, el sallama, konuşma balonu
+	CollectionService:AddTag(model, "HubNpc")
 	model.Parent = parent
 
 	-- Satıcı tezgâhın arkasında durur, tezgâh -Z (meydan) yönüne bakar
@@ -138,6 +142,138 @@ function HubNpcs.vendor(parent: Instance, base: CFrame, spec: NpcSpec)
 	prompt.RequiresLineOfSight = false
 	prompt:SetAttribute("Action", spec.action)
 	prompt.Parent = anchor
+end
+
+---------------------------------------------------------------------------
+-- Meydan dekoru: çeşme, bankler ve çiçeklikler (MapBuilder.buildHub çağırır; haritaya kaydedilir)
+---------------------------------------------------------------------------
+
+local STONE = Color3.fromRGB(150, 148, 140)
+
+-- Dik silindir (Part silindirinin ekseni X'tir)
+local function column(
+	parent: Instance,
+	name: string,
+	diameter: number,
+	height: number,
+	cf: CFrame,
+	color: Color3,
+	material: Enum.Material
+): Part
+	local p = part(
+		parent,
+		name,
+		Vector3.new(height, diameter, diameter),
+		cf * CFrame.Angles(0, 0, math.rad(90)),
+		color,
+		material
+	)
+	p.Shape = Enum.PartType.Cylinder
+	return p
+end
+
+function HubNpcs.fountain(parent: Instance, base: CFrame)
+	local model = Instance.new("Model")
+	model.Name = "Fountain"
+	model.Parent = parent
+	column(model, "Basin", 7.4, 1.4, base * CFrame.new(0, 0.7, 0), STONE, Enum.Material.Cobblestone)
+	local water = column(
+		model,
+		"Water",
+		6.4,
+		0.2,
+		base * CFrame.new(0, 1.3, 0),
+		Color3.fromRGB(80, 170, 225),
+		Enum.Material.Glass
+	)
+	water.Transparency = 0.25
+	water.CanCollide = false
+	column(model, "Pillar", 1.2, 3.4, base * CFrame.new(0, 2.6, 0), STONE, Enum.Material.Cobblestone)
+	column(model, "UpperBowl", 3.2, 0.6, base * CFrame.new(0, 4.1, 0), STONE, Enum.Material.Cobblestone)
+	local top = column(
+		model,
+		"TopWater",
+		2.6,
+		0.2,
+		base * CFrame.new(0, 4.45, 0),
+		Color3.fromRGB(110, 190, 235),
+		Enum.Material.Glass
+	)
+	top.Transparency = 0.25
+	top.CanCollide = false
+	local drop = part(
+		model,
+		"Drop",
+		Vector3.one * 0.9,
+		base * CFrame.new(0, 5.2, 0),
+		Color3.fromRGB(170, 220, 250),
+		Enum.Material.Glass
+	)
+	drop.Shape = Enum.PartType.Ball
+	drop.Transparency = 0.3
+	drop.CanCollide = false
+end
+
+function HubNpcs.bench(parent: Instance, base: CFrame)
+	local model = Instance.new("Model")
+	model.Name = "Bench"
+	model.Parent = parent
+	part(model, "Seat", Vector3.new(5, 0.4, 1.8), base * CFrame.new(0, 1.6, 0), WOOD, Enum.Material.WoodPlanks)
+	part(
+		model,
+		"Back",
+		Vector3.new(5, 1.6, 0.3),
+		base * CFrame.new(0, 2.6, 0.8) * CFrame.Angles(math.rad(-8), 0, 0),
+		WOOD,
+		Enum.Material.WoodPlanks
+	)
+	for _, x in { -2.2, 2.2 } do
+		part(model, "Leg", Vector3.new(0.4, 1.6, 1.6), base * CFrame.new(x, 0.8, 0), DARK_WOOD, Enum.Material.Wood)
+	end
+end
+
+function HubNpcs.planter(parent: Instance, base: CFrame, seed: number)
+	local model = Instance.new("Model")
+	model.Name = "Planter"
+	model.Parent = parent
+	part(model, "Box", Vector3.new(3.4, 1.2, 1.4), base * CFrame.new(0, 0.6, 0), WOOD, Enum.Material.WoodPlanks)
+	local soil = part(
+		model,
+		"Soil",
+		Vector3.new(3, 0.2, 1),
+		base * CFrame.new(0, 1.25, 0),
+		Color3.fromRGB(85, 60, 40),
+		Enum.Material.Ground
+	)
+	soil.CanCollide = false
+	local colors = {
+		Color3.fromRGB(240, 90, 120),
+		Color3.fromRGB(250, 210, 70),
+		Color3.fromRGB(245, 245, 250),
+		Color3.fromRGB(190, 110, 220),
+	}
+	for index = 0, 3 do
+		local x = -1.2 + index * 0.8
+		part(
+			model,
+			"Stem",
+			Vector3.new(0.15, 0.8, 0.15),
+			base * CFrame.new(x, 1.6, 0),
+			Color3.fromRGB(70, 130, 60),
+			Enum.Material.Grass
+		).CanCollide =
+			false
+		local bloom = part(
+			model,
+			"Bloom",
+			Vector3.one * 0.6,
+			base * CFrame.new(x, 2.1, 0),
+			colors[(seed + index) % #colors + 1],
+			Enum.Material.SmoothPlastic
+		)
+		bloom.Shape = Enum.PartType.Ball
+		bloom.CanCollide = false
+	end
 end
 
 return HubNpcs
