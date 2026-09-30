@@ -28,13 +28,9 @@ local UPDATE_SECONDS = 1
 -- Ada yerel (x, z) yuvaları: yolun ve bölge çitinin dışında, girişe yakın açık zemin.
 local SLOTS: { [string]: { Vector2 } } = {
 	home = { Vector2.new(-9, -29), Vector2.new(9, -29), Vector2.new(-14, -29), Vector2.new(14, -29) },
-	poultry = { Vector2.new(-8, -22), Vector2.new(8, -22), Vector2.new(-13, -22) },
-	horse = { Vector2.new(-8, -22), Vector2.new(8, -22), Vector2.new(-13, -22) },
-	goat = { Vector2.new(-8, -22), Vector2.new(8, -22), Vector2.new(-13, -22) },
-	duck = { Vector2.new(-8, -22), Vector2.new(8, -22), Vector2.new(-13, -22) },
-	sheep = { Vector2.new(-8, -22), Vector2.new(8, -22), Vector2.new(-13, -22) },
-	pig = { Vector2.new(-8, -22), Vector2.new(8, -22), Vector2.new(-13, -22) },
 }
+-- Bütün küçük adalar aynı yuvaları kullanır (yeni bir ada türü eklenince ayrıca tanımlamak gerekmez)
+local SATELLITE_SLOTS = { Vector2.new(-8, -22), Vector2.new(8, -22), Vector2.new(-13, -22) }
 -- Ada tabelası ve eklentiler kendi görselleriyle satılır; butona girmezler.
 local EXCLUDED_KINDS: { [string]: boolean } = { island = true, extension = true }
 
@@ -193,8 +189,8 @@ function BuyPadService.apply(plot: Model, save: any)
 	local wanted: { { island: string, upgrade: Config.UpgradeConfig, slot: Vector2 } } = {}
 	local ids: { string } = {}
 	for _, islandId in Config.FARM_ISLAND_ORDER do
-		local slots = SLOTS[islandId]
-		if not slots or save.unlockedIslands[islandId] ~= true then
+		local slots = SLOTS[islandId] or SATELLITE_SLOTS
+		if save.unlockedIslands[islandId] ~= true then
 			continue
 		end
 		for index, upgrade in BuyPadService.pickUpgrades(save, islandId, #slots) do
