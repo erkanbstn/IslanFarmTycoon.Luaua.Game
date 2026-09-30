@@ -32,7 +32,7 @@ task.delay(1, refresh)
 - Shared: `ReplicatedStorage:WaitForChild("Shared")`, modüller `Shared.Modules.*`.
 - Aynı klasördeki modül `script.Parent:WaitForChild("X")`; başka katman `script.Parent.Parent:WaitForChild("<Katman>"):WaitForChild("X")`
   (sunucu: `Modules`/`World`/`Presentation`/`Services`; istemci: `Core`/`Effects`/`Ui`/`Interaction`). Tembel döngü kırma için `require` fonksiyon içinde çağrılır.
-- `src/server/World/` modülleri (MapBuilder, WorldDecor, HomeBuildings, HubNpcs, IslandSpecialization, BarnVisualService) `Shared`'ı
+- `src/server/World/` modülleri (MapBuilder ve parçaları, WorldDecor, HomeBuildings ve parçaları, HubNpcs, IslandSpecialization, BarnVisualService) `Shared`'ı
   `script.Parent.Parent` üzerinden de arar (harita eklentisi `World` klasörünü kopyalayıp çalıştırır) — bu yedek aramayı silme; `World` oyun servislerine bağlanmaz.
 
 ## Temizlik

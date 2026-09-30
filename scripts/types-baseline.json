@@ -38,7 +38,7 @@
  "src/server/Services/ProductionService.luau|Function only returns 1 value, but 2 are required here": 2,
  "src/server/Services/UpgradeService.luau|Cyclic dependencies are only supported if all modules in the cycle use 'export' syntax. The following modules do not use 'export': <yol> [game/ServerScriptServi": 28,
  "src/server/World/BarnVisualService.luau|Unknown require: unsupported path": 34,
- "src/server/World/HomeBuildings.luau|Unknown require: unsupported path": 17,
+ "src/server/World/HomeMarket.luau|Unknown require: unsupported path": 18,
  "src/server/World/HubBuilder.luau|Unknown require: unsupported path": 48,
  "src/server/World/HubNpcs.luau|Unknown require: unsupported path": 17,
  "src/server/World/IslandBuilder.luau|Unknown require: unsupported path": 48,

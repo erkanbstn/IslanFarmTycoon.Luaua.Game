@@ -17,7 +17,7 @@ alwaysApply: false
   parça eklersen oraya ve `tests/world.spec.luau` / `tests/map-structure.spec.luau`'ya ekle (Studio düzenleme modu).
 
 ## Ana ada yapıları
-- `HomeBuildings.luau` (World): pazar tezgâhı (`MarketPrompt` → Hayvan Pazarı penceresi), çiftlik evi, yel değirmeni
+- `HomeBuildings.luau` (World cephesi; yapılar `HomeHouses`/`HomeFarmland`/`HomeMarket`/`HomeLandmarks`, ortak renk ve yapı taşları `HomeParts`): pazar tezgâhı (`MarketPrompt` → Hayvan Pazarı penceresi), çiftlik evi, yel değirmeni
   (kanatlar `Windmill` etiketi, döndürme `Windmill.client`), kuyu, sebze bahçesi, meyve bahçesi, arı kovanları, ambar.
   `IslandBuilder` (`decorateHome`) çağırır; yerleri `addIslandGrass` kaçınma listesinde de tutulur. Kapılar >= 4.6 x 6.6 stud.
 - Meydan (`HubBuilder.buildHub`): doğma noktası, Adalar tabelası ve `HubNpcs.vendor` ile 4 satıcı (`VendorPrompt`, `Action`:
@@ -36,7 +36,7 @@ alwaysApply: false
 - Ana ada düzeni temaya göre değişir: `MapLayout.homePlacements(plotIndex)` batı kümesinde bahçe↔ambar ve değirmen↔kovan, doğuda çiftlik evi↔meyve bahçesi yer
   değiştirir, kuyu iki yandan birinde durur (6 düzen, yuvalar sabit; yol/bölge/yapı noktaları değişmez). Çim kaçınma dikdörtgenleri aynı yerleşimden türer
   (`homeBuildingAvoidRects`): yeni yapı eklersen `homePlacements`'a koy. Her temanın doğu kıyıda kendi işaret yapısı vardır (`Config.THEMES[n].landmark` →
-  `HomeBuildings.landmark`: daisy/tulip/sunflower/rose/pine/cherry). `tests/map-structure.spec.luau` işaret yapısını ve >= 5 farklı yerleşimi denetler.
+  `HomeLandmarks.landmark`: daisy/tulip/sunflower/rose/pine/cherry). `tests/map-structure.spec.luau` işaret yapısını ve >= 5 farklı yerleşimi denetler.
 - Ada temaları çiftlik numarasına bağlanır (Çiftlik 1 = Papatya ...); genel ada çekirdeği hepsinde ortaktır; ağıl/otlak görünümü temaya göre değişir (`ZoneVisualService.THEME_LOOKS`).
 
 ## Gece ışıkları
