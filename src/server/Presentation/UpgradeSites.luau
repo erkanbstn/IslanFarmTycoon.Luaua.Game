@@ -108,6 +108,106 @@ local function buildSite(upgrade: Config.UpgradeConfig, spot: BasePart, parent: 
 	site.Parent = parent
 end
 
+-- Tesis seviyesine göre binanın çevresine eklenen süsler (her seviye yenisini ekler; alttakiler kalır).
+-- Bina 10 x 8 stud, kapısı -Z yönünde; süsler yürüme yolunu kapatmaz (kapı önü boş, parçalar yan köşelerde).
+local function addFacilityProps(mark: Model, spotCf: CFrame, level: number)
+	local function prop(
+		name: string,
+		size: Vector3,
+		offset: CFrame,
+		color: Color3,
+		material: Enum.Material,
+		shape: Enum.PartType?
+	)
+		local p = Instance.new("Part")
+		p.Name = name
+		p.Size = size
+		p.CFrame = spotCf * offset
+		p.Color = color
+		p.Material = material
+		p.Anchored = true
+		p.CanCollide, p.CanTouch, p.CanQuery = false, false, false
+		if shape then
+			p.Shape = shape
+		end
+		p.Parent = mark
+		return p
+	end
+	local wood = Color3.fromRGB(150, 110, 70)
+	if level >= 1 then
+		-- Arka yanda kasa yığını
+		for index, x in { -2.2, 0, 2.2 } do
+			prop("Crate", Vector3.new(1.8, 1.6, 1.8), CFrame.new(x, 0.8, 6.4), wood, Enum.Material.WoodPlanks)
+			if index == 2 then
+				prop(
+					"Crate",
+					Vector3.new(1.8, 1.6, 1.8),
+					CFrame.new(x, 2.4, 6.4),
+					Color3.fromRGB(170, 130, 85),
+					Enum.Material.WoodPlanks
+				)
+			end
+		end
+	end
+	if level >= 2 then
+		-- Ön sol köşede bayrak
+		prop(
+			"FlagPole",
+			Vector3.new(0.25, 7, 0.25),
+			CFrame.new(-6.4, 3.5, -5.6),
+			Color3.fromRGB(235, 235, 235),
+			Enum.Material.Metal
+		)
+		prop("Flag", Vector3.new(2.2, 1.3, 0.1), CFrame.new(-5.3, 6.3, -5.6), GOLD, Enum.Material.Fabric)
+	end
+	if level >= 3 then
+		-- Kapının iki yanında fener direkleri
+		for _, x in { -4.4, 4.4 } do
+			prop(
+				"LampPost",
+				Vector3.new(0.3, 4, 0.3),
+				CFrame.new(x, 2, -5.6),
+				Color3.fromRGB(70, 65, 60),
+				Enum.Material.Metal
+			)
+			prop(
+				"LampGlow",
+				Vector3.new(0.8, 0.8, 0.8),
+				CFrame.new(x, 4.3, -5.6),
+				Color3.fromRGB(255, 226, 150),
+				Enum.Material.Neon,
+				Enum.PartType.Ball
+			)
+		end
+	end
+	if level >= 4 then
+		-- Arka sağ yanda gölgelik ve tezgâh
+		for _, z in { 5, 8.2 } do
+			prop("AwningPost", Vector3.new(0.35, 3.6, 0.35), CFrame.new(7.2, 1.8, z), wood, Enum.Material.Wood)
+		end
+		prop(
+			"AwningRoof",
+			Vector3.new(2.6, 0.3, 4.2),
+			CFrame.new(7.2, 3.7, 6.6),
+			Color3.fromRGB(196, 70, 60),
+			Enum.Material.Fabric
+		)
+		prop("Counter", Vector3.new(1.6, 1.1, 3), CFrame.new(7.2, 0.55, 6.6), wood, Enum.Material.WoodPlanks)
+	end
+	if level >= 5 then
+		-- Altın çatı kenarı ve tepe küresi
+		prop("GoldTrim", Vector3.new(11.8, 0.25, 9.8), CFrame.new(0, 6.45, 0), GOLD, Enum.Material.Metal)
+		prop(
+			"GoldOrb",
+			Vector3.new(1.8, 1.8, 1.8),
+			CFrame.new(0, 7.3, 3),
+			GOLD,
+			Enum.Material.Metal,
+			Enum.PartType.Ball
+		)
+	end
+end
+
 -- Tesis geliştirme seviyesi dünyada görünür: binanın dibinde seviye kadar altın halka ve üstünde "Sv.N" etiketi.
 -- Kurulu değilse ya da seviye 0 ise çizilmez; seviye değişince yenilenir.
 local function applyLevelMarks(plot: Model, spots: Instance, save: PlayerSave?)
@@ -142,6 +242,7 @@ local function applyLevelMarks(plot: Model, spots: Instance, save: PlayerSave?)
 				disc.CastShadow = false
 				disc.Parent = mark
 			end
+			addFacilityProps(mark, CFrame.new(spot.Position.X, ground, spot.Position.Z) * spot.CFrame.Rotation, level)
 			local anchor = Instance.new("Part")
 			anchor.Name = "LevelTagAnchor"
 			anchor.Size = Vector3.one

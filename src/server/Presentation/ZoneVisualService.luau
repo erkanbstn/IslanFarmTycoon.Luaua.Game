@@ -6,6 +6,7 @@
 
 local WorldDecor = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("WorldDecor"))
 local ZoneParts = require(script.Parent:WaitForChild("ZoneParts"))
+local ZoneLevelDecor = require(script.Parent:WaitForChild("ZoneLevelDecor"))
 local BuildersHome = require(script.Parent:WaitForChild("ZoneBuildersHome"))
 local BuildersPens = require(script.Parent:WaitForChild("ZoneBuildersPens"))
 local BuildersWater = require(script.Parent:WaitForChild("ZoneBuildersWater"))
@@ -48,8 +49,9 @@ local FLAG_COLORS: { [string]: Color3 } = {
 	season = Color3.fromRGB(96, 170, 230),
 	capacity = Color3.fromRGB(235, 232, 220),
 }
-function ZoneVisualService.applyLevelFlags(zone: Instance, kinds: { string })
-	local signature = table.concat(kinds, ",")
+-- withProps: seviye süsleri (yemlik, gölgelik...) de kurulsun (denizdeki bölgede kurulmaz)
+function ZoneVisualService.applyLevelFlags(zone: Instance, kinds: { string }, withProps: boolean?)
+	local signature = table.concat(kinds, ",") .. (if withProps == false then "|flags" else "")
 	local existing = zone:FindFirstChild("LevelFlags")
 	if existing and existing:GetAttribute("Signature") == signature then
 		return
@@ -86,6 +88,9 @@ function ZoneVisualService.applyLevelFlags(zone: Instance, kinds: { string })
 			Enum.Material.Fabric
 		)
 		cloth.CanCollide = false
+	end
+	if withProps ~= false then
+		ZoneLevelDecor.build(model, top, ground.Size, #kinds)
 	end
 	model.Parent = zone
 end

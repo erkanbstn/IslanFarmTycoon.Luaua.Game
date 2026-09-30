@@ -290,7 +290,7 @@ local function applyZoneState(plot: Model, data: PlayerSave?)
 			for level = 1, zoneLevel do
 				table.insert(kinds, FarmMath.getBuildLevelKind(zoneId, level))
 			end
-			ZoneVisualService.applyLevelFlags(zone, kinds)
+			ZoneVisualService.applyLevelFlags(zone, kinds, zoneConfig.upgradeProfile ~= "sea")
 		elseif data and not data.unlockedIslands[zoneConfig.island] then
 			-- Ada kilitliyse etiketi ada tabelası anlatıyor; burada sadece ad
 			setZoneLabel(zone, zoneName, "🔒", true)
