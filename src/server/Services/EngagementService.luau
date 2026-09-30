@@ -10,6 +10,7 @@ local Config = require(Shared:WaitForChild("Config"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 local Rewards = require(Shared:WaitForChild("Modules"):WaitForChild("Rewards"))
+local Golden = require(Shared:WaitForChild("Modules"):WaitForChild("Golden"))
 
 local PlayerDataService = require(script.Parent:WaitForChild("PlayerDataService"))
 local EconomyService = require(script.Parent:WaitForChild("EconomyService"))
@@ -124,6 +125,28 @@ function EngagementService.tryClaimSeasonal(player: Player): (boolean, string?)
 	return true, `Mevsim hedefi tamamlandı: +{FarmMath.formatMoney(amount)}`
 end
 
+-- Altın hayvan: parlayan hayvan sunucuda yeniden hesaplanır; ödül aynı pencerede yalnızca bir kez verilir
+function EngagementService.tryClaimGolden(player: Player): (boolean, string?)
+	if not RateLimiter.allow(player, "claimGolden", 0.5) then
+		return false, nil
+	end
+	local data = ready(player)
+	if not data then
+		return false, "Çiftliğin henüz hazır değil"
+	end
+	local event = Golden.current(data, player.UserId, nowSeconds())
+	if not event then
+		return false, "Altın hayvan artık burada değil"
+	end
+	-- İşaret önce yazılır; tekrarlanan ya da gecikmiş istek ikinci ödülü alamaz.
+	data.golden = { key = event.cycle }
+	PlayerDataService.addCash(player, event.reward)
+	PlayerDataService.pushState(player)
+	PlayerDataService.requestSave(player)
+	Metrics.increment("GoldenAnimalsClaimed")
+	return true, `Altın hayvan yakalandı: +{FarmMath.formatMoney(event.reward)}`
+end
+
 local function respond(player: Player, requestId: unknown, ok: boolean, message: string?)
 	if not ok and message == nil then
 		if typeof(requestId) ~= "number" or not RateLimiter.allow(player, "purchaseThrottleReply", 0.5) then
@@ -177,6 +200,18 @@ function EngagementService.init()
 			end
 		end
 	end)
+	Remotes.get("RequestClaimGolden").OnServerEvent
+		:Connect(function(player: Player, _value: unknown, requestId: unknown, expectedFarmId: unknown)
+			if not RateLimiter.acceptRequest(player, requestId) then
+				return
+			end
+			local data = PlayerDataService.tryGet(player)
+			if not data or expectedFarmId ~= data.activeMainFarmId then
+				return
+			end
+			local ok, message = EngagementService.tryClaimGolden(player)
+			respond(player, requestId, ok, message)
+		end)
 	Remotes.get("RequestClaimSeasonal").OnServerEvent
 		:Connect(function(player: Player, _value: unknown, requestId: unknown)
 			if not RateLimiter.acceptRequest(player, requestId) then

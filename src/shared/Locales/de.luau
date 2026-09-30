@@ -607,4 +607,8 @@ return {
 	["Gezgin tüccar meydana geldi: Pazar'da indirimli hayvanlar var!"] = "Der fahrende Händler ist da: Reduzierte Tiere auf dem Markt!",
 	["Gezgin tüccar şu an teklif sunmuyor"] = "Der fahrende Händler hat gerade kein Angebot",
 	["Gezgin tüccardan indirimli hayvanlar geldi!"] = "Reduzierte Tiere vom fahrenden Händler sind angekommen!",
+	["Topla"] = "Einsammeln",
+	["Altın hayvan yakalandı: +{}"] = "Goldenes Tier gefangen: +{1}",
+	["Altın hayvan artık burada değil"] = "Das goldene Tier ist weg",
+	["Bir hayvanın altın gibi parlıyor! Yakala ve ödülünü al."] = "Eines deiner Tiere leuchtet golden! Fang es und hol dir die Belohnung.",
 }

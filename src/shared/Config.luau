@@ -379,6 +379,16 @@ local Config = {
 		stock = 3,
 	},
 
+	-- Altın hayvan (rastgele olay): her oyuncuya ayrı, sunucu saatinden türeyen kısa pencereler. Pencere açıkken
+	-- etkin çiftlikteki yetişkin hayvanlardan biri parlar; dokunan, o hayvanın rewardSeconds saniyelik gelirini alır.
+	GOLDEN = {
+		cycleSeconds = 600,
+		windowSeconds = 75,
+		chance = 0.6,
+		rewardSeconds = 150,
+		minReward = 100,
+	},
+
 	-- Mevsim hedefi: her mevsimde (SEASON_SECONDS) tek bir hedef; mevsim dönünce yenisi gelir, alınmamışsa kaybolur.
 	-- metric "earned": mevsim başından beri kazanılan para (hedef = gelir x mevsim süresi x factor, en az minTarget).
 	-- metric "invest": başarılı yatırım sayısı (hayvan, yükseltme, ırk veya alan genişletme; hedef = target).

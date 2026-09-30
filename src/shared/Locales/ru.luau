@@ -607,4 +607,8 @@ return {
 	["Gezgin tüccar meydana geldi: Pazar'da indirimli hayvanlar var!"] = "Странствующий торговец прибыл: на рынке животные со скидкой!",
 	["Gezgin tüccar şu an teklif sunmuyor"] = "У странствующего торговца сейчас нет предложений",
 	["Gezgin tüccardan indirimli hayvanlar geldi!"] = "Животные со скидкой от странствующего торговца прибыли!",
+	["Topla"] = "Забрать",
+	["Altın hayvan yakalandı: +{}"] = "Золотое животное поймано: +{1}",
+	["Altın hayvan artık burada değil"] = "Золотого животного здесь больше нет",
+	["Bir hayvanın altın gibi parlıyor! Yakala ve ödülünü al."] = "Одно из твоих животных светится золотом! Поймай его и получи награду.",
 }

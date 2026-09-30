@@ -607,4 +607,8 @@ return {
 	["Gezgin tüccar meydana geldi: Pazar'da indirimli hayvanlar var!"] = "The travelling merchant has arrived: discounted animals at the Market!",
 	["Gezgin tüccar şu an teklif sunmuyor"] = "The travelling merchant has no offer right now",
 	["Gezgin tüccardan indirimli hayvanlar geldi!"] = "Discounted animals arrived from the travelling merchant!",
+	["Topla"] = "Collect",
+	["Altın hayvan yakalandı: +{}"] = "Golden animal caught: +{1}",
+	["Altın hayvan artık burada değil"] = "The golden animal is gone",
+	["Bir hayvanın altın gibi parlıyor! Yakala ve ödülünü al."] = "One of your animals is glowing gold! Catch it and claim the reward.",
 }

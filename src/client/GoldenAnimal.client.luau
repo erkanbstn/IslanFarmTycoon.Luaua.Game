@@ -1,0 +1,108 @@
+--!strict
+-- Altın hayvan (rastgele olay): pencere açıkken etkin çiftlikteki bir hayvan parlar ve üstünde "Topla" düğmesi çıkar.
+-- Hangi hayvanın parladığı Golden.current ile hesaplanır (sunucu aynı hesapla ödülü doğrular); burada yalnızca görsel.
+
+local CollectionService = game:GetService("CollectionService")
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
+local Golden = require(Shared:WaitForChild("Modules"):WaitForChild("Golden"))
+local ClientState = require(script.Parent:WaitForChild("ClientState"))
+local UiKit = require(script.Parent:WaitForChild("UiKit"))
+local PurchaseController = require(script.Parent:WaitForChild("PurchaseController"))
+
+local localPlayer = Players.LocalPlayer
+local playerGui = localPlayer:WaitForChild("PlayerGui")
+
+local CHECK_SECONDS = 0.5
+
+local highlight: Highlight? = nil
+local billboard: BillboardGui? = nil
+local shownUid: string? = nil
+
+local function findModel(uid: string): Model?
+	for _, instance in CollectionService:GetTagged("Animal") do
+		if instance:IsA("Model") and instance:GetAttribute("Uid") == uid and instance:IsDescendantOf(Workspace) then
+			return instance
+		end
+	end
+	return nil
+end
+
+local function clear()
+	if highlight then
+		highlight:Destroy()
+		highlight = nil
+	end
+	if billboard then
+		billboard:Destroy()
+		billboard = nil
+	end
+	shownUid = nil
+end
+
+local function show(event: Golden.Event, model: Model)
+	local anchor = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+	if not anchor then
+		return
+	end
+	local glow = Instance.new("Highlight")
+	glow.Name = "GoldenGlow"
+	glow.FillColor = UiKit.Color.Gold
+	glow.FillTransparency = 0.5
+	glow.OutlineColor = Color3.new(1, 1, 1)
+	glow.DepthMode = Enum.HighlightDepthMode.Occluded
+	glow.Adornee = model
+	glow.Parent = model
+	highlight = glow
+
+	local _, boxSize = model:GetBoundingBox()
+	local gui = Instance.new("BillboardGui")
+	gui.Name = "GoldenClaim"
+	gui.Adornee = anchor
+	gui.Size = UDim2.fromOffset(150, 40)
+	gui.StudsOffsetWorldSpace = Vector3.new(0, boxSize.Y / 2 + 3.5, 0)
+	gui.AlwaysOnTop = true
+	gui.MaxDistance = 150
+	gui.ResetOnSpawn = false
+	gui.Parent = playerGui
+	local button = UiKit.button(gui, `Topla · {FarmMath.formatMoney(event.reward)}`, "primary")
+	button.Size = UDim2.fromScale(1, 1)
+	button.Activated:Connect(function()
+		if button.Active then
+			PurchaseController.submit("RequestClaimGolden", "golden")
+		end
+	end)
+	billboard = gui
+	shownUid = event.uid
+end
+
+local elapsed = 0
+RunService.Heartbeat:Connect(function(dt: number)
+	elapsed += dt
+	if elapsed < CHECK_SECONDS then
+		return
+	end
+	elapsed = 0
+	local state = ClientState.get()
+	local event = if state then Golden.current(state, localPlayer.UserId, Workspace:GetServerTimeNow()) else nil
+	if not event then
+		if shownUid then
+			clear()
+		end
+		return
+	end
+	if shownUid == event.uid and billboard and billboard.Parent then
+		return
+	end
+	local model = findModel(event.uid)
+	if not model then
+		return -- Hayvan henüz yüklenmedi (streaming); bir sonraki turda tekrar dene
+	end
+	clear()
+	show(event, model)
+end)

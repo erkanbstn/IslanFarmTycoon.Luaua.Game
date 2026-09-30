@@ -453,6 +453,17 @@ function SaveCodec.decode(
 	then
 		data.merchant = { key = merchant.key, bought = merchant.bought }
 	end
+	-- Altın hayvan (isteğe bağlı): yalnızca geçerli döngü numarası kabul edilir
+	local golden = source.golden
+	if
+		typeof(golden) == "table"
+		and SessionLock.isFinite(golden.key)
+		and golden.key >= 0
+		and golden.key <= 1e9
+		and golden.key % 1 == 0
+	then
+		data.golden = { key = golden.key }
+	end
 	local achievements: { [string]: boolean } = {}
 	if typeof(source.achievements) == "table" then
 		for _, achievement in config.ACHIEVEMENTS do
@@ -493,6 +504,7 @@ function SaveCodec.encode(save: any, now: number): { [string]: any }
 		achievements = save.achievements,
 		seasonal = save.seasonal,
 		merchant = save.merchant,
+		golden = save.golden,
 		receipts = save.receipts,
 		lastSeen = now,
 	}

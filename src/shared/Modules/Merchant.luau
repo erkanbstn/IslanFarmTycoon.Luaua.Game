@@ -18,13 +18,15 @@ export type Offer = {
 	endsAt: number,
 }
 
--- 0 <= sonuç < 1, aynı girdiyle her yerde aynı değer
+-- 0 <= sonuç < 1, aynı girdiyle her yerde aynı değer (Golden de kullanır)
 local function rand(userId: number, cycle: number, salt: number): number
 	local seed = ((userId % 1000003) * 7919 + cycle * 104729 + salt * 15485863) % 2147483648
 	seed = (seed * 1103515245 + 12345) % 2147483648
 	seed = (seed * 1103515245 + 12345) % 2147483648
 	return seed / 2147483648
 end
+
+Merchant.rand = rand
 
 -- Bu oyuncunun bu döngüdeki ziyareti (yoksa nil). `active`: şu an tüccar burada mı.
 function Merchant.visit(userId: number, now: number): Visit?

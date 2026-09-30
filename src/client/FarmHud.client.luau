@@ -17,6 +17,7 @@ local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath")
 local ClientState = require(script.Parent:WaitForChild("ClientState"))
 local Environment = require(Shared:WaitForChild("Modules"):WaitForChild("Environment"))
 local Merchant = require(Shared:WaitForChild("Modules"):WaitForChild("Merchant"))
+local Golden = require(Shared:WaitForChild("Modules"):WaitForChild("Golden"))
 local UiKit = require(script.Parent:WaitForChild("UiKit"))
 local PurchaseController = require(script.Parent:WaitForChild("PurchaseController"))
 local SettingsMenu = require(script.Parent:WaitForChild("SettingsMenu"))
@@ -465,11 +466,17 @@ local function updateProductionBadge(state: PlayerSave?)
 	setProductionBadge(ready)
 end
 
--- Gezgin tüccar geldiğinde bir kez haber ver (teklif Pazar penceresinde)
+-- Gezgin tüccar ve altın hayvan belirdiğinde bir kez haber ver (teklif Pazar penceresinde, hayvan çiftlikte parlar)
 local lastMerchantCycle = -1
+local lastGoldenCycle = -1
 local function merchantNotice(state: PlayerSave?)
 	if not state then
 		return
+	end
+	local golden = Golden.current(state, localPlayer.UserId, Workspace:GetServerTimeNow())
+	if golden and golden.cycle ~= lastGoldenCycle then
+		lastGoldenCycle = golden.cycle
+		showToast("Bir hayvanın altın gibi parlıyor! Yakala ve ödülünü al.", "info")
 	end
 	local offer = Merchant.offer(state, localPlayer.UserId, Workspace:GetServerTimeNow())
 	if offer and offer.cycle ~= lastMerchantCycle then

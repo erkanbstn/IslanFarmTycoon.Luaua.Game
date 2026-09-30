@@ -77,6 +77,8 @@ hatasından ayrıdır.
    (hayvan, yükseltme, ırk veya alan genişletme). Tamamlayınca ödülü al; mevsim değişince alınmamış hedef kaybolur. Ödül gelire göre ölçeklenir.
 4e. **Gezgin tüccar (rastgele olay):** Her oyuncuya ayrı zamanlarda, yaklaşık 15 dakikalık dönemlerde ve 4 dakikalığına gelir. Geldiğinde bildirim çıkar ve
    Pazar penceresinin en üstünde, satın alınabilen pahalı hayvanlardan biri en fazla 3 adet, %30 indirimle sunulur. Her ziyarette bir kez alınabilir.
+4f. **Altın hayvan (rastgele olay):** Her oyuncuya ayrı zamanlarda, yaklaşık 10 dakikalık dönemlerde ve 75 saniyeliğine, etkin çiftliğindeki yetişkin bir hayvan
+   altın gibi parlar. Üstündeki **Topla** düğmesine basınca o hayvanın yaklaşık 2,5 dakikalık gelirini alırsın; her pencerede bir kez.
 5. **Yol Haritası:** Oyuncu sırayı kendi seçer; sadece ön koşulu olanlar kilitlidir.
 6. **Adalar:** Herhangi bir ada tabelasına ya da meydandaki "🧭 Adalar" tabelasına yaklaşıp **E** →
    meydana veya başka bir adaya ışınlan.

@@ -167,6 +167,18 @@ return function(lock: any, codec: any, config: any, farmMath: any)
 	assert(codec.encode(withMerchant, now).merchant.key == 42, "merchant marker must survive saves")
 	merchantRaw.merchant = { key = -5, bought = "yes" }
 	assert(assert(codec.decode(merchantRaw, config, farmMath, now, uid)).merchant == nil, "corrupt marker is dropped")
+	-- Altın hayvan: geçerli pencere işareti korunur, bozuk kayıt atılır
+	local goldenRaw = codec.encode(save, now)
+	assert(goldenRaw.golden == nil, "new accounts have no golden marker")
+	goldenRaw.golden = { key = 12 }
+	local withGolden = assert(codec.decode(goldenRaw, config, farmMath, now, uid))
+	assert(withGolden.golden.key == 12, "golden marker must load")
+	assert(codec.encode(withGolden, now).golden.key == 12, "golden marker must survive saves")
+	goldenRaw.golden = { key = 1.5 }
+	assert(
+		assert(codec.decode(goldenRaw, config, farmMath, now, uid)).golden == nil,
+		"corrupt golden marker is dropped"
+	)
 	-- Hesap düzeyi ilerleme: ömür boyu kazanç, günlük ödül serisi, alınmış başarımlar
 	local accountRaw = codec.encode(save, now)
 	assert(
