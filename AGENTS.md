@@ -93,7 +93,7 @@ Yeni dosya eklerken `docs/MIMARI.md`'deki "Yeni şey nereye?" tablosuna bak.
   (`ZONES[x].island`); açık adalar/bölgeler `FarmMath.applyDerived` ile `purchased`'dan türetilir.
 
 ## Arayüz (UI) standardı
-- Ekran arayüzü `src/client/Ui/UiKit.luau` bileşenleriyle yazılır (panel, window, card, button, menuButton,
+- Ekran arayüzü `src/client/Ui/UiKit.luau` (gövde `Ui/Kit/`) bileşenleriyle yazılır (panel, window, card, button, menuButton,
   closeButton, badge, progressBar, toastHost). Renk/yazı tipi/boyutu UiKit tablolarından al, elle değer yazma.
 - Dünyadaki tabelalar (BillboardGui/SurfaceGui) `src/shared/WorldUi.luau` ile yazılır: `tag` (havada etiket),
   `sign` (tahta tabela yüzü); güncellemek için `setTag` / `setSignText`.

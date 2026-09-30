@@ -8,7 +8,7 @@ alwaysApply: false
 
 Katman: `src/client/Ui/` (UiKit, FarmHud, `Hud/*`, paneller, `IslandManager`, `IncomeBubbles`) yalnızca `Core/` ve `Effects/`'e bağlanır (bkz. `docs/MIMARI.md`).
 
-- Bileşenler `src/client/Ui/UiKit.luau`: panel, window, card, button, menuButton (karo), closeButton,
+- Bileşenler `src/client/Ui/UiKit.luau` (cephe; gövde `Ui/Kit/`: Tokens, Base, Controls, Flags, Windows, Toasts — yeni bileşeni uygun dosyaya yaz, `UiKit`'e ekle): panel, window, card, button, menuButton (karo), closeButton,
   badge, progressBar, sectionHeader, toastHost, iconChip, flag, textInput.
 - Renk/yazı/boyut `UiKit.Color / UiKit.Font / UiKit.TextSize / UiKit.Radius` (kaynak `UiTheme`).
   Elle `Color3.fromRGB` veya font yazma.
