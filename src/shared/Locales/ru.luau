@@ -944,4 +944,19 @@ return {
 	["Hayvan satış geliri +%{}"] = "Доход от продажи животных +{1}%",
 	["Üretim tesisleri %{} daha hızlı"] = "Производства на {1}% быстрее",
 	["Çevrimdışı kazanç +%{}"] = "Доход офлайн +{1}%",
+
+	-- Yardımcılar (pet)
+	["Para Yardımcısı"] = "Помощник по деньгам",
+	["Ürün Yardımcısı"] = "Помощник по товарам",
+	["Para fabrikalarını otomatik teslim alır ve tekrarlar"] = "Автоматически забирает и повторяет денежные фабрики",
+	["Ürün merkezlerini otomatik teslim alır ve tekrarlar"] = "Автоматически забирает и повторяет центры товаров",
+	["Otomatik tekrar: Açık"] = "Автоповтор: вкл",
+	["Otomatik tekrar: Kapalı"] = "Автоповтор: выкл",
+	["Otomatik tekrar (yardımcı gerekli)"] = "Автоповтор (нужен помощник)",
+	["Bunun için önce yardımcı almalısın."] = "Сначала нужно получить помощника.",
+	["Otomatik tekrar açıldı."] = "Автоповтор включён.",
+	["Otomatik tekrar kapandı."] = "Автоповтор выключен.",
+	["Yardımcı · +{}"] = "Помощник · +{1}",
+	["Yardımcı"] = "Помощник",
+	["Otomatik tekrar"] = "Автоповтор",
 }

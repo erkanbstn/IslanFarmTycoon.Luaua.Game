@@ -122,6 +122,7 @@ local function decodeFarm(
 		unlockedIslands = {},
 		unlockedZones = {},
 		production = {},
+		autoRepeat = {},
 		farmId = if typeof(source.farmId) == "string" then source.farmId else "1",
 	}
 	if source.cash ~= nil and save.cash ~= source.cash then
@@ -180,6 +181,23 @@ local function decodeFarm(
 		end
 		save.goods = parsed
 		repairs += fixed
+	end
+	-- Yardımcı ile otomatik tekrar (isteğe bağlı): yalnızca tanınan tarif, geçerli parti ve satın alınmış yardımcı kabul edilir
+	if typeof(source.autoRepeat) == "table" then
+		for recipeId, optionId in source.autoRepeat do
+			local recipe = if typeof(recipeId) == "string" then config.PRODUCTION_RECIPES[recipeId] else nil
+			local kind = if recipe and recipe.output == "goods"
+				then "goods"
+				elseif recipe and recipe.output == "cash" then "cash"
+				else nil
+			local optionOk = typeof(optionId) == "string"
+				and (optionId == "default" or farmMath.findProductionOption(recipe, optionId) ~= nil)
+			if recipe and kind and farmMath.hasPet(save, kind) and optionOk then
+				save.autoRepeat[recipe.id] = optionId
+			else
+				repairs += 1
+			end
+		end
 	end
 	if source.production ~= nil then
 		if typeof(source.production) ~= "table" then
@@ -422,6 +440,7 @@ local function encodeFarm(save: any, now: number): { [string]: any }
 			lineage[animalId] = level
 		end
 	end
+	local autoRepeat = table.clone(save.autoRepeat or {})
 	local production = {}
 	for recipeId, job in save.production or {} do
 		production[recipeId] = {
@@ -435,6 +454,7 @@ local function encodeFarm(save: any, now: number): { [string]: any }
 	return {
 		version = 3,
 		production = production,
+		autoRepeat = autoRepeat,
 		lineage = lineage,
 		expansions = expansions,
 		cash = amount(save.cash, 0),

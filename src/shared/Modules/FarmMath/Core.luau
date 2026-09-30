@@ -89,6 +89,11 @@ function Core.getBonus(save: PlayerSave, key: string): number
 	return Core.getEquippedBonus(save, key) + Core.getUpgradeBonus(save, key)
 end
 
+-- Yardımcı (pet): "cash" = para fabrikaları, "goods" = ürün merkezleri; çiftlik başına satın alınır (save.purchased)
+function Core.hasPet(save: PlayerSave, kind: string): boolean
+	return save.purchased[`pet_{kind}_lv1`] == true
+end
+
 -- Çarpılan etki: growthSpeed
 function Core.getEquippedMultiplier(save: PlayerSave, key: string): number
 	local product = 1

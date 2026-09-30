@@ -216,6 +216,28 @@ local LEVEL_CHAINS = {
 		effect = "storage",
 		amount = 0.12,
 	},
+	-- Yardımcılar (pet): çiftlik başına. Para yardımcısı para fabrikalarını, ürün yardımcısı ürün merkezlerini
+	-- "otomatik tekrarla" işaretli olduğunda kendisi teslim alır ve yeniden başlatır (PetService).
+	{
+		id = "pet_cash",
+		displayName = "Para Yardımcısı",
+		description = "Para fabrikalarını otomatik teslim alır ve tekrarlar",
+		icon = "🐕",
+		requires = "silo",
+		costs = { 12000 },
+		effect = "pet",
+		amount = 0,
+	},
+	{
+		id = "pet_goods",
+		displayName = "Ürün Yardımcısı",
+		description = "Ürün merkezlerini otomatik teslim alır ve tekrarlar",
+		icon = "🐈",
+		requires = "silo",
+		costs = { 15000 },
+		effect = "pet",
+		amount = 0,
+	},
 	{
 		id = "fast_growth",
 		displayName = "Hızlı Büyüme",
@@ -248,6 +270,9 @@ for _, chain in LEVEL_CHAINS do
 			upgrade.incomeBoost = boost
 		elseif chain.effect == "storage" then
 			upgrade.storageBonus = chain.amount
+		elseif chain.effect == "pet" then
+			-- Yalnızca bir yetenek: etkisi PetService'te (FarmMath.hasPet)
+			upgrade.description = chain.description
 		else
 			upgrade.growthSpeed = chain.amount
 		end

@@ -163,3 +163,8 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
   `SaveCodec.encode` hesap düzeyinde yazar). Bir ürün türünün limiti, sahip olunan **bütün çiftliklerin ahır `goodsCap` toplamıdır** (`FarmMath.getGoodsCap(kökKayıt)`; etkin çiftlik `save.barnLevel`,
   diğerleri `mainFarms[id].barnLevel`). Depo/sipariş işlemleri her zaman KÖK kayıtla yapılır (park edilmiş çiftlik görünümüyle değil). Siparişte istenebilen ürün, herhangi bir çiftlikte ürün merkezi
   kuruluysa geçerlidir (`Goods.forEachFarm`). Eski kayıtlarda çiftlik içindeki depo/sipariş decode'da toplanıp hesaba taşınır.
+- **Yardımcılar (pet)**: çiftlik başına iki yükseltme (`pet_cash_lv1` Para Yardımcısı, `pet_goods_lv1` Ürün Yardımcısı; `FarmMath.hasPet(save, "cash"|"goods")`). Yardımcı, o türden hazır partiyi **ürün merkezinde depoda yer varsa**
+  kendisi teslim alır (nakit ödül cüzdana, ürün ortak depoya); çiftlikte `autoRepeat[tarifId] = partiId|"default"` varsa aynı partiyi yeniden başlatır. Çekirdek: `Modules/ProductionLogic` (`start`, `claim`,
+  `runPets`; elle işlem `ProductionService` ve yardımcı `PetService` aynı kuralı kullanır). `PetService` 2 sn'de bir TÜM çiftliklerde (park edilmiş dahil) çalışır; yalnızca çevrimiçi oyuncu için.
+  Eylem: `RequestProductionAction("auto", tarifId, partiId|"off")`; yardımcısı olmayan çiftlikte reddedilir. Kayıtta `autoRepeat` çiftlik alanıdır; decode yardımcısı olmayan/bilinmeyen girdiyi atar.
+  Elle başlatma sırasında tekrar açıksa tekrar edilen parti son elle seçilene güncellenir. Şişirilmiş çıkış yok: parti ödülü her zaman kaçırılan gelirin üstündedir (`returnMultiplier` tabanı).

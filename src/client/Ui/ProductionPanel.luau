@@ -110,6 +110,7 @@ local function create(parent: ScreenGui): UiKit.Window
 		progress: Frame,
 		fill: (number, Color3) -> (),
 		options: { TextButton },
+		repeatToggle: TextButton,
 	}
 	local entries: { [string]: Entry } = {}
 	for index, id in Config.PRODUCTION_ORDER do
@@ -138,7 +139,32 @@ local function create(parent: ScreenGui): UiKit.Window
 				end
 			end)
 		end
-		entries[id] = { card = card, keep = keep, progress = progress, fill = fill, options = optionButtons }
+		-- Yardımcı (pet) varsa "otomatik tekrar": hazır partiyi yardımcı teslim alır ve aynı seçenekle yenisini başlatır
+		local repeatToggle = UiKit.button(card.frame, "Otomatik tekrar", "secondary")
+		repeatToggle.Size = UDim2.new(1, 0, 0, 32)
+		repeatToggle.LayoutOrder = 5
+		repeatToggle.Visible = false
+		repeatToggle.Activated:Connect(function()
+			local state = ClientState.get()
+			if not state or not repeatToggle.Active then
+				return
+			end
+			local on = state.autoRepeat ~= nil and state.autoRepeat[id] ~= nil
+			local job = state.production and state.production[id]
+			local choice: string? = nil
+			if recipe.options then
+				choice = if job and job.optionId then job.optionId else recipe.options[1].id
+			end
+			submit("auto", id, if on then "off" else choice)
+		end)
+		entries[id] = {
+			card = card,
+			keep = keep,
+			progress = progress,
+			fill = fill,
+			options = optionButtons,
+			repeatToggle = repeatToggle,
+		}
 		card.action.Activated:Connect(function()
 			local state = ClientState.get()
 			if not state or not card.action.Active then
@@ -192,6 +218,22 @@ local function create(parent: ScreenGui): UiKit.Window
 			card.action.Visible = true
 			for _, button in entry.options do
 				button.Visible = false
+			end
+			-- Otomatik tekrar düğmesi: yalnızca kurulu para fabrikası/ürün merkezinde; yardımcı yoksa kapalı
+			local petKind = if recipe.output == "goods" then "goods" elseif recipe.output == "cash" then "cash" else nil
+			local built = petKind ~= nil and state.purchased[recipe.upgradeId] == true
+			entry.repeatToggle.Visible = built
+			if built and petKind then
+				local hasPet = FarmMath.hasPet(state, petKind)
+				local repeating = state.autoRepeat ~= nil and state.autoRepeat[id] ~= nil
+				entry.repeatToggle.Text = if not hasPet
+					then "Otomatik tekrar (yardımcı gerekli)"
+					elseif repeating then "Otomatik tekrar: Açık"
+					else "Otomatik tekrar: Kapalı"
+				UiKit.setVariant(
+					entry.repeatToggle,
+					if not hasPet or blocked then "disabled" elseif repeating then "primary" else "secondary"
+				)
 			end
 			local variant: UiKit.Variant = "primary"
 			local job = state.production and state.production[id]

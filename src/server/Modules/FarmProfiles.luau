@@ -8,6 +8,7 @@ local FIELDS = {
 	"expansions",
 	"animals",
 	"production",
+	"autoRepeat",
 	"barnLevel",
 	"unlockedIslands",
 	"unlockedZones",

@@ -1,6 +1,7 @@
 --!strict
 -- Oyuncuya özel, sunucuda ücretlendirilen tek partilik üretim. Çevrimdışında süre dolar;
--- ödül yalnızca aynı uid bir kez teslim alındığında verilir, kendiliğinden tekrar başlamaz.
+-- ödül yalnızca aynı uid bir kez teslim alındığında verilir. Yardımcı (pet) varsa ve "otomatik tekrar" açıksa
+-- PetService hazır partiyi teslim alıp aynı seçenekle yenisini başlatır (çekirdek: Modules/ProductionLogic).
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -12,28 +13,39 @@ local PlayerDataService = require(script.Parent:WaitForChild("PlayerDataService"
 local EconomyService = require(script.Parent:WaitForChild("EconomyService"))
 local PlotService = require(script.Parent:WaitForChild("PlotService"))
 local ProductionRules = require(script.Parent.Parent.Modules.ProductionRules)
+local ProductionLogic = require(script.Parent.Parent.Modules.ProductionLogic)
 local RateLimiter = require(script.Parent.Parent.Modules.RateLimiter)
 
 local ProductionService = {}
 local highestRequest: { [Player]: number } = {}
 local initialized = false
 
--- Tesise verilmiş hayvanların görevini bitirir (süre dolduğunda zaten döndüler; yine de kayıt temizlenir).
-local function releaseProductionAnimals(data: any, recipeId: string)
-	for _, animal in data.animals do
-		if animal.task and animal.task.kind == "production" and animal.task.id == recipeId then
-			animal.task = nil
-		end
-	end
+-- Oyuncunun cüzdanına bağlı kancalar (elle işlem ve yardımcı aynı çekirdeği kullanır)
+local function hooksFor(player: Player): ProductionLogic.Hooks
+	return {
+		settle = function()
+			EconomyService.settlePlayer(player)
+		end,
+		trySpend = function(amount: number): boolean
+			return PlayerDataService.trySpend(player, amount)
+		end,
+		addCash = function(amount: number)
+			PlayerDataService.addCash(player, amount)
+		end,
+		newUid = function(): string
+			return HttpService:GenerateGUID(false)
+		end,
+	}
 end
 
--- detail: "start" için para tesisinin parti kimliği (yoksa ilk seçenek), "sell"/"keep" için teslim alınacak işin uid'i
+-- detail: "start" için para tesisinin parti kimliği (yoksa ilk seçenek), "sell"/"keep" için teslim alınacak işin uid'i,
+-- "auto" için tekrar partisi kimliği ("off" = kapat; yoksa varsayılan)
 local function act(player: Player, action: unknown, recipeId: unknown, detail: unknown): (boolean, string)
 	if not RateLimiter.validId(recipeId) then
 		return false, "Geçersiz üretim."
 	end
 	local recipe = Config.PRODUCTION_RECIPES[recipeId :: string]
-	if not recipe or (action ~= "start" and action ~= "sell" and action ~= "keep") then
+	if not recipe or (action ~= "start" and action ~= "sell" and action ~= "keep" and action ~= "auto") then
 		return false, "Bilinmeyen üretim işlemi."
 	end
 	if detail ~= nil and not RateLimiter.validId(detail) then
@@ -43,48 +55,43 @@ local function act(player: Player, action: unknown, recipeId: unknown, detail: u
 		if not ProductionRules.validOption(recipe, FarmMath, detail) then
 			return false, "Geçersiz üretim seçeneği."
 		end
+	elseif action == "auto" then
+		if detail ~= "off" and not ProductionRules.validOption(recipe, FarmMath, detail) then
+			return false, "Geçersiz üretim seçeneği."
+		end
 	elseif detail == nil then
 		return false, "Geçersiz üretim kimliği."
 	end
 	local jobUid = detail
-	local optionId = if action == "start" then detail :: string? else nil
+	local optionId = if action == "start" or action == "auto" then detail :: string? else nil
 	local data = PlayerDataService.tryGet(player)
 	if not data or player:GetAttribute("WorldReady") ~= true or not PlotService.getPlot(player) then
 		return false, "Çiftliğin henüz hazır değil."
 	end
 	local now = DateTime.now().UnixTimestampMillis / 1000
+	local hooks = hooksFor(player)
 	local reward = 0
 	local goodsMessage = ""
-	if action == "start" then
-		local allowed, reason = ProductionRules.canStart(data, recipe, FarmMath, now, optionId)
-		if not allowed then
+	if action == "auto" then
+		-- Yardımcı (pet) ile otomatik tekrar: açıkken yardımcı hazır partiyi teslim alır ve aynı seçenekle yenisini başlatır
+		if detail == "off" then
+			data.autoRepeat[recipe.id] = nil
+		else
+			local kind = if recipe.output == "goods" then "goods" elseif recipe.output == "cash" then "cash" else nil
+			if not kind or not FarmMath.hasPet(data, kind) then
+				return false, "Bunun için önce yardımcı almalısın."
+			end
+			data.autoRepeat[recipe.id] = optionId or "default"
+		end
+	elseif action == "start" then
+		local ok, reason = ProductionLogic.start(data, data, recipe, optionId, now, FarmMath, hooks)
+		if not ok then
 			return false, reason or "Üretim başlatılamadı."
 		end
-		-- Görev başlamadan önce eski durumla gelir kesilir (hayvanlar bu andan itibaren tesiste sayılır).
-		EconomyService.settlePlayer(player)
-		local startCost = FarmMath.getFacilityCost(data, recipe)
-		local batch = FarmMath.resolveRecipe(recipe, optionId)
-		local animals = FarmMath.pickProductionAnimals(data, recipe, now, optionId)
-		if not animals then
-			return false, `Bu üretim için boşta {batch.requiredAdults} yetişkin hayvan gerekli.`
+		-- Tekrar açıksa son elle seçilen parti tekrarlanır
+		if data.autoRepeat[recipe.id] ~= nil then
+			data.autoRepeat[recipe.id] = optionId or "default"
 		end
-		if startCost > 0 and not PlayerDataService.trySpend(player, startCost) then
-			return false, `Yeterli para yok ({FarmMath.formatMoney(startCost)}).`
-		end
-		local duration = FarmMath.getFacilityDuration(data, recipe, optionId)
-		local readyAt = now + duration
-		-- Tesise verilen hayvanlar iş boyunca gelir getirmez; ödül bu kaybın üzerinde bir tabanla garanti edilir.
-		local forgone = FarmMath.estimateForgoneIncome(data, animals, duration)
-		for _, animal in animals do
-			animal.task = { kind = "production", id = recipe.id, startedAt = now, endsAt = readyAt }
-		end
-		data.production[recipe.id] = {
-			uid = HttpService:GenerateGUID(false),
-			readyAt = readyAt,
-			startedAt = now,
-			forgone = forgone,
-			optionId = batch.optionId,
-		}
 	else
 		local job = data.production[recipe.id]
 		if not job or job.uid ~= jobUid then
@@ -101,33 +108,18 @@ local function act(player: Player, action: unknown, recipeId: unknown, detail: u
 			if not zoneId then
 				return false, reason or "Kümeste yer yok; civcivi satabilirsin."
 			end
-			EconomyService.settlePlayer(player)
-			releaseProductionAnimals(data, recipe.id)
+			hooks.settle()
+			ProductionLogic.releaseAnimals(data, recipe.id)
 			data.production[recipe.id] = nil
 			table.insert(data.animals, {
-				uid = HttpService:GenerateGUID(false),
+				uid = hooks.newUid(),
 				animalId = "chicken",
 				zoneId = zoneId,
 				stage = "calf",
 				bornAt = now,
 			})
 		else
-			EconomyService.settlePlayer(player)
-			releaseProductionAnimals(data, recipe.id)
-			data.production[recipe.id] = nil
-			if recipe.output == "goods" and recipe.goodsId then
-				-- Ürün merkezi: para yerine ahır deposuna ürün (sığmayan kısım eklenmez)
-				local amount = FarmMath.getGoodsYield(data, recipe, now, job)
-				local added = FarmMath.addGoods(data, recipe.goodsId, amount)
-				local good = Config.GOODS[recipe.goodsId]
-				goodsMessage = `Ahıra eklendi · {good.displayName} · +{added}`
-				if added < amount then
-					goodsMessage ..= " · Depo doldu"
-				end
-			else
-				reward = FarmMath.getProductionReward(data, recipe, now, job)
-				PlayerDataService.addCash(player, reward)
-			end
+			reward, goodsMessage = ProductionLogic.claim(data, data, recipe, job, now, FarmMath, Config, hooks)
 		end
 	end
 	PlayerDataService.pushState(player)
@@ -140,6 +132,9 @@ local function act(player: Player, action: unknown, recipeId: unknown, detail: u
 	return true,
 		if action == "start"
 			then "Üretim başladı!"
+			elseif action == "auto" then (if detail == "off"
+				then "Otomatik tekrar kapandı."
+				else "Otomatik tekrar açıldı.")
 			elseif action == "keep" then "Yeni civciv kümese eklendi!"
 			elseif goodsMessage ~= "" then goodsMessage
 			else `Üretim satıldı: {FarmMath.formatMoney(reward)}`

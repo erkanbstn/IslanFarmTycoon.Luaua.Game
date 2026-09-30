@@ -10,6 +10,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local GameTypes = require(Shared:WaitForChild("GameTypes"))
+local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 
 type PlayerSave = GameTypes.PlayerSave
 
@@ -303,6 +304,75 @@ local function lineageMonument(model: Model, cf: CFrame, levels: { { id: string,
 	end
 end
 
+-- Yardımcılar (pet): toplama platformunun yanında durur. Para yardımcısı köpek, ürün yardımcısı kedi.
+local function petFigure(model: Model, cf: CFrame, kind: string)
+	local fur = if kind == "cash" then Color3.fromRGB(196, 140, 84) else Color3.fromRGB(120, 120, 130)
+	local light = if kind == "cash" then Color3.fromRGB(245, 225, 190) else Color3.fromRGB(235, 235, 240)
+	piece(model, `Pet_{kind}_Body`, Vector3.new(1.6, 1.1, 2.4), cf * CFrame.new(0, 1.35, 0), fur, Enum.Material.Fabric)
+	piece(
+		model,
+		`Pet_{kind}_Head`,
+		Vector3.new(1.3, 1.2, 1.3),
+		cf * CFrame.new(0, 2.15, -1.5),
+		fur,
+		Enum.Material.Fabric
+	)
+	piece(
+		model,
+		`Pet_{kind}_Muzzle`,
+		Vector3.new(0.7, 0.5, 0.6),
+		cf * CFrame.new(0, 1.95, -2.2),
+		light,
+		Enum.Material.Fabric
+	)
+	for _, side in { -1, 1 } do
+		piece(
+			model,
+			`Pet_{kind}_Ear`,
+			Vector3.new(0.35, if kind == "cash" then 0.7 else 0.9, 0.35),
+			cf * CFrame.new(side * 0.5, 2.9, -1.5),
+			fur,
+			Enum.Material.Fabric
+		)
+		piece(
+			model,
+			`Pet_{kind}_Eye`,
+			Vector3.new(0.2, 0.2, 0.2),
+			cf * CFrame.new(side * 0.35, 2.3, -2.12),
+			Color3.fromRGB(30, 30, 35),
+			Enum.Material.SmoothPlastic,
+			BALL
+		)
+		for _, z in { -0.8, 0.8 } do
+			piece(
+				model,
+				`Pet_{kind}_Leg`,
+				Vector3.new(0.4, 0.8, 0.4),
+				cf * CFrame.new(side * 0.55, 0.4, z),
+				fur,
+				Enum.Material.Fabric
+			)
+		end
+	end
+	piece(
+		model,
+		`Pet_{kind}_Tail`,
+		Vector3.new(0.3, 0.3, 1.4),
+		cf * CFrame.new(0, 1.9, 1.7) * CFrame.Angles(math.rad(-35), 0, 0),
+		fur,
+		Enum.Material.Fabric
+	)
+	-- Yakalı: hangi görevi yaptığı renkten anlaşılır (altın = para, mavi = ürün)
+	piece(
+		model,
+		`Pet_{kind}_Collar`,
+		Vector3.new(1.4, 0.25, 1.4),
+		cf * CFrame.new(0, 1.7, -1.05),
+		if kind == "cash" then GOLD else Color3.fromRGB(90, 140, 255),
+		Enum.Material.Neon
+	)
+end
+
 function UpgradeLevelProps.apply(plot: Model, save: PlayerSave?)
 	local existing = plot:FindFirstChild(MODEL_NAME)
 	if not save then
@@ -349,14 +419,16 @@ function UpgradeLevelProps.apply(plot: Model, save: PlayerSave?)
 	for _, entry in monument do
 		table.insert(monumentKey, `{entry.id}{entry.level}`)
 	end
-	local signature = `{feed}|{storage}|{growth}|{table.concat(ids, ",")}|{table.concat(monumentKey, ",")}`
+	local petCash, petGoods = FarmMath.hasPet(save, "cash"), FarmMath.hasPet(save, "goods")
+	local signature =
+		`{feed}|{storage}|{growth}|{table.concat(ids, ",")}|{table.concat(monumentKey, ",")}|{petCash}|{petGoods}`
 	if existing and existing:GetAttribute("Signature") == signature then
 		return
 	end
 	if existing then
 		existing:Destroy()
 	end
-	if feed + storage + growth + #monument == 0 then
+	if feed + storage + growth + #monument == 0 and not petCash and not petGoods then
 		return
 	end
 	local model = Instance.new("Model")
@@ -378,6 +450,16 @@ function UpgradeLevelProps.apply(plot: Model, save: PlayerSave?)
 		local base = CFrame.new(collector.Position.X, collector.Position.Y - 0.75, collector.Position.Z)
 			* collector.CFrame.Rotation
 		storageYard(model, base * CFrame.new(-9, 0, 0), storage)
+	end
+	if (petCash or petGoods) and collector and collector:IsA("BasePart") then
+		local base = CFrame.new(collector.Position.X, collector.Position.Y - 0.75, collector.Position.Z)
+			* collector.CFrame.Rotation
+		if petCash then
+			petFigure(model, base * CFrame.new(6, 0, 3) * CFrame.Angles(0, math.rad(-150), 0), "cash")
+		end
+		if petGoods then
+			petFigure(model, base * CFrame.new(6, 0, -3) * CFrame.Angles(0, math.rad(-30), 0), "goods")
+		end
 	end
 	local plotBase = plot:FindFirstChild("PlotBase")
 	if #monument > 0 and plotBase and plotBase:IsA("BasePart") then

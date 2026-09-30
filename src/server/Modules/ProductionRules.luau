@@ -26,7 +26,8 @@ function ProductionRules.canStart(
 	baseRecipe: any,
 	farmMath: any,
 	now: number,
-	optionId: string?
+	optionId: string?,
+	goodsHolder: any?
 ): (boolean, string?)
 	local recipe = farmMath.resolveRecipe(baseRecipe, optionId)
 	if not save.purchased[recipe.upgradeId] or not save.unlockedIslands[recipe.island] then
@@ -35,7 +36,10 @@ function ProductionRules.canStart(
 	if save.production[recipe.id] then
 		return false, "Önce mevcut üretimi teslim almalısın."
 	end
-	if recipe.output == "goods" and farmMath.getGoodsSpace(save, recipe.goodsId) < (recipe.goodsAmount or 0) then
+	if
+		recipe.output == "goods"
+		and farmMath.getGoodsSpace(goodsHolder or save, recipe.goodsId) < (recipe.goodsAmount or 0)
+	then
 		return false, "Ahır deposunda bu ürün için yeterli yer yok."
 	end
 	if ProductionRules.countAdults(save, recipe, farmMath, now) < recipe.requiredAdults then

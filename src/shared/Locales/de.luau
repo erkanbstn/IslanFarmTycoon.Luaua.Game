@@ -946,4 +946,19 @@ return {
 	["Hayvan satış geliri +%{}"] = "Tierverkaufserlös +{1} %",
 	["Üretim tesisleri %{} daha hızlı"] = "Produktionsanlagen {1} % schneller",
 	["Çevrimdışı kazanç +%{}"] = "Offline-Einnahmen +{1} %",
+
+	-- Yardımcılar (pet)
+	["Para Yardımcısı"] = "Geldhelfer",
+	["Ürün Yardımcısı"] = "Warenhelfer",
+	["Para fabrikalarını otomatik teslim alır ve tekrarlar"] = "Sammelt Geldfabriken automatisch ein und wiederholt sie",
+	["Ürün merkezlerini otomatik teslim alır ve tekrarlar"] = "Sammelt Warenzentren automatisch ein und wiederholt sie",
+	["Otomatik tekrar: Açık"] = "Automatisch wiederholen: An",
+	["Otomatik tekrar: Kapalı"] = "Automatisch wiederholen: Aus",
+	["Otomatik tekrar (yardımcı gerekli)"] = "Automatisch wiederholen (Helfer nötig)",
+	["Bunun için önce yardımcı almalısın."] = "Dafür brauchst du zuerst einen Helfer.",
+	["Otomatik tekrar açıldı."] = "Automatisches Wiederholen eingeschaltet.",
+	["Otomatik tekrar kapandı."] = "Automatisches Wiederholen ausgeschaltet.",
+	["Yardımcı · +{}"] = "Helfer · +{1}",
+	["Yardımcı"] = "Helfer",
+	["Otomatik tekrar"] = "Automatisch wiederholen",
 }

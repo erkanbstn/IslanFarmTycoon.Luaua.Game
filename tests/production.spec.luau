@@ -1,5 +1,5 @@
 --!strict
-return function(createService: any, createLimiter: any, rules: any, codec: any, config: any, farmMath: any)
+return function(createService: any, createLimiter: any, rules: any, codec: any, config: any, farmMath: any, logic: any)
 	local function signal(): any
 		local callbacks = {}
 		return {
@@ -137,7 +137,8 @@ return function(createService: any, createLimiter: any, rules: any, codec: any, 
 				return { UnixTimestampMillis = now * 1000 }
 			end,
 		},
-		function() end
+		function() end,
+		logic
 	)
 	service.init()
 	service.init()
@@ -348,6 +349,25 @@ return function(createService: any, createLimiter: any, rules: any, codec: any, 
 	local fullBlocked = fire("start", "milk_goods", nil)
 	assert(not fullBlocked.ok and data.production.milk_goods == nil, "a full barn blocks the next batch")
 	assert(fire("start", "packed_milk", "medium").ok, "a full barn does not block cash recipes")
+	-- Yardımcı ile otomatik tekrar: yalnızca yardımcısı olan çiftlikte ve tanınan partiyle açılır
+	reset()
+	data.purchased.pet_cash_lv1 = nil
+	assert(
+		not fire("auto", "packed_milk", "medium").ok and data.autoRepeat.packed_milk == nil,
+		"no pet, no auto repeat"
+	)
+	data.purchased.pet_cash_lv1 = true
+	assert(not fire("auto", "packed_milk", "huge").ok, "an unknown batch cannot be repeated")
+	assert(not fire("auto", "hatchery", "default").ok, "the hatchery cannot be repeated (chicks are chosen by hand)")
+	assert(fire("auto", "packed_milk", "small").ok and data.autoRepeat.packed_milk == "small", "the repeat turns on")
+	assert(fire("start", "packed_milk", "medium").ok, "a manual start while repeating")
+	assert(data.autoRepeat.packed_milk == "medium", "the latest manual choice becomes the repeated batch")
+	assert(fire("auto", "packed_milk", "off").ok and data.autoRepeat.packed_milk == nil, "the repeat turns off")
+	data.purchased.pet_goods_lv1 = true
+	assert(
+		fire("auto", "milk_goods", nil).ok and data.autoRepeat.milk_goods == "default",
+		"goods repeat without a batch size"
+	)
 	-- Para tesisi seçenekleri: ücretsiz, her parti kendi hayvan sayısını ister ve seçilen partinin ödülünü verir
 	reset()
 	local milkRecipe = config.PRODUCTION_RECIPES.packed_milk

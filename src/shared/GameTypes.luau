@@ -73,6 +73,7 @@ export type PlayerSave = {
 	mainFarms: { [string]: any },
 	mainFarmSummaries: { MainFarmSummary }?,
 	production: { [string]: ProductionJob },
+	autoRepeat: { [string]: string }, -- yardımcı ile otomatik tekrar: tarif kimliği -> parti kimliği ("default" = seçeneksiz)
 	cash: number,
 	stored: number, -- Depoda biriken, henüz toplanmamış para
 	purchased: { [string]: boolean }, -- Yol haritasından alınanlar (Config.UPGRADES id'leri)
