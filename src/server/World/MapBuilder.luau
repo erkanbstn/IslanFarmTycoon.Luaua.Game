@@ -18,12 +18,13 @@ local MapLayout = require(script.Parent:WaitForChild("MapLayout"))
 local MapParts = require(script.Parent:WaitForChild("MapParts"))
 local IslandBuilder = require(script.Parent:WaitForChild("IslandBuilder"))
 local HubBuilder = require(script.Parent:WaitForChild("HubBuilder"))
+local MapMountains = require(script.Parent:WaitForChild("MapMountains"))
 
 local MapBuilder = {}
 
 -- Harita düzenini (adalar, bölgeler, yapı yerleri) değiştirince bunu 1 artır:
 -- oyun, place'e kaydedilmiş eski haritayı fark edip uyarır.
-local MAP_VERSION = 44
+local MAP_VERSION = 45
 
 local WATER_SIZE = MapLayout.WATER_SIZE
 local WATER_DEPTH = MapLayout.WATER_DEPTH
@@ -283,6 +284,7 @@ function MapBuilder.build(replaceGeneratedRegion: boolean?)
 	local world = Instance.new("Folder")
 	world.Name = "World"
 	world.Parent = Workspace
+	MapMountains.build(world) -- çevre dağları ve görünmez halka duvarı (haritadan ötesine yüzülemez)
 	buildHub(world)
 
 	local count = Config.MAP_PLOT_COUNT

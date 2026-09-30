@@ -116,6 +116,16 @@ return function(context: any?)
 	end
 	assert(distinct >= 5, "Ana ada yerleşimleri çok benzer; temaya göre en az 5 farklı düzen olmalı.")
 
+	-- Harita çevresi: görünmez halka duvar (haritadan ötesine yüzülemez); dağlar Terrain'dedir
+	local rim = (Workspace:FindFirstChild("World") :: Folder):FindFirstChild("MapRim")
+	assert(rim and #rim:GetChildren() >= 48, "MapRim (halka duvar) eksik; Haritayı Kur'u yeniden çalıştır.")
+	for _, wall in rim:GetChildren() do
+		assert(
+			(wall :: BasePart).CanCollide and (wall :: BasePart).Transparency == 1,
+			"Halka duvar katı ve görünmez olmalı."
+		)
+	end
+
 	-- Meydan: dört satıcı, her birinin bilinen bir eylemi var, spawn alanını kapatmaz
 	local hub = (Workspace:FindFirstChild("World") :: Folder):FindFirstChild("Hub") :: Model
 	assert(hub, "Meydan (Hub) eksik.")
