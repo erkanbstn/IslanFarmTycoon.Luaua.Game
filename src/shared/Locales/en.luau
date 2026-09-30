@@ -730,4 +730,10 @@ return {
 	["Adalara yolculuk"] = "Travel to islands",
 	["Başarımları gizle"] = "Hide achievements",
 	["Ödül var"] = "Reward ready",
+	["Üretim hazır: {}"] = "Production ready: {1}",
+	["Üretimi başlat: {}"] = "Start production: {1}",
+	["Sipariş teslime hazır"] = "Order ready to deliver",
+	["Yeni yapı"] = "New building",
+	["Geliştirme tamamlandı"] = "Upgrade complete",
+	["Geliştirme tamamlandı · Sv.{}"] = "Upgrade complete · Lv.{1}",
 }

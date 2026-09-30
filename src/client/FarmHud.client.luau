@@ -584,7 +584,7 @@ local function updateBadges(state: PlayerSave)
 	setRoadmapBadge(0)
 end
 
-local function updateGoal(state: PlayerSave, income: number)
+local function updateGoalMain(state: PlayerSave, income: number)
 	orderButton.Visible = false
 	goalTitle.Text = "SIRADAKİ HEDEF"
 	-- İlk adımlar: hayvan al → parayı topla → ilk yükseltme (durumdan türetilir, vurgular Onboarding'de)
@@ -780,6 +780,26 @@ local shopDirty, roadmapDirty, upgradesDirty = true, true, true
 local lastCash: number? = nil
 -- Menü kademeli açılır: yeni oyuncu yalnızca Pazar, Çiftliğim ve Ayarlar'ı görür; diğer karolar ihtiyaç doğdukça belirir.
 -- (Kısayollar ve pencereler yine çalışır; yalnızca düğme gizlenir.)
+local menuPulses: { [GuiObject]: (boolean) -> () } = {}
+local menuWasVisible: { [GuiObject]: boolean } = {}
+local function setMenuTile(button: GuiObject, visible: boolean)
+	local was = menuWasVisible[button]
+	button.Visible = visible
+	menuWasVisible[button] = visible
+	-- Yeni belirdiyse (oturumun ilk durumu hariç) birkaç saniye vurgulanır
+	if visible and was == false then
+		local pulse = menuPulses[button]
+		if not pulse then
+			pulse = UiKit.pulse(button)
+			menuPulses[button] = pulse
+		end
+		pulse(true)
+		task.delay(8, function()
+			pulse(false)
+		end)
+	end
+end
+
 local function updateMenuVisibility(state: PlayerSave)
 	local earned = state.lifetimeEarned or 0
 	local veteran = Onboarding.stepFor(state) == 0
@@ -790,12 +810,130 @@ local function updateMenuVisibility(state: PlayerSave)
 		end
 	end
 	local ownsItems = state.inventory ~= nil and next(state.inventory.items) ~= nil
-	upgradesButton.Visible = veteran or Onboarding.stepFor(state) >= 3
-	roadmapButton.Visible = veteran or earned >= 300
-	productionButton.Visible = ownsFactory
-	islandsButton.Visible = veteran
-	homeButton.Visible = veteran
-	inventoryButton.Visible = ownsItems or earned >= 1000
+	setMenuTile(upgradesButton, veteran or Onboarding.stepFor(state) >= 3)
+	setMenuTile(roadmapButton, veteran or earned >= 300)
+	setMenuTile(productionButton, ownsFactory)
+	setMenuTile(islandsButton, veteran)
+	setMenuTile(homeButton, veteran)
+	setMenuTile(inventoryButton, ownsItems or earned >= 1000)
+end
+
+-- Bekleyen işler: hedef kartının altında, o an yapılabilecek kısa işler (durumdan türetilir; iş bitince satır kaybolur)
+local function pendingChores(state: PlayerSave): { string }
+	local chores: { string } = {}
+	local now = Workspace:GetServerTimeNow()
+	for recipeId, job in state.production do
+		local recipe = Config.PRODUCTION_RECIPES[recipeId]
+		if recipe and job.readyAt <= now then
+			table.insert(chores, `Üretim hazır: {recipe.displayName}`)
+		end
+	end
+	if #chores < 2 then
+		for _, recipeId in Config.PRODUCTION_ORDER do
+			local recipe = Config.PRODUCTION_RECIPES[recipeId]
+			if
+				not state.production[recipeId]
+				and state.purchased[recipe.upgradeId]
+				and state.unlockedIslands[recipe.island]
+				and FarmMath.countProductionAdults(state, recipe, now) >= recipe.requiredAdults
+				and state.cash >= FarmMath.getFacilityCost(state, recipe)
+			then
+				table.insert(chores, `Üretimi başlat: {recipe.displayName}`)
+				break
+			end
+		end
+	end
+	if #chores < 2 and state.order and state.order.progress >= state.order.target then
+		table.insert(chores, "Sipariş teslime hazır")
+	end
+	return chores
+end
+
+local function updateGoal(state: PlayerSave, income: number)
+	updateGoalMain(state, income)
+	-- Yeni oyuncuda hedef kartı tek başına yönlendirir; bekleyen işler deneyimli oyuncuda eklenir
+	if Onboarding.stepFor(state) ~= 0 then
+		return
+	end
+	local chores = pendingChores(state)
+	if #chores > 0 then
+		goalDetail.Text ..= "\n" .. table.concat(chores, "\n")
+	end
+end
+
+-- Kilometre taşı kutlaması: yeni yapı ya da geliştirme seviyesi alınınca ekranda kısa altın bir pano belirir
+local lastFarmId: string? = nil
+local lastPurchased: { [string]: boolean } = {}
+local lastLevels: { [string]: number } = {}
+local function celebrate(title: string, detail: string)
+	local banner = Instance.new("Frame")
+	banner.Name = "Celebration"
+	banner.AnchorPoint = Vector2.new(0.5, 0)
+	banner.Position = UDim2.new(0.5, 0, 0.2, 0)
+	banner.Size = UDim2.fromOffset(300, 0)
+	banner.AutomaticSize = Enum.AutomaticSize.Y
+	banner.BackgroundColor3 = Color.Panel
+	banner.BackgroundTransparency = 0.05
+	banner.Parent = screenGui
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 12)
+	corner.Parent = banner
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = Color.Gold
+	stroke.Thickness = 2
+	stroke.Parent = banner
+	local pad = Instance.new("UIPadding")
+	pad.PaddingTop, pad.PaddingBottom = UDim.new(0, 10), UDim.new(0, 10)
+	pad.PaddingLeft, pad.PaddingRight = UDim.new(0, 14), UDim.new(0, 14)
+	pad.Parent = banner
+	UiKit.list(banner, 2, false)
+	local titleLabel = UiKit.text(banner, title, "Title", Color.Gold)
+	titleLabel.TextXAlignment = Enum.TextXAlignment.Center
+	local detailLabel = UiKit.text(banner, detail, "Caption")
+	detailLabel.TextXAlignment = Enum.TextXAlignment.Center
+	if localPlayer:GetAttribute("ReducedMotion") ~= true then
+		banner.Position = UDim2.new(0.5, 0, 0.2, 24)
+		TweenService
+			:Create(banner, TweenInfo.new(0.35, Enum.EasingStyle.Back), { Position = UDim2.new(0.5, 0, 0.2, 0) })
+			:Play()
+	end
+	task.delay(2.6, function()
+		if localPlayer:GetAttribute("ReducedMotion") ~= true then
+			TweenService:Create(banner, TweenInfo.new(0.4), { BackgroundTransparency = 1 }):Play()
+			TweenService:Create(stroke, TweenInfo.new(0.4), { Transparency = 1 }):Play()
+			for _, child in banner:GetChildren() do
+				if child:IsA("TextLabel") then
+					TweenService:Create(child, TweenInfo.new(0.4), { TextTransparency = 1 }):Play()
+				end
+			end
+			task.wait(0.45)
+		end
+		banner:Destroy()
+	end)
+end
+
+local function detectMilestone(state: PlayerSave)
+	local farmId = state.activeMainFarmId
+	local known = lastFarmId == farmId
+	lastFarmId = farmId
+	local newPurchased: { [string]: boolean } = {}
+	local newLevels: { [string]: number } = {}
+	for id in state.purchased do
+		newPurchased[id] = true
+		if known and not lastPurchased[id] then
+			local upgrade = Config.getUpgrade(id)
+			if upgrade and upgrade.kind ~= "island" then
+				celebrate(upgrade.displayName, "Yeni yapı")
+			end
+		end
+	end
+	for id, level in state.expansions or {} do
+		newLevels[id] = level
+		if known and level > (lastLevels[id] or 0) then
+			celebrate(Config.getBuildTargetName(id, farmId), `Geliştirme tamamlandı · Sv.{level}`)
+		end
+	end
+	lastPurchased, lastLevels = newPurchased, newLevels
 end
 
 local function onState(state: PlayerSave, structural: boolean)
@@ -842,6 +980,7 @@ local function onState(state: PlayerSave, structural: boolean)
 	updateIslandGoal(state, income)
 	updateGoal(state, income)
 	updateMenuVisibility(state)
+	detectMilestone(state)
 	-- Yeni oyuncuda hedef kartı yönlendirir; aynı şeyi söyleyen ipucu satırı gizlenir (depo dolunca yine görünür)
 	hintWanted = Onboarding.stepFor(state) == 0 or state.stored >= cap
 	updateRewards(state)

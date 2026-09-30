@@ -730,4 +730,10 @@ return {
 	["Adalara yolculuk"] = "Reise zu den Inseln",
 	["Başarımları gizle"] = "Erfolge ausblenden",
 	["Ödül var"] = "Belohnung bereit",
+	["Üretim hazır: {}"] = "Produktion fertig: {1}",
+	["Üretimi başlat: {}"] = "Produktion starten: {1}",
+	["Sipariş teslime hazır"] = "Auftrag lieferbereit",
+	["Yeni yapı"] = "Neues Gebäude",
+	["Geliştirme tamamlandı"] = "Ausbau abgeschlossen",
+	["Geliştirme tamamlandı · Sv.{}"] = "Ausbau abgeschlossen · St.{1}",
 }
