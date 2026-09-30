@@ -115,6 +115,35 @@ function Production.getProductionReward(
 	return reward, bonus
 end
 
+-- Ürün merkezinin teslim miktarı: temel miktar x (1 + yetişkin bonusu) x tesis verimi. job verilirse miktar, kaçırılan
+-- gelirin (+ başlatma maliyetinin) PRODUCTION_MIN_RETURN katı kadar para değerinin altına inemez. (miktar, bonus) döner.
+function Production.getGoodsYield(
+	save: PlayerSave,
+	recipe: Config.ProductionRecipeConfig,
+	now: number,
+	job: GameTypes.ProductionJob?
+): (number, number)
+	local good = if recipe.goodsId then Config.GOODS[recipe.goodsId] else nil
+	if not good or not recipe.goodsAmount then
+		return 0, 0
+	end
+	local extra = math.clamp(
+		Production.countProductionAdults(save, recipe, now) - recipe.requiredAdults,
+		0,
+		Config.PRODUCTION_MAX_BONUS_ADULTS
+	)
+	local bonus = extra * Config.PRODUCTION_BONUS_PER_ADULT
+	local facilityYield = 1 + Expansion.getBuildBonus(save, recipe.id, "yield")
+	local amount = math.floor(recipe.goodsAmount * (1 + bonus) * facilityYield)
+	if job and job.forgone then
+		local floorAmount = math.ceil(
+			(job.forgone + Expansion.getFacilityCost(save, recipe)) * Config.PRODUCTION_MIN_RETURN / good.value
+		)
+		amount = math.max(amount, floorAmount)
+	end
+	return amount, bonus
+end
+
 -- Büyüme hızı değişmeden önce her hayvanın (tür|bölge) hızını kaydeder; preserveGrowthProgress ile birlikte kullanılır.
 function Production.snapshotGrowthSpeeds(save: PlayerSave): { [string]: number }
 	local speeds: { [string]: number } = {}

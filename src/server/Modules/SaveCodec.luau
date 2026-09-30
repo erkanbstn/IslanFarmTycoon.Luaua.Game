@@ -113,6 +113,27 @@ local function decodeFarm(
 		end
 	end
 	farmMath.applyDerived(save)
+	-- Ahır deposu (isteğe bağlı): tanınmayan ürün atılır, miktar 1..ahır kapasitesine sıkıştırılır
+	save.goods = {}
+	if source.goods ~= nil then
+		if typeof(source.goods) ~= "table" then
+			return nil, 0, "Ahır deposu kaydı bozuk; orijinal kayıt korunuyor"
+		end
+		local cap = farmMath.getGoodsCap(save)
+		for goodId, count in source.goods do
+			if typeof(goodId) == "string" and config.GOODS[goodId] and SessionLock.isFinite(count) then
+				local clamped = math.clamp(math.floor(count), 0, cap)
+				if clamped > 0 then
+					save.goods[goodId] = clamped
+				end
+				if clamped ~= count then
+					repairs += 1
+				end
+			else
+				repairs += 1
+			end
+		end
+	end
 	if source.production ~= nil then
 		if typeof(source.production) ~= "table" then
 			return nil, 0, "Üretim kaydı bozuk; orijinal kayıt korunuyor"
@@ -369,6 +390,12 @@ local function encodeFarm(save: any, now: number): { [string]: any }
 			lineage[animalId] = level
 		end
 	end
+	local goods = {}
+	for goodId, count in save.goods or {} do
+		if count > 0 then
+			goods[goodId] = count
+		end
+	end
 	local production = {}
 	for recipeId, job in save.production or {} do
 		production[recipeId] =
@@ -378,6 +405,7 @@ local function encodeFarm(save: any, now: number): { [string]: any }
 		version = 3,
 		production = production,
 		lineage = lineage,
+		goods = goods,
 		expansions = expansions,
 		cash = amount(save.cash, 0),
 		stored = amount(save.stored, 0),

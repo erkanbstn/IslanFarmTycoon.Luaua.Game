@@ -46,7 +46,7 @@ def module(name: str, path: str, dependencies: set[str] | None = None, factory_a
 
 
 CONFIG_PARTS = [
-    "Types", "Core", "Weather", "Economy", "Shop", "Achievements", "Audio", "Islands", "Upgrades", "Production",
+    "Types", "Core", "Weather", "Economy", "Shop", "Achievements", "Audio", "Goods", "Islands", "Upgrades", "Production",
     "Animals", "Items",
 ]
 
@@ -68,7 +68,7 @@ def config_bundle(freeze: bool = True) -> str:
     return "".join(["local Config = (function()\n", parts, init, "\nreturn ConfigInit\nend)()\n"])
 
 
-FARM_MATH_PARTS = ["Format", "Core", "Counts", "Islands", "Lineage", "Expansion", "Production", "Income", "Animals"]
+FARM_MATH_PARTS = ["Format", "Core", "Goods", "Counts", "Islands", "Lineage", "Expansion", "Production", "Income", "Animals"]
 
 
 def _declared_dependencies(path: str) -> set[str]:
@@ -156,6 +156,7 @@ def main() -> int:
                "game, os, Random, Remotes, task, Environment, RateLimiter"),
         module("seasonAdminSpec", "tests/season-admin.spec.luau"),
         module("ProductionRules", "src/server/Modules/ProductionRules.luau"),
+        module("goodsSpec", "tests/goods.spec.luau"),
         module("ProductionServiceFactory", "src/server/Services/ProductionService.luau",
                {"Config", "Remotes", "FarmMath", "PlayerDataService", "EconomyService", "PlotService", "ProductionRules", "RateLimiter"},
                "game, Remotes, PlayerDataService, EconomyService, PlotService, RateLimiter, DateTime, warn"),
@@ -196,6 +197,7 @@ def main() -> int:
         "productionSpec(ProductionServiceFactory, RateLimiterFactory, ProductionRules, SaveCodec, Config, FarmMath)\n",
         "mainFarmSpec(MainFarmServiceFactory, EconomyServiceFactory, RateLimiterFactory, FarmProfiles, SaveCodec, Config, FarmMath)\n",
         "tasksSpec(ExtensionServiceFactory, AnimalTaskServiceFactory, RateLimiterFactory, SaveCodec, Config, FarmMath)\n",
+        "goodsSpec(SaveCodec, Config, FarmMath, ProductionRules)\n",
         "clientFarmStateSpec(ClientStateFactory)\n",
     ]
     output = ROOT / ".test-build" / "run.luau"

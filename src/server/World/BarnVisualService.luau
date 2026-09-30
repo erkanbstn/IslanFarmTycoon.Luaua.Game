@@ -10,6 +10,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = script.Parent.Parent:FindFirstChild("Shared") or ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local WorldUi = require(Shared:WaitForChild("WorldUi"))
+local UiTheme = require(Shared:WaitForChild("UiTheme"))
 
 local BarnVisualService = {}
 
@@ -162,6 +163,49 @@ local function addTierDetails(barn: Model, frame: CFrame, level: number, width: 
 	end
 end
 
+-- Ahır deposunun sandığı: kapının sağında; yaklaşınca "E" ile envanter (Ahır Deposu) açılır.
+-- Prompt yalnızca çiftliğin sahibine görünür (client IslandPrompts: Locked özniteliği).
+local function addStorageChest(barn: Model, frame: CFrame, doorW: number, depth: number)
+	local at = frame * CFrame.new(doorW / 2 + 4.6, 0, -(depth / 2 + 3))
+	local wood = Color3.fromRGB(139, 95, 55)
+	local body = makePart("StorageChest", Vector3.new(3.4, 2, 2.2), at * CFrame.new(0, 1, 0), wood, barn)
+	makePart("ChestLid", Vector3.new(3.6, 0.7, 2.4), at * CFrame.new(0, 2.35, 0), Color3.fromRGB(120, 80, 45), barn)
+	for _, x in { -1.1, 1.1 } do
+		local band = makePart(
+			"ChestBand",
+			Vector3.new(0.3, 3.1, 2.5),
+			at * CFrame.new(x, 1.55, 0),
+			Color3.fromRGB(70, 65, 62),
+			barn
+		)
+		band.Material = Enum.Material.Metal
+	end
+	local lock =
+		makePart("ChestLock", Vector3.new(0.6, 0.8, 0.3), at * CFrame.new(0, 1.9, -1.2), UiTheme.Color.Gold, barn)
+	lock.Material = Enum.Material.Metal
+
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.Name = "BarnChestPrompt"
+	prompt.ActionText = "Aç"
+	prompt.ObjectText = "Ahır Deposu"
+	prompt.KeyboardKeyCode = Enum.KeyCode.E
+	prompt.HoldDuration = 0
+	prompt.MaxActivationDistance = 10
+	prompt.RequiresLineOfSight = false
+	prompt:SetAttribute("Locked", true)
+	WorldUi.configureProximityPrompt(prompt)
+	prompt.Parent = body
+	WorldUi.tag(body, "ChestTag", {
+		text = "Ahır Deposu",
+		icon = "📦",
+		tint = UiTheme.Color.Gold,
+		widthStuds = 7,
+		heightStuds = 1.7,
+		offset = Vector3.new(0, 3.6, 0),
+		maxDistance = 55,
+	})
+end
+
 -- frame: zemin yüzeyinde, LookVector (-Z) kapı yönü
 local function buildBarn(parent: Instance, frame: CFrame, barnLevel: number)
 	local levelConfig = Config.getBarnLevelConfig(barnLevel)
@@ -225,6 +269,7 @@ local function buildBarn(parent: Instance, frame: CFrame, barnLevel: number)
 
 	addTierDetails(barn, frame, tier, width, depth, wallH)
 	addLanterns(barn, frame, doorW, depth)
+	addStorageChest(barn, frame, doorW, depth)
 
 	-- Giriş basamağı (zemin 1 stud yüksekte) ve içeride samanlık/fıçılar
 	makePart(

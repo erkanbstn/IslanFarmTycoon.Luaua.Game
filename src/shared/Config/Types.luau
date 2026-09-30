@@ -38,7 +38,9 @@ export type ProductionRecipeConfig = {
 	duration: number,
 	cost: number,
 	reward: number,
-	output: "cash" | "chicken",
+	output: "cash" | "chicken" | "goods", -- "goods": ahır deposuna ürün (goodsId/goodsAmount)
+	goodsId: string?, -- output == "goods": Config.GOODS anahtarı
+	goodsAmount: number?, -- output == "goods": temel ürün miktarı (yetişkin bonusu/tesis verimi ve ödül tabanı uygulanır)
 	upgradeProfile: string?, -- BUILD_UPGRADES.profiles anahtarı (yoksa "factory")
 }
 
@@ -51,11 +53,20 @@ export type AnimalConfig = {
 	baseIncomePerSecond: number,
 }
 
+export type GoodConfig = {
+	id: string,
+	displayName: string,
+	icon: string,
+	animalId: string, -- ürünü veren hayvan türü
+	value: number, -- bir birimin para değeri (dengeleme; sipariş ödülü)
+}
+
 export type BarnLevelConfig = {
 	level: number,
 	displayName: string,
 	barnScale: number,
 	storageCap: number, -- Depoda birikebilecek en fazla para
+	goodsCap: number, -- Ahır deposunda her ürün türünden biriktirilebilecek en fazla miktar
 	incomeMultiplier: number, -- Tüm gelire uygulanır
 }
 

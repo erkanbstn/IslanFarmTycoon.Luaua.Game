@@ -209,7 +209,8 @@ function MenuBar.create(screenGui: ScreenGui): Hud
 				ownsFactory = true
 			end
 		end
-		local ownsItems = state.inventory ~= nil and next(state.inventory.items) ~= nil
+		local ownsItems = (state.inventory ~= nil and next(state.inventory.items) ~= nil)
+			or FarmMath.getGoodsWorth(state) > 0 -- ahır deposunda ürün birikince de görünür
 		setMenuTile(upgradesButton, veteran or Onboarding.stepFor(state) >= 3)
 		setMenuTile(roadmapButton, veteran or earned >= 300)
 		setMenuTile(productionButton, ownsFactory)

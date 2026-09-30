@@ -212,6 +212,13 @@ ProximityPromptService.PromptTriggered:Connect(function(prompt: ProximityPrompt,
 		end
 		return
 	end
+	-- Ahırdaki sandık: envanter penceresi (Ahır Deposu bölümü üstte) açılır
+	if prompt.Name == "BarnChestPrompt" then
+		if not inventoryPanel.window.isOpen() then
+			openCenter(inventoryPanel.window)
+		end
+		return
+	end
 	if prompt.Name ~= "VendorPrompt" then
 		return
 	end

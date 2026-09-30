@@ -18,6 +18,9 @@ function ProductionRules.canStart(save: any, recipe: any, farmMath: any, now: nu
 	if save.production[recipe.id] then
 		return false, "Önce mevcut üretimi teslim almalısın."
 	end
+	if recipe.output == "goods" and farmMath.getGoodsSpace(save, recipe.goodsId) < (recipe.goodsAmount or 0) then
+		return false, "Ahır deposunda bu ürün için yeterli yer yok."
+	end
 	if ProductionRules.countAdults(save, recipe, farmMath, now) < recipe.requiredAdults then
 		return false, `Bu üretim için boşta {recipe.requiredAdults} yetişkin hayvan gerekli.`
 	end

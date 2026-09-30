@@ -11,16 +11,38 @@ return {
 	},
 
 	BARN_LEVELS = {
-		{ level = 1, displayName = "Küçük Ahır", barnScale = 1, storageCap = 500, incomeMultiplier = 1 },
+		{
+			level = 1,
+			displayName = "Küçük Ahır",
+			barnScale = 1,
+			storageCap = 500,
+			goodsCap = 60,
+			incomeMultiplier = 1,
+		},
 		{
 			level = 2,
 			displayName = "Genişletilmiş Ahır",
 			barnScale = 1.2,
 			storageCap = 1200,
+			goodsCap = 120,
 			incomeMultiplier = 1.2,
 		},
-		{ level = 3, displayName = "Çiftlik Ahırı", barnScale = 1.45, storageCap = 3000, incomeMultiplier = 1.4 },
-		{ level = 4, displayName = "Büyük Çiftlik", barnScale = 1.7, storageCap = 10000, incomeMultiplier = 1.7 },
+		{
+			level = 3,
+			displayName = "Çiftlik Ahırı",
+			barnScale = 1.45,
+			storageCap = 3000,
+			goodsCap = 240,
+			incomeMultiplier = 1.4,
+		},
+		{
+			level = 4,
+			displayName = "Büyük Çiftlik",
+			barnScale = 1.7,
+			storageCap = 10000,
+			goodsCap = 500,
+			incomeMultiplier = 1.7,
+		},
 	} :: { Types.BarnLevelConfig },
 
 	-- Bütün ada türleri; hangi çiftlikte hangilerinin olduğunu THEMES belirler.

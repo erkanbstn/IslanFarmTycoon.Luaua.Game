@@ -127,6 +127,10 @@ local function buildSatellite(
 		local spotCf = cf * CFrame.new(layout.buildSpot.offset.X, SURFACE_Y, layout.buildSpot.offset.Z)
 		addBuildSpot(buildSpots, layout.buildSpot.upgradeId, spotCf)
 	end
+	if layout.itemSpot then
+		local itemCf = cf * CFrame.new(layout.itemSpot.offset.X, SURFACE_Y, layout.itemSpot.offset.Z)
+		addBuildSpot(buildSpots, layout.itemSpot.upgradeId, itemCf)
+	end
 	for upgradeId, site in IslandSpecialization.SITES do
 		if site.island == layout.id then
 			local marker =

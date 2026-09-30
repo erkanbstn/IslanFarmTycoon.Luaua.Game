@@ -102,6 +102,18 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
   çağrılarda `Environment.setClientOverride` ile kurulan kendi katmanını kullanır (FarmHud her durumda kurar). Yeni bir mevsim/hava tüketicisi dünya attribute'unu doğrudan okumamalı,
   `Environment` üzerinden geçmeli. Dünya mevsimini/havasını yalnızca `SeasonService` (ve yönetici araçları) değiştirir. Test araçları `grantItems/clearItems`. Yeni eşya ailesi eklerken `tests/inventory.spec.luau` (pahalı kademe daha güçlü olmalı)
   ve çeviri anahtarları (ad + şablon açıklama) gerekir.
+- **Ahır deposu ve ürün merkezleri**: `Config.GOODS/GOODS_ORDER` (süt, yumurta, tüy, peynir, yün, et, nal, balık; `value` = birim para değeri) ve çiftlik
+  başına `save.goods { [ürün] = miktar }` (`FarmProfiles.FIELDS`'te; `SaveCodec` bilinmeyen/sonsuz/negatif girdiyi atar, miktarı ahırın `goodsCap` değerine
+  sıkıştırır). Kapasite ahır seviyesine göre (`BARN_LEVELS[n].goodsCap`, ürün türü başına). Depo işlemleri **yalnızca** `FarmMath.getGoodsAmount/getGoodsSpace/
+  addGoods/removeGoods/getGoodsWorth/getGoodsCap` ile yapılır (sipariş sistemi depoyu buradan tüketecek: `removeGoods` yetmiyorsa hiçbir şey değiştirmez).
+  Ürün merkezleri `PRODUCTION_RECIPES` içinde `output = "goods"`, `goodsId`, `goodsAmount` taşır (`reward` = ürünlerin para karşılığı; yalnızca gösterim ve
+  tesis geliştirme maliyeti tabanı). Her hayvan türü için bir **para** (mevcut fabrika) ve bir **ürün** merkezi vardır; ürün merkezleri de aynı hayvan kuralını
+  izler (`requiredAdults`, iş boyunca gelirsiz, sonra döner, bkz. Hayvan görevleri). Başlatma: `ProductionRules.canStart` depoda en az `goodsAmount` yer ister.
+  Teslim: `FarmMath.getGoodsYield` (temel x yetişkin bonusu x tesis verimi; kaçırılan gelirin `PRODUCTION_MIN_RETURN` katının ürün değeri tabanı) miktarını
+  `ProductionService` depoya ekler (sığmayan kısım eklenmez), para vermez. Arayüz: Envanter penceresinde üstte "Ahır Deposu" bölümü, ahırdaki sandık
+  (`BarnVisualService.addStorageChest`, `BarnChestPrompt`, "E") aynı pencereyi açar; yeni ürün merkezi binaları `Presentation/UpgradeBuildersGoods` ve
+  `MapLayout` yapı noktaları (`HOME_BUILD_SPOTS`, `SATELLITE_TYPES[...].itemSpot`); `MapBuilder.validate` her "boost" yükseltmesi için yapı noktası ister.
+  Yeni ürün/merkez eklerken: `Goods.luau` + tarif + yükseltme + bina görseli + yapı noktası + `UpgradeParts.PRODUCTION_RECIPES` + çeviri + `tests/goods.spec.luau`.
 - **Hayvan görevleri (üretim tesisi ve eklenti)**: `AnimalRecord.task { kind = "production"|"extension", id, startedAt, endsAt }` kaydedilir
   (`SaveCodec.decodeTask`: bozuk görev atılır, hayvan korunur; çevrimdışıyken biten görev yüklemede temizlenir; eski kalıcı `extensionId` eve döner).
   Görev süresince: **üretim** → hayvan tesiste çalışır, gelir getirmez, görünmez, satılamaz; **eklenti** → `Config.EXTENSIONS[id].incomeBonus` kadar

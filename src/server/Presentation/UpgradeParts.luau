@@ -18,6 +18,15 @@ local PRODUCTION_RECIPES: { [string]: string } = {
 	duck_house = "duck_eggs",
 	wool_mill = "wool",
 	truffle_kitchen = "truffle",
+	-- Ürün merkezleri (depoya ürün üretir)
+	milk_center = "milk_goods",
+	egg_center = "egg_goods",
+	down_workshop = "down_goods",
+	cheese_cellar = "cheese_goods",
+	wool_loom = "wool_goods",
+	meat_smokehouse = "meat_goods",
+	horseshoe_forge = "horseshoe_goods",
+	fish_cannery = "fish_goods",
 }
 
 local function makePart(

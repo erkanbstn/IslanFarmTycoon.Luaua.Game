@@ -11,6 +11,7 @@ local Economy = require(script:WaitForChild("Economy"))
 local Shop = require(script:WaitForChild("Shop"))
 local Achievements = require(script:WaitForChild("Achievements"))
 local Audio = require(script:WaitForChild("Audio"))
+local Goods = require(script:WaitForChild("Goods"))
 local Islands = require(script:WaitForChild("Islands"))
 local Upgrades = require(script:WaitForChild("Upgrades"))
 local Production = require(script:WaitForChild("Production"))
@@ -110,6 +111,9 @@ local Config = {
 	SEASONAL_MIN_REWARD = Shop.SEASONAL_MIN_REWARD,
 	-- Achievements
 	ACHIEVEMENTS = Achievements.ACHIEVEMENTS,
+	-- Goods (ahır deposu ürünleri)
+	GOODS = Goods.GOODS,
+	GOODS_ORDER = Goods.GOODS_ORDER,
 	-- Audio
 	SOUNDS = Audio.SOUNDS,
 	AMBIENCE = Audio.AMBIENCE,

@@ -20,6 +20,7 @@ local WorldDecor = require(script.Parent.Parent:WaitForChild("World"):WaitForChi
 local UpgradeParts = require(script.Parent:WaitForChild("UpgradeParts"))
 local UpgradeSites = require(script.Parent:WaitForChild("UpgradeSites"))
 local JobMarks = require(script.Parent:WaitForChild("JobMarks"))
+local BuildersGoods = require(script.Parent:WaitForChild("UpgradeBuildersGoods"))
 local BuildersHome = require(script.Parent:WaitForChild("UpgradeBuildersHome"))
 local BuildersBarnyard = require(script.Parent:WaitForChild("UpgradeBuildersBarnyard"))
 local BuildersWorkshops = require(script.Parent:WaitForChild("UpgradeBuildersWorkshops"))
@@ -38,7 +39,7 @@ local applyLevelMarks = UpgradeSites.applyLevelMarks
 
 -- Bina id -> görsel kurucu (gruplar ayrı dosyalarda)
 local BUILDERS: { [string]: Builder } = {}
-for _, group in { BuildersHome, BuildersBarnyard, BuildersWorkshops } do
+for _, group in { BuildersHome, BuildersBarnyard, BuildersWorkshops, BuildersGoods } do
 	for id, builder in group do
 		BUILDERS[id] = builder
 	end

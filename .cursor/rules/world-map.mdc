@@ -32,6 +32,8 @@ alwaysApply: false
   `src/client/Interaction/HubNpcs.client.luau` onları canlandırır (göz teması, el sallama, selam balonu; yalnızca client'ta CFrame yazılır).
 - Tabelalar (giriş, ada, "satılık"): uzun direk, tahta alt kenarı yerden >= 10 stud, tahta `CanCollide=false` (yolu kapatmaz).
   Yeni tabela eklerken `tests/map-structure.spec.luau` bu yüksekliği denetler.
+- Ahır sandığı: `BarnVisualService.addStorageChest` (kapının sağı; `BarnChestPrompt` → Envanter/Ahır Deposu). Ürün merkezleri (8 bina) ana adada ahırın arkasında
+  (`HOME_BUILD_SPOTS.milk_center/fish_cannery`), küçük adalarda `SATELLITE_TYPES[...].itemSpot` (-17, 0, 27); yeni bir "boost" yükseltmesi için yapı noktası zorunludur.
 - Dekor bitince `WorldDecor.optimize(root)`: küçük parçalar gölge düşürmez, çarpışmayanlar `CanQuery=false` olur.
 - Ana ada düzeni temaya göre değişir: `MapLayout.homePlacements(plotIndex)` batı kümesinde bahçe↔ambar ve değirmen↔kovan, doğuda çiftlik evi↔meyve bahçesi yer
   değiştirir, kuyu iki yandan birinde durur (6 düzen, yuvalar sabit; yol/bölge/yapı noktaları değişmez). Çim kaçınma dikdörtgenleri aynı yerleşimden türer

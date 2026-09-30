@@ -9,6 +9,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local GameTypes = require(Shared:WaitForChild("GameTypes"))
 local Environment = require(Shared:WaitForChild("Modules"):WaitForChild("Environment"))
+local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 local Inventory = require(Shared:WaitForChild("Modules"):WaitForChild("Inventory"))
 local ClientState = require(script.Parent.Parent.Parent:WaitForChild("Core"):WaitForChild("ClientState"))
 local UiKit = require(script.Parent.Parent:WaitForChild("UiKit"))
@@ -28,6 +29,7 @@ export type Panel = {
 	update: (state: PlayerSave) -> (),
 }
 
+local GOODS_ORDER = -30 -- Ahır deposu en üstte (negatif sıra: eşya bölümlerinden önce)
 local SLOTS_ORDER = 10
 local POWER_ORDER = 30
 local OWNED_ORDER = 40
@@ -44,8 +46,23 @@ function InventoryWindow.create(screenGui: ScreenGui): Panel
 		anchor = Vector2.new(0.5, 0.5),
 		position = UDim2.fromScale(0.5, 0.5),
 	})
-	UiKit.text(window.list, "Her slota bir eşya takılır. Eşyaları meydandaki Usta Ömer'den alırsın.", "Caption").LayoutOrder =
-		0
+	UiKit.text(
+		window.list,
+		"Ürünler ahır deposunda birikir (ahırdaki sandıktan da açılır). Her slota bir eşya takılır; eşyaları meydandaki Usta Ömer'den alırsın.",
+		"Caption"
+	).LayoutOrder = GOODS_ORDER
+		- 1
+
+	-- Ahır deposu: ürün merkezlerinin ürettiği ürünler (sipariş sistemi bunları kullanacak)
+	local _, goodsMeta = UiKit.sectionHeader(window.list, "Ahır Deposu", GOODS_ORDER)
+	local goodsCards: { [string]: UiKit.Card } = {}
+	for index, goodId in Config.GOODS_ORDER do
+		local good = Config.GOODS[goodId]
+		local card = UiKit.card(window.list, GOODS_ORDER + index, good.icon)
+		card.title.Text = good.displayName
+		card.action.Visible = false
+		goodsCards[goodId] = card
+	end
 
 	-- Takılı eşyalar: slot başına bir satır
 	UiKit.sectionHeader(window.list, "Takılı eşyalar", SLOTS_ORDER)
@@ -142,6 +159,14 @@ function InventoryWindow.create(screenGui: ScreenGui): Panel
 
 	local function update(state: PlayerSave)
 		local now = Workspace:GetServerTimeNow()
+		-- Ahır deposu
+		local cap = FarmMath.getGoodsCap(state)
+		for goodId, card in goodsCards do
+			local amount = FarmMath.getGoodsAmount(state, goodId)
+			card.detail.Text = `{amount}/{cap} · Değer {FarmMath.formatMoney(amount * Config.GOODS[goodId].value)}`
+			card.frame.BackgroundTransparency = if amount > 0 then 0 else 0.5
+		end
+		goodsMeta.Text = FarmMath.formatMoney(FarmMath.getGoodsWorth(state))
 		-- Takılı eşyalar
 		local ownedAny = false
 		for slotId, card in slotCards do

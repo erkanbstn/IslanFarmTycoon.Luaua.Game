@@ -5,6 +5,7 @@
 
 local Format = require(script:WaitForChild("Format"))
 local Core = require(script:WaitForChild("Core"))
+local Goods = require(script:WaitForChild("Goods"))
 local Counts = require(script:WaitForChild("Counts"))
 local Islands = require(script:WaitForChild("Islands"))
 local Lineage = require(script:WaitForChild("Lineage"))
@@ -33,6 +34,13 @@ FarmMath.getStage = Core.getStage
 FarmMath.getBarnConfig = Core.getBarnConfig
 FarmMath.getStorageCap = Core.getStorageCap
 FarmMath.getStorageLevel = Core.getStorageLevel
+-- Goods
+FarmMath.getGoodsCap = Goods.getGoodsCap
+FarmMath.getGoodsAmount = Goods.getGoodsAmount
+FarmMath.getGoodsSpace = Goods.getGoodsSpace
+FarmMath.addGoods = Goods.addGoods
+FarmMath.removeGoods = Goods.removeGoods
+FarmMath.getGoodsWorth = Goods.getGoodsWorth
 -- Counts
 FarmMath.countInZone = Counts.countInZone
 FarmMath.countInExtension = Counts.countInExtension
@@ -69,6 +77,7 @@ FarmMath.getFacilityCost = Expansion.getFacilityCost
 FarmMath.getGrowthSpeed = Production.getGrowthSpeed
 FarmMath.countProductionAdults = Production.countProductionAdults
 FarmMath.pickProductionAnimals = Production.pickProductionAnimals
+FarmMath.getGoodsYield = Production.getGoodsYield
 FarmMath.getProductionReward = Production.getProductionReward
 FarmMath.snapshotGrowthSpeeds = Production.snapshotGrowthSpeeds
 FarmMath.preserveGrowthProgress = Production.preserveGrowthProgress

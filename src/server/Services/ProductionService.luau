@@ -44,6 +44,7 @@ local function act(player: Player, action: unknown, recipeId: unknown, jobUid: u
 	end
 	local now = DateTime.now().UnixTimestampMillis / 1000
 	local reward = 0
+	local goodsMessage = ""
 	if action == "start" then
 		local allowed, reason = ProductionRules.canStart(data, recipe, FarmMath, now)
 		if not allowed then
@@ -96,10 +97,21 @@ local function act(player: Player, action: unknown, recipeId: unknown, jobUid: u
 			})
 		else
 			EconomyService.settlePlayer(player)
-			reward = FarmMath.getProductionReward(data, recipe, now, job)
 			releaseProductionAnimals(data, recipe.id)
 			data.production[recipe.id] = nil
-			PlayerDataService.addCash(player, reward)
+			if recipe.output == "goods" and recipe.goodsId then
+				-- Ürün merkezi: para yerine ahır deposuna ürün (sığmayan kısım eklenmez)
+				local amount = FarmMath.getGoodsYield(data, recipe, now, job)
+				local added = FarmMath.addGoods(data, recipe.goodsId, amount)
+				local good = Config.GOODS[recipe.goodsId]
+				goodsMessage = `Ahıra eklendi · {good.displayName} · +{added}`
+				if added < amount then
+					goodsMessage ..= " · Depo doldu"
+				end
+			else
+				reward = FarmMath.getProductionReward(data, recipe, now, job)
+				PlayerDataService.addCash(player, reward)
+			end
 		end
 	end
 	PlayerDataService.pushState(player)
@@ -113,6 +125,7 @@ local function act(player: Player, action: unknown, recipeId: unknown, jobUid: u
 		if action == "start"
 			then "Üretim başladı!"
 			elseif action == "keep" then "Yeni civciv kümese eklendi!"
+			elseif goodsMessage ~= "" then goodsMessage
 			else `Üretim satıldı: {FarmMath.formatMoney(reward)}`
 end
 

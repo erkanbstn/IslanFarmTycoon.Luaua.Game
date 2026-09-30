@@ -153,6 +153,12 @@ local function create(parent: ScreenGui): UiKit.Window
 			local variant: UiKit.Variant = "primary"
 			local job = state.production and state.production[id]
 			local reward, bonus = FarmMath.getProductionReward(state, recipe, now, job)
+			local isGoods = recipe.output == "goods" and recipe.goodsId ~= nil
+			local good = if isGoods then Config.GOODS[recipe.goodsId :: string] else nil
+			if isGoods then
+				-- Ürün merkezi: teslimde para değil, ahır deposuna ürün gelir
+				reward, bonus = FarmMath.getGoodsYield(state, recipe, now, job)
+			end
 			if job then
 				local remaining = math.max(0, math.ceil(job.readyAt - now))
 				entry.progress.Visible = true
@@ -170,7 +176,10 @@ local function create(parent: ScreenGui): UiKit.Window
 						remaining % 60
 					)}\nTesisteki hayvanlar: {working}`
 					else "Parti hazır. Teslim ederek yeni üretime yer aç."
-				card.action.Text = if remaining > 0 then "Üretiliyor" else `Sat · {FarmMath.formatMoney(reward)}`
+				card.action.Text = if remaining > 0
+					then "Üretiliyor"
+					elseif isGoods then `Depoya al · +{reward}`
+					else `Sat · {FarmMath.formatMoney(reward)}`
 				variant = if remaining > 0 then "disabled" else "primary"
 				if recipe.output == "chicken" and remaining == 0 then
 					entry.keep.Visible = true
@@ -202,16 +211,26 @@ local function create(parent: ScreenGui): UiKit.Window
 				local duration = FarmMath.getFacilityDuration(state, recipe)
 				local picked = FarmMath.pickProductionAnimals(state, recipe, now)
 				local forgone = if picked then FarmMath.estimateForgoneIncome(state, picked, duration) else 0
-				local shownReward = FarmMath.getProductionReward(
-					state,
-					recipe,
-					now,
-					{ uid = "preview", readyAt = now, forgone = forgone }
-				)
-				card.detail.Text =
-					`{recipe.description}\n{duration} sn · Satış {FarmMath.formatMoney(shownReward)}\nYetişkin hayvan: {adults}/{recipe.requiredAdults}{bonusLine}\nHayvanlar iş boyunca gelirsiz çalışır, bitince döner.`
-				card.action.Text = `Başlat · {FarmMath.formatMoney(startCost)}`
-				variant = if adults < recipe.requiredAdults
+				local preview = { uid = "preview", readyAt = now, forgone = forgone }
+				local hasSpace = true
+				if isGoods and good then
+					-- Ürün miktarı: kaçırılan gelirin üstündeki garantili taban dahil; depoda yer de gerekir
+					local amount = FarmMath.getGoodsYield(state, recipe, now, preview)
+					local space = FarmMath.getGoodsSpace(state, good.id)
+					hasSpace = space >= (recipe.goodsAmount or 0)
+					card.detail.Text =
+						`{recipe.description}\n{duration} sn · {good.displayName} · +{amount}\nAhır deposu: {FarmMath.getGoodsAmount(
+							state,
+							good.id
+						)}/{FarmMath.getGoodsCap(state)}\nYetişkin hayvan: {adults}/{recipe.requiredAdults}{bonusLine}\nHayvanlar iş boyunca gelirsiz çalışır, bitince döner.`
+				else
+					local shownReward = FarmMath.getProductionReward(state, recipe, now, preview)
+					card.detail.Text = `{recipe.description}\n{duration} sn · Satış {FarmMath.formatMoney(
+						shownReward
+					)}\nYetişkin hayvan: {adults}/{recipe.requiredAdults}{bonusLine}\nHayvanlar iş boyunca gelirsiz çalışır, bitince döner.`
+				end
+				card.action.Text = if hasSpace then `Başlat · {FarmMath.formatMoney(startCost)}` else "Depo dolu"
+				variant = if adults < recipe.requiredAdults or not hasSpace
 					then "disabled"
 					elseif state.cash >= startCost then "primary"
 					else "warning"

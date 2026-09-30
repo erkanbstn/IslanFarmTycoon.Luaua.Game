@@ -303,6 +303,45 @@ return function(createService: any, createLimiter: any, rules: any, codec: any, 
 		now = job.readyAt + 1
 		assert(fire("sell", id, job.uid).ok, "all specialist recipes can complete")
 	end
+	-- Ürün merkezi: para yerine ahır deposuna ürün; hayvan kuralları aynı
+	reset()
+	local milk = config.PRODUCTION_RECIPES.milk_goods
+	local cashBeforeGoods = data.cash
+	assert(fire("start", "milk_goods", nil).ok, "a goods batch starts")
+	assert(data.cash == cashBeforeGoods - milk.cost, "a goods batch charges its start cost")
+	local goodsJob = data.production.milk_goods
+	local working = 0
+	for _, animal in data.animals do
+		if animal.task and animal.task.id == "milk_goods" then
+			working += 1
+		end
+	end
+	assert(working == milk.requiredAdults, "goods batches also take the required adults")
+	assert(not fire("sell", "milk_goods", goodsJob.uid).ok, "goods cannot be collected early")
+	now = goodsJob.readyAt + 1
+	cashBeforeGoods = data.cash
+	local expectedAmount = farmMath.getGoodsYield(data, milk, now, goodsJob)
+	assert(expectedAmount >= milk.goodsAmount, "the yield is at least the base amount")
+	assert(fire("sell", "milk_goods", goodsJob.uid).ok, "a ready goods batch is collected")
+	assert(data.cash == cashBeforeGoods, "goods batches pay no cash")
+	assert(
+		farmMath.getGoodsAmount(data, "milk") == math.min(expectedAmount, farmMath.getGoodsCap(data)),
+		"the goods land in the barn"
+	)
+	assert(
+		string.find(results[#results].message, "Ahıra eklendi", 1, true) ~= nil,
+		"the player is told where the goods went"
+	)
+	assert(data.production.milk_goods == nil, "the job is consumed")
+	for _, animal in data.animals do
+		assert(animal.task == nil, "the animals are back after collecting")
+	end
+	assert(not fire("keep", "milk_goods", goodsJob.uid).ok, "goods batches cannot become animals")
+	-- Dolu depo yeni partiyi engeller
+	farmMath.addGoods(data, "milk", farmMath.getGoodsCap(data))
+	local fullBlocked = fire("start", "milk_goods", nil)
+	assert(not fullBlocked.ok and data.production.milk_goods == nil, "a full barn blocks the next batch")
+	assert(fire("start", "dairy", nil).ok, "a full barn does not block cash recipes")
 	assert(saves == pushes and saves > 0 and settlements > 0, "each mutation pushes and schedules persistence")
 	print(
 		"PASS production: actual service ownership, adult/price checks, replay, timed claims, incubation capacity, persistence and schema4 migration"

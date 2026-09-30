@@ -80,6 +80,9 @@ local HOME_BUILD_SPOTS: { [string]: Vector3 } = {
 	silo = Vector3.new(-31, 0, 33),
 	milk_machine = Vector3.new(31, 0, 33),
 	auto_collector = Vector3.new(24, 0, -40),
+	-- Ürün merkezleri (depoya ürün üretir): ahırın arkasında, iki yanda (merkez yolu x=0 ve köprü yolları boş kalır)
+	milk_center = Vector3.new(-20, 0, 56),
+	fish_cannery = Vector3.new(20, 0, 56),
 }
 
 -- Denizdeki bina yerleri (su seviyesinde): Balıkçı Teknesi kafesin dış kenarına bağlanır
@@ -93,6 +96,7 @@ export type SatelliteLayout = {
 	groundColor: Color3,
 	zone: ZoneLayout,
 	buildSpot: { upgradeId: string, offset: Vector3 }?,
+	itemSpot: { upgradeId: string, offset: Vector3 }?, -- ürün merkezi (depoya ürün üreten fabrika) yapı noktası
 }
 
 -- Uzman adalar (kendi yerel koordinatlarında -Z ana adaya, yani köprüye bakar).
@@ -104,6 +108,7 @@ export type SatelliteType = {
 	groundColor: Color3,
 	zone: ZoneLayout,
 	buildSpot: { upgradeId: string, offset: Vector3 }?,
+	itemSpot: { upgradeId: string, offset: Vector3 }?, -- ürün merkezi (depoya ürün üreten fabrika) yapı noktası
 }
 
 local function satelliteZone(id: string, color: Color3, backReserve: number): ZoneLayout
@@ -125,31 +130,37 @@ local SATELLITE_TYPES: { [string]: SatelliteType } = {
 		groundColor = Color3.fromRGB(150, 165, 80),
 		zone = satelliteZone("poultry", Color3.fromRGB(205, 185, 125), 8),
 		buildSpot = { upgradeId = "egg_factory", offset = Vector3.new(0, 0, 26) },
+		itemSpot = { upgradeId = "egg_center", offset = Vector3.new(-17, 0, 27) },
 	},
 	horse = {
 		groundColor = Color3.fromRGB(90, 150, 70),
 		zone = satelliteZone("stable", Color3.fromRGB(145, 110, 80), 8),
 		buildSpot = { upgradeId = "golden_horseshoe", offset = Vector3.new(0, 0, 25) },
+		itemSpot = { upgradeId = "horseshoe_forge", offset = Vector3.new(-17, 0, 27) },
 	},
 	goat = {
 		groundColor = Color3.fromRGB(120, 140, 95),
 		zone = satelliteZone("goatpen", Color3.fromRGB(130, 150, 90), 5),
 		buildSpot = { upgradeId = "cheese_dairy", offset = Vector3.new(0, 0, 26) },
+		itemSpot = { upgradeId = "cheese_cellar", offset = Vector3.new(-17, 0, 27) },
 	},
 	duck = {
 		groundColor = Color3.fromRGB(105, 165, 100),
 		zone = satelliteZone("pond", Color3.fromRGB(88, 160, 200), 8),
 		buildSpot = { upgradeId = "duck_house", offset = Vector3.new(0, 0, 26) },
+		itemSpot = { upgradeId = "down_workshop", offset = Vector3.new(-17, 0, 27) },
 	},
 	sheep = {
 		groundColor = Color3.fromRGB(118, 172, 88),
 		zone = satelliteZone("sheepfold", Color3.fromRGB(122, 168, 88), 6),
 		buildSpot = { upgradeId = "wool_mill", offset = Vector3.new(0, 0, 26) },
+		itemSpot = { upgradeId = "wool_loom", offset = Vector3.new(-17, 0, 27) },
 	},
 	pig = {
 		groundColor = Color3.fromRGB(112, 128, 82),
 		zone = satelliteZone("pigpen", Color3.fromRGB(118, 92, 64), 6),
 		buildSpot = { upgradeId = "truffle_kitchen", offset = Vector3.new(0, 0, 26) },
+		itemSpot = { upgradeId = "meat_smokehouse", offset = Vector3.new(-17, 0, 27) },
 	},
 }
 
@@ -165,6 +176,7 @@ local function satelliteLayouts(plotIndex: number): { SatelliteLayout }
 				groundColor = kind.groundColor,
 				zone = kind.zone,
 				buildSpot = kind.buildSpot,
+				itemSpot = kind.itemSpot,
 			})
 		end
 	end

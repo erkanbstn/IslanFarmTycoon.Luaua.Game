@@ -282,6 +282,13 @@ function GoalCard.create(stats: Frame, onboarding: Onboarding.Hud): Hud
 					and state.unlockedIslands[recipe.island]
 					and FarmMath.countProductionAdults(state, recipe, now) >= recipe.requiredAdults
 					and state.cash >= FarmMath.getFacilityCost(state, recipe)
+					and (
+						recipe.output ~= "goods"
+						or (
+							recipe.goodsId ~= nil
+							and FarmMath.getGoodsSpace(state, recipe.goodsId) >= (recipe.goodsAmount or 0)
+						)
+					)
 				then
 					table.insert(chores, `Üretimi başlat: {recipe.displayName}`)
 					break

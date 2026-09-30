@@ -38,7 +38,7 @@
  "src/server/Services/PlotService.luau|Expected this to be 'SpawnLocation', but got 'nil'": 15,
  "src/server/Services/ProductionService.luau|Function only returns 1 value, but 2 are required here": 2,
  "src/server/Services/UpgradeService.luau|Cyclic dependencies are only supported if all modules in the cycle use 'export' syntax. The following modules do not use 'export': <yol> [game/ServerScriptServi": 30,
- "src/server/World/BarnVisualService.luau|Unknown require: unsupported path": 36,
+ "src/server/World/BarnVisualService.luau|Unknown require: unsupported path": 54,
  "src/server/World/HomeMarket.luau|Unknown require: unsupported path": 19,
  "src/server/World/HubBuilder.luau|Unknown require: unsupported path": 51,
  "src/server/World/HubNpcs.luau|Unknown require: unsupported path": 18,

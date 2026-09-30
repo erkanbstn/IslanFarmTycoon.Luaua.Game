@@ -78,6 +78,7 @@ export type PlayerSave = {
 	stored: number, -- Depoda biriken, henüz toplanmamış para
 	purchased: { [string]: boolean }, -- Yol haritasından alınanlar (Config.UPGRADES id'leri)
 	expansions: { [string]: number }?, -- Yapı geliştirme seviyeleri (bölge ya da tesis kimliği -> 1..Config.BUILD_UPGRADES.maxLevel); yoksa 0
+	goods: { [string]: number }?, -- Ahır deposu: ürün kimliği (Config.GOODS) -> miktar (her tür en fazla ahırın goodsCap değeri); yoksa 0
 	lineage: { [string]: number }?, -- Irk geliştirme seviyeleri (animalId -> 1..Config.LINEAGE.maxLevel); yoksa 0
 	animals: { AnimalRecord },
 	ordersCompleted: number,
