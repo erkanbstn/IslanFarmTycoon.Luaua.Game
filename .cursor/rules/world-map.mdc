@@ -19,10 +19,10 @@ alwaysApply: false
 ## Ana ada yapıları
 - `HomeBuildings.luau` (World): pazar tezgâhı (`MarketPrompt` → Hayvan Pazarı penceresi), çiftlik evi, yel değirmeni
   (kanatlar `Windmill` etiketi, döndürme `Windmill.client`), kuyu, sebze bahçesi, meyve bahçesi, arı kovanları, ambar.
-  `MapBuilder.decorateHome` çağırır; yerleri `addIslandGrass` kaçınma listesinde de tutulur. Kapılar >= 4.6 x 6.6 stud.
-- Meydan (`MapBuilder.buildHub`): doğma noktası, Adalar tabelası ve `HubNpcs.vendor` ile 4 satıcı (`VendorPrompt`, `Action`:
+  `IslandBuilder` (`decorateHome`) çağırır; yerleri `addIslandGrass` kaçınma listesinde de tutulur. Kapılar >= 4.6 x 6.6 stud.
+- Meydan (`HubBuilder.buildHub`): doğma noktası, Adalar tabelası ve `HubNpcs.vendor` ile 4 satıcı (`VendorPrompt`, `Action`:
   `orders`/`store`/`roadmap`/`travel`; client `FarmHud.client` ilgili pencereyi açar). Satıcı doğma noktasından >= 15 stud uzakta durur.
-- Ana ada avlusu (`MapBuilder.decorateHome`): ana yolu çerçeveleyen çitler, saman balyaları, korkuluk, el arabası, kavşak yön tabelası (`buildSignpost`, ok yönleri `yaw` ile).
+- Ana ada avlusu (`IslandBuilder.decorateHome`): ana yolu çerçeveleyen çitler, saman balyaları, korkuluk, el arabası, kavşak yön tabelası (`buildSignpost`, ok yönleri `yaw` ile).
   Yeni avlu parçası `WorldDecor` yardımcısı (`fenceRun/hayBale/scarecrow/wheelbarrow`) olarak yazılır; çit/dekor çarpışmaz (`CanCollide=false`).
 - Çalışma anı seviye işaretleri: `UpgradeVisualService.applyLevelMarks` (tesis dibinde altın halkalar + "Sv.N" etiketi), `ZoneVisualService.applyLevelFlags` (bölge bayrakları).
 - NPC tabelasında `title` + işlev satırı (`blurb`) vardır; NPC adı etkileşim ipucunda (`ObjectText`). Yeni satıcıya `blurb` zorunlu.
@@ -33,7 +33,7 @@ alwaysApply: false
 - Tabelalar (giriş, ada, "satılık"): uzun direk, tahta alt kenarı yerden >= 10 stud, tahta `CanCollide=false` (yolu kapatmaz).
   Yeni tabela eklerken `tests/map-structure.spec.luau` bu yüksekliği denetler.
 - Dekor bitince `WorldDecor.optimize(root)`: küçük parçalar gölge düşürmez, çarpışmayanlar `CanQuery=false` olur.
-- Ana ada düzeni temaya göre değişir: `MapBuilder.homePlacements(plotIndex)` batı kümesinde bahçe↔ambar ve değirmen↔kovan, doğuda çiftlik evi↔meyve bahçesi yer
+- Ana ada düzeni temaya göre değişir: `MapLayout.homePlacements(plotIndex)` batı kümesinde bahçe↔ambar ve değirmen↔kovan, doğuda çiftlik evi↔meyve bahçesi yer
   değiştirir, kuyu iki yandan birinde durur (6 düzen, yuvalar sabit; yol/bölge/yapı noktaları değişmez). Çim kaçınma dikdörtgenleri aynı yerleşimden türer
   (`homeBuildingAvoidRects`): yeni yapı eklersen `homePlacements`'a koy. Her temanın doğu kıyıda kendi işaret yapısı vardır (`Config.THEMES[n].landmark` →
   `HomeBuildings.landmark`: daisy/tulip/sunflower/rose/pine/cherry). `tests/map-structure.spec.luau` işaret yapısını ve >= 5 farklı yerleşimi denetler.

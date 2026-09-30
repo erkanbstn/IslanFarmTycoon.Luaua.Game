@@ -77,7 +77,7 @@ Yeni dosya eklerken `docs/MIMARI.md`'deki "Yeni şey nereye?" tablosuna bak.
 - Sunucu `Remotes.init()` çağırır, iki taraf `Remotes.get("Ad")` ile erişir.
 
 ## Harita
-- Harita `src/server/World/MapBuilder.luau` ile üretilir; Studio'da `plugin/` eklentisinin
+- Harita `src/server/World/MapBuilder.luau` (+ `MapLayout`, `MapParts`, `IslandBuilder`, `SatelliteBuilder`, `HubBuilder`) ile üretilir; Studio'da `plugin/` eklentisinin
   "Haritayı Kur" butonuyla düzenleme modunda kurulup place'e kaydedilir.
 - Meydandaki satıcı NPC'ler `HubNpcs.luau`, genel ada yapıları `HomeBuildings.luau`. Tabelalar uzun direklere asılır, tahtası çarpışmaz
   (yol kapanmasın); dekor kurulumunun sonunda `WorldDecor.optimize` çağrılır.

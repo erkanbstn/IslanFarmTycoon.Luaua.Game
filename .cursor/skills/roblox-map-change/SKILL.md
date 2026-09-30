@@ -6,7 +6,7 @@ description: Changes the generated island map, decor, lamps or build spots in Ma
 # Harita değişikliği
 
 ## Karar: place'e kaydedilen mi, çalışma anında mı?
-- `src/server/World/` (MapBuilder, WorldDecor, HomeBuildings, HubNpcs, IslandSpecialization) → place'e kaydedilir →
+- `src/server/World/` (MapBuilder, MapLayout, MapParts, IslandBuilder, SatelliteBuilder, HubBuilder, WorldDecor, HomeBuildings, HubNpcs, IslandSpecialization) → place'e kaydedilir →
   **MAP_VERSION +1** ve Studio'da yeniden kurulum gerekir.
 - `src/server/Presentation/` (hayvan, bölge, yükseltme, eklenti, toplama görselleri; tesis seviye halkaları, bölge bayrakları) → sunucu her oturumda
   kurar → sürüm gerekmez.
