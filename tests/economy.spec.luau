@@ -97,6 +97,36 @@ return function(FarmMath: any, Config: any, Environment: any)
 	FarmMath.preserveGrowthProgress(save, oldSpeeds, start + 44)
 	near(save.animals[1].bornAt, 0)
 
+	-- Zaten yetişkin hayvanın yetişkinlik başlangıcı hız değişiminde kaymaz.
+	save = saveAt(start)
+	oldSpeeds = FarmMath.snapshotGrowthSpeeds(save)
+	save.purchased.silo = true
+	FarmMath.applyDerived(save)
+	FarmMath.preserveGrowthProgress(save, oldSpeeds, start + 1000)
+	near(save.animals[1].bornAt + 135 / 2, start + 135)
+	assert(save.animals[1].stage == "adult", "an adult stays adult after a speed change")
+
+	-- Satış: fiyatın yarısı, en genç hayvan, son hayvan satılmaz, uzantıdakiler en sona kalır.
+	save = saveAt(start)
+	save.animals = {
+		{ uid = "a", animalId = "cow", zoneId = "starter", bornAt = 0, stage = "adult" },
+		{ uid = "b", animalId = "cow", zoneId = "starter", bornAt = start + 10, stage = "calf" },
+		{ uid = "c", animalId = "cow", zoneId = "starter", bornAt = start + 20, stage = "calf", extensionId = "x" },
+	}
+	near(
+		FarmMath.getSellPrice(save, "cow"),
+		math.floor(Config.ANIMALS.cow.price * Config.ANIMAL_PRICE_GROWTH ^ 2 * 0.5)
+	)
+	local sellable = FarmMath.findSellableAnimal(save, "cow")
+	assert(sellable and sellable.uid == "b", "the youngest non-extension animal is sold first")
+	assert(FarmMath.findSellableAnimal(save, "chicken") == nil, "a missing species cannot be sold")
+	save.animals = { save.animals[1] }
+	assert(FarmMath.findSellableAnimal(save, "cow") == nil, "the last animal of a farm cannot be sold")
+	assert(
+		FarmMath.getSellPrice(save, "cow") < FarmMath.getAnimalPrice(save, "cow"),
+		"selling must always lose money versus buying"
+	)
+
 	-- İade taban fiyata bağlı; hamsi sayısını artırmak değişim ücretini düşürmez.
 	save = saveAt(start)
 	save.animals = {}

@@ -744,4 +744,9 @@ return {
 	["Gölge, yansıma, parıltı ve bulut kapalı; az yağış ve süs hayvanı. En akıcı ve en az pil harcayan."] = "Shadows, reflections, glow and clouds are off; less rain and fewer ambient animals. Smoothest and lightest on battery.",
 	["Gölgeler, hafif yansıma ve parıltı açık; dengeli parçacık ve hayvan hareketi."] = "Shadows, light reflections and glow are on; balanced particles and animal movement.",
 	["Keskin gölgeler, tam yansıma, güneş ışınları, ufukta odak bulanıklığı ve tüm efektler. Güçlü cihazlar için."] = "Sharp shadows, full reflections, sun rays, soft horizon blur and all effects. For powerful devices.",
+	["Sat · {}"] = "Sell · {1}",
+	["Hayvan satıldı: +{}"] = "Animal sold: +{1}",
+	["Çiftlikteki son hayvanı satamazsın"] = "You cannot sell the last animal on the farm",
+	["Bu hayvandan yok"] = "You have none of this animal",
+	["Hayvan artık bulunamıyor"] = "The animal can no longer be found",
 }

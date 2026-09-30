@@ -156,6 +156,40 @@ function AnimalService.tryReplaceFish(player: Player, uid: unknown): (boolean, s
 	return false, "Balık artık bulunamıyor"
 end
 
+-- Hayvan satışı: aynı türün en genci satılır, fiyatın yarısı geri gelir (kazanç sayılmaz). Çiftlikte son hayvan satılmaz.
+function AnimalService.trySell(player: Player, animalId: unknown): (boolean, string?)
+	if not RateLimiter.allow(player, "purchase", 0.2) then
+		return false, nil
+	end
+	if typeof(animalId) ~= "string" or not RateLimiter.validId(animalId) or not Config.ANIMALS[animalId] then
+		return false, "Bilinmeyen hayvan"
+	end
+	local data = PlayerDataService.tryGet(player)
+	if not data or player:GetAttribute("WorldReady") ~= true or not PlotService.getPlot(player) then
+		return false, "Veri henüz yüklenmedi"
+	end
+	local animal = FarmMath.findSellableAnimal(data, animalId)
+	if not animal then
+		return false,
+			if FarmMath.countAnimals(data, animalId) > 0
+				then "Çiftlikteki son hayvanı satamazsın"
+				else "Bu hayvandan yok"
+	end
+	local refund = FarmMath.getSellPrice(data, animalId)
+	EconomyService.settlePlayer(player)
+	local index = table.find(data.animals, animal)
+	if not index then
+		return false, "Hayvan artık bulunamıyor"
+	end
+	table.remove(data.animals, index)
+	PlayerDataService.addRefund(player, refund)
+	PlayerDataService.pushState(player)
+	PlayerDataService.requestSave(player)
+	Metrics.increment("AnimalsSold")
+	PlotService.refreshPlayerWorld(player)
+	return true, nil
+end
+
 local function respond(player: Player, requestId: unknown, ok: boolean, message: string?)
 	-- Spam kontrolü nil mesaj döner; cevap trafiğini de sınırla.
 	if not ok and message == nil then
@@ -246,6 +280,25 @@ function AnimalService.init()
 				respond(player, requestId, ok, err)
 			end
 		)
+
+	Remotes.get("RequestSellAnimal").OnServerEvent
+		:Connect(function(player: Player, animalId: unknown, requestId: unknown, expectedFarmId: unknown)
+			if not RateLimiter.acceptRequest(player, requestId) then
+				return
+			end
+			local data = PlayerDataService.tryGet(player)
+			if not data or expectedFarmId ~= data.activeMainFarmId then
+				if RateLimiter.allow(player, "farmContextReply", 0.5) then
+					respond(player, requestId, false, "Etkin çiftlik değişti; işlemi yeni çiftlikte tekrar seç.")
+				end
+				return
+			end
+			local refund = if typeof(animalId) == "string" and Config.ANIMALS[animalId]
+				then FarmMath.getSellPrice(data, animalId)
+				else 0
+			local ok, err = AnimalService.trySell(player, animalId)
+			respond(player, requestId, ok, if ok then `Hayvan satıldı: +{FarmMath.formatMoney(refund)}` else err)
+		end)
 
 	Remotes.get("RequestReplaceFish").OnServerEvent
 		:Connect(function(player: Player, uid: unknown, requestId: unknown, expectedFarmId: unknown)

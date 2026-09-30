@@ -224,6 +224,23 @@ function FarmMath.getNextBuildLevel(save: PlayerSave, targetId: string): Config.
 	return profile[level + 1]
 end
 
+-- Bir seviyenin görünür türü (bölge bayrağı rengi): büyüme > verim > mevsim > kapasite
+function FarmMath.getBuildLevelKind(targetId: string, level: number): string
+	local profile = buildProfile(targetId)
+	local bundle = if profile then profile[level] else nil
+	if not bundle then
+		return "capacity"
+	end
+	if bundle.growthSpeed then
+		return "growth"
+	elseif bundle.incomeBonus then
+		return "income"
+	elseif bundle.seasonAffinity then
+		return "season"
+	end
+	return "capacity"
+end
+
 function FarmMath.getExpansionStep(zone: Config.ZoneConfig): number
 	return math.max(2, math.ceil(zone.capacity / 4))
 end
@@ -560,8 +577,14 @@ function FarmMath.preserveGrowthProgress(save: PlayerSave, previousSpeeds: { [st
 		local previous = previousSpeeds[`{animal.animalId}|{animal.zoneId}`]
 		if previous and animal.bornAt ~= 0 then
 			local speed = FarmMath.getGrowthSpeed(save, animal.animalId, animal.zoneId)
-			local age = math.max(0, now - animal.bornAt) * previous
-			animal.bornAt = now - age / speed
+			local growUp = Config.GROWTH_SECONDS.calf + Config.GROWTH_SECONDS.young
+			if FarmMath.getStage(animal.bornAt, now, previous) == "adult" then
+				-- Zaten yetişkin: yetişkinliğin başladığı an değişmez (sipariş ve gelir geçmişi doğru kalır)
+				animal.bornAt = (animal.bornAt + growUp / previous) - growUp / speed
+			else
+				local age = math.max(0, now - animal.bornAt) * previous
+				animal.bornAt = now - age / speed
+			end
 			animal.stage = FarmMath.getStage(animal.bornAt, now, speed)
 		end
 	end
@@ -612,6 +635,36 @@ function FarmMath.getAnimalPrice(save: PlayerSave, animalId: string): number
 	end
 	local owned = FarmMath.countAnimals(save, animalId)
 	return math.floor(animalConfig.price * Config.ANIMAL_PRICE_GROWTH ^ owned)
+end
+
+-- Satış: son alınan hayvanın (sahip olunan - 1) fiyatının ANIMAL_SELL_FRACTION'ı geri gelir
+function FarmMath.getSellPrice(save: PlayerSave, animalId: string): number
+	local animalConfig = Config.ANIMALS[animalId]
+	local owned = FarmMath.countAnimals(save, animalId)
+	if not animalConfig or owned <= 0 then
+		return 0
+	end
+	return math.floor(animalConfig.price * Config.ANIMAL_PRICE_GROWTH ^ (owned - 1) * Config.ANIMAL_SELL_FRACTION)
+end
+
+-- Satılacak hayvan: aynı türün en genci (ekle/çıkar uzantısındakiler sona kalır). Çiftlikte tek hayvan kalıyorsa satılmaz
+-- (gelirsiz kilitlenmeyi önler). Dönen değer kayıttaki kayıttır.
+function FarmMath.findSellableAnimal(save: PlayerSave, animalId: string): GameTypes.AnimalRecord?
+	if #save.animals <= 1 then
+		return nil
+	end
+	local best: GameTypes.AnimalRecord? = nil
+	local bestKey = math.huge
+	for _, animal in save.animals do
+		if animal.animalId == animalId then
+			-- En genç (en büyük bornAt) önce; bornAt 0 = başlangıç hayvanı en sona; uzantıdakiler hepsinden sonra
+			local key = -animal.bornAt + (if animal.extensionId then 1e18 else 0)
+			if key < bestKey or best == nil then
+				best, bestKey = animal, key
+			end
+		end
+	end
+	return best
 end
 
 -- Bölge bu çiftlikte bu hayvanı kabul ediyor mu? (ana ada bölgeleri temaya göre değişir)

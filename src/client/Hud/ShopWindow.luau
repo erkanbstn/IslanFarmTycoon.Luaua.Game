@@ -69,6 +69,7 @@ function ShopWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Shop
 	-- Irk geliştirme: sahip olunan her türün kartında ikinci düğme (oyun sonu para harcama yolu)
 	local lineageRows: { [string]: Frame } = {}
 	local lineageButtons: { [string]: TextButton } = {}
+	local sellButtons: { [string]: TextButton } = {}
 	for index, animalId in Config.ANIMAL_ORDER do
 		local card = UiKit.card(shopWindow.list, index + 1, Config.ANIMALS[animalId].icon)
 		animalCards[animalId] = card
@@ -80,7 +81,17 @@ function ShopWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Shop
 		lineageRow.Visible = false
 		lineageRow.Parent = card.frame
 		local lineageButton = UiKit.button(lineageRow, "", "secondary")
-		lineageButton.Size = UDim2.new(1, 0, 1, 0)
+		lineageButton.Size = UDim2.new(1, -100, 1, 0)
+		local sellButton = UiKit.button(lineageRow, "", "secondary")
+		sellButton.AnchorPoint = Vector2.new(1, 0)
+		sellButton.Position = UDim2.fromScale(1, 0)
+		sellButton.Size = UDim2.new(0, 94, 1, 0)
+		sellButtons[animalId] = sellButton
+		sellButton.Activated:Connect(function()
+			if sellButton.Active then
+				PurchaseController.submit("RequestSellAnimal", animalId)
+			end
+		end)
 		lineageRows[animalId] = lineageRow
 		lineageButtons[animalId] = lineageButton
 		lineageButton.Activated:Connect(function()
@@ -164,6 +175,16 @@ function ShopWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Shop
 			local lineageLevel = FarmMath.getLineageLevel(state, animalId)
 			local lineageStatus, _, lineageCost = FarmMath.getLineageStatus(state, animalId)
 			lineageRows[animalId].Visible = FarmMath.countAnimals(state, animalId) > 0
+			local sellable = FarmMath.findSellableAnimal(state, animalId)
+			if sellable then
+				setPurchaseButton(
+					sellButtons[animalId],
+					`Sat · {FarmMath.formatMoney(FarmMath.getSellPrice(state, animalId))}`,
+					"secondary"
+				)
+			else
+				setPurchaseButton(sellButtons[animalId], "Sat", "disabled")
+			end
 			if lineageStatus == "max" then
 				setPurchaseButton(lineageButtons[animalId], `Irk Sv.{lineageLevel} · en yüksek`, "owned")
 			elseif lineageStatus == "locked" then
@@ -188,7 +209,8 @@ function ShopWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Shop
 				)}`
 				if zoneId then
 					local income = FarmMath.getAnimalIncome(state, animalId)
-					local percent = math.round((Environment.getIncomeMultiplier(animalId) - 1) * 100)
+					local affinity = if zoneId then FarmMath.getBuildBonus(state, zoneId, "seasonAffinity") else 0
+					local percent = math.round((Environment.getIncomeMultiplier(animalId, nil, affinity) - 1) * 100)
 					local effect = if percent > 0
 						then ` · Mevsim/hava: +%{percent}`
 						elseif percent < 0 then ` · Mevsim/hava: -%{-percent}`

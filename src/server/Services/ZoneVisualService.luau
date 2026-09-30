@@ -763,6 +763,56 @@ local function getGround(zone: Instance): BasePart?
 	return nil
 end
 
+-- Bölge geliştirme bayrakları: her seviye için bölgenin ön kenarında bir flama (renk = o seviyenin türü).
+-- Seviye değişince yenilenir; kinds boşsa kaldırılır.
+local FLAG_COLORS: { [string]: Color3 } = {
+	growth = Color3.fromRGB(96, 190, 110),
+	income = Color3.fromRGB(245, 195, 70),
+	season = Color3.fromRGB(96, 170, 230),
+	capacity = Color3.fromRGB(235, 232, 220),
+}
+function ZoneVisualService.applyLevelFlags(zone: Instance, kinds: { string })
+	local signature = table.concat(kinds, ",")
+	local existing = zone:FindFirstChild("LevelFlags")
+	if existing and existing:GetAttribute("Signature") == signature then
+		return
+	end
+	if existing then
+		existing:Destroy()
+	end
+	local ground = getGround(zone)
+	if not ground or #kinds == 0 then
+		return
+	end
+	local model = Instance.new("Model")
+	model.Name = "LevelFlags"
+	model:SetAttribute("Signature", signature)
+	local top = ground.CFrame * CFrame.new(0, ground.Size.Y / 2, 0)
+	for index, kind in kinds do
+		local x = -ground.Size.X / 2 + 2.2 + (index - 1) * 2.4
+		local z = -ground.Size.Z / 2 + 1.4
+		local pole = part(
+			model,
+			"FlagPole",
+			Vector3.new(0.25, 5, 0.25),
+			top * CFrame.new(x, 2.5, z),
+			Color3.fromRGB(235, 235, 235),
+			Enum.Material.Metal
+		)
+		pole.CanCollide = false
+		local cloth = part(
+			model,
+			"Flag",
+			Vector3.new(1.7, 1.05, 0.08),
+			top * CFrame.new(x + 0.95, 4.4, z),
+			FLAG_COLORS[kind] or FLAG_COLORS.capacity,
+			Enum.Material.Fabric
+		)
+		cloth.CanCollide = false
+	end
+	model.Parent = zone
+end
+
 function ZoneVisualService.apply(zone: Instance, zoneId: string, unlocked: boolean)
 	local ground = getGround(zone)
 	if not ground then

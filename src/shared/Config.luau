@@ -360,6 +360,7 @@ local Config = {
 	PRODUCTION_BONUS_PER_ADULT = 0.25,
 	PRODUCTION_MAX_BONUS_ADULTS = 12,
 	ANIMAL_PRICE_GROWTH = 1.18,
+	ANIMAL_SELL_FRACTION = 0.5, -- Hayvan satınca, son alınan hayvanın fiyatının bu kadarı geri gelir (kazanç sayılmaz)
 	-- Yükseltme maliyet eğrisi: yazılı fiyatlar taban fiyattır; BASE üstündekiler (fiyat/BASE)^EXPONENT ile büyütülür
 	-- (2 anlamlı basamağa yuvarlanır). Tempo hedefleri: scripts/simulate-economy.py ile ölçülür.
 	UPGRADE_COST_BASE = 200,

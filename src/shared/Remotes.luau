@@ -25,6 +25,7 @@ export type EventName =
 	| "RequestUseItem"
 	| "RequestBuyAnimal"
 	| "RequestReplaceFish"
+	| "RequestSellAnimal"
 	| "PurchaseResult"
 	| "RequestPlayerState"
 	| "RequestGoHome"
@@ -68,6 +69,7 @@ local EVENTS = {
 	"RequestEquipItem", -- Client -> Sunucu eşyayı tak / çıkar (itemId, requestId)
 	"RequestUseItem", -- Client -> Sunucu asa gücünü kullan (itemId, requestId, expectedFarmId, argüman: mevsim/hava kimliği)
 	"RequestBuyAnimal", -- Client -> Sunucu hayvan satın alma (animalId)
+	"RequestSellAnimal", -- Client -> Sunucu hayvan sat (animalId, requestId, expectedFarmId); fiyat ve hayvan sunucuda seçilir
 	"RequestReplaceFish", -- Client -> Sunucu hamsiyi levrekle değiştir (uid, requestId)
 	"PurchaseResult", -- Sunucu -> Client (requestId, success, message?)
 	"RequestPlayerState", -- Client hazır / tekrar eşitleme

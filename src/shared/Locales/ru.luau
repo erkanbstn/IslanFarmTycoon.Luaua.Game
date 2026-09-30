@@ -744,4 +744,9 @@ return {
 	["Gölge, yansıma, parıltı ve bulut kapalı; az yağış ve süs hayvanı. En akıcı ve en az pil harcayan."] = "Тени, отражения, свечение и облака отключены; меньше осадков и животных. Самый плавный и экономный режим.",
 	["Gölgeler, hafif yansıma ve parıltı açık; dengeli parçacık ve hayvan hareketi."] = "Тени, лёгкие отражения и свечение включены; сбалансированные частицы и движение животных.",
 	["Keskin gölgeler, tam yansıma, güneş ışınları, ufukta odak bulanıklığı ve tüm efektler. Güçlü cihazlar için."] = "Резкие тени, полные отражения, солнечные лучи, размытие горизонта и все эффекты. Для мощных устройств.",
+	["Sat · {}"] = "Продать · {1}",
+	["Hayvan satıldı: +{}"] = "Животное продано: +{1}",
+	["Çiftlikteki son hayvanı satamazsın"] = "Нельзя продать последнее животное на ферме",
+	["Bu hayvandan yok"] = "У тебя нет такого животного",
+	["Hayvan artık bulunamıyor"] = "Животное больше не найдено",
 }

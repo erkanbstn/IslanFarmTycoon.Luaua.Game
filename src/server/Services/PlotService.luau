@@ -253,6 +253,9 @@ local function applyZoneState(plot: Model, data: PlayerSave?)
 		local unlocked = data ~= nil and data.unlockedZones[zoneId] == true
 		local zoneName = Config.getZoneName(zoneConfig, plot:GetAttribute("PlotId") :: string?)
 		ZoneVisualService.apply(zone, zoneId, unlocked)
+		if not unlocked then
+			ZoneVisualService.applyLevelFlags(zone, {})
+		end
 
 		if data and unlocked then
 			local label = `{zoneName} · {FarmMath.countInZone(data, zoneId)}/{FarmMath.getZoneCapacity(data, zoneId)}`
@@ -272,6 +275,11 @@ local function applyZoneState(plot: Model, data: PlayerSave?)
 				end
 			end
 			setZoneLabel(zone, label, zoneConfig.icon, false)
+			local kinds: { string } = {}
+			for level = 1, zoneLevel do
+				table.insert(kinds, FarmMath.getBuildLevelKind(zoneId, level))
+			end
+			ZoneVisualService.applyLevelFlags(zone, kinds)
 		elseif data and not data.unlockedIslands[zoneConfig.island] then
 			-- Ada kilitliyse etiketi ada tabelası anlatıyor; burada sadece ad
 			setZoneLabel(zone, zoneName, "🔒", true)

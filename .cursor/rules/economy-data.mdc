@@ -102,3 +102,5 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
   çağrılarda `Environment.setClientOverride` ile kurulan kendi katmanını kullanır (FarmHud her durumda kurar). Yeni bir mevsim/hava tüketicisi dünya attribute'unu doğrudan okumamalı,
   `Environment` üzerinden geçmeli. Dünya mevsimini/havasını yalnızca `SeasonService` (ve yönetici araçları) değiştirir. Test araçları `grantItems/clearItems`. Yeni eşya ailesi eklerken `tests/inventory.spec.luau` (pahalı kademe daha güçlü olmalı)
   ve çeviri anahtarları (ad + şablon açıklama) gerekir.
+- **Hayvan satışı**: `Config.ANIMAL_SELL_FRACTION`; fiyat `FarmMath.getSellPrice`, satılacak hayvan `FarmMath.findSellableAnimal` (en genç, uzantıdakiler sona, çiftlikte son hayvan satılmaz). Sunucu `AnimalService.trySell` (`RequestSellAnimal`); iade `PlayerDataService.addRefund` (kazanç/başarım sayacına girmez). Pazar kartında "Sat" düğmesi.
+- **Bölge bayrakları**: bölge geliştirme seviyesi başına ön kenarda flama (`ZoneVisualService.applyLevelFlags`, renk = `FarmMath.getBuildLevelKind`).

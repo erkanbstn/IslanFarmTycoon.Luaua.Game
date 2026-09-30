@@ -465,6 +465,19 @@ function PlayerDataService.addCash(player: Player, amount: number)
 	PlayerDataService.pushEconomy(player)
 end
 
+-- Kazanç sayılmayan nakit girişi (hayvan satışı iadesi): başarım ve mevsim hedefi sayaçlarını şişirmez.
+function PlayerDataService.addRefund(player: Player, amount: number)
+	if not SessionLock.isFinite(amount) or amount <= 0 then
+		return
+	end
+	local data = PlayerDataService.tryGet(player)
+	if not data then
+		return
+	end
+	data.cash = math.min(1e15, data.cash + amount)
+	PlayerDataService.pushEconomy(player)
+end
+
 function PlayerDataService.trySpend(player: Player, amount: number): boolean
 	if not SessionLock.isFinite(amount) or amount < 0 then
 		return false

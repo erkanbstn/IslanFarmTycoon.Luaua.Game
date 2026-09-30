@@ -744,4 +744,9 @@ return {
 	["Gölge, yansıma, parıltı ve bulut kapalı; az yağış ve süs hayvanı. En akıcı ve en az pil harcayan."] = "Schatten, Spiegelungen, Glanz und Wolken aus; weniger Regen und Ziertiere. Am flüssigsten und akkuschonend.",
 	["Gölgeler, hafif yansıma ve parıltı açık; dengeli parçacık ve hayvan hareketi."] = "Schatten, leichte Spiegelungen und Glanz an; ausgewogene Partikel und Tierbewegung.",
 	["Keskin gölgeler, tam yansıma, güneş ışınları, ufukta odak bulanıklığı ve tüm efektler. Güçlü cihazlar için."] = "Scharfe Schatten, volle Spiegelungen, Sonnenstrahlen, weiche Horizontunschärfe und alle Effekte. Für starke Geräte.",
+	["Sat · {}"] = "Verkaufen · {1}",
+	["Hayvan satıldı: +{}"] = "Tier verkauft: +{1}",
+	["Çiftlikteki son hayvanı satamazsın"] = "Du kannst das letzte Tier der Farm nicht verkaufen",
+	["Bu hayvandan yok"] = "Du hast dieses Tier nicht",
+	["Hayvan artık bulunamıyor"] = "Das Tier wurde nicht mehr gefunden",
 }
