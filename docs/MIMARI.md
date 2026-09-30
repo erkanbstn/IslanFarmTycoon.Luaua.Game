@@ -76,7 +76,7 @@ Kural: `shared` sunucu ya da istemci klasörlerine bağlanmaz.
 | Yeni şey | Yer |
 |---|---|
 | Fiyat/gelir/profil | `shared/Config/` (ilgili veri dosyası) |
-| Hesap/formül | `shared/Modules/FarmMath.luau` (testle) |
+| Hesap/formül | `shared/Modules/FarmMath/` (ilgili alan dosyası: `Core`, `Expansion`, `Production`, `Income`, `Animals`, `Islands`, `Lineage`, `Counts`, `Format`; testle) |
 | Oyun kuralı + Remote | `server/Services/<Ad>Service.luau` + `shared/Remotes.luau` |
 | Kayıt alanı | `GameTypes` + `server/Modules/SaveCodec.luau` + test |
 | Dünyada görünen durum | `server/Presentation/` |

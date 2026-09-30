@@ -301,7 +301,7 @@ def main() -> int:
         run_tests.config_bundle(freeze=False),  # ayar denemeleri değiştirebilsin
         module("GameTypes", "src/shared/GameTypes.luau"),
         "local Environment = { getIncomeMultiplier = function() return 1 end }\n",
-        module("FarmMath", "src/shared/Modules/FarmMath.luau", {"Config", "GameTypes", "Environment"}),
+        run_tests.farm_math_bundle(),
         SIMULATION.replace("__HOURS__", str(args.hours)).replace("__FARM__", str(args.farm))
         .replace("__COST_BASE__", str(args.cost_base))
         .replace("__COST_EXP__", str(args.cost_exp))

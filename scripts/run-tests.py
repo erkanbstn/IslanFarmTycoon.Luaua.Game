@@ -68,6 +68,27 @@ def config_bundle(freeze: bool = True) -> str:
     return "".join(["local Config = (function()\n", parts, init, "\nreturn ConfigInit\nend)()\n"])
 
 
+FARM_MATH_PARTS = ["Format", "Core", "Counts", "Islands", "Lineage", "Expansion", "Production", "Income", "Animals"]
+
+
+def _declared_dependencies(path: str) -> set[str]:
+    text = (ROOT / path).read_text(encoding="utf-8-sig")
+    return set(re.findall(r"^local (\w+) =\s+require\(", text, re.MULTILINE))
+
+
+def farm_math_bundle() -> str:
+    """`src/shared/Modules/FarmMath/` klasörünü tek `FarmMath` yerel değişkeni olarak birleştirir.
+
+    Parçalar yalnızca Config/GameTypes/Environment ve kendilerinden önceki parçalara bağlanır.
+    """
+    parts = ""
+    for name in FARM_MATH_PARTS:
+        path = f"src/shared/Modules/FarmMath/{name}.luau"
+        parts += module(name, path, _declared_dependencies(path))
+    init = module("FarmMathInit", "src/shared/Modules/FarmMath/init.luau", set(FARM_MATH_PARTS))
+    return "".join(["local FarmMath = (function()\n", parts, init, "\nreturn FarmMathInit\nend)()\n"])
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--luau", help="Path to the standalone Luau interpreter (not Lua)")
@@ -88,7 +109,7 @@ def main() -> int:
         module("GameTypes", "src/shared/GameTypes.luau"),
         "-- Pure economy specs replace this multiplier to check weather independence.\n",
         "local Environment = { getIncomeMultiplier = function() return 1 end }\n",
-        module("FarmMath", "src/shared/Modules/FarmMath.luau", {"Config", "GameTypes", "Environment"}),
+        farm_math_bundle(),
         module("SessionLock", "src/server/Modules/SessionLock.luau"),
         module("FarmProfiles", "src/server/Modules/FarmProfiles.luau"),
         module("SaveCodec", "src/server/Modules/SaveCodec.luau", {"SessionLock", "FarmProfiles"}),
