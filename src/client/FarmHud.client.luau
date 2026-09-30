@@ -203,6 +203,7 @@ local storageBar, setStorageBar = UiKit.progressBar(storageBlock, 10)
 storageBar.LayoutOrder = 2
 local hintLabel = UiKit.text(storageBlock, "", "Caption")
 hintLabel.LayoutOrder = 3
+local hintWanted = true -- yeni oyuncuda hedef kartı yönlendirdiği için ipucu gizlenir
 
 -- Sıradaki ada kartı: oyuncunun uzun vadeli amacı
 local islandCard = Instance.new("Frame")
@@ -777,6 +778,26 @@ end
 
 local shopDirty, roadmapDirty, upgradesDirty = true, true, true
 local lastCash: number? = nil
+-- Menü kademeli açılır: yeni oyuncu yalnızca Pazar, Çiftliğim ve Ayarlar'ı görür; diğer karolar ihtiyaç doğdukça belirir.
+-- (Kısayollar ve pencereler yine çalışır; yalnızca düğme gizlenir.)
+local function updateMenuVisibility(state: PlayerSave)
+	local earned = state.lifetimeEarned or 0
+	local veteran = Onboarding.stepFor(state) == 0
+	local ownsFactory = next(state.production or {}) ~= nil
+	for _, recipe in Config.PRODUCTION_RECIPES do
+		if state.purchased[recipe.upgradeId] then
+			ownsFactory = true
+		end
+	end
+	local ownsItems = state.inventory ~= nil and next(state.inventory.items) ~= nil
+	upgradesButton.Visible = veteran or Onboarding.stepFor(state) >= 3
+	roadmapButton.Visible = veteran or earned >= 300
+	productionButton.Visible = ownsFactory
+	islandsButton.Visible = veteran
+	homeButton.Visible = veteran
+	inventoryButton.Visible = ownsItems or earned >= 1000
+end
+
 local function onState(state: PlayerSave, structural: boolean)
 	-- Asa geçersiz kılması yalnızca bu oyuncunun ekranını ve gelirini etkiler (Environment kendi katmanını uygular)
 	Environment.setClientOverride(state.envOverride)
@@ -820,6 +841,9 @@ local function onState(state: PlayerSave, structural: boolean)
 		else "Parayı almak için yeşil platforma bas. Çevrimdışı kazanç kasana eklenir."
 	updateIslandGoal(state, income)
 	updateGoal(state, income)
+	updateMenuVisibility(state)
+	-- Yeni oyuncuda hedef kartı yönlendirir; aynı şeyi söyleyen ipucu satırı gizlenir (depo dolunca yine görünür)
+	hintWanted = Onboarding.stepFor(state) == 0 or state.stored >= cap
 	updateRewards(state)
 	updateBoard(state)
 	if itemShop.window.isOpen() then
@@ -900,7 +924,7 @@ local function resizeHud()
 	-- Kompakt: kasa, depo çubuğu ve tek satırlık mevsim/hava; ayrıntılar Çiftliğim penceresinde.
 	seasonBar.setCompact(compact)
 	farmContextLabel.Visible = not compact
-	hintLabel.Visible = not compact
+	hintLabel.Visible = hintWanted and not compact
 	-- Geniş: alt ortada yatay çubuk. Dar: sağ kenarın ortasında kısa sütun (üstteki oyuncu listesine uzanmaz).
 	dockLayout.FillDirection = if compact then Enum.FillDirection.Vertical else Enum.FillDirection.Horizontal
 	dock.AnchorPoint = if compact then Vector2.new(1, 0.5) else Vector2.new(0.5, 1)
