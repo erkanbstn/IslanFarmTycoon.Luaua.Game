@@ -81,5 +81,23 @@ return function(Golden: any, Config: any, FarmMath: any)
 	FarmMath.applyDerived(rich)
 	local boosted = Golden.current(rich, userId, now)
 	assert(boosted and boosted.reward >= baseReward, "a stronger farm earns a larger reward")
+	-- Yönetici zorlaması: pencere yokken bile bir hayvan parlar, süre bitince kaybolur
+	local idleAt: number? = nil
+	for cycle = 0, 400 do
+		local t = cycle * settings.cycleSeconds + 1
+		local span = Golden.window(userId, t)
+		if not span or not span.active then
+			idleAt = t
+			break
+		end
+	end
+	assert(idleAt, "the test player has a quiet moment")
+	local idle = idleAt :: number
+	local forcedFarm = newSave(3)
+	assert(Golden.current(forcedFarm, userId, idle) == nil, "nothing glows outside a window")
+	forcedFarm.adminForce = { goldenUntil = idle + 50 }
+	local forced = Golden.current(forcedFarm, userId, idle)
+	assert(forced and forced.endsAt == idle + 50, "an admin-forced window makes an animal glow")
+	assert(Golden.current(forcedFarm, userId, idle + 51) == nil, "a forced window ends on time")
 	print("PASS golden: windows, frequency, stable animal, reward floor and once-per-window rule")
 end

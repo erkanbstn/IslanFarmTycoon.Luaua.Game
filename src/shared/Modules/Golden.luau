@@ -31,7 +31,16 @@ Golden.window = window
 
 -- Şu an parlayan hayvan: pencere açık, bu döngüde ödül alınmamış ve açık bölgede yetişkin hayvan var.
 function Golden.current(save: any, userId: number, now: number): Event?
-	local span = window(userId, now)
+	-- Test aracı: yönetici pencereyi zorlayabilir (save.adminForce yalnızca çalışma anında vardır, kaydedilmez)
+	local forcedUntil = if save.adminForce then save.adminForce.goldenUntil else nil
+	local span = if typeof(forcedUntil) == "number" and now < forcedUntil
+		then {
+			cycle = math.floor(now / Config.GOLDEN.cycleSeconds),
+			startsAt = now,
+			endsAt = forcedUntil,
+			active = true,
+		}
+		else window(userId, now)
 	if not span or not span.active then
 		return nil
 	end

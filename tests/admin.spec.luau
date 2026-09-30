@@ -303,6 +303,44 @@ return function(policy: any, createService: any, createLimiter: any, config: any
 	now += 1
 	fire(owner, "fillSlots", "now", 210)
 	assert(#data.animals == poultryZone + extensionCount, "filling twice must not exceed capacity")
+	-- Rastgele olay test araçları: yalnızca yönetici, çalışma anı işareti koyar / sıfırlar
+	now += 1
+	fire(stranger, "forceMerchant", "now", 211)
+	assert(data.adminForce == nil, "strangers cannot force events")
+	now += 1
+	data.merchant = { key = 5, bought = true }
+	data.golden = { key = 5 }
+	fire(owner, "forceMerchant", "now", 212)
+	assert(
+		results[#results].ok
+			and data.adminForce.merchantUntil > os.time()
+			and data.merchant == nil
+			and data.golden ~= nil,
+		"forceMerchant opens a visit and clears the bought marker"
+	)
+	now += 1
+	fire(owner, "forceGolden", "now", 213)
+	assert(
+		results[#results].ok and data.adminForce.goldenUntil > os.time() and data.golden == nil,
+		"forceGolden opens a window"
+	)
+	now += 1
+	fire(owner, "completeSeason", "now", 214)
+	assert(
+		results[#results].ok and data.adminForce.completeSeason == true,
+		"completeSeason flags the goal for the engagement service"
+	)
+	now += 1
+	data.seasonal = { key = 1, progress = 0, target = 3, base = 0, claimed = false }
+	fire(owner, "resetEvents", "now", 215)
+	assert(
+		results[#results].ok
+			and data.adminForce == nil
+			and data.seasonal == nil
+			and data.merchant == nil
+			and data.golden == nil,
+		"resetEvents clears every event marker"
+	)
 	owner.attributes.SelectedFarmIsland = nil
 	local newcomer = makePlayer(43)
 	players.PlayerAdded.fire(newcomer)

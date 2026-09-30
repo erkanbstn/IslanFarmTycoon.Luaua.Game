@@ -82,3 +82,6 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
 - **Tema tutarlılığı**: bir çiftlik yalnızca kendi temasındaki adaların yükseltmelerini alabilir. `FarmMath.isUpgradeInTheme` ve `getUpgradeStatus` temada olmayanı
   `"locked"` döner; "bütün yol haritası" sayan her kural (`OrderRules.isUnlocked`, Sipariş Panosu) ve hedef/başarım hesabı temaya göre süzülür. Yeni başarım/hedef
   eklerken her temada ulaşılabilir olduğunu `tests/rewards.spec.luau` (başarım ulaşılabilirliği) ve `tests/economy.spec.luau` (ön koşul zinciri aynı temada) denetler.
+- **Yönetici olay araçları**: `forceMerchant/forceGolden/completeSeason/resetEvents` (AdminPolicy listesi + AdminService + AdminPanel). Zorlama yalnızca çalışma anı
+  alanı `save.adminForce` ile yapılır (`Merchant.offer` ve `Golden.current` okur, SaveCodec yazmaz); mevsim hedefini `EngagementService.refreshSeasonal` tamamlar.
+  Yeni bir rastgele olay eklersen aynı kalıpla bir test aracı da ekle (oynayarak görebilmek için).

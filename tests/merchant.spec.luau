@@ -100,5 +100,25 @@ return function(Merchant: any, Config: any, FarmMath: any)
 	if everyAnimalBlocked then
 		assert(Merchant.offer(farm, userId, now) == nil, "a full farm gets no offer")
 	end
+	-- Yönetici zorlaması: ziyaret yokken bile teklif çıkar, süre bitince kaybolur
+	local quietAt: number? = nil
+	for cycle = 0, 400 do
+		local t = cycle * settings.cycleSeconds + 1
+		local visit = Merchant.visit(userId, t)
+		if not visit or not visit.active then
+			quietAt = t
+			break
+		end
+	end
+	assert(quietAt, "the test player has a quiet moment")
+	local quiet = quietAt :: number
+	local forcedFarm = newSave()
+	assert(Merchant.offer(forcedFarm, userId, quiet) == nil, "no offer outside a visit")
+	forcedFarm.adminForce = { merchantUntil = quiet + 100 }
+	local forcedOffer = Merchant.offer(forcedFarm, userId, quiet)
+	assert(forcedOffer and forcedOffer.endsAt == quiet + 100, "an admin-forced visit makes an offer")
+	assert(Merchant.offer(forcedFarm, userId, quiet + 101) == nil, "a forced visit ends on time")
+	forcedFarm.merchant = { key = forcedOffer.cycle, bought = true }
+	assert(Merchant.offer(forcedFarm, userId, quiet) == nil, "a forced visit still respects the bought marker")
 	print("PASS merchant: visit windows, frequency, offer selection, discount and once-per-visit rule")
 end

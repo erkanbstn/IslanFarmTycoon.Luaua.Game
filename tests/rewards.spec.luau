@@ -129,6 +129,16 @@ return function(Rewards: any, Config: any, FarmMath: any)
 		goal.claimed = true
 		assert(not Rewards.seasonalClaimable(seasonal, springNow), "a claimed goal cannot be claimed twice")
 		assert(Rewards.seasonalReward(seasonal) >= Config.SEASONAL_MIN_REWARD, "reward has a floor")
+		-- Yönetici testi: hedefi tamamlanmış sayar (kazanç ve yatırım hedeflerinde)
+		local forced = save()
+		forced.lifetimeEarned = 50
+		Rewards.ensureSeasonal(forced, springNow)
+		Rewards.forceCompleteSeasonal(forced, springNow)
+		assert(Rewards.seasonalClaimable(forced, springNow), "forced completion works for earned goals")
+		local forcedInvest = save()
+		Rewards.ensureSeasonal(forcedInvest, season)
+		Rewards.forceCompleteSeasonal(forcedInvest, season)
+		assert(Rewards.seasonalClaimable(forcedInvest, season), "forced completion works for invest goals")
 		-- Yatırım sayacı yalnızca "invest" mevsiminde işler
 		Rewards.recordInvest(seasonal, springNow)
 		assert(seasonal.seasonal.progress == 0, "investments do not count in an earned season")

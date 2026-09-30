@@ -71,6 +71,17 @@ local goalsWindow = UiKit.window(screenGui, {
 	position = UDim2.fromScale(0.5, 0.5),
 })
 
+-- Ortadaki pencereler aynı yerde açılır: biri açılınca diğerleri kapanır (üst üste binmesin)
+local centerWindows: { UiKit.Window } = {}
+local function openCenter(window: UiKit.Window)
+	for _, other in centerWindows do
+		if other ~= window then
+			other.close()
+		end
+	end
+	window.open()
+end
+
 -- Sipariş panosu ve destek dükkânı kendi pencerelerinde (Çiftliğim'e karışmaz)
 local boardWindow = UiKit.window(screenGui, {
 	title = "Sipariş Panosu",
@@ -90,6 +101,9 @@ local storeWindow = UiKit.window(screenGui, {
 	anchor = Vector2.new(0.5, 0.5),
 	position = UDim2.fromScale(0.5, 0.5),
 })
+table.insert(centerWindows, goalsWindow)
+table.insert(centerWindows, boardWindow)
+table.insert(centerWindows, storeWindow)
 
 ---------------------------------------------------------------------------
 -- Sol panel: para, gelir, depo, mevsim, sıradaki hedef
@@ -276,7 +290,9 @@ local upgradesButton = UiKit.menuButton(dock, "🛠️", "Yükseltmeler", Color.
 local islandsButton = UiKit.menuButton(dock, "🧭", "Adalar", Color.Blue, if hasKeyboard then "I" else nil)
 islandsButton.Activated:Connect(IslandManager.open)
 local goalsButton = UiKit.menuButton(dock, "🏆", "Çiftliğim", Color.Gold, nil)
-goalsButton.Activated:Connect(goalsWindow.open)
+goalsButton.Activated:Connect(function()
+	openCenter(goalsWindow)
+end)
 local homeButton = UiKit.menuButton(dock, "🏠", "Adama Dön", Color.Orange, nil)
 local settingsButton = UiKit.menuButton(dock, "⚙️", "Ayarlar", Color.TextMuted, nil)
 local adminButton = UiKit.menuButton(dock, "🔑", "Yönetici", Color.Gold, nil)
@@ -380,13 +396,15 @@ end)
 -- Meydandaki satıcı NPC'ler: mevcut pencereleri açar (satın alma yine sunucuda doğrulanır)
 local vendorActions: { [string]: () -> () } = {
 	orders = function()
-		boardWindow.open()
+		openCenter(boardWindow)
 	end,
 	store = function()
-		storeWindow.open()
+		openCenter(storeWindow)
 	end,
 	roadmap = function()
-		roadmapWindow.open()
+		if not roadmapWindow.isOpen() then
+			toggleWindow(roadmapWindow)
+		end
 	end,
 	travel = IslandManager.open,
 }
@@ -396,7 +414,9 @@ ProximityPromptService.PromptTriggered:Connect(function(prompt: ProximityPrompt,
 	end
 	-- Adadaki pazar tezgâhı: hayvan pazarını açar (sağ menüdeki "Pazar" ile aynı)
 	if prompt.Name == "MarketPrompt" then
-		shopWindow.open()
+		if not shopWindow.isOpen() then
+			toggleWindow(shopWindow)
+		end
 		return
 	end
 	if prompt.Name ~= "VendorPrompt" then

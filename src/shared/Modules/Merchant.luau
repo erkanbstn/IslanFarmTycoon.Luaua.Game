@@ -43,7 +43,19 @@ end
 
 -- Şu an sunulan teklif: ziyaret sürüyor, bu döngüde alınmadı ve satın alınabilen bir hayvan var.
 function Merchant.offer(save: any, userId: number, now: number): Offer?
-	local visit = Merchant.visit(userId, now)
+	-- Test aracı: yönetici ziyareti zorlayabilir (save.adminForce yalnızca çalışma anında vardır, kaydedilmez)
+	local forcedUntil = if save.adminForce then save.adminForce.merchantUntil else nil
+	local visit: Visit? = nil
+	if typeof(forcedUntil) == "number" and now < forcedUntil then
+		visit = {
+			cycle = math.floor(now / Config.MERCHANT.cycleSeconds),
+			startsAt = now,
+			endsAt = forcedUntil,
+			active = true,
+		}
+	else
+		visit = Merchant.visit(userId, now)
+	end
 	if not visit or not visit.active then
 		return nil
 	end

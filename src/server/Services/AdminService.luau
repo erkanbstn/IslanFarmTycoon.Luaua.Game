@@ -52,6 +52,46 @@ local function execute(player: Player, action: string, value: unknown): (boolean
 		PlayerDataService.requestSave(player)
 		return true, "Para güncellendi"
 	end
+	if
+		action == "forceMerchant"
+		or action == "forceGolden"
+		or action == "completeSeason"
+		or action == "resetEvents"
+	then
+		-- Test aracı: rastgele olayları hemen görmek için; yalnızca yöneticinin kendi profili, para vermez.
+		-- Çalışma anı işaretleri (`adminForce`) kaydedilmez; mevsim hedefini EngagementService tamamlar.
+		if player:GetAttribute("WorldReady") ~= true then
+			return false, "Çiftliğin henüz hazır değil"
+		end
+		local data = PlayerDataService.tryGet(player)
+		if not data then
+			return false, "Kayıt oturumu artık etkin değil"
+		end
+		local force = data.adminForce or {}
+		data.adminForce = force
+		local message = ""
+		if action == "forceMerchant" then
+			force.merchantUntil = os.time() + Config.MERCHANT.visitSeconds
+			data.merchant = nil
+			message = "Gezgin tüccar geldi (Pazar penceresine bak)"
+		elseif action == "forceGolden" then
+			force.goldenUntil = os.time() + Config.GOLDEN.windowSeconds
+			data.golden = nil
+			message = "Altın hayvan belirdi"
+		elseif action == "completeSeason" then
+			force.completeSeason = true
+			message = "Mevsim hedefi birkaç saniye içinde tamamlanır"
+		else
+			data.adminForce = nil
+			data.seasonal = nil
+			data.merchant = nil
+			data.golden = nil
+			message = "Olaylar sıfırlandı (mevsim hedefi yeniden oluşur)"
+		end
+		PlayerDataService.pushState(player)
+		PlayerDataService.requestSave(player)
+		return true, message
+	end
 	if action == "growAll" or action == "unlockIslands" or action == "fillSlots" then
 		-- Test aracı: yalnızca yöneticinin kendi profili; para harcamaz, sonuç normal kayıt akışına girer.
 		if player:GetAttribute("WorldReady") ~= true then

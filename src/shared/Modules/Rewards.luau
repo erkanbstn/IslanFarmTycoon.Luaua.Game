@@ -149,6 +149,20 @@ function Rewards.ensureSeasonal(save: any, now: number): boolean
 	return true
 end
 
+-- Test aracı (yönetici): bu mevsimin hedefini tamamlanmış sayar; ödülü normal yoldan alınır.
+function Rewards.forceCompleteSeasonal(save: any, now: number)
+	Rewards.ensureSeasonal(save, now)
+	local goal = save.seasonal
+	if not goal or goal.claimed then
+		return
+	end
+	if Rewards.seasonalDef(goal.key).metric == "earned" then
+		save.lifetimeEarned = math.max(save.lifetimeEarned or 0, goal.base + goal.target)
+	else
+		goal.progress = goal.target
+	end
+end
+
 -- Sunucu: başarılı bir yatırım (hayvan, yükseltme, ırk, alan genişletme) sayılır; yalnızca "invest" mevsiminde işler.
 function Rewards.recordInvest(save: any, now: number)
 	Rewards.ensureSeasonal(save, now)

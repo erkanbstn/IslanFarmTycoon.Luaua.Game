@@ -259,6 +259,17 @@ local function create(parent: ScreenGui): UiKit.Window
 	choices("growAll", { { id = "now", label = "Bütün hayvanları büyüt" } }, 35)
 	choices("unlockIslands", { { id = "now", label = "Bu adadaki her şeyi aç (eklentiler dahil)" } }, 36)
 	choices("fillSlots", { { id = "now", label = "Bu adadaki bütün slotları hayvanla doldur" } }, 37)
+	UiKit.text(created.list, "Rastgele olaylar (test)", "Heading").LayoutOrder = 38
+	UiKit.text(
+		created.list,
+		"Olaylar normalde rastgele gelir; bunlar hemen görmek içindir. Altın hayvan ve tüccar yalnızca senin profilinde çıkar, kaydedilmez.",
+		"Caption"
+	).LayoutOrder =
+		39
+	choices("forceMerchant", { { id = "now", label = "Gezgin tüccarı çağır" } }, 40)
+	choices("forceGolden", { { id = "now", label = "Altın hayvanı çağır" } }, 41)
+	choices("completeSeason", { { id = "now", label = "Mevsim hedefini tamamla" } }, 42)
+	choices("resetEvents", { { id = "now", label = "Olayları ve mevsim hedefini sıfırla" } }, 43)
 
 	local function choiceLabel(options: { { id: string, label: string } }, value: string): string
 		for _, option in options do

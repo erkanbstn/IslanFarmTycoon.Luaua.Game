@@ -176,6 +176,8 @@ yetki sağlamaz. Studio'nun sentetik çoklu test oyuncuları da otomatik yöneti
 - Hava/mevsim: yalnızca bulunduğun sunucuyu etkiler. Seçim otomatik değişimi durdurur;
   ilgili **Otomatik** düğmesi doğal döngüye döndürür. Sabit mevsim kendi süresini tekrarlar.
 - Studio'daki F7 hava kısayolu da aynı yönetici kontrolüne tabidir; panelden otomatiğe dönülebilir.
+- Test araçları (yalnızca kendi profilin): hayvanları büyüt, seçili adadaki her şeyi aç, slotları doldur ve **rastgele olaylar**: gezgin tüccarı çağır,
+  altın hayvanı çağır, mevsim hedefini tamamla, olayları sıfırla. Olay işaretleri kaydedilmez (çalışma anı alanı `adminForce`).
 
 Sunucu her istekte yetki, miktar, durum, hız ve istek kimliğini doğrular. Başka oyuncunun
 parasını değiştiren veya istemciden keyfi kod çalıştıran bir komut bulunmaz.

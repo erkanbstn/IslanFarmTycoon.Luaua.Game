@@ -174,6 +174,11 @@ local function refreshSeasonal(player: Player, lastSent: { [Player]: string })
 	end
 	local now = nowSeconds()
 	local created = Rewards.ensureSeasonal(data, now)
+	if data.adminForce and data.adminForce.completeSeason then
+		data.adminForce.completeSeason = nil
+		Rewards.forceCompleteSeasonal(data, now)
+		lastSent[player] = nil -- ilerleme imzası değişti: durumu hemen it
+	end
 	local goal = data.seasonal
 	local signature = if goal
 		then `{goal.key}|{goal.claimed}|{math.floor(Rewards.seasonalProgress(data, goal))}`
