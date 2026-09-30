@@ -55,6 +55,8 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
   tanınmayan türü atar, seviyeyi sıkıştırır, bozuk tabloyu reddeder). Mantık paylaşılan `FarmMath.getLineageLevel/getLineageCost/getLineageStatus`;
   gelir etkisi `getAnimalMultiplier` içinde doğrusal (+incomePerLevel/seviye), maliyet üstel. Sunucu `UpgradeService.tryUpgradeLineage`
   (`RequestUpgradeLineage`, en az bir yetişkin şart, `settlePlayer` sonra `trySpend`). Arayüz: Hayvan Pazarı kartlarında ikinci düğme.
+  Görünürlük: `AnimalVisualService.applyLineage` hayvanın üstüne kademe renkli yıldız + "Sv.N" rozeti (`LineageTag`) koyar; seviye değişince hayvan
+  yeniden kurulmaz, rozet yerinde yenilenir (`Lineage` özniteliği).
   Denge: `simulate-economy.py` tüm yükseltmelerden sonra ırk satın alır (`IRK toplam Sv.N` adımları); sonraki içerik bunu beslemeli.
 - **Alan genişletme**: `Config.ZONE_EXPANSION` (maxLevel, costMultiplier, costGrowth); adım = `max(2, kapasite/4)`. Bölge kapasitesini **her yerde**
   `FarmMath.getZoneCapacity(save, zoneId)` ile oku (`ZONES[x].capacity` yalnızca taban). Kayıt alanı `expansions { [zoneId] = 1..maxLevel }`

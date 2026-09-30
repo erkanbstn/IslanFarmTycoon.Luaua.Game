@@ -507,6 +507,44 @@ local function addNameTag(model: Model, text: string, extraHeight: number)
 	})
 end
 
+-- Irk geliştirme rozeti: seviye 1+ olan hayvanın üstünde, ad etiketinin üzerinde küçük bir yıldız + "Sv.N" etiketi.
+-- Renk kademeyi gösterir (bronz 1-3, gümüş 4-6, altın 7-9, elmas 10). Görsel yeniden kurulmadan yerinde güncellenir.
+local LINEAGE_TIER_COLORS = {
+	Color3.fromRGB(205, 127, 50),
+	Color3.fromRGB(190, 198, 210),
+	Color3.fromRGB(255, 200, 70),
+	Color3.fromRGB(110, 220, 255),
+}
+
+local function lineageTier(level: number): number
+	return if level >= Config.LINEAGE.maxLevel then 4 elseif level >= 7 then 3 elseif level >= 4 then 2 else 1
+end
+
+local function applyLineage(model: Model, level: number, extraHeight: number)
+	model:SetAttribute("Lineage", level)
+	local anchor = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+	if not anchor then
+		return
+	end
+	local old = anchor:FindFirstChild("LineageTag")
+	if old then
+		old:Destroy()
+	end
+	if level <= 0 then
+		return
+	end
+	local _, boxSize = model:GetBoundingBox()
+	WorldUi.tag(anchor, "LineageTag", {
+		text = `Sv.{level}`,
+		icon = "⭐",
+		tint = LINEAGE_TIER_COLORS[lineageTier(level)],
+		widthStuds = 2.6,
+		heightStuds = 0.7,
+		worldOffset = Vector3.new(0, boxSize.Y / 2 + 1.9 + extraHeight, 0),
+		maxDistance = 32,
+	})
+end
+
 local function findZoneGround(plot: Model, zoneId: string): BasePart?
 	local zones = plot:FindFirstChild("Zones")
 	if not zones then
@@ -535,7 +573,8 @@ local function buildAnimal(
 	ground: BasePart,
 	slot: number,
 	capacity: number,
-	movementStyle: string?
+	movementStyle: string?,
+	lineageLevel: number
 ): Model
 	local visual = createAnimalVisual(animal.animalId, animal.stage)
 	visual.Name = `{animal.animalId}_{animal.uid}`
@@ -548,6 +587,7 @@ local function buildAnimal(
 
 	-- Değişmeyen hayvanları bir dahaki yenilemede tanımak için
 	visual:SetAttribute("Uid", animal.uid)
+	visual:SetAttribute("SwimDepthOffset", depth)
 	visual:SetAttribute("Stage", animal.stage)
 	visual:SetAttribute("ZoneId", animal.zoneId)
 	visual:SetAttribute("ExtensionId", animal.extensionId or "")
@@ -567,6 +607,7 @@ local function buildAnimal(
 		then name
 		else `{name} ({Config.STAGE_DISPLAY[animal.stage] or animal.stage})`
 	addNameTag(visual, tag, depth) -- Balıklarda etiket suyun üstünde kalsın
+	applyLineage(visual, lineageLevel, depth)
 	do
 		local parts = 0
 		for _, descendant in visual:GetDescendants() do
@@ -585,7 +626,8 @@ local function buildAnimalInArea(
 	areaSize: Vector3,
 	slot: number,
 	capacity: number,
-	movementStyle: string?
+	movementStyle: string?,
+	lineageLevel: number
 ): Model
 	local ground = Instance.new("Part")
 	ground.Size = Vector3.new(areaSize.X, 1, areaSize.Z)
@@ -594,7 +636,7 @@ local function buildAnimalInArea(
 	ground.Transparency = 1
 	ground.CanCollide = false
 	ground.CanQuery = false
-	local visual = buildAnimal(animal, ground, slot, capacity, movementStyle)
+	local visual = buildAnimal(animal, ground, slot, capacity, movementStyle, lineageLevel)
 	ground:Destroy()
 	return visual
 end
@@ -630,6 +672,7 @@ function AnimalVisualService.refresh(plot: Model, data: PlayerSave)
 
 		local existing = existingByUid[animal.uid]
 		local existingExt = if existing then existing:GetAttribute("ExtensionId") else nil
+		local lineageLevel = FarmMath.getLineageLevel(data, animal.animalId)
 		if
 			existing
 			and existing:GetAttribute("Stage") == animal.stage
@@ -637,6 +680,11 @@ function AnimalVisualService.refresh(plot: Model, data: PlayerSave)
 			and existingExt == (animal.extensionId or "")
 		then
 			keep[animal.uid] = true
+			-- Irk seviyesi değiştiyse yalnızca rozet yenilenir (hayvan yeniden kurulmaz, yerinde kalır)
+			if existing:GetAttribute("Lineage") ~= lineageLevel then
+				local swimDepth = existing:GetAttribute("SwimDepthOffset")
+				applyLineage(existing, lineageLevel, if typeof(swimDepth) == "number" then swimDepth else 0)
+			end
 			continue
 		end
 
@@ -654,7 +702,8 @@ function AnimalVisualService.refresh(plot: Model, data: PlayerSave)
 				areaSize,
 				perExtensionCount[animal.extensionId],
 				extension.capacity,
-				movement
+				movement,
+				lineageLevel
 			)
 		else
 			local ground = findZoneGround(plot, animal.zoneId)
@@ -668,7 +717,8 @@ function AnimalVisualService.refresh(plot: Model, data: PlayerSave)
 				ground,
 				perZoneCount[animal.zoneId],
 				FarmMath.getZoneCapacity(data, animal.zoneId),
-				nil
+				nil,
+				lineageLevel
 			)
 		end
 		if existing then

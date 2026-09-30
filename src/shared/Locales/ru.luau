@@ -599,4 +599,5 @@ return {
 	["Mevsim hedefinin ödülü zaten alındı"] = "Награда за цель сезона уже получена",
 	["Mevsim hedefi henüz tamamlanmadı"] = "Цель сезона ещё не выполнена",
 	["Bu mevsimin hedefi henüz hazır değil"] = "Цель этого сезона ещё не готова",
+	["Sv.{}"] = "Ур.{1}",
 }

@@ -70,7 +70,7 @@ hatasından ayrıdır.
 4. **Hayvan Pazarı:** İnek, tavuk, at, keçi, hamsi ve levrek. Yavru doğarlar (%25 gelir) → Genç (%60) → Yetişkin (%100).
    Aynı türden aldıkça fiyat %18 artar.
 4b. **Irk geliştirme:** Pazar'da sahip olduğun her hayvan türünün kartında ikinci düğme vardır. Her seviye o türün gelirini %8 artırır (en fazla Sv.10);
-   maliyet her seviyede üstel büyür. Seviyeler çiftlik başınadır ve kayıtlıdır. Bu, yol haritası bittikten sonra da para harcama yoludur.
+   maliyet her seviyede üstel büyür. Seviyeler çiftlik başınadır ve kayıtlıdır. Bu, yol haritası bittikten sonra da para harcama yoludur. Geliştirilmiş hayvanın üstünde kademe renginde (bronz, gümüş, altın, elmas) bir yıldız ve seviye rozeti görünür.
 4c. **Alan genişletme:** Yükseltmeler penceresinde, açık ve **dolu** bir bölgenin altında "Alan genişletme" kartı çıkar. Her seviye bölgenin kapasitesini artırır
    (en fazla 4 seviye); maliyet bölgedeki hayvanın fiyatına ve seviyeye bağlıdır. Seviyeler çiftlik başınadır ve kayıtlıdır.
 4d. **Mevsim hedefi:** Çiftliğim penceresinde her mevsim (15 dk) yeni bir hedef vardır: bahar ve sonbaharda para kazan, yaz ve kışta yatırım yap

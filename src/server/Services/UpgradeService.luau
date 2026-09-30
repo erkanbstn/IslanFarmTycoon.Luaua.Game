@@ -95,6 +95,7 @@ function UpgradeService.tryUpgradeLineage(player: Player, animalId: unknown): (b
 	PlayerDataService.pushState(player)
 	PlayerDataService.requestSave(player)
 	Metrics.increment("LineageUpgraded")
+	PlotService.refreshPlayerWorld(player) -- Hayvanların üstündeki ırk rozeti yenilenir
 	return true, nil
 end
 

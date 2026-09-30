@@ -599,4 +599,5 @@ return {
 	["Mevsim hedefinin ödülü zaten alındı"] = "Die Belohnung des Saisonziels wurde bereits abgeholt",
 	["Mevsim hedefi henüz tamamlanmadı"] = "Das Saisonziel ist noch nicht erreicht",
 	["Bu mevsimin hedefi henüz hazır değil"] = "Das Ziel dieser Saison ist noch nicht bereit",
+	["Sv.{}"] = "Stufe {1}",
 }

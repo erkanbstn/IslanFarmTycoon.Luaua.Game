@@ -599,4 +599,5 @@ return {
 	["Mevsim hedefinin ödülü zaten alındı"] = "The season goal reward was already claimed",
 	["Mevsim hedefi henüz tamamlanmadı"] = "The season goal is not complete yet",
 	["Bu mevsimin hedefi henüz hazır değil"] = "This season's goal is not ready yet",
+	["Sv.{}"] = "Lv.{1}",
 }
