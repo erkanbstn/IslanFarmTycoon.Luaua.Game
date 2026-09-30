@@ -37,7 +37,7 @@ alwaysApply: false
   değiştirir, kuyu iki yandan birinde durur (6 düzen, yuvalar sabit; yol/bölge/yapı noktaları değişmez). Çim kaçınma dikdörtgenleri aynı yerleşimden türer
   (`homeBuildingAvoidRects`): yeni yapı eklersen `homePlacements`'a koy. Her temanın doğu kıyıda kendi işaret yapısı vardır (`Config.THEMES[n].landmark` →
   `HomeLandmarks.landmark`: daisy/tulip/sunflower/rose/pine/cherry). `tests/map-structure.spec.luau` işaret yapısını ve >= 5 farklı yerleşimi denetler.
-- Ada temaları çiftlik numarasına bağlanır (Çiftlik 1 = Papatya ...); genel ada çekirdeği hepsinde ortaktır; ağıl/otlak görünümü temaya göre değişir (`ZoneVisualService.THEME_LOOKS`).
+- Ada temaları çiftlik numarasına bağlanır (Çiftlik 1 = Papatya ...); genel ada çekirdeği hepsinde ortaktır; ağıl/otlak görünümü temaya göre değişir (`ZoneParts.THEME_LOOKS`).
 
 ## Gece ışıkları
 - Işık kaynağı parçası `NightLight` (fener, Neon) veya `NightWindow` (pencere, SmoothPlastic)
