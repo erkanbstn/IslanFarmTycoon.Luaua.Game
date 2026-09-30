@@ -1,6 +1,6 @@
 ---
 description: Oyun dengesi (Config), paylaşılan hesaplar (FarmMath) ve kayıt şeması
-globs: src/shared/Config.luau,src/shared/GameTypes.luau,src/shared/Modules/FarmMath.luau,src/server/Modules/SaveCodec.luau,src/server/Modules/SessionLock.luau,src/server/Modules/FarmProfiles.luau,src/server/Services/PlayerDataService.luau,src/server/Services/EconomyService.luau
+globs: src/shared/Config.luau,src/shared/GameTypes.luau,src/shared/Modules/FarmMath.luau,src/server/Services/AnimalService.luau,src/server/Services/UpgradeService.luau,src/server/Modules/SaveCodec.luau,src/server/Modules/SessionLock.luau,src/server/Modules/FarmProfiles.luau,src/server/Services/PlayerDataService.luau,src/server/Services/EconomyService.luau
 alwaysApply: false
 ---
 
@@ -30,7 +30,7 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
   `leveled = true`) olarak üretir; kayıt şeması değişmez. `kind = "boost"` verme: `MapBuilder.validate` her boost için
   harita yapı noktası ister. `OrderRules.isUnlocked` ve "tüm yol haritası" sayımı `leveled` olanları saymaz.
 - **Hesap düzeyi alanlar** (`SaveCodec` kökü): `lifetimeEarned` (yalnızca `addCash` ve otomatik toplama artırır),
-  `daily {day, streak}`, `achievements`, `receipts` (en fazla 200), `language`. `passes` yalnızca çalışma anında
+  `daily {day, streak}`, `achievements`, `receipts` (en fazla 200), `language`, `graphics` (auto/low/medium/high; `RequestSetGraphics`, `SavedGraphics` özniteliği). `passes` yalnızca çalışma anında
   (`MonetizationService`, MarketplaceService'ten) yazılır, **kaydedilmez**; `FarmProfiles.view` etkin olmayan
   çiftliğe de aktarır. Hepsi opsiyoneldir: eksik alan varsayılanla yüklenir, geçersizi atılır.
 - **Ürün kimlikleri** `Config.PRODUCTS`: `id = 0` = satışta değil. `ProcessReceipt` makbuzu `ReceiptLog` ile bir kez işler;
@@ -64,10 +64,10 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
   (satış ödülü), `thrift` (başlatma maliyeti). Her yerde yardımcıları kullan: `getZoneCapacity`, `getGrowthSpeed(save, animalId, zoneId)`, `getAnimalMultiplier(.., zoneId)`,
   `getFacilityDuration/getFacilityCost`, `getProductionReward`; büyüme hızı anlık görüntüsü için `snapshotGrowthSpeeds` + `preserveGrowthProgress` (anahtar `animalId|zoneId`).
   Kayıt alanı `expansions { [bölgeVeyaTarifId] = 1..maxLevel }` (opsiyonel, `FarmProfiles.FIELDS`'te; SaveCodec tanınmayan hedefi atar). Kapasite veren seviye için bölge dolu,
-  tesis için kurulu olmalı (`getExpansionStatus`). Sunucu `UpgradeService.tryExpandZone` (`RequestExpandZone`); arayüz Yükseltmeler penceresindeki "Yapı geliştirme" kartları
+  tesis için kurulu olmalı (`getExpansionStatus`). Sunucu `UpgradeService.tryExpandZone` (`RequestExpandZone`); arayüz Yükseltmeler penceresindeki "Geliştirmeler" kartları (alınabilirlik sırasıyla, tamamlananlar listeden çıkar, rozet sayar, hedef kartında "Hızlı kazanç")
   (`Config.BUILD_ORDER/BUILD_TARGETS`). Yeni profil/seviye eklersen `tests/economy.spec.luau` (seviye sayısı = maxLevel, her bölge büyüyebilmeli) ve sim kalibrasyonu
   (`scripts/simulate-economy.py`: `ALAN toplam Sv.N`; hedef ada süreleri ve "TÜM YÜKSELTMELER" korunmalı).
-  Tempo (ideal oyuncu): ilk ada ~9 dk, tüm yükseltmeler ~3,3 saat, tüm ırk seviyeleri ~11 saat; sayıları değiştirirsen `simulate-economy.py`'ı yeniden koştur.
+  Tempo (ideal oyuncu, `simulate-economy.py`): ilk ada ~9 dk, at adası ~40 dk, keçi adası ~97 dk, tüm yükseltmeler ~3,7 saat, ırk Sv.30 ~4 saat; sayıları değiştirirsen yeniden koştur ve bu satırı güncelle.
 - **Mevsim hedefi**: `Config.SEASONAL_GOALS` (mevsim id -> `earned` veya `invest`), `SEASONAL_REWARD_SECONDS/MIN_REWARD`. Hesap düzeyi opsiyonel kayıt
   alanı `seasonal {key, progress, target, base, claimed}` (key = `Rewards.seasonNumber`; bozuk kayıt sessizce atılır). Mantık saf `Rewards.seasonal*`
   (kazanç = `lifetimeEarned - base` canlı; yatırım sayacı sunucu kancalarıyla `Rewards.recordInvest`: hayvan alma, yükseltme, ırk, alan genişletme).
@@ -104,3 +104,6 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
   ve çeviri anahtarları (ad + şablon açıklama) gerekir.
 - **Hayvan satışı**: `Config.ANIMAL_SELL_FRACTION`; fiyat `FarmMath.getSellPrice`, satılacak hayvan `FarmMath.findSellableAnimal` (en genç, uzantıdakiler sona, çiftlikte son hayvan satılmaz). Sunucu `AnimalService.trySell` (`RequestSellAnimal`); iade `PlayerDataService.addRefund` (kazanç/başarım sayacına girmez). Pazar kartında "Sat" düğmesi.
 - **Bölge bayrakları**: bölge geliştirme seviyesi başına ön kenarda flama (`ZoneVisualService.applyLevelFlags`, renk = `FarmMath.getBuildLevelKind`).
+- **Hesap düzeyi mi çiftlik düzeyi mi?** Çiftlik başına kalıcı alanlar `FarmProfiles.FIELDS`'tedir (stored, purchased, lineage, expansions, animals, production, ...). Hesap düzeyi alanlar
+  (cash, lifetimeEarned, daily, achievements, seasonal, merchant, golden, inventory, language, graphics, receipts) kökte durur ve `SaveCodec`'te ayrı normalleştirilir. Çalışma anı alanlar (`passes`, `envOverride`, `adminForce`) kaydedilmez.
+- **Arayüz ve hesaplar aynı kaynaktan**: para/süre/kapasite/ödül gösteren her ekran `FarmMath` yardımcısını kullanır (`getUpgradeCost`, `getExpansionCost`, `getFacilityCost/Duration`, `getZoneCapacity`, `getSellPrice`); elle çarpma yazma.

@@ -29,6 +29,8 @@ alwaysApply: false
   çözülmüş kademe `EffectsQuality`. Render profili (gölge, yansıma, parıltı, güneş ışınları, bulut, su, alan derinliği, zemin süsü) orada tek yerde
   tanımlı; Bloom/SunRays/Clouds `Enabled`, `GlobalShadows`, `ShadowSoftness`, `EnvironmentSpecularScale` ve Terrain su alanlarını **yalnızca o betik** yazar
   (ışık rengi/pozlama/sis: DayNight ve WeatherEffects). Yeni pahalı görsel eklersen profile bir alan ekle ve low'da kapat. Auto kademe kare hızıyla iner/çıkar.
+- Su altı ve yağış: `Underwater.client` kamera su seviyesinin altına inince `Submerged` özniteliğini yazar ve ekran rengi/bulanıklık/baloncuk/ses yansımasını kurar;
+  `WeatherPrecip` `Submerged` ya da çok yüksek kamera (Y > 70) iken yağış çizmez. Yeni kamera-bağlı efekt aynı öznitelikleri dikkate almalı.
 - Parçacık/nesne havuzu sınırlı olsun; `Destroying`'de bağlantıları kopar, oluşturduğun nesneleri sil.
 
 - Dekor kurulumunun sonunda `WorldDecor.optimize(root)` çağır: 1,6 stud'dan küçük parçalar gölge düşürmez, çarpışmayan

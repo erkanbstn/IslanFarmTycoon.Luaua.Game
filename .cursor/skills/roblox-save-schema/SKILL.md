@@ -7,6 +7,8 @@ description: Changes persisted player save data safely in this Roblox project (G
 
 Kayıt kaybı geri alınamaz; her adımı test et.
 
+Önce karar: alan **çiftlik başına** mı (`FarmProfiles.FIELDS`'e eklenir; her ana çiftlikte ayrı) yoksa **hesap düzeyi** mi (kökte; cüzdan, envanter, dil, grafik gibi)? Çalışma anı alan mı (`passes`, `envOverride`, `adminForce`: kaydedilmez, `FarmProfiles.view` gerekiyorsa taşır)?
+
 ```
 - [ ] 1. GameTypes: PlayerSave / farm tipine alan ekle
 - [ ] 2. SaveCodec.decode: eksik/bozuk değere varsayılan, sayılarda sonlu + clamp, id doğrulama
@@ -24,4 +26,5 @@ Kayıt kaybı geri alınamaz; her adımı test et.
 - Türetilmiş alanlar (açık adalar/bölgeler) kaydedilmez; `FarmMath.applyDerived` üretir.
 - DataStore yalnızca `PlayerDataService`; oturum sahipliği `SessionLock` (UpdateAsync, süreli kilit).
 - Studio'da store adı `_Studio` eki alır; canlı veriyle test etme.
+- Hesap düzeyi tercih alanlarında (dil, grafik) doğrulama listesi `Config`'tedir; tanınmayan değer yok sayılır, yanlış tür reddedilmez ama atılır.
 - Para/sayı sınırı: `SaveCodec` MAX_MONEY ve `SessionLock.isFinite`.

@@ -17,6 +17,7 @@ Client'a asla güvenme: fiyat, adet, para, hasar, sahiplik, kilit durumu sunucud
    artan kimlik ve `expectedFarmId` gönderir; etkin çiftlik değiştiyse reddet).
 4. Durum: `PlayerDataService.tryGet(player)` ve `player:GetAttribute("WorldReady") == true`.
 5. Para: önce `EconomyService.settlePlayer(player)`, sonra `PlayerDataService.trySpend`.
+5b. Para girişi: kazanç `PlayerDataService.addCash` (ömür boyu kazanca ve başarımlara girer); iade/satış `PlayerDataService.addRefund` (girmez).
 6. Değişiklik sonrası: `FarmMath.applyDerived(data)` → `pushState` → `requestSave` →
    gerekiyorsa `PlotService.refreshPlayerWorld(player)` → `Metrics.increment`.
 7. Sonuç: `requestId` varsa `PurchaseResult`/`XResult`, yoksa `Notify`.
@@ -32,3 +33,7 @@ Client'a asla güvenme: fiyat, adet, para, hasar, sahiplik, kilit durumu sunucud
 ## Yasaklar
 - `src/shared` içine gizli değer/anahtar koyma (client görür).
 - Client'tan gelen fiyat/adet/pozisyonu doğrudan kullanma; mesafe gerekiyorsa sunucu karakterden ölçer.
+
+## Katmanlar
+- Remote ve ödeme mantığı yalnızca `src/server/Services/`'te. `Presentation/` kayıt nesnesini okuyup dünyayı çizer, para/kayıt yazmaz; `World/` statik harita ve oyun servislerine bağlanmaz (bkz. `docs/MIMARI.md`).
+- Yeni servis: `Services/<Ad>Service.luau` + `init.server.luau`'da `require`/`init()` + gerekiyorsa harness kaydı.

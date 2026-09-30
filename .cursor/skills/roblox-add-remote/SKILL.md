@@ -21,7 +21,8 @@ local EVENTS = {
 ```
 Ad kalıbı: istek `Request<Fiil><Nesne>`, sonuç `<Alan>Result`.
 
-## 2. Sunucu işleyicisi (UpgradeService kalıbı)
+## 2. Sunucu işleyicisi (`src/server/Services/` içinde; UpgradeService/AnimalService kalıbı)
+Para girişi kazançsa `addCash`, iade/satışsa `PlayerDataService.addRefund` (başarım sayacına girmez).
 ```luau
 function FeedService.tryFeed(player: Player, uid: unknown): (boolean, string?)
 	if not RateLimiter.allow(player, "feed", 0.3) then
@@ -57,7 +58,7 @@ Remotes.get("RequestFeedAnimal").OnServerEvent:Connect(function(player: Player, 
 	end
 end)
 ```
-Yeni servis dosyasıysa `src/server/init.server.luau` içinde `require` + `init()` sırasına ekle.
+Yeni servis dosyasıysa `src/server/Services/<Ad>Service.luau` olarak aç ve `src/server/init.server.luau` içinde `require` + `init()` sırasına ekle. Görsel sonuç gerekiyorsa `PlotService.refreshPlayerWorld` çağır (çizim `Presentation/`'da); `Presentation` para/kayıt yazmaz.
 
 ## 3. Client
 - Satın alma/tekil işlem: `PurchaseController.submit("RequestFeedAnimal", uid)` — bekleyen istek,

@@ -5,13 +5,14 @@ Bu dosya Claude, Cursor, Copilot, Codex gibi AI araçlarının projeyi doğru an
 
 ## AI rehber seti (tek kaynak)
 - Bu dosya: her zaman geçerli temel kurallar ve **hangi dosyaya dokunurken hangi kural dosyasının okunacağı** (aşağıdaki tablo).
+- `docs/MIMARI.md`: kodun **nereye konacağı** ve katmanların kime bağlanabileceği (yeni dosya açmadan önce oku).
 - `.cursor/rules/*.mdc`: dosya türüne göre kapsamlı kurallar (Cursor otomatik yükler; Claude için
   eşleme tablosu `CLAUDE.md`'de). Stil, sunucu güvenliği, UI/HUD, yerelleştirme, harita/ışık,
   ekonomi/kayıt, client performansı, testler.
 - `.cursor/skills/<ad>/SKILL.md`: adım adım iş akışları — remote ekleme, UI ekleme, içerik/denge,
   harita değişikliği, çeviri, kayıt şeması, doğrulama. `.claude/skills/` bunlara yönlendirir.
 - Kural değişirse önce ilgili `.mdc`/`SKILL.md`'yi güncelle; aynı bilgiyi iki yere kopyalama.
-- Kural/skill/yönlendirme dosyalarının tutarlılığı `python scripts/check-ai-docs.py` ile denetlenir (`verify.ps1` çalıştırır).
+- Kural/skill/yönlendirme dosyalarının tutarlılığı `python scripts/check-ai-docs.py`, katman bağımlılıkları `python scripts/check-architecture.py` ile denetlenir (`verify.ps1` ikisini de çalıştırır).
 
 ### Dokunduğun yere göre okunacak kural dosyası
 Cursor bunları dosya türüne göre otomatik yükler; diğer araçlar (Claude, Copilot, Codex...) ilgili dosyaya
@@ -23,10 +24,10 @@ dokunmadan önce satırdaki kural dosyasını **bir kez** okumalı (hepsini baş
 | `src/server/**` | `.cursor/rules/server-security.mdc` |
 | `src/client/**`, `UiTheme`, `WorldUi`, `src/first/**` | `.cursor/rules/client-ui.mdc` |
 | Oyuncuya görünen metin | `.cursor/rules/localization.mdc` |
-| `MapBuilder`, `WorldDecor`, `HomeBuildings`, `HubNpcs`, `*VisualService`, `plugin/**`, `DayNight`, `WeatherEffects` | `.cursor/rules/world-map.mdc` |
+| `src/server/World/**` (MapBuilder, WorldDecor, HomeBuildings, HubNpcs...), `src/server/Presentation/**` (`*VisualService`), `plugin/**`, `src/client/Effects/**` (DayNight, WeatherEffects, Underwater, Graphics...) | `.cursor/rules/world-map.mdc` |
 | `Config`, `FarmMath`, `GameTypes`, `SaveCodec`, `PlayerDataService`, `EconomyService` | `.cursor/rules/economy-data.mdc` |
-| `src/client/*.client.luau` efekt/görsel scriptleri | `.cursor/rules/client-performance.mdc` |
-| `tests/**`, `scripts/**`, proje/araç ayarları | `.cursor/rules/tests-tooling.mdc` |
+| `src/client/**/*.client.luau` (özellikle `Effects/` ve `Interaction/`) efekt/görsel scriptleri | `.cursor/rules/client-performance.mdc` |
+| `tests/**`, `scripts/**`, `docs/MIMARI.md`, proje/araç ayarları | `.cursor/rules/tests-tooling.mdc` |
 
 ### İş akışı skill'leri
 Tam metin `.cursor/skills/<ad>/SKILL.md` içindedir (`.claude/skills/<ad>/SKILL.md` yalnızca oraya yönlendirir):
@@ -41,8 +42,8 @@ Tam metin `.cursor/skills/<ad>/SKILL.md` içindedir (`.claude/skills/<ad>/SKILL.
 ## Klasör → Roblox eşlemesi (`default.project.json`)
 | Klasör | Roblox konumu | Nerede çalışır |
 |---|---|---|
-| `src/server` | `ServerScriptService.Server` | Sadece sunucu |
-| `src/client` | `StarterPlayer.StarterPlayerScripts.Client` | Sadece oyuncunun cihazı |
+| `src/server` | `ServerScriptService.Server` (`Modules`, `World`, `Presentation`, `Services`) | Sadece sunucu |
+| `src/client` | `StarterPlayer.StarterPlayerScripts.Client` (`Core`, `Effects`, `Ui`, `Interaction`) | Sadece oyuncunun cihazı |
 | `src/shared` | `ReplicatedStorage.Shared` | İkisi de erişebilir |
 | `src/first` | `ReplicatedFirst` | Client'ta ilk çalışan (yükleme ekranı) |
 
@@ -102,7 +103,7 @@ Yeni dosya eklerken `docs/MIMARI.md`'deki "Yeni şey nereye?" tablosuna bak.
 - Buton tipleri: primary = alınabilir, warning = para yetmiyor, disabled = kilitli/dolu, owned = alındı.
 - HUD bölgeleri: sol orta `Stats` paneli, alt orta menü karoları (dar ekranda sağ orta 3 karo),
  sağda pencereler, üst ortada bildirimler. Sağ üst (oyuncu listesi) ve sol üst (sohbet) boş kalır.
- Ayrıntılı bilgi ana HUD'a değil "Çiftliğim" penceresine gider. Sipariş Panosu, Eşya Dükkânı, Envanter, Pazar, Yol Haritası ve Yükseltmeler
+ Menü karoları kademeli açılır (yeni oyuncu Pazar/Çiftliğim/Ayarlar görür); ipucu satırı yalnızca sorun varken çıkar. Ayrıntılı bilgi ana HUD'a değil "Çiftliğim" penceresine gider. Sipariş Panosu, Eşya Dükkânı, Envanter, Pazar, Yol Haritası ve Yükseltmeler
   ayrı pencerelerdir; pencere ve bölüm kodu `src/client/Ui/Hud/` altında, `FarmHud.client.luau` yalnızca orkestrasyondur.
 - Sunucu bildirim (Notify) metinlerine emoji koyma; bildirimin türü (success/error/money/info) işareti belirler.
 
@@ -118,8 +119,13 @@ Yeni dosya eklerken `docs/MIMARI.md`'deki "Yeni şey nereye?" tablosuna bak.
   sunucuda `save.language` olarak saklanır (`RequestSetLanguage`, `SavedLanguage` özniteliği).
 - Bayraklar emoji değil, `UiKit.flag` ile şekillerle çizilir (Roblox yazı tipleri bayrak emojisini göstermez).
 
+## Grafik ve atmosfer
+- Grafik kademesi (Otomatik/Düşük/Orta/Yüksek, hesaba kayıtlı `save.graphics`) yalnızca `src/client/Effects/Graphics.client.luau`'da uygulanır; `EffectsQuality` ve `ReducedMotion` yeni efektlerde zorunlu.
+- Su altı (`Underwater.client`) kamera su seviyesinin altındayken renk/bulanıklık/baloncuk/ses ekler ve yağışı keser (`Submerged`).
+
 ## Araçlar
 - Rokit (`rokit.toml`) ile: rojo, stylua, selene.
 - Lint: `selene src` · Format: `stylua src` · Senkronizasyon: `rojo serve`
 - Testler: `python scripts/run-tests.py` · Çeviri kapsamı: `python scripts/check-locales.py --strict-literals`
+- Mimari kuralları: `python scripts/check-architecture.py` · Tip analizi (yeni bulgu = hata): `python scripts/check-types.py` (araçlar `.tools/luau-lsp`, `scripts/setup-types.ps1`)
 - Tam doğrulama: `powershell -ExecutionPolicy Bypass -File scripts/verify.ps1`

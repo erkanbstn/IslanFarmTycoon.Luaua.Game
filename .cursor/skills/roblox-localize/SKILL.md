@@ -5,7 +5,7 @@ description: Adds or fixes translations for this Roblox project's Turkish source
 
 # Çeviri ekleme
 
-1. Metni bul (UiKit.text/button/menuButton, `.Text = `, WorldUi, ProximityPrompt, sunucu Notify).
+1. Metni bul (UiKit.text/button/menuButton, `.Text = `, WorldUi ve harita tabelaları, ProximityPrompt, sunucu Notify, kutlama panosu `celebrate`).
 2. Anahtar = ekrana yazılan Türkçe metnin **tam hali**. Değişken kısımlar `{}`:
    kod `` `Önce: {names}` `` → anahtar `"Önce: {}"` → hedef `"Requires: {1}"`.
 3. Aynı anahtarı `src/shared/Locales/en.luau`, `de.luau`, `ru.luau` içine ilgili bölüme ekle.
@@ -22,3 +22,6 @@ description: Adds or fixes translations for this Roblox project's Turkish source
 ## Yeni dil
 `Config.LANGUAGES`'a kod ekle → `Locales/<kod>.luau` (en.luau'yu kopyala) → `UiKit.flag` için
 `flagPainters[<kod>]` çiz → `check-locales.py` içindeki `LANGS`'a ekle.
+
+## Toplu ekleme
+Çok sayıda anahtar için küçük bir Python betiği yaz (Write aracıyla; bash heredoc ters eğik çizgiyi bozar): mevcut anahtarları oku, eksikleri `en/de/ru` dosyalarının sonuna ekle, `check-locales.py --strict-literals` ile doğrula.

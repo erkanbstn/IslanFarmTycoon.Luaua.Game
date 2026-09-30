@@ -11,13 +11,14 @@ Tek kaynak `src/shared/Config.luau`. Önce benzer mevcut kaydı bul ve aynı ala
 ## Nereye ne eklenir
 | İçerik | Config | Ek dokunuş |
 |---|---|---|
-| Hayvan | `ANIMALS` + `ANIMAL_ORDER` | model `assets/Animals`, `AnimalVisualService`; bir `ZONES[x].allowedAnimals` (ana ada hayvanıysa `THEMES[n].homeAnimal`) |
-| Bölge | `ZONES` (`island` alanı zorunlu) + açan `UPGRADES` (kind zone) | `MapBuilder` bölge yerleşimi → `MAP_VERSION` +1 |
-| Yükseltme | `UPGRADES` (`stage`, `requires`, `cost`) | görseli `UpgradeVisualService`; yapı noktası gerekiyorsa MapBuilder `BuildSpots` |
+| Hayvan | `ANIMALS` + `ANIMAL_ORDER` | model `assets/Animals`, `server/Presentation/AnimalVisualService`; bir `ZONES[x].allowedAnimals` (ana ada hayvanıysa `THEMES[n].homeAnimal`) |
+| Bölge | `ZONES` (`island` alanı zorunlu) + açan `UPGRADES` (kind zone) | `server/World/MapBuilder` bölge yerleşimi → `MAP_VERSION` +1; geliştirme profili: `ZONES[x].upgradeProfile` |
+| Yükseltme | `UPGRADES` (`stage`, `requires`, `cost`) | görseli `server/Presentation/UpgradeVisualService`; yapı noktası gerekiyorsa `World/MapBuilder` `BuildSpots` |
 | Uzman ada | `FARM_ISLANDS` + `FARM_ISLAND_ORDER` + island upgrade + `THEMES[n].satellites` + `ROADMAP_STAGES` (**sona ekle**: `upgrade.stage` indeksidir) | MapBuilder `SATELLITE_TYPES`, `IslandSpecialization.SITES`; ana hayvanın kendi adası temada olmaz, inek yoksa `dairy` bulunur |
-| Eklenti | `EXTENSIONS` + kind extension upgrade | `ExtensionVisualService` |
-| Üretim | `PRODUCTION_RECIPES` | `ProductionRules`, `IslandSpecialization` |
-| Mevsim/hava | `SEASONS`, `WEATHER` (incomeModifiers) | `WeatherEffects` WEATHER_LOOK, `SEASON_TINT` |
+| Eklenti | `EXTENSIONS` + kind extension upgrade | `Presentation/ExtensionVisualService` |
+| Üretim | `PRODUCTION_RECIPES` (+ `upgradeProfile`) | `ProductionRules`, `World/IslandSpecialization`; tesis geliştirmesi `BUILD_UPGRADES.profiles` |
+| Yapı geliştirme | `BUILD_UPGRADES` (`profiles`, `costMultiplier/costGrowth`) | etki `FarmMath`'te; `tests/economy.spec.luau`; `simulate-economy.py` kalibrasyonu |
+| Mevsim/hava | `SEASONS`, `WEATHER` (incomeModifiers) | `client/Effects/WeatherEffects` WEATHER_LOOK, `SEASON_TINT` |
 | Eşya (çekiç, asa, muska, kozmetik) | `Config.ITEMS` (+ `ITEM_SLOTS`) — `effects`/`power`/`look` | etki `FarmMath`'te okunur; çeviri (ad + şablon); `tests/inventory.spec.luau` |
 
 ## Adımlar
@@ -28,7 +29,8 @@ Tek kaynak `src/shared/Config.luau`. Önce benzer mevcut kaydı bul ve aynı ala
 - [ ] 4. displayName, description, trait, product metinlerinin çevirisi (en/de/ru)
 - [ ] 5. Kayıt etkisi: yeni kalıcı alan varsa roblox-save-schema skill'i
 - [ ] 6. Test: tests/economy.spec.luau (fiyat/gelir), orders/production gerekiyorsa
-- [ ] 7. roblox-verify
+- [ ] 7. Fiyat/gelir değiştiyse `python scripts/simulate-economy.py` (ada süreleri ve TÜM YÜKSELTMELER hedefi, `economy-data.mdc` tempo satırı)
+- [ ] 8. roblox-verify
 ```
 
 ## Denge ipuçları

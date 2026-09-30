@@ -6,6 +6,8 @@ alwaysApply: false
 
 # Arayüz standardı
 
+Katman: `src/client/Ui/` (UiKit, FarmHud, `Hud/*`, paneller, `IslandManager`, `IncomeBubbles`) yalnızca `Core/` ve `Effects/`'e bağlanır (bkz. `docs/MIMARI.md`).
+
 - Bileşenler `src/client/Ui/UiKit.luau`: panel, window, card, button, menuButton (karo), closeButton,
   badge, progressBar, sectionHeader, toastHost, iconChip, flag, textInput.
 - Renk/yazı/boyut `UiKit.Color / UiKit.Font / UiKit.TextSize / UiKit.Radius` (kaynak `UiTheme`).
@@ -25,6 +27,10 @@ alwaysApply: false
 | Üst orta | Bildirimler (toast) |
 | Sağ üst / sol üst | Roblox oyuncu listesi ve sohbet — HUD buraya bir şey koymaz |
 
+- **Menü kademeli açılır** (`FarmHud.updateMenuVisibility` / `setMenuTile`): yeni oyuncu yalnızca Pazar, Çiftliğim, Ayarlar'ı görür; diğer karolar ihtiyaç doğunca belirir ve 8 sn vurgulanır.
+  Yeni karo eklerken ne zaman görüneceğini (`updateMenuVisibility`) belirle; hepsini baştan gösterme.
+- Sol panel: ipucu satırı (`hintWanted`) yalnızca sorun varken görünür; hedef kartı tek hedef gösterir, deneyimli oyuncuda altına "bekleyen iş" satırları (`pendingChores`) ve büyük hedef için biriktirirken "Hızlı kazanç" önerisi gelir.
+- Yeni yapı/geliştirme kilometre taşı kutlaması `celebrate` ile (durum farkından `detectMilestone`); yeni kilometre taşı türü eklersen oraya ekle.
 - Yeni menü girişi: `UiKit.menuButton` + `menuEntries` listesine ekle (`compactDock` = dar ekranda
   menüde kalsın mı). Ayrıntılı/az kullanılan bilgi ana HUD'a değil "Çiftliğim" penceresine gider.
 - Pencere açılınca `redraw`; kapalı pencere içeriği `*Dirty` bayraklarıyla ertelenir.

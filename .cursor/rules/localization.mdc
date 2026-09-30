@@ -23,3 +23,6 @@ Yeni/değişen metin → aynı Türkçe anahtarı **üç dosyaya** ekle: `en.lua
   `python scripts/check-locales.py --strict-literals` (anahtar eşitliği + UI metin kapsamı).
 - Yönetici paneli (`AdminPanel.luau`) yalnızca sahibe görünür; çeviri zorunlu değil.
 - Bayrak emoji değil, `UiKit.flag`. Dil listesi `Config.LANGUAGES`.
+- Dünyadaki tabelalar (`WorldUi`, NPC tabelaları `HubNpcs` blurb/title, yön tabelaları) da aynı sözlükle çevrilir; harita yeniden kurulmadan çeviri güncellenir.
+- Dinamik metin (`Sv.{level}`, `+{} kapasite`...) için şablon anahtar ekle; parçalı metinleri (" · ", satır sonu) ayrı ayrı çevir.
+- Toplu ekleme betiği yazarken Python `r'...'` ve Write aracı kullan; bash heredoc ters eğik çizgiyi bozar.

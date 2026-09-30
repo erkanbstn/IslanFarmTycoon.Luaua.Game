@@ -6,16 +6,18 @@ description: Changes the generated island map, decor, lamps or build spots in Ma
 # Harita değişikliği
 
 ## Karar: place'e kaydedilen mi, çalışma anında mı?
-- `MapBuilder.luau` / `WorldDecor.luau` (MapBuilder'dan çağrılan) → place'e kaydedilir →
+- `src/server/World/` (MapBuilder, WorldDecor, HomeBuildings, HubNpcs, IslandSpecialization) → place'e kaydedilir →
   **MAP_VERSION +1** ve Studio'da yeniden kurulum gerekir.
-- `*VisualService.luau` (ahır, bölge, yükseltme, hayvan, eklenti görselleri) → sunucu her oturumda
+- `src/server/Presentation/` (hayvan, bölge, yükseltme, eklenti, toplama görselleri; tesis seviye halkaları, bölge bayrakları) → sunucu her oturumda
   kurar → sürüm gerekmez.
+- Klasör adı/yapısı ya da `plugin/` değiştiyse eklentiyi yeniden üret: `rojo build plugin.project.json --plugin IslandFarmTycoonHarita.rbxm` (Studio'yu yeniden başlat).
 
 ## Adımlar
 ```
 - [ ] 1. Değişikliği yap (Shared'ı script.Parent.Parent üzerinden arayan yedeği koru)
 - [ ] 2. MAP_VERSION +1 (yalnızca place'e kaydedilen değişiklikte)
 - [ ] 3. Yeni zorunlu parça → MapBuilder.validate() + tests/world.spec.luau / tests/map-structure.spec.luau
+- [ ] 3a. Yeni avlu/dekor parçası: `WorldDecor` yardımcısı (çarpışmaz), yer `decorateHome` koordinatlarına/çim kaçınma listesine göre; yön tabelalarında `yaw` ve metin çevirisi
 - [ ] 3b. Dekor bitince WorldDecor.optimize; tabela eklediysen uzun direk + CanCollide=false (yüksekliği map-structure denetler)
 - [ ] 4. rojo build (verify.ps1) + selene
 - [ ] 5. Kullanıcıya: Studio'da eklenti paneli → "Haritayı Kur" → "Haritayı Doğrula" → place'i kaydet

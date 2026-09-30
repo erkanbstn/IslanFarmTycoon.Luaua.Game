@@ -6,6 +6,10 @@ Cursor `.cursor/rules/*.mdc` dosyalarını otomatik yükler; Claude yüklemez. `
 **"Dokunduğun yere göre okunacak kural dosyası"** tablosuna bak: dokunacağın dosyanın satırındaki
 kural dosyasını **bir kez** oku (hepsini baştan okuma). Tablo yalnızca `AGENTS.md`'de tutulur.
 
+## Mimari
+
+Yeni dosya açmadan önce `docs/MIMARI.md` (katmanlar: sunucu `Modules → World → Presentation → Services`, istemci `Core → Effects → Ui → Interaction`).
+
 ## Skill'ler
 
 `.claude/skills/*` yalnızca yönlendirir; tam metin `.cursor/skills/<ad>/SKILL.md` içindedir:

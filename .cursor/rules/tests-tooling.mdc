@@ -16,7 +16,8 @@ alwaysApply: false
 - Studio (dünya) testleri: `test.project.json` ayrı place; `tests/run.server.luau`. Harita sürümünü
   sabit sayıyla değil `validate()` ile kontrol et.
 - Tam doğrulama: `powershell -ExecutionPolicy Bypass -File scripts/verify.ps1`
-  (StyLua, Selene, Luau derleme, regresyon, yerelleştirme, üç Rojo derlemesi).
+  (StyLua, Selene, Luau derleme, regresyon, yerelleştirme, rehber tutarlılığı, saf modül tip analizi, mimari kuralları, tip analizi tabanı, üç Rojo derlemesi).
+- Test koşucusu `local X = require(...)` deyimlerini (çok satırlı olsa da) değiştirir; klasör yeniden düzenlersen `run-tests.py`'deki kaynak yollarını güncelle.
 - Hızlı döngü: `stylua src tests plugin` → `selene src` → `python scripts/run-tests.py`.
 - Testi geçirmek için beklentiyi gevşetme; davranış bilinçli değiştiyse testi güncelle ve nedenini
   commit mesajında yaz.

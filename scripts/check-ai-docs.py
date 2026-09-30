@@ -143,6 +143,24 @@ for doc in guide_files:
         if not (ROOT / reference).exists():
             fail(f"{doc.relative_to(ROOT).as_posix()}: var olmayan yol: {reference}")
 
+# ---------------------------------------------------------------- mimari belgesi
+architecture = ROOT / "docs" / "MIMARI.md"
+if not architecture.exists():
+    fail("docs/MIMARI.md yok")
+else:
+    architecture_text = read(architecture)
+    for doc in ("AGENTS.md", "CLAUDE.md", ".cursorrules", ".github/copilot-instructions.md"):
+        path = ROOT / doc
+        if path.exists() and "MIMARI.md" not in read(path):
+            fail(f"{doc} docs/MIMARI.md'ye referans vermiyor")
+    for side in ("server", "client"):
+        for directory in sorted((ROOT / "src" / side).iterdir()):
+            if directory.is_dir() and f"`{directory.name}/`" not in architecture_text:
+                fail(f"docs/MIMARI.md src/{side}/{directory.name}/ katmanını anlatmıyor")
+    for reference in PATH_PATTERN.finditer(architecture_text):
+        if not any(ch in reference.group(1) for ch in "*<>") and not (ROOT / reference.group(1)).exists():
+            fail(f"docs/MIMARI.md: var olmayan yol: {reference.group(1)}")
+
 if errors:
     print("Yapay zeka rehber dosyaları tutarsız:")
     for message in errors:

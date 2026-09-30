@@ -1,6 +1,6 @@
 ---
 description: Harita üretimi, dünya görselleri, gece ışıkları ve Lighting sahipliği
-globs: src/server/World/**,src/server/Presentation/**,plugin/**,src/client/Effects/DayNight.client.luau,src/client/Effects/WeatherEffects.client.luau,src/client/Effects/SeasonalScenery.luau
+globs: src/server/World/**,src/server/Presentation/**,plugin/**,src/client/Effects/**
 alwaysApply: false
 ---
 
@@ -10,8 +10,9 @@ alwaysApply: false
   modunda kurar, place kaydedilir. Sunucu `MapBuilder.validate()` ile `MapVersion`'ı doğrular:
   uyuşmazsa oyun açılmaz.
 - MapBuilder/WorldDecor ile üretilen (place'e kaydedilen) her şeyde değişiklik → `MAP_VERSION` +1
-  ve kullanıcıya "Haritayı Kur + place kaydet" hatırlat. `*VisualService` çalışma anında kurar,
-  sürüm gerekmez.
+  ve kullanıcıya "Haritayı Kur + place kaydet" hatırlat. `src/server/Presentation/*` (çalışma anı görselleri) sürüm gerektirmez.
+- Klasörler: `World/` = place'e kaydedilen statik harita (oyun servislerine bağlanmaz; eklenti bu klasörü kopyalayıp çalıştırır, klasör adı/yapısı
+  değişirse `plugin/MapTool.server.luau` ve `test.project.json` güncellenir, eklenti yeniden üretilir); `Presentation/` = oyuncu durumundan çalışma anında çizilenler.
 - Harita sözleşmesi (Plots/Zones/Islands/BuildSpots/HubSpawn) `validate()` içindedir; yeni zorunlu
   parça eklersen oraya ve `tests/world.spec.luau` / `tests/map-structure.spec.luau`'ya ekle (Studio düzenleme modu).
 
@@ -21,6 +22,10 @@ alwaysApply: false
   `MapBuilder.decorateHome` çağırır; yerleri `addIslandGrass` kaçınma listesinde de tutulur. Kapılar >= 4.6 x 6.6 stud.
 - Meydan (`MapBuilder.buildHub`): doğma noktası, Adalar tabelası ve `HubNpcs.vendor` ile 4 satıcı (`VendorPrompt`, `Action`:
   `orders`/`store`/`roadmap`/`travel`; client `FarmHud.client` ilgili pencereyi açar). Satıcı doğma noktasından >= 15 stud uzakta durur.
+- Ana ada avlusu (`MapBuilder.decorateHome`): ana yolu çerçeveleyen çitler, saman balyaları, korkuluk, el arabası, kavşak yön tabelası (`buildSignpost`, ok yönleri `yaw` ile).
+  Yeni avlu parçası `WorldDecor` yardımcısı (`fenceRun/hayBale/scarecrow/wheelbarrow`) olarak yazılır; çit/dekor çarpışmaz (`CanCollide=false`).
+- Çalışma anı seviye işaretleri: `UpgradeVisualService.applyLevelMarks` (tesis dibinde altın halkalar + "Sv.N" etiketi), `ZoneVisualService.applyLevelFlags` (bölge bayrakları).
+- NPC tabelasında `title` + işlev satırı (`blurb`) vardır; NPC adı etkileşim ipucunda (`ObjectText`). Yeni satıcıya `blurb` zorunlu.
 - Yapım alanları: `UpgradeVisualService.apply` satın alınabilen ama alınmamış, karada yapı noktası olan binaların yerine `plot.Sites` altında toprak zemin +
   kazık + sarı şerit + fiyatlı tabela koyar (çalışma anında, harita sürümü gerekmez); alınınca kaldırılır ve bina kurulur. Denizdeki nokta (`BoatPatrolX`) atlanır.
 - Meydan dekoru (`HubNpcs.fountain/bench/planter`): köprü ışınlarından (0°, 60°, ...) ve doğma noktasından uzak tut; satıcılar `HubNpc` etiketi taşır,
@@ -51,6 +56,8 @@ alwaysApply: false
 | Özellik | Sahibi |
 |---|---|
 | ClockTime, Brightness, Ambient, OutdoorAmbient, ExposureCompensation, Bloom, NightGrade | DayNight |
-| Bulutlar, Atmosphere Haze/Density, SunRays, WeatherGrade | WeatherEffects |
+| Bulutlar, Atmosphere Haze/Density, SunRays (yoğunluk), WeatherGrade | WeatherEffects |
+| Bloom/SunRays/Clouds `Enabled`, GlobalShadows, ShadowSoftness, EnvironmentSpecularScale, Terrain su/süs, DepthOfField | Graphics (kalite profili) |
+| UnderwaterGrade, UnderwaterBlur, `SoundService.AmbientReverb`, `Submerged` özniteliği | Underwater |
 - Hava pozlaması: WeatherEffects `Lighting:SetAttribute("WeatherExposure", n)` yazar, DayNight
   yumuşatıp gece payıyla birlikte uygular. Yeni efekt bu tabloya uymalı.
