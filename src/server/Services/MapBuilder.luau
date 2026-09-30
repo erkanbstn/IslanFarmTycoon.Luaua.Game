@@ -23,7 +23,7 @@ local MapBuilder = {}
 
 -- Harita düzenini (adalar, bölgeler, yapı yerleri) değiştirince bunu 1 artır:
 -- oyun, place'e kaydedilmiş eski haritayı fark edip uyarır.
-local MAP_VERSION = 36
+local MAP_VERSION = 37
 
 local SURFACE_Y = 4 -- Ada ve meydan yüzeyinin yüksekliği
 local WATER_Y = 0 -- Deniz yüzeyi
@@ -769,6 +769,31 @@ local function homeBuildingAvoidRects(plotIndex: number): { { x: number, z: numb
 	return rects
 end
 
+-- Kavşak yön tabelası: direğe çakılı okları olan tahtalar (her biri bir yere gider)
+local function buildSignpost(parent: Instance, base: CFrame, arrows: { { label: string, icon: string, yaw: number } })
+	local model = Instance.new("Model")
+	model.Name = "Signpost"
+	model.Parent = parent
+	local post =
+		makePart("Post", Vector3.new(0.6, 7, 0.6), base * CFrame.new(0, 3.5, 0), Color3.fromRGB(110, 80, 50), model)
+	post.Material = Enum.Material.Wood
+	post.CanCollide = false
+	for index, arrow in arrows do
+		local board = makePart(
+			"Board",
+			Vector3.new(5.4, 1.3, 0.3),
+			base * CFrame.Angles(0, math.rad(arrow.yaw), 0) * CFrame.new(2.4, 6.2 - (index - 1) * 1.5, 0),
+			Color3.fromRGB(150, 110, 70),
+			model
+		)
+		board.Material = Enum.Material.WoodPlanks
+		board.CanCollide = false
+		for _, face in { Enum.NormalId.Front, Enum.NormalId.Back } do
+			WorldUi.sign(board, face, { icon = arrow.icon, text = arrow.label })
+		end
+	end
+end
+
 local function decorateHome(decor: Instance, islandCf: CFrame, plotIndex: number)
 	local function at(x: number, z: number): CFrame
 		return islandCf * CFrame.new(x, SURFACE_Y, z)
@@ -868,6 +893,24 @@ local function decorateHome(decor: Instance, islandCf: CFrame, plotIndex: number
 	WorldDecor.crate(decor, at(-9, 27), 2.2)
 	WorldDecor.crate(decor, at(-11.4, 27.6), 1.6)
 	WorldDecor.mailbox(decor, at(8, -53))
+
+	-- Çiftlik avlusu: ana yolu çerçeveleyen alçak çitler, saman balyaları, korkuluk, el arabası ve kavşak tabelası
+	for _, x in { -3.8, 3.8 } do
+		WorldDecor.fenceRun(decor, pos(x, -34), pos(x, -21))
+	end
+	WorldDecor.hayBale(decor, at(-27, -26) * CFrame.Angles(0, 0.3, 0), true)
+	WorldDecor.hayBale(decor, at(-23.5, -27.5) * CFrame.Angles(0, -0.2, 0), false)
+	WorldDecor.hayBale(decor, at(-25.5, -23.8) * CFrame.Angles(0, 0.8, 0), false)
+	WorldDecor.scarecrow(decor, at(-32, -23) * CFrame.Angles(0, 0.5, 0))
+	WorldDecor.wheelbarrow(decor, at(24, -26) * CFrame.Angles(0, -0.6, 0))
+	WorldDecor.barrel(decor, at(28, -25))
+	WorldDecor.barrel(decor, at(30.2, -26.4))
+	WorldDecor.crate(decor, at(27, -28.5), 1.8)
+	buildSignpost(decor, at(5.6, -19.5), {
+		{ label = "Ahır", icon = "🏚️", yaw = -90 },
+		{ label = "Ağıllar", icon = "🐄", yaw = -56 },
+		{ label = "Liman", icon = "⚓", yaw = 115 },
+	})
 
 	-- Ana ada yapıları (HomeBuildings): yerleşim temaya göre değişir (homePlacements); ön (-Z) yönü yaw ile çevrilir.
 	local placed = homePlacements(plotIndex)

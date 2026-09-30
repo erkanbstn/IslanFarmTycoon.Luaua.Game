@@ -736,4 +736,6 @@ return {
 	["Yeni yapı"] = "Новая постройка",
 	["Geliştirme tamamlandı"] = "Улучшение завершено",
 	["Geliştirme tamamlandı · Sv.{}"] = "Улучшение завершено · Ур.{1}",
+	["Ağıllar"] = "Загоны",
+	["Liman"] = "Гавань",
 }

@@ -203,7 +203,7 @@ local storageBar, setStorageBar = UiKit.progressBar(storageBlock, 10)
 storageBar.LayoutOrder = 2
 local hintLabel = UiKit.text(storageBlock, "", "Caption")
 hintLabel.LayoutOrder = 3
-local hintWanted = true -- yeni oyuncuda hedef kartı yönlendirdiği için ipucu gizlenir
+local hintWanted = false -- yalnızca sorun varken görünür
 
 -- Sıradaki ada kartı: oyuncunun uzun vadeli amacı
 local islandCard = Instance.new("Frame")
@@ -982,7 +982,8 @@ local function onState(state: PlayerSave, structural: boolean)
 	updateMenuVisibility(state)
 	detectMilestone(state)
 	-- Yeni oyuncuda hedef kartı yönlendirir; aynı şeyi söyleyen ipucu satırı gizlenir (depo dolunca yine görünür)
-	hintWanted = Onboarding.stepFor(state) == 0 or state.stored >= cap
+	-- İpucu satırı yalnızca bir şey ters giderken görünür (depo dolu ya da kayıtsız test); sürekli aynı cümle HUD'u kalabalıklaştırır
+	hintWanted = state.stored >= cap or localPlayer:GetAttribute("DataPersistent") == false
 	updateRewards(state)
 	updateBoard(state)
 	if itemShop.window.isOpen() then

@@ -633,4 +633,151 @@ function WorldDecor.dock(parent: Instance, start: CFrame, length: number, surfac
 	)
 end
 
+-- Alçak ahşap çit: iki nokta arası, direkler ve iki tahta (çarpışmaz; yalnızca yolu çerçeveler)
+function WorldDecor.fenceRun(parent: Instance, from: Vector3, to: Vector3)
+	local model = Instance.new("Model")
+	model.Name = "Fence"
+	model.Parent = parent
+	local delta = to - from
+	local length = delta.Magnitude
+	if length < 1 then
+		return
+	end
+	local dir = delta.Unit
+	local posts = math.max(2, math.floor(length / 4) + 1)
+	local wood = Color3.fromRGB(150, 110, 70)
+	local dark = Color3.fromRGB(120, 85, 52)
+	for i = 0, posts - 1 do
+		local p = from + dir * (length * i / (posts - 1))
+		local post = part(
+			model,
+			"Post",
+			Vector3.new(0.4, 2.2, 0.4),
+			CFrame.new(p + Vector3.new(0, 1.1, 0)),
+			dark,
+			Enum.Material.Wood
+		)
+		post.CanCollide = false
+	end
+	local mid = from + delta / 2
+	for _, y in { 0.8, 1.6 } do
+		local rail = part(
+			model,
+			"Rail",
+			Vector3.new(0.18, 0.28, length),
+			CFrame.lookAt(mid + Vector3.new(0, y, 0), mid + Vector3.new(0, y, 0) + dir),
+			wood,
+			Enum.Material.WoodPlanks
+		)
+		rail.CanCollide = false
+	end
+end
+
+-- Saman balyası (küçük yığınlar için); stack: üstüne konacak ikinci bale
+function WorldDecor.hayBale(parent: Instance, base: CFrame, stack: boolean?)
+	local model = Instance.new("Model")
+	model.Name = "HayBale"
+	model.Parent = parent
+	local straw = Color3.fromRGB(226, 190, 96)
+	column(
+		model,
+		"Bale",
+		2.2,
+		2.6,
+		base * CFrame.new(0, 1.1, 0) * CFrame.Angles(math.rad(90), 0, 0),
+		straw,
+		Enum.Material.Fabric
+	)
+	for _, z in { -0.55, 0.55 } do
+		part(
+			model,
+			"Twine",
+			Vector3.new(2.3, 0.08, 0.1),
+			base * CFrame.new(0, 1.1, z),
+			Color3.fromRGB(150, 110, 60),
+			Enum.Material.Fabric
+		)
+	end
+	if stack then
+		column(
+			model,
+			"TopBale",
+			2.2,
+			2.6,
+			base * CFrame.new(0.2, 3.1, 0) * CFrame.Angles(math.rad(90), math.rad(25), 0),
+			straw,
+			Enum.Material.Fabric
+		)
+	end
+end
+
+function WorldDecor.scarecrow(parent: Instance, base: CFrame)
+	local model = Instance.new("Model")
+	model.Name = "Scarecrow"
+	model.Parent = parent
+	local wood = Color3.fromRGB(120, 88, 54)
+	part(model, "Pole", Vector3.new(0.35, 5.2, 0.35), base * CFrame.new(0, 2.6, 0), wood, Enum.Material.Wood)
+	part(model, "Arms", Vector3.new(4, 0.3, 0.3), base * CFrame.new(0, 3.9, 0), wood, Enum.Material.Wood)
+	part(
+		model,
+		"Shirt",
+		Vector3.new(1.5, 1.8, 0.8),
+		base * CFrame.new(0, 3.3, 0),
+		Color3.fromRGB(190, 70, 60),
+		Enum.Material.Fabric
+	)
+	ball(model, "Head", 1.3, base * CFrame.new(0, 5.2, 0), Color3.fromRGB(226, 190, 96), Enum.Material.Fabric)
+	column(model, "HatBrim", 2.2, 0.15, base * CFrame.new(0, 5.8, 0), Color3.fromRGB(95, 70, 45), Enum.Material.Fabric)
+	column(model, "HatTop", 1.1, 0.9, base * CFrame.new(0, 6.3, 0), Color3.fromRGB(95, 70, 45), Enum.Material.Fabric)
+end
+
+function WorldDecor.wheelbarrow(parent: Instance, base: CFrame)
+	local model = Instance.new("Model")
+	model.Name = "Wheelbarrow"
+	model.Parent = parent
+	part(
+		model,
+		"Tray",
+		Vector3.new(2.2, 0.9, 3),
+		base * CFrame.new(0, 1.3, 0),
+		Color3.fromRGB(70, 130, 90),
+		Enum.Material.Metal
+	)
+	part(
+		model,
+		"Hay",
+		Vector3.new(1.8, 0.5, 2.5),
+		base * CFrame.new(0, 1.85, 0),
+		Color3.fromRGB(226, 190, 96),
+		Enum.Material.Fabric
+	)
+	column(
+		model,
+		"Wheel",
+		1.3,
+		0.3,
+		base * CFrame.new(0, 0.65, -1.8) * CFrame.Angles(0, math.rad(90), 0),
+		Color3.fromRGB(45, 45, 50),
+		Enum.Material.Rubber
+	)
+	for _, x in { -0.8, 0.8 } do
+		part(
+			model,
+			"Handle",
+			Vector3.new(0.18, 0.18, 2),
+			base * CFrame.new(x, 1.1, 2.2),
+			Color3.fromRGB(150, 110, 70),
+			Enum.Material.Wood
+		)
+		part(
+			model,
+			"Leg",
+			Vector3.new(0.2, 1.1, 0.2),
+			base * CFrame.new(x, 0.55, 1.5),
+			Color3.fromRGB(120, 85, 52),
+			Enum.Material.Wood
+		)
+	end
+end
+
 return WorldDecor

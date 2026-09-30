@@ -736,4 +736,6 @@ return {
 	["Yeni yapı"] = "New building",
 	["Geliştirme tamamlandı"] = "Upgrade complete",
 	["Geliştirme tamamlandı · Sv.{}"] = "Upgrade complete · Lv.{1}",
+	["Ağıllar"] = "Pens",
+	["Liman"] = "Harbor",
 }
