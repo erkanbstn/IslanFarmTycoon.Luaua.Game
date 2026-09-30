@@ -8,6 +8,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = script.Parent.Parent:FindFirstChild("Shared") or ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local UiTheme = require(Shared:WaitForChild("UiTheme"))
+local MapPaths = require(Shared:WaitForChild("MapPaths"))
 local WorldUi = require(Shared:WaitForChild("WorldUi"))
 local BarnVisualService = require(script.Parent:WaitForChild("BarnVisualService"))
 local WorldDecor = require(script.Parent:WaitForChild("WorldDecor"))
@@ -76,14 +77,10 @@ local function decorateHome(decor: Instance, islandCf: CFrame, plotIndex: number
 		return at(x, z).Position
 	end
 
-	WorldDecor.path(decor, pos(0, -(ISLAND_RADIUS - 2)), pos(0, -49), 6)
-	WorldDecor.path(decor, pos(0, -41), pos(0, 28), 6)
-	WorldDecor.path(decor, pos(3, -42), pos(12, -40), 4)
-	WorldDecor.path(decor, pos(-20, -16), pos(20, -16), 5)
-	WorldDecor.path(decor, pos(-14, 27), pos(-43, 53), 5)
-	WorldDecor.path(decor, pos(14, 27), pos(43, 53), 5)
-	WorldDecor.path(decor, pos(-15, 28), pos(-16, 54), 5)
-	WorldDecor.path(decor, pos(-16, 54), pos(0, ISLAND_RADIUS - 2), 5)
+	-- Taş yollar MapPaths'te tanımlıdır (yardımcıların rotası da aynı listeyi kullanır)
+	for _, segment in MapPaths.homeSegments(ISLAND_RADIUS) do
+		WorldDecor.path(decor, pos(segment.ax, segment.az), pos(segment.bx, segment.bz), segment.width)
+	end
 	WorldDecor.path(decor, pos(-4, -50), pos(DOCK_START.X, DOCK_START.Z), 4) -- balık kafesi iskelesine
 	WorldDecor.path(decor, pos(-33, -51), pos(DOCK_START.X + 2, DOCK_START.Z + 3), 4) -- balık merkezinin kapısından iskeleye
 
@@ -308,6 +305,9 @@ local function buildIsland(plotIndex: number, islandCf: CFrame, theme: number?):
 	local plotModel = Instance.new("Model")
 	plotModel.Name = `Plot{plotIndex}`
 	plotModel:SetAttribute("PlotId", tostring(plotIndex))
+	-- Ana adanın yerel çerçevesi (yüzeyde): istemcideki yardımcılar yol ağını buradan dünyaya çevirir
+	plotModel:SetAttribute("HomeFrame", islandCf * CFrame.new(0, SURFACE_Y, 0))
+	plotModel:SetAttribute("HomeRadius", ISLAND_RADIUS)
 	plotModel:SetAttribute("ThemeIndex", themeIndex)
 	plotModel:SetAttribute("IslandName", islandName)
 	plotModel:SetAttribute("IslandIcon", islandIcon)

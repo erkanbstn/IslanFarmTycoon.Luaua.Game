@@ -106,6 +106,10 @@ local function buildSatellite(
 
 	local center = homeCf * CFrame.new(layout.offset)
 	local cf = CFrame.lookAt(center.Position, homeCf.Position) -- -Z ana adaya (köprüye) bakar
+	-- Yardımcıların yol ağı: ada çerçevesi (yüzeyde), köprü girişi ve yolun bölgeye varan ucu
+	islandModel:SetAttribute("IslandFrame", cf * CFrame.new(0, SURFACE_Y, 0))
+	islandModel:SetAttribute("PathStart", (cf * CFrame.new(0, SURFACE_Y, -(SATELLITE_RADIUS - 2))).Position)
+	islandModel:SetAttribute("PathEnd", (cf * CFrame.new(0, SURFACE_Y, -11)).Position)
 
 	-- Kıyı Terrain (kaya + kum plaj); üstü düz çimen parça
 	WorldDecor.terrainIsland(islandModel, cf.Position, SATELLITE_RADIUS, SURFACE_Y, 7, withTerrain)

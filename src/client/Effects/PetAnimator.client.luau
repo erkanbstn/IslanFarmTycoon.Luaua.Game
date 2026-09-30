@@ -1,17 +1,22 @@
 --!strict
--- Yardımcıların (pet) görünür çalışması. Sunucu plot özniteliklerine yalnızca iş durumunu yazar (PetService):
---   PetCashJob / PetGoodsJob : çalışan partinin tesis kimliği ("" = iş yok)
---   PetCashCycle / PetGoodsCycle : yardımcının teslim ettiği parti sayısı (her artışta teslim turu oynar)
--- Hayvan alma/bırakma ve teslim yürüyüşü yalnızca görseldir; gerçek teslim sunucuda zamanında olur.
--- Tur: hayvanı ağıldan al → tesise götür → başında bekle → hayvanı ağıla geri bırak → ürünü al → ahıra (para: toplama
--- platformuna) götür → tekrar. Uzak adalardaki tesislere köprüden geçilir.
+-- Yardımcıların (pet) görünür çalışması. Her (tür, ada) yuvasının bir yardımcısı vardır; sunucu plot özniteliklerine yalnızca
+-- iş durumunu yazar (PetService):
+--   PetJob_<tür>_<ada>   : çalışan partinin tesis kimliği ("" = iş yok)
+--   PetCycle_<tür>_<ada> : yardımcının teslim ettiği parti sayısı (her artışta teslim turu oynar)
+-- Yürüyüş yalnızca görseldir; gerçek teslim sunucuda zamanında olur. İş zaten sürüyorsa yardımcı doğrudan tesisin başına gider.
+-- Teslim turu: hayvanı ağıla geri bırak → tesise dön → ürünü al → ahır sandığına (para: toplama platformuna) götür →
+-- iş sürüyorsa (otomatik tekrar) yeni hayvanı ağıldan alıp tesise getir. Rotalar taş yolları izler (Shared/MapPaths).
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local player = Players.LocalPlayer
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Config = require(Shared:WaitForChild("Config"))
+local MapPaths = require(Shared:WaitForChild("MapPaths"))
 
 local TAG = "PetFigure"
 local SPEED = 15
@@ -186,77 +191,102 @@ local function spotOf(plot: Model, upgradeId: string): BasePart?
 	return if spot and spot:IsA("BasePart") then spot else nil
 end
 
-local function islandOfSpot(spot: BasePart): string
-	local id = spot:GetAttribute("FarmIslandId")
-	return if typeof(id) == "string" then id else "home"
-end
-
--- Ana adadan uzman adaya giden köprünün iki ucu (ana ada ucu, uzman ada ucu)
-local function bridgeEnds(plot: Model, islandId: string, y: number): (Vector3?, Vector3?)
+-- Plotun taş yol ağı (dünya XZ): ana ada yolları + köprüler + uzman ada yolları. Ada içeriği yeniden kurulabildiğinden
+-- her turun başında yeniden çıkarılır (küçük bir hesap).
+local function buildGraph(plot: Model): MapPaths.Graph?
+	local frame = plot:GetAttribute("HomeFrame")
+	local radius = plot:GetAttribute("HomeRadius")
+	if typeof(frame) ~= "CFrame" or typeof(radius) ~= "number" then
+		return nil
+	end
+	local graph = MapPaths.newGraph()
+	MapPaths.addSegments(graph, MapPaths.homeSegments(radius), function(x: number, z: number): (number, number)
+		local world = frame * Vector3.new(x, 0, z)
+		return world.X, world.Z
+	end)
+	local homeCount = #graph.x
 	local islands = plot:FindFirstChild("Islands")
 	if not islands then
-		return nil, nil
+		return graph
 	end
 	for _, island in islands:GetChildren() do
-		if island:GetAttribute("FarmIslandId") == islandId then
-			local bridge = island:FindFirstChild("Bridge")
-			if bridge and bridge:IsA("BasePart") then
-				local half = bridge.Size.Z / 2
-				local homeEnd = bridge.CFrame * Vector3.new(0, 0, half)
-				local islandEnd = bridge.CFrame * Vector3.new(0, 0, -half)
-				return Vector3.new(homeEnd.X, y, homeEnd.Z), Vector3.new(islandEnd.X, y, islandEnd.Z)
+		local startPoint, endPoint = island:GetAttribute("PathStart"), island:GetAttribute("PathEnd")
+		local bridge = island:FindFirstChild("Bridge")
+		if typeof(startPoint) == "Vector3" and typeof(endPoint) == "Vector3" and bridge and bridge:IsA("BasePart") then
+			local half = bridge.Size.Z / 2
+			local homeEnd = bridge.CFrame * Vector3.new(0, 0, half)
+			local islandEnd = bridge.CFrame * Vector3.new(0, 0, -half)
+			local a = MapPaths.addNode(graph, homeEnd.X, homeEnd.Z)
+			local b = MapPaths.addNode(graph, islandEnd.X, islandEnd.Z)
+			local c = MapPaths.addNode(graph, startPoint.X, startPoint.Z)
+			local d = MapPaths.addNode(graph, endPoint.X, endPoint.Z)
+			MapPaths.connect(graph, a, b)
+			MapPaths.connect(graph, b, c)
+			MapPaths.connect(graph, c, d)
+			-- Köprünün ana ada ucu, en yakın ana ada yoluna bağlanır
+			local best: number? = nil
+			local bestDistance = math.huge
+			for index = 1, homeCount do
+				local dx, dz = graph.x[index] - homeEnd.X, graph.z[index] - homeEnd.Z
+				local distance = dx * dx + dz * dz
+				if distance < bestDistance then
+					best, bestDistance = index, distance
+				end
+			end
+			if best then
+				MapPaths.connect(graph, a, best)
 			end
 		end
 	end
-	return nil, nil
+	return graph
 end
 
--- Bulunduğu adadan hedef adaya: aynı adada doğrudan, değilse köprü uçları üzerinden (uzman adalar arası ana adadan)
-local function goTo(actor: Actor, target: Vector3, targetIsland: string): boolean
-	local from = actor.island
-	if from ~= targetIsland then
-		if from ~= "home" then
-			local homeEnd, islandEnd = bridgeEnds(actor.plot, from, actor.y)
-			if islandEnd and homeEnd then
-				if not walk(actor, islandEnd) or not walk(actor, homeEnd) then
-					return false
-				end
-			end
-			actor.island = "home"
+-- Hedefe taş yollar üzerinden yürür.
+local function goTo(actor: Actor, target: Vector3): boolean
+	local graph = buildGraph(actor.plot)
+	local position = actor.cf.Position
+	local points: { MapPaths.Point } = if graph
+		then MapPaths.route(graph, position.X, position.Z, target.X, target.Z)
+		else { { x = target.X, z = target.Z } }
+	for _, point in points do
+		if not walk(actor, Vector3.new(point.x, actor.y, point.z)) then
+			return false
 		end
-		if targetIsland ~= "home" then
-			local homeEnd, islandEnd = bridgeEnds(actor.plot, targetIsland, actor.y)
-			if homeEnd and islandEnd then
-				if not walk(actor, homeEnd) or not walk(actor, islandEnd) then
-					return false
-				end
-			end
-		end
-		actor.island = targetIsland
 	end
-	return walk(actor, target)
+	return true
 end
 
-local function penPoint(plot: Model): Vector3?
+-- Hayvanın ağılı: yardımcının adasındaki ilk bölge (ana adada "starter")
+local function penPoint(plot: Model, island: string): Vector3?
 	local zones = plot:FindFirstChild("Zones")
 	if not zones then
 		return nil
 	end
+	local fallback: Vector3? = nil
 	for _, zone in zones:GetChildren() do
-		if zone:GetAttribute("ZoneId") == "starter" then
-			local ground = zone:FindFirstChild("Ground")
-			if ground and ground:IsA("BasePart") then
+		local zoneId = zone:GetAttribute("ZoneId")
+		local zoneConfig = if typeof(zoneId) == "string" then Config.ZONES[zoneId] else nil
+		local ground = zone:FindFirstChild("Ground")
+		if zoneConfig and zoneConfig.island == island and ground and ground:IsA("BasePart") then
+			if zoneId == "starter" then
 				return ground.Position
 			end
+			fallback = fallback or ground.Position
 		end
 	end
-	return nil
+	return fallback
+end
+
+local function chestPoint(plot: Model): Vector3?
+	local prompt = plot:FindFirstChild("BarnChestPrompt", true)
+	local anchor = prompt and prompt.Parent
+	return if anchor and anchor:IsA("BasePart") then anchor.Position else nil
 end
 
 local function run(actor: Actor)
 	local plot = actor.plot
-	local jobAttribute = if actor.kind == "cash" then "PetCashJob" else "PetGoodsJob"
-	local cycleAttribute = if actor.kind == "cash" then "PetCashCycle" else "PetGoodsCycle"
+	local suffix = `{actor.kind}_{actor.island}`
+	local jobAttribute, cycleAttribute = `PetJob_{suffix}`, `PetCycle_{suffix}`
 	local function cycle(): number
 		local value = plot:GetAttribute(cycleAttribute)
 		return if typeof(value) == "number" then value else 0
@@ -266,16 +296,16 @@ local function run(actor: Actor)
 		return if typeof(value) == "string" then value else ""
 	end
 	local cycleSeen = cycle()
-	local animalThere = false
+	local atFacility = false
 
 	while alive(actor) do
 		local current = job()
 		local spot = if current ~= "" then spotOf(plot, current) else nil
 		if not spot then
 			cycleSeen = cycle()
-			animalThere = false
+			atFacility = false
 			clearProps(actor)
-			if not goTo(actor, actor.home.Position, "home") then
+			if not goTo(actor, actor.home.Position) then
 				return
 			end
 			idleFor(actor, 0.5)
@@ -283,24 +313,13 @@ local function run(actor: Actor)
 		end
 
 		local facilityPoint = (spot.CFrame * FACILITY_OFFSET).Position
-		local facilityIsland = islandOfSpot(spot)
-		local pen = penPoint(plot) or actor.home.Position
-
-		if not animalThere then
-			if not goTo(actor, pen, "home") then
+		local pen = penPoint(plot, actor.island) or actor.home.Position
+		if not atFacility then
+			-- İş zaten sürüyor (elle ya da önceki turdan): doğrudan tesisin başına git
+			if not goTo(actor, facilityPoint) then
 				return
 			end
-			idleFor(actor, 0.3)
-			carry(actor, "animal")
-			if not goTo(actor, facilityPoint, facilityIsland) then
-				return
-			end
-			clearProps(actor)
-			animalThere = true
-		else
-			if not goTo(actor, facilityPoint, facilityIsland) then
-				return
-			end
+			atFacility = true
 		end
 
 		while alive(actor) and job() == current and cycle() == cycleSeen do
@@ -309,39 +328,53 @@ local function run(actor: Actor)
 		if not alive(actor) then
 			return
 		end
-		animalThere = false
 		if cycle() == cycleSeen then
+			atFacility = false
 			continue
 		end
 		cycleSeen = cycle()
 
+		-- Teslim turu: hayvanı ağıla bırak, ürünü al, sandığa/platforma götür
 		carry(actor, "animal")
-		if not goTo(actor, pen, "home") then
+		if not goTo(actor, pen) then
 			return
 		end
 		clearProps(actor)
 		idleFor(actor, 0.3)
-		if not goTo(actor, facilityPoint, facilityIsland) then
+		if not goTo(actor, facilityPoint) then
 			return
 		end
 		idleFor(actor, 0.3)
 		local destination: Vector3
 		if actor.kind == "goods" then
 			carry(actor, "crate")
-			local barn = plot:FindFirstChild("BarnSpot")
-			destination = if barn and barn:IsA("BasePart")
-				then barn.Position + barn.CFrame.LookVector * 8
-				else actor.home.Position
+			destination = chestPoint(plot) or actor.home.Position
 		else
 			carry(actor, "coins")
 			local collector = plot:FindFirstChild("Collector")
 			destination = if collector and collector:IsA("BasePart") then collector.Position else actor.home.Position
 		end
-		if not goTo(actor, destination, "home") then
+		if not goTo(actor, destination) then
 			return
 		end
 		clearProps(actor)
 		idleFor(actor, 0.4)
+
+		-- Otomatik tekrar: yeni parti sürüyorsa hayvanı ağıldan alıp tesise getir
+		if job() ~= "" then
+			if not goTo(actor, pen) then
+				return
+			end
+			idleFor(actor, 0.3)
+			carry(actor, "animal")
+			if not goTo(actor, facilityPoint) then
+				return
+			end
+			clearProps(actor)
+			atFacility = true
+		else
+			atFacility = false
+		end
 	end
 end
 
@@ -361,9 +394,16 @@ local function track(instance: Instance)
 	task.spawn(function()
 		local root = model:WaitForChild("Root", 10)
 		local kind = model:GetAttribute("PetKind")
+		local island = model:GetAttribute("PetIsland")
 		local home = model:GetAttribute("PetHome")
 		local plot = plotOf(model)
-		if not root or typeof(kind) ~= "string" or typeof(home) ~= "CFrame" or not plot then
+		if
+			not root
+			or typeof(kind) ~= "string"
+			or typeof(island) ~= "string"
+			or typeof(home) ~= "CFrame"
+			or not plot
+		then
 			return
 		end
 		local actor: Actor = {
@@ -374,7 +414,7 @@ local function track(instance: Instance)
 			cf = home,
 			y = home.Position.Y,
 			t = 0,
-			island = "home",
+			island = island,
 			props = {},
 		}
 		local ok, err = pcall(function()

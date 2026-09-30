@@ -58,6 +58,25 @@ return function(codec: any, config: any, farmMath: any, logic: any)
 	local cashRecipe = config.PRODUCTION_RECIPES.packed_milk
 	local goodsRecipe = config.PRODUCTION_RECIPES.milk_goods
 
+	local slots = logic.petSlots(data, config.PRODUCTION_ORDER, farmMath, config)
+	local seenSlots: { [string]: boolean } = {}
+	for _, slot in slots do
+		seenSlots[`{slot.kind}:{slot.island}`] = true
+	end
+	assert(seenSlots["cash:home"] and seenSlots["goods:home"], "the home island has both pets")
+	for recipeId in config.PRODUCTION_RECIPES do
+		local recipe = config.PRODUCTION_RECIPES[recipeId]
+		local kind = logic.petKind(recipe)
+		if kind and data.purchased[recipe.upgradeId] and data.unlockedIslands[recipe.island] then
+			assert(seenSlots[`{kind}:{recipe.island}`], `{recipe.island} has a {kind} pet for its facility`)
+		end
+	end
+	local barePet = newData()
+	barePet.purchased.pet_cash_lv1 = nil
+	for _, slot in logic.petSlots(barePet, config.PRODUCTION_ORDER, farmMath, config) do
+		assert(slot.kind ~= "cash", "no cash pet without the helper upgrade")
+	end
+
 	-- Elle başlatılmış partiler: hazır olunca yardımcı teslim alır (tekrar kapalıyken yenisini başlatmaz)
 	local hooks = hooksFor(data)
 	assert(logic.start(data, data, cashRecipe, "medium", now, farmMath, hooks), "a cash batch starts")
@@ -70,7 +89,7 @@ return function(codec: any, config: any, farmMath: any, logic: any)
 	assert(data.production.packed_milk == nil and data.production.milk_goods == nil, "claimed jobs are cleared")
 	local claims = late.claims[data.activeMainFarmId]
 	assert(
-		claims ~= nil and claims.cash == 1 and claims.goods == 1,
+		claims ~= nil and claims["cash:home"] == 1 and claims["goods:home"] == 1,
 		"pet deliveries are counted per kind for the walk animation"
 	)
 	assert(farmMath.getGoodsAmount(data, "milk") > 0, "the goods pet stores products in the shared barn")

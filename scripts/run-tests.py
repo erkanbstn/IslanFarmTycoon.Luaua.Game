@@ -156,6 +156,8 @@ def main() -> int:
         module("goodsSpec", "tests/goods.spec.luau"),
         module("contractsSpec", "tests/contracts.spec.luau"),
         module("petsSpec", "tests/pets.spec.luau"),
+        module("MapPaths", "src/shared/MapPaths.luau"),
+        module("mapPathsSpec", "tests/map-paths.spec.luau"),
         module("ContractServiceFactory", "src/server/Services/ContractService.luau",
                {"Remotes", "FarmMath", "Environment", "PlayerDataService", "RateLimiter", "Metrics"},
                "game, Remotes, FarmMath, Environment, PlayerDataService, RateLimiter, Metrics, DateTime"),
@@ -201,6 +203,7 @@ def main() -> int:
         "goodsSpec(SaveCodec, Config, FarmMath, ProductionRules)\n",
         "contractsSpec(SaveCodec, Config, FarmMath)\n",
         "petsSpec(SaveCodec, Config, FarmMath, ProductionLogic)\n",
+        "mapPathsSpec(MapPaths)\n",
         "contractServiceSpec(ContractServiceFactory, RateLimiterFactory, SaveCodec, Config, FarmMath)\n",
         "clientFarmStateSpec(ClientStateFactory)\n",
     ]

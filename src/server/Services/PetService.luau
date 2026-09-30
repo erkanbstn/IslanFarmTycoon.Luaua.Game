@@ -20,35 +20,39 @@ local TICK_SECONDS = 2
 local initialized = false
 
 -- Yardımcıların görünür hareketi istemcide (PetAnimator); burada yalnızca plot özniteliklerine iş ve tur sayısı yazılır.
---   PetCashJob / PetGoodsJob : çalışan partinin tesis kimliği ("" = iş yok)
---   PetCashCycle / PetGoodsCycle : yardımcının teslim ettiği toplam parti (her artışta teslim turu oynar)
-local JOB_ATTRIBUTE = { cash = "PetCashJob", goods = "PetGoodsJob" }
-local CYCLE_ATTRIBUTE = { cash = "PetCashCycle", goods = "PetGoodsCycle" }
+-- Her (tür, ada) yuvası için: PetJob_<tür>_<ada> = çalışan partinin tesis kimliği ("" = iş yok),
+-- PetCycle_<tür>_<ada> = yardımcının teslim ettiği toplam parti (her artışta teslim turu oynar).
+local function attributeKey(kind: string, island: string): string
+	return `{kind}_{island}`
+end
 
-local function publish(player: Player, data: any, claims: { cash: number, goods: number }?)
+local function publish(player: Player, data: any, claims: { [string]: number }?)
 	local plot = PlotService.getPlot(player)
 	if not plot then
 		return
 	end
-	for _, kind in { "cash", "goods" } do
-		local job = ""
-		if FarmMath.hasPet(data, kind) then
-			for _, recipeId in Config.PRODUCTION_ORDER do
-				local recipe = Config.PRODUCTION_RECIPES[recipeId]
-				local recipeKind = if recipe.output == "goods"
-					then "goods"
-					elseif recipe.output == "cash" then "cash"
-					else nil
-				if recipeKind == kind and data.purchased[recipe.upgradeId] and data.production[recipeId] then
-					job = recipe.upgradeId
-					break
-				end
+	local jobs: { [string]: string } = {}
+	for _, slot in ProductionLogic.petSlots(data, Config.PRODUCTION_ORDER, FarmMath, Config) do
+		jobs[`{slot.kind}:{slot.island}`] = ""
+	end
+	for _, recipeId in Config.PRODUCTION_ORDER do
+		local recipe = Config.PRODUCTION_RECIPES[recipeId]
+		local kind = ProductionLogic.petKind(recipe)
+		if kind then
+			local key = `{kind}:{recipe.island}`
+			if jobs[key] == "" and data.production[recipeId] then
+				jobs[key] = recipe.upgradeId
 			end
+			plot:SetAttribute(`PetJob_{attributeKey(kind, recipe.island)}`, jobs[key] or "")
 		end
-		plot:SetAttribute(JOB_ATTRIBUTE[kind], job)
-		if claims and claims[kind] > 0 then
-			local attribute = CYCLE_ATTRIBUTE[kind]
-			plot:SetAttribute(attribute, (plot:GetAttribute(attribute) or 0) + claims[kind])
+	end
+	if claims then
+		for key, count in claims do
+			local kind, island = string.match(key, "^(%w+):(%w+)$")
+			if kind and island then
+				local attribute = `PetCycle_{attributeKey(kind, island)}`
+				plot:SetAttribute(attribute, ((plot:GetAttribute(attribute) or 0) :: number) + count)
+			end
 		end
 	end
 end

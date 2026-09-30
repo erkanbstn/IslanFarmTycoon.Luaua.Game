@@ -12,6 +12,8 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local GameTypes = require(Shared:WaitForChild("GameTypes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
+local ProductionLogic = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("ProductionLogic"))
+local MapLayout = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("MapLayout"))
 
 type PlayerSave = GameTypes.PlayerSave
 
@@ -22,6 +24,7 @@ local WOOD = Color3.fromRGB(150, 110, 70)
 local DARK_WOOD = Color3.fromRGB(100, 70, 45)
 local METAL = Color3.fromRGB(170, 175, 180)
 local MODEL_NAME = "LevelProps"
+local SATELLITE_RADIUS = MapLayout.SATELLITE_RADIUS
 
 -- "<id>_lv1".."<id>_lvN": art arda alınmış seviye sayısı
 local function chainLevel(save: PlayerSave, id: string): number
@@ -306,79 +309,199 @@ local function lineageMonument(model: Model, cf: CFrame, levels: { { id: string,
 end
 
 -- Yardımcılar (pet): toplama platformunun yanında durur. Para yardımcısı köpek, ürün yardımcısı kedi.
-local function petFigure(parent: Model, cf: CFrame, kind: string)
+-- Yardımcı türleri: her adanın kendi hayvanı vardır (ana ada köpek/kedi). Tür, renk ve kulak/kuyruk biçimiyle ayrılır;
+-- yaka rengi görevi gösterir (altın = para, mavi = ürün).
+type PetStyle = {
+	fur: Color3,
+	light: Color3,
+	earColor: Color3?,
+	earHeight: number,
+	earWidth: number,
+	earX: number,
+	tailLength: number,
+	tailWidth: number,
+	mask: Color3?,
+}
+
+local function rgb(r: number, g: number, b: number): Color3
+	return Color3.fromRGB(r, g, b)
+end
+
+local PET_STYLES: { [string]: PetStyle } = {
+	dog = {
+		fur = rgb(196, 140, 84),
+		light = rgb(245, 225, 190),
+		earHeight = 0.7,
+		earWidth = 0.35,
+		earX = 0.5,
+		tailLength = 1.4,
+		tailWidth = 0.3,
+	},
+	cat = {
+		fur = rgb(120, 120, 130),
+		light = rgb(235, 235, 240),
+		earHeight = 0.9,
+		earWidth = 0.35,
+		earX = 0.5,
+		tailLength = 1.6,
+		tailWidth = 0.25,
+	},
+	fox = {
+		fur = rgb(224, 120, 40),
+		light = rgb(250, 235, 215),
+		earColor = rgb(60, 40, 30),
+		earHeight = 1.0,
+		earWidth = 0.4,
+		earX = 0.45,
+		tailLength = 1.9,
+		tailWidth = 0.75,
+	},
+	bunny = {
+		fur = rgb(236, 230, 224),
+		light = rgb(255, 255, 255),
+		earColor = rgb(250, 200, 205),
+		earHeight = 1.6,
+		earWidth = 0.3,
+		earX = 0.35,
+		tailLength = 0.6,
+		tailWidth = 0.6,
+	},
+	raccoon = {
+		fur = rgb(130, 130, 138),
+		light = rgb(222, 222, 228),
+		mask = rgb(40, 40, 48),
+		earHeight = 0.6,
+		earWidth = 0.45,
+		earX = 0.55,
+		tailLength = 1.7,
+		tailWidth = 0.55,
+	},
+	panda = {
+		fur = rgb(245, 245, 245),
+		light = rgb(245, 245, 245),
+		earColor = rgb(35, 35, 40),
+		mask = rgb(35, 35, 40),
+		earHeight = 0.5,
+		earWidth = 0.5,
+		earX = 0.6,
+		tailLength = 0.5,
+		tailWidth = 0.5,
+	},
+	frog = {
+		fur = rgb(90, 170, 80),
+		light = rgb(215, 238, 165),
+		earColor = rgb(120, 195, 95),
+		earHeight = 0.35,
+		earWidth = 0.5,
+		earX = 0.42,
+		tailLength = 0.3,
+		tailWidth = 0.3,
+	},
+	lamb = {
+		fur = rgb(246, 242, 228),
+		light = rgb(70, 62, 58),
+		earColor = rgb(70, 62, 58),
+		earHeight = 0.45,
+		earWidth = 0.55,
+		earX = 0.75,
+		tailLength = 0.6,
+		tailWidth = 0.55,
+	},
+	hedgehog = {
+		fur = rgb(120, 92, 72),
+		light = rgb(238, 208, 172),
+		earColor = rgb(92, 70, 56),
+		earHeight = 0.35,
+		earWidth = 0.4,
+		earX = 0.5,
+		tailLength = 0.4,
+		tailWidth = 0.4,
+	},
+}
+
+-- ada -> tür (ana adada para yardımcısı köpek, ürün yardımcısı kedi)
+local PET_SPECIES: { [string]: string } = {
+	poultry = "fox",
+	horse = "bunny",
+	goat = "raccoon",
+	dairy = "panda",
+	duck = "frog",
+	sheep = "lamb",
+	pig = "hedgehog",
+}
+
+local function petSpecies(island: string, kind: string): string
+	if island == "home" then
+		return if kind == "cash" then "dog" else "cat"
+	end
+	return PET_SPECIES[island] or "dog"
+end
+
+local function petFigure(parent: Model, cf: CFrame, kind: string, island: string)
 	-- Kendi Model'i ve görünmez kök parçasıyla durur; PetAnimator (istemci) bu modeli yürütür. Pivot: zemin, önü -Z.
+	local species = petSpecies(island, kind)
+	local style = PET_STYLES[species]
 	local model = Instance.new("Model")
-	model.Name = `Pet_{kind}`
+	model.Name = `Pet_{kind}_{island}`
 	model:SetAttribute("PetKind", kind)
+	model:SetAttribute("PetIsland", island)
 	model:SetAttribute("PetHome", cf)
 	local root = piece(model, "Root", Vector3.one * 0.2, cf, Color3.new(), Enum.Material.SmoothPlastic)
 	root.Transparency = 1
 	model.PrimaryPart = root
 	CollectionService:AddTag(model, "PetFigure")
-	local fur = if kind == "cash" then Color3.fromRGB(196, 140, 84) else Color3.fromRGB(120, 120, 130)
-	local light = if kind == "cash" then Color3.fromRGB(245, 225, 190) else Color3.fromRGB(235, 235, 240)
-	piece(model, `Pet_{kind}_Body`, Vector3.new(1.6, 1.1, 2.4), cf * CFrame.new(0, 1.35, 0), fur, Enum.Material.Fabric)
-	piece(
-		model,
-		`Pet_{kind}_Head`,
-		Vector3.new(1.3, 1.2, 1.3),
-		cf * CFrame.new(0, 2.15, -1.5),
-		fur,
-		Enum.Material.Fabric
-	)
-	piece(
-		model,
-		`Pet_{kind}_Muzzle`,
-		Vector3.new(0.7, 0.5, 0.6),
-		cf * CFrame.new(0, 1.95, -2.2),
-		light,
-		Enum.Material.Fabric
-	)
+	local fur, light = style.fur, style.light
+	local earColor = style.earColor or fur
+	local cloth = Enum.Material.Fabric
+	piece(model, "Body", Vector3.new(1.6, 1.1, 2.4), cf * CFrame.new(0, 1.35, 0), fur, cloth)
+	piece(model, "Head", Vector3.new(1.3, 1.2, 1.3), cf * CFrame.new(0, 2.15, -1.5), fur, cloth)
+	piece(model, "Muzzle", Vector3.new(0.7, 0.5, 0.6), cf * CFrame.new(0, 1.95, -2.2), light, cloth)
+	if style.mask then
+		piece(model, "Mask", Vector3.new(1.34, 0.36, 0.3), cf * CFrame.new(0, 2.3, -2.02), style.mask, cloth)
+	end
 	for _, side in { -1, 1 } do
 		piece(
 			model,
-			`Pet_{kind}_Ear`,
-			Vector3.new(0.35, if kind == "cash" then 0.7 else 0.9, 0.35),
-			cf * CFrame.new(side * 0.5, 2.9, -1.5),
-			fur,
-			Enum.Material.Fabric
+			"Ear",
+			Vector3.new(style.earWidth, style.earHeight, 0.35),
+			cf * CFrame.new(side * style.earX, 2.75 + style.earHeight / 2, -1.5),
+			earColor,
+			cloth
 		)
 		piece(
 			model,
-			`Pet_{kind}_Eye`,
+			"Eye",
 			Vector3.new(0.2, 0.2, 0.2),
-			cf * CFrame.new(side * 0.35, 2.3, -2.12),
-			Color3.fromRGB(30, 30, 35),
+			cf * CFrame.new(side * 0.35, 2.3, -2.16),
+			if style.mask then rgb(245, 245, 245) else rgb(30, 30, 35),
 			Enum.Material.SmoothPlastic,
 			BALL
 		)
 		for _, z in { -0.8, 0.8 } do
 			piece(
 				model,
-				`Pet_{kind}_Leg`,
+				"Leg",
 				Vector3.new(0.4, 0.8, 0.4),
 				cf * CFrame.new(side * 0.55, 0.4, z),
-				fur,
-				Enum.Material.Fabric
+				if species == "panda" then style.mask :: Color3 else fur,
+				cloth
 			)
 		end
 	end
 	piece(
 		model,
-		`Pet_{kind}_Tail`,
-		Vector3.new(0.3, 0.3, 1.4),
-		cf * CFrame.new(0, 1.9, 1.7) * CFrame.Angles(math.rad(-35), 0, 0),
+		"Tail",
+		Vector3.new(style.tailWidth, style.tailWidth, style.tailLength),
+		cf * CFrame.new(0, 1.9, 1.2 + style.tailLength / 2) * CFrame.Angles(math.rad(-35), 0, 0),
 		fur,
-		Enum.Material.Fabric
+		cloth
 	)
-	-- Yakalı: hangi görevi yaptığı renkten anlaşılır (altın = para, mavi = ürün)
 	piece(
 		model,
-		`Pet_{kind}_Collar`,
+		"Collar",
 		Vector3.new(1.4, 0.25, 1.4),
 		cf * CFrame.new(0, 1.7, -1.05),
-		if kind == "cash" then GOLD else Color3.fromRGB(90, 140, 255),
+		if kind == "cash" then GOLD else rgb(90, 140, 255),
 		Enum.Material.Neon
 	)
 	model.Parent = parent
@@ -473,29 +596,51 @@ local PETS_NAME = "PetYard"
 
 local function applyPets(plot: Model, save: PlayerSave?)
 	local existing = plot:FindFirstChild(PETS_NAME)
-	local petCash = save ~= nil and FarmMath.hasPet(save, "cash")
-	local petGoods = save ~= nil and FarmMath.hasPet(save, "goods")
-	local signature = `{petCash}|{petGoods}`
+	local slots: { ProductionLogic.PetSlot } = if save
+		then ProductionLogic.petSlots(save, Config.PRODUCTION_ORDER, FarmMath, Config)
+		else {}
+	local keys: { string } = {}
+	for _, slot in slots do
+		table.insert(keys, `{slot.kind}:{slot.island}`)
+	end
+	local signature = table.concat(keys, ",")
 	if existing and existing:GetAttribute("Signature") == signature then
 		return
 	end
 	if existing then
 		existing:Destroy()
 	end
-	local collector = plot:FindFirstChild("Collector")
-	if not (petCash or petGoods) or not collector or not collector:IsA("BasePart") then
+	if #slots == 0 then
 		return
 	end
 	local model = Instance.new("Model")
 	model.Name = PETS_NAME
 	model:SetAttribute("Signature", signature)
-	local base = CFrame.new(collector.Position.X, collector.Position.Y - 0.75, collector.Position.Z)
-		* collector.CFrame.Rotation
-	if petCash then
-		petFigure(model, base * CFrame.new(6, 0, 3) * CFrame.Angles(0, math.rad(-150), 0), "cash")
-	end
-	if petGoods then
-		petFigure(model, base * CFrame.new(6, 0, -3) * CFrame.Angles(0, math.rad(-30), 0), "goods")
+	local collector = plot:FindFirstChild("Collector")
+	local islands = plot:FindFirstChild("Islands")
+	for _, slot in slots do
+		local home: CFrame? = nil
+		if slot.island == "home" then
+			if collector and collector:IsA("BasePart") then
+				local base = CFrame.new(collector.Position.X, collector.Position.Y - 0.75, collector.Position.Z)
+					* collector.CFrame.Rotation
+				home = if slot.kind == "cash"
+					then base * CFrame.new(6, 0, 3) * CFrame.Angles(0, math.rad(-150), 0)
+					else base * CFrame.new(6, 0, -3) * CFrame.Angles(0, math.rad(-30), 0)
+			end
+		elseif islands then
+			for _, island in islands:GetChildren() do
+				local frame = island:GetAttribute("IslandFrame")
+				if island:GetAttribute("FarmIslandId") == slot.island and typeof(frame) == "CFrame" then
+					-- Köprü girişindeki yolun yanı; para yardımcısı bir yanda, ürün yardımcısı öbür yanda
+					home = frame * CFrame.new(if slot.kind == "cash" then 6 else -6, 0, -(SATELLITE_RADIUS - 12))
+					break
+				end
+			end
+		end
+		if home then
+			petFigure(model, home, slot.kind, slot.island)
+		end
 	end
 	model.Parent = plot
 end

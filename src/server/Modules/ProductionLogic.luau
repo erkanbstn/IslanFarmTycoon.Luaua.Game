@@ -114,13 +114,43 @@ function ProductionLogic.claim(
 	return reward, ""
 end
 
+export type PetSlot = { kind: string, island: string }
+
+-- Yardımcı türü: para fabrikası "cash", ürün merkezi "goods"; diğer tarifleri (kuluçka) yardımcı yönetmez.
+function ProductionLogic.petKind(recipe: any): string?
+	return if recipe.output == "goods" then "goods" elseif recipe.output == "cash" then "cash" else nil
+end
+
+-- Bir çiftlikte yardımcı duran (tür, ada) yuvaları: o türün yardımcısı alınmış ve o adada kurulu en az bir tesis var.
+function ProductionLogic.petSlots(farm: any, recipeOrder: { string }, farmMath: any, config: any): { PetSlot }
+	local slots: { PetSlot } = {}
+	local seen: { [string]: boolean } = {}
+	for _, recipeId in recipeOrder do
+		local recipe = config.PRODUCTION_RECIPES[recipeId]
+		local kind = ProductionLogic.petKind(recipe)
+		if
+			kind
+			and farmMath.hasPet(farm, kind)
+			and farm.purchased[recipe.upgradeId]
+			and farm.unlockedIslands[recipe.island]
+		then
+			local key = `{kind}:{recipe.island}`
+			if not seen[key] then
+				seen[key] = true
+				table.insert(slots, { kind = kind, island = recipe.island })
+			end
+		end
+	end
+	return slots
+end
+
 export type PetSummary = {
 	changedFarms: { [string]: boolean },
 	cash: number,
 	goodsMessages: { string },
 	started: number,
 	messages: { string }, -- "Yardımcı · Tesis · miktar" bildirimleri (her teslim için bir satır)
-	claims: { [string]: { cash: number, goods: number } }, -- çiftlik → yardımcının teslim ettiği parti sayısı
+	claims: { [string]: { [string]: number } }, -- çiftlik → "tür:ada" (ör. "goods:poultry") → yardımcının teslim ettiği parti sayısı
 }
 
 -- Yardımcılar: sahip olunan her çiftlikte (etkin ya da park edilmiş) hazır partileri teslim alır ve "otomatik tekrar"
@@ -172,10 +202,11 @@ function ProductionLogic.runPets(
 				summary.changedFarms[farmId] = true
 				local counts = summary.claims[farmId]
 				if not counts then
-					counts = { cash = 0, goods = 0 }
+					counts = {}
 					summary.claims[farmId] = counts
 				end
-				counts[kind] += 1
+				local key = `{kind}:{recipe.island}`
+				counts[key] = (counts[key] or 0) + 1
 			end
 			local repeatOption = if farm.autoRepeat then farm.autoRepeat[recipeId] else nil
 			if farm.production[recipeId] == nil and repeatOption ~= nil then
