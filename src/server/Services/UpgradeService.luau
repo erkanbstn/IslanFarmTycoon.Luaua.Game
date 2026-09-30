@@ -1,6 +1,7 @@
 --!strict
 -- Yol haritası satın alımları (bölgeler, ahır seviyeleri, güçlendirmeler).
 
+local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -269,13 +270,14 @@ function UpgradeService.init()
 			buyAndNotify(player, upgradeId, requestId)
 		end)
 
-	-- Kilitli adanın tabelasındaki "Satın Al" düğmesi: sadece takımadanın sahibi alabilir
-	for _, plot in PlotService.getAllPlots() do
-		for _, prompt in plot:GetDescendants() do
-			if not prompt:IsA("ProximityPrompt") or prompt.Name ~= "BuyIslandPrompt" then
-				continue
-			end
-			prompt.Triggered:Connect(function(player: Player)
+	-- Kilitli adanın tabelasındaki "Satın Al" düğmesi: sadece takımadanın sahibi alabilir.
+	-- Ada içeriği çalışma anında yeniden kurulduğundan (tema değişimi) prompt'lara tek tek bağlanılmaz.
+	ProximityPromptService.PromptTriggered:Connect(function(prompt: ProximityPrompt, player: Player)
+		if prompt.Name ~= "BuyIslandPrompt" then
+			return
+		end
+		for _, plot in PlotService.getAllPlots() do
+			if prompt:IsDescendantOf(plot) then
 				if PlotService.getOwner(plot) ~= player or PlotService.getPlot(player) ~= plot then
 					if RateLimiter.allow(player, "invalidPrompt", 1) then
 						Remotes.get("Notify"):FireClient(player, "Bu ada başka bir çiftliğe ait.", "error")
@@ -283,9 +285,10 @@ function UpgradeService.init()
 					return
 				end
 				buyAndNotify(player, prompt:GetAttribute("UpgradeId"), nil)
-			end)
+				return
+			end
 		end
-	end
+	end)
 end
 
 return UpgradeService
