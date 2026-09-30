@@ -213,8 +213,8 @@ local stopPrecipitation = WeatherPrecip.start()
 -- Kar birikimi/erimesi, yaprak dökümü ve ilkbahar çiçekleri ayrı, sınırlı havuz kullanır.
 local SeasonalScenery = require(script.Parent:WaitForChild("SeasonalScenery"))
 local stopScenery = SeasonalScenery.start()
-table.insert(connections, ReplicatedStorage:GetAttributeChangedSignal("Season"):Connect(applyLook))
-table.insert(connections, ReplicatedStorage:GetAttributeChangedSignal("Weather"):Connect(applyLook))
+-- Dünya mevsimi/havası ve oyuncunun asa geçersiz kılması değişince görünüm yenilenir
+Environment.onChanged(applyLook)
 table.insert(connections, localPlayer:GetAttributeChangedSignal("ReducedMotion"):Connect(applyLook))
 applyLook()
 script.Destroying:Connect(function()

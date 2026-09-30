@@ -45,6 +45,39 @@ return function(visuals: any, createEnvironment: any, config: any)
 	assert(environment.getSeasonProgress(now + config.SEASON_SECONDS / 2) == 0.5, "Progress midpoint")
 	assert(environment.getSeasonProgress(now - 10) == 0, "Progress lower clamp")
 	assert(environment.getSeasonProgress(now + config.SEASON_SECONDS + 10) == 1, "Progress upper clamp")
+	-- Oyuncuya özel ortam katmanı (asa): yalnızca verilen oyuncunun kaydı etkilenir, dünya aynı kalır
+	local summer = { seasonId = "summer", seasonEndsAt = now + 100 }
+	assert(environment.getSeason(summer).id == "summer", "an active season override wins")
+	assert(
+		environment.getSeason().id == "winter" and environment.getSeason(nil).id == "winter",
+		"the world season is untouched"
+	)
+	local summerWeather = environment.getWeather(summer)
+	assert(config.SEASONS[2].weather[summerWeather.id], "an overridden season gets weather from its own pool")
+	assert(environment.getWeather(summer).id == summerWeather.id, "the overridden weather is stable within a window")
+	assert(environment.getSeasonEndsAt(summer) == now + 100, "the override carries its own timer")
+	assert(environment.getNextSeason(summer).id == "autumn", "the next season follows the overridden one")
+	assert(
+		environment.getSeason({ seasonId = "summer", seasonEndsAt = now - 1 }).id == "winter",
+		"an expired override is ignored"
+	)
+	local rain = { weatherId = "rain", weatherEndsAt = now + 50 }
+	assert(
+		environment.getWeather(rain).id == "rain" and environment.getSeason(rain).id == "winter",
+		"a weather override keeps the world season"
+	)
+	assert(
+		environment.getWeather({ weatherId = "rain", weatherEndsAt = now - 1 }).id == environment.getWeather().id,
+		"an expired weather override is ignored"
+	)
+	local expected = math.max(
+		1 + (config.SEASONS[2].incomeModifiers.goat or 0) + (config.WEATHER[summerWeather.id].incomeModifiers.goat or 0),
+		0.2
+	)
+	assert(
+		math.abs(environment.getIncomeMultiplier("goat", summer) - expected) < 1e-9,
+		"income uses the overridden environment"
+	)
 	-- Gün-gece: sunucu saatinden türetilir, sınırlı, sürekli; yönetici seçimi saati sabitler.
 	local dayLength = config.DAY_SECONDS
 	for step = 0, 200 do

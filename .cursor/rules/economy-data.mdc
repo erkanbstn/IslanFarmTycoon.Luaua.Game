@@ -91,6 +91,9 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
   mantık `Inventory` (sahiplik, takma, günlük haklar: hak **güç türüne** göredir, eşyaya değil; UTC gün). Ekonomik etkiler **yalnızca** `FarmMath`'te: `getUpgradeCost(save, upgrade)`
   (çekiç indirimi; her gösterim ve tahsilat bunu kullanır, `upgrade.cost` doğrudan okunmaz), `getStorageCap`, `getGrowthSpeed`, `getAnimalMultiplier`. Yeni etki eklersen `effects`
   anahtarını `FarmMath.getEquippedBonus/getEquippedMultiplier` ile oku. Sunucu `InventoryService` (`RequestBuyItem/EquipItem/UseItem`): fiyat ve haklar sunucuda doğrulanır;
-  takma/çıkarma `changeEquipment` ile geçen süreyi eski etkiyle kapatır, büyüme ilerlemesini korur, dünyayı ve karakteri yeniler. Asa gücü `SeasonService.setPlayerSeason/
-  setPlayerWeather` (yönetici sabitlemesi önce gelir). Test araçları `grantItems/clearItems`. Yeni eşya ailesi eklerken `tests/inventory.spec.luau` (pahalı kademe daha güçlü olmalı)
+  takma/çıkarma `changeEquipment` ile geçen süreyi eski etkiyle kapatır, büyüme ilerlemesini korur, dünyayı ve karakteri yeniler. Asa gücü oyuncuya özeldir: `InventoryService.tryUse` kayıtta çalışma anı
+  `envOverride { seasonId, seasonEndsAt, weatherId, weatherEndsAt }` tutar (kaydedilmez; `FarmProfiles.view` inaktif çiftliğe de taşır). `Environment.getSeason/getWeather/
+  getIncomeMultiplier/getSeasonEndsAt/getNextSeason(override?)` katmanı uygular: sunucu `save.envOverride` verir (`FarmMath` ve `OrderService` bunu yapar), client argümansız
+  çağrılarda `Environment.setClientOverride` ile kurulan kendi katmanını kullanır (FarmHud her durumda kurar). Yeni bir mevsim/hava tüketicisi dünya attribute'unu doğrudan okumamalı,
+  `Environment` üzerinden geçmeli. Dünya mevsimini/havasını yalnızca `SeasonService` (ve yönetici araçları) değiştirir. Test araçları `grantItems/clearItems`. Yeni eşya ailesi eklerken `tests/inventory.spec.luau` (pahalı kademe daha güçlü olmalı)
   ve çeviri anahtarları (ad + şablon açıklama) gerekir.

@@ -285,7 +285,7 @@ function FarmMath.getAnimalMultiplier(save: PlayerSave, animalId: string, neutra
 		end
 	end
 	-- Ahır seviyesi x güçlendirmeler x mevsim/hava x geçit
-	local environment = if neutralWeather then 1 else Environment.getIncomeMultiplier(animalId)
+	local environment = if neutralWeather then 1 else Environment.getIncomeMultiplier(animalId, save.envOverride)
 	return FarmMath.getBarnConfig(save).incomeMultiplier * (1 + bonus) * environment * passFactor
 end
 

@@ -292,7 +292,7 @@ function WeatherPrecip.start(): () -> ()
 			end
 		end)
 	)
-	table.insert(connections, ReplicatedStorage:GetAttributeChangedSignal("Weather"):Connect(configure))
+	Environment.onChanged(configure) -- dünya havası ve oyuncunun asa geçersiz kılması
 	table.insert(connections, player:GetAttributeChangedSignal("EffectsQuality"):Connect(configure))
 	table.insert(connections, player:GetAttributeChangedSignal("ReducedMotion"):Connect(configure))
 	configure()

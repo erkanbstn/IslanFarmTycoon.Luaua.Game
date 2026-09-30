@@ -747,6 +747,8 @@ end
 local shopDirty, roadmapDirty, upgradesDirty = true, true, true
 local lastCash: number? = nil
 local function onState(state: PlayerSave, structural: boolean)
+	-- Asa geçersiz kılması yalnızca bu oyuncunun ekranını ve gelirini etkiler (Environment kendi katmanını uygular)
+	Environment.setClientOverride(state.envOverride)
 	farmContextLabel.Text = IslandContext.name()
 	screenGui.Enabled = true
 	local status = localPlayer:GetAttribute("DataStatus")

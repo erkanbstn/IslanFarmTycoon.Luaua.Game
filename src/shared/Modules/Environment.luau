@@ -19,42 +19,138 @@ function Environment.seasonIndexAt(time: number): number
 	return math.floor(time / Config.SEASON_SECONDS) % #Config.SEASONS + 1
 end
 
-function Environment.getSeason(): Config.SeasonConfig
+-- Oyuncuya özel ortam katmanı: mevsim/hava asası kullanan oyuncunun kaydında `envOverride` tutulur (çalışma anı, kaydedilmez).
+-- Dünyanın mevsimi ve havası herkes için aynıdır; bu katman yalnızca asayı kullanan oyuncunun gelir hesabını ve ekranını değiştirir.
+-- Sunucu, oyuncunun kaydını açıkça verir; client'ta argümansız çağrılar kendi geçersiz kılmasını (setClientOverride) kullanır.
+export type Override = { seasonId: string?, seasonEndsAt: number?, weatherId: string?, weatherEndsAt: number? }
+
+local WEATHER_WINDOW_SECONDS = 240 -- Mevsim geçersiz kılınınca hava bu pencerelerle (oyuncuya özel, kararlı) seçilir
+local clientOverride: Override? = nil
+local overrideListeners: { () -> () } = {}
+
+local function serverNow(): number
+	return Workspace:GetServerTimeNow()
+end
+
+local function activeSeasonOverride(override: Override?): Config.SeasonConfig?
+	if override and override.seasonId and override.seasonEndsAt and serverNow() < override.seasonEndsAt then
+		for _, season in Config.SEASONS do
+			if season.id == override.seasonId then
+				return season
+			end
+		end
+	end
+	return nil
+end
+
+-- Geçersiz kılınmış bir mevsimin havası: mevsimin havuzundan, zaman penceresine göre kararlı (her iki taraf aynı sonucu bulur)
+local function pickWeatherFor(season: Config.SeasonConfig, now: number): Config.WeatherConfig
+	local keys: { string } = {}
+	local total = 0
+	for id, weight in season.weather do
+		table.insert(keys, id)
+		total += weight
+	end
+	table.sort(keys)
+	local window = math.floor(now / WEATHER_WINDOW_SECONDS)
+	local seed = (window * 7919 + #season.id * 104729) % 2147483648
+	seed = (seed * 1103515245 + 12345) % 2147483648
+	seed = (seed * 1103515245 + 12345) % 2147483648
+	local roll = seed / 2147483648 * total
+	for _, id in keys do
+		roll -= season.weather[id]
+		if roll <= 0 and Config.WEATHER[id] then
+			return Config.WEATHER[id]
+		end
+	end
+	return Config.WEATHER.sunny
+end
+
+function Environment.getSeason(override: Override?): Config.SeasonConfig
+	local overridden = activeSeasonOverride(override or clientOverride)
+	if overridden then
+		return overridden
+	end
 	local id = ReplicatedStorage:GetAttribute(SEASON_ATTR)
 	for _, season in Config.SEASONS do
 		if season.id == id then
 			return season
 		end
 	end
-	return Config.SEASONS[Environment.seasonIndexAt(Workspace:GetServerTimeNow())]
+	return Config.SEASONS[Environment.seasonIndexAt(serverNow())]
 end
 
-function Environment.getWeather(): Config.WeatherConfig
+function Environment.getWeather(override: Override?): Config.WeatherConfig
+	local active = override or clientOverride
+	if active and active.weatherId and active.weatherEndsAt and serverNow() < active.weatherEndsAt then
+		local weather = Config.WEATHER[active.weatherId]
+		if weather then
+			return weather
+		end
+	end
+	local overriddenSeason = activeSeasonOverride(active)
+	if overriddenSeason then
+		return pickWeatherFor(overriddenSeason, serverNow())
+	end
 	local id = ReplicatedStorage:GetAttribute(WEATHER_ATTR)
 	return (if typeof(id) == "string" then Config.WEATHER[id] else nil) or Config.WEATHER.sunny
 end
 
-function Environment.getSeasonEndsAt(): number
+function Environment.getSeasonEndsAt(override: Override?): number
+	local active = override or clientOverride
+	if activeSeasonOverride(active) and active and active.seasonEndsAt then
+		return active.seasonEndsAt
+	end
 	local value = ReplicatedStorage:GetAttribute(SEASON_ENDS_ATTR)
 	return if typeof(value) == "number" and value > 0
 		then value
-		else (math.floor(Workspace:GetServerTimeNow() / Config.SEASON_SECONDS) + 1) * Config.SEASON_SECONDS
+		else (math.floor(serverNow() / Config.SEASON_SECONDS) + 1) * Config.SEASON_SECONDS
 end
 
 -- Aynı sunucu saati UI ve mevsimsel görselleri birlikte ilerletir.
-function Environment.getSeasonProgress(now: number?): number
-	local time = now or Workspace:GetServerTimeNow()
-	return math.clamp(1 - (Environment.getSeasonEndsAt() - time) / Config.SEASON_SECONDS, 0, 1)
+function Environment.getSeasonProgress(now: number?, override: Override?): number
+	local time = now or serverNow()
+	return math.clamp(1 - (Environment.getSeasonEndsAt(override) - time) / Config.SEASON_SECONDS, 0, 1)
 end
 
-function Environment.getNextSeason(): Config.SeasonConfig
-	local current = Environment.getSeason()
+function Environment.getNextSeason(override: Override?): Config.SeasonConfig
+	local current = Environment.getSeason(override)
 	for index, season in Config.SEASONS do
 		if season.id == current.id then
 			return Config.SEASONS[index % #Config.SEASONS + 1]
 		end
 	end
 	return Config.SEASONS[1]
+end
+
+-- Client: kendi geçersiz kılmasını (state.envOverride) kur; değişince ve bitiş anlarında dinleyicilere haber verilir.
+function Environment.setClientOverride(override: Override?)
+	local function signature(value: Override?): string
+		if not value then
+			return ""
+		end
+		return `{value.seasonId}|{value.seasonEndsAt}|{value.weatherId}|{value.weatherEndsAt}`
+	end
+	if signature(override) == signature(clientOverride) then
+		return
+	end
+	clientOverride = override
+	local function notify()
+		for _, listener in overrideListeners do
+			task.spawn(listener)
+		end
+	end
+	notify()
+	if override then
+		for _, endsAt in { override.seasonEndsAt, override.weatherEndsAt } do
+			if typeof(endsAt) == "number" then
+				local wait = endsAt - serverNow()
+				if wait > 0 then
+					task.delay(wait + 0.1, notify)
+				end
+			end
+		end
+	end
 end
 
 -- Gün-gece: sunucu saatinden türetilir, herkes aynı saati görür (client Lighting.ClockTime'a yazar).
@@ -96,9 +192,9 @@ function Environment.getLightFactor(clock: number): number
 end
 
 -- Mevsim + hava toplam gelir çarpanı (en az 0.2)
-function Environment.getIncomeMultiplier(animalId: string): number
-	local seasonMod = Environment.getSeason().incomeModifiers[animalId] or 0
-	local weatherMod = Environment.getWeather().incomeModifiers[animalId] or 0
+function Environment.getIncomeMultiplier(animalId: string, override: Override?): number
+	local seasonMod = Environment.getSeason(override).incomeModifiers[animalId] or 0
+	local weatherMod = Environment.getWeather(override).incomeModifiers[animalId] or 0
 	return math.max(1 + seasonMod + weatherMod, 0.2)
 end
 
@@ -156,6 +252,7 @@ function Environment.onChanged(callback: () -> ())
 	for _, attr in { SEASON_ATTR, WEATHER_ATTR } do
 		ReplicatedStorage:GetAttributeChangedSignal(attr):Connect(callback)
 	end
+	table.insert(overrideListeners, callback)
 end
 
 return Environment

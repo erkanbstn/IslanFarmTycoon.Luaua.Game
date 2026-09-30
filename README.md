@@ -88,8 +88,9 @@ hatasından ayrıdır.
 4h. **Envanter ve eşyalar:** Meydandaki **Usta Ömer**'den (Eşya Dükkânı) oyun parasıyla eşya alırsın; bir kez alınır, faydası kalıcıdır. **Envanter** (B) beş slotluktur:
    **Alet** (çekiç: tüm yükseltme maliyetlerinden %5-20 indirim), **Asa** (mevsim ya da hava değiştirme gücü: günde 1 / 3 / 5 kez ya da sınırsız, her kullanım arası kısa bekleme),
    **Muska** (depo, büyüme hızı ya da gelir bonusu; yalnızca biri takılır), **Başlık** ve **Sırt** (görünüm eşyaları, karakterde görünür). Slot başına bir eşya takılır; boş slota
-   satın alınan eşya otomatik takılır. Asa ile seçilen mevsim tam süre sürer, sonra doğal döngü devam eder; hava asası o anki havayı değiştirir (yalnızca o mevsimde görülebilen türler).
-   Bu sunucudaki herkes için geçerlidir (yayında yer sayısı 1 olduğu için oyuncuya özeldir). Şimdilik hiçbir eşya Robux ile satılmaz.
+   satın alınan eşya otomatik takılır. Asa ile seçilen mevsim tam süre (15 dk) **yalnızca sana** uygulanır: gelirin, gökyüzü/hava efektlerin ve HUD'un o mevsimi gösterir, süre bitince dünyanın
+   doğal mevsimine dönersin. Dünya mevsimi ve havası herkes için aynı kalır. Hava asası senin havanı değiştirir (yalnızca mevsimde görülebilen türler, yaklaşık 4 dk).
+   Şimdilik hiçbir eşya Robux ile satılmaz.
 5. **Yol Haritası:** Oyuncu sırayı kendi seçer; sadece ön koşulu olanlar kilitlidir.
 6. **Adalar:** Herhangi bir ada tabelasına ya da meydandaki "🧭 Adalar" tabelasına yaklaşıp **E** →
    meydana veya başka bir adaya ışınlan.

@@ -45,6 +45,7 @@ alwaysApply: false
   bölümler `src/client/Hud/` altındadır: `ShopWindow`, `RoadmapWindow`, `UpgradesWindow`, `IslandTabs`, `StoreSection`,
   `RewardsSection`, `BoardSection`, `ItemShopWindow` + `InventoryWindow` (+ ortak `ItemText`), `SeasonBar`, `Onboarding` (ilk adımlar: durumdan türetilir, `UiKit.pulse` vurgusu + `TutorialGuide` özniteliğiyle CollectorGuide ışını), ortak `HudCommon` (`setPurchaseButton`, `purchaseHint`). Yeni pencere/bölüm
   eklerken ana betiğe yığmak yerine buraya `create(...)` + `update(state)` kalıbıyla yeni modül yaz.
+- Mevsim/hava: ReplicatedStorage attribute'larını doğrudan okuma/dinleme; `Environment.getSeason()/getWeather()` ve `Environment.onChanged` kullan (asa ile oyuncuya özel katman otomatik uygulanır).
 - Ada bağlamı: paneller `IslandContext.get()` adasını gösterir. Açık adaya girince `IslandAutoSelect` sunucuda gerçek seçim yapar; kilitli adaya girince yalnızca
   client'ta önizleme (`IslandContext.setPreview`) kurar (sunucu kilitli adayı seçmeyi reddeder). Sunucuya giden hiçbir karar `get()` değerine dayanmamalı; sunucunun
   bildiği seçim `IslandContext.selected()`.

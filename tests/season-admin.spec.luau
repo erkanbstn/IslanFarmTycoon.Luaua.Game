@@ -157,38 +157,6 @@ return function(createService: any, createEnvironment: any, createLimiter: any, 
 		"auto weather belongs to current season"
 	)
 
-	-- Mevsim asası: seçilen mevsim tam süre sürer, sonra doğal döngüye dönülür; yönetici sabitlemesi önüne geçer
-	local target = Config.SEASONS[environment.seasonIndexAt(now) % #Config.SEASONS + 1].id
-	assert(
-		service.setPlayerSeason(target) and environment.getSeason().id == target,
-		"the season staff changes the season"
-	)
-	assert(environment.getSeasonEndsAt() == now + Config.SEASON_SECONDS, "a staff season lasts a full duration")
-	assert(not service.setPlayerSeason("bad"), "unknown staff seasons are rejected")
-	tick(Config.SEASON_SECONDS + 1)
-	assert(
-		environment.getSeason().id == Config.SEASONS[environment.seasonIndexAt(now)].id,
-		"the season returns to the natural cycle after a staff season"
-	)
-	assert(service.setAdminSeason("winter"), "admin can pin the season")
-	assert(
-		not service.setPlayerSeason("summer") and environment.getSeason().id == "winter",
-		"an admin-pinned season blocks the staff"
-	)
-	assert(service.setAdminSeason(nil), "admin releases the season")
-	-- Hava asası: anlık hava değişir; yönetici sabitlemesi önüne geçer
-	assert(
-		service.setPlayerWeather("rain") and environment.getWeather().id == "rain",
-		"the weather staff changes the weather"
-	)
-	assert(not service.setPlayerWeather("bad"), "unknown staff weather is rejected")
-	assert(service.setAdminWeather("snow"), "admin can pin the weather")
-	assert(
-		not service.setPlayerWeather("rain") and environment.getWeather().id == "snow",
-		"admin-pinned weather blocks the staff"
-	)
-	assert(service.setAdminWeather(nil), "admin releases the weather")
-
 	local before = environment.getWeather().id
 	local beforeSettlements = settlements
 	events.DebugCycleWeather.callback({ UserId = 42, Name = "Geo_Geyo" })

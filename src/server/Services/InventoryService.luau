@@ -16,7 +16,6 @@ local Inventory = require(Shared:WaitForChild("Modules"):WaitForChild("Inventory
 local PlayerDataService = require(script.Parent:WaitForChild("PlayerDataService"))
 local PlotService = require(script.Parent:WaitForChild("PlotService"))
 local EconomyService = require(script.Parent:WaitForChild("EconomyService"))
-local SeasonService = require(script.Parent:WaitForChild("SeasonService"))
 local RateLimiter = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("RateLimiter"))
 local Metrics = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("Metrics"))
 
@@ -241,7 +240,10 @@ function InventoryService.tryUse(player: Player, itemId: unknown, argument: unkn
 		return false, reason
 	end
 	local power = item.power :: Config.ItemPower
-	local ok: boolean, err: string?
+	-- Asa yalnızca bu oyuncunun ortamını değiştirir (dünya mevsimi/havası herkes için aynı kalır): kayıtta çalışma anı
+	-- geçersiz kılması tutulur; gelir ve görseller Environment üzerinden bunu uygular.
+	local current = data.envOverride
+	local currentSeason = Environment.getSeason(current)
 	local message: string
 	if power.kind == "season" then
 		local season: Config.SeasonConfig? = nil
@@ -253,28 +255,34 @@ function InventoryService.tryUse(player: Player, itemId: unknown, argument: unkn
 		if not season then
 			return false, "Bilinmeyen mevsim"
 		end
-		if Environment.getSeason().id == argument then
+		if currentSeason.id == argument then
 			return false, "Zaten bu mevsimdesin"
 		end
-		ok, err = SeasonService.setPlayerSeason(argument)
+		EconomyService.settlePlayer(player) -- geçen süre eski mevsimin çarpanıyla kapanır
+		-- Yeni mevsimin havası mevsim havuzundan kendiliğinden seçilir; eski hava geçersiz kılması silinir
+		data.envOverride = { seasonId = argument, seasonEndsAt = now + Config.SEASON_SECONDS }
 		message = `Mevsim değişti: {season.displayName}`
 	else
 		local weather = Config.WEATHER[argument]
 		if not weather then
 			return false, "Bilinmeyen hava"
 		end
-		-- Yalnızca bu mevsimde görülebilen hava türleri seçilebilir (kışın yağmur, yazın kar gibi tuhaflıklar olmasın)
-		if not Environment.getSeason().weather[argument] then
+		-- Yalnızca oyuncunun mevsiminde görülebilen hava türleri seçilebilir (kışın yağmur, yazın kar gibi tuhaflıklar olmasın)
+		if not currentSeason.weather[argument] then
 			return false, "Bu hava bu mevsimde seçilemez"
 		end
-		if Environment.getWeather().id == argument then
+		if Environment.getWeather(current).id == argument then
 			return false, "Hava zaten böyle"
 		end
-		ok, err = SeasonService.setPlayerWeather(argument)
+		EconomyService.settlePlayer(player)
+		local seasonPart = if current and current.seasonEndsAt and now < current.seasonEndsAt then current else nil
+		data.envOverride = {
+			seasonId = if seasonPart then seasonPart.seasonId else nil,
+			seasonEndsAt = if seasonPart then seasonPart.seasonEndsAt else nil,
+			weatherId = argument,
+			weatherEndsAt = now + Config.WEATHER_SECONDS_MAX,
+		}
 		message = `Hava değişti: {weather.displayName}`
-	end
-	if not ok then
-		return false, err
 	end
 	Inventory.recordUse(data, itemId, now)
 	PlayerDataService.pushState(player)

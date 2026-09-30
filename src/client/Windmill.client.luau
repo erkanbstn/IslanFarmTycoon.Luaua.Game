@@ -6,6 +6,8 @@
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Environment =
+	require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Modules"):WaitForChild("Environment"))
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
@@ -41,7 +43,7 @@ local connection = RunService.Heartbeat:Connect(function(dt: number)
 	end
 	local cameraPosition = camera.CFrame.Position
 	-- Fırtınada biraz daha hızlı döner (hava her karede bir kez okunur)
-	local weather = ReplicatedStorage:GetAttribute("Weather")
+	local weather = Environment.getWeather().id
 	local boost = if weather == "storm" then 2.2 elseif weather == "rain" then 1.4 else 1
 	for model, speed in blades do
 		if not model.PrimaryPart or not model:IsDescendantOf(Workspace) then

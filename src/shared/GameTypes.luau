@@ -31,6 +31,8 @@ export type MainFarmSummary = {
 }
 export type SeasonalGoal = { key: number, progress: number, target: number, base: number, claimed: boolean }
 
+export type EnvOverride = { seasonId: string?, seasonEndsAt: number?, weatherId: string?, weatherEndsAt: number? }
+
 export type InventoryData = {
 	items: { [string]: boolean },
 	equipped: { [string]: string },
@@ -45,6 +47,7 @@ export type PlayerSave = {
 	lifetimeEarned: number?, -- Ömür boyu kazanç (başarımlar için)
 	daily: { day: number, streak: number }?, -- Günlük ödül: son alınan gün (UTC gün numarası) ve seri
 	achievements: { [string]: boolean }?, -- Ödülü alınmış başarımlar
+	envOverride: EnvOverride?, -- Asa ile oyuncuya özel mevsim/hava (çalışma anı; kaydedilmez)
 	inventory: InventoryData?, -- Envanter (hesap düzeyi): sahip olunan, takılı eşyalar ve asa hakları
 	golden: { key: number }?, -- Altın hayvan: ödülü alınan son pencerenin döngü numarası
 	merchant: { key: number, bought: boolean }?, -- Gezgin tüccar: son teklifin döngü numarası ve alınıp alınmadığı

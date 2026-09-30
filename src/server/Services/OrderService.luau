@@ -89,7 +89,7 @@ function OrderService.tryClaim(player: Player, uid: unknown): (boolean, string?)
 		return false, "Sipariş henüz tamamlanmadı"
 	end
 	-- Ödül: pano çarpanı ve aktif mevsim etkinliği bonusu dahil (sunucuda hesaplanır)
-	local reward = OrderBoard.claimReward(order, Environment.getSeason().orderBonus)
+	local reward = OrderBoard.claimReward(order, Environment.getSeason(data.envOverride).orderBonus)
 	-- UID hemen tüketilir. Aynı veya gecikmiş istek ikinci ödülü alamaz.
 	data.order = nil
 	data.ordersCompleted += 1
@@ -116,7 +116,7 @@ function OrderService.tryPick(player: Player, key: unknown): (boolean, string?)
 		return false, "Sipariş panosu henüz açılmadı"
 	end
 	local offer, problem =
-		OrderBoard.resolve(data, key, DateTime.now().UnixTimestamp, Environment.getSeason().orderBonus)
+		OrderBoard.resolve(data, key, DateTime.now().UnixTimestamp, Environment.getSeason(data.envOverride).orderBonus)
 	if not offer then
 		return false, problem
 	end
