@@ -160,6 +160,40 @@ return function(
 	)
 	assert(farmMath.pickProductionAnimals(zoneSave, hatchery, now + 130) ~= nil, "returned animals become available")
 
+	-- Sınır değişmez: bölge dolu iken hayvanlar tesise/eklentiye çıksa da yeni hayvan alınamaz; dönüşte yer sorunu olmaz.
+	local fullSave = newSave()
+	local stable = config.ZONES.stable
+	local capacity = farmMath.getZoneCapacity(fullSave, "stable")
+	local horses: { any } = {}
+	while farmMath.countInZone(fullSave, "stable") < capacity do
+		table.insert(horses, addAnimal(fullSave, "horse", "stable"))
+	end
+	assert(stable.allowedAnimals[1] == "horse" and farmMath.getFreeSlots(fullSave, "horse") == 0, "the zone is full")
+	assert(farmMath.findZoneForAnimal(fullSave, "horse") == nil, "a full zone takes no new animal")
+	horses[1].task = { kind = "production", id = "horse_training", startedAt = now, endsAt = now + 75 }
+	horses[2].extensionId = "training_course"
+	horses[2].task = { kind = "extension", id = "training_course", startedAt = now, endsAt = now + 120 }
+	assert(farmMath.countInZone(fullSave, "stable") == capacity, "animals away keep the zone at the same count")
+	assert(farmMath.getFreeSlots(fullSave, "horse") == 0, "no slot opens while animals are away")
+	assert(
+		farmMath.findZoneForAnimal(fullSave, "horse") == nil,
+		"a new animal cannot take the place of one that is away"
+	)
+	local sellable = farmMath.findSellableAnimal(fullSave, "horse", now + 10)
+	assert(sellable ~= nil and sellable ~= horses[1] and sellable ~= horses[2], "only animals at home can be sold")
+	-- Hayvan satılınca sınır değişir: tek yer açılır, dönen hayvanlar yine sığar
+	for index, animal in fullSave.animals do
+		if animal == sellable then
+			table.remove(fullSave.animals, index)
+			break
+		end
+	end
+	assert(farmMath.getFreeSlots(fullSave, "horse") == 1, "selling an animal opens exactly one slot")
+	horses[1].task = nil
+	horses[2].task = nil
+	horses[2].extensionId = nil
+	assert(farmMath.countInZone(fullSave, "stable") == capacity - 1, "returning animals never need a free slot")
+
 	-- Teslim ödülü: kaçırılan gelirin üstünde bir taban
 	local rewardSave = newSave()
 	addAnimal(rewardSave, "cow", "starter")

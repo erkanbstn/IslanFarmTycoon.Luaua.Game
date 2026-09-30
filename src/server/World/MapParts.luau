@@ -94,15 +94,15 @@ local function buildTree(parent: Instance, base: CFrame, variant: number?)
 end
 
 -- Bölge adı / kilit bilgisi (metni PlotService yazar)
-local function addZoneLabel(zoneModel: Model, center: CFrame, zoneConfig: Config.ZoneConfig)
+local function addZoneLabel(zoneModel: Model, center: CFrame, zoneConfig: Config.ZoneConfig, farmId: string?)
 	local labelAnchor =
 		makePart("LabelAnchor", Vector3.new(1, 1, 1), center * CFrame.new(0, 12, 0), Color3.new(), zoneModel)
 	labelAnchor.Transparency = 1
 	labelAnchor.CanCollide = false
 	labelAnchor.CanQuery = false
 	WorldUi.tag(labelAnchor, "ZoneBillboard", {
-		text = zoneConfig.displayName,
-		icon = zoneConfig.icon,
+		text = Config.getZoneName(zoneConfig, farmId),
+		icon = Config.getZoneIcon(zoneConfig, farmId),
 		tint = UiTheme.Color.Green,
 		widthStuds = 9,
 		heightStuds = 1.8,
@@ -173,7 +173,7 @@ local function buildZone(plotModel: Model, islandCf: CFrame, layout: ZoneLayout)
 		ground.CanCollide = false
 		ground.CanQuery = false
 		buildFloatingWalkway(zoneModel, center, layout.size)
-		addZoneLabel(zoneModel, center, zoneConfig)
+		addZoneLabel(zoneModel, center, zoneConfig, plotModel:GetAttribute("PlotId") :: string?)
 		return
 	end
 
@@ -223,7 +223,7 @@ local function buildZone(plotModel: Model, islandCf: CFrame, layout: ZoneLayout)
 	fenceSegment(Vector3.new(-hx, 0, -hz), Vector3.new(-gap / 2, 0, -hz))
 	fenceSegment(Vector3.new(gap / 2, 0, -hz), Vector3.new(hx, 0, -hz))
 
-	addZoneLabel(zoneModel, center, zoneConfig)
+	addZoneLabel(zoneModel, center, zoneConfig, plotModel:GetAttribute("PlotId") :: string?)
 end
 
 local function addBuildSpot(folder: Instance, upgradeId: string, cf: CFrame): Part

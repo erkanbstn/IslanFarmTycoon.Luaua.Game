@@ -65,7 +65,12 @@ local function show(earned: number, grown: number)
 		line("💰", `+{FarmMath.formatMoney(earned)} kazandın`, "Kasana eklendi")
 	end
 	if grown > 0 then
-		line("🐄", `{grown} hayvan büyüdü`, "Yetişkin hayvanlar daha çok kazandırır")
+		local summaryState = ClientState.get()
+		line(
+			Config.getHomeAnimalIcon(if summaryState then summaryState.activeMainFarmId else nil),
+			`{grown} hayvan büyüdü`,
+			"Yetişkin hayvanlar daha çok kazandırır"
+		)
 	end
 	local recipes = readyRecipes()
 	if #recipes > 0 then

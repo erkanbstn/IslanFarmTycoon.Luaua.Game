@@ -181,7 +181,7 @@ local function decorateHome(decor: Instance, islandCf: CFrame, plotIndex: number
 	WorldDecor.crate(decor, at(27, -28.5), 1.8)
 	buildSignpost(decor, at(5.6, -19.5), {
 		{ label = "Ahır", icon = "🏚️", yaw = -90 },
-		{ label = "Ağıllar", icon = "🐄", yaw = -56 },
+		{ label = "Ağıllar", icon = Config.getHomeAnimalIcon(tostring(plotIndex)), yaw = -56 },
 		{ label = "Liman", icon = "⚓", yaw = 115 },
 	})
 

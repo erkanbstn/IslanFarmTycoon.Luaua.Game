@@ -151,5 +151,34 @@ return function(Config: any, FarmMath: any)
 		local homeAnimal = Config.getHomeAnimal(tostring(index))
 		assert(FarmMath.getFreeSlots(farm, homeAnimal) > 0, `theme {index} cannot place its home animal at the start`)
 	end
+	-- Simgeler çiftliğin temasına uyar: ana ada ağılı kendi hayvanının simgesini taşır (İnek/Tavuk/Ördek Ağılı).
+	for index in Config.THEMES do
+		local farmId = tostring(index)
+		local animal = Config.ANIMALS[Config.getHomeAnimal(farmId)]
+		assert(Config.getHomeAnimalIcon(farmId) == animal.icon, `theme {index} home icon follows its animal`)
+		assert(
+			Config.getZoneIcon(Config.ZONES.starter, farmId) == animal.icon,
+			`theme {index} pen icon follows its animal`
+		)
+		assert(
+			Config.getBuildTargetIcon("starter", farmId) == animal.icon,
+			`theme {index} pen upgrade icon follows its animal`
+		)
+		assert(
+			Config.getZoneName(Config.ZONES.starter, farmId) == `{animal.displayName} Ağılı`,
+			`theme {index} pen name follows its animal`
+		)
+	end
+	for zoneId, zone in Config.ZONES do
+		if zoneId ~= "starter" then
+			assert(Config.getZoneIcon(zone, "3") == zone.icon, `zone {zoneId} keeps its own icon`)
+		end
+	end
+	for recipeId, recipe in Config.PRODUCTION_RECIPES do
+		-- "dairy" hem bir bölge hem bir tarif kimliğidir (bilinen çakışma); bölge önceliklidir
+		if not Config.ZONES[recipeId] then
+			assert(Config.getBuildTargetIcon(recipeId, "1") == recipe.icon, `facility {recipeId} keeps its own icon`)
+		end
+	end
 	print("PASS config: cross-references, prerequisite graph, seasonal goals and start state")
 end

@@ -285,7 +285,7 @@ local function applyZoneState(plot: Model, data: PlayerSave?)
 					end
 				end
 			end
-			setZoneLabel(zone, label, zoneConfig.icon, false)
+			setZoneLabel(zone, label, Config.getZoneIcon(zoneConfig, plot:GetAttribute("PlotId") :: string?), false)
 			local kinds: { string } = {}
 			for level = 1, zoneLevel do
 				table.insert(kinds, FarmMath.getBuildLevelKind(zoneId, level))

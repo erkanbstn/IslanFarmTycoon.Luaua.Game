@@ -128,6 +128,8 @@ function UpgradesWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Up
 			local group = if status == "locked" then 2 elseif state.cash >= cost then 0 else 1
 			card.frame.LayoutOrder = EXPANSION_ORDER + group * 100 + table.find(Config.BUILD_ORDER, targetId) :: number
 			if content then
+				-- Ana ada ağılının simgesi çiftliğin hayvanına göre (inek/tavuk/ördek)
+				card.icon.Text = Config.getBuildTargetIcon(targetId, state.activeMainFarmId)
 				local level = FarmMath.getExpansionLevel(state, targetId)
 				local nextLevel = FarmMath.getNextBuildLevel(state, targetId)
 				card.title.Text =

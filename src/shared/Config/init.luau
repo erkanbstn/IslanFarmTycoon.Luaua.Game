@@ -317,6 +317,30 @@ for _, recipeId in Config.PRODUCTION_ORDER do
 	table.insert(Config.BUILD_ORDER, recipeId)
 end
 
+-- Çiftliğin ana ada hayvanının simgesi (inek, tavuk ya da ördek)
+function Config.getHomeAnimalIcon(farmId: string?): string
+	local animal = Config.ANIMALS[Config.getHomeAnimal(farmId)]
+	return if animal then animal.icon else "🐾"
+end
+
+-- Bölgenin oyuncuya gösterilen simgesi: ana ada ağılı çiftliğin hayvanının simgesini taşır (İnek/Tavuk/Ördek Ağılı),
+-- diğer bölgeler kendi simgesini korur.
+function Config.getZoneIcon(zone: ZoneConfig, farmId: string?): string
+	if zone.id == "starter" then
+		return Config.getHomeAnimalIcon(farmId)
+	end
+	return zone.icon
+end
+
+function Config.getBuildTargetIcon(targetId: string, farmId: string?): string
+	local zone = Config.ZONES[targetId]
+	if zone then
+		return Config.getZoneIcon(zone, farmId)
+	end
+	local target = Config.BUILD_TARGETS[targetId]
+	return if target then target.icon else "🐾"
+end
+
 function Config.getBuildTargetName(targetId: string, farmId: string?): string
 	local zone = Config.ZONES[targetId]
 	if zone then
