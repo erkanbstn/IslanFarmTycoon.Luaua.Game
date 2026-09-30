@@ -8,6 +8,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Config = require(Shared:WaitForChild("Config"))
 local GameTypes = require(Shared:WaitForChild("GameTypes"))
 
 type PlayerSave = GameTypes.PlayerSave
@@ -244,6 +245,64 @@ local function storageYard(model: Model, cf: CFrame, level: number)
 	end
 end
 
+-- Irk anıtı: ana adada, geliştirilmiş (Irk Sv.1+) her tür için bir kaide. Seviye arttıkça kaide yükselir ve malzemesi
+-- değişir: Sv.1-3 bronz top, Sv.4-6 gümüş kupa, Sv.7-9 altın kupa, Sv.10 altın taç ve ışık sütunu.
+local MONUMENT_OFFSET = Vector3.new(30, 0, -47)
+local PEDESTAL_SPACING = 1.6
+
+local function lineageMonument(model: Model, cf: CFrame, levels: { { id: string, level: number } })
+	for index, entry in levels do
+		local level = entry.level
+		local height = 0.8 + level * 0.3
+		local at = cf * CFrame.new((index - 1) * PEDESTAL_SPACING, 0, 0)
+		piece(
+			model,
+			"Pedestal",
+			Vector3.new(1.3, height, 1.3),
+			at * CFrame.new(0, height / 2, 0),
+			Color3.fromRGB(150, 146, 136),
+			Enum.Material.Cobblestone,
+			SOLID
+		)
+		local tint, material = Color3.fromRGB(184, 115, 51), Enum.Material.Metal
+		if level >= 7 then
+			tint = GOLD
+		elseif level >= 4 then
+			tint = Color3.fromRGB(215, 220, 228)
+		end
+		if level >= 10 then
+			material = Enum.Material.Neon
+		end
+		local top = at * CFrame.new(0, height, 0)
+		if level >= 4 then
+			-- Kupa: gövde ve kadeh
+			piece(
+				model,
+				"TrophyStem",
+				Vector3.new(0.3, 0.8, 0.3),
+				top * CFrame.new(0, 0.4, 0),
+				tint,
+				Enum.Material.Metal
+			)
+			piece(model, "TrophyCup", Vector3.new(1, 0.9, 1), top * CFrame.new(0, 1.25, 0), tint, material, BALL)
+		else
+			piece(model, "Orb", Vector3.new(0.9, 0.9, 0.9), top * CFrame.new(0, 0.6, 0), tint, material, BALL)
+		end
+		if level >= 10 then
+			piece(model, "Crown", Vector3.new(0.9, 0.35, 0.9), top * CFrame.new(0, 2.05, 0), GOLD, Enum.Material.Neon)
+			local beam = piece(
+				model,
+				"Beam",
+				Vector3.new(0.35, 6, 0.35),
+				top * CFrame.new(0, 5, 0),
+				Color3.fromRGB(255, 240, 170),
+				Enum.Material.Neon
+			)
+			beam.Transparency = 0.6
+		end
+	end
+end
+
 function UpgradeLevelProps.apply(plot: Model, save: PlayerSave?)
 	local existing = plot:FindFirstChild(MODEL_NAME)
 	if not save then
@@ -279,14 +338,25 @@ function UpgradeLevelProps.apply(plot: Model, save: PlayerSave?)
 	for _, zone in zones do
 		table.insert(ids, zone.id)
 	end
-	local signature = `{feed}|{storage}|{growth}|{table.concat(ids, ",")}`
+	local monument: { { id: string, level: number } } = {}
+	for _, animalId in Config.ANIMAL_ORDER do
+		local level = if save.lineage then save.lineage[animalId] else nil
+		if typeof(level) == "number" and level > 0 then
+			table.insert(monument, { id = animalId, level = math.min(level, 10) })
+		end
+	end
+	local monumentKey = {}
+	for _, entry in monument do
+		table.insert(monumentKey, `{entry.id}{entry.level}`)
+	end
+	local signature = `{feed}|{storage}|{growth}|{table.concat(ids, ",")}|{table.concat(monumentKey, ",")}`
 	if existing and existing:GetAttribute("Signature") == signature then
 		return
 	end
 	if existing then
 		existing:Destroy()
 	end
-	if feed + storage + growth == 0 then
+	if feed + storage + growth + #monument == 0 then
 		return
 	end
 	local model = Instance.new("Model")
@@ -308,6 +378,11 @@ function UpgradeLevelProps.apply(plot: Model, save: PlayerSave?)
 		local base = CFrame.new(collector.Position.X, collector.Position.Y - 0.75, collector.Position.Z)
 			* collector.CFrame.Rotation
 		storageYard(model, base * CFrame.new(-9, 0, 0), storage)
+	end
+	local plotBase = plot:FindFirstChild("PlotBase")
+	if #monument > 0 and plotBase and plotBase:IsA("BasePart") then
+		local frame = plotBase.CFrame * CFrame.Angles(0, 0, -math.pi / 2) * CFrame.new(0, plotBase.Size.X / 2, 0)
+		lineageMonument(model, frame * CFrame.new(MONUMENT_OFFSET.X, 0, MONUMENT_OFFSET.Z), monument)
 	end
 	model.Parent = plot
 end

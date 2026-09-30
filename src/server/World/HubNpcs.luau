@@ -97,6 +97,17 @@ function HubNpcs.vendor(parent: Instance, base: CFrame, spec: NpcSpec)
 	for _, x in { -3.3, 3.3 } do
 		part(model, "Post", Vector3.new(0.4, 8.4, 0.4), base * CFrame.new(x, 4.2, -2.5), DARK_WOOD, Enum.Material.Wood)
 	end
+	-- Yan paneller: tezgâhın içine girilip satıcının içinden geçilmesin (ön tezgâh, arka panel ve yanlar kapalı)
+	for _, x in { -3.6, 3.6 } do
+		part(
+			model,
+			"SidePanel",
+			Vector3.new(0.4, 3.6, 6.4),
+			base * CFrame.new(x, 1.8, 0.6),
+			WOOD,
+			Enum.Material.WoodPlanks
+		)
+	end
 	-- Tente: öne doğru alçalan kumaş
 	local awning = part(
 		model,

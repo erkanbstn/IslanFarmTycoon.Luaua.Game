@@ -136,6 +136,16 @@ return function(context: any?)
 		assert(flat.Magnitude >= 15, `{child.Name}: doğma noktasına çok yakın.`)
 		local sign = child:FindFirstChild("Sign") :: BasePart
 		assert(sign and not sign.CanCollide, `{child.Name}: tabela çarpışmamalı.`)
+		-- Tezgâh katıdır ve yanları kapalıdır: içine girilip satıcının içinden geçilemez
+		assert(counter.CanCollide, `{child.Name}: tezgâh çarpışmalı.`)
+		local panels = 0
+		for _, descendant in child:GetChildren() do
+			if descendant.Name == "SidePanel" then
+				assert((descendant :: BasePart).CanCollide, `{child.Name}: yan panel çarpışmalı.`)
+				panels += 1
+			end
+		end
+		assert(panels == 2, `{child.Name}: iki yan panel bekleniyor.`)
 	end
 	for action in actions do
 		assert(found[action], `Meydanda '{action}' satıcısı yok.`)

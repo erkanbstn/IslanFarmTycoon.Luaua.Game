@@ -45,6 +45,18 @@ function Market.market(parent: Instance, base: CFrame)
 			Enum.Material.Wood
 		)
 	end
+	-- Yan ve arka paneller: tezgâhın içine girilmesin
+	for _, x in { -4.6, 4.6 } do
+		part(
+			stall,
+			"SidePanel",
+			Vector3.new(0.4, 3.2, 3.6),
+			base * CFrame.new(x, 1.6, 0.1),
+			WOOD,
+			Enum.Material.WoodPlanks
+		)
+	end
+	part(stall, "BackPanel", Vector3.new(9.4, 3.2, 0.4), base * CFrame.new(0, 1.6, 1.9), WOOD, Enum.Material.WoodPlanks)
 	-- Çizgili tente: kırmızı ve krem şeritler öne doğru eğimli
 	for index = 1, 6 do
 		part(
