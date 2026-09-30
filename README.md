@@ -127,6 +127,9 @@ Her oyuncunun kendi takımadası var: **ana ada** (ücretsiz) + arkasında köpr
 Uzman adalar kilitliyken toprak renginde durur, tabelasında fiyatı ve özelliği yazar; oyuncu tabelaya
 gidip **E** ile ya da Yol Haritası'ndan satın alır. Her ada yeni bir hayvan + kendine özel bir bonus getirir.
 
+Ana adanın yerleşimi de temaya göre değişir: bahçe, ambar, değirmen, kovanlar, çiftlik evi ve meyve bahçesi farklı yuvalara oturur, kuyu iki yandan birindedir ve doğu kıyıda
+temaya özel bir işaret yapısı vardır (papatya halkası ve korkuluk, lale tarhı, ayçiçeği tarlası, gül çardağı, çam öbeği, kiraz korusu).
+
 Hangi üç küçük adanın geldiği **çiftlik numarasına (tema)** bağlıdır; her ana çiftlik de kendi hayvanıyla başlar:
 
 | Çiftlik | Tema | Ana ada hayvanı | Küçük adalar |

@@ -23,7 +23,7 @@ local MapBuilder = {}
 
 -- Harita düzenini (adalar, bölgeler, yapı yerleri) değiştirince bunu 1 artır:
 -- oyun, place'e kaydedilmiş eski haritayı fark edip uyarır.
-local MAP_VERSION = 33
+local MAP_VERSION = 34
 
 local SURFACE_Y = 4 -- Ada ve meydan yüzeyinin yüksekliği
 local WATER_Y = 0 -- Deniz yüzeyi
@@ -241,8 +241,8 @@ local function seedFrom(cf: CFrame): number
 	return math.abs(math.floor(p.X * 7 + p.Z * 13)) + 1
 end
 
-local function buildTree(parent: Instance, base: CFrame)
-	local seed = seedFrom(base)
+local function buildTree(parent: Instance, base: CFrame, variant: number?)
+	local seed = seedFrom(base) + (variant or 0) * 7
 	if seed % 3 == 0 then
 		WorldDecor.pineTree(parent, base, seed)
 	else
@@ -714,6 +714,61 @@ local function buildSatellite(
 end
 
 -- Ana adanın yolları ve süsleri. Yollar: meydan köprüsü → doğma noktası → ağıllar → ahır → uzman ada köprüleri
+-- Ana ada düzeni çiftlik numarasına (temaya) göre değişir: batı kümesinde bahçe↔ambar ve değirmen↔kovan yer değiştirir,
+-- doğuda çiftlik evi↔meyve bahçesi yer değiştirir, kuyu iki yandan birinde durur. Yol, bölge ve yapı noktaları sabittir;
+-- yalnızca bu listedeki yuvalar arasında permütasyon yapılır (her yuva aynı yöne, ada merkezine bakar).
+type HomePlacement = { x: number, z: number, yaw: number, hx: number, hz: number }
+
+local FACE_EAST, FACE_WEST = math.rad(-90), math.rad(90) -- ön yüz +X / -X
+local HOME_LAYOUT_FLAGS = {
+	{ swapGarden = false, swapWindmill = false, swapEast = false, wellEast = false },
+	{ swapGarden = true, swapWindmill = false, swapEast = false, wellEast = true },
+	{ swapGarden = false, swapWindmill = true, swapEast = true, wellEast = false },
+	{ swapGarden = true, swapWindmill = true, swapEast = false, wellEast = false },
+	{ swapGarden = false, swapWindmill = false, swapEast = true, wellEast = true },
+	{ swapGarden = true, swapWindmill = true, swapEast = true, wellEast = true },
+}
+local HOME_LANDMARK_SLOT = Vector2.new(48, -20)
+
+local function homePlacements(plotIndex: number): { [string]: HomePlacement }
+	local flags = HOME_LAYOUT_FLAGS[(plotIndex - 1) % #HOME_LAYOUT_FLAGS + 1]
+	local placements: { [string]: HomePlacement } = {}
+	-- Batı yuvaları: w1 (-49,-18) w2 (-43,10) w3 (-42,-27) w4 (-46,32)
+	local gardenSlot, granarySlot = Vector2.new(-43, 10), Vector2.new(-46, 32)
+	if flags.swapGarden then
+		gardenSlot, granarySlot = granarySlot, gardenSlot
+	end
+	local windmillSlot, hivesSlot = Vector2.new(-49, -18), Vector2.new(-42, -27)
+	if flags.swapWindmill then
+		windmillSlot, hivesSlot = hivesSlot, windmillSlot
+	end
+	placements.garden = { x = gardenSlot.X, z = gardenSlot.Y, yaw = 0, hx = 9, hz = 8 }
+	placements.granary = { x = granarySlot.X, z = granarySlot.Y, yaw = FACE_EAST, hx = 8, hz = 9 }
+	placements.windmill = { x = windmillSlot.X, z = windmillSlot.Y, yaw = FACE_EAST, hx = 8, hz = 8 }
+	placements.hives = { x = hivesSlot.X, z = hivesSlot.Y, yaw = 0, hx = 7, hz = 7 }
+	-- Doğu yuvaları: e1 (46,6) ve e2 (40,20); çiftlik evi e2'ye taşınınca bölgeye girmesin diye (45,26)
+	if flags.swapEast then
+		placements.orchard = { x = 46, z = 6, yaw = 0, hx = 9, hz = 10 }
+		placements.farmhouse = { x = 45, z = 26, yaw = FACE_WEST, hx = 10, hz = 10 }
+	else
+		placements.farmhouse = { x = 46, z = 6, yaw = FACE_WEST, hx = 10, hz = 10 }
+		placements.orchard = { x = 40, z = 20, yaw = 0, hx = 9, hz = 11 }
+	end
+	placements.well = { x = if flags.wellEast then 24 else -24, z = 21, yaw = 0, hx = 5, hz = 5 }
+	placements.market = { x = -13, z = -40, yaw = FACE_EAST, hx = 6, hz = 7 }
+	placements.landmark = { x = HOME_LANDMARK_SLOT.X, z = HOME_LANDMARK_SLOT.Y, yaw = 0, hx = 8, hz = 8 }
+	return placements
+end
+
+-- Yapıların çim tutamı kaçınma dikdörtgenleri (yerleşimle birlikte değişir)
+local function homeBuildingAvoidRects(plotIndex: number): { { x: number, z: number, hx: number, hz: number } }
+	local rects = {}
+	for _, spot in homePlacements(plotIndex) do
+		table.insert(rects, { x = spot.x, z = spot.z, hx = spot.hx, hz = spot.hz })
+	end
+	return rects
+end
+
 local function decorateHome(decor: Instance, islandCf: CFrame, plotIndex: number)
 	local function at(x: number, z: number): CFrame
 		return islandCf * CFrame.new(x, SURFACE_Y, z)
@@ -743,7 +798,7 @@ local function decorateHome(decor: Instance, islandCf: CFrame, plotIndex: number
 		Vector2.new(30, -58),
 	}
 	for _, spot in trees do
-		buildTree(decor, at(spot.X, spot.Y))
+		buildTree(decor, at(spot.X, spot.Y), plotIndex)
 	end
 
 	local bushes = {
@@ -814,16 +869,21 @@ local function decorateHome(decor: Instance, islandCf: CFrame, plotIndex: number
 	WorldDecor.crate(decor, at(-11.4, 27.6), 1.6)
 	WorldDecor.mailbox(decor, at(8, -53))
 
-	-- Ana ada yapıları (HomeBuildings): her genel adada aynı düzen; ön (-Z) yönü yaw ile çevrilir.
-	local east, west = math.rad(-90), math.rad(90) -- ön yüz +X / -X
-	HomeBuildings.market(decor, at(-13, -40) * CFrame.Angles(0, east, 0))
-	HomeBuildings.farmhouse(decor, at(46, 6) * CFrame.Angles(0, west, 0))
-	HomeBuildings.windmill(decor, at(-49, -18) * CFrame.Angles(0, east, 0))
-	HomeBuildings.well(decor, at(-24, 21))
-	HomeBuildings.vegetableGarden(decor, at(-43, 10))
-	HomeBuildings.orchard(decor, at(40, 20))
-	HomeBuildings.beehives(decor, at(-42, -27))
-	HomeBuildings.granary(decor, at(-46, 32) * CFrame.Angles(0, east, 0))
+	-- Ana ada yapıları (HomeBuildings): yerleşim temaya göre değişir (homePlacements); ön (-Z) yönü yaw ile çevrilir.
+	local placed = homePlacements(plotIndex)
+	local function place(name: string): CFrame
+		local spot = placed[name]
+		return at(spot.x, spot.z) * CFrame.Angles(0, spot.yaw, 0)
+	end
+	HomeBuildings.market(decor, place("market"))
+	HomeBuildings.farmhouse(decor, place("farmhouse"))
+	HomeBuildings.windmill(decor, place("windmill"))
+	HomeBuildings.well(decor, place("well"))
+	HomeBuildings.vegetableGarden(decor, place("garden"))
+	HomeBuildings.orchard(decor, place("orchard"))
+	HomeBuildings.beehives(decor, place("hives"))
+	HomeBuildings.granary(decor, place("granary"))
+	HomeBuildings.landmark(decor, place("landmark"), Config.getTheme(tostring(plotIndex)).landmark)
 
 	-- Ana adadan balık kafesine iskele (LookVector kafese bakar)
 	WorldDecor.dock(
@@ -993,7 +1053,7 @@ local function buildIsland(plotIndex: number, islandCf: CFrame): Model
 	decor.Parent = plotModel
 	decorateHome(decor, islandCf, plotIndex)
 	IslandSpecialization.build(decor, "home", islandCf * CFrame.new(0, SURFACE_Y, 0))
-	addIslandGrass(decor, islandCf * CFrame.new(0, SURFACE_Y, 0), "home", ISLAND_RADIUS, HOME_ZONES, {
+	local grassAvoid = {
 		{ x = 0, z = -20, hx = 5, hz = 52 }, -- ana yol
 		{ x = 0, z = -16, hx = 22, hz = 4 },
 		{ x = 0, z = 40, hx = 13, hz = 10 }, -- ahır
@@ -1003,15 +1063,20 @@ local function buildIsland(plotIndex: number, islandCf: CFrame): Model
 		{ x = 0, z = -45, hx = 7, hz = 7 }, -- doğma noktası
 		{ x = -36, z = 41, hx = 22, hz = 5 }, -- köprü yolları
 		{ x = 36, z = 41, hx = 22, hz = 5 },
-		{ x = -13, z = -40, hx = 6, hz = 7 }, -- pazar tezgâhı
-		{ x = 44, z = 6, hx = 10, hz = 10 }, -- çiftlik evi
-		{ x = -49, z = -18, hx = 8, hz = 8 }, -- yel değirmeni
-		{ x = -24, z = 21, hx = 5, hz = 5 }, -- kuyu
-		{ x = -43, z = 10, hx = 9, hz = 8 }, -- sebze bahçesi
-		{ x = 44, z = 27, hx = 9, hz = 11 }, -- meyve bahçesi
-		{ x = -42, z = -27, hx = 7, hz = 7 }, -- arı kovanları
-		{ x = -46, z = 32, hx = 8, hz = 9 }, -- ambar
-	}, 140, plotIndex * 97)
+	}
+	for _, rect in homeBuildingAvoidRects(plotIndex) do
+		table.insert(grassAvoid, rect)
+	end
+	addIslandGrass(
+		decor,
+		islandCf * CFrame.new(0, SURFACE_Y, 0),
+		"home",
+		ISLAND_RADIUS,
+		HOME_ZONES,
+		grassAvoid,
+		140,
+		plotIndex * 97
+	)
 
 	local islandsFolder = Instance.new("Folder")
 	islandsFolder.Name = "Islands"

@@ -53,6 +53,7 @@ export type ThemeConfig = {
 	id: string,
 	displayName: string,
 	homeAnimal: string, -- Ana adanın ağıl ve otlağında yaşayan hayvan
+	landmark: string, -- Ana adada doğu kıyıdaki tema işaret yapısı (HomeBuildings.landmark türü)
 	satellites: { string },
 }
 
@@ -618,30 +619,46 @@ local Config = {
 	THEMES = {
 		{
 			id = "papatya",
+			landmark = "daisy",
 			displayName = "Klasik Çayır",
 			homeAnimal = "cow",
 			satellites = { "poultry", "horse", "goat" },
 		},
 		{
 			id = "lale",
+			landmark = "tulip",
 			displayName = "Yün ve Süt",
 			homeAnimal = "chicken",
 			satellites = { "dairy", "sheep", "goat" },
 		},
 		{
 			id = "aycicegi",
+			landmark = "sunflower",
 			displayName = "Güneşli Tarla",
 			homeAnimal = "duck",
 			satellites = { "dairy", "poultry", "pig" },
 		},
-		{ id = "gul", displayName = "Göl ve Hara", homeAnimal = "cow", satellites = { "duck", "horse", "pig" } },
+		{
+			id = "gul",
+			landmark = "rose",
+			displayName = "Göl ve Hara",
+			homeAnimal = "cow",
+			satellites = { "duck", "horse", "pig" },
+		},
 		{
 			id = "yonca",
+			landmark = "pine",
 			displayName = "Dağ ve Orman",
 			homeAnimal = "chicken",
 			satellites = { "dairy", "horse", "pig" },
 		},
-		{ id = "kiraz", displayName = "Meyve ve Süt", homeAnimal = "duck", satellites = { "dairy", "sheep", "pig" } },
+		{
+			id = "kiraz",
+			landmark = "cherry",
+			displayName = "Meyve ve Süt",
+			homeAnimal = "duck",
+			satellites = { "dairy", "sheep", "pig" },
+		},
 	} :: { ThemeConfig },
 
 	-- Yol haritası aşamaları: adalar + onlarla paralel ilerleyen Deniz dalı

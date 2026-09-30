@@ -85,6 +85,33 @@ return function()
 		assert(market and market:GetAttribute("Locked") == true, `{plot.Name}: pazar tezgâhı etkileşimi eksik.`)
 	end
 
+	-- Ana ada düzeni temaya göre değişir: işaret yapısı temaya uygun ve yerleşimler birbirinden farklı
+	local signatures: { [string]: boolean } = {}
+	local distinct = 0
+	for _, plot in plots:GetChildren() do
+		local plotId = plot:GetAttribute("PlotId") :: string
+		local decorFolder = plot:FindFirstChild("Decor") :: Folder
+		local landmark = decorFolder:FindFirstChild("Landmark")
+		assert(
+			landmark and landmark:GetAttribute("Kind") == Config.getTheme(plotId).landmark,
+			`{plot.Name}: tema işaret yapısı eksik ya da yanlış.`
+		)
+		local plotBase = plot:FindFirstChild("PlotBase") :: BasePart
+		local parts: { string } = {}
+		for _, name in { "Farmhouse", "Windmill", "VegetableGarden", "Granary", "Well", "Orchard", "Beehives" } do
+			local item = decorFolder:FindFirstChild(name) :: Model
+			assert(item, `{plot.Name}: {name} eksik.`)
+			local localPos = plotBase.CFrame:PointToObjectSpace(item:GetPivot().Position)
+			table.insert(parts, `{name}:{math.floor(localPos.X / 6 + 0.5)}:{math.floor(localPos.Z / 6 + 0.5)}`)
+		end
+		local signature = table.concat(parts, "|")
+		if not signatures[signature] then
+			signatures[signature] = true
+			distinct += 1
+		end
+	end
+	assert(distinct >= 5, "Ana ada yerleşimleri çok benzer; temaya göre en az 5 farklı düzen olmalı.")
+
 	-- Meydan: dört satıcı, her birinin bilinen bir eylemi var, spawn alanını kapatmaz
 	local hub = (Workspace:FindFirstChild("World") :: Folder):FindFirstChild("Hub") :: Model
 	assert(hub, "Meydan (Hub) eksik.")

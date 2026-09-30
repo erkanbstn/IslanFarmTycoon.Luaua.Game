@@ -28,6 +28,10 @@ alwaysApply: false
 - Tabelalar (giriş, ada, "satılık"): uzun direk, tahta alt kenarı yerden >= 10 stud, tahta `CanCollide=false` (yolu kapatmaz).
   Yeni tabela eklerken `tests/map-structure.spec.luau` bu yüksekliği denetler.
 - Dekor bitince `WorldDecor.optimize(root)`: küçük parçalar gölge düşürmez, çarpışmayanlar `CanQuery=false` olur.
+- Ana ada düzeni temaya göre değişir: `MapBuilder.homePlacements(plotIndex)` batı kümesinde bahçe↔ambar ve değirmen↔kovan, doğuda çiftlik evi↔meyve bahçesi yer
+  değiştirir, kuyu iki yandan birinde durur (6 düzen, yuvalar sabit; yol/bölge/yapı noktaları değişmez). Çim kaçınma dikdörtgenleri aynı yerleşimden türer
+  (`homeBuildingAvoidRects`): yeni yapı eklersen `homePlacements`'a koy. Her temanın doğu kıyıda kendi işaret yapısı vardır (`Config.THEMES[n].landmark` →
+  `HomeBuildings.landmark`: daisy/tulip/sunflower/rose/pine/cherry). `tests/map-structure.spec.luau` işaret yapısını ve >= 5 farklı yerleşimi denetler.
 - Ada temaları çiftlik numarasına bağlanır (Çiftlik 1 = Papatya ...); genel ada çekirdeği hepsinde ortaktır; ağıl/otlak görünümü temaya göre değişir (`ZoneVisualService.THEME_LOOKS`).
 
 ## Gece ışıkları

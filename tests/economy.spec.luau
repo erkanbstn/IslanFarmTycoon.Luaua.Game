@@ -408,5 +408,13 @@ return function(FarmMath: any, Config: any, Environment: any)
 	)
 	expandFarm.unlockedZones.pasture = false
 	assert(FarmMath.getExpansionStatus(expandFarm, "pasture") == "locked", "a locked zone cannot be expanded")
+	-- Her tema kendine özgü bir işaret yapısı kullanır (HomeBuildings.landmark türleri)
+	local landmarkKinds = { daisy = true, tulip = true, sunflower = true, rose = true, pine = true, cherry = true }
+	local seenLandmarks: { [string]: boolean } = {}
+	for index, theme in Config.THEMES do
+		assert(landmarkKinds[theme.landmark], `theme {index} needs a known landmark`)
+		assert(not seenLandmarks[theme.landmark], `theme {index} repeats another theme's landmark`)
+		seenLandmarks[theme.landmark] = true
+	end
 	print("PASS economy: growth boundaries, integrated offline/elapsed income, cap, growth upgrade, fish pricing")
 end
