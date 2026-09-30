@@ -159,3 +159,7 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
   (`Config.getStartingCash(farmId)`; `STARTING_CASH` yalnızca yedek). Hayvansız profil geçerlidir (boş `animals` tablosu yeniden başlangıç hayvanı vermez). Tempo: `simulate-economy.py` ile
   (yavru/genç gelir çarpanı 0.4/0.75 bu yüzden) ilk yükseltme ~5-7 dk, tüm yükseltmeler ~4-5 sa, ırk dahil her şey ~11-13 sa (ideal oyuncu).
 - **Para platformu**: aynı ziyarette tek toplama/bildirim (`EconomyService` `collectedOnPad`; oyuncu platformdan ~7 stud uzaklaşınca sıfırlanır).
+- **Ortak envanter (hesap düzeyi)**: ahır deposu (`save.goods`) ve ahır siparişleri (`save.contracts`) artık çiftlik alanı değil **hesap** alanıdır (`FarmProfiles.FIELDS`'te yok; kök kayıtta durur,
+  `SaveCodec.encode` hesap düzeyinde yazar). Bir ürün türünün limiti, sahip olunan **bütün çiftliklerin ahır `goodsCap` toplamıdır** (`FarmMath.getGoodsCap(kökKayıt)`; etkin çiftlik `save.barnLevel`,
+  diğerleri `mainFarms[id].barnLevel`). Depo/sipariş işlemleri her zaman KÖK kayıtla yapılır (park edilmiş çiftlik görünümüyle değil). Siparişte istenebilen ürün, herhangi bir çiftlikte ürün merkezi
+  kuruluysa geçerlidir (`Goods.forEachFarm`). Eski kayıtlarda çiftlik içindeki depo/sipariş decode'da toplanıp hesaba taşınır.

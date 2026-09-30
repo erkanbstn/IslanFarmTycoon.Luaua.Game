@@ -121,8 +121,8 @@ return function(codec: any, config: any, farmMath: any, rules: any)
 	farmMath.addGoods(stored, "horseshoe", 7)
 	local encoded = codec.encode(stored, now)
 	assert(
-		encoded.mainFarms["1"].goods.milk == 12 and encoded.mainFarms["1"].goods.horseshoe == 7,
-		"goods are saved per farm"
+		encoded.goods.milk == 12 and encoded.goods.horseshoe == 7 and encoded.mainFarms["1"].goods == nil,
+		"goods are saved once, at the account level (shared by every farm)"
 	)
 	local reloaded = assert(codec.decode(encoded, config, farmMath, now + 5, uid), "goods reload")
 	assert(
@@ -132,7 +132,7 @@ return function(codec: any, config: any, farmMath: any, rules: any)
 	assert(next(codec.decode(nil, config, farmMath, now, uid).goods) == nil, "a new farm has an empty barn")
 	-- Bozuk kayıt: bilinmeyen ürün atılır, sonsuz/negatif sıfırlanır, kapasite aşımı kısılır; hayvan ve para korunur
 	local corrupt = codec.encode(stored, now)
-	corrupt.mainFarms["1"].goods = { milk = 1e9, egg = -5, ghost = 3, wool = 0 / 0, meat = 4.9 }
+	corrupt.goods = { milk = 1e9, egg = -5, ghost = 3, wool = 0 / 0, meat = 4.9 }
 	local repaired = assert(codec.decode(corrupt, config, farmMath, now, uid), "corrupt goods must not reject the save")
 	assert(
 		farmMath.getGoodsAmount(repaired, "milk") == farmMath.getGoodsCap(repaired),
@@ -146,11 +146,52 @@ return function(codec: any, config: any, farmMath: any, rules: any)
 		farmMath.getGoodsAmount(repaired, "wool") == 0 and farmMath.getGoodsAmount(repaired, "meat") == 4,
 		"non-finite is dropped, fractions are floored"
 	)
-	corrupt.mainFarms["1"].goods = "x"
+	corrupt.goods = "x"
 	assert(
 		codec.decode(corrupt, config, farmMath, now, uid) == nil,
 		"a non-table barn fails closed, preserving the save"
 	)
+
+	-- Eski kayıt: depo çiftlik içindeydi; bütün çiftliklerin depoları hesap deposunda toplanır
+	local legacy = codec.encode(stored, now)
+	legacy.goods = nil
+	legacy.mainFarms["1"].goods = { milk = 5 }
+	legacy.mainFarms["2"] = table.clone(legacy.mainFarms["1"])
+	legacy.mainFarms["2"].goods = { milk = 9, egg = 4 }
+	local folded = assert(codec.decode(legacy, config, farmMath, now, uid), "a legacy per-farm barn folds in")
+	assert(
+		farmMath.getGoodsAmount(folded, "milk") == 14 and farmMath.getGoodsAmount(folded, "egg") == 4,
+		"legacy per-farm goods are summed into the shared barn"
+	)
+
+	-- ------------------------------------------------------------------ ortak depo limiti
+	local shared = newSave()
+	local oneBarn = farmMath.getGoodsCap(shared)
+	assert(oneBarn == config.BARN_LEVELS[shared.barnLevel].goodsCap, "one barn gives its own cap")
+	shared.mainFarms["2"] = codec.newFarm(config, farmMath, now, uid, "2")
+	shared.mainFarms["2"].barnLevel = 1
+	assert(
+		farmMath.getGoodsCap(shared) == oneBarn + config.BARN_LEVELS[1].goodsCap,
+		"a second farm adds its barn to the shared cap"
+	)
+	shared.mainFarms["2"].barnLevel = 3
+	assert(
+		farmMath.getGoodsCap(shared) == oneBarn + config.BARN_LEVELS[3].goodsCap,
+		"upgrading another farm's barn raises the total"
+	)
+	shared.barnLevel = 2
+	assert(
+		farmMath.getGoodsCap(shared) == config.BARN_LEVELS[2].goodsCap + config.BARN_LEVELS[3].goodsCap,
+		"the active farm's live level counts too"
+	)
+	local total = farmMath.getGoodsCap(shared)
+	assert(farmMath.addGoods(shared, "milk", total + 100) == total, "the shared barn holds the summed total per good")
+	-- Ürün merkezi yalnızca başka çiftlikte kuruluysa da sipariş için ürün sayılır
+	shared.purchased.milk_center = nil
+	shared.mainFarms["2"].purchased.egg_center = true
+	shared.mainFarms["2"].unlockedIslands.poultry = true
+	local sources = farmMath.getContractGoods(shared)
+	assert(table.find(sources, "egg") ~= nil, "a goods center on any farm makes the good orderable")
 
 	-- ------------------------------------------------------------------ verim
 	local yieldSave = newSave()

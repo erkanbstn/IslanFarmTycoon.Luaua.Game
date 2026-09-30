@@ -10,9 +10,37 @@ type PlayerSave = GameTypes.PlayerSave
 
 local Goods = {}
 
--- Her ürün türünden depoda tutulabilecek en fazla miktar (ahır seviyesine göre)
+-- Ahır deposu HESAP düzeyindedir (tüm çiftliklerde ortak). Her ürün türünden tutulabilecek en fazla miktar,
+-- sahip olunan bütün çiftliklerin ahır limitlerinin TOPLAMIDIR (bir ahırı yükseltmek toplamı büyütür).
+-- save: kök kayıt (mainFarms içerir); etkin çiftliğin seviyesi save.barnLevel'dan, diğerleri kayıtlarından okunur.
+-- mainFarms yoksa (tek çiftlikli yalın kayıt) yalnızca kendi ahırı sayılır.
 function Goods.getGoodsCap(save: PlayerSave): number
-	return Core.getBarnConfig(save).goodsCap
+	local farms = (save :: any).mainFarms
+	if not farms then
+		return Core.getBarnConfig(save).goodsCap
+	end
+	local liveId = (save :: any).farmId or save.activeMainFarmId
+	local total = 0
+	for id, farm in farms do
+		local level = if id == liveId then save.barnLevel else farm.barnLevel
+		local barn = Config.getBarnLevelConfig(level) or Config.BARN_LEVELS[1]
+		total += barn.goodsCap
+	end
+	return math.max(total, Core.getBarnConfig(save).goodsCap)
+end
+
+-- Sahip olunan her çiftlik için visit(çiftlik) çağırır: etkin çiftlik için kök kayıt, diğerleri için kayıtları.
+-- mainFarms yoksa yalnızca kendisi.
+function Goods.forEachFarm(save: PlayerSave, visit: (farm: any) -> ())
+	local farms = (save :: any).mainFarms
+	if not farms then
+		visit(save)
+		return
+	end
+	local liveId = (save :: any).farmId or save.activeMainFarmId
+	for id, farm in farms do
+		visit(if id == liveId then save else farm)
+	end
 end
 
 function Goods.getGoodsAmount(save: PlayerSave, goodId: string): number

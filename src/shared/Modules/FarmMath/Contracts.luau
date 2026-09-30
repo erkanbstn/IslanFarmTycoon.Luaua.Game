@@ -32,19 +32,21 @@ function Contracts.secondsLeft(now: number): number
 	return Config.GOODS_CONTRACTS.seconds - now % Config.GOODS_CONTRACTS.seconds
 end
 
--- Çiftliğin üretebildiği ürünler: ürün merkezi kurulu ve adası açık olanlar (GOODS_ORDER sırasıyla)
+-- Hesabın üretebildiği ürünler: HERHANGİ bir çiftlikte ürün merkezi kurulu ve adası açık olanlar (GOODS_ORDER sırasıyla)
 function Contracts.availableGoods(save: PlayerSave): { string }
 	local built: { [string]: boolean } = {}
-	for _, recipe in Config.PRODUCTION_RECIPES do
-		if
-			recipe.output == "goods"
-			and recipe.goodsId
-			and save.purchased[recipe.upgradeId]
-			and save.unlockedIslands[recipe.island]
-		then
-			built[recipe.goodsId] = true
+	Goods.forEachFarm(save, function(farm: any)
+		for _, recipe in Config.PRODUCTION_RECIPES do
+			if
+				recipe.output == "goods"
+				and recipe.goodsId
+				and farm.purchased[recipe.upgradeId]
+				and farm.unlockedIslands[recipe.island]
+			then
+				built[recipe.goodsId] = true
+			end
 		end
-	end
+	end)
 	local result: { string } = {}
 	for _, goodsId in Config.GOODS_ORDER do
 		if built[goodsId] then

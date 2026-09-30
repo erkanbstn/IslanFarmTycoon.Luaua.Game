@@ -123,9 +123,7 @@ return function(codec: any, config: any, farmMath: any)
 	assert(reloaded.contracts.window == save.contracts.window, "the window survives")
 	local function withContracts(value: any): any
 		local copy = table.clone(snap)
-		copy.mainFarms = table.clone(snap.mainFarms)
-		copy.mainFarms["1"] = table.clone(snap.mainFarms["1"])
-		copy.mainFarms["1"].contracts = value
+		copy.contracts = value
 		return copy
 	end
 	assert(codec.decode(withContracts("broken"), config, farmMath, later, uid) == nil, "a broken record fails closed")

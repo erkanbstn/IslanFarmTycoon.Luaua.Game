@@ -83,6 +83,7 @@ FarmMath.getGrowthSpeed = Production.getGrowthSpeed
 FarmMath.countProductionAdults = Production.countProductionAdults
 FarmMath.pickProductionAnimals = Production.pickProductionAnimals
 FarmMath.getGoodsYield = Production.getGoodsYield
+FarmMath.forEachFarm = Goods.forEachFarm
 FarmMath.resolveRecipe = Recipes.resolve
 -- Ahır siparişleri
 FarmMath.getContractWindow = Contracts.window

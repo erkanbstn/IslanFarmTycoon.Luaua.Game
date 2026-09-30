@@ -42,6 +42,54 @@ local function decodeTask(value: any, config: any): any?
 	return { kind = kind, id = id, startedAt = startedAt, endsAt = endsAt }
 end
 
+-- Ahır deposu ve ahır siparişleri hesap düzeyindedir. Eski kayıtlarda çiftlik içinde durur (decodeFarm bunları okur,
+-- üst düzey decode hepsini toplar). Ortak ayrıştırıcılar: bozuk girdi atılır, sayılar sıkıştırılır.
+local function parseGoods(raw: any, config: any, cap: number): ({ [string]: number }?, number)
+	if typeof(raw) ~= "table" then
+		return nil, 0
+	end
+	local goods: { [string]: number } = {}
+	local repairs = 0
+	for goodId, count in raw do
+		if typeof(goodId) == "string" and config.GOODS[goodId] and SessionLock.isFinite(count) then
+			local clamped = math.clamp(math.floor(count), 0, cap)
+			if clamped > 0 then
+				goods[goodId] = clamped
+			end
+			if clamped ~= count then
+				repairs += 1
+			end
+		else
+			repairs += 1
+		end
+	end
+	return goods, repairs
+end
+
+local function parseContracts(raw: any, config: any): (any?, number)
+	if typeof(raw) ~= "table" or typeof(raw.done) ~= "table" then
+		return nil, 0
+	end
+	local contracts = { window = 0, done = {}, completed = 0 }
+	local repairs = 0
+	if SessionLock.isFinite(raw.window) then
+		contracts.window = math.clamp(math.floor(raw.window), 0, 1e9)
+	end
+	if SessionLock.isFinite(raw.completed) then
+		contracts.completed = math.clamp(math.floor(raw.completed), 0, 1e9)
+	end
+	local kept = 0
+	for key, flag in raw.done do
+		if typeof(key) == "string" and #key <= 24 and flag == true and kept < #config.GOODS_CONTRACTS.tiers then
+			kept += 1
+			contracts.done[key] = true
+		else
+			repairs += 1
+		end
+	end
+	return contracts, repairs
+end
+
 local function decodeFarm(
 	raw: unknown,
 	config: any,
@@ -114,49 +162,24 @@ local function decodeFarm(
 		end
 	end
 	farmMath.applyDerived(save)
-	-- Ahır siparişleri (isteğe bağlı): pencere/teslim anahtarları ve sayaç sıkıştırılır, bozuk girdi atılır
+	-- Ahır siparişleri ve deposu (isteğe bağlı; yeni kayıtlarda hesap düzeyinde, eski kayıtlarda çiftlik içinde)
 	save.contracts = { window = 0, done = {}, completed = 0 }
 	if source.contracts ~= nil then
-		local record = source.contracts
-		if typeof(record) ~= "table" or typeof(record.done) ~= "table" then
+		local parsed, fixed = parseContracts(source.contracts, config)
+		if not parsed then
 			return nil, 0, "Ahır siparişi kaydı bozuk; orijinal kayıt korunuyor"
 		end
-		if SessionLock.isFinite(record.window) then
-			save.contracts.window = math.clamp(math.floor(record.window), 0, 1e9)
-		end
-		if SessionLock.isFinite(record.completed) then
-			save.contracts.completed = math.clamp(math.floor(record.completed), 0, 1e9)
-		end
-		local kept = 0
-		for key, flag in record.done do
-			if typeof(key) == "string" and #key <= 24 and flag == true and kept < #config.GOODS_CONTRACTS.tiers then
-				kept += 1
-				save.contracts.done[key] = true
-			else
-				repairs += 1
-			end
-		end
+		save.contracts = parsed
+		repairs += fixed
 	end
-	-- Ahır deposu (isteğe bağlı): tanınmayan ürün atılır, miktar 1..ahır kapasitesine sıkıştırılır
 	save.goods = {}
 	if source.goods ~= nil then
-		if typeof(source.goods) ~= "table" then
+		local parsed, fixed = parseGoods(source.goods, config, farmMath.getGoodsCap(save))
+		if not parsed then
 			return nil, 0, "Ahır deposu kaydı bozuk; orijinal kayıt korunuyor"
 		end
-		local cap = farmMath.getGoodsCap(save)
-		for goodId, count in source.goods do
-			if typeof(goodId) == "string" and config.GOODS[goodId] and SessionLock.isFinite(count) then
-				local clamped = math.clamp(math.floor(count), 0, cap)
-				if clamped > 0 then
-					save.goods[goodId] = clamped
-				end
-				if clamped ~= count then
-					repairs += 1
-				end
-			else
-				repairs += 1
-			end
-		end
+		save.goods = parsed
+		repairs += fixed
 	end
 	if source.production ~= nil then
 		if typeof(source.production) ~= "table" then
@@ -399,18 +422,6 @@ local function encodeFarm(save: any, now: number): { [string]: any }
 			lineage[animalId] = level
 		end
 	end
-	local goods = {}
-	for goodId, count in save.goods or {} do
-		if count > 0 then
-			goods[goodId] = count
-		end
-	end
-	local contractsDone = {}
-	for key, flag in if save.contracts then save.contracts.done else {} do
-		if flag then
-			contractsDone[key] = true
-		end
-	end
 	local production = {}
 	for recipeId, job in save.production or {} do
 		production[recipeId] = {
@@ -425,10 +436,6 @@ local function encodeFarm(save: any, now: number): { [string]: any }
 		version = 3,
 		production = production,
 		lineage = lineage,
-		goods = goods,
-		contracts = if save.contracts
-			then { window = save.contracts.window, done = contractsDone, completed = save.contracts.completed }
-			else nil,
 		expansions = expansions,
 		cash = amount(save.cash, 0),
 		stored = amount(save.stored, 0),
@@ -471,6 +478,9 @@ function SaveCodec.decode(
 	end
 	local farms = {}
 	local count, earnedTotal, repairTotal, refundedTotal, grownTotal = 0, 0, 0, 0, 0
+	-- Eski kayıtlarda depo ve sipariş çiftlik içindeydi: hepsi toplanıp hesap düzeyine taşınır
+	local legacyGoods: { [string]: number } = {}
+	local legacyContracts: any = nil
 	for id, rawFarm in source.mainFarms do
 		count += 1
 		local numberId = if typeof(id) == "string" then tonumber(id) else nil
@@ -492,6 +502,12 @@ function SaveCodec.decode(
 		if not farm then
 			return nil, 0, err
 		end
+		for goodId, amountStored in farm.goods or {} do
+			legacyGoods[goodId] = (legacyGoods[goodId] or 0) + amountStored
+		end
+		if id == source.activeMainFarmId then
+			legacyContracts = farm.contracts
+		end
 		farms[id] = FarmProfiles.extract(farm)
 		refundedTotal += farm.cash
 		earnedTotal += earned
@@ -505,6 +521,34 @@ function SaveCodec.decode(
 	data.cash = math.min(1e15, amount(source.cash, config.getStartingCash(source.activeMainFarmId)) + refundedTotal)
 	data.mainFarms = farms
 	data.activeMainFarmId = source.activeMainFarmId
+	-- Ortak ahır deposu (limit: tüm ahırların toplamı) ve ahır siparişleri
+	local accountGoods: { [string]: number }
+	if source.goods ~= nil then
+		local parsed, fixed = parseGoods(source.goods, config, 1e9)
+		if not parsed then
+			return nil, 0, "Ahır deposu kaydı bozuk; orijinal kayıt korunuyor"
+		end
+		accountGoods = parsed
+		repairTotal += fixed
+	else
+		accountGoods = legacyGoods
+	end
+	local goodsCap = farmMath.getGoodsCap(data)
+	for goodId, stored in accountGoods do
+		accountGoods[goodId] = math.min(stored, goodsCap)
+	end
+	data.goods = accountGoods
+	data.contracts = { window = 0, done = {}, completed = 0 }
+	if source.contracts ~= nil then
+		local parsed, fixed = parseContracts(source.contracts, config)
+		if not parsed then
+			return nil, 0, "Ahır siparişi kaydı bozuk; orijinal kayıt korunuyor"
+		end
+		data.contracts = parsed
+		repairTotal += fixed
+	elseif legacyContracts then
+		data.contracts = legacyContracts
+	end
 	-- Arayüz dili: yalnızca Config.LANGUAGES'taki kodlar kabul edilir; bilinmeyen değer yok sayılır.
 	if typeof(source.language) == "string" and config.LANGUAGES and config.LANGUAGES[source.language] then
 		data.language = source.language
@@ -639,6 +683,29 @@ function SaveCodec.decode(
 	return data, earnedTotal, nil, repairTotal, grownTotal
 end
 
+local function encodeGoods(goods: any): { [string]: number }
+	local result = {}
+	for goodId, count in if goods then goods else {} do
+		if count > 0 then
+			result[goodId] = count
+		end
+	end
+	return result
+end
+
+local function encodeContracts(contracts: any): any
+	if not contracts then
+		return nil
+	end
+	local done = {}
+	for key, flag in contracts.done do
+		if flag then
+			done[key] = true
+		end
+	end
+	return { window = contracts.window, done = done, completed = contracts.completed }
+end
+
 local function encodeInventory(inventory: any): { [string]: any }
 	local items = {}
 	for id, owned in if inventory and inventory.items then inventory.items else {} do
@@ -675,6 +742,8 @@ function SaveCodec.encode(save: any, now: number): { [string]: any }
 		merchant = save.merchant,
 		golden = save.golden,
 		inventory = encodeInventory(save.inventory),
+		goods = encodeGoods(save.goods),
+		contracts = encodeContracts(save.contracts),
 		receipts = save.receipts,
 		lastSeen = now,
 	}
