@@ -158,6 +158,15 @@ return function(lock: any, codec: any, config: any, farmMath: any)
 		assert(codec.decode(seasonalRaw, config, farmMath, now, uid)).seasonal == nil,
 		"corrupt season goals are dropped"
 	)
+	-- Gezgin tüccar: geçerli işaret korunur, bozuk kayıt atılır
+	local merchantRaw = codec.encode(save, now)
+	assert(merchantRaw.merchant == nil, "new accounts have no merchant marker")
+	merchantRaw.merchant = { key = 42, bought = true }
+	local withMerchant = assert(codec.decode(merchantRaw, config, farmMath, now, uid))
+	assert(withMerchant.merchant.key == 42 and withMerchant.merchant.bought == true, "merchant marker must load")
+	assert(codec.encode(withMerchant, now).merchant.key == 42, "merchant marker must survive saves")
+	merchantRaw.merchant = { key = -5, bought = "yes" }
+	assert(assert(codec.decode(merchantRaw, config, farmMath, now, uid)).merchant == nil, "corrupt marker is dropped")
 	-- Hesap düzeyi ilerleme: ömür boyu kazanç, günlük ödül serisi, alınmış başarımlar
 	local accountRaw = codec.encode(save, now)
 	assert(

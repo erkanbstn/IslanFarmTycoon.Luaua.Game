@@ -39,6 +39,7 @@ export type PlayerSave = {
 	lifetimeEarned: number?, -- Ömür boyu kazanç (başarımlar için)
 	daily: { day: number, streak: number }?, -- Günlük ödül: son alınan gün (UTC gün numarası) ve seri
 	achievements: { [string]: boolean }?, -- Ödülü alınmış başarımlar
+	merchant: { key: number, bought: boolean }?, -- Gezgin tüccar: son teklifin döngü numarası ve alınıp alınmadığı
 	seasonal: SeasonalGoal?, -- Şu anki mevsim hedefi (hesap düzeyi; key = mevsim numarası)
 	language: string?, -- Seçilen arayüz dili (Config.LANGUAGES kodu); nil = Roblox dilinden algıla
 	mainFarmOffers: { { id: string, name: string, icon: string, ownerUserId: number? } }?,

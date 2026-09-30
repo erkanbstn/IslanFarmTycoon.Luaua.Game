@@ -18,6 +18,7 @@ export type EventName =
 	| "RequestUpgradeLineage"
 	| "RequestExpandZone"
 	| "RequestClaimSeasonal"
+	| "RequestBuyMerchantOffer"
 	| "RequestBuyAnimal"
 	| "RequestReplaceFish"
 	| "PurchaseResult"
@@ -55,6 +56,7 @@ local EVENTS = {
 	"RequestUpgradeLineage", -- Client -> Sunucu ırk geliştirme (animalId, requestId, expectedFarmId)
 	"RequestExpandZone", -- Client -> Sunucu alan genişletme (zoneId, requestId, expectedFarmId)
 	"RequestClaimSeasonal", -- Client -> Sunucu mevsim hedefi ödülünü al (_, requestId)
+	"RequestBuyMerchantOffer", -- Client -> Sunucu gezgin tüccarın teklifini al (_, requestId, expectedFarmId)
 	"RequestBuyAnimal", -- Client -> Sunucu hayvan satın alma (animalId)
 	"RequestReplaceFish", -- Client -> Sunucu hamsiyi levrekle değiştir (uid, requestId)
 	"PurchaseResult", -- Sunucu -> Client (requestId, success, message?)

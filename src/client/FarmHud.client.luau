@@ -16,6 +16,7 @@ local GameTypes = require(Shared:WaitForChild("GameTypes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 local ClientState = require(script.Parent:WaitForChild("ClientState"))
 local Environment = require(Shared:WaitForChild("Modules"):WaitForChild("Environment"))
+local Merchant = require(Shared:WaitForChild("Modules"):WaitForChild("Merchant"))
 local UiKit = require(script.Parent:WaitForChild("UiKit"))
 local PurchaseController = require(script.Parent:WaitForChild("PurchaseController"))
 local SettingsMenu = require(script.Parent:WaitForChild("SettingsMenu"))
@@ -464,9 +465,23 @@ local function updateProductionBadge(state: PlayerSave?)
 	setProductionBadge(ready)
 end
 
+-- Gezgin tüccar geldiğinde bir kez haber ver (teklif Pazar penceresinde)
+local lastMerchantCycle = -1
+local function merchantNotice(state: PlayerSave?)
+	if not state then
+		return
+	end
+	local offer = Merchant.offer(state, localPlayer.UserId, Workspace:GetServerTimeNow())
+	if offer and offer.cycle ~= lastMerchantCycle then
+		lastMerchantCycle = offer.cycle
+		showToast("Gezgin tüccar meydana geldi: Pazar'da indirimli hayvanlar var!", "info")
+	end
+end
+
 task.spawn(function()
 	while true do
 		seasonBar.update()
+		merchantNotice(ClientState.get())
 		updateProductionBadge(ClientState.get())
 		updateRewards(ClientState.get())
 		updateBoard(ClientState.get())

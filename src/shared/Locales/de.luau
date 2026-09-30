@@ -600,4 +600,11 @@ return {
 	["Mevsim hedefi henüz tamamlanmadı"] = "Das Saisonziel ist noch nicht erreicht",
 	["Bu mevsimin hedefi henüz hazır değil"] = "Das Ziel dieser Saison ist noch nicht bereit",
 	["Sv.{}"] = "Stufe {1}",
+	["Gezgin tüccar"] = "Fahrender Händler",
+	["x{}"] = "x{1}",
+	["%{} indirim"] = "{1} % Rabatt",
+	["Normal fiyat: {}"] = "Normalpreis: {1}",
+	["Gezgin tüccar meydana geldi: Pazar'da indirimli hayvanlar var!"] = "Der fahrende Händler ist da: Reduzierte Tiere auf dem Markt!",
+	["Gezgin tüccar şu an teklif sunmuyor"] = "Der fahrende Händler hat gerade kein Angebot",
+	["Gezgin tüccardan indirimli hayvanlar geldi!"] = "Reduzierte Tiere vom fahrenden Händler sind angekommen!",
 }

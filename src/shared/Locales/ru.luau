@@ -600,4 +600,11 @@ return {
 	["Mevsim hedefi henüz tamamlanmadı"] = "Цель сезона ещё не выполнена",
 	["Bu mevsimin hedefi henüz hazır değil"] = "Цель этого сезона ещё не готова",
 	["Sv.{}"] = "Ур.{1}",
+	["Gezgin tüccar"] = "Странствующий торговец",
+	["x{}"] = "x{1}",
+	["%{} indirim"] = "Скидка {1}%",
+	["Normal fiyat: {}"] = "Обычная цена: {1}",
+	["Gezgin tüccar meydana geldi: Pazar'da indirimli hayvanlar var!"] = "Странствующий торговец прибыл: на рынке животные со скидкой!",
+	["Gezgin tüccar şu an teklif sunmuyor"] = "У странствующего торговца сейчас нет предложений",
+	["Gezgin tüccardan indirimli hayvanlar geldi!"] = "Животные со скидкой от странствующего торговца прибыли!",
 }

@@ -368,6 +368,17 @@ local Config = {
 	DAILY_MINUTES = 10,
 	DAILY_MIN_REWARD = 250,
 
+	-- Gezgin tüccar (rastgele olay): her oyuncuya ayrı ve sunucu saatinden türeyen ziyaret pencereleri.
+	-- Her cycleSeconds içinde chance olasılıkla, rastgele bir başlangıçla visitSeconds süren bir ziyaret olur;
+	-- ziyarette satın alınabilen hayvanlardan pahalı yarısından biri, en fazla stock adet, discount indirimle sunulur.
+	MERCHANT = {
+		cycleSeconds = 900,
+		visitSeconds = 240,
+		chance = 0.7,
+		discount = 0.3,
+		stock = 3,
+	},
+
 	-- Mevsim hedefi: her mevsimde (SEASON_SECONDS) tek bir hedef; mevsim dönünce yenisi gelir, alınmamışsa kaybolur.
 	-- metric "earned": mevsim başından beri kazanılan para (hedef = gelir x mevsim süresi x factor, en az minTarget).
 	-- metric "invest": başarılı yatırım sayısı (hayvan, yükseltme, ırk veya alan genişletme; hedef = target).

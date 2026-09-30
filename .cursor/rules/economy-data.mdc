@@ -68,3 +68,9 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
   (kazanç = `lifetimeEarned - base` canlı; yatırım sayacı sunucu kancalarıyla `Rewards.recordInvest`: hayvan alma, yükseltme, ırk, alan genişletme).
   Sunucu: `EngagementService` her 5 sn hedefi hazırlar ve ilerleme değişince durum iter; ödül `RequestClaimSeasonal` (işaret önce yazılır).
   Yeni bir yatırım türü eklersen `Rewards.recordInvest` çağır; yeni metrik eklersen `Rewards.seasonalProgress` ve istemci metnini güncelle.
+- **Gezgin tüccar** (rastgele olay): `Config.MERCHANT` (cycleSeconds, visitSeconds, chance, discount, stock). Saf `Merchant.visit/offer` (paylaşılan):
+  ziyaret zamanı ve teklif **oyuncu kimliği + döngü numarasından** türer, kayıt gerekmez; yalnızca alınan teklifin döngüsü hesap alanı
+  `merchant {key, bought}` ile tutulur (aynı ziyarette tekrar alınamasın, yeniden girişle aşılmasın). Teklif: satın alınabilen hayvanların pahalı
+  yarısından biri, en fazla `stock` adet, `discount` indirimli. Sunucu `AnimalService.tryBuyMerchantOffer` teklifi yeniden hesaplar
+  (`RequestBuyMerchantOffer`; fiyat/adet client'tan gelmez). Arayüz: Pazar penceresinin üstünde teklif kartı + geldiğinde bildirim (FarmHud).
+  Yeni bir olay türü eklersen aynı kalıbı kullan: saf zaman/teklif mantığı + yalnızca gerekli işareti kaydet.

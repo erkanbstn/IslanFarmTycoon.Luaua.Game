@@ -441,6 +441,18 @@ function SaveCodec.decode(
 			claimed = seasonal.claimed,
 		}
 	end
+	-- Gezgin tüccar (isteğe bağlı): yalnızca geçerli döngü numarası ve alındı işareti kabul edilir
+	local merchant = source.merchant
+	if
+		typeof(merchant) == "table"
+		and SessionLock.isFinite(merchant.key)
+		and merchant.key >= 0
+		and merchant.key <= 1e9
+		and merchant.key % 1 == 0
+		and typeof(merchant.bought) == "boolean"
+	then
+		data.merchant = { key = merchant.key, bought = merchant.bought }
+	end
 	local achievements: { [string]: boolean } = {}
 	if typeof(source.achievements) == "table" then
 		for _, achievement in config.ACHIEVEMENTS do
@@ -480,6 +492,7 @@ function SaveCodec.encode(save: any, now: number): { [string]: any }
 		daily = save.daily,
 		achievements = save.achievements,
 		seasonal = save.seasonal,
+		merchant = save.merchant,
 		receipts = save.receipts,
 		lastSeen = now,
 	}
