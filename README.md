@@ -257,8 +257,7 @@ AI araçları için kurallar: `AGENTS.md`
 
 ## Doğrulama ve geliştirme durumu
 
-`docs/PROJE_INCELEME_VE_GELISTIRME_PLANI.md` ilk incelemeyi,
-`docs/DUZELTME_DURUMU.md` uygulanan düzeltmeleri ve kalan kabul kontrollerini içerir.
+Kod mimarisi ve klasör kuralları: [docs/MIMARI.md](docs/MIMARI.md). Eski inceleme ve düzeltme kayıtları git geçmişindedir.
 
 PowerShell'de tam yerel kontrol:
 
