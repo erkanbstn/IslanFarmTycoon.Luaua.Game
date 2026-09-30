@@ -42,6 +42,7 @@
  "src/server/World/HubBuilder.luau|Unknown require: unsupported path": 48,
  "src/server/World/HubNpcs.luau|Unknown require: unsupported path": 17,
  "src/server/World/IslandBuilder.luau|Unknown require: unsupported path": 48,
+ "src/server/World/IslandSiteParts.luau|Unknown require: unsupported path": 22,
  "src/server/World/IslandSpecialization.luau|Unknown require: unsupported path": 20,
  "src/server/World/MapBuilder.luau|Unknown require: unsupported path": 15,
  "src/server/World/MapLayout.luau|Unknown require: unsupported path": 20,
