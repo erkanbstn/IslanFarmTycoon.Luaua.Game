@@ -368,6 +368,19 @@ local Config = {
 	DAILY_MINUTES = 10,
 	DAILY_MIN_REWARD = 250,
 
+	-- Mevsim hedefi: her mevsimde (SEASON_SECONDS) tek bir hedef; mevsim dönünce yenisi gelir, alınmamışsa kaybolur.
+	-- metric "earned": mevsim başından beri kazanılan para (hedef = gelir x mevsim süresi x factor, en az minTarget).
+	-- metric "invest": başarılı yatırım sayısı (hayvan, yükseltme, ırk veya alan genişletme; hedef = target).
+	-- Ödül alınırken gelirin SEASONAL_REWARD_SECONDS saniyelik karşılığıdır (en az SEASONAL_MIN_REWARD).
+	SEASONAL_GOALS = {
+		spring = { metric = "earned", factor = 0.35, minTarget = 300 },
+		summer = { metric = "invest", target = 4 },
+		autumn = { metric = "earned", factor = 0.5, minTarget = 500 },
+		winter = { metric = "invest", target = 6 },
+	} :: { [string]: { metric: string, factor: number?, minTarget: number?, target: number? } },
+	SEASONAL_REWARD_SECONDS = 120,
+	SEASONAL_MIN_REWARD = 150,
+
 	-- Başarımlar: her birinin tek seferlik para ödülü var. metric hesabı Rewards.progress içindedir.
 	ACHIEVEMENTS = {
 		{

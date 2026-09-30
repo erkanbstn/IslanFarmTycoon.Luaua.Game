@@ -94,6 +94,36 @@ function EngagementService.tryClaimAchievement(player: Player, achievementId: un
 	return true, `Başarım tamamlandı: +{FarmMath.formatMoney(found.reward)}`
 end
 
+function EngagementService.tryClaimSeasonal(player: Player): (boolean, string?)
+	if not RateLimiter.allow(player, "claimSeasonal", 1) then
+		return false, nil
+	end
+	local data = ready(player)
+	if not data then
+		return false, "Çiftliğin henüz hazır değil"
+	end
+	local now = nowSeconds()
+	local goal, stored = Rewards.seasonalGoal(data, now)
+	if not stored then
+		return false, "Bu mevsimin hedefi henüz hazır değil"
+	end
+	if goal.claimed then
+		return false, "Mevsim hedefinin ödülü zaten alındı"
+	end
+	if Rewards.seasonalProgress(data, goal) < goal.target then
+		return false, "Mevsim hedefi henüz tamamlanmadı"
+	end
+	EconomyService.settlePlayer(player)
+	local amount = Rewards.seasonalReward(data)
+	-- İşaret önce yazılır; tekrarlanan ya da gecikmiş istek ikinci ödülü alamaz.
+	goal.claimed = true
+	PlayerDataService.addCash(player, amount)
+	PlayerDataService.pushState(player)
+	PlayerDataService.requestSave(player)
+	Metrics.increment("SeasonalGoalsClaimed")
+	return true, `Mevsim hedefi tamamlandı: +{FarmMath.formatMoney(amount)}`
+end
+
 local function respond(player: Player, requestId: unknown, ok: boolean, message: string?)
 	if not ok and message == nil then
 		if typeof(requestId) ~= "number" or not RateLimiter.allow(player, "purchaseThrottleReply", 0.5) then
@@ -110,7 +140,51 @@ local function respond(player: Player, requestId: unknown, ok: boolean, message:
 	end
 end
 
+-- Mevsim hedefini her oyuncu için hazır tut ve ilerleme değiştikçe (en fazla birkaç sn'de bir) client'a bildir:
+-- kazanç ilerlemesi sunucuda birikir, client yalnızca yapısal durum paketlerinde yeni değeri görür.
+local SEASONAL_REFRESH_SECONDS = 5
+
+local function refreshSeasonal(player: Player, lastSent: { [Player]: string })
+	local data = ready(player)
+	if not data then
+		return
+	end
+	local now = nowSeconds()
+	local created = Rewards.ensureSeasonal(data, now)
+	local goal = data.seasonal
+	local signature = if goal
+		then `{goal.key}|{goal.claimed}|{math.floor(Rewards.seasonalProgress(data, goal))}`
+		else ""
+	if created or lastSent[player] ~= signature then
+		lastSent[player] = signature
+		PlayerDataService.pushState(player)
+	end
+end
+
 function EngagementService.init()
+	local lastSent: { [Player]: string } = {}
+	game:GetService("Players").PlayerRemoving:Connect(function(player: Player)
+		lastSent[player] = nil
+	end)
+	task.spawn(function()
+		while true do
+			task.wait(SEASONAL_REFRESH_SECONDS)
+			for _, player in game:GetService("Players"):GetPlayers() do
+				local ok, err = pcall(refreshSeasonal, player, lastSent)
+				if not ok then
+					warn(`[Engagement] Mevsim hedefi güncellenemedi: {err}`)
+				end
+			end
+		end
+	end)
+	Remotes.get("RequestClaimSeasonal").OnServerEvent
+		:Connect(function(player: Player, _value: unknown, requestId: unknown)
+			if not RateLimiter.acceptRequest(player, requestId) then
+				return
+			end
+			local ok, message = EngagementService.tryClaimSeasonal(player)
+			respond(player, requestId, ok, message)
+		end)
 	Remotes.get("RequestClaimDaily").OnServerEvent:Connect(function(player: Player, _value: unknown, requestId: unknown)
 		if not RateLimiter.acceptRequest(player, requestId) then
 			return

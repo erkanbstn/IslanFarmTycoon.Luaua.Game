@@ -7,6 +7,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
+local Rewards = require(Shared:WaitForChild("Modules"):WaitForChild("Rewards"))
 
 local PlayerDataService = require(script.Parent:WaitForChild("PlayerDataService"))
 local PlotService = require(script.Parent:WaitForChild("PlotService"))
@@ -57,6 +58,7 @@ function UpgradeService.tryBuy(player: Player, upgradeId: unknown): (boolean, st
 	data.purchased[upgrade.id] = true
 	FarmMath.applyDerived(data)
 	FarmMath.preserveGrowthProgress(data, previousSpeeds, DateTime.now().UnixTimestampMillis / 1000)
+	Rewards.recordInvest(data, DateTime.now().UnixTimestamp)
 	PlayerDataService.pushState(player)
 	PlayerDataService.requestSave(player)
 	Metrics.increment("UpgradesPurchased")
@@ -89,6 +91,7 @@ function UpgradeService.tryUpgradeLineage(player: Player, animalId: unknown): (b
 	local lineage = data.lineage or {}
 	data.lineage = lineage
 	lineage[animalId] = FarmMath.getLineageLevel(data, animalId) + 1
+	Rewards.recordInvest(data, DateTime.now().UnixTimestamp)
 	PlayerDataService.pushState(player)
 	PlayerDataService.requestSave(player)
 	Metrics.increment("LineageUpgraded")
@@ -154,6 +157,7 @@ function UpgradeService.tryExpandZone(player: Player, zoneId: unknown): (boolean
 	local expansions = data.expansions or {}
 	data.expansions = expansions
 	expansions[zoneId] = FarmMath.getExpansionLevel(data, zoneId) + 1
+	Rewards.recordInvest(data, DateTime.now().UnixTimestamp)
 	PlayerDataService.pushState(player)
 	PlayerDataService.requestSave(player)
 	Metrics.increment("ZoneExpanded")

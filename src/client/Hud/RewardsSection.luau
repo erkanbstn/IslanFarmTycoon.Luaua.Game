@@ -25,6 +25,45 @@ function RewardsSection.create(list: Instance, setGoalsBadge: (number) -> ()): (
 			PurchaseController.submit("RequestClaimDaily", "daily")
 		end
 	end)
+	-- Mevsim hedefi: her mevsimde yeni bir hedef; ilerleme ve kalan süre canlı gösterilir
+	local seasonalCard = UiKit.card(list, 19, "🌸")
+	seasonalCard.action.Activated:Connect(function()
+		if seasonalCard.action.Active then
+			PurchaseController.submit("RequestClaimSeasonal", "seasonal")
+		end
+	end)
+	local function updateSeasonal(state: PlayerSave, now: number)
+		local goal, stored = Rewards.seasonalGoal(state, now)
+		local def, season = Rewards.seasonalDef(goal.key)
+		local progress = Rewards.seasonalProgress(state, goal)
+		local left = math.max(0, (goal.key + 1) * Config.SEASON_SECONDS - now)
+		local progressText = if def.metric == "earned"
+			then `Kazan: {FarmMath.formatMoney(progress)}/{FarmMath.formatMoney(goal.target)}`
+			else `Yatırım yap: {math.floor(progress)}/{goal.target}`
+		seasonalCard.icon.Text = season.icon
+		seasonalCard.title.Text = `Mevsim hedefi · {season.eventName}`
+		seasonalCard.detail.Text =
+			`{progressText} · Ödül: {FarmMath.formatMoney(Rewards.seasonalReward(state))} · {string.format(
+				"%02d:%02d",
+				math.ceil(left) // 60,
+				math.ceil(left) % 60
+			)} kaldı`
+		local pending = PurchaseController.isPending()
+		if not stored then
+			seasonalCard.action.Text = "Hazırlanıyor"
+			UiKit.setVariant(seasonalCard.action, "disabled")
+		elseif goal.claimed then
+			seasonalCard.action.Text = "Alındı"
+			UiKit.setVariant(seasonalCard.action, "owned")
+		elseif progress >= goal.target then
+			seasonalCard.action.Text = "Ödülü al"
+			UiKit.setVariant(seasonalCard.action, if pending then "disabled" else "primary")
+		else
+			seasonalCard.action.Text = `{math.floor(progress)}/{goal.target}`
+			UiKit.setVariant(seasonalCard.action, "disabled")
+		end
+	end
+
 	local _, achievementsMeta = UiKit.sectionHeader(list, "Başarımlar", 21)
 	local achievementCards: { [string]: UiKit.Card } = {}
 	for index, achievement in Config.ACHIEVEMENTS do
@@ -40,8 +79,10 @@ function RewardsSection.create(list: Instance, setGoalsBadge: (number) -> ()): (
 
 	local rewardSignature = ""
 	local function updateRewards(state: PlayerSave)
-		local status = Rewards.dailyStatus(state.daily, Workspace:GetServerTimeNow())
-		local claimable = Rewards.claimableCount(state)
+		local now = Workspace:GetServerTimeNow()
+		updateSeasonal(state, now)
+		local status = Rewards.dailyStatus(state.daily, now)
+		local claimable = Rewards.claimableCount(state, now)
 		local parts: { string } = { tostring(status.canClaim), tostring(status.streak), tostring(claimable) }
 		local claimed = 0
 		for _, achievement in Config.ACHIEVEMENTS do

@@ -73,6 +73,8 @@ hatasından ayrıdır.
    maliyet her seviyede üstel büyür. Seviyeler çiftlik başınadır ve kayıtlıdır. Bu, yol haritası bittikten sonra da para harcama yoludur.
 4c. **Alan genişletme:** Yükseltmeler penceresinde, açık ve **dolu** bir bölgenin altında "Alan genişletme" kartı çıkar. Her seviye bölgenin kapasitesini artırır
    (en fazla 4 seviye); maliyet bölgedeki hayvanın fiyatına ve seviyeye bağlıdır. Seviyeler çiftlik başınadır ve kayıtlıdır.
+4d. **Mevsim hedefi:** Çiftliğim penceresinde her mevsim (15 dk) yeni bir hedef vardır: bahar ve sonbaharda para kazan, yaz ve kışta yatırım yap
+   (hayvan, yükseltme, ırk veya alan genişletme). Tamamlayınca ödülü al; mevsim değişince alınmamış hedef kaybolur. Ödül gelire göre ölçeklenir.
 5. **Yol Haritası:** Oyuncu sırayı kendi seçer; sadece ön koşulu olanlar kilitlidir.
 6. **Adalar:** Herhangi bir ada tabelasına ya da meydandaki "🧭 Adalar" tabelasına yaklaşıp **E** →
    meydana veya başka bir adaya ışınlan.

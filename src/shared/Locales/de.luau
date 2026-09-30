@@ -590,4 +590,13 @@ return {
 	["Önce bölgeyi hayvanla doldur"] = "Fülle den Bereich zuerst mit Tieren",
 	["Bölge henüz açık değil"] = "Dieser Bereich ist noch nicht freigeschaltet",
 	["Bilinmeyen bölge"] = "Unbekannter Bereich",
+	["Mevsim hedefi"] = "Saisonziel",
+	["Kazan: {}/{}"] = "Verdiene: {1}/{2}",
+	["Yatırım yap: {}/{}"] = "Investiere: {1}/{2}",
+	["Hazırlanıyor"] = "Wird vorbereitet",
+	["Sürüyor"] = "Läuft",
+	["Mevsim hedefi tamamlandı: +{}"] = "Saisonziel erreicht: +{1}",
+	["Mevsim hedefinin ödülü zaten alındı"] = "Die Belohnung des Saisonziels wurde bereits abgeholt",
+	["Mevsim hedefi henüz tamamlanmadı"] = "Das Saisonziel ist noch nicht erreicht",
+	["Bu mevsimin hedefi henüz hazır değil"] = "Das Ziel dieser Saison ist noch nicht bereit",
 }

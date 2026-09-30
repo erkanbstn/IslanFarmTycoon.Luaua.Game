@@ -61,3 +61,8 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
   (opsiyonel, `FarmProfiles.FIELDS`'te). Şart: bölge açık ve dolu (`getExpansionStatus`). Sunucu `UpgradeService.tryExpandZone`
   (`RequestExpandZone`); arayüz Yükseltmeler penceresindeki "Alan genişletme" kartları. Sim çıktısı `ALAN toplam Sv.N`.
   Tempo (ideal oyuncu): ilk ada ~9 dk, tüm yükseltmeler ~3,3 saat, tüm ırk seviyeleri ~11 saat; sayıları değiştirirsen `simulate-economy.py`'ı yeniden koştur.
+- **Mevsim hedefi**: `Config.SEASONAL_GOALS` (mevsim id -> `earned` veya `invest`), `SEASONAL_REWARD_SECONDS/MIN_REWARD`. Hesap düzeyi opsiyonel kayıt
+  alanı `seasonal {key, progress, target, base, claimed}` (key = `Rewards.seasonNumber`; bozuk kayıt sessizce atılır). Mantık saf `Rewards.seasonal*`
+  (kazanç = `lifetimeEarned - base` canlı; yatırım sayacı sunucu kancalarıyla `Rewards.recordInvest`: hayvan alma, yükseltme, ırk, alan genişletme).
+  Sunucu: `EngagementService` her 5 sn hedefi hazırlar ve ilerleme değişince durum iter; ödül `RequestClaimSeasonal` (işaret önce yazılır).
+  Yeni bir yatırım türü eklersen `Rewards.recordInvest` çağır; yeni metrik eklersen `Rewards.seasonalProgress` ve istemci metnini güncelle.

@@ -590,4 +590,13 @@ return {
 	["Önce bölgeyi hayvanla doldur"] = "Сначала заполни зону животными",
 	["Bölge henüz açık değil"] = "Эта зона ещё не открыта",
 	["Bilinmeyen bölge"] = "Неизвестная зона",
+	["Mevsim hedefi"] = "Цель сезона",
+	["Kazan: {}/{}"] = "Заработай: {1}/{2}",
+	["Yatırım yap: {}/{}"] = "Вложи: {1}/{2}",
+	["Hazırlanıyor"] = "Подготовка",
+	["Sürüyor"] = "В процессе",
+	["Mevsim hedefi tamamlandı: +{}"] = "Цель сезона выполнена: +{1}",
+	["Mevsim hedefinin ödülü zaten alındı"] = "Награда за цель сезона уже получена",
+	["Mevsim hedefi henüz tamamlanmadı"] = "Цель сезона ещё не выполнена",
+	["Bu mevsimin hedefi henüz hazır değil"] = "Цель этого сезона ещё не готова",
 }

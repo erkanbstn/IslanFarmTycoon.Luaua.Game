@@ -96,5 +96,60 @@ return function(Rewards: any, Config: any, FarmMath: any)
 	for _, entry in Config.ACHIEVEMENTS do
 		assert(entry.reward > 0 and entry.target > 0 and entry.id ~= "", "achievement config must be sane")
 	end
+	-- Mevsim hedefi: mevsim numarası/tanımı, canlı kazanç, yatırım sayacı, ödül ve yenilenme
+	do
+		local season = Config.SEASON_SECONDS
+		local springNow = 0 -- mevsim numarası 0 = Config.SEASONS[1]
+		assert(
+			Rewards.seasonNumber(springNow + 5) == 0 and Rewards.seasonNumber(season + 1) == 1,
+			"season numbers follow the clock"
+		)
+		assert(
+			Rewards.seasonalDef(0).metric == Config.SEASONAL_GOALS[Config.SEASONS[1].id].metric,
+			"definition follows the season"
+		)
+		local seasonal = save()
+		seasonal.lifetimeEarned = 1000
+		assert(not Rewards.seasonalClaimable(seasonal, springNow), "an unstored goal is never claimable")
+		assert(Rewards.ensureSeasonal(seasonal, springNow) and seasonal.seasonal.key == 0, "first call stores the goal")
+		assert(not Rewards.ensureSeasonal(seasonal, springNow + 10), "same season does not recreate the goal")
+		local goal = seasonal.seasonal
+		local def = Rewards.seasonalDef(0)
+		assert(goal.base == 1000 and goal.target >= (def.minTarget or 1), "earned goals remember the starting earnings")
+		assert(Rewards.seasonalProgress(seasonal, goal) == 0, "no progress before earning")
+		seasonal.lifetimeEarned = 1000 + goal.target / 2
+		assert(math.abs(Rewards.seasonalProgress(seasonal, goal) - goal.target / 2) < 1e-6, "earned progress is live")
+		seasonal.lifetimeEarned = 1000 + goal.target * 5
+		assert(Rewards.seasonalProgress(seasonal, goal) == goal.target, "progress never exceeds the target")
+		assert(Rewards.seasonalClaimable(seasonal, springNow), "a completed stored goal is claimable")
+		assert(
+			Rewards.claimableCount(seasonal, springNow) == Rewards.claimableCount(seasonal) + 1,
+			"claimable count includes the season goal"
+		)
+		goal.claimed = true
+		assert(not Rewards.seasonalClaimable(seasonal, springNow), "a claimed goal cannot be claimed twice")
+		assert(Rewards.seasonalReward(seasonal) >= Config.SEASONAL_MIN_REWARD, "reward has a floor")
+		-- Yatırım sayacı yalnızca "invest" mevsiminde işler
+		Rewards.recordInvest(seasonal, springNow)
+		assert(seasonal.seasonal.progress == 0, "investments do not count in an earned season")
+		local summerNow = season * 1
+		assert(Rewards.seasonalDef(1).metric == "invest", "the second season counts investments")
+		Rewards.recordInvest(seasonal, summerNow)
+		assert(
+			seasonal.seasonal.key == 1 and seasonal.seasonal.progress == 1 and not seasonal.seasonal.claimed,
+			"a new season replaces the old goal"
+		)
+		for _ = 1, 20 do
+			Rewards.recordInvest(seasonal, summerNow)
+		end
+		assert(
+			seasonal.seasonal.progress == seasonal.seasonal.target and Rewards.seasonalClaimable(seasonal, summerNow),
+			"the counter caps at the target"
+		)
+		seasonal.seasonal.claimed = true
+		Rewards.recordInvest(seasonal, summerNow)
+		assert(seasonal.seasonal.progress == seasonal.seasonal.target, "a claimed goal stops counting")
+	end
+
 	print("PASS rewards: daily streak, wrap, reward scaling and achievement progress")
 end

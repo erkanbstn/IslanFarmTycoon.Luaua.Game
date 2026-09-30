@@ -29,6 +29,8 @@ export type MainFarmSummary = {
 	purchasedCount: number,
 	stored: number,
 }
+export type SeasonalGoal = { key: number, progress: number, target: number, base: number, claimed: boolean }
+
 export type PlayerSave = {
 	activeMainFarmId: string,
 	farmId: string?, -- Yalnızca etkin olmayan çiftlik görünümlerinde: o çiftliğin numarası (tema için)
@@ -37,6 +39,7 @@ export type PlayerSave = {
 	lifetimeEarned: number?, -- Ömür boyu kazanç (başarımlar için)
 	daily: { day: number, streak: number }?, -- Günlük ödül: son alınan gün (UTC gün numarası) ve seri
 	achievements: { [string]: boolean }?, -- Ödülü alınmış başarımlar
+	seasonal: SeasonalGoal?, -- Şu anki mevsim hedefi (hesap düzeyi; key = mevsim numarası)
 	language: string?, -- Seçilen arayüz dili (Config.LANGUAGES kodu); nil = Roblox dilinden algıla
 	mainFarmOffers: { { id: string, name: string, icon: string, ownerUserId: number? } }?,
 	mainFarms: { [string]: any },

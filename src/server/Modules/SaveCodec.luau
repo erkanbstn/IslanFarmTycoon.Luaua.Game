@@ -414,6 +414,33 @@ function SaveCodec.decode(
 	then
 		data.daily = { day = daily.day, streak = daily.streak }
 	end
+	-- Mevsim hedefi (isteğe bağlı): bozuk kayıt sessizce atılır, yeni mevsimde yenisi oluşur
+	local seasonal = source.seasonal
+	if
+		typeof(seasonal) == "table"
+		and SessionLock.isFinite(seasonal.key)
+		and seasonal.key >= 0
+		and seasonal.key <= 1e9
+		and seasonal.key % 1 == 0
+		and SessionLock.isFinite(seasonal.progress)
+		and seasonal.progress >= 0
+		and seasonal.progress <= 1e15
+		and SessionLock.isFinite(seasonal.target)
+		and seasonal.target > 0
+		and seasonal.target <= 1e15
+		and SessionLock.isFinite(seasonal.base)
+		and seasonal.base >= 0
+		and seasonal.base <= 1e18
+		and typeof(seasonal.claimed) == "boolean"
+	then
+		data.seasonal = {
+			key = seasonal.key,
+			progress = math.min(seasonal.progress, seasonal.target),
+			target = seasonal.target,
+			base = seasonal.base,
+			claimed = seasonal.claimed,
+		}
+	end
 	local achievements: { [string]: boolean } = {}
 	if typeof(source.achievements) == "table" then
 		for _, achievement in config.ACHIEVEMENTS do
@@ -452,6 +479,7 @@ function SaveCodec.encode(save: any, now: number): { [string]: any }
 		lifetimeEarned = amount(save.lifetimeEarned, 0),
 		daily = save.daily,
 		achievements = save.achievements,
+		seasonal = save.seasonal,
 		receipts = save.receipts,
 		lastSeen = now,
 	}

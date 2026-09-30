@@ -9,6 +9,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
+local Rewards = require(Shared:WaitForChild("Modules"):WaitForChild("Rewards"))
 
 local PlayerDataService = require(script.Parent:WaitForChild("PlayerDataService"))
 local PlotService = require(script.Parent:WaitForChild("PlotService"))
@@ -68,6 +69,7 @@ function AnimalService.tryBuy(player: Player, animalId: unknown, count: unknown?
 			bornAt = bornAt,
 		})
 	end
+	Rewards.recordInvest(data, DateTime.now().UnixTimestamp)
 	PlayerDataService.pushState(player)
 	PlayerDataService.requestSave(player)
 	Metrics.increment("AnimalsPurchased")

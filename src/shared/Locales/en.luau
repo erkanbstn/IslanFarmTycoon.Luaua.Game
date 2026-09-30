@@ -590,4 +590,13 @@ return {
 	["Önce bölgeyi hayvanla doldur"] = "Fill the zone with animals first",
 	["Bölge henüz açık değil"] = "This zone is not unlocked yet",
 	["Bilinmeyen bölge"] = "Unknown zone",
+	["Mevsim hedefi"] = "Season goal",
+	["Kazan: {}/{}"] = "Earn: {1}/{2}",
+	["Yatırım yap: {}/{}"] = "Invest: {1}/{2}",
+	["Hazırlanıyor"] = "Preparing",
+	["Sürüyor"] = "In progress",
+	["Mevsim hedefi tamamlandı: +{}"] = "Season goal complete: +{1}",
+	["Mevsim hedefinin ödülü zaten alındı"] = "The season goal reward was already claimed",
+	["Mevsim hedefi henüz tamamlanmadı"] = "The season goal is not complete yet",
+	["Bu mevsimin hedefi henüz hazır değil"] = "This season's goal is not ready yet",
 }

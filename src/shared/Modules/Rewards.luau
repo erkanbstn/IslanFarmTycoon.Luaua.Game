@@ -6,6 +6,8 @@ local FarmMath = require(script.Parent:WaitForChild("FarmMath"))
 
 local Rewards = {}
 
+export type SeasonalGoal = { key: number, progress: number, target: number, base: number, claimed: boolean }
+
 local SECONDS_PER_DAY = 86400
 
 -- UTC gün numarası: yerel saate ve saat dilimine bağlı değildir.
@@ -66,13 +68,103 @@ function Rewards.progress(save: any, achievement: Config.AchievementConfig): num
 	return 0
 end
 
+---------------------------------------------------------------------------
+-- Mevsim hedefi
+---------------------------------------------------------------------------
+
+-- Mevsim numarası sunucu saatinden türer (Environment.seasonIndexAt ile aynı döngü); yönetici mevsim zorlaması etkilemez.
+function Rewards.seasonNumber(now: number): number
+	return math.floor(now / Config.SEASON_SECONDS)
+end
+
+function Rewards.seasonalDef(number: number): (any, Config.SeasonConfig)
+	local season = Config.SEASONS[number % #Config.SEASONS + 1]
+	return Config.SEASONAL_GOALS[season.id], season
+end
+
+local function roundSignificant(value: number): number
+	if value < 10 then
+		return math.max(1, math.floor(value + 0.5))
+	end
+	local step = 10 ^ (math.floor(math.log10(value)) - 1)
+	return math.floor(value / step + 0.5) * step
+end
+
+-- Yeni mevsim hedefi: "earned" için hedef o anki gelire göre sabitlenir, başlangıç kazancı kaydedilir.
+function Rewards.newSeasonalGoal(save: any, number: number): SeasonalGoal
+	local def = Rewards.seasonalDef(number)
+	local target: number
+	if def.metric == "earned" then
+		local income = FarmMath.computeIncomePerSecond(save)
+		target = math.max(def.minTarget or 1, roundSignificant(income * Config.SEASON_SECONDS * (def.factor or 0.3)))
+	else
+		target = def.target or 1
+	end
+	return {
+		key = number,
+		progress = 0,
+		target = target,
+		base = save.lifetimeEarned or 0,
+		claimed = false,
+	}
+end
+
+-- Kayıtlı hedef bu mevsime aitse o, değilse (kaydedilmemiş) yeni bir hedef. İkinci değer: kayıtlı mı.
+function Rewards.seasonalGoal(save: any, now: number): (SeasonalGoal, boolean)
+	local number = Rewards.seasonNumber(now)
+	local stored = save.seasonal
+	if stored and stored.key == number then
+		return stored, true
+	end
+	return Rewards.newSeasonalGoal(save, number), false
+end
+
+-- Hedefe yönelik ilerleme (hedefi aşmaz): kazanç canlı hesaplanır, yatırım sayacı kayıttadır.
+function Rewards.seasonalProgress(save: any, goal: SeasonalGoal): number
+	local def = Rewards.seasonalDef(goal.key)
+	if def.metric == "earned" then
+		return math.clamp((save.lifetimeEarned or 0) - goal.base, 0, goal.target)
+	end
+	return math.clamp(goal.progress, 0, goal.target)
+end
+
+function Rewards.seasonalClaimable(save: any, now: number): boolean
+	local goal, stored = Rewards.seasonalGoal(save, now)
+	return stored and not goal.claimed and Rewards.seasonalProgress(save, goal) >= goal.target
+end
+
+-- Ödül alındığı andaki gelire göre hesaplanır
+function Rewards.seasonalReward(save: any): number
+	local income = FarmMath.computeIncomePerSecond(save)
+	return math.max(Config.SEASONAL_MIN_REWARD, math.floor(income * Config.SEASONAL_REWARD_SECONDS))
+end
+
+-- Sunucu: bu mevsimin hedefi kayıtlı değilse oluşturur. Yeni oluştuysa true.
+function Rewards.ensureSeasonal(save: any, now: number): boolean
+	local goal, stored = Rewards.seasonalGoal(save, now)
+	if stored then
+		return false
+	end
+	save.seasonal = goal
+	return true
+end
+
+-- Sunucu: başarılı bir yatırım (hayvan, yükseltme, ırk, alan genişletme) sayılır; yalnızca "invest" mevsiminde işler.
+function Rewards.recordInvest(save: any, now: number)
+	Rewards.ensureSeasonal(save, now)
+	local goal = save.seasonal
+	if goal and not goal.claimed and Rewards.seasonalDef(goal.key).metric == "invest" then
+		goal.progress = math.min(goal.target, goal.progress + 1)
+	end
+end
+
 function Rewards.isComplete(save: any, achievement: Config.AchievementConfig): boolean
 	return Rewards.progress(save, achievement) >= achievement.target
 end
 
--- Alınabilir (tamamlanmış ve ödülü henüz alınmamış) başarım sayısı
-function Rewards.claimableCount(save: any): number
-	local count = 0
+-- Alınabilir (tamamlanmış ve ödülü henüz alınmamış) başarım sayısı; `now` verilirse tamamlanmış mevsim hedefi de sayılır
+function Rewards.claimableCount(save: any, now: number?): number
+	local count = if now and Rewards.seasonalClaimable(save, now) then 1 else 0
 	for _, achievement in Config.ACHIEVEMENTS do
 		if not (save.achievements and save.achievements[achievement.id]) and Rewards.isComplete(save, achievement) then
 			count += 1

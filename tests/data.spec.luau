@@ -136,6 +136,28 @@ return function(lock: any, codec: any, config: any, farmMath: any)
 	assert(codec.encode(withExpansion, now).mainFarms["1"].expansions.starter == 2, "expansions must survive saves")
 	expansionRaw.mainFarms["1"].expansions = 5
 	assert(codec.decode(expansionRaw, config, farmMath, now, uid) == nil, "corrupt expansions must fail closed")
+	-- Mevsim hedefi: geçerli kayıt korunur, bozuk kayıt sessizce atılır
+	local seasonalRaw = codec.encode(save, now)
+	assert(seasonalRaw.seasonal == nil, "new accounts have no season goal yet")
+	seasonalRaw.seasonal = { key = 7, progress = 3, target = 6, base = 1200, claimed = false }
+	local withSeasonal = assert(codec.decode(seasonalRaw, config, farmMath, now, uid))
+	assert(
+		withSeasonal.seasonal.key == 7
+			and withSeasonal.seasonal.progress == 3
+			and withSeasonal.seasonal.claimed == false,
+		"season goal must load"
+	)
+	assert(codec.encode(withSeasonal, now).seasonal.target == 6, "season goal must survive saves")
+	seasonalRaw.seasonal = { key = 7, progress = 99, target = 6, base = 1200, claimed = false }
+	assert(
+		assert(codec.decode(seasonalRaw, config, farmMath, now, uid)).seasonal.progress == 6,
+		"progress is capped at the target"
+	)
+	seasonalRaw.seasonal = { key = -1, progress = 0, target = 6, base = 0, claimed = false }
+	assert(
+		assert(codec.decode(seasonalRaw, config, farmMath, now, uid)).seasonal == nil,
+		"corrupt season goals are dropped"
+	)
 	-- Hesap düzeyi ilerleme: ömür boyu kazanç, günlük ödül serisi, alınmış başarımlar
 	local accountRaw = codec.encode(save, now)
 	assert(
