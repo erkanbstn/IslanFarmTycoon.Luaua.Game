@@ -47,6 +47,11 @@ local characterConnections: { [Player]: RBXScriptConnection } = {}
 local ownedPlots: { [Player]: { [string]: Model } } = {}
 local activePlots: { [Player]: Model } = {}
 local farmIdByPlotId: { [string]: string } = {}
+local NO_PLOTS: { [string]: Model } = {}
+
+local function ownedOf(player: Player): { [string]: Model }
+	return ownedPlots[player] or NO_PLOTS
+end
 
 local function collectPlotModels()
 	table.clear(plotOrder)
@@ -96,7 +101,7 @@ function PlotService.getPlot(player: Player): Model?
 end
 
 function PlotService.getAllOwned(player: Player): { [string]: Model }
-	return table.clone(ownedPlots[player] or {})
+	return table.clone(ownedOf(player))
 end
 
 function PlotService.getMainFarmPlotId(player: Player, farmId: string): string?
@@ -354,7 +359,7 @@ local function applyIslandState(plot: Model, data: PlayerSave?)
 		end
 
 		local spec = island:FindFirstChild("Specialization")
-		if spec and typeof(islandId) == "string" then
+		if spec and island:IsA("Model") and typeof(islandId) == "string" then
 			local surfaceCf = islandSurfaceCf(island)
 			IslandSpecialization.syncProductionSites(spec, surfaceCf, islandId, data)
 			if islandId == "home" then
@@ -392,7 +397,7 @@ function PlotService.refreshPlayerWorld(player: Player)
 	if not PlayerDataService.tryGet(player) then
 		return
 	end
-	for farmId, plot in ownedPlots[player] or {} do
+	for farmId, plot in ownedOf(player) do
 		local view = PlayerDataService.getFarmView(player, farmId)
 		if view then
 			renderFarm(plot, view)
@@ -516,7 +521,7 @@ function PlotService.restoreMainFarms(player: Player, farmIds: { string }, activ
 		return false
 	end
 	-- Girişte ayrılmış geçici yuvayı kayıttaki etkin mantıksal çiftliğe bağla.
-	for _, plot in table.clone(ownedPlots[player] or {}) do
+	for _, plot in table.clone(ownedOf(player)) do
 		parkPlot(plot)
 	end
 	local activeTarget = plotForFarm(activeId) or primary
@@ -635,7 +640,7 @@ function PlotService.release(player: Player)
 		characterConnections[player] = nil
 	end
 	player.RespawnLocation = nil
-	for _, plot in table.clone(ownedPlots[player] or {}) do
+	for _, plot in table.clone(ownedOf(player)) do
 		parkPlot(plot)
 	end
 	ownedPlots[player], activePlots[player] = nil, nil

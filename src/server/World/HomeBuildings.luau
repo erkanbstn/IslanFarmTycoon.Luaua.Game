@@ -615,14 +615,14 @@ end
 
 function HomeBuildings.orchard(parent: Instance, base: CFrame)
 	local orchard = model(parent, "Orchard")
-	local trees = {
-		{ Vector2.new(0, 0), Color3.fromRGB(205, 50, 45) },
-		{ Vector2.new(7.5, 4), Color3.fromRGB(230, 90, 100) },
-		{ Vector2.new(-1.5, 8.5), Color3.fromRGB(205, 50, 45) },
-		{ Vector2.new(6.5, 12), Color3.fromRGB(240, 190, 60) },
+	local trees: { { at: Vector2, color: Color3 } } = {
+		{ at = Vector2.new(0, 0), color = Color3.fromRGB(205, 50, 45) },
+		{ at = Vector2.new(7.5, 4), color = Color3.fromRGB(230, 90, 100) },
+		{ at = Vector2.new(-1.5, 8.5), color = Color3.fromRGB(205, 50, 45) },
+		{ at = Vector2.new(6.5, 12), color = Color3.fromRGB(240, 190, 60) },
 	}
 	for index, entry in trees do
-		fruitTree(orchard, base * CFrame.new(entry[1].X, 0, entry[1].Y), index * 17, entry[2])
+		fruitTree(orchard, base * CFrame.new(entry.at.X, 0, entry.at.Y), index * 17, entry.color)
 	end
 	-- Toplama sepeti ve düşmüş meyveler
 	part(orchard, "Basket", Vector3.new(2, 1.2, 1.6), base * CFrame.new(3.6, 0.6, 2), WOOD, Enum.Material.WoodPlanks)
@@ -779,19 +779,19 @@ function HomeBuildings.market(parent: Instance, base: CFrame)
 		)
 	end
 	-- Tezgâhta ürünler
-	local produce = {
-		{ Color3.fromRGB(210, 55, 50), -3.2 },
-		{ Color3.fromRGB(240, 190, 60), -1.6 },
-		{ Color3.fromRGB(120, 180, 90), 0 },
-		{ Color3.fromRGB(240, 130, 40), 1.6 },
-		{ Color3.fromRGB(150, 90, 170), 3.2 },
+	local produce: { { color: Color3, x: number } } = {
+		{ color = Color3.fromRGB(210, 55, 50), x = -3.2 },
+		{ color = Color3.fromRGB(240, 190, 60), x = -1.6 },
+		{ color = Color3.fromRGB(120, 180, 90), x = 0 },
+		{ color = Color3.fromRGB(240, 130, 40), x = 1.6 },
+		{ color = Color3.fromRGB(150, 90, 170), x = 3.2 },
 	}
 	for _, entry in produce do
 		part(
 			stall,
 			"Crate",
 			Vector3.new(1.3, 0.6, 1.3),
-			base * CFrame.new(entry[2], 2.95, -0.2),
+			base * CFrame.new(entry.x, 2.95, -0.2),
 			WOOD,
 			Enum.Material.WoodPlanks,
 			false
@@ -801,8 +801,8 @@ function HomeBuildings.market(parent: Instance, base: CFrame)
 				stall,
 				"Produce",
 				0.55,
-				base * CFrame.new(entry[2] + (fruit - 2) * 0.3, 3.45, -0.2 + (fruit % 2) * 0.2),
-				entry[1],
+				base * CFrame.new(entry.x + (fruit - 2) * 0.3, 3.45, -0.2 + (fruit % 2) * 0.2),
+				entry.color,
 				Enum.Material.SmoothPlastic
 			)
 		end

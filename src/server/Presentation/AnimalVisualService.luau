@@ -8,6 +8,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local ServerStorage = game:GetService("ServerStorage")
 local AssetSanitizer = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("AssetSanitizer"))
+local InstanceUtil = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("InstanceUtil"))
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
@@ -644,13 +645,7 @@ end
 -- Sadece değişen hayvanları yeniden kurar: yeni alınanlar eklenir, büyüyenler (evresi değişen)
 -- yenilenir, gidenler silinir. Değişmeyenlere dokunulmaz, böylece gezinirken yerlerine zıplamazlar.
 function AnimalVisualService.refresh(plot: Model, data: PlayerSave)
-	local folder = plot:FindFirstChild("Animals")
-	if not folder then
-		folder = Instance.new("Folder")
-		folder.Name = "Animals"
-		folder.Parent = plot
-	end
-	local animalsFolder = folder :: Instance
+	local animalsFolder = InstanceUtil.getOrCreateFolder(plot, "Animals")
 
 	local existingByUid: { [string]: Model } = {}
 	for _, child in animalsFolder:GetChildren() do

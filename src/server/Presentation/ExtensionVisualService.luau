@@ -8,6 +8,7 @@ local Config = require(Shared:WaitForChild("Config"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local GameTypes = require(Shared:WaitForChild("GameTypes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
+local InstanceUtil = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("InstanceUtil"))
 local WorldUi = require(Shared:WaitForChild("WorldUi"))
 
 local IslandSpecialization = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("IslandSpecialization"))
@@ -192,14 +193,11 @@ function ExtensionVisualService.apply(plot: Model, save: PlayerSave?)
 		if folder and folder:GetAttribute("Signature") == signature then
 			continue
 		end
+		local target = InstanceUtil.getOrCreateFolder(island, "ExtensionVisuals")
 		if folder then
-			folder:ClearAllChildren()
-		else
-			folder = Instance.new("Folder")
-			folder.Name = "ExtensionVisuals"
-			folder.Parent = island
+			target:ClearAllChildren()
 		end
-		folder:SetAttribute("Signature", signature)
+		target:SetAttribute("Signature", signature)
 		if not islandUnlocked then
 			continue
 		end
@@ -207,12 +205,12 @@ function ExtensionVisualService.apply(plot: Model, save: PlayerSave?)
 		local surfaceCf = getIslandSurfaceCf(island)
 		local model: Model
 		if owned then
-			model = IslandSpecialization.buildExtensionVisual(folder, surfaceCf, extensionId) :: Model
+			model = IslandSpecialization.buildExtensionVisual(target, surfaceCf, extensionId) :: Model
 			if model then
 				model:SetAttribute("VisualCreatedAt", game:GetService("Workspace"):GetServerTimeNow())
 			end
 		else
-			model = IslandSpecialization.buildForSaleSign(folder, surfaceCf, extensionId, FarmMath.formatMoney(price))
+			model = IslandSpecialization.buildForSaleSign(target, surfaceCf, extensionId, FarmMath.formatMoney(price))
 		end
 		attachPrompts(plot, model, extensionId, upgrade.id, owned, save)
 	end

@@ -684,10 +684,10 @@ function IslandSpecialization.syncMilkLoadingDecor(parent: Instance, surfaceCf: 
 	if folder then
 		return
 	end
-	folder = Instance.new("Folder")
-	folder.Name = "MilkLoadingDecor"
-	folder.Parent = parent
-	home(folder, surfaceCf)
+	local created = Instance.new("Folder")
+	created.Name = "MilkLoadingDecor"
+	created.Parent = parent
+	home(created, surfaceCf)
 end
 
 -- İlgili yol haritası öğesi alındığında üretim tabelası + zemin (ada açık olmalı).
@@ -718,16 +718,19 @@ function IslandSpecialization.syncProductionSites(parent: Instance, surfaceCf: C
 	if folder and folder:GetAttribute("Signature") == signature then
 		return
 	end
-	if not folder then
-		folder = Instance.new("Folder")
-		folder.Name = "ProductionSites"
-		folder.Parent = parent
+	local target: Instance
+	if folder then
+		target = folder
+		target:ClearAllChildren()
 	else
-		folder:ClearAllChildren()
+		local created = Instance.new("Folder")
+		created.Name = "ProductionSites"
+		created.Parent = parent
+		target = created
 	end
-	folder:SetAttribute("Signature", signature)
+	target:SetAttribute("Signature", signature)
 	for _, id in built do
-		productionSite(folder, surfaceCf, id, IslandSpecialization.SITES[id])
+		productionSite(target, surfaceCf, id, IslandSpecialization.SITES[id])
 	end
 end
 

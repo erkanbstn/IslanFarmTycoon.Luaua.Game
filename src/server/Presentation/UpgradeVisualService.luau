@@ -8,6 +8,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local ServerStorage = game:GetService("ServerStorage")
 local AssetSanitizer = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("AssetSanitizer"))
+local InstanceUtil = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("InstanceUtil"))
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
@@ -1076,13 +1077,7 @@ end
 -- Tesis geliştirme seviyesi dünyada görünür: binanın dibinde seviye kadar altın halka ve üstünde "Sv.N" etiketi.
 -- Kurulu değilse ya da seviye 0 ise çizilmez; seviye değişince yenilenir.
 local function applyLevelMarks(plot: Model, spots: Instance, save: PlayerSave?)
-	local folder = plot:FindFirstChild("LevelMarks")
-	if not folder then
-		folder = Instance.new("Folder")
-		folder.Name = "LevelMarks"
-		folder.Parent = plot
-	end
-	local marksFolder = folder :: Instance
+	local marksFolder = InstanceUtil.getOrCreateFolder(plot, "LevelMarks")
 	for upgradeId, recipeId in PRODUCTION_RECIPES do
 		local level = if save and save.purchased[upgradeId] then FarmMath.getExpansionLevel(save, recipeId) else 0
 		local existing = marksFolder:FindFirstChild(upgradeId)
@@ -1142,19 +1137,8 @@ function UpgradeVisualService.apply(plot: Model, save: PlayerSave?)
 	if not spots then
 		return
 	end
-	local folder = plot:FindFirstChild("Upgrades")
-	if not folder then
-		folder = Instance.new("Folder")
-		folder.Name = "Upgrades"
-		folder.Parent = plot
-	end
-	local upgradesFolder = folder :: Instance
-	local sitesFolder = plot:FindFirstChild("Sites")
-	if not sitesFolder then
-		sitesFolder = Instance.new("Folder")
-		sitesFolder.Name = "Sites"
-		sitesFolder.Parent = plot
-	end
+	local upgradesFolder = InstanceUtil.getOrCreateFolder(plot, "Upgrades")
+	local sitesFolder = InstanceUtil.getOrCreateFolder(plot, "Sites")
 
 	for _, upgrade in Config.UPGRADES do
 		local owned = save ~= nil and save.purchased[upgrade.id] == true

@@ -161,21 +161,19 @@ function WorldDecor.oakTree(parent: Instance, base: CFrame, seed: number)
 		bark,
 		Enum.Material.Wood
 	)
-	local crown = {
-		{ Vector3.new(0, 10, 0), 8 },
-		{ Vector3.new(2.6, 9, 1.2), 6 },
-		{ Vector3.new(-2.4, 9.2, -1), 6.2 },
-		{ Vector3.new(0.6, 12, -1.6), 5.5 },
-		{ Vector3.new(-1, 8.6, 2.6), 5 },
+	local crown: { { offset: Vector3, size: number } } = {
+		{ offset = Vector3.new(0, 10, 0), size = 8 },
+		{ offset = Vector3.new(2.6, 9, 1.2), size = 6 },
+		{ offset = Vector3.new(-2.4, 9.2, -1), size = 6.2 },
+		{ offset = Vector3.new(0.6, 12, -1.6), size = 5.5 },
+		{ offset = Vector3.new(-1, 8.6, 2.6), size = 5 },
 	}
 	for i, leaf in crown do
-		local offset = leaf[1] :: Vector3
-		local size = leaf[2] :: number
 		local p = ball(
 			model,
 			"Leaves",
-			size * scale,
-			base * CFrame.new(offset * scale),
+			leaf.size * scale,
+			base * CFrame.new(leaf.offset * scale),
 			LEAF_COLORS[(i + seed) % #LEAF_COLORS + 1],
 			Enum.Material.LeafyGrass
 		)
@@ -329,7 +327,7 @@ function WorldDecor.grassTufts(parent: Instance, base: CFrame, spec: GrassSpec):
 	local folder = Instance.new("Folder")
 	folder.Name = "GrassTufts"
 	folder.Parent = parent
-	local avoid = spec.avoid or {}
+	local avoid: { GrassRect } = spec.avoid or {}
 	local flowerChance = spec.flowerChance or 0.12
 	local placed, attempts = 0, 0
 	while placed < spec.count and attempts < spec.count * 8 do
