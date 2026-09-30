@@ -183,7 +183,8 @@ function HubNpcs.fountain(parent: Instance, base: CFrame)
 		"Water",
 		6.4,
 		0.2,
-		base * CFrame.new(0, 1.3, 0),
+		-- Su yüzeyi havuz kenarının (1.4) üstünde: aynı yükseklikte olursa taş ile su titreşir (z-fighting).
+		base * CFrame.new(0, 1.36, 0),
 		Color3.fromRGB(80, 170, 225),
 		Enum.Material.Glass
 	)
@@ -196,7 +197,7 @@ function HubNpcs.fountain(parent: Instance, base: CFrame)
 		"TopWater",
 		2.6,
 		0.2,
-		base * CFrame.new(0, 4.45, 0),
+		base * CFrame.new(0, 4.5, 0), -- üst kase kenarı 4.4; su 4.6 (çakışan yüzey yok)
 		Color3.fromRGB(110, 190, 235),
 		Enum.Material.Glass
 	)
