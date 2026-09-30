@@ -833,4 +833,18 @@ return {
 	["Boştaki yetişkin hayvan: {}"] = "Свободные взрослые животные: {1}",
 	["Başlatma ücretsiz; hayvanlar iş boyunca gelirsiz çalışır, bitince döner."] = "Запуск бесплатный; животные работают без дохода и возвращаются по окончании.",
 	["Geçersiz üretim seçeneği."] = "Недопустимый вариант производства.",
+
+	-- Ahır siparişleri
+	["Ahır siparişleri"] = "Заказы амбара",
+	["Küçük"] = "Малый",
+	["Büyük"] = "Большой",
+	["Teslim et"] = "Сдать",
+	["Teslim edildi"] = "Сдано",
+	["Yeterli ürün yok"] = "Недостаточно товаров",
+	["Ürün merkezlerinin ahır deposuna koyduğu ürünleri para karşılığı teslim et. Pano süre dolunca yenilenir."] = "Сдавайте товары, которые производственные центры кладут на склад амбара, за деньги. Доска обновляется по истечении таймера.",
+	["Bir ürün merkezi kurunca ahır siparişleri açılır (Üretim penceresi)."] = "Заказы амбара откроются, когда вы построите производственный центр (окно Производство).",
+	["Ahır siparişi teslime hazır"] = "Заказ амбара готов к сдаче",
+	["Ahır siparişi teslim edildi: +{}"] = "Заказ амбара сдан: +{1}",
+	["Bu sipariş bu turda zaten teslim edildi"] = "Этот заказ уже сдан в этом раунде",
+	["Ahır deposunda yeterli ürün yok"] = "На складе амбара недостаточно товаров",
 }

@@ -295,6 +295,9 @@ function GoalCard.create(stats: Frame, onboarding: Onboarding.Hud): Hud
 				end
 			end
 		end
+		if #chores < 2 and FarmMath.getReadyContractCount(state, now, 0) > 0 then
+			table.insert(chores, "Ahır siparişi teslime hazır")
+		end
 		if #chores < 2 and state.order and state.order.progress >= state.order.target then
 			table.insert(chores, "Sipariş teslime hazır")
 		end

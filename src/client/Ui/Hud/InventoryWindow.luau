@@ -53,7 +53,7 @@ function InventoryWindow.create(screenGui: ScreenGui): Panel
 	).LayoutOrder = GOODS_ORDER
 		- 1
 
-	-- Ahır deposu: ürün merkezlerinin ürettiği ürünler (sipariş sistemi bunları kullanacak)
+	-- Ahır deposu: ürün merkezlerinin ürettiği ürünler (meydandaki Sipariş Panosu'nda "Ahır siparişleri" olarak teslim edilir)
 	local _, goodsMeta = UiKit.sectionHeader(window.list, "Ahır Deposu", GOODS_ORDER)
 	local goodsCards: { [string]: UiKit.Card } = {}
 	for index, goodId in Config.GOODS_ORDER do

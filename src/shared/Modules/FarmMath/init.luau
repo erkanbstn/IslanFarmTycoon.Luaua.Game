@@ -1,11 +1,12 @@
 --!strict
 -- Sunucu ve client'ın aynı sonucu hesaplaması için ortak oyun hesapları.
 -- Sunucu bunları KARAR için, client sadece GÖSTERİM için kullanır.
--- Parçalar (Modules/FarmMath/): Format, Core, Recipes, Counts, Islands, Lineage, Expansion, Production, Income, Animals.
+-- Parçalar (Modules/FarmMath/): Format, Core, Contracts, Recipes, Counts, Islands, Lineage, Expansion, Production, Income, Animals.
 
 local Format = require(script:WaitForChild("Format"))
 local Core = require(script:WaitForChild("Core"))
 local Goods = require(script:WaitForChild("Goods"))
+local Contracts = require(script:WaitForChild("Contracts"))
 local Recipes = require(script:WaitForChild("Recipes"))
 local Counts = require(script:WaitForChild("Counts"))
 local Islands = require(script:WaitForChild("Islands"))
@@ -19,6 +20,7 @@ export type UpgradeStatus = Islands.UpgradeStatus
 export type LineageStatus = Lineage.LineageStatus
 export type ExpansionStatus = Expansion.ExpansionStatus
 export type ZoneBlock = Animals.ZoneBlock
+export type ContractOffer = Contracts.Offer
 
 local FarmMath = {}
 
@@ -80,6 +82,15 @@ FarmMath.countProductionAdults = Production.countProductionAdults
 FarmMath.pickProductionAnimals = Production.pickProductionAnimals
 FarmMath.getGoodsYield = Production.getGoodsYield
 FarmMath.resolveRecipe = Recipes.resolve
+-- Ahır siparişleri
+FarmMath.getContractWindow = Contracts.window
+FarmMath.getContractSecondsLeft = Contracts.secondsLeft
+FarmMath.getContractOffers = Contracts.offers
+FarmMath.isContractDone = Contracts.isDone
+FarmMath.canFulfillContract = Contracts.canFulfill
+FarmMath.fulfillContract = Contracts.fulfill
+FarmMath.getReadyContractCount = Contracts.readyCount
+FarmMath.getContractGoods = Contracts.availableGoods
 FarmMath.findProductionOption = Recipes.findOption
 FarmMath.getProductionReward = Production.getProductionReward
 FarmMath.snapshotGrowthSpeeds = Production.snapshotGrowthSpeeds

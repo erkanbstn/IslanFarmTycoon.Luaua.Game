@@ -125,6 +125,14 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
   seçenekli tariflerde fazla yetişkin bonusu yoktur (hayvan sayısını seçenek belirler). Para tesisleri `upgradeProfile = "cashFactory"` kullanır (indirim yerine
   verim: ücretsiz tesiste `thrift` anlamsız). Ürün merkezleri (`output = "goods"`) seçeneksizdir ve başlatma ücreti alır. Bölge ve tesis kimlikleri **aynı
   yapı geliştirme tablosunu** (`BUILD_TARGETS`, `save.expansions`) paylaşır: çakışan kimlik (`dairy` bölgesi ile tarif) Config yüklenirken `assert` ile reddedilir.
+- **Ahır siparişleri (depo sözleşmeleri)**: `Config.GOODS_CONTRACTS { seconds, tiers[{id, displayName, lines, units, rewardFactor}] }`; saf mantık
+  `FarmMath/Contracts.luau` (`getContractOffers/fulfillContract/isContractDone/canFulfillContract/getReadyContractCount`). Teklifler kayıttan ve sunucu saatinden
+  türetilir (pencere = `now / seconds`, anahtar `"<pencere>:<sıra>"`, satır sayısı kademeye göre 1/2/3 farklı ürün; yalnızca ürün merkezi kurulu ürünler istenir,
+  miktar ahır kapasitesini aşmaz). Ödül = ürün değerleri x `rewardFactor` x (1 + mevsim `orderBonus`). Teslim `fulfillContract` ile tek adımda: yeterlilik doğrulanır, ürünler
+  düşer, anahtar `save.contracts.done`'a yazılır (`save.contracts { window, done, completed }`, çiftlik başına, `FarmProfiles.FIELDS`'te; `SaveCodec` pencere/sayaç/anahtar
+  sayısını sıkıştırır, bozuk kaydı reddeder); para ekleme `Services/ContractService` (`RequestFulfillContract(key, requestId, expectedFarmId)`, yanıt PurchaseResult) işidir. Yeni pencerede
+  teslimler sıfırlanır. Arayüz: Sipariş Panosu penceresinin üstünde "Ahır siparişleri" bölümü (`Ui/Hud/BoardSection`), hedef kartında "Ahır siparişi teslime hazır".
+  Eski zaman tabanlı sipariş (`save.order`) ayrı ve değişmedi; ahır siparişleri yol haritasından bağımsız açılır (ilk ürün merkezi yeter).
 - **Hayvan görevleri (üretim tesisi ve eklenti)**: `AnimalRecord.task { kind = "production"|"extension", id, startedAt, endsAt }` kaydedilir
   (`SaveCodec.decodeTask`: bozuk görev atılır, hayvan korunur; çevrimdışıyken biten görev yüklemede temizlenir; eski kalıcı `extensionId` eve döner).
   Görev süresince: **üretim** → hayvan tesiste çalışır, gelir getirmez, görünmez, satılamaz; **eklenti** → `Config.EXTENSIONS[id].incomeBonus` kadar

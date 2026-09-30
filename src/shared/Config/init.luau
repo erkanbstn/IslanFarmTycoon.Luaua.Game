@@ -115,6 +115,7 @@ local Config = {
 	-- Goods (ahır deposu ürünleri)
 	GOODS = Goods.GOODS,
 	GOODS_ORDER = Goods.GOODS_ORDER,
+	GOODS_CONTRACTS = Goods.GOODS_CONTRACTS,
 	-- Audio
 	SOUNDS = Audio.SOUNDS,
 	AMBIENCE = Audio.AMBIENCE,

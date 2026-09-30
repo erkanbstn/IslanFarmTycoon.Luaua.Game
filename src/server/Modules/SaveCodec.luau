@@ -113,6 +113,29 @@ local function decodeFarm(
 		end
 	end
 	farmMath.applyDerived(save)
+	-- Ahır siparişleri (isteğe bağlı): pencere/teslim anahtarları ve sayaç sıkıştırılır, bozuk girdi atılır
+	save.contracts = { window = 0, done = {}, completed = 0 }
+	if source.contracts ~= nil then
+		local record = source.contracts
+		if typeof(record) ~= "table" or typeof(record.done) ~= "table" then
+			return nil, 0, "Ahır siparişi kaydı bozuk; orijinal kayıt korunuyor"
+		end
+		if SessionLock.isFinite(record.window) then
+			save.contracts.window = math.clamp(math.floor(record.window), 0, 1e9)
+		end
+		if SessionLock.isFinite(record.completed) then
+			save.contracts.completed = math.clamp(math.floor(record.completed), 0, 1e9)
+		end
+		local kept = 0
+		for key, flag in record.done do
+			if typeof(key) == "string" and #key <= 24 and flag == true and kept < #config.GOODS_CONTRACTS.tiers then
+				kept += 1
+				save.contracts.done[key] = true
+			else
+				repairs += 1
+			end
+		end
+	end
 	-- Ahır deposu (isteğe bağlı): tanınmayan ürün atılır, miktar 1..ahır kapasitesine sıkıştırılır
 	save.goods = {}
 	if source.goods ~= nil then
@@ -410,6 +433,12 @@ local function encodeFarm(save: any, now: number): { [string]: any }
 			goods[goodId] = count
 		end
 	end
+	local contractsDone = {}
+	for key, flag in if save.contracts then save.contracts.done else {} do
+		if flag then
+			contractsDone[key] = true
+		end
+	end
 	local production = {}
 	for recipeId, job in save.production or {} do
 		production[recipeId] = {
@@ -425,6 +454,9 @@ local function encodeFarm(save: any, now: number): { [string]: any }
 		production = production,
 		lineage = lineage,
 		goods = goods,
+		contracts = if save.contracts
+			then { window = save.contracts.window, done = contractsDone, completed = save.contracts.completed }
+			else nil,
 		expansions = expansions,
 		cash = amount(save.cash, 0),
 		stored = amount(save.stored, 0),

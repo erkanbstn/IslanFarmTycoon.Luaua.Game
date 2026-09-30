@@ -67,6 +67,15 @@ export type AnimalConfig = {
 	baseIncomePerSecond: number,
 }
 
+-- Ahır siparişi kademesi: kaç farklı ürün (lines) ve her üründen kaç birim (units) ister; ödül = ürün değerleri x rewardFactor
+export type GoodsContractTierConfig = {
+	id: string,
+	displayName: string,
+	lines: number,
+	units: number,
+	rewardFactor: number,
+}
+
 export type GoodConfig = {
 	id: string,
 	displayName: string,

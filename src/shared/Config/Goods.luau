@@ -1,6 +1,6 @@
 --!strict
 -- Ürünler (ahır deposu): ürün merkezlerinde (fabrikalar) üretilir, ahırdaki depoda birikir.
--- Sipariş sistemi bu depoyu tüketecek; `value` bir birimin para değeridir (dengeleme ve ileride sipariş ödülü).
+-- Ahır siparişleri (GOODS_CONTRACTS) bu depoyu tüketir; `value` bir birimin para değeridir (dengeleme ve sipariş ödülü).
 -- Gizli bilgi koyma: ReplicatedStorage client'a da gider.
 
 local Types = require(script.Parent:WaitForChild("Types"))
@@ -18,4 +18,15 @@ return {
 
 	-- Depo ve arayüzde gösterim sırası (hayvan türlerinin sırasıyla aynı)
 	GOODS_ORDER = { "milk", "egg", "down", "cheese", "wool", "meat", "horseshoe", "fish" },
+
+	-- Ahır siparişleri: pano `seconds` saniyede bir yenilenir; 3 kademe (1/2/3 ürün çeşidi). Ürün merkezi zaten kaçırılan gelirin
+	-- üstünde ürün verdiği için çarpan küçüktür; büyük sipariş ürün başına daha çok öder (daha çok çeşit = daha çok emek).
+	GOODS_CONTRACTS = {
+		seconds = 600,
+		tiers = {
+			{ id = "small", displayName = "Küçük", lines = 1, units = 10, rewardFactor = 1.1 },
+			{ id = "medium", displayName = "Orta", lines = 2, units = 16, rewardFactor = 1.25 },
+			{ id = "large", displayName = "Büyük", lines = 3, units = 24, rewardFactor = 1.5 },
+		} :: { Types.GoodsContractTierConfig },
+	},
 }

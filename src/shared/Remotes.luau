@@ -36,6 +36,7 @@ export type EventName =
 	| "RequestClaimDaily"
 	| "RequestPromptProduct"
 	| "RequestPickOrder"
+	| "RequestFulfillContract"
 	| "RequestClaimAchievement"
 	| "OfflineSummary"
 	| "RequestAdminAction"
@@ -75,6 +76,7 @@ local EVENTS = {
 	"RequestPlayerState", -- Client hazır / tekrar eşitleme
 	"RequestClaimOrder", -- Tamamlanan siparişi teslim et (uid, requestId)
 	"RequestPickOrder", -- Sipariş panosundan seçenek seç (offerKey, requestId, expectedFarmId)
+	"RequestFulfillContract", -- Ahır siparişini depodaki ürünlerle teslim et (offerKey, requestId, expectedFarmId); sonuç PurchaseResult
 	"RequestPromptProduct", -- Oyun geçidi/ürün satın alma penceresini aç ("pass"|"product", anahtar); fiyatı sunucu belirler
 	"RequestClaimDaily", -- Günlük giriş ödülünü al (_, requestId); sonuç PurchaseResult
 	"RequestClaimAchievement", -- Başarım ödülünü al (achievementId, requestId); sonuç PurchaseResult

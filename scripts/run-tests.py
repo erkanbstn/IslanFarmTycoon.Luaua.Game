@@ -68,7 +68,7 @@ def config_bundle(freeze: bool = True) -> str:
     return "".join(["local Config = (function()\n", parts, init, "\nreturn ConfigInit\nend)()\n"])
 
 
-FARM_MATH_PARTS = ["Format", "Core", "Goods", "Recipes", "Counts", "Islands", "Lineage", "Expansion", "Production", "Income", "Animals"]
+FARM_MATH_PARTS = ["Format", "Core", "Goods", "Contracts", "Recipes", "Counts", "Islands", "Lineage", "Expansion", "Production", "Income", "Animals"]
 
 
 def _declared_dependencies(path: str) -> set[str]:
@@ -157,6 +157,7 @@ def main() -> int:
         module("seasonAdminSpec", "tests/season-admin.spec.luau"),
         module("ProductionRules", "src/server/Modules/ProductionRules.luau"),
         module("goodsSpec", "tests/goods.spec.luau"),
+        module("contractsSpec", "tests/contracts.spec.luau"),
         module("ProductionServiceFactory", "src/server/Services/ProductionService.luau",
                {"Config", "Remotes", "FarmMath", "PlayerDataService", "EconomyService", "PlotService", "ProductionRules", "RateLimiter"},
                "game, Remotes, PlayerDataService, EconomyService, PlotService, RateLimiter, DateTime, warn"),
@@ -198,6 +199,7 @@ def main() -> int:
         "mainFarmSpec(MainFarmServiceFactory, EconomyServiceFactory, RateLimiterFactory, FarmProfiles, SaveCodec, Config, FarmMath)\n",
         "tasksSpec(ExtensionServiceFactory, AnimalTaskServiceFactory, RateLimiterFactory, SaveCodec, Config, FarmMath)\n",
         "goodsSpec(SaveCodec, Config, FarmMath, ProductionRules)\n",
+        "contractsSpec(SaveCodec, Config, FarmMath)\n",
         "clientFarmStateSpec(ClientStateFactory)\n",
     ]
     output = ROOT / ".test-build" / "run.luau"

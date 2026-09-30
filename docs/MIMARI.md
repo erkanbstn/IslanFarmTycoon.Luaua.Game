@@ -25,7 +25,7 @@ Bağımlılık yönü: aşağıdaki liste **alttan üste**; bir katman kendi ve 
 | 1 | `Modules/` | Saf sunucu mantığı | Kayıt kodlama (`SaveCodec`), kilit, hız sınırı, kurallar. Roblox servisine ya da başka katmana bağlanmaz. |
 | 2 | `World/` | **Statik harita** (Studio'da bir kez kurulup place'e kaydedilir) | `MapBuilder` (sürüm, doğrulama, ışık/deniz, `build`/`ensure`), `MapLayout` (düzen sabitleri ve yerleşimler), `MapParts` (yapı taşları), `IslandBuilder`, `SatelliteBuilder`, `HubBuilder`, `WorldDecor` (cephe; `DecorParts`, `DecorProps`, `DecorShore`, `DecorNature`, `DecorLights`), `HomeBuildings` (cephe; `HomeParts`, `HomeHouses`, `HomeFarmland`, `HomeMarket`, `HomeLandmarks`), `HubNpcs`, `IslandSpecialization` (+ `IslandLayout`, `IslandSiteParts`, `IslandSiteBuilders`), `BarnVisualService`. Oyun servislerini bilmez; eklenti (`plugin/`) bu klasörü kopyalayıp çalıştırır. |
 | 3 | `Presentation/` | **Durumdan dünyaya çizim** (oyuncu verisi değişince yeniden çizilir) | `AnimalVisualService` (+ `AnimalModels`, `AnimalPlacement`, `AnimalLabels`), `JobMarks` (bina üstü iş ilerlemesi işaretleri), `UpgradeVisualService` (+ `UpgradeParts`, `UpgradeBuildersHome`/`Barnyard`/`Workshops`/`Goods`, `UpgradeSites`), `ZoneVisualService` (+ `ZoneParts`, `ZoneBuildersHome`/`Pens`/`Water`), `ExtensionVisualService`, `CollectorVisualService`. Kayıt nesnesini okur, dünyayı günceller; para/kayıt yazmaz. |
-| 4 | `Services/` | **Oyun mantığı ve çalışma anı durumu** | `PlayerDataService`, `PlotService`, `EconomyService`, `AnimalService`, `UpgradeService`, `ProductionService`, `OrderService`, `SeasonService`, `InventoryService`, `MainFarmService`, `ExtensionService`, `BuyPadService`, `EngagementService`, `MonetizationService`, `AdminService`. Remote dinler, doğrular, ödeme/kayıt yapar, `Presentation`'ı çağırır. |
+| 4 | `Services/` | **Oyun mantığı ve çalışma anı durumu** | `PlayerDataService`, `PlotService`, `EconomyService`, `AnimalService`, `UpgradeService`, `ProductionService`, `OrderService`, `ContractService`, `SeasonService`, `InventoryService`, `MainFarmService`, `ExtensionService`, `BuyPadService`, `EngagementService`, `MonetizationService`, `AdminService`. Remote dinler, doğrular, ödeme/kayıt yapar, `Presentation`'ı çağırır. |
 | — | `init.server.luau` | Bileşim noktası | Servisleri başlatır ve Remote'ları bağlar; iş mantığı içermez. |
 
 Kurallar:
@@ -76,7 +76,7 @@ Kural: `shared` sunucu ya da istemci klasörlerine bağlanmaz.
 | Yeni şey | Yer |
 |---|---|
 | Fiyat/gelir/profil | `shared/Config/` (ilgili veri dosyası) |
-| Hesap/formül | `shared/Modules/FarmMath/` (ilgili alan dosyası: `Core`, `Recipes` (parti seçeneği çözümü), `Expansion`, `Production`, `Income`, `Animals`, `Islands`, `Lineage`, `Counts`, `Format`; testle) |
+| Hesap/formül | `shared/Modules/FarmMath/` (ilgili alan dosyası: `Core`, `Recipes` (parti seçeneği çözümü), `Contracts` (ahır siparişleri), `Expansion`, `Production`, `Income`, `Animals`, `Islands`, `Lineage`, `Counts`, `Format`; testle) |
 | Oyun kuralı + Remote | `server/Services/<Ad>Service.luau` + `shared/Remotes.luau` |
 | Kayıt alanı | `GameTypes` + `server/Modules/SaveCodec.luau` + test |
 | Dünyada görünen durum | `server/Presentation/` |

@@ -833,4 +833,18 @@ return {
 	["Boştaki yetişkin hayvan: {}"] = "Freie erwachsene Tiere: {1}",
 	["Başlatma ücretsiz; hayvanlar iş boyunca gelirsiz çalışır, bitince döner."] = "Der Start ist kostenlos; die Tiere arbeiten ohne Einkommen und kehren nach Abschluss zurück.",
 	["Geçersiz üretim seçeneği."] = "Ungültige Produktionsoption.",
+
+	-- Ahır siparişleri
+	["Ahır siparişleri"] = "Stallaufträge",
+	["Küçük"] = "Klein",
+	["Büyük"] = "Groß",
+	["Teslim et"] = "Abgeben",
+	["Teslim edildi"] = "Abgegeben",
+	["Yeterli ürün yok"] = "Nicht genug Waren",
+	["Ürün merkezlerinin ahır deposuna koyduğu ürünleri para karşılığı teslim et. Pano süre dolunca yenilenir."] = "Gib die Waren, die deine Produktionszentren im Stalllager ablegen, gegen Geld ab. Die Tafel erneuert sich, wenn der Timer abläuft.",
+	["Bir ürün merkezi kurunca ahır siparişleri açılır (Üretim penceresi)."] = "Stallaufträge werden freigeschaltet, sobald du ein Produktionszentrum baust (Produktionsfenster).",
+	["Ahır siparişi teslime hazır"] = "Stallauftrag bereit zur Abgabe",
+	["Ahır siparişi teslim edildi: +{}"] = "Stallauftrag abgegeben: +{1}",
+	["Bu sipariş bu turda zaten teslim edildi"] = "Dieser Auftrag wurde in dieser Runde schon abgegeben",
+	["Ahır deposunda yeterli ürün yok"] = "Nicht genug Waren im Stalllager",
 }

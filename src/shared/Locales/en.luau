@@ -833,4 +833,18 @@ return {
 	["Boştaki yetişkin hayvan: {}"] = "Idle adult animals: {1}",
 	["Başlatma ücretsiz; hayvanlar iş boyunca gelirsiz çalışır, bitince döner."] = "Starting is free; the animals work without earning income and return when finished.",
 	["Geçersiz üretim seçeneği."] = "Invalid production option.",
+
+	-- Ahır siparişleri
+	["Ahır siparişleri"] = "Barn orders",
+	["Küçük"] = "Small",
+	["Büyük"] = "Large",
+	["Teslim et"] = "Deliver",
+	["Teslim edildi"] = "Delivered",
+	["Yeterli ürün yok"] = "Not enough goods",
+	["Ürün merkezlerinin ahır deposuna koyduğu ürünleri para karşılığı teslim et. Pano süre dolunca yenilenir."] = "Deliver the goods your production centers put in the barn storage for money. The board refreshes when the timer runs out.",
+	["Bir ürün merkezi kurunca ahır siparişleri açılır (Üretim penceresi)."] = "Barn orders open once you build a production center (Production window).",
+	["Ahır siparişi teslime hazır"] = "Barn order ready to deliver",
+	["Ahır siparişi teslim edildi: +{}"] = "Barn order delivered: +{1}",
+	["Bu sipariş bu turda zaten teslim edildi"] = "This order was already delivered this round",
+	["Ahır deposunda yeterli ürün yok"] = "Not enough goods in the barn storage",
 }
