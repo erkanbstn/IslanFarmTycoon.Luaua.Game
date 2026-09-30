@@ -567,6 +567,15 @@ local function updateBadges(state: PlayerSave)
 			upgrades += 1
 		end
 	end
+	-- Açık adadaki alınabilir geliştirmeler de rozete sayılır (yoksa oyuncu bunları fark etmez)
+	for targetId, target in Config.BUILD_TARGETS do
+		if target.island == IslandContext.get() then
+			local status, _, cost = FarmMath.getExpansionStatus(state, targetId)
+			if status == "available" and state.cash >= cost then
+				upgrades += 1
+			end
+		end
+	end
 	-- Tek önerilen adım parlar: önce yükseltme (kalıcı ilerleme), yoksa hayvan. Yol haritası
 	-- yükseltmelerle aynı listeyi gösterdiği için ayrıca rozet almaz.
 	setUpgradesBadge(upgrades)

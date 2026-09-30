@@ -717,4 +717,8 @@ return {
 	["Önce bu tesisi kur"] = "Baue zuerst diese Anlage",
 	["Bilinmeyen yapı"] = "Unbekanntes Gebäude",
 	["Geliştir Sv.{}"] = "Ausbauen St.{1}",
+	["Ada değiştirmek için sekmeleri kullan"] = "Wechsle die Insel mit den Tabs",
+	["Ada değiştirmek için sekmeleri kullan · Kısayol: U"] = "Wechsle die Insel mit den Tabs · Kürzel: U",
+	["Geliştirmeler"] = "Ausbauten",
+	["Tüm seviyeler tamamlandı"] = "Alle Stufen abgeschlossen",
 }

@@ -717,4 +717,8 @@ return {
 	["Önce bu tesisi kur"] = "Сначала построй это предприятие",
 	["Bilinmeyen yapı"] = "Неизвестная постройка",
 	["Geliştir Sv.{}"] = "Улучшить Ур.{1}",
+	["Ada değiştirmek için sekmeleri kullan"] = "Переключай острова вкладками",
+	["Ada değiştirmek için sekmeleri kullan · Kısayol: U"] = "Переключай острова вкладками · Клавиша: U",
+	["Geliştirmeler"] = "Улучшения",
+	["Tüm seviyeler tamamlandı"] = "Все уровни пройдены",
 }

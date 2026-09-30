@@ -36,11 +36,8 @@ function UpgradesWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Up
 		anchor = Vector2.new(1, 0.5),
 		position = WINDOW_POSITION,
 	})
-	local upgradesInfo = UiKit.text(
-		upgradesWindow.list,
-		"Açık yükseltmeler üstte; alınanlar bu listeden çıkar. Kısayol: U.",
-		"Caption"
-	)
+	local upgradesInfo =
+		UiKit.text(upgradesWindow.list, "Ada değiştirmek için sekmeleri kullan · Kısayol: U", "Caption")
 	upgradesInfo.LayoutOrder = 0
 	IslandTabs.add(upgradesWindow)
 	local upgradesEmpty = UiKit.text(
@@ -69,7 +66,7 @@ function UpgradesWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Up
 
 	-- Yapı geliştirme: seçili adanın açık bölgeleri ve kurulu tesisleri; her seviye yapının işlevine uygun bir fayda demeti verir
 	local EXPANSION_ORDER = 1000
-	local expansionHeader = UiKit.sectionHeader(upgradesWindow.list, "Yapı geliştirme", EXPANSION_ORDER)
+	local expansionHeader = UiKit.sectionHeader(upgradesWindow.list, "Geliştirmeler", EXPANSION_ORDER)
 	local expansionCards: { [string]: UiKit.Card } = {}
 	for index, targetId in Config.BUILD_ORDER do
 		local card = UiKit.card(upgradesWindow.list, EXPANSION_ORDER + index, Config.BUILD_TARGETS[targetId].icon)
@@ -118,21 +115,24 @@ function UpgradesWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Up
 			local card = expansionCards[targetId]
 			local zone = Config.ZONES[targetId]
 			local status, reason, cost = FarmMath.getExpansionStatus(state, targetId)
+			-- Tamamlananlar listeden çıkar (alınan yükseltmeler gibi)
 			local shown = target.island == selectedIsland
+				and status ~= "max"
 				and (if target.isZone then state.unlockedZones[targetId] == true else status ~= "locked")
 			card.frame.Visible = shown
 			if not shown then
 				continue
 			end
 			any = true
+			-- Alınabilir olanlar üstte, parası yetmeyenler sonra, kilitliler en altta (yükseltmelerle aynı düzen)
+			local group = if status == "locked" then 2 elseif state.cash >= cost then 0 else 1
+			card.frame.LayoutOrder = EXPANSION_ORDER + group * 100 + table.find(Config.BUILD_ORDER, targetId) :: number
 			if content then
 				local level = FarmMath.getExpansionLevel(state, targetId)
 				local nextLevel = FarmMath.getNextBuildLevel(state, targetId)
 				card.title.Text =
 					`{Config.getBuildTargetName(targetId, state.activeMainFarmId)} · Sv.{level}/{Config.BUILD_UPGRADES.maxLevel}`
-				card.detail.Text = if nextLevel
-					then `Sonraki seviye\n{effectText(zone, nextLevel)}`
-					else "Tüm geliştirmeler tamamlandı"
+				card.detail.Text = if nextLevel then effectText(zone, nextLevel) else "Tüm seviyeler tamamlandı"
 			end
 			if status == "max" then
 				setPurchaseButton(card.action, "En üst seviye", "owned")
@@ -158,8 +158,7 @@ function UpgradesWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Up
 		local remaining = 0
 		local selectedIsland = IslandContext.get()
 		if content then
-			upgradesInfo.Text =
-				`Seçili: {IslandContext.name()}\nAçık yükseltmeler üstte; alınanlar listeden çıkar. Üstteki sekmelerden ada seçebilirsin.`
+			upgradesInfo.Text = `{IslandContext.name()} · Ada değiştirmek için sekmeleri kullan`
 			upgradesEmpty.Text =
 				`{IslandContext.name()} yükseltmeleri tamamlandı. Sıradaki yatırımını seçmek için Adalar'ı aç.`
 		end

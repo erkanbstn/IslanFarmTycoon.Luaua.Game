@@ -717,4 +717,8 @@ return {
 	["Önce bu tesisi kur"] = "Build this facility first",
 	["Bilinmeyen yapı"] = "Unknown building",
 	["Geliştir Sv.{}"] = "Upgrade Lv.{1}",
+	["Ada değiştirmek için sekmeleri kullan"] = "Use the tabs to switch islands",
+	["Ada değiştirmek için sekmeleri kullan · Kısayol: U"] = "Use the tabs to switch islands · Shortcut: U",
+	["Geliştirmeler"] = "Upgrades",
+	["Tüm seviyeler tamamlandı"] = "All levels completed",
 }
