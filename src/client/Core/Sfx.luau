@@ -11,7 +11,7 @@ local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Co
 
 local player = Players.LocalPlayer
 local DEFAULT_VOLUME = 0.5
-local MIN_GAP = 0.05 -- Aynı ses bu kadar sıklıktan fazla üst üste çalmaz
+local MIN_GAP = 0.12 -- Aynı ses bu kadar sıklıktan fazla üst üste çalmaz
 
 local Sfx = {}
 

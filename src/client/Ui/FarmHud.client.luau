@@ -416,6 +416,9 @@ Remotes.get("Notify").OnClientEvent:Connect(function(message: string, kind: stri
 		showToast(message, kind)
 		if kind == "info" then
 			Sfx.play("notify")
+		elseif kind == "success" then
+			-- Yerdeki kaide/tabela/prompt alımları PurchaseController'dan geçmez; başarı sesi buradan gelir (Sfx aralığı çifti engeller)
+			Sfx.play("success")
 		end
 	end
 	-- Para toplama ödülü: ses + kasa sayısı zıplaması (yüzen yazı ve parçacık CollectorGuide'da)
