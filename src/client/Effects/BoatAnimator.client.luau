@@ -3,6 +3,8 @@
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
+
+local EffectSettings = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("EffectSettings"))
 local player = Players.LocalPlayer
 
 type Boat = {
@@ -245,7 +247,7 @@ local rendered = RunService.RenderStepped:Connect(function(dt: number)
 	end
 	local now = Workspace:GetServerTimeNow()
 	selectionElapsed += dt
-	if player:GetAttribute("ReducedMotion") == true then
+	if EffectSettings.reducedMotion() then
 		for _, boat in boats do
 			if
 				prepare(boat)

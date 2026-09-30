@@ -11,6 +11,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local EffectSettings = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("EffectSettings"))
 local UiTheme = require(Shared:WaitForChild("UiTheme"))
 local WorldUi = require(Shared:WaitForChild("WorldUi"))
 
@@ -157,7 +158,7 @@ RunService.Heartbeat:Connect(function(dt: number)
 	if next(npcs) == nil then
 		return
 	end
-	local reduced = localPlayer:GetAttribute("ReducedMotion") == true
+	local reduced = EffectSettings.reducedMotion()
 	local character = localPlayer.Character
 	local root = character and character:FindFirstChild("HumanoidRootPart")
 	local playerPosition: Vector3? = if root and root:IsA("BasePart") then root.Position else nil

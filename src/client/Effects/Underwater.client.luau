@@ -291,7 +291,12 @@ local function setSubmerged(value: boolean)
 	ambient.Enabled = value
 end
 
+local gradeShown = false
 RunService.RenderStepped:Connect(function(dt: number)
+	-- Su üstünde ve geçiş bittiyse kare başına hiçbir iş yapma.
+	if not submerged and strength == 0 and not gradeShown then
+		return
+	end
 	local camera = Workspace.CurrentCamera
 	if not camera then
 		return
@@ -305,8 +310,11 @@ RunService.RenderStepped:Connect(function(dt: number)
 		strength += math.clamp(target - strength, -FADE_SPEED * dt, FADE_SPEED * dt)
 	end
 	local active = strength > 0.01
-	grade.Enabled = active
-	blur.Enabled = active
+	if active ~= gradeShown then
+		gradeShown = active
+		grade.Enabled = active
+		blur.Enabled = active
+	end
 	if active then
 		grade.TintColor = Color3.new(1, 1, 1):Lerp(WATER_TINT, strength * 0.85)
 		grade.Saturation = 0.12 * strength
@@ -325,6 +333,7 @@ RunService.Heartbeat:Connect(function(dt: number)
 	if elapsed < 0.1 then
 		return
 	end
+	local step = elapsed
 	elapsed = 0
 	local camera = Workspace.CurrentCamera
 	if camera then
@@ -336,7 +345,7 @@ RunService.Heartbeat:Connect(function(dt: number)
 		end
 	end
 	local cameraNow = Workspace.CurrentCamera
-	ventElapsed += 0.1
+	ventElapsed += step
 	if submerged and cameraNow then
 		if ventElapsed >= 1 then
 			ventElapsed = 0

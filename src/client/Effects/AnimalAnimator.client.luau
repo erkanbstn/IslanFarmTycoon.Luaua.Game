@@ -2,12 +2,11 @@
 -- Hayvanları kendi bölgeleri içinde yavaşça gezdirir (sadece görsel, sadece bu oyuncunun ekranında).
 -- Sunucu hayvanı "Animal" etiketi ve AreaCFrame / AreaSize / HeightOffset attribute'larıyla işaretler.
 
-local Players = game:GetService("Players")
-local localPlayer = Players.LocalPlayer
-
 local CollectionService = game:GetService("CollectionService")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
+
+local EffectSettings = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("EffectSettings"))
 
 local ANIMATE_DISTANCE = 140 -- Kameradan uzaktaki hayvanlar hareket etmez (performans)
 local WALK_SPEED = 3
@@ -138,8 +137,7 @@ end
 -- 30 Hz kapısı değişken kare aralıklarında 20 Hz'e düşerek görünür takılma yapıyordu.
 RunService.RenderStepped:Connect(function(dt: number)
 	dt = math.min(dt, 1 / 15)
-	local quality = localPlayer:GetAttribute("EffectsQuality")
-	if localPlayer:GetAttribute("ReducedMotion") == true then
+	if EffectSettings.reducedMotion() then
 		return
 	end
 	local camera = Workspace.CurrentCamera
@@ -148,24 +146,29 @@ RunService.RenderStepped:Connect(function(dt: number)
 	end
 	local cameraPos = camera.CFrame.Position
 	local now = os.clock()
-	local limit = if quality == "low" then 80 else ANIMATE_DISTANCE
+	local nearLimit = if EffectSettings.quality() == "low" then 80 else ANIMATE_DISTANCE
 	frameCount += 1
 
 	for model, state in states do
+		-- Uzaktaki hayvan kare başına yalnızca bu zaman denetimine mal olur.
+		if now >= state.nextNearCheck then
+			if not model.Parent then
+				states[model] = nil
+				continue
+			end
+			state.nextNearCheck = now + 0.25 + random:NextNumber(0, 0.1)
+			local worldPos = state.area.Position + state.area:VectorToWorldSpace(state.position)
+			state.near = (worldPos - cameraPos).Magnitude <= nearLimit
+		end
+		if not state.near then
+			continue
+		end
 		if not model.Parent then
 			states[model] = nil
 			continue
 		end
 		-- ScaleTo efektinin pivotunu aynı karede geri yazma; bitince kaldığı yerden sürer.
 		if model:GetAttribute("BuildPopActive") == true then
-			continue
-		end
-		if now >= state.nextNearCheck then
-			state.nextNearCheck = now + 0.25 + random:NextNumber(0, 0.1)
-			local worldPos = state.area.Position + state.area:VectorToWorldSpace(state.position)
-			state.near = (worldPos - cameraPos).Magnitude <= limit
-		end
-		if not state.near then
 			continue
 		end
 

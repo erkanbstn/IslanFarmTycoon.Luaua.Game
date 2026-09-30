@@ -4,14 +4,14 @@
 -- "Hareketi azalt" açıkken dönmez.
 
 local CollectionService = game:GetService("CollectionService")
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Environment =
 	require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Modules"):WaitForChild("Environment"))
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
-local player = Players.LocalPlayer
+local EffectSettings = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("EffectSettings"))
+
 local UPDATE_DISTANCE = 220
 local blades: { [Model]: number } = {} -- model -> rad/sn
 
@@ -34,7 +34,7 @@ for _, instance in CollectionService:GetTagged("Windmill") do
 end
 
 local connection = RunService.Heartbeat:Connect(function(dt: number)
-	if player:GetAttribute("ReducedMotion") == true then
+	if EffectSettings.reducedMotion() then
 		return
 	end
 	local camera = Workspace.CurrentCamera

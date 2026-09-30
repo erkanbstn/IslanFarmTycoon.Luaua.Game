@@ -5,14 +5,13 @@
 -- Satın alma sunucudaki ProximityPrompt ile yapılır; burası yalnızca görünüm.
 
 local CollectionService = game:GetService("CollectionService")
-local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local ClientState = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("ClientState"))
+local EffectSettings = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("EffectSettings"))
 local UiKit = require(script.Parent.Parent:WaitForChild("Ui"):WaitForChild("UiKit"))
 
-local player = Players.LocalPlayer
 local SPIN_DISTANCE = 90
 
 local rings: { [BasePart]: number } = {}
@@ -78,7 +77,7 @@ end)
 local elapsed = 0
 local connection = RunService.Heartbeat:Connect(function(dt: number)
 	elapsed += dt
-	if player:GetAttribute("ReducedMotion") == true then
+	if EffectSettings.reducedMotion() then
 		return
 	end
 	local camera = Workspace.CurrentCamera
@@ -87,8 +86,12 @@ local connection = RunService.Heartbeat:Connect(function(dt: number)
 	end
 	local cameraPosition = camera.CFrame.Position
 	for coin in coins do
+		-- Para en fazla ±0,22 stud oynar: uzaklık testi için anlık konum yeter, öznitelik yalnızca yakındakine okunur.
+		if (coin.Position - cameraPosition).Magnitude > SPIN_DISTANCE then
+			continue
+		end
 		local base = coin:GetAttribute("BasePos")
-		if typeof(base) ~= "Vector3" or (base - cameraPosition).Magnitude > SPIN_DISTANCE then
+		if typeof(base) ~= "Vector3" then
 			continue
 		end
 		coin.CFrame = CFrame.new(base + Vector3.new(0, math.sin(elapsed * 2) * 0.22, 0))

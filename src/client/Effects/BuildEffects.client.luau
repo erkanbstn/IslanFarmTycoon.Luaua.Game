@@ -7,6 +7,7 @@ local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 local UiTheme = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("UiTheme"))
+local EffectSettings = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("EffectSettings"))
 local Sfx = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("Sfx"))
 local localPlayer = Players.LocalPlayer
 local POP_TIME = 0.5
@@ -271,7 +272,7 @@ table.insert(
 	connections,
 	RunService.RenderStepped:Connect(function()
 		local now = os.clock()
-		local reduced = localPlayer:GetAttribute("ReducedMotion") == true
+		local reduced = EffectSettings.reducedMotion()
 		for model, candidate in candidates do
 			if now >= candidate.expiresAt or not model:IsDescendantOf(Workspace) then
 				removeCandidate(model)

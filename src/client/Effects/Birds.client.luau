@@ -3,14 +3,12 @@
 -- Kanat çırpar, arada süzülür. Sadece görsel, sadece bu oyuncunun ekranında; uzaktakiler güncellenmez.
 -- Fırtınada ve karda kuşlar azalır (sığınırlar).
 
-local Players = game:GetService("Players")
-local localPlayer = Players.LocalPlayer
-
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local EffectSettings = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("EffectSettings"))
 local Environment = require(Shared:WaitForChild("Modules"):WaitForChild("Environment"))
 
 local FLOCK_COUNT = 10
@@ -132,10 +130,10 @@ RunService.Heartbeat:Connect(function(dt: number)
 		else FLOCK_COUNT
 
 	for index, flock in flocks do
-		local quality = localPlayer:GetAttribute("EffectsQuality")
+		local quality = EffectSettings.quality()
 		local qualityCount = if quality == "low" then 2 elseif quality == "high" then FLOCK_COUNT else 5
 		local active = index <= math.min(activeCount, qualityCount)
-			and localPlayer:GetAttribute("ReducedMotion") ~= true
+			and not EffectSettings.reducedMotion()
 			and (flock.center - Vector3.new(cameraPos.X, 0, cameraPos.Z)).Magnitude <= UPDATE_DISTANCE
 		setVisible(flock, active)
 		if not active or (flock.center - Vector3.new(cameraPos.X, 0, cameraPos.Z)).Magnitude > UPDATE_DISTANCE then
