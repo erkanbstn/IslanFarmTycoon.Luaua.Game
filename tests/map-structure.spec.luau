@@ -26,7 +26,8 @@ return function(context: any?)
 	local MIN_SIGN_CLEARANCE = 10
 
 	for _, plot in plots:GetChildren() do
-		local plotId = plot:GetAttribute("PlotId") :: string
+		local plotId = tostring(plot:GetAttribute("ThemeIndex"))
+		assert(plotId == "1", `{plot.Name}: kayıtlı haritada her ada 1. temayla kurulu olmalı.`)
 		local spawnPad = plot:FindFirstChild("Spawn") :: BasePart
 		local landY = spawnPad.Position.Y - spawnPad.Size.Y / 2
 		local theme = Config.getTheme(plotId)
@@ -89,22 +90,26 @@ return function(context: any?)
 		assert(market and market:GetAttribute("Locked") == true, `{plot.Name}: pazar tezgâhı etkileşimi eksik.`)
 	end
 
-	-- Ana ada düzeni temaya göre değişir: işaret yapısı temaya uygun ve yerleşimler birbirinden farklı
+	-- Ana ada düzeni temaya göre değişir: 1. adayı sırayla her temaya giydirip işaret yapısını ve yerleşimi denetle
 	local signatures: { [string]: boolean } = {}
 	local distinct = 0
-	for _, plot in plots:GetChildren() do
-		local plotId = plot:GetAttribute("PlotId") :: string
-		local decorFolder = plot:FindFirstChild("Decor") :: Folder
+	local probe = plots:GetChildren()[1] :: Model
+	for themeIndex = 1, Config.MAIN_FARM_LIMIT do
+		mapBuilder.applyTheme(probe, themeIndex)
+		assert(probe:GetAttribute("ThemeIndex") == themeIndex, "applyTheme ThemeIndex özniteliğini yazmalı.")
+		local decorFolder = probe:FindFirstChild("Decor") :: Folder
 		local landmark = decorFolder:FindFirstChild("Landmark")
 		assert(
-			landmark and landmark:GetAttribute("Kind") == Config.getTheme(plotId).landmark,
-			`{plot.Name}: tema işaret yapısı eksik ya da yanlış.`
+			landmark and landmark:GetAttribute("Kind") == Config.getTheme(tostring(themeIndex)).landmark,
+			`Tema {themeIndex}: işaret yapısı eksik ya da yanlış.`
 		)
-		local plotBase = plot:FindFirstChild("PlotBase") :: BasePart
+		local islands = probe:FindFirstChild("Islands") :: Folder
+		assert(#islands:GetChildren() == 3, `Tema {themeIndex}: tam üç küçük ada olmalı.`)
+		local plotBase = probe:FindFirstChild("PlotBase") :: BasePart
 		local parts: { string } = {}
 		for _, name in { "Farmhouse", "Windmill", "VegetableGarden", "Granary", "Well", "Orchard", "Beehives" } do
 			local item = decorFolder:FindFirstChild(name) :: Model
-			assert(item, `{plot.Name}: {name} eksik.`)
+			assert(item, `Tema {themeIndex}: {name} eksik.`)
 			local localPos = plotBase.CFrame:PointToObjectSpace(item:GetPivot().Position)
 			table.insert(parts, `{name}:{math.floor(localPos.X / 6 + 0.5)}:{math.floor(localPos.Z / 6 + 0.5)}`)
 		end
@@ -114,6 +119,8 @@ return function(context: any?)
 			distinct += 1
 		end
 	end
+	mapBuilder.applyTheme(probe, 1)
+	mapBuilder.validate()
 	assert(distinct >= 5, "Ana ada yerleşimleri çok benzer; temaya göre en az 5 farklı düzen olmalı.")
 
 	-- Harita çevresi: görünmez halka duvar (haritadan ötesine yüzülemez); dağlar Terrain'dedir

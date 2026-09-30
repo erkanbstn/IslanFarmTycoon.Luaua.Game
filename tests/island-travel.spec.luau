@@ -99,13 +99,14 @@ return function(createService: any, config: any)
 				return if player == owner then data else nil
 			end,
 		},
-		{ ensure = noop, validate = noop },
+		{ ensure = noop, validate = noop, applyTheme = noop },
 		{ clear = noop, refresh = noop },
 		{ applyForPlayer = noop },
 		{ apply = noop },
 		{ apply = noop },
 		{ apply = noop },
 		{ syncProductionSites = noop, syncMilkLoadingDecor = noop },
+		{ reset = noop },
 		vectors,
 		frames
 	)

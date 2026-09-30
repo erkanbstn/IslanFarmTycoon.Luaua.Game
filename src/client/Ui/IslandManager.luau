@@ -87,21 +87,15 @@ local function summaries(state: any): { MainFarm }
 	}
 end
 
-local pendingSilent = false
-
--- silent: karakter başka çiftliğin adasına yürüyünce otomatik etkinleştirme; mesaj ve bildirim göstermez.
-local function submit(action: string, target: string, silent: boolean?)
+local function submit(action: string, target: string)
 	if blocked() then
 		return
 	end
 	sequence += 1
 	local id = sequence
 	pending = id
-	pendingSilent = silent == true
-	if not pendingSilent then
-		resultMessage = "Ana çiftlik işlemi bekleniyor..."
-		resultOk = false
-	end
+	resultMessage = "Ana çiftlik işlemi bekleniyor..."
+	resultOk = false
 	update()
 	Remotes.get("RequestMainFarmAction"):FireServer(action, target, id)
 	task.delay(8, function()
@@ -109,10 +103,8 @@ local function submit(action: string, target: string, silent: boolean?)
 			return
 		end
 		pending = nil
-		if not pendingSilent then
-			resultMessage = "Yanıt gecikti. İstek tekrarlanmadı; çiftlik bilgileri yenileniyor."
-			resultOk = false
-		end
+		resultMessage = "Yanıt gecikti. İstek tekrarlanmadı; çiftlik bilgileri yenileniyor."
+		resultOk = false
 		ClientState.requestSnapshot()
 		update()
 	end)
@@ -123,14 +115,6 @@ Remotes.get("MainFarmResult").OnClientEvent:Connect(function(id: unknown, ok: un
 		return
 	end
 	pending = nil
-	if pendingSilent then
-		pendingSilent = false
-		if not ok then
-			ClientState.requestSnapshot()
-		end
-		update()
-		return
-	end
 	Sfx.play(if ok then "success" else "error")
 	resultOk = ok
 	resultMessage = if typeof(message) == "string"
@@ -235,26 +219,24 @@ local function create(): UiKit.Window
 	local plotsById: { [string]: Instance } = {}
 	local offerById: { [string]: Offer } = {}
 
-	-- Önce sunucu listesi; yoksa (eski snapshot) cihazda yüklü model
-	local function ownerOf(id: string): number?
-		local offer = offerById[id]
-		if offer then
-			return offer.ownerUserId
-		end
-		local plot = plotsById[id]
-		local owner = plot and plot:GetAttribute("OwnerUserId")
-		return if typeof(owner) == "number" then owner else nil
-	end
 	local function nameOf(id: string): string?
 		local offer = offerById[id]
-		if offer then
-			return offer.name
-		end
-		local plot = plotsById[id]
-		return if plot then tostring(plot:GetAttribute("IslandName") or plot.Name) else nil
+		return if offer then offer.name else nil
 	end
 	local function isKnown(id: string): boolean
-		return offerById[id] ~= nil or plotsById[id] ~= nil
+		return offerById[id] ~= nil
+	end
+	local function isOwned(id: string): boolean
+		local state = ClientState.get()
+		if not state then
+			return false
+		end
+		for _, farm in summaries(state) do
+			if farm.id == id then
+				return true
+			end
+		end
+		return false
 	end
 
 	for index = 1, Config.MAP_PLOT_COUNT do
@@ -263,8 +245,7 @@ local function create(): UiKit.Window
 		card.frame.BackgroundColor3 = UiKit.Color.SurfaceRaised
 		freeCards[id] = card
 		card.action.Activated:Connect(function()
-			-- Model stream edilmemiş olabilir; sahiplik sunucu listesinden okunur, sunucu yine doğrular
-			if card.action.Active and isKnown(id) and ownerOf(id) == nil then
+			if card.action.Active and isKnown(id) and not isOwned(id) then
 				local state = ClientState.get()
 				local price = if state and Config.MAIN_FARM_PRICES
 					then Config.MAIN_FARM_PRICES[#summaries(state) + 1]
@@ -397,23 +378,22 @@ local function create(): UiKit.Window
 				child:Destroy()
 			end
 		end
-		UiKit.text(
-			visits,
-			"Diğer oyuncuların çiftlikleri ziyaret edilebilir. Sahipli alanlar satın alınamaz.",
-			"Caption"
-		).LayoutOrder =
+		UiKit.text(visits, "Diğer oyuncuların adalarını ziyaret edebilirsin; onlara dokunamazsın.", "Caption").LayoutOrder =
 			0
 		for index = 1, Config.MAP_PLOT_COUNT do
 			local id = tostring(index)
-			local owner = ownerOf(id)
-			if not isKnown(id) or owner == nil or owner == player.UserId then
+			local plot = plotsById[id]
+			local ownerId = plot and plot:GetAttribute("OwnerUserId")
+			if not plot or typeof(ownerId) ~= "number" or ownerId == player.UserId then
 				continue
 			end
-			local offer = offerById[id]
-			local card = UiKit.card(visits, index, if offer then offer.icon else "🏝️")
+			local owner = Players:GetPlayerByUserId(ownerId)
+			local card = UiKit.card(visits, index, tostring(plot:GetAttribute("IslandIcon") or "🏝️"))
 			card.frame.BackgroundColor3 = UiKit.Color.SurfaceRaised
-			card.title.Text = nameOf(id) or `Ana alan {id}`
-			card.detail.Text = "Başka bir oyuncunun ana çiftliği"
+			card.title.Text = tostring(plot:GetAttribute("IslandName") or plot.Name)
+			card.detail.Text = `{if owner then owner.DisplayName else "Oyuncu"} · Çiftlik {tostring(
+				plot:GetAttribute("MainFarmId")
+			)}`
 			card.action.Text = "Ziyaret et"
 			table.insert(visitButtons, card.action)
 			card.action.Activated:Connect(function()
@@ -464,27 +444,12 @@ local function create(): UiKit.Window
 			if isActive then
 				specialtyBox.Parent = card.frame
 			end
-			local physical = farm.plotId and plotsById[farm.plotId]
-			if not physical and farm.id == "1" and not (state :: any).mainFarmSummaries then
-				for _, plot in plotsById do
-					if plot:GetAttribute("OwnerUserId") == player.UserId then
-						physical = plot
-						break
-					end
-				end
-			end
-			local physicalName = if physical
-				then tostring(physical:GetAttribute("IslandName") or physical.Name)
-				elseif farm.plotId then nameOf(farm.plotId)
-				else nil
+			local physicalName = nameOf(farm.id)
 			card.title.Text = `Ana Çiftlik {farm.id}` .. (if isActive then " · Etkin" else "")
 			local stored = if isActive then state.stored else farm.stored
 			card.detail.Text = `{farm.animalCount} hayvan · {farm.purchasedCount} yatırım · Depo {FarmMath.formatMoney(
 				stored
-			)}\n` .. (if physicalName
-				then `Konum: {physicalName}`
-				elseif farm.plotId then "Konum yükleniyor"
-				else "Park halinde; seçince kendi alanında açılır.")
+			)}\n` .. (if physicalName then `Konum: {physicalName}` else "Park halinde; seçince adanda açılır.")
 			card.action.Text = if pending
 				then "İşleniyor"
 				elseif isActive then "Etkin çiftliğe dön"
@@ -495,14 +460,13 @@ local function create(): UiKit.Window
 		local atLimit = #farms >= LIMIT
 		buyInfo.Text = if atLimit
 			then `En fazla {LIMIT} ana çiftliğin olabilir.`
-			elseif typeof(nextPrice) == "number" then `Boş bir ana alan seç. Yeni çiftlik: {FarmMath.formatMoney(
+			elseif typeof(nextPrice) == "number" then `Bir çiftlik teması seç. Yeni çiftlik: {FarmMath.formatMoney(
 				nextPrice
-			)}. Satın alınca o çiftlik etkinleşir.`
+			)}. Satın alınca adan o çiftliğe dönüşür; önceki çiftliğin park edilir ve çalışmaya devam eder.`
 			else "Ana çiftlik fiyatı yükleniyor."
 		for id, card in freeCards do
 			local known = isKnown(id)
-			local owner = ownerOf(id)
-			card.frame.Visible = not known or owner ~= player.UserId
+			card.frame.Visible = not isOwned(id)
 			card.title.Text = nameOf(id) or `Ana alan {id}`
 			local offer = offerById[id]
 			if offer then
@@ -511,12 +475,10 @@ local function create(): UiKit.Window
 			local variant: UiKit.Variant = "disabled"
 			if not known then
 				card.detail.Text, card.action.Text = "Alan bilgisi henüz yüklenmedi.", "Yükleniyor"
-			elseif owner ~= nil then
-				card.detail.Text, card.action.Text = "Başka bir oyuncunun ana çiftliği; satın alınamaz.", "Dolu"
 			elseif atLimit then
-				card.detail.Text, card.action.Text = "Bu ana alan boş.", "Çiftlik sınırı"
+				card.detail.Text, card.action.Text = "Bu çiftlik teması henüz senin değil.", "Çiftlik sınırı"
 			elseif typeof(nextPrice) == "number" then
-				card.detail.Text = "Boş ana çiftlik alanı. Hayvanları ve yatırımları ayrı gelişir."
+				card.detail.Text = "Hayvanları ve yatırımları ayrı gelişir; kasa ve depo ortaktır."
 				card.action.Text = if pending then "İşleniyor" else `Satın al · {FarmMath.formatMoney(nextPrice)}`
 				variant = if state.cash >= nextPrice then "primary" else "warning"
 			else
@@ -585,11 +547,6 @@ local function create(): UiKit.Window
 		polling:Disconnect()
 	end)
 	return created
-end
-
--- Karakter başka bir ana çiftliğin adasına yürüdü: o çiftliği etkin yap (ışınlama yok, sessiz).
-function IslandManager.activateFarm(farmId: string)
-	submit("activate", farmId, true)
 end
 
 function IslandManager.isOpen(): boolean

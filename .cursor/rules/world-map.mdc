@@ -41,6 +41,8 @@ alwaysApply: false
   değiştirir, kuyu iki yandan birinde durur (6 düzen, yuvalar sabit; yol/bölge/yapı noktaları değişmez). Çim kaçınma dikdörtgenleri aynı yerleşimden türer
   (`homeBuildingAvoidRects`): yeni yapı eklersen `homePlacements`'a koy. Her temanın doğu kıyıda kendi işaret yapısı vardır (`Config.THEMES[n].landmark` →
   `HomeLandmarks.landmark`: daisy/tulip/sunflower/rose/pine/cherry). `tests/map-structure.spec.luau` işaret yapısını ve >= 5 farklı yerleşimi denetler.
+- Kayıtlı harita bütün fiziksel adaları 1. temayla kurar (`ThemeIndex` özniteliği); tema içeriği (BuildSpots, Decor, Islands + uzman bölgeler) `IslandBuilder.buildThemeContent` ile,
+  çalışma anında `MapBuilder.applyTheme(plot, tema)` ile Terrain'siz yeniden kurulur (PlotService çağırır; önce `DecorReveal.reset`). Temaya bağlı kod `PlotId` değil `ThemeIndex` okur; yeni temaya bağlı parçayı `buildThemeContent` içine koy.
 - Ada temaları çiftlik numarasına bağlanır (Çiftlik 1 = Papatya ...); genel ada çekirdeği hepsinde ortaktır; ağıl/otlak görünümü temaya göre değişir (`ZoneParts.THEME_LOOKS`).
 
 ## Gece ışıkları

@@ -67,6 +67,23 @@ local function scan(plot: Model): { Entry }
 	return entries
 end
 
+-- Ada teması değişmeden önce: gizlenmiş yapıları yerine koyar (eski içerikle birlikte yok edilsinler) ve kaydı unutur.
+function DecorReveal.reset(plot: Model)
+	local entries = registry[plot]
+	if entries then
+		for _, entry in entries do
+			if entry.model.Parent ~= entry.parent then
+				if entry.parent.Parent then
+					entry.model.Parent = entry.parent
+				else
+					entry.model:Destroy()
+				end
+			end
+		end
+	end
+	registry[plot] = nil
+end
+
 function DecorReveal.apply(plot: Model, save: PlayerSave?)
 	for _, entry in scan(plot) do
 		local model = entry.model

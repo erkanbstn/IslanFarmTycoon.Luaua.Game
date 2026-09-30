@@ -959,4 +959,11 @@ return {
 	["Yardımcı · +{}"] = "Помощник · +{1}",
 	["Yardımcı"] = "Помощник",
 	["Otomatik tekrar"] = "Автоповтор",
+
+	-- Ada teması (çalışma anında çiftlik değiştirme)
+	["Bu çiftlik teması henüz senin değil."] = "Эта тема фермы пока не твоя.",
+	["Diğer oyuncuların adalarını ziyaret edebilirsin; onlara dokunamazsın."] = "Ты можешь посещать острова других игроков, но не можешь их трогать.",
+	["Hayvanları ve yatırımları ayrı gelişir; kasa ve depo ortaktır."] = "Животные и вложения развиваются отдельно; касса и склад общие.",
+	["Park halinde; seçince adanda açılır."] = "На паузе; откроется на твоём острове при выборе.",
+	["Bir çiftlik teması seç. Yeni çiftlik: {}. Satın alınca adan o çiftliğe dönüşür; önceki çiftliğin park edilir ve çalışmaya devam eder."] = "Выбери тему фермы. Новая ферма: {1}. После покупки твой остров станет этой фермой; прежняя ферма встанет на паузу и продолжит работать.",
 }

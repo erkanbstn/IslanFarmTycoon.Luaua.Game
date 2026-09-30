@@ -149,7 +149,8 @@ local function buildZone(plotModel: Model, islandCf: CFrame, layout: ZoneLayout)
 	end
 
 	local zoneModel = Instance.new("Model")
-	zoneModel.Name = Config.getZoneName(zoneConfig, plotModel:GetAttribute("PlotId") :: string?)
+	local themeKey = tostring(plotModel:GetAttribute("ThemeIndex") or plotModel:GetAttribute("PlotId"))
+	zoneModel.Name = Config.getZoneName(zoneConfig, themeKey)
 	zoneModel:SetAttribute("ZoneId", layout.id)
 	zoneModel.Parent = plotModel:FindFirstChild("Zones")
 
@@ -173,7 +174,7 @@ local function buildZone(plotModel: Model, islandCf: CFrame, layout: ZoneLayout)
 		ground.CanCollide = false
 		ground.CanQuery = false
 		buildFloatingWalkway(zoneModel, center, layout.size)
-		addZoneLabel(zoneModel, center, zoneConfig, plotModel:GetAttribute("PlotId") :: string?)
+		addZoneLabel(zoneModel, center, zoneConfig, themeKey)
 		return
 	end
 
@@ -223,7 +224,7 @@ local function buildZone(plotModel: Model, islandCf: CFrame, layout: ZoneLayout)
 	fenceSegment(Vector3.new(-hx, 0, -hz), Vector3.new(-gap / 2, 0, -hz))
 	fenceSegment(Vector3.new(gap / 2, 0, -hz), Vector3.new(hx, 0, -hz))
 
-	addZoneLabel(zoneModel, center, zoneConfig, plotModel:GetAttribute("PlotId") :: string?)
+	addZoneLabel(zoneModel, center, zoneConfig, themeKey)
 end
 
 local function addBuildSpot(folder: Instance, upgradeId: string, cf: CFrame): Part

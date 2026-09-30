@@ -19,9 +19,19 @@ end
 -- Ada kıyısı: kum plaj PARÇA halkası (çimenin 1 stud altında) + su altında Terrain kayalık gövde.
 -- Terrain yüzeyi 4 stud'luk ızgarada öngörülemez şekilde yukarı yuvarlandığı için ada yüzeyine yakın
 -- hiçbir yerde Terrain kullanılmaz; kayalık gövdenin üstü suyun iyice altındadır.
-function Shore.terrainIsland(parent: Instance, center: Vector3, radius: number, surfaceY: number, beach: number)
+-- withTerrain = false: Terrain zaten kayıtlı haritada duruyor; yalnızca kum plaj parçası kurulur (çalışma anında yeniden kurulum).
+function Shore.terrainIsland(
+	parent: Instance,
+	center: Vector3,
+	radius: number,
+	surfaceY: number,
+	beach: number,
+	withTerrain: boolean?
+)
 	local base = Vector3.new(center.X, 0, center.Z)
-	terrain():FillCylinder(CFrame.new(base + Vector3.new(0, -14, 0)), 16, radius + beach - 1, Enum.Material.Rock)
+	if withTerrain ~= false then
+		terrain():FillCylinder(CFrame.new(base + Vector3.new(0, -14, 0)), 16, radius + beach - 1, Enum.Material.Rock)
+	end
 
 	local sandTop = surfaceY - 1
 	local sandBottom = -2

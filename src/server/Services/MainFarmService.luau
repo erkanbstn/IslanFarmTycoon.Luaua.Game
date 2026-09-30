@@ -1,5 +1,6 @@
 --!strict
--- Bağımsız ana çiftlik satın alma/seçme. Fiziksel yer yoksa ücret alınmaz; park edilen kayıt korunur.
+-- Ana çiftlik satın alma/etkinleştirme. Çiftlik numarası = tema; etkinleşen çiftlik oyuncunun adasını yeniden giyer,
+-- önceki çiftlik park edilir (kayıtta ve işleyişte kalır).
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -19,7 +20,7 @@ local highest: { [Player]: number } = {}
 local initialized = false
 
 local function apply(player: Player, action: unknown, target: unknown): (boolean, string)
-	if not RateLimiter.validId(target) or (action ~= "buy" and action ~= "select" and action ~= "activate") then
+	if not RateLimiter.validId(target) or (action ~= "buy" and action ~= "select") then
 		return false, "Geçersiz çiftlik işlemi."
 	end
 	local data = PlayerDataService.tryGet(player)
@@ -36,7 +37,6 @@ local function apply(player: Player, action: unknown, target: unknown): (boolean
 			return false, "Ana çiftlik sınırına ulaştın."
 		end
 		local price = Config.MAIN_FARM_PRICES[#ids + 1]
-		-- Çiftlik numarası = seçilen fiziksel ada numarası (tema numaraya bağlıdır)
 		local plotNumber = tonumber(target)
 		if not plotNumber or plotNumber % 1 ~= 0 or plotNumber < 1 or plotNumber > Config.MAIN_FARM_LIMIT then
 			return false, "Geçersiz ana alan."
@@ -52,10 +52,6 @@ local function apply(player: Player, action: unknown, target: unknown): (boolean
 		local farm = SaveCodec.newFarm(Config, FarmMath, DateTime.now().UnixTimestampMillis / 1000, function(): string
 			return HttpService:GenerateGUID(false)
 		end, farmId)
-		-- reserveMainFarm ve aşağıdaki mutasyonlar yield etmez: tahsis başarısızsa cüzdana dokunulmaz.
-		if not PlotService.reserveMainFarm(player, farmId, target :: string) then
-			return false, "Bu ana ada artık boş değil. Başka bir boş ada seç."
-		end
 		data.mainFarms[farmId] = farm
 		charge = price
 	else
@@ -65,35 +61,22 @@ local function apply(player: Player, action: unknown, target: unknown): (boolean
 		EconomyService.settlePlayer(player)
 	end
 	if not PlotService.selectMainFarm(player, farmId) or not PlayerDataService.setActiveMainFarm(player, farmId) then
-		-- Önceki etkin görünümü ve tahsisi geri getir; başarısız seçim hiçbir ücret doğurmaz.
+		-- Önceki etkin görünümü geri getir; başarısız seçim hiçbir ücret doğurmaz.
 		PlotService.selectMainFarm(player, previousFarmId)
 		PlayerDataService.setActiveMainFarm(player, previousFarmId)
 		if action == "buy" then
-			PlotService.cancelMainFarmReservation(player, farmId)
 			data.mainFarms[farmId] = nil
 		end
 		PlayerDataService.pushState(player)
 		return false, "Çiftlik seçilemedi; ücret alınmadı."
 	end
 	data.cash -= charge
-	-- "activate": oyuncu başka bir ana çiftliğin adasına yürüdü; etkin çiftlik değişir ama karakter ışınlanmaz.
-	local walking = action == "activate"
-	if walking then
-		local active = PlayerDataService.tryGet(player)
-		local selected = player:GetAttribute("SelectedFarmIsland")
-		if not active or typeof(selected) ~= "string" or active.unlockedIslands[selected] ~= true then
-			player:SetAttribute("SelectedFarmIsland", "home")
-		end
-	else
-		player:SetAttribute("SelectedFarmIsland", "home")
-	end
+	player:SetAttribute("SelectedFarmIsland", "home")
 	PlayerDataService.pushState(player)
 	PlayerDataService.requestSave(player)
 	local ok, err = pcall(function()
 		PlotService.refreshPlayerWorld(player)
-		if not walking then
-			PlotService.teleportHome(player)
-		end
+		PlotService.teleportHome(player)
 	end)
 	if not ok then
 		warn(`[MainFarm] Seçim kaydedildi; görünüm yenilenemedi: {err}`)

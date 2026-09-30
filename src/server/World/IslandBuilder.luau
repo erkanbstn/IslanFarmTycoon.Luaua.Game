@@ -228,14 +228,87 @@ local function decorateHome(decor: Instance, islandCf: CFrame, plotIndex: number
 	)
 end
 
-local function buildIsland(plotIndex: number, islandCf: CFrame): Model
-	local info = Config.PLOT_NAMES[plotIndex]
-	local islandName = if info then info.name else `Ada {plotIndex}`
+-- Temaya (çiftlik numarasına) bağlı içerik: yapı noktaları, ana ada süsleri ve yerleşimi, uzman adalar (+ bölgeleri).
+-- Zemin (Terrain), ana bölgeler, ahır, doğma noktası, toplama platformu ve köprüler bütün adalarda aynıdır ve bunun dışındadır.
+-- Çalışma anında oyuncu başka bir çiftliği etkinleştirince MapBuilder.applyTheme bu içeriği (Terrain'siz) yeniden kurar.
+local function buildThemeContent(plotModel: Model, themeIndex: number, islandCf: CFrame, withTerrain: boolean)
+	local info = Config.PLOT_NAMES[themeIndex]
+	plotModel:SetAttribute("ThemeIndex", themeIndex)
+	plotModel:SetAttribute("IslandName", if info then info.name else `Ada {themeIndex}`)
+	plotModel:SetAttribute("IslandIcon", if info then info.icon else "🏝️")
+
+	local buildSpots = Instance.new("Folder")
+	buildSpots.Name = "BuildSpots"
+	buildSpots.Parent = plotModel
+	for upgradeId, offset in HOME_BUILD_SPOTS do
+		addBuildSpot(buildSpots, upgradeId, islandCf * CFrame.new(offset.X, SURFACE_Y, offset.Z))
+	end
+	for upgradeId, site in IslandSpecialization.SITES do
+		if site.island == "home" then
+			local marker =
+				addBuildSpot(buildSpots, upgradeId, islandCf * CFrame.new(site.offset + Vector3.new(0, SURFACE_Y, 0)))
+			marker:SetAttribute("FarmIslandId", "home")
+		end
+	end
+	for upgradeId, spot in HOME_WATER_SPOTS do
+		local marker = addBuildSpot(
+			buildSpots,
+			upgradeId,
+			islandCf * CFrame.new(spot.offset.X, WATER_Y, spot.offset.Z) * CFrame.Angles(0, math.rad(spot.yaw), 0)
+		)
+		marker:SetAttribute("BoatPatrolX", 6)
+		marker:SetAttribute("BoatPatrolZ", 3)
+	end
+
+	local decor = Instance.new("Folder")
+	decor.Name = "Decor"
+	decor.Parent = plotModel
+	decorateHome(decor, islandCf, themeIndex)
+	IslandSpecialization.build(decor, "home", islandCf * CFrame.new(0, SURFACE_Y, 0))
+	local grassAvoid = {
+		{ x = 0, z = -20, hx = 5, hz = 52 }, -- ana yol
+		{ x = 0, z = -16, hx = 22, hz = 4 },
+		{ x = 0, z = 40, hx = 13, hz = 10 }, -- ahır
+		{ x = -31, z = 33, hx = 5, hz = 5 }, -- silo
+		{ x = 31, z = 33, hx = 5, hz = 5 }, -- süt makinesi
+		{ x = 24, z = -40, hx = 5, hz = 5 },
+		{ x = 0, z = -45, hx = 7, hz = 7 }, -- doğma noktası
+		{ x = -36, z = 41, hx = 22, hz = 5 }, -- köprü yolları
+		{ x = 36, z = 41, hx = 22, hz = 5 },
+	}
+	for _, rect in homeBuildingAvoidRects(themeIndex) do
+		table.insert(grassAvoid, rect)
+	end
+	addIslandGrass(
+		decor,
+		islandCf * CFrame.new(0, SURFACE_Y, 0),
+		"home",
+		ISLAND_RADIUS,
+		HOME_ZONES,
+		grassAvoid,
+		140,
+		themeIndex * 97
+	)
+
+	local islandsFolder = Instance.new("Folder")
+	islandsFolder.Name = "Islands"
+	islandsFolder.Parent = plotModel
+	for _, layout in satelliteLayouts(themeIndex) do
+		buildSatellite(plotModel, islandsFolder, buildSpots, islandCf, layout, withTerrain)
+	end
+end
+
+-- plotIndex: fiziksel ada numarası (konum); themeIndex: içeriğin teması (çiftlik numarası, varsayılan plotIndex)
+local function buildIsland(plotIndex: number, islandCf: CFrame, theme: number?): Model
+	local themeIndex = theme or plotIndex
+	local info = Config.PLOT_NAMES[themeIndex]
+	local islandName = if info then info.name else `Ada {themeIndex}`
 	local islandIcon = if info then info.icon else "🏝️"
 
 	local plotModel = Instance.new("Model")
 	plotModel.Name = `Plot{plotIndex}`
 	plotModel:SetAttribute("PlotId", tostring(plotIndex))
+	plotModel:SetAttribute("ThemeIndex", themeIndex)
 	plotModel:SetAttribute("IslandName", islandName)
 	plotModel:SetAttribute("IslandIcon", islandIcon)
 
@@ -358,65 +431,7 @@ local function buildIsland(plotIndex: number, islandCf: CFrame): Model
 		maxDistance = 600,
 	})
 
-	local buildSpots = Instance.new("Folder")
-	buildSpots.Name = "BuildSpots"
-	buildSpots.Parent = plotModel
-	for upgradeId, offset in HOME_BUILD_SPOTS do
-		addBuildSpot(buildSpots, upgradeId, islandCf * CFrame.new(offset.X, SURFACE_Y, offset.Z))
-	end
-	for upgradeId, site in IslandSpecialization.SITES do
-		if site.island == "home" then
-			local marker =
-				addBuildSpot(buildSpots, upgradeId, islandCf * CFrame.new(site.offset + Vector3.new(0, SURFACE_Y, 0)))
-			marker:SetAttribute("FarmIslandId", "home")
-		end
-	end
-	for upgradeId, spot in HOME_WATER_SPOTS do
-		local marker = addBuildSpot(
-			buildSpots,
-			upgradeId,
-			islandCf * CFrame.new(spot.offset.X, WATER_Y, spot.offset.Z) * CFrame.Angles(0, math.rad(spot.yaw), 0)
-		)
-		marker:SetAttribute("BoatPatrolX", 6)
-		marker:SetAttribute("BoatPatrolZ", 3)
-	end
-
-	local decor = Instance.new("Folder")
-	decor.Name = "Decor"
-	decor.Parent = plotModel
-	decorateHome(decor, islandCf, plotIndex)
-	IslandSpecialization.build(decor, "home", islandCf * CFrame.new(0, SURFACE_Y, 0))
-	local grassAvoid = {
-		{ x = 0, z = -20, hx = 5, hz = 52 }, -- ana yol
-		{ x = 0, z = -16, hx = 22, hz = 4 },
-		{ x = 0, z = 40, hx = 13, hz = 10 }, -- ahır
-		{ x = -31, z = 33, hx = 5, hz = 5 }, -- silo
-		{ x = 31, z = 33, hx = 5, hz = 5 }, -- süt makinesi
-		{ x = 24, z = -40, hx = 5, hz = 5 },
-		{ x = 0, z = -45, hx = 7, hz = 7 }, -- doğma noktası
-		{ x = -36, z = 41, hx = 22, hz = 5 }, -- köprü yolları
-		{ x = 36, z = 41, hx = 22, hz = 5 },
-	}
-	for _, rect in homeBuildingAvoidRects(plotIndex) do
-		table.insert(grassAvoid, rect)
-	end
-	addIslandGrass(
-		decor,
-		islandCf * CFrame.new(0, SURFACE_Y, 0),
-		"home",
-		ISLAND_RADIUS,
-		HOME_ZONES,
-		grassAvoid,
-		140,
-		plotIndex * 97
-	)
-
-	local islandsFolder = Instance.new("Folder")
-	islandsFolder.Name = "Islands"
-	islandsFolder.Parent = plotModel
-	for _, layout in satelliteLayouts(plotIndex) do
-		buildSatellite(plotModel, islandsFolder, buildSpots, islandCf, layout)
-	end
+	buildThemeContent(plotModel, themeIndex, islandCf, true)
 
 	plotModel.PrimaryPart = base
 	return plotModel
@@ -424,4 +439,5 @@ end
 
 return {
 	buildIsland = buildIsland,
+	buildThemeContent = buildThemeContent,
 }

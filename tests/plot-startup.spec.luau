@@ -8,6 +8,7 @@ return function(createPlotService: any, Config: any)
 		local rendered: { [any]: any } = {}
 		local pushes: { [any]: number } = {}
 		local plots: { any } = {}
+		local themes: { [any]: number } = {}
 		for index = 1, Config.MAP_PLOT_COUNT do
 			local plot: any = { Name = `Plot{index}`, attributes = { PlotId = tostring(index) } }
 			function plot:IsA(class: string): boolean
@@ -55,6 +56,10 @@ return function(createPlotService: any, Config: any)
 				validateCalls += 1
 				assert(not invalidMap, "Injected malformed map")
 			end,
+			applyTheme = function(target: any, themeIndex: number): boolean
+				themes[target] = themeIndex
+				return true
+			end,
 		}
 		local noop = function() end
 		local service = createPlotService(
@@ -89,7 +94,8 @@ return function(createPlotService: any, Config: any)
 			{ apply = noop },
 			{ apply = noop },
 			{ apply = noop },
-			{ syncProductionSites = noop, syncMilkLoadingDecor = noop }
+			{ syncProductionSites = noop, syncMilkLoadingDecor = noop },
+			{ reset = noop }
 		)
 		return {
 			service = service,
@@ -98,6 +104,7 @@ return function(createPlotService: any, Config: any)
 			profiles = profiles,
 			rendered = rendered,
 			pushes = pushes,
+			themes = themes,
 			calls = function(): (number, number)
 				return ensureCalls, validateCalls
 			end,
@@ -151,7 +158,15 @@ return function(createPlotService: any, Config: any)
 	local service = multi.service
 	service.init()
 	local alice, bob = player(101), player(102)
-	assert(service.assign(alice) and service.assign(bob), "primary slots reserve before profile load")
+	assert(
+		service.assign(alice) and service.assign(bob),
+		"every player gets exactly one physical plot before profile load"
+	)
+	assert(
+		service.getPlot(alice) == multi.plots[1] and service.getPlot(bob) == multi.plots[2],
+		"plots are handed out in order"
+	)
+	assert(service.getFarmId(multi.plots[1]) == "1", "every player starts on farm 1")
 	local records: any = {}
 	for index = 1, 4 do
 		records[tostring(index)] = {
@@ -162,103 +177,68 @@ return function(createPlotService: any, Config: any)
 		}
 	end
 	multi.profiles[alice] = { activeMainFarmId = "2", mainFarms = records }
+	multi.profiles[bob] = { activeMainFarmId = "1", mainFarms = { ["1"] = records["1"] } }
 	assert(
 		service.restoreMainFarms(alice, { "1", "2", "3" }, "2"),
-		"saved active farm restores in reserved primary slot"
+		"saved active farm restores on the player's own plot"
 	)
 	assert(
 		service.getPlot(alice) == multi.plots[1] and service.getFarmId(multi.plots[1]) == "2",
-		"active logical id controls primary physical mapping"
+		"active logical id is shown on the player's plot"
 	)
-	assert(service.getOwner(multi.plots[2]) == bob, "restoring additional farms cannot take another player's plot")
-	assert(not service.reserveMainFarm(alice, "4", "2"), "occupied target cannot be bought")
-	assert(not service.reserveMainFarm(alice, "2", "5"), "same logical farm cannot reserve a second plot")
-	assert(not service.reserveMainFarm(alice, "4", "missing"), "unknown physical target is rejected")
-	assert(service.reserveMainFarm(alice, "4", "5"), "empty requested physical plot can be reserved")
-	assert(service.getPlot(alice) == multi.plots[1], "reserving farm never silently changes active context")
+	assert(multi.themes[multi.plots[1]] == 2, "the plot is re-themed to the active farm")
 	assert(
-		not service.cancelMainFarmReservation(bob, "4"),
-		"reservation rollback cannot cancel another player's mapped farm"
+		service.getOwner(multi.plots[2]) == bob and service.getFarmId(multi.plots[2]) == "1",
+		"other players are untouched"
 	)
-	assert(not service.cancelMainFarmReservation(alice, "2"), "rollback cannot release caller's active farm")
-	assert(service.cancelMainFarmReservation(alice, "4"), "inactive reservation can be rolled back")
+	assert((multi.themes[multi.plots[2]] or 1) == 1, "a farm 1 player keeps the base theme")
+	assert(not service.restoreMainFarms(alice, { "1" }, "2"), "active farm must be one of the saved farms")
+	assert(multi.rendered[multi.plots[1]] == records["2"], "only the active farm is rendered")
+	assert(service.getMainFarmPlotId(alice, "2") == "1", "active farm reports its physical plot")
+	assert(service.getMainFarmPlotId(alice, "1") == nil, "parked farms have no physical plot")
+	local owned = service.getAllOwned(alice)
+	local count = 0
+	for _ in owned do
+		count += 1
+	end
+	assert(count == 1 and owned["2"] == multi.plots[1], "exactly one plot is owned")
+	owned["2"] = nil
+	assert(service.getMainFarmPlotId(alice, "2") == "1", "caller cannot mutate ownership through returned mapping")
+
+	local offers = service.getMainFarmOffers()
+	assert(#offers == Config.MAIN_FARM_LIMIT and offers[1].id == "1", "offers list every purchasable theme")
+	assert(offers[1].ownerUserId == nil and offers[6].ownerUserId == nil, "themes are never reserved by other players")
+
+	multi.profiles[alice].mainFarms["5"] = { barnLevel = 1, stored = 0, animals = {}, purchased = {} }
+	assert(service.selectMainFarm(alice, "5"), "an owned farm can be activated")
 	assert(
-		service.getOwner(multi.plots[5]) == nil and service.getMainFarmPlotId(alice, "4") == nil,
-		"rollback releases physical ownership and logical mapping together"
+		multi.themes[multi.plots[1]] == 5 and service.getFarmId(multi.plots[1]) == "5",
+		"activation re-themes the plot"
+	)
+	assert(
+		alice.attributes.ActiveMainFarmId == "5" and alice.attributes.ActivePlotId == "1",
+		"activation publishes both logical and physical context"
 	)
 	assert(
 		service.getPlot(alice) == multi.plots[1] and service.getOwner(multi.plots[2]) == bob,
-		"rollback preserves caller's active slot and every other owner"
-	)
-	assert(records["4"].stored == 492, "reservation rollback never mutates profile data")
-	assert(service.reserveMainFarm(alice, "4", "5"), "released reservation is available for a later transaction")
-	local offers = service.getMainFarmOffers()
-	assert(#offers == Config.MAP_PLOT_COUNT, "server offers include all physical plots without client streaming")
-	assert(
-		offers[1].id == "1" and offers[1].ownerUserId == alice.UserId,
-		"offer reports authoritative occupied ownership"
-	)
-	assert(
-		offers[6].id == "6" and offers[6].ownerUserId == nil,
-		"unstreamed empty plot remains an available server offer"
-	)
-	offers[1].ownerUserId = -1
-	assert(service.getMainFarmOffers()[1].ownerUserId == alice.UserId, "returned offers cannot mutate ownership")
-	service.refreshPlayerWorld(alice)
-	for id, ownedPlot in service.getAllOwned(alice) do
-		assert(multi.rendered[ownedPlot] == records[id], "each physical farm must render its own record")
-		assert(
-			ownedPlot.attributes.MainFarmId == id and ownedPlot.attributes.OwnerUserId == alice.UserId,
-			"replicated physical identity matches authoritative mapping"
-		)
-	end
-	local copy = service.getAllOwned(alice)
-	copy["2"] = nil
-	assert(service.getMainFarmPlotId(alice, "2") == "1", "caller cannot mutate ownership through returned mapping")
-	local charlie, dave = player(103), player(104)
-	assert(service.assign(charlie), "last empty slot accepts another player")
-	assert(service.assign(dave), "new arrival may park an inactive extra farm instead of being kicked")
-	assert(
-		service.getMainFarmPlotId(alice, "1") == nil and records["1"].stored == 123,
-		"parking preserves logical progress"
-	)
-	assert(
-		service.getPlot(alice) == multi.plots[1] and multi.pushes[alice] >= 1,
-		"parking preserves active slot and updates owner summary"
-	)
-	assert(service.selectMainFarm(alice, "1"), "parked farm can activate even when every physical slot is occupied")
-	assert(
-		service.getPlot(alice) == multi.plots[1] and service.getMainFarmPlotId(alice, "2") == nil,
-		"full-server activation swaps only caller's active slot"
-	)
-	assert(
-		alice.attributes.ActiveMainFarmId == "1" and alice.attributes.ActivePlotId == "1",
-		"activation publishes both logical and physical context"
+		"activation keeps the same plot"
 	)
 	assert(
 		multi.profiles[alice].activeMainFarmId == "2",
 		"plot service must leave data facade switching to backend transaction"
 	)
 	assert(not service.selectMainFarm(alice, "unknown"), "unowned logical farm cannot activate")
-	multi.profiles[alice].activeMainFarmId = "1"
+	assert(records["1"].stored == 123 and records["4"].stored == 492, "switching never mutates saved farm contents")
+
+	service.release(alice)
 	assert(
-		service.assign(player(105)) and service.assign(player(106)),
-		"remaining inactive extras can park for active players"
+		service.getOwner(multi.plots[1]) == nil and multi.themes[multi.plots[1]] == 1,
+		"a released plot returns to the base theme"
 	)
-	assert(not service.assign(player(107)), "fully occupied active slots are never stolen")
-	service.release(bob)
-	assert(service.getMainFarmPlotId(alice, "2") == "2", "freed slot refills a saved parked farm")
-	assert(service.getPlot(alice) == multi.plots[1], "refill never changes active farm")
-	assert(multi.rendered[multi.plots[2]] == records["2"], "refilled slot renders preserved farm record")
-	for index = 1, 4 do
-		local record = records[tostring(index)]
-		assert(
-			record.stored == index * 123 and record.animals[1].uid == `farm-{index}-animal`,
-			"parking, swapping and refilling cannot alter saved farm contents"
-		)
-	end
-	print("PASS plot startup: MaxPlayers warning, map validation, existing capacity, overflow rejection, reassignment")
+	local newcomer = player(108)
+	assert(service.assign(newcomer) and service.getPlot(newcomer) == multi.plots[1], "the released plot is reused")
+	assert(service.getFarmId(multi.plots[1]) == "1", "the next player starts on farm 1")
 	print(
-		"PASS main-farm plots: real service restoration, occupied target rejection, distinct views, parking, active-only swap, arrival reclaim and refill"
+		"PASS plot startup: MaxPlayers warning, map validation, one plot per player, runtime theme swap, release reset"
 	)
 end

@@ -1,6 +1,5 @@
 --!strict
--- Karakter kendi çiftliklerinden birinin adasına (yürüyerek ya da ışınlanarak) girince:
---  * O ana çiftlik etkin değilse etkin yapılır (panelden seçmekle aynı, ışınlama olmadan).
+-- Karakter kendi adasındaki bir bölüme (yürüyerek ya da ışınlanarak) girince:
 --  * O ada seçilir: Yükseltmeler, Yol Haritası, Pazar ve diğer ada bağımlı arayüzler o adaya göre güncellenir.
 --    Kilitli bir adaya girilince seçim sunucuda yapılamaz; paneller client'ta önizleme olarak o adayı gösterir.
 -- Ada sekmelerinden elle seçilen ada, karakter başka bir adaya geçene kadar korunur.
@@ -13,7 +12,6 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local ClientState = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("ClientState"))
 local IslandContext = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("IslandContext"))
-local IslandManager = require(script.Parent.Parent:WaitForChild("Ui"):WaitForChild("IslandManager"))
 
 local player = Players.LocalPlayer
 local CHECK_INTERVAL = 0.4
@@ -86,14 +84,6 @@ local function check()
 				Remotes.get("RequestTravelIsland"):FireServer(pendingIsland, true)
 			end
 		end
-		return
-	end
-
-	-- Başka bir ana çiftliğin adasına geçildi: önce çiftliği etkin yap. Etkinleşince ActiveMainFarmId
-	-- değişir, tespit sıfırlanır ve ada seçimi bir sonraki turda yapılır.
-	local activeFarm = player:GetAttribute("ActiveMainFarmId")
-	if farmId ~= activeFarm then
-		IslandManager.activateFarm(farmId)
 		return
 	end
 

@@ -961,4 +961,11 @@ return {
 	["Yardımcı · +{}"] = "Helfer · +{1}",
 	["Yardımcı"] = "Helfer",
 	["Otomatik tekrar"] = "Automatisch wiederholen",
+
+	-- Ada teması (çalışma anında çiftlik değiştirme)
+	["Bu çiftlik teması henüz senin değil."] = "Dieses Farmthema gehört dir noch nicht.",
+	["Diğer oyuncuların adalarını ziyaret edebilirsin; onlara dokunamazsın."] = "Du kannst die Inseln anderer Spieler besuchen, aber nicht anfassen.",
+	["Hayvanları ve yatırımları ayrı gelişir; kasa ve depo ortaktır."] = "Tiere und Investitionen entwickeln sich getrennt; Kasse und Lager sind gemeinsam.",
+	["Park halinde; seçince adanda açılır."] = "Geparkt; öffnet sich beim Auswählen auf deiner Insel.",
+	["Bir çiftlik teması seç. Yeni çiftlik: {}. Satın alınca adan o çiftliğe dönüşür; önceki çiftliğin park edilir ve çalışmaya devam eder."] = "Wähle ein Farmthema. Neue Farm: {1}. Nach dem Kauf wird deine Insel zu dieser Farm; die bisherige Farm wird geparkt und arbeitet weiter.",
 }

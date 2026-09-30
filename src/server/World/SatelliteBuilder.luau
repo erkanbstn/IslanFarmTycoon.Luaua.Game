@@ -93,7 +93,8 @@ local function buildSatellite(
 	islandsFolder: Instance,
 	buildSpots: Instance,
 	homeCf: CFrame,
-	layout: SatelliteLayout
+	layout: SatelliteLayout,
+	withTerrain: boolean?
 )
 	local islandConfig = Config.FARM_ISLANDS[layout.id]
 	local upgrade = if islandConfig.upgradeId then Config.getUpgrade(islandConfig.upgradeId) else nil
@@ -107,8 +108,10 @@ local function buildSatellite(
 	local cf = CFrame.lookAt(center.Position, homeCf.Position) -- -Z ana adaya (köprüye) bakar
 
 	-- Kıyı Terrain (kaya + kum plaj); üstü düz çimen parça
-	WorldDecor.terrainIsland(islandModel, cf.Position, SATELLITE_RADIUS, SURFACE_Y, 7)
-	WorldDecor.shoreRocks(cf, SATELLITE_RADIUS, { 35, -35, 90, -90, 140, -140 }, seedFrom(cf))
+	WorldDecor.terrainIsland(islandModel, cf.Position, SATELLITE_RADIUS, SURFACE_Y, 7, withTerrain)
+	if withTerrain ~= false then
+		WorldDecor.shoreRocks(cf, SATELLITE_RADIUS, { 35, -35, 90, -90, 140, -140 }, seedFrom(cf))
+	end
 	local base = makeDisc(
 		"IslandBase",
 		SATELLITE_RADIUS * 2,

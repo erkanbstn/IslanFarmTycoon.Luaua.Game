@@ -128,7 +128,7 @@ function ZoneVisualService.apply(zone: Instance, zoneId: string, unlocked: boole
 	decor:SetAttribute("VisualCreatedAt", game:GetService("Workspace"):GetServerTimeNow())
 	local origin = ground.CFrame * CFrame.new(0, ground.Size.Y / 2, 0)
 	local plot = zone.Parent and zone.Parent.Parent
-	local farmIndex = tonumber(plot and plot:GetAttribute("PlotId")) or 1
+	local farmIndex = tonumber(plot and (plot:GetAttribute("ThemeIndex") or plot:GetAttribute("PlotId"))) or 1
 	Look.current = THEME_LOOKS[((farmIndex - 1) % #THEME_LOOKS) + 1]
 	Look.barnColor = Look.current.barn
 	builder(decor, origin, ground.Size)

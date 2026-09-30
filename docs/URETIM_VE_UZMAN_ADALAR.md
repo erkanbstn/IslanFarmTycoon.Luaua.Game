@@ -1,8 +1,8 @@
 # Üretim ve uzman adalar
 
 Harita sürümü 13. Mevcut takımadalardaki kayıtlı hayvan/bölge kimlikleri korunur.
-Haritadaki altı takımada ana çiftlik alanlarıdır. Bir oyuncu boş olanlardan birden fazlasını
-satın alabilir; her birinin ana, tavuk, at ve keçi adaları ayrı ilerler. Ayrıntılar
+Haritadaki altı takımada oyuncu başına birer fiziksel adadır; oyuncu birden fazla çiftlik (tema)
+satın alabilir ve etkin olanı kendi adasında çizilir; her çiftliğin ana ve küçük adaları ayrı ilerler. Ayrıntılar
 [Ana çiftlikler](ANA_CIFTLIKLER.md) belgesindedir.
 
 ## Oyun döngüsü

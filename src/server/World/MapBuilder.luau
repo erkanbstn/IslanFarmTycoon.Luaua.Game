@@ -24,7 +24,7 @@ local MapBuilder = {}
 
 -- Harita düzenini (adalar, bölgeler, yapı yerleri) değiştirince bunu 1 artır:
 -- oyun, place'e kaydedilmiş eski haritayı fark edip uyarır.
-local MAP_VERSION = 45
+local MAP_VERSION = 46
 
 local WATER_SIZE = MapLayout.WATER_SIZE
 local WATER_DEPTH = MapLayout.WATER_DEPTH
@@ -32,6 +32,53 @@ local makePart = MapParts.makePart
 local buildIsland = IslandBuilder.buildIsland
 local buildHub = HubBuilder.buildHub
 local buildBridge = HubBuilder.buildBridge
+
+local function plotDirection(plotIndex: number): Vector3
+	local angle = (plotIndex - 1) / Config.MAP_PLOT_COUNT * math.pi * 2
+	return Vector3.new(math.sin(angle), 0, math.cos(angle))
+end
+
+-- LookVector (-Z) meydana baksın
+local function plotCFrame(plotIndex: number): CFrame
+	return CFrame.lookAt(plotDirection(plotIndex) * Config.ISLAND_RING_RADIUS, Vector3.zero)
+end
+
+-- Fiziksel adanın temaya bağlı içeriğini (yapı yerleri, süsler, uzman adalar ve bölgeleri) çalışma anında değiştirir.
+-- Terrain, ana bölgeler, ahır ve köprüler bütün adalarda aynı olduğundan dokunulmaz.
+function MapBuilder.applyTheme(plot: Model, themeIndex: number): boolean
+	if plot:GetAttribute("ThemeIndex") == themeIndex then
+		return false
+	end
+	local plotIndex = tonumber(plot:GetAttribute("PlotId"))
+	assert(plotIndex, "[Map] applyTheme: PlotId geçersiz")
+	for _, name in { "BuildSpots", "Decor", "Islands" } do
+		local old = plot:FindFirstChild(name)
+		if old then
+			old:Destroy()
+		end
+	end
+	local zones = plot:FindFirstChild("Zones")
+	if zones then
+		for _, zone in zones:GetChildren() do
+			local zoneId = zone:GetAttribute("ZoneId")
+			local zoneConfig = if typeof(zoneId) == "string" then Config.ZONES[zoneId] else nil
+			if zoneConfig and zoneConfig.island == "home" then
+				for _, name in { "Decor", "LevelFlags" } do
+					local old = zone:FindFirstChild(name)
+					if old then
+						old:Destroy()
+					end
+				end
+			else
+				zone:Destroy()
+			end
+		end
+	end
+	plot:SetAttribute("ThemeIndex", themeIndex)
+	IslandBuilder.buildThemeContent(plot, themeIndex, plotCFrame(plotIndex), false)
+	WorldDecor.optimize(plot)
+	return true
+end
 
 -- Harita sözleşmesi: eksik dünyada ekonomik oturum açılmaz.
 function MapBuilder.validate()
@@ -50,6 +97,7 @@ function MapBuilder.validate()
 		assert(plot:IsA("Model"), `[Map] Geçersiz plot: {plot.Name}`)
 		local id = plot:GetAttribute("PlotId")
 		assert(typeof(id) == "string" and id ~= "" and not ids[id], `[Map] Eksik/tekrarlı PlotId: {plot.Name}`)
+		assert(typeof(plot:GetAttribute("ThemeIndex")) == "number", `[Map] {plot.Name}: ThemeIndex eksik.`)
 		ids[id] = true
 		count += 1
 		for _, name in { "Spawn", "Collector", "BarnSpot" } do
@@ -70,7 +118,7 @@ function MapBuilder.validate()
 			assert(ground.Size.X > 0 and ground.Size.Z > 0, "[Map] Geçersiz bölge boyutu.")
 			zoneIds[zoneId] = true
 		end
-		local themeIslands = Config.getThemeIslands(plot:GetAttribute("PlotId") :: string)
+		local themeIslands = Config.getThemeIslands(tostring(plot:GetAttribute("ThemeIndex")))
 		local inTheme: { [string]: boolean } = {}
 		for _, themeIsland in themeIslands do
 			inTheme[themeIsland] = true
@@ -289,12 +337,9 @@ function MapBuilder.build(replaceGeneratedRegion: boolean?)
 
 	local count = Config.MAP_PLOT_COUNT
 	for i = 1, count do
-		local angle = (i - 1) / count * math.pi * 2
-		local direction = Vector3.new(math.sin(angle), 0, math.cos(angle))
-		local position = direction * Config.ISLAND_RING_RADIUS
-		-- LookVector (-Z) meydana baksın
-		local islandCf = CFrame.lookAt(position, Vector3.zero)
-		buildIsland(i, islandCf).Parent = plotsFolder
+		local direction = plotDirection(i)
+		-- Bütün fiziksel adalar aynı (1. tema) kurulur; oyuncunun etkin çiftliği çalışma anında applyTheme ile giydirilir
+		buildIsland(i, plotCFrame(i), 1).Parent = plotsFolder
 		buildBridge(world, direction)
 	end
 

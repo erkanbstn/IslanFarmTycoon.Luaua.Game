@@ -1,6 +1,7 @@
 --!strict
--- Kalıcı ana çiftlikleri boş fiziksel ada yerlerine bağlar; etkin çiftlik getPlot ile seçilir.
--- Sahneye sığmayan çiftlikler kayıtlarında kalır, seçimde sahibinin etkin yuvasına yüklenir.
+-- Her oyuncuya tek fiziksel ada verir (hepsi aynı düzende kurulur). Oyuncunun etkin ana çiftliği o adada çizilir:
+-- çiftlik değişince ada temasını MapBuilder.applyTheme ile yeniden giyer, diğer çiftlikler park edilir (kayıtta kalır,
+-- PetService/EconomyService onları çizim olmadan işletir).
 --
 -- Haritayı Studio'da elle kurmak istersen (Config.MAP_AUTO_BUILD = false) yapı şöyle olmalı:
 --   Workspace.Plots (Folder)
@@ -32,6 +33,7 @@ local BarnVisualService = require(script.Parent.Parent:WaitForChild("World"):Wai
 local UpgradeVisualService =
 	require(script.Parent.Parent:WaitForChild("Presentation"):WaitForChild("UpgradeVisualService"))
 local ZoneVisualService = require(script.Parent.Parent:WaitForChild("Presentation"):WaitForChild("ZoneVisualService"))
+local DecorReveal = require(script.Parent.Parent:WaitForChild("Presentation"):WaitForChild("DecorReveal"))
 local ExtensionVisualService =
 	require(script.Parent.Parent:WaitForChild("Presentation"):WaitForChild("ExtensionVisualService"))
 local IslandSpecialization = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("IslandSpecialization"))
@@ -78,17 +80,16 @@ function PlotService.getAllPlots(): { Model }
 	return plotOrder
 end
 
--- Tam sunucu envanteri: uzaktaki modeller client'a stream edilmemiş olsa da boş ada alınabilir.
+-- Satın alınabilir ana çiftlik temaları (fiziksel ada rezervasyonu yok: her oyuncu kendi adasında tema değiştirir).
 function PlotService.getMainFarmOffers(): { { id: string, name: string, icon: string, ownerUserId: number? } }
 	local offers = {}
-	for _, plot in plotOrder do
-		local id = plot:GetAttribute("PlotId") :: string
-		local owner = ownerByPlotId[id]
+	for index = 1, Config.MAIN_FARM_LIMIT do
+		local info = Config.PLOT_NAMES[index]
 		table.insert(offers, {
-			id = id,
-			name = tostring(plot:GetAttribute("IslandName") or plot.Name),
-			icon = tostring(plot:GetAttribute("IslandIcon") or "🏝️"),
-			ownerUserId = if owner then owner.UserId else nil,
+			id = tostring(index),
+			name = if info then info.name else `Ada {index}`,
+			icon = if info then info.icon else "🏝️",
+			ownerUserId = nil,
 		})
 	end
 	return offers
@@ -259,7 +260,7 @@ local function applyZoneState(plot: Model, data: PlayerSave?)
 		end
 
 		local unlocked = data ~= nil and data.unlockedZones[zoneId] == true
-		local zoneName = Config.getZoneName(zoneConfig, plot:GetAttribute("PlotId") :: string?)
+		local zoneName = Config.getZoneName(zoneConfig, tostring(plot:GetAttribute("ThemeIndex")))
 		ZoneVisualService.apply(zone, zoneId, unlocked)
 		if not unlocked then
 			ZoneVisualService.applyLevelFlags(zone, {})
@@ -285,7 +286,7 @@ local function applyZoneState(plot: Model, data: PlayerSave?)
 					end
 				end
 			end
-			setZoneLabel(zone, label, Config.getZoneIcon(zoneConfig, plot:GetAttribute("PlotId") :: string?), false)
+			setZoneLabel(zone, label, Config.getZoneIcon(zoneConfig, tostring(plot:GetAttribute("ThemeIndex"))), false)
 			local kinds: { string } = {}
 			for level = 1, zoneLevel do
 				table.insert(kinds, FarmMath.getBuildLevelKind(zoneId, level))
@@ -408,10 +409,24 @@ function PlotService.refreshPlayerWorld(player: Player)
 	end
 end
 
+local function themeOf(farmId: string): number
+	return tonumber(farmId) or 1
+end
+
+-- Adanın görünen hâlini temizler ve temayı değiştirir; sonrasında renderFarm/resetPlot çizer.
+local function retheme(plot: Model, farmId: string)
+	UpgradeVisualService.apply(plot, nil)
+	ExtensionVisualService.apply(plot, nil)
+	AnimalVisualService.clear(plot)
+	DecorReveal.reset(plot)
+	MapBuilder.applyTheme(plot, themeOf(farmId))
+end
+
 local function resetPlot(plot: Model)
 	plot:SetAttribute("OwnerUserId", nil)
 	plot:SetAttribute("MainFarmId", nil)
 	plot:SetAttribute("FarmActive", nil)
+	retheme(plot, "1")
 	setOwnerDisplay(plot, nil)
 	BarnVisualService.applyForPlayer(plot, 1)
 	applyIslandState(plot, nil)
@@ -432,50 +447,27 @@ local function resetPlot(plot: Model)
 	end
 end
 
--- Bağlama işlemleri yield etmez. Para/kayıt işlemini MainFarmService, sahne sahipliğini burası yönetir.
-local function bindPlot(player: Player, farmId: string, plot: Model)
+-- Oyuncunun adasını verilen çiftliğe bağlar. Yield etmez; para/kayıt işlemini MainFarmService yönetir.
+local function bindFarm(player: Player, farmId: string, plot: Model)
 	local plotId = plot:GetAttribute("PlotId") :: string
-	local farms = ownedPlots[player]
-	if not farms then
-		farms = {}
-		ownedPlots[player] = farms
+	if farmIdByPlotId[plotId] ~= farmId or ownerByPlotId[plotId] ~= player then
+		retheme(plot, farmId)
 	end
-	farms[farmId] = plot
+	ownedPlots[player] = { [farmId] = plot }
+	activePlots[player] = plot
 	ownerByPlotId[plotId] = player
 	farmIdByPlotId[plotId] = farmId
 	plot:SetAttribute("MainFarmId", farmId)
 	plot:SetAttribute("OwnerUserId", player.UserId)
-	plot:SetAttribute("FarmActive", false)
-	setOwnerDisplay(plot, `{player.DisplayName} · Çiftlik {farmId}`)
-end
-
-local function activatePlot(player: Player, farmId: string, plot: Model)
-	local previous = activePlots[player]
-	if previous then
-		previous:SetAttribute("FarmActive", false)
-	end
-	activePlots[player] = plot
 	plot:SetAttribute("FarmActive", true)
+	setOwnerDisplay(plot, `{player.DisplayName} · Çiftlik {farmId}`)
 	player:SetAttribute("ActiveMainFarmId", farmId)
-	player:SetAttribute("ActivePlotId", plot:GetAttribute("PlotId"))
+	player:SetAttribute("ActivePlotId", plotId)
 	player:SetAttribute("SelectedFarmIsland", "home")
 	local spawn = plot:FindFirstChild("Spawn")
 	if spawn and spawn:IsA("SpawnLocation") then
 		player.RespawnLocation = spawn
 	end
-end
-
-local function parkPlot(plot: Model)
-	local plotId = plot:GetAttribute("PlotId") :: string
-	local owner, farmId = ownerByPlotId[plotId], farmIdByPlotId[plotId]
-	if owner and farmId then
-		local farms = ownedPlots[owner]
-		if farms then
-			farms[farmId] = nil
-		end
-	end
-	ownerByPlotId[plotId], farmIdByPlotId[plotId] = nil, nil
-	resetPlot(plot)
 end
 
 local function findFreePlot(): Model?
@@ -487,104 +479,26 @@ local function findFreePlot(): Model?
 	return nil
 end
 
--- Tema, ana çiftlik numarasına bağlıdır: N numaralı çiftlik önce N numaralı fiziksel adayı kullanır
--- (haritadaki küçük adalar ada numarasına göre kurulur). Ada doluysa (yalnızca çok oyunculu testte) nil.
-local function plotForFarm(farmId: string): Model?
-	local plot = plotModelByPlotId[farmId]
-	if plot and not ownerByPlotId[farmId] then
-		return plot
-	end
-	return nil
-end
-
-function PlotService.reserveMainFarm(player: Player, farmId: string, targetPlotId: string): boolean
-	local plot = plotModelByPlotId[targetPlotId]
-	local farms = ownedPlots[player]
-	if not activePlots[player] or not plot or ownerByPlotId[targetPlotId] or (farms and farms[farmId]) then
-		return false
-	end
-	bindPlot(player, farmId, plot)
-	return true
-end
-
--- Başarısız satın alma rezervasyonunu geri al. Etkin yuva önce işlem sahibi tarafından eski çiftliğe çevrilir.
-function PlotService.cancelMainFarmReservation(player: Player, farmId: string): boolean
-	local farms = ownedPlots[player]
-	local plot = farms and farms[farmId]
-	if not plot or plot == activePlots[player] or PlotService.getOwner(plot) ~= player then
-		return false
-	end
-	parkPlot(plot)
-	return true
-end
-
+-- Kayıttaki etkin çiftliği oyuncunun adasına yükler (giriş).
 function PlotService.restoreMainFarms(player: Player, farmIds: { string }, activeId: string): boolean
-	local primary = activePlots[player]
-	if not primary or not table.find(farmIds, activeId) then
+	local plot = activePlots[player]
+	if not plot or not table.find(farmIds, activeId) then
 		return false
 	end
-	-- Girişte ayrılmış geçici yuvayı kayıttaki etkin mantıksal çiftliğe bağla.
-	for _, plot in table.clone(ownedOf(player)) do
-		parkPlot(plot)
-	end
-	local activeTarget = plotForFarm(activeId) or primary
-	bindPlot(player, activeId, activeTarget)
-	activatePlot(player, activeId, activeTarget)
-	for _, farmId in farmIds do
-		if farmId ~= activeId then
-			local free = plotForFarm(farmId) or findFreePlot()
-			if free then
-				bindPlot(player, farmId, free)
-			end
-		end
-	end
+	bindFarm(player, activeId, plot)
 	PlotService.refreshPlayerWorld(player)
 	return true
 end
 
+-- Etkin çiftliği değiştirir: ada yeni çiftliğin temasıyla yeniden kurulur, eskisi park edilir.
 function PlotService.selectMainFarm(player: Player, farmId: string): boolean
 	local data = PlayerDataService.tryGet(player)
-	local farms = ownedPlots[player]
-	local current = activePlots[player]
-	if not data or not data.mainFarms[farmId] or not farms or not current then
+	local plot = activePlots[player]
+	if not data or not data.mainFarms[farmId] or not plot then
 		return false
 	end
-	local target = farms[farmId]
-	if not target then
-		-- Park edilmiş kayıt için önce boş yuva kullan; doluysa yalnızca kendi etkin yuvanı değiştir.
-		target = plotForFarm(farmId) or findFreePlot() or current
-		if target == current then
-			parkPlot(current)
-		end
-		bindPlot(player, farmId, target)
-	end
-	activatePlot(player, farmId, target)
+	bindFarm(player, farmId, plot)
 	return true
-end
-
-local function fillParkedFarms(player: Player): boolean
-	local data = PlayerDataService.tryGet(player)
-	local farms = ownedPlots[player]
-	if not data or not farms then
-		return false
-	end
-	local ids = {}
-	for id in data.mainFarms do
-		table.insert(ids, id)
-	end
-	table.sort(ids)
-	local changed = false
-	for _, id in ids do
-		if not farms[id] then
-			local free = plotForFarm(id) or findFreePlot()
-			if not free then
-				break
-			end
-			bindPlot(player, id, free)
-			changed = true
-		end
-	end
-	return changed
 end
 
 -- Normalde karakter RespawnLocation sayesinde doğrudan adada doğar. Yine de uzakta doğduysa
@@ -607,23 +521,10 @@ function PlotService.assign(player: Player): boolean
 	end
 	local plot = findFreePlot()
 	if not plot then
-		-- Ek çiftlikler yeni oyuncunun giriş hakkını tüketmez: sadece etkin olmayan görünüm park edilir.
-		for _, candidate in plotOrder do
-			local owner = PlotService.getOwner(candidate)
-			if owner and activePlots[owner] ~= candidate then
-				parkPlot(candidate)
-				PlayerDataService.pushState(owner)
-				plot = candidate
-				break
-			end
-		end
-	end
-	if not plot then
 		warn(`[Plot] Boş ada yok: {player.Name}`)
 		return false
 	end
-	bindPlot(player, "1", plot)
-	activatePlot(player, "1", plot)
+	bindFarm(player, "1", plot)
 	characterConnections[player] = player.CharacterAdded:Connect(function(character)
 		onCharacterAdded(player, character)
 	end)
@@ -644,31 +545,21 @@ function PlotService.release(player: Player)
 	end
 	player.RespawnLocation = nil
 	for _, plot in table.clone(ownedOf(player)) do
-		parkPlot(plot)
+		local plotId = plot:GetAttribute("PlotId") :: string
+		ownerByPlotId[plotId], farmIdByPlotId[plotId] = nil, nil
+		resetPlot(plot)
 	end
 	ownedPlots[player], activePlots[player] = nil, nil
 	player:SetAttribute("ActivePlotId", nil)
 	player:SetAttribute("ActiveMainFarmId", nil)
-	-- Boşalan yuvalara diğer oyuncuların kayıtlı, park edilmiş çiftlikleri geri yerleşebilir.
-	for owner in ownedPlots do
-		if fillParkedFarms(owner) then
-			PlotService.refreshPlayerWorld(owner)
-			PlayerDataService.pushState(owner)
-		end
-	end
 end
 
 function PlotService.init()
 	MapBuilder.ensure()
 	MapBuilder.validate()
-	-- Place'in kapasitesi tek başına geçerli adaları kullanılamaz yapmaz.
 	-- assign() boş ada olmadığında false döner; giriş noktası yalnızca fazla oyuncuyu reddeder.
-	-- Bu place, oyuncuya özel ada haritasıdır: bütün kümeler (ana çiftlikler + küçük adalar) tek oyuncunundur.
-	-- Lobi ayrı bir place olacak (docs/LOBI_VE_ADA_MIMARISI.md); yayında bu place'in kapasitesi 1 olmalıdır.
-	if Players.MaxPlayers > 1 then
-		warn(
-			`[Map] MaxPlayers={Players.MaxPlayers}. Bu place oyuncuya özel ada haritasıdır; yayında Maximum Players 1 olmalı (lobi ayrı place). Test için fazla oyuncu boş ana çiftlikleri kullanır.`
-		)
+	if Players.MaxPlayers > Config.MAP_PLOT_COUNT then
+		warn(`[Map] MaxPlayers={Players.MaxPlayers}; haritada yalnızca {Config.MAP_PLOT_COUNT} ada var.`)
 	end
 	collectPlotModels()
 	for _, plot in plotOrder do

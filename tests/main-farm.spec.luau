@@ -113,7 +113,6 @@ return function(
 		pushEconomy = function() end,
 	}
 	local mappings: any = { ["1"] = "1" }
-	local occupied: any = { ["1"] = true, ["6"] = true }
 	local fakePlot = {
 		FindFirstChild = function(): any
 			return nil
@@ -138,23 +137,8 @@ return function(
 		getMainFarmPlotId = function(_p: any, id: string): string?
 			return mappings[id]
 		end,
-		reserveMainFarm = function(_p: any, id: string, target: string): boolean
-			if occupied[target] then
-				return false
-			end
-			occupied[target] = true
-			mappings[id] = target
-			return true
-		end,
 		selectMainFarm = function(_p: any, id: string): boolean
 			return not (failSelect and id ~= "1") and data.mainFarms[id] ~= nil
-		end,
-		cancelMainFarmReservation = function(_p: any, id: string)
-			local target = mappings[id]
-			if target then
-				occupied[target] = nil
-			end
-			mappings[id] = nil
 		end,
 		refreshPlayerWorld = function() end,
 		teleportHome = function()
@@ -199,16 +183,16 @@ return function(
 	end
 	local before = data.cash
 	assert(
-		not fire("buy", "6").ok and data.cash == before and #profiles.ids(data) == 1,
-		"occupied physical plot must not charge or create logical farm"
+		not fire("buy", "1").ok and data.cash == before and #profiles.ids(data) == 1,
+		"an already owned farm cannot be bought again or charged"
 	)
 	failSelect = true
 	assert(
-		not fire("buy", "2").ok and data.cash == before and data.mainFarms["2"] == nil and mappings["2"] == nil,
-		"injected selection failure rolls back reservation and never charges"
+		not fire("buy", "2").ok and data.cash == before and data.mainFarms["2"] == nil,
+		"injected selection failure rolls the purchase back and never charges"
 	)
 	failSelect = false
-	assert(fire("buy", "2").ok, "empty main plot can be bought")
+	assert(fire("buy", "2").ok, "a new farm theme can be bought")
 	assert(
 		data.cash == before - config.MAIN_FARM_PRICES[2] and data.activeMainFarmId == "2",
 		"buy charges server price and selects new independent farm"
@@ -233,12 +217,16 @@ return function(
 		"old active scalars and tables survive switch"
 	)
 	assert(not fire("select", "6").ok and data.activeMainFarmId == "1", "unowned logical farm cannot be selected")
-	-- Yürüyerek başka çiftliğin adasına geçiş: etkin çiftlik değişir, karakter ışınlanmaz.
+	assert(
+		not fire("activate", "2").ok and data.activeMainFarmId == "1",
+		"walking onto other islands no longer switches farms"
+	)
 	local teleportsBefore = teleports
-	assert(fire("activate", "2").ok and data.activeMainFarmId == "2", "walking onto another farm activates it")
-	assert(teleports == teleportsBefore, "activate must not teleport the character")
-	assert(not fire("activate", "6").ok and data.activeMainFarmId == "2", "unowned farm cannot be activated")
-	assert(fire("select", "1").ok and teleports == teleportsBefore + 1, "panel selection still teleports home")
+	assert(
+		fire("select", "2").ok and teleports == teleportsBefore + 1,
+		"activation teleports the player home on the re-themed island"
+	)
+	assert(fire("select", "1").ok and data.activeMainFarmId == "1", "the first farm can be reactivated")
 	economy.settlePlayer(player)
 	local oldStored = data.stored
 	local second = profiles.view(data, "2")
@@ -292,9 +280,9 @@ return function(
 	assert(not fire("buy", "3").ok, "inactive profile cannot buy")
 	active = true
 	data.cash = 0
-	assert(not fire("buy", "3").ok and mappings["3"] == nil, "insufficient cash cannot reserve physical plot")
+	assert(not fire("buy", "3").ok and data.mainFarms["3"] == nil, "insufficient cash cannot create a farm")
 	assert(pushes == saves + 1 and saves >= 2, "all farm mutations persist")
 	print(
-		"PASS main farm economy: real buy/select, occupied/no-money/replay guards, shared wallet, v3 migration, independent/all-farm income, offline caps and snapshots"
+		"PASS main farm economy: real buy/select, owned/no-money/replay guards, shared wallet, v3 migration, independent/all-farm income, offline caps and snapshots"
 	)
 end
