@@ -17,7 +17,7 @@
  "src/client/Ui/IncomeBubbles.client.luau|Expected this to be 'Instance', but got 'nil'": 1,
  "src/client/Ui/IslandManager.luau|Types Instance and nil cannot be compared with ~= because they do not have the same metatable": 5,
  "src/client/Ui/SettingsMenu.luau|Value of type 'Window?' could be nil": 3,
- "src/server/Presentation/AnimalVisualService.luau|Cannot call a value of the union type:": 15,
+ "src/server/Presentation/AnimalModels.luau|Cannot call a value of the union type:": 16,
  "src/server/Presentation/CollectorVisualService.luau|Cannot call a value of type {number} in union:": 2,
  "src/server/Presentation/CollectorVisualService.luau|Function only returns 1 value, but 2 are required here": 2,
  "src/server/Presentation/ExtensionVisualService.luau|Cyclic dependencies are only supported if all modules in the cycle use 'export' syntax. The following modules do not use 'export': <yol> [game/ServerScriptServi": 42,
