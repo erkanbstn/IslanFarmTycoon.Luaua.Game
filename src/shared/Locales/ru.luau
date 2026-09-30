@@ -721,4 +721,7 @@ return {
 	["Ada değiştirmek için sekmeleri kullan · Kısayol: U"] = "Переключай острова вкладками · Клавиша: U",
 	["Geliştirmeler"] = "Улучшения",
 	["Tüm seviyeler tamamlandı"] = "Все уровни пройдены",
+	["Hızlı kazanç: {} Sv.{}"] = "Быстрая выгода: {1} Ур.{2}",
+	["{} · Tüm aşamalar ve ilerlemen. Alışveriş için Yükseltmeler (U)"] = "{1} · Все этапы и твой прогресс. Покупки — в Улучшениях (U)",
+	["Tüm aşamalar ve ilerlemen. Alışveriş için Yükseltmeler (U)"] = "Все этапы и твой прогресс. Покупки — в Улучшениях (U)",
 }

@@ -644,7 +644,29 @@ local function updateGoal(state: PlayerSave, income: number)
 	end
 	if best then
 		goalLabel.Text = `{best.displayName} · {FarmMath.formatMoney(FarmMath.getUpgradeCost(state, best))}`
-		goalDetail.Text = purchaseHint(state, FarmMath.getUpgradeCost(state, best), income)
+		local bestCost = FarmMath.getUpgradeCost(state, best)
+		goalDetail.Text = purchaseHint(state, bestCost, income)
+		-- Büyük hedef için biriktirirken parası yetenin küçük bir geliştirme (hedefin yarısından ucuz) varsa önerilir
+		if state.cash < bestCost then
+			local quickLabel: string? = nil
+			local quickCost = math.huge
+			for targetId, target in Config.BUILD_TARGETS do
+				if target.island == IslandContext.get() then
+					local status, _, cost = FarmMath.getExpansionStatus(state, targetId)
+					if status == "available" and cost <= state.cash and cost * 2 <= bestCost and cost < quickCost then
+						quickCost = cost
+						quickLabel =
+							`Hızlı kazanç: {Config.getBuildTargetName(targetId, state.activeMainFarmId)} Sv.{FarmMath.getExpansionLevel(
+								state,
+								targetId
+							) + 1} · {FarmMath.formatMoney(cost)}`
+					end
+				end
+			end
+			if quickLabel then
+				goalDetail.Text ..= "\n" .. quickLabel
+			end
+		end
 		return
 	end
 	-- Yükseltme kalmadı: oyun sonu yatırımları (en ucuz ırk seviyesi ya da alan genişletmesi) hedef olur

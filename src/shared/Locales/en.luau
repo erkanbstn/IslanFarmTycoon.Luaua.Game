@@ -721,4 +721,7 @@ return {
 	["Ada değiştirmek için sekmeleri kullan · Kısayol: U"] = "Use the tabs to switch islands · Shortcut: U",
 	["Geliştirmeler"] = "Upgrades",
 	["Tüm seviyeler tamamlandı"] = "All levels completed",
+	["Hızlı kazanç: {} Sv.{}"] = "Quick win: {1} Lv.{2}",
+	["{} · Tüm aşamalar ve ilerlemen. Alışveriş için Yükseltmeler (U)"] = "{1} · All stages and your progress. Shop in Upgrades (U)",
+	["Tüm aşamalar ve ilerlemen. Alışveriş için Yükseltmeler (U)"] = "All stages and your progress. Shop in Upgrades (U)",
 }

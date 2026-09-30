@@ -36,11 +36,8 @@ function RoadmapWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Roa
 		anchor = Vector2.new(1, 0.5),
 		position = WINDOW_POSITION,
 	})
-	local roadmapInfo = UiKit.text(
-		roadmapWindow.list,
-		"Sırayı sen seç: ucuz olanı hemen al ya da biriktirip büyüğünü al. Kilitli olanlar için önce gerekeni aç.",
-		"Caption"
-	)
+	local roadmapInfo =
+		UiKit.text(roadmapWindow.list, "Tüm aşamalar ve ilerlemen. Alışveriş için Yükseltmeler (U)", "Caption")
 	roadmapInfo.LayoutOrder = 0
 
 	IslandTabs.add(roadmapWindow)
@@ -125,7 +122,7 @@ function RoadmapWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Roa
 		IslandTabs.update(state)
 		if content then
 			roadmapInfo.Text =
-				`Seçili: {IslandContext.name()}\nYukarıdaki sekmelerden adaya gitmeden yol haritasına bakabilirsin. Yeni ada açmak ve ışınlanmak için Adalar.`
+				`{IslandContext.name()} · Tüm aşamalar ve ilerlemen. Alışveriş için Yükseltmeler (U)`
 		end
 		local ownedPerStage: { [number]: number } = {}
 		local totalPerStage: { [number]: number } = {}

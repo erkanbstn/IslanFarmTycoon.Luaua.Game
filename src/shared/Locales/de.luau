@@ -721,4 +721,7 @@ return {
 	["Ada değiştirmek için sekmeleri kullan · Kısayol: U"] = "Wechsle die Insel mit den Tabs · Kürzel: U",
 	["Geliştirmeler"] = "Ausbauten",
 	["Tüm seviyeler tamamlandı"] = "Alle Stufen abgeschlossen",
+	["Hızlı kazanç: {} Sv.{}"] = "Schneller Gewinn: {1} St.{2}",
+	["{} · Tüm aşamalar ve ilerlemen. Alışveriş için Yükseltmeler (U)"] = "{1} · Alle Stufen und dein Fortschritt. Einkaufen unter Ausbauten (U)",
+	["Tüm aşamalar ve ilerlemen. Alışveriş için Yükseltmeler (U)"] = "Alle Stufen und dein Fortschritt. Einkaufen unter Ausbauten (U)",
 }
