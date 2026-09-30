@@ -566,4 +566,10 @@ return {
 	["Hayvan pazarı"] = "Animal market",
 	["Hayvan al"] = "Buy animals",
 	["Siparişler"] = "Orders",
+	["İLK ADIMLAR 1/3"] = "FIRST STEPS 1/3",
+	["İLK ADIMLAR 2/3"] = "FIRST STEPS 2/3",
+	["İLK ADIMLAR 3/3"] = "FIRST STEPS 3/3",
+	["Yeşil platforma basıp parayı topla"] = "Step on the green pad to collect your money",
+	["Hayvanların depoya para üretir; platforma basınca kasana geçer."] = "Your animals earn money into storage; stepping on the pad moves it to your wallet.",
+	["İlk yükseltme: {} · {}"] = "First upgrade: {1} · {2}",
 }

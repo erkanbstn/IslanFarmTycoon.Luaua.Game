@@ -30,6 +30,7 @@ local StoreSection = require(Hud:WaitForChild("StoreSection"))
 local RewardsSection = require(Hud:WaitForChild("RewardsSection"))
 local BoardSection = require(Hud:WaitForChild("BoardSection"))
 local SeasonBar = require(Hud:WaitForChild("SeasonBar"))
+local Onboarding = require(Hud:WaitForChild("Onboarding"))
 local IslandTabs = require(Hud:WaitForChild("IslandTabs"))
 local ShopWindow = require(Hud:WaitForChild("ShopWindow"))
 local RoadmapWindow = require(Hud:WaitForChild("RoadmapWindow"))
@@ -318,6 +319,7 @@ local setRoadmapBadge = UiKit.badge(roadmapButton)
 local setUpgradesBadge = UiKit.badge(upgradesButton)
 local setProductionBadge = UiKit.badge(productionButton)
 local setGoalsBadge = UiKit.badge(goalsButton)
+local onboarding = Onboarding.create(shopButton, upgradesButton)
 
 ---------------------------------------------------------------------------
 -- Çiftliğim penceresi: günlük ödül ve başarımlar
@@ -511,8 +513,30 @@ end
 local function updateGoal(state: PlayerSave, income: number)
 	orderButton.Visible = false
 	goalTitle.Text = "SIRADAKİ HEDEF"
-	-- İlk boş kapasiteyi kullanmayı öğret; iki inek varken daha fazla yer önermeyiz.
-	if #state.animals <= Config.STARTING_COW_COUNT and next(state.purchased) == nil then
+	-- İlk adımlar: hayvan al → parayı topla → ilk yükseltme (durumdan türetilir, vurgular Onboarding'de)
+	local cheapest: Config.UpgradeConfig? = nil
+	for _, upgrade in Config.UPGRADES do
+		if
+			FarmMath.getUpgradeStatus(state, upgrade.id) == "available"
+			and (not cheapest or upgrade.cost < cheapest.cost)
+		then
+			cheapest = upgrade
+		end
+	end
+	local step = onboarding.apply(state, cheapest ~= nil and state.cash >= cheapest.cost)
+	if step == 2 then
+		goalTitle.Text = "İLK ADIMLAR 2/3"
+		goalLabel.Text = "Yeşil platforma basıp parayı topla"
+		goalDetail.Text = "Hayvanların depoya para üretir; platforma basınca kasana geçer."
+		return
+	elseif step == 3 and cheapest then
+		goalTitle.Text = "İLK ADIMLAR 3/3"
+		goalLabel.Text = `İlk yükseltme: {cheapest.displayName} · {FarmMath.formatMoney(cheapest.cost)}`
+		goalDetail.Text = purchaseHint(state, cheapest.cost, income)
+		return
+	end
+	if step == 1 then
+		goalTitle.Text = "İLK ADIMLAR 1/3"
 		local homeAnimal = Config.getHomeAnimal(state.activeMainFarmId)
 		goalLabel.Text = if homeAnimal == "chicken"
 			then "İlk hedef: yeni bir tavuk"

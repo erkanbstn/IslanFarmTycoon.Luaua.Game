@@ -198,6 +198,40 @@ end
 -- Menü karosu boyutu (HUD menü çubuğu ve Çiftliğim penceresindeki ızgara aynı ölçüyü kullanır)
 UiKit.MenuTileSize = Vector2.new(76, 60)
 
+-- Yönlendirme vurgusu: hedef düğmenin çevresinde yavaşça yanıp sönen altın çerçeve.
+-- Dönen işlev vurguyu açar/kapatır; ReducedMotion açıkken çerçeve sabit kalır.
+function UiKit.pulse(target: GuiObject): (enabled: boolean) -> ()
+	local ring = Instance.new("UIStroke")
+	ring.Name = "GuidePulse"
+	ring.Color = UiKit.Color.Gold
+	ring.Thickness = 3
+	ring.Transparency = 0.15
+	ring.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	ring.Enabled = false
+	ring.Parent = target
+	local tween: Tween? = nil
+	return function(enabled: boolean)
+		if ring.Enabled == enabled then
+			return
+		end
+		ring.Enabled = enabled
+		if tween then
+			tween:Cancel()
+			tween = nil
+		end
+		ring.Transparency = 0.15
+		if enabled and Players.LocalPlayer:GetAttribute("ReducedMotion") ~= true then
+			local loop = TweenService:Create(
+				ring,
+				TweenInfo.new(0.7, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true),
+				{ Transparency = 0.8 }
+			)
+			tween = loop
+			loop:Play()
+		end
+	end
+end
+
 -- Menü karosu: üstte ikon kutusu, altta kısa yazı, sağ üst köşede (klavye varsa) kısayol tuşu.
 -- Yazı çevirilerde uzasa da karoya sığsın diye küçülür (TextScaled + üst sınır).
 function UiKit.menuButton(parent: Instance, icon: string, text: string, tint: Color3, shortcut: string?): TextButton

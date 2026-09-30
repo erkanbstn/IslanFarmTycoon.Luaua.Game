@@ -566,4 +566,10 @@ return {
 	["Hayvan pazarı"] = "Tiermarkt",
 	["Hayvan al"] = "Tiere kaufen",
 	["Siparişler"] = "Aufträge",
+	["İLK ADIMLAR 1/3"] = "ERSTE SCHRITTE 1/3",
+	["İLK ADIMLAR 2/3"] = "ERSTE SCHRITTE 2/3",
+	["İLK ADIMLAR 3/3"] = "ERSTE SCHRITTE 3/3",
+	["Yeşil platforma basıp parayı topla"] = "Betritt die grüne Platte, um dein Geld zu sammeln",
+	["Hayvanların depoya para üretir; platforma basınca kasana geçer."] = "Deine Tiere verdienen Geld ins Lager; auf der Platte wandert es in deine Kasse.",
+	["İlk yükseltme: {} · {}"] = "Erstes Upgrade: {1} · {2}",
 }

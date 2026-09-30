@@ -63,11 +63,12 @@ hatasından ayrıdır.
 ## Oynanış
 
 1. Oyuncu meydanda doğar, boş bir adaya ışınlanır. Tabelada adı yazar.
-2. **Ücretsiz başlangıç:** Küçük Ahır, Başlangıç Ağılı, 2 yetişkin inek, $50.
+2. **Ücretsiz başlangıç:** Küçük Ahır, Başlangıç Ağılı, 2 yetişkin ana ada hayvanı (temaya göre inek/tavuk/ördek), $100.
+2b. **İlk adımlar:** sol paneldeki hedef kartı yeni oyuncuyu üç adımda yönlendirir: ilk hayvanı al (Pazar düğmesi yanıp söner), parayı topla (yeşil platforma ışın çizgisi), ilk yükseltmeyi al. Durumdan türetilir; eski oyuncular atlar.
 3. Hayvanlar her saniye **depoya** para üretir. Adadaki **yeşil platforma** basınca para kasaya geçer.
    Depo dolarsa üretim durur → oyuncu geri gelip toplamalı (ya da Otomatik Toplayıcı almalı).
 4. **Hayvan Pazarı:** İnek, tavuk, at, keçi, hamsi ve levrek. Yavru doğarlar (%25 gelir) → Genç (%60) → Yetişkin (%100).
-   Aynı türden aldıkça fiyat %10 artar.
+   Aynı türden aldıkça fiyat %18 artar.
 5. **Yol Haritası:** Oyuncu sırayı kendi seçer; sadece ön koşulu olanlar kilitlidir.
 6. **Adalar:** Herhangi bir ada tabelasına ya da meydandaki "🧭 Adalar" tabelasına yaklaşıp **E** →
    meydana veya başka bir adaya ışınlan.
@@ -113,31 +114,24 @@ Her oyuncunun kendi takımadası var: **ana ada** (ücretsiz) + arkasında köpr
 Uzman adalar kilitliyken toprak renginde durur, tabelasında fiyatı ve özelliği yazar; oyuncu tabelaya
 gidip **E** ile ya da Yol Haritası'ndan satın alır. Her ada yeni bir hayvan + kendine özel bir bonus getirir.
 
-| Ada | Hayvan | Adanın özelliği | Özel bina |
-|---|---|---|---|
-| Ana Ada (ücretsiz) | İnek | Başlangıç, ahır burada | Süt Makinesi (inek +%50) |
-| Tavuk Adası ($900) | Tavuk | Tavuklar 2 kat hızlı büyür | Yumurta Fabrikası (tavuk +%60) |
-| At Adası ($3.500) | At | Hara: atlar +%25 gelir | Altın Nal (at +%75) |
-| Keçi Adası ($7.500) | Keçi (keçi sütü) | Depo kapasitesi +%25 | Peynirhane (keçi geliri 2 katı) |
+Hangi üç küçük adanın geldiği **çiftlik numarasına (tema)** bağlıdır; her ana çiftlik de kendi hayvanıyla başlar:
 
-| Aşama | Öğe | Fiyat | Etki | Ön koşul |
-|---|---|---|---|---|
-| 1 Ana Ada | Başlangıç hediyesi: Küçük Ahır + İnek Ağılı + 2 İnek | Ücretsiz | — | — |
-| | 🌾 Otlak | $300 | +8 inek yeri | — |
-| | 🌽 Yem Silosu | $450 | Tüm hayvanlar 2 kat hızlı büyür | — |
-| | 🏚️ Ahır Sv.2 | $500 | Gelir x1.2, depo 900 | — |
-| | 🥛 Süt Makinesi | $1.200 | İnek +%50 | Otlak |
-| 2 Deniz | 🐟 Balık Kafesi | $1.000 | Denizde 10 balık yeri (Hamsi $200 · Levrek $1.500) | Ahır Sv.2 |
-| | ⛵ Balıkçı Teknesi | $5.000 | Balık geliri +%50 | Balık Kafesi |
-| 3 Tavuk Adası | 🐔 Tavuk Adası | $900 | Tavuk açılır | Ahır Sv.2 |
-| | 🏠 Ahır Sv.3 | $1.800 | Gelir x1.4, depo 3.000 | Ahır Sv.2 |
-| | 🥚 Yumurta Fabrikası | $2.500 | Tavuk +%60 | Tavuk Adası |
-| 4 At Adası | 🐎 At Adası | $3.500 | At açılır | Ahır Sv.3 |
-| | 🤖 Otomatik Toplayıcı | $4.000 | Para direkt kasaya | Ahır Sv.3 |
-| | 🏆 Altın Nal | $8.000 | At +%75 | At Adası |
-| 5 Keçi Adası | 🏰 Ahır Sv.4 | $6.000 | Gelir x1.7, depo 10.000 | Ahır Sv.3 |
-| | 🐐 Keçi Adası | $7.500 | Keçi açılır | At Adası |
-| | 🧀 Peynirhane | $12.000 | Keçi geliri 2 katı | Keçi Adası |
+| Çiftlik | Tema | Ana ada hayvanı | Küçük adalar |
+|---|---|---|---|
+| 1 | Klasik Çayır | İnek | Tavuk, At, Keçi |
+| 2 | Yün ve Süt | Tavuk | Süt, Koyun, Keçi |
+| 3 | Güneşli Tarla | Ördek | Süt, Tavuk, Domuz |
+| 4 | Göl ve Hara | İnek | Ördek, At, Domuz |
+| 5 | Dağ ve Orman | Tavuk | Süt, At, Domuz |
+| 6 | Meyve ve Süt | Ördek | Süt, Koyun, Domuz |
+
+Her ada yeni bir hayvan, kendine özel bir bonus, bir üretim tesisi ve bir eklenti alanı getirir.
+Ada ve yükseltme listesi, fiyatlar ve ön koşullar **yalnızca** `src/shared/Config.luau` içindedir; bu dosyada kopyalanmaz.
+
+**Tempo hedefleri** (ideal oyuncu, `python scripts/simulate-economy.py --farm 1..6`): ilk hayvan saniyeler içinde,
+ilk küçük ada ~10 dk, ikincisi ~30 dk, üçüncüsü ~1 saat, tüm yükseltmeler ~3 saat. Yazılı yükseltme fiyatları taban
+fiyattır; `UPGRADE_COST_BASE`/`UPGRADE_COST_EXPONENT` eğrisiyle büyütülür, aynı türden her yeni hayvan `ANIMAL_PRICE_GROWTH` kadar pahalıdır.
+Denge değiştirirsen önce simülasyonu çalıştır; `--cost-exp` ve `--price-growth` bayraklarıyla Config'e dokunmadan dene.
 
 **Deniz** dalı adalarla paralel ilerler: ana adanın önündeki iskeleden gidilen yüzen balık kafesinde
 hamsi ve levrek suyun altında yüzer. Denizdeki diğer balıklar sadece süs (`FishLife`).

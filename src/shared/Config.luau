@@ -294,7 +294,11 @@ local Config = {
 	-- Üretimde gerekenden fazla her yetişkin hayvan satış ödülünü bu oranda artırır (en fazla MAX kadar hayvan).
 	PRODUCTION_BONUS_PER_ADULT = 0.25,
 	PRODUCTION_MAX_BONUS_ADULTS = 12,
-	ANIMAL_PRICE_GROWTH = 1.1,
+	ANIMAL_PRICE_GROWTH = 1.18,
+	-- Yükseltme maliyet eğrisi: yazılı fiyatlar taban fiyattır; BASE üstündekiler (fiyat/BASE)^EXPONENT ile büyütülür
+	-- (2 anlamlı basamağa yuvarlanır). Tempo hedefleri: scripts/simulate-economy.py ile ölçülür.
+	UPGRADE_COST_BASE = 200,
+	UPGRADE_COST_EXPONENT = 0.95,
 	BULK_MULTIPLIERS = { 1, 2, 3, 5 }, -- Pazarda toplu alım çarpanları
 
 	-- Gelir modeli. Kimlikleri (id) Roblox Creator Hub'da ürünleri oluşturunca yaz; 0 = kapalı.
@@ -1472,6 +1476,15 @@ for _, chain in LEVEL_CHAINS do
 			upgrade.growthSpeed = chain.amount
 		end
 		table.insert(Config.UPGRADES, upgrade)
+	end
+end
+
+-- Tüm yükseltme maliyetlerine eğriyi bir kez uygula (seviye zincirleri dahil)
+for _, upgrade in Config.UPGRADES do
+	if upgrade.cost > Config.UPGRADE_COST_BASE then
+		local scaled = upgrade.cost * (upgrade.cost / Config.UPGRADE_COST_BASE) ^ Config.UPGRADE_COST_EXPONENT
+		local step = 10 ^ (math.floor(math.log10(scaled)) - 1)
+		upgrade.cost = math.floor(scaled / step + 0.5) * step
 	end
 end
 

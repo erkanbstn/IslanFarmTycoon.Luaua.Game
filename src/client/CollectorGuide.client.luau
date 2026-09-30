@@ -168,7 +168,10 @@ local function onState(state: PlayerSave)
 			then 6
 			else 0
 	end
-	wantGuide = not auto and cap > 0 and state.stored / cap >= GUIDE_RATIO
+	-- İlk adımlar (Onboarding) parayı toplamayı öğretirken ışın depo dolmadan da görünür
+	wantGuide = not auto
+		and cap > 0
+		and (state.stored / cap >= GUIDE_RATIO or localPlayer:GetAttribute("TutorialGuide") == true)
 end
 
 local lastCheck = 0

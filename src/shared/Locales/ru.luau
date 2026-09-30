@@ -566,4 +566,10 @@ return {
 	["Hayvan pazarı"] = "Рынок животных",
 	["Hayvan al"] = "Купить животных",
 	["Siparişler"] = "Заказы",
+	["İLK ADIMLAR 1/3"] = "ПЕРВЫЕ ШАГИ 1/3",
+	["İLK ADIMLAR 2/3"] = "ПЕРВЫЕ ШАГИ 2/3",
+	["İLK ADIMLAR 3/3"] = "ПЕРВЫЕ ШАГИ 3/3",
+	["Yeşil platforma basıp parayı topla"] = "Встань на зелёную платформу, чтобы собрать деньги",
+	["Hayvanların depoya para üretir; platforma basınca kasana geçer."] = "Животные зарабатывают деньги на склад; на платформе они переходят в кассу.",
+	["İlk yükseltme: {} · {}"] = "Первое улучшение: {1} · {2}",
 }

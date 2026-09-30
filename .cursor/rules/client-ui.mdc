@@ -43,5 +43,5 @@ alwaysApply: false
 
 - HUD ana betiği `src/client/FarmHud.client.luau` yalnızca orkestrasyondur (sol panel, menü, durum dağıtımı). Pencereler ve
   bölümler `src/client/Hud/` altındadır: `ShopWindow`, `RoadmapWindow`, `UpgradesWindow`, `IslandTabs`, `StoreSection`,
-  `RewardsSection`, `BoardSection`, `SeasonBar`, ortak `HudCommon` (`setPurchaseButton`, `purchaseHint`). Yeni pencere/bölüm
+  `RewardsSection`, `BoardSection`, `SeasonBar`, `Onboarding` (ilk adımlar: durumdan türetilir, `UiKit.pulse` vurgusu + `TutorialGuide` özniteliğiyle CollectorGuide ışını), ortak `HudCommon` (`setPurchaseButton`, `purchaseHint`). Yeni pencere/bölüm
   eklerken ana betiğe yığmak yerine buraya `create(...)` + `update(state)` kalıbıyla yeni modül yaz.

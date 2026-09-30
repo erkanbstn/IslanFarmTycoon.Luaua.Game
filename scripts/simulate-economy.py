@@ -5,7 +5,7 @@ Oyuncu her an kasası yettiği en iyi yatırımı alır (önce hayvan, sonra en 
 anında toplar ve hiç boş durmaz. Çıktı: her önemli adıma kaç dakikada ulaşıldığı ve saatlik gelir.
 Gerçek FarmMath/Config kullanılır (scripts/run-tests.py ile aynı birleştirme).
 
-Kullanım:  python scripts/simulate-economy.py [--hours 8] [--luau PATH]
+Kullanım:  python scripts/simulate-economy.py [--hours 8] [--farm 1..6] [--luau PATH]
 """
 
 from __future__ import annotations
@@ -24,6 +24,21 @@ spec.loader.exec_module(run_tests)  # type: ignore[union-attr]
 
 SIMULATION = r"""
 local HOURS = __HOURS__
+local FARM = "__FARM__"
+-- Ayar denemesi: yükseltme maliyetlerini (cost/BASE)^EXP ile büyüt, hayvan fiyat artışını değiştir (Config'e dokunmadan)
+local COST_BASE, COST_EXP, PRICE_GROWTH = __COST_BASE__, __COST_EXP__, __PRICE_GROWTH__
+if COST_EXP > 0 then
+	for _, upgrade in Config.UPGRADES do
+		if upgrade.cost > COST_BASE then
+			local scaled = upgrade.cost * (upgrade.cost / COST_BASE) ^ COST_EXP
+			local digits = 10 ^ (math.floor(math.log10(scaled)) - 1)
+			upgrade.cost = math.floor(scaled / digits + 0.5) * digits
+		end
+	end
+end
+if PRICE_GROWTH > 0 then
+	Config.ANIMAL_PRICE_GROWTH = PRICE_GROWTH
+end
 local STEP = 5 -- saniye
 local START = 1000000
 
@@ -37,9 +52,11 @@ local save: any = {
 	unlockedZones = {},
 	ordersCompleted = 0,
 	production = {},
+	activeMainFarmId = FARM,
 }
+local homeAnimal = Config.getHomeAnimal(FARM)
 for index = 1, Config.STARTING_COW_COUNT do
-	table.insert(save.animals, { uid = `start-{index}`, animalId = "cow", zoneId = "starter", bornAt = 0, stage = "adult" })
+	table.insert(save.animals, { uid = `start-{index}`, animalId = homeAnimal, zoneId = "starter", bornAt = 0, stage = "adult" })
 end
 FarmMath.applyDerived(save)
 
@@ -152,6 +169,18 @@ for step = 1, steps do
 		end
 	end
 
+	if milestones["TÜM YÜKSELTMELER"] == nil then
+		local all = true
+		for _, upgrade in Config.UPGRADES do
+			if inTheme(upgrade) and not save.purchased[upgrade.id] then
+				all = false
+				break
+			end
+		end
+		if all then
+			mark("TÜM YÜKSELTMELER")
+		end
+	end
 	local minute = (now - START) / 60
 	if minute - lastReport >= 60 then
 		lastReport += 60
@@ -164,10 +193,14 @@ for step = 1, steps do
 end
 
 print("ADIM ZAMANLARI (dakika, ideal oyuncu)")
-local goals: { [string]: string } = {
-	island_poultry = "hedef 10-15 dk",
-	island_goat = "hedef 60-120 dk",
-}
+local goals: { [string]: string } = {}
+local theme = Config.getTheme(FARM)
+print(`ÇİFTLİK {FARM} · {theme.displayName} · ana hayvan: {homeAnimal}`)
+local targets = { 12, 40, 90 }
+for index, islandId in theme.satellites do
+	goals[Config.FARM_ISLANDS[islandId].upgradeId] = `hedef ~{targets[index]} dk`
+end
+goals["TÜM YÜKSELTMELER"] = "hedef 120-180 dk"
 for _, name in order do
 	print(string.format("  %8.1f dk  %s%s", milestones[name], name, if goals[name] then `   ({goals[name]})` else ""))
 end
@@ -190,6 +223,10 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--luau", help="Luau yorumlayıcısı yolu")
     parser.add_argument("--hours", type=float, default=6.0, help="Simüle edilecek süre (saat)")
+    parser.add_argument("--farm", default="1", help="Çiftlik numarası (tema): 1-6")
+    parser.add_argument("--cost-base", type=float, default=600, help="Deneme: bu değerin üstündeki yükseltme maliyetleri büyütülür")
+    parser.add_argument("--cost-exp", type=float, default=0, help="Deneme: maliyet üssü (0 = kapalı)")
+    parser.add_argument("--price-growth", type=float, default=0, help="Deneme: ANIMAL_PRICE_GROWTH (0 = Config değeri)")
     args = parser.parse_args()
     executable = args.luau or shutil.which("luau")
     if executable is None:
@@ -203,11 +240,14 @@ def main() -> int:
     pieces = [
         "--!nocheck\n",
         "local Color3 = { fromRGB = function(r, g, b) return { R = r / 255, G = g / 255, B = b / 255 } end }\n",
-        module("Config", "src/shared/Config.luau"),
+        module("Config", "src/shared/Config.luau").replace("return table.freeze(Config)", "return Config"),  # ayar denemeleri değiştirebilsin
         module("GameTypes", "src/shared/GameTypes.luau"),
         "local Environment = { getIncomeMultiplier = function() return 1 end }\n",
         module("FarmMath", "src/shared/Modules/FarmMath.luau", {"Config", "GameTypes", "Environment"}),
-        SIMULATION.replace("__HOURS__", str(args.hours)),
+        SIMULATION.replace("__HOURS__", str(args.hours)).replace("__FARM__", str(args.farm))
+        .replace("__COST_BASE__", str(args.cost_base))
+        .replace("__COST_EXP__", str(args.cost_exp))
+        .replace("__PRICE_GROWTH__", str(args.price_growth)),
     ]
     output = ROOT / ".test-build" / "simulate.luau"
     output.parent.mkdir(parents=True, exist_ok=True)
