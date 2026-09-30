@@ -32,7 +32,8 @@ local function refresh()
 	end
 end
 
-local function submit(action: string, recipeId: string, uid: string?)
+-- detail: "start" için para tesisinin parti kimliği, "sell"/"keep" için işin uid'i
+local function submit(action: string, recipeId: string, detail: string?)
 	if pending or os.clock() < nextSendAt or PurchaseController.isPending() then
 		return
 	end
@@ -45,7 +46,7 @@ local function submit(action: string, recipeId: string, uid: string?)
 	refresh()
 	local state = ClientState.get()
 	Remotes.get("RequestProductionAction")
-		:FireServer(action, recipeId, uid, requestId, if state then state.activeMainFarmId else nil)
+		:FireServer(action, recipeId, detail, requestId, if state then state.activeMainFarmId else nil)
 	task.delay(0.6, refresh)
 	task.delay(10, function()
 		if pending == requestId then
@@ -92,7 +93,13 @@ local function create(parent: ScreenGui): UiKit.Window
 	changeIsland.Activated:Connect(IslandManager.open)
 	local feedback = UiKit.text(created.list, "", "Caption")
 	feedback.LayoutOrder = 1
-	type Entry = { card: UiKit.Card, keep: TextButton, progress: Frame, fill: (number, Color3) -> () }
+	type Entry = {
+		card: UiKit.Card,
+		keep: TextButton,
+		progress: Frame,
+		fill: (number, Color3) -> (),
+		options: { TextButton },
+	}
 	local entries: { [string]: Entry } = {}
 	for index, id in Config.PRODUCTION_ORDER do
 		local recipe = Config.PRODUCTION_RECIPES[id]
@@ -104,7 +111,23 @@ local function create(parent: ScreenGui): UiKit.Window
 		keep.Size = UDim2.new(1, 0, 0, 36)
 		keep.LayoutOrder = 4
 		keep.Visible = false
-		entries[id] = { card = card, keep = keep, progress = progress, fill = fill }
+		-- Para tesisi: her parti seçeneği için bir başlatma butonu (ücretsiz; ne kadar hayvan isterse o kadar kazandırır)
+		local optionButtons: { TextButton } = {}
+		local recipeOptions: { Config.ProductionOptionConfig } = recipe.options or {}
+		for optionIndex, option in recipeOptions do
+			local button = UiKit.button(card.frame, option.displayName, "primary")
+			button.Size = UDim2.new(1, 0, 0, 36)
+			button.LayoutOrder = 5 + optionIndex
+			button.Visible = false
+			table.insert(optionButtons, button)
+			button.Activated:Connect(function()
+				local state = ClientState.get()
+				if state and button.Active and state.purchased[recipe.upgradeId] and not state.production[id] then
+					submit("start", id, option.id)
+				end
+			end)
+		end
+		entries[id] = { card = card, keep = keep, progress = progress, fill = fill, options = optionButtons }
 		card.action.Activated:Connect(function()
 			local state = ClientState.get()
 			if not state or not card.action.Active then
@@ -150,6 +173,10 @@ local function create(parent: ScreenGui): UiKit.Window
 			card.frame.LayoutOrder = if focused == id then 2 else index + 3
 			entry.keep.Visible = false
 			entry.progress.Visible = false
+			card.action.Visible = true
+			for _, button in entry.options do
+				button.Visible = false
+			end
 			local variant: UiKit.Variant = "primary"
 			local job = state.production and state.production[id]
 			local reward, bonus = FarmMath.getProductionReward(state, recipe, now, job)
@@ -162,7 +189,7 @@ local function create(parent: ScreenGui): UiKit.Window
 			if job then
 				local remaining = math.max(0, math.ceil(job.readyAt - now))
 				entry.progress.Visible = true
-				entry.fill(1 - remaining / FarmMath.getFacilityDuration(state, recipe), UiKit.Color.Green)
+				entry.fill(1 - remaining / FarmMath.getFacilityDuration(state, recipe, job.optionId), UiKit.Color.Green)
 				local working = 0
 				for _, animal in state.animals do
 					local task = animal.task
@@ -203,6 +230,33 @@ local function create(parent: ScreenGui): UiKit.Window
 					then "disabled"
 					elseif state.cash >= FarmMath.getUpgradeCost(state, upgrade) then "primary"
 					else "warning"
+			elseif recipe.options then
+				-- Para tesisi: başlatma ücretsiz; her parti seçeneği kendi hayvan sayısını ister ve farklı kazandırır
+				local adults = FarmMath.countProductionAdults(state, recipe, now)
+				card.detail.Text =
+					`{recipe.description}\nBoştaki yetişkin hayvan: {adults}\nBaşlatma ücretsiz; hayvanlar iş boyunca gelirsiz çalışır, bitince döner.`
+				card.action.Visible = false
+				for optionIndex, option in recipe.options do
+					local button = entry.options[optionIndex]
+					local duration = FarmMath.getFacilityDuration(state, recipe, option.id)
+					local picked = FarmMath.pickProductionAnimals(state, recipe, now, option.id)
+					local forgone = if picked then FarmMath.estimateForgoneIncome(state, picked, duration) else 0
+					local shownReward = FarmMath.getProductionReward(
+						state,
+						recipe,
+						now,
+						{ uid = "preview", readyAt = now, forgone = forgone, optionId = option.id }
+					)
+					button.Visible = true
+					button.Text =
+						`{option.displayName} · {option.requiredAdults} hayvan · {duration} sn · +{FarmMath.formatMoney(
+							shownReward
+						)}`
+					UiKit.setVariant(
+						button,
+						if blocked or adults < option.requiredAdults then "disabled" else "primary"
+					)
+				end
 			else
 				local adults = FarmMath.countProductionAdults(state, recipe, now)
 				local bonusLine = if bonus > 0 then `\nYetişkin bonusu: +%{math.round(bonus * 100)}` else ""

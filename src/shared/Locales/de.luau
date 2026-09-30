@@ -825,4 +825,12 @@ return {
 	["Aç"] = "Öffnen",
 	["Ahıra eklendi"] = "Zum Stall hinzugefügt",
 	["Ahır deposunda bu ürün için yeterli yer yok."] = "Im Stalllager ist nicht genug Platz für dieses Produkt.",
+
+	-- Para tesisi parti seçenekleri
+	["Küçük parti"] = "Kleine Charge",
+	["Standart parti"] = "Standardcharge",
+	["Büyük parti"] = "Große Charge",
+	["Boştaki yetişkin hayvan: {}"] = "Freie erwachsene Tiere: {1}",
+	["Başlatma ücretsiz; hayvanlar iş boyunca gelirsiz çalışır, bitince döner."] = "Der Start ist kostenlos; die Tiere arbeiten ohne Einkommen und kehren nach Abschluss zurück.",
+	["Geçersiz üretim seçeneği."] = "Ungültige Produktionsoption.",
 }

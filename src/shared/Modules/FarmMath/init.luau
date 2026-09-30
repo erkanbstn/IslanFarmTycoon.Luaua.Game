@@ -1,11 +1,12 @@
 --!strict
 -- Sunucu ve client'ın aynı sonucu hesaplaması için ortak oyun hesapları.
 -- Sunucu bunları KARAR için, client sadece GÖSTERİM için kullanır.
--- Parçalar (Modules/FarmMath/): Format, Core, Counts, Islands, Lineage, Expansion, Production, Income, Animals.
+-- Parçalar (Modules/FarmMath/): Format, Core, Recipes, Counts, Islands, Lineage, Expansion, Production, Income, Animals.
 
 local Format = require(script:WaitForChild("Format"))
 local Core = require(script:WaitForChild("Core"))
 local Goods = require(script:WaitForChild("Goods"))
+local Recipes = require(script:WaitForChild("Recipes"))
 local Counts = require(script:WaitForChild("Counts"))
 local Islands = require(script:WaitForChild("Islands"))
 local Lineage = require(script:WaitForChild("Lineage"))
@@ -78,6 +79,8 @@ FarmMath.getGrowthSpeed = Production.getGrowthSpeed
 FarmMath.countProductionAdults = Production.countProductionAdults
 FarmMath.pickProductionAnimals = Production.pickProductionAnimals
 FarmMath.getGoodsYield = Production.getGoodsYield
+FarmMath.resolveRecipe = Recipes.resolve
+FarmMath.findProductionOption = Recipes.findOption
 FarmMath.getProductionReward = Production.getProductionReward
 FarmMath.snapshotGrowthSpeeds = Production.snapshotGrowthSpeeds
 FarmMath.preserveGrowthProgress = Production.preserveGrowthProgress

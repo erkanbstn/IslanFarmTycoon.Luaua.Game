@@ -174,7 +174,7 @@ return function(codec: any, config: any, farmMath: any, rules: any)
 	)
 	assert(floored * config.GOODS.milk.value > 1e6, "goods are always worth more than the income the animals gave up")
 	assert(
-		farmMath.getGoodsYield(yieldSave, config.PRODUCTION_RECIPES.dairy, now) == 0,
+		farmMath.getGoodsYield(yieldSave, config.PRODUCTION_RECIPES.packed_milk, now) == 0,
 		"cash recipes have no goods yield"
 	)
 
@@ -190,7 +190,7 @@ return function(codec: any, config: any, farmMath: any, rules: any)
 		not blocked and reason == "Ahır deposunda bu ürün için yeterli yer yok.",
 		"a nearly full barn blocks the batch"
 	)
-	local other = config.PRODUCTION_RECIPES.dairy
+	local other = config.PRODUCTION_RECIPES.packed_milk
 	assert(rules.canStart(startSave, other, farmMath, now), "a full barn does not block cash recipes")
 	print("PASS goods: config consistency, barn storage, save/decode repairs, yield floor and start rule")
 end

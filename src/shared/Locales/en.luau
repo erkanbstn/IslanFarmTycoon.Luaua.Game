@@ -825,4 +825,12 @@ return {
 	["Aç"] = "Open",
 	["Ahıra eklendi"] = "Added to the barn",
 	["Ahır deposunda bu ürün için yeterli yer yok."] = "Not enough room in the barn storage for this product.",
+
+	-- Para tesisi parti seçenekleri
+	["Küçük parti"] = "Small batch",
+	["Standart parti"] = "Standard batch",
+	["Büyük parti"] = "Large batch",
+	["Boştaki yetişkin hayvan: {}"] = "Idle adult animals: {1}",
+	["Başlatma ücretsiz; hayvanlar iş boyunca gelirsiz çalışır, bitince döner."] = "Starting is free; the animals work without earning income and return when finished.",
+	["Geçersiz üretim seçeneği."] = "Invalid production option.",
 }

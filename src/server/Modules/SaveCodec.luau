@@ -169,8 +169,22 @@ local function decodeFarm(
 			if SessionLock.isFinite(job.forgone) and job.forgone >= 0 then
 				forgone = math.min(job.forgone, 1e15)
 			end
-			save.production[recipeId] =
-				{ uid = job.uid, readyAt = job.readyAt, startedAt = startedAt, forgone = forgone }
+			-- Parti kimliği yalnızca tarifin tanıdığı bir seçenek olabilir (yoksa ilk seçenek sayılır)
+			local optionId: string? = nil
+			if typeof(job.optionId) == "string" and recipe.options then
+				for _, option in recipe.options do
+					if option.id == job.optionId then
+						optionId = option.id
+					end
+				end
+			end
+			save.production[recipeId] = {
+				uid = job.uid,
+				readyAt = job.readyAt,
+				startedAt = startedAt,
+				forgone = forgone,
+				optionId = optionId,
+			}
 		end
 	end
 	if source.order ~= nil then
@@ -398,8 +412,13 @@ local function encodeFarm(save: any, now: number): { [string]: any }
 	end
 	local production = {}
 	for recipeId, job in save.production or {} do
-		production[recipeId] =
-			{ uid = job.uid, readyAt = job.readyAt, startedAt = job.startedAt, forgone = job.forgone }
+		production[recipeId] = {
+			uid = job.uid,
+			readyAt = job.readyAt,
+			startedAt = job.startedAt,
+			forgone = job.forgone,
+			optionId = job.optionId,
+		}
 	end
 	return {
 		version = 3,

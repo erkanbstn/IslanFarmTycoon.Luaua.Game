@@ -114,6 +114,17 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
   (`BarnVisualService.addStorageChest`, `BarnChestPrompt`, "E") aynı pencereyi açar; yeni ürün merkezi binaları `Presentation/UpgradeBuildersGoods` ve
   `MapLayout` yapı noktaları (`HOME_BUILD_SPOTS`, `SATELLITE_TYPES[...].itemSpot`); `MapBuilder.validate` her "boost" yükseltmesi için yapı noktası ister.
   Yeni ürün/merkez eklerken: `Goods.luau` + tarif + yükseltme + bina görseli + yapı noktası + `UpgradeParts.PRODUCTION_RECIPES` + çeviri + `tests/goods.spec.luau`.
+- **Para tesisleri ve parti seçenekleri**: `output = "cash"` tesisler **ücretsiz** başlar (`cost = 0`; `FarmMath.getFacilityCost` 0 döner, `ProductionService`
+  ücret almaz) ve `options` listesi taşır: her `ProductionOptionConfig { id, displayName, requiredAdults, duration, reward, returnMultiplier }` ayrı bir parti
+  (ör. 1 / 2 / 4 hayvan). Daha çok hayvan isteyen seçenek hayvan başına daha çok öder (`reward / requiredAdults` ve `returnMultiplier` seçenek sırasıyla artar;
+  `tests/config.spec.luau` bunu denetler). Seçenekli tarifte üst alanlar (`requiredAdults`, `duration`) ilk seçeneği yansıtır; `reward` yalnızca tesis
+  geliştirme maliyeti ölçeğidir (parti ödülü seçenektedir). Seçimi `FarmMath.resolveRecipe(recipe, optionId)` tarifin alanları seçenekle değişmiş kopyasına
+  çevirir (`Recipes.luau`, önbellekli, değiştirme); `pickProductionAnimals/getFacilityDuration/canStart` seçenek kimliği alır. Başlatma isteğinin 4. alanı
+  (`detail`) para tesisinde parti kimliğidir (seçeneksiz tarife verilemez, bilinmeyen kimlik reddedilir; `ProductionRules.validOption`); iş kaydına
+  `job.optionId` yazılır (`SaveCodec` yalnızca tarifin tanıdığı kimliği tutar). Teslim ödülü `max(seçenek ödülü x tesis verimi, ceil(forgone x returnMultiplier))`;
+  seçenekli tariflerde fazla yetişkin bonusu yoktur (hayvan sayısını seçenek belirler). Para tesisleri `upgradeProfile = "cashFactory"` kullanır (indirim yerine
+  verim: ücretsiz tesiste `thrift` anlamsız). Ürün merkezleri (`output = "goods"`) seçeneksizdir ve başlatma ücreti alır. Bölge ve tesis kimlikleri **aynı
+  yapı geliştirme tablosunu** (`BUILD_TARGETS`, `save.expansions`) paylaşır: çakışan kimlik (`dairy` bölgesi ile tarif) Config yüklenirken `assert` ile reddedilir.
 - **Hayvan görevleri (üretim tesisi ve eklenti)**: `AnimalRecord.task { kind = "production"|"extension", id, startedAt, endsAt }` kaydedilir
   (`SaveCodec.decodeTask`: bozuk görev atılır, hayvan korunur; çevrimdışıyken biten görev yüklemede temizlenir; eski kalıcı `extensionId` eve döner).
   Görev süresince: **üretim** → hayvan tesiste çalışır, gelir getirmez, görünmez, satılamaz; **eklenti** → `Config.EXTENSIONS[id].incomeBonus` kadar

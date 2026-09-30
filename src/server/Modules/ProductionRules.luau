@@ -7,11 +7,28 @@ function ProductionRules.validRequestId(value: unknown): boolean
 end
 
 -- Üretime verilebilecek boşta yetişkin sayısı (eklentide duranlar ve başka tesise verilmiş olanlar sayılmaz)
+-- Başlatma isteğindeki parti kimliği: seçeneksiz tarifte verilmemeli, seçenekli tarifte verilmişse tanınmalı
+function ProductionRules.validOption(recipe: any, farmMath: any, optionId: unknown): boolean
+	if optionId == nil then
+		return true
+	end
+	return recipe.options ~= nil and farmMath.findProductionOption(recipe, optionId) ~= nil
+end
+
 function ProductionRules.countAdults(save: any, recipe: any, farmMath: any, now: number): number
 	return farmMath.countProductionAdults(save, recipe, now)
 end
 
-function ProductionRules.canStart(save: any, recipe: any, farmMath: any, now: number): (boolean, string?)
+-- optionId: para tesisinde seçilen parti (seçeneksiz tarifte nil; bilinmeyen/eksik kimlik ilk seçeneğe düşer, geçerliliği
+-- ProductionRules.validOption ile ayrıca sorulur)
+function ProductionRules.canStart(
+	save: any,
+	baseRecipe: any,
+	farmMath: any,
+	now: number,
+	optionId: string?
+): (boolean, string?)
+	local recipe = farmMath.resolveRecipe(baseRecipe, optionId)
 	if not save.purchased[recipe.upgradeId] or not save.unlockedIslands[recipe.island] then
 		return false, "Önce bu üretim binasını açmalısın."
 	end

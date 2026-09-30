@@ -56,20 +56,26 @@ return function(FarmMath: any, Config: any, Environment: any)
 	near(FarmMath.computeOfflineEarnings(save, start, start + Config.OFFLINE_MAX_HOURS * 3600), offlineCap)
 	save.stored = 0
 
-	-- Üretim ödülü: gerekenden fazla her yetişkin bonus verir, üst sınırda durur.
-	local dairy = Config.PRODUCTION_RECIPES.dairy
+	-- Üretim ödülü (seçeneksiz tarif): gerekenden fazla her yetişkin bonus verir, üst sınırda durur.
+	local dairy = Config.PRODUCTION_RECIPES.hatchery
 	local farm = saveAt(0)
 	farm.animals = {}
 	for index = 1, dairy.requiredAdults do
 		table.insert(
 			farm.animals,
-			{ uid = `d{index}`, animalId = "cow", zoneId = "starter", bornAt = 0, stage = "adult" }
+			{ uid = `d{index}`, animalId = "chicken", zoneId = "starter", bornAt = 0, stage = "adult" }
 		)
 	end
 	local baseReward, baseBonus = FarmMath.getProductionReward(farm, dairy, start)
 	assert(baseReward == dairy.reward and baseBonus == 0, "required adults only: base reward")
-	table.insert(farm.animals, { uid = "d-extra", animalId = "cow", zoneId = "starter", bornAt = 0, stage = "adult" })
-	table.insert(farm.animals, { uid = "d-calf", animalId = "cow", zoneId = "starter", bornAt = start, stage = "calf" })
+	table.insert(
+		farm.animals,
+		{ uid = "d-extra", animalId = "chicken", zoneId = "starter", bornAt = 0, stage = "adult" }
+	)
+	table.insert(
+		farm.animals,
+		{ uid = "d-calf", animalId = "chicken", zoneId = "starter", bornAt = start, stage = "calf" }
+	)
 	local oneExtra = FarmMath.getProductionReward(farm, dairy, start)
 	assert(
 		oneExtra == math.floor(dairy.reward * (1 + Config.PRODUCTION_BONUS_PER_ADULT)),
@@ -78,7 +84,7 @@ return function(FarmMath: any, Config: any, Environment: any)
 	for index = 1, Config.PRODUCTION_MAX_BONUS_ADULTS + 5 do
 		table.insert(
 			farm.animals,
-			{ uid = `d-many{index}`, animalId = "cow", zoneId = "starter", bornAt = 0, stage = "adult" }
+			{ uid = `d-many{index}`, animalId = "chicken", zoneId = "starter", bornAt = 0, stage = "adult" }
 		)
 	end
 	local _, cappedBonus = FarmMath.getProductionReward(farm, dairy, start)
@@ -472,13 +478,16 @@ return function(FarmMath: any, Config: any, Environment: any)
 	local facilityFarm = saveAt(start)
 	local cheese = Config.PRODUCTION_RECIPES.cheese
 	local durationBase = FarmMath.getFacilityDuration(facilityFarm, cheese)
-	local costBase = FarmMath.getFacilityCost(facilityFarm, cheese)
+	local cheeseGoods = Config.PRODUCTION_RECIPES.cheese_goods
+	local costBase = FarmMath.getFacilityCost(facilityFarm, cheeseGoods)
+	assert(FarmMath.getFacilityCost(facilityFarm, cheese) == 0, "cash facilities charge nothing to start")
 	local rewardBase = FarmMath.getProductionReward(facilityFarm, cheese, 0)
-	facilityFarm.expansions = { cheese = Config.BUILD_UPGRADES.maxLevel }
+	facilityFarm.expansions = { cheese = Config.BUILD_UPGRADES.maxLevel, cheese_goods = Config.BUILD_UPGRADES.maxLevel }
 	assert(FarmMath.getFacilityDuration(facilityFarm, cheese) < durationBase, "facility levels shorten production")
-	assert(FarmMath.getFacilityCost(facilityFarm, cheese) < costBase, "facility levels cut the start cost")
+	assert(FarmMath.getFacilityCost(facilityFarm, cheeseGoods) < costBase, "facility levels cut the start cost")
+	assert(FarmMath.getFacilityCost(facilityFarm, cheese) == 0, "a free facility stays free")
 	assert(FarmMath.getProductionReward(facilityFarm, cheese, 0) > rewardBase, "facility levels raise the reward")
-	assert(FarmMath.getFacilityCost(facilityFarm, cheese) >= 1, "start cost stays positive")
+	assert(FarmMath.getFacilityCost(facilityFarm, cheeseGoods) >= 1, "a paid start cost stays positive")
 	-- Bir tesis geliştirmesi tesis kurulmadan alınamaz
 	local emptyFarm = saveAt(start)
 	emptyFarm.purchased[cheese.upgradeId] = nil

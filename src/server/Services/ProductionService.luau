@@ -27,7 +27,8 @@ local function releaseProductionAnimals(data: any, recipeId: string)
 	end
 end
 
-local function act(player: Player, action: unknown, recipeId: unknown, jobUid: unknown): (boolean, string)
+-- detail: "start" için para tesisinin parti kimliği (yoksa ilk seçenek), "sell"/"keep" için teslim alınacak işin uid'i
+local function act(player: Player, action: unknown, recipeId: unknown, detail: unknown): (boolean, string)
 	if not RateLimiter.validId(recipeId) then
 		return false, "Geçersiz üretim."
 	end
@@ -35,9 +36,18 @@ local function act(player: Player, action: unknown, recipeId: unknown, jobUid: u
 	if not recipe or (action ~= "start" and action ~= "sell" and action ~= "keep") then
 		return false, "Bilinmeyen üretim işlemi."
 	end
-	if (action == "start" and jobUid ~= nil) or (action ~= "start" and not RateLimiter.validId(jobUid)) then
+	if detail ~= nil and not RateLimiter.validId(detail) then
 		return false, "Geçersiz üretim kimliği."
 	end
+	if action == "start" then
+		if not ProductionRules.validOption(recipe, FarmMath, detail) then
+			return false, "Geçersiz üretim seçeneği."
+		end
+	elseif detail == nil then
+		return false, "Geçersiz üretim kimliği."
+	end
+	local jobUid = detail
+	local optionId = if action == "start" then detail :: string? else nil
 	local data = PlayerDataService.tryGet(player)
 	if not data or player:GetAttribute("WorldReady") ~= true or not PlotService.getPlot(player) then
 		return false, "Çiftliğin henüz hazır değil."
@@ -46,29 +56,35 @@ local function act(player: Player, action: unknown, recipeId: unknown, jobUid: u
 	local reward = 0
 	local goodsMessage = ""
 	if action == "start" then
-		local allowed, reason = ProductionRules.canStart(data, recipe, FarmMath, now)
+		local allowed, reason = ProductionRules.canStart(data, recipe, FarmMath, now, optionId)
 		if not allowed then
 			return false, reason or "Üretim başlatılamadı."
 		end
 		-- Görev başlamadan önce eski durumla gelir kesilir (hayvanlar bu andan itibaren tesiste sayılır).
 		EconomyService.settlePlayer(player)
 		local startCost = FarmMath.getFacilityCost(data, recipe)
-		local animals = FarmMath.pickProductionAnimals(data, recipe, now)
+		local batch = FarmMath.resolveRecipe(recipe, optionId)
+		local animals = FarmMath.pickProductionAnimals(data, recipe, now, optionId)
 		if not animals then
-			return false, `Bu üretim için boşta {recipe.requiredAdults} yetişkin hayvan gerekli.`
+			return false, `Bu üretim için boşta {batch.requiredAdults} yetişkin hayvan gerekli.`
 		end
-		if not PlayerDataService.trySpend(player, startCost) then
+		if startCost > 0 and not PlayerDataService.trySpend(player, startCost) then
 			return false, `Yeterli para yok ({FarmMath.formatMoney(startCost)}).`
 		end
-		local duration = FarmMath.getFacilityDuration(data, recipe)
+		local duration = FarmMath.getFacilityDuration(data, recipe, optionId)
 		local readyAt = now + duration
 		-- Tesise verilen hayvanlar iş boyunca gelir getirmez; ödül bu kaybın üzerinde bir tabanla garanti edilir.
 		local forgone = FarmMath.estimateForgoneIncome(data, animals, duration)
 		for _, animal in animals do
 			animal.task = { kind = "production", id = recipe.id, startedAt = now, endsAt = readyAt }
 		end
-		data.production[recipe.id] =
-			{ uid = HttpService:GenerateGUID(false), readyAt = readyAt, startedAt = now, forgone = forgone }
+		data.production[recipe.id] = {
+			uid = HttpService:GenerateGUID(false),
+			readyAt = readyAt,
+			startedAt = now,
+			forgone = forgone,
+			optionId = batch.optionId,
+		}
 	else
 		local job = data.production[recipe.id]
 		if not job or job.uid ~= jobUid then

@@ -34,6 +34,7 @@ export type ProductionJob = {
 	readyAt: number,
 	startedAt: number?, -- eski kayıtlarda yok
 	forgone: number?, -- tesise verilen hayvanların iş boyunca kaçırdığı gelir (ödül tabanı; eski kayıtlarda yok)
+	optionId: string?, -- para tesisinde seçilen parti (yoksa tarifin ilk seçeneği)
 }
 
 export type MainFarmSummary = {

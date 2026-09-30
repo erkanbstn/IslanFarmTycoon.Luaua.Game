@@ -7,6 +7,7 @@ local GameTypes = require(script.Parent.Parent.Parent:WaitForChild("GameTypes"))
 local Core = require(script.Parent:WaitForChild("Core"))
 local Expansion = require(script.Parent:WaitForChild("Expansion"))
 local Counts = require(script.Parent:WaitForChild("Counts"))
+local Recipes = require(script.Parent:WaitForChild("Recipes"))
 
 type PlayerSave = GameTypes.PlayerSave
 
@@ -74,12 +75,14 @@ function Production.countProductionAdults(save: PlayerSave, recipe: Config.Produ
 	return #idleAdults(save, recipe, now)
 end
 
--- Tesise verilecek hayvanlar: boştaki yetişkinlerden requiredAdults kadarı (yetmiyorsa nil)
+-- Tesise verilecek hayvanlar: boştaki yetişkinlerden seçilen partinin gerektirdiği sayıda (yetmiyorsa nil)
 function Production.pickProductionAnimals(
 	save: PlayerSave,
-	recipe: Config.ProductionRecipeConfig,
-	now: number
+	baseRecipe: Config.ProductionRecipeConfig,
+	now: number,
+	optionId: string?
 ): { GameTypes.AnimalRecord }?
+	local recipe = Recipes.resolve(baseRecipe, optionId)
 	local adults = idleAdults(save, recipe, now)
 	if #adults < recipe.requiredAdults then
 		return nil
@@ -91,25 +94,32 @@ function Production.pickProductionAnimals(
 	return picked
 end
 
--- Gerekenden fazla yetişkin başına ödül artar; bonus oranı (0.5 = +%50) ve ödül döner.
--- job verilirse ödül, (kaçırılan gelir + başlatma maliyeti) x PRODUCTION_MIN_RETURN tabanından az olamaz.
+-- Partinin ödülü (parti job.optionId ile seçilir; yoksa ilk seçenek). Seçenekli para tesislerinde hayvan sayısını seçenek
+-- belirler; seçeneksiz tariflerde gerekenden fazla yetişkin başına ödül artar. (ödül, bonus oranı 0.5 = +%50) döner.
+-- job verilirse ödül, (kaçırılan gelir + başlatma maliyeti) x parti çarpanı (yoksa PRODUCTION_MIN_RETURN) tabanından az olamaz.
 function Production.getProductionReward(
 	save: PlayerSave,
-	recipe: Config.ProductionRecipeConfig,
+	baseRecipe: Config.ProductionRecipeConfig,
 	now: number,
 	job: GameTypes.ProductionJob?
 ): (number, number)
-	local extra = math.clamp(
-		Production.countProductionAdults(save, recipe, now) - recipe.requiredAdults,
-		0,
-		Config.PRODUCTION_MAX_BONUS_ADULTS
-	)
+	local recipe = Recipes.resolve(baseRecipe, if job then job.optionId else nil)
+	local extra = 0
+	if not baseRecipe.options then
+		extra = math.clamp(
+			Production.countProductionAdults(save, recipe, now) - recipe.requiredAdults,
+			0,
+			Config.PRODUCTION_MAX_BONUS_ADULTS
+		)
+	end
 	local bonus = extra * Config.PRODUCTION_BONUS_PER_ADULT
 	local facilityYield = 1 + Expansion.getBuildBonus(save, recipe.id, "yield") -- tesis geliştirmesi
 	local reward = math.floor(recipe.reward * (1 + bonus) * facilityYield)
 	if job and job.forgone then
-		local floorReward =
-			math.ceil((job.forgone + Expansion.getFacilityCost(save, recipe)) * Config.PRODUCTION_MIN_RETURN)
+		local floorReward = math.ceil(
+			(job.forgone + Expansion.getFacilityCost(save, recipe))
+				* (recipe.returnMultiplier or Config.PRODUCTION_MIN_RETURN)
+		)
 		reward = math.max(reward, floorReward)
 	end
 	return reward, bonus

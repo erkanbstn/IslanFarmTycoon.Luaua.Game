@@ -6,6 +6,7 @@ local Config = require(script.Parent.Parent.Parent:WaitForChild("Config"))
 local GameTypes = require(script.Parent.Parent.Parent:WaitForChild("GameTypes"))
 local Core = require(script.Parent:WaitForChild("Core"))
 local Counts = require(script.Parent:WaitForChild("Counts"))
+local Recipes = require(script.Parent:WaitForChild("Recipes"))
 
 type PlayerSave = GameTypes.PlayerSave
 local isFinite = Core.isFinite
@@ -181,11 +182,21 @@ function Expansion.getExpansionStatus(save: PlayerSave, targetId: string): (Expa
 end
 
 -- Tesis istatistikleri: geliştirmeden sonra süre, başlatma maliyeti ve ödül çarpanı
-function Expansion.getFacilityDuration(save: PlayerSave, recipe: Config.ProductionRecipeConfig): number
-	return math.max(10, math.floor(recipe.duration * Expansion.getBuildMultiplier(save, recipe.id, "speed")))
+-- optionId: para tesisinde seçilen parti (verilmezse ilk seçenek)
+function Expansion.getFacilityDuration(
+	save: PlayerSave,
+	recipe: Config.ProductionRecipeConfig,
+	optionId: string?
+): number
+	local resolved = Recipes.resolve(recipe, optionId)
+	return math.max(10, math.floor(resolved.duration * Expansion.getBuildMultiplier(save, recipe.id, "speed")))
 end
 
+-- Başlatma ücreti; ücretsiz (cost = 0) para tesislerinde 0, diğerlerinde en az 1
 function Expansion.getFacilityCost(save: PlayerSave, recipe: Config.ProductionRecipeConfig): number
+	if recipe.cost <= 0 then
+		return 0
+	end
 	local thrift = math.clamp(Expansion.getBuildBonus(save, recipe.id, "thrift"), 0, 0.8)
 	return math.max(1, math.floor(recipe.cost * (1 - thrift)))
 end

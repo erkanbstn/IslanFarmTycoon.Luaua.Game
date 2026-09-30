@@ -21,6 +21,7 @@ local Items = require(script:WaitForChild("Items"))
 export type ZoneConfig = Types.ZoneConfig
 export type BuildLevelEffects = Types.BuildLevelEffects
 export type ProductionRecipeConfig = Types.ProductionRecipeConfig
+export type ProductionOptionConfig = Types.ProductionOptionConfig
 export type AnimalConfig = Types.AnimalConfig
 export type BarnLevelConfig = Types.BarnLevelConfig
 export type ThemeConfig = Types.ThemeConfig
@@ -317,6 +318,8 @@ for _, zoneId in Config.ZONE_ORDER do
 end
 for _, recipeId in Config.PRODUCTION_ORDER do
 	local recipe = Config.PRODUCTION_RECIPES[recipeId]
+	-- Bölge ve tesis kimlikleri aynı yapı geliştirme tablosunu paylaşır; çakışırsa iki yapı tek kayda düşer.
+	assert(not Config.BUILD_TARGETS[recipeId], `Üretim tarifi kimliği başka bir yapıyla çakışıyor: {recipeId}`)
 	Config.BUILD_TARGETS[recipeId] = { island = recipe.island, icon = recipe.icon, isZone = false }
 	table.insert(Config.BUILD_ORDER, recipeId)
 end

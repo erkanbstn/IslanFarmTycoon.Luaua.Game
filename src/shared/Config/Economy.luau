@@ -89,6 +89,14 @@ return {
 				{ speed = 0.88 },
 				{ yield = 0.15, speed = 0.9 },
 			},
+			-- Başlatma ücretsiz olan para tesisleri: indirim yerine verim
+			cashFactory = {
+				{ speed = 0.9 },
+				{ yield = 0.1 },
+				{ yield = 0.08 },
+				{ speed = 0.88 },
+				{ yield = 0.15, speed = 0.9 },
+			},
 			hatchery = {
 				{ speed = 0.9 },
 				{ thrift = 0.12 },

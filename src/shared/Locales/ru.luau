@@ -825,4 +825,12 @@ return {
 	["Aç"] = "Открыть",
 	["Ahıra eklendi"] = "Добавлено в амбар",
 	["Ahır deposunda bu ürün için yeterli yer yok."] = "На складе амбара недостаточно места для этого товара.",
+
+	-- Para tesisi parti seçenekleri
+	["Küçük parti"] = "Малая партия",
+	["Standart parti"] = "Стандартная партия",
+	["Büyük parti"] = "Большая партия",
+	["Boştaki yetişkin hayvan: {}"] = "Свободные взрослые животные: {1}",
+	["Başlatma ücretsiz; hayvanlar iş boyunca gelirsiz çalışır, bitince döner."] = "Запуск бесплатный; животные работают без дохода и возвращаются по окончании.",
+	["Geçersiz üretim seçeneği."] = "Недопустимый вариант производства.",
 }

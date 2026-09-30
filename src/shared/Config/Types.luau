@@ -25,6 +25,17 @@ export type BuildLevelEffects = {
 	thrift: number?,
 }
 
+-- Para tesisinin parti seçeneği: kaç yetişkin hayvan ister, ne kadar sürer, ne öder (başlatma ücretsizdir).
+-- Daha çok hayvan isteyen seçenek hayvan başına daha çok kazandırır; returnMultiplier kaçırılan gelirin en az kaç katı ödeneceğidir.
+export type ProductionOptionConfig = {
+	id: string,
+	displayName: string,
+	requiredAdults: number,
+	duration: number,
+	reward: number,
+	returnMultiplier: number,
+}
+
 export type ProductionRecipeConfig = {
 	id: string,
 	displayName: string,
@@ -42,6 +53,9 @@ export type ProductionRecipeConfig = {
 	goodsId: string?, -- output == "goods": Config.GOODS anahtarı
 	goodsAmount: number?, -- output == "goods": temel ürün miktarı (yetişkin bonusu/tesis verimi ve ödül tabanı uygulanır)
 	upgradeProfile: string?, -- BUILD_UPGRADES.profiles anahtarı (yoksa "factory")
+	optionId: string?, -- yalnızca FarmMath.resolveRecipe kopyalarında: seçilen parti
+	returnMultiplier: number?, -- yalnızca çözülmüş kopyalarda: seçilen partinin ödül tabanı çarpanı
+	options: { ProductionOptionConfig }?, -- para tesisi: parti seçenekleri (ilki varsayılan); yoksa tarifin kendi alanları geçerli
 }
 
 export type AnimalConfig = {

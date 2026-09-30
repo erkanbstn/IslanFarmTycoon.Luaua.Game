@@ -16,7 +16,7 @@ Tek kaynak `src/shared/Config/` (`Upgrades`, `Animals` = bölge/hayvan, `Islands
 | Yükseltme | `UPGRADES` (`stage`, `requires`, `cost`) | görseli `server/Presentation/UpgradeBuilders*` (bina id → kurucu; ortak parçalar `UpgradeParts`, birleştirme `UpgradeVisualService`); yapı noktası gerekiyorsa `World/MapBuilder` `BuildSpots` |
 | Uzman ada | `FARM_ISLANDS` + `FARM_ISLAND_ORDER` + island upgrade + `THEMES[n].satellites` + `ROADMAP_STAGES` (**sona ekle**: `upgrade.stage` indeksidir) | MapBuilder `SATELLITE_TYPES`, `IslandSpecialization.SITES`; ana hayvanın kendi adası temada olmaz, inek yoksa `dairy` bulunur |
 | Eklenti | `EXTENSIONS` + kind extension upgrade | `Presentation/ExtensionVisualService` |
-| Üretim | `PRODUCTION_RECIPES` (+ `upgradeProfile`) | `ProductionRules`, `World/IslandSpecialization`; tesis geliştirmesi `BUILD_UPGRADES.profiles` |
+| Üretim | `PRODUCTION_RECIPES` (+ `upgradeProfile`; para tesisi: `cost = 0` + `options` 2-3 parti, çok hayvan = hayvan başına daha çok ödül; kimlik bölge kimliğiyle çakışmamalı) | `ProductionRules`, `World/IslandSpecialization`; tesis geliştirmesi `BUILD_UPGRADES.profiles` |
 | Yapı geliştirme | `BUILD_UPGRADES` (`profiles`, `costMultiplier/costGrowth`) | etki `FarmMath`'te; `tests/economy.spec.luau`; `simulate-economy.py` kalibrasyonu |
 | Mevsim/hava | `SEASONS`, `WEATHER` (incomeModifiers) | `client/Effects/WeatherEffects` WEATHER_LOOK, `SEASON_TINT` |
 | Eklenti (süreli kalış: 2 dk bonus, kapasite 2-4) | `Config.EXTENSIONS` (+ `UPGRADES` kind "extension"; kapasite yükseltmeleri otomatik üretilir) | `IslandLayout.EXTENSIONS` (yer) + `IslandSiteBuilders` (görsel) + `IslandSpecialization.buildExtensionVisual`; `MAP_VERSION` +1; çeviri; `tests/tasks.spec.luau` |

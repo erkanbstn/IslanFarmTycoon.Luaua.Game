@@ -175,10 +175,56 @@ return function(Config: any, FarmMath: any)
 		end
 	end
 	for recipeId, recipe in Config.PRODUCTION_RECIPES do
-		-- "dairy" hem bir bölge hem bir tarif kimliğidir (bilinen çakışma); bölge önceliklidir
-		if not Config.ZONES[recipeId] then
-			assert(Config.getBuildTargetIcon(recipeId, "1") == recipe.icon, `facility {recipeId} keeps its own icon`)
+		assert(Config.ZONES[recipeId] == nil, `recipe id {recipeId} must not collide with a zone id`)
+		assert(Config.getBuildTargetIcon(recipeId, "1") == recipe.icon, `facility {recipeId} keeps its own icon`)
+		assert(Config.BUILD_TARGETS[recipeId].isZone == false, `{recipeId} is registered as a facility`)
+	end
+	for zoneId in Config.ZONES do
+		assert(Config.PRODUCTION_RECIPES[zoneId] == nil, `zone id {zoneId} must not collide with a recipe id`)
+	end
+	-- Para tesisleri: ücretsiz başlar, 2+ parti seçeneği sunar; çok hayvan isteyen seçenek hayvan başına daha çok öder
+	local cashRecipes = 0
+	for recipeId, recipe in Config.PRODUCTION_RECIPES do
+		if recipe.output ~= "cash" then
+			assert(recipe.options == nil, `{recipeId}: only cash recipes have options`)
+			continue
+		end
+		cashRecipes += 1
+		local options = assert(recipe.options, `{recipeId}: cash recipes have batch options`)
+		assert(recipe.cost == 0, `{recipeId}: cash recipes are free to start`)
+		assert(#options >= 2, `{recipeId}: at least two batch options`)
+		local first = options[1]
+		assert(
+			recipe.requiredAdults == first.requiredAdults and recipe.duration == first.duration,
+			`{recipeId}: top-level fields mirror the first option`
+		)
+		local seen: { [string]: boolean } = {}
+		local previous: Config.ProductionOptionConfig? = nil
+		for _, option in options do
+			assert(not seen[option.id], `{recipeId}: option ids are unique`)
+			seen[option.id] = true
+			assert(
+				option.requiredAdults >= 1 and option.duration > 0 and option.reward > 0,
+				`{recipeId}/{option.id} values`
+			)
+			assert(option.returnMultiplier > 1, `{recipeId}/{option.id}: pays more than the animals would have earned`)
+			if previous then
+				assert(
+					option.requiredAdults > previous.requiredAdults,
+					`{recipeId}: options ask for more animals in order`
+				)
+				assert(
+					option.reward / option.requiredAdults > previous.reward / previous.requiredAdults,
+					`{recipeId}: more animals pay more per animal`
+				)
+				assert(
+					option.returnMultiplier > previous.returnMultiplier,
+					`{recipeId}: the bigger batch has the better floor`
+				)
+			end
+			previous = option
 		end
 	end
+	assert(cashRecipes >= 7, "the cash facilities all have options")
 	print("PASS config: cross-references, prerequisite graph, seasonal goals and start state")
 end

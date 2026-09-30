@@ -150,109 +150,115 @@ return function(createService: any, createLimiter: any, rules: any, codec: any, 
 	end
 	for _, badId in { 0, -1, 0 / 0, math.huge, 0.5, 2147483648, "1", {} } do
 		assert(not rules.validRequestId(badId), "invalid sequence must be rejected")
-		request.OnServerEvent.fire(player, "start", "dairy", nil, badId)
+		request.OnServerEvent.fire(player, "start", "packed_milk", "medium", badId)
 	end
 	assert(#results == 0 and next(data.production) == nil, "malformed request never mutates or replies")
-	assert(not fire("start", "dairy", nil, stranger).ok, "another profile cannot be accessed")
+	assert(not fire("start", "packed_milk", "medium", stranger).ok, "another profile cannot be accessed")
 	active = false
-	assert(not fire("start", "dairy", nil).ok, "lost/failed profile cannot start")
+	assert(not fire("start", "packed_milk", "medium").ok, "lost/failed profile cannot start")
 	active = true
 	hasPlot = false
-	assert(not fire("start", "dairy", nil).ok, "world must be assigned")
+	assert(not fire("start", "packed_milk", "medium").ok, "world must be assigned")
 	hasPlot = true
 	data.purchased.milk_factory = nil
-	assert(not fire("start", "dairy", nil).ok, "factory ownership is mandatory")
+	assert(not fire("start", "packed_milk", "medium").ok, "factory ownership is mandatory")
 	data.purchased.milk_factory = true
 	data.animals[1].bornAt = now
-	assert(not fire("start", "dairy", nil).ok, "calf with stale adult stage cannot satisfy requirement")
+	assert(not fire("start", "packed_milk", "medium").ok, "calf with stale adult stage cannot satisfy requirement")
 	data.animals[1].bornAt = 0
-	data.cash = 0
-	assert(not fire("start", "dairy", nil).ok, "insufficient funds cannot create a job")
-	data.cash = 10000
-	assert(not fire("start", {}, nil).ok and not fire("hack", "dairy", nil).ok, "malformed actions are rejected")
-	assert(not fire("start", "dairy", "forged").ok, "start cannot provide its own uid")
+	data.cash = 0 -- para tesisleri başlatma ücreti almaz: parasız da başlar
+	assert(not fire("start", {}, nil).ok and not fire("hack", "packed_milk", nil).ok, "malformed actions are rejected")
+	assert(not fire("start", "packed_milk", "forged").ok, "start cannot provide its own uid or an unknown option")
+	assert(not fire("start", "hatchery", "medium").ok, "a recipe without options rejects an option id")
 	local before = data.cash
 	now += 0.6
 	sequence += 1
-	request.OnServerEvent.fire(player, "start", "dairy", nil, sequence, "2")
+	request.OnServerEvent.fire(player, "start", "packed_milk", "medium", sequence, "2")
 	assert(
 		not results[#results].ok and next(data.production) == nil and data.cash == before,
 		"delayed request for a different main farm cannot spend or create production"
 	)
 	local idleIncome = farmMath.computeIncomePerSecond(data, now)
-	assert(fire("start", "dairy", nil).ok, "qualified dairy starts")
-	local job = data.production.dairy
-	assert(data.cash == before - config.PRODUCTION_RECIPES.dairy.cost, "server charges exact configured cost")
+	assert(fire("start", "packed_milk", "medium").ok, "qualified dairy starts")
+	local job = data.production.packed_milk
+	assert(
+		data.cash == before and data.production.packed_milk.optionId == "medium",
+		"cash batches are free and record the option"
+	)
 	-- Tesise verilen yetişkin inekler iş boyunca görevde: gelir getirmez, satılamaz, tekrar seçilemez.
 	local busy = 0
 	for _, animal in data.animals do
 		if animal.task then
 			busy += 1
 			assert(
-				animal.task.kind == "production" and animal.task.id == "dairy",
+				animal.task.kind == "production" and animal.task.id == "packed_milk",
 				"busy animals carry the production task"
 			)
 			assert(animal.task.endsAt == job.readyAt and animal.task.startedAt == job.startedAt, "task spans the job")
 			assert(animal.animalId == "cow", "only the recipe's species is taken")
 		end
 	end
-	assert(busy == config.PRODUCTION_RECIPES.dairy.requiredAdults, "exactly the required adults are taken")
+	assert(busy == 2, "exactly the option's adults are taken")
 	assert(job.forgone ~= nil and job.forgone > 0, "job records the income the animals would have earned")
 	assert(
 		farmMath.computeIncomePerSecond(data, now) < idleIncome,
 		"animals in the facility earn nothing while working"
 	)
 	assert(
-		farmMath.countProductionAdults(data, config.PRODUCTION_RECIPES.dairy, now) >= busy,
+		farmMath.countProductionAdults(data, config.PRODUCTION_RECIPES.packed_milk, now) >= busy,
 		"own working animals still count for the bonus"
 	)
 	assert(farmMath.findSellableAnimal(data, "cow", now) == nil, "working animals cannot be sold")
 	local startSequence = sequence
 	now += 1
-	request.OnServerEvent.fire(player, "start", "dairy", nil, startSequence, data.activeMainFarmId)
-	assert(data.cash == before - config.PRODUCTION_RECIPES.dairy.cost, "same sequence never charges twice")
-	assert(not fire("start", "dairy", nil).ok, "only one pending batch per recipe")
-	assert(not fire("sell", "dairy", job.uid).ok, "cannot claim early")
+	request.OnServerEvent.fire(player, "start", "packed_milk", "medium", startSequence, data.activeMainFarmId)
+	assert(data.production.packed_milk == job, "same sequence never starts a second batch")
+	assert(not fire("start", "packed_milk", "medium").ok, "only one pending batch per recipe")
+	assert(not fire("sell", "packed_milk", job.uid).ok, "cannot claim early")
 	now = job.readyAt + 1
-	assert(not fire("sell", "dairy", "forged").ok, "claim requires exact job uid")
-	assert(not fire("keep", "dairy", job.uid).ok and data.production.dairy == job, "cash output cannot become animal")
-	assert(fire("sell", "dairy", job.uid).ok, "ready batch sells")
+	assert(not fire("sell", "packed_milk", "forged").ok, "claim requires exact job uid")
+	assert(
+		not fire("keep", "packed_milk", job.uid).ok and data.production.packed_milk == job,
+		"cash output cannot become animal"
+	)
+	assert(fire("sell", "packed_milk", job.uid).ok, "ready batch sells")
 	local after = data.cash
-	local dairy = config.PRODUCTION_RECIPES.dairy
-	local floorReward = math.ceil((job.forgone + dairy.cost) * config.PRODUCTION_MIN_RETURN)
+	local dairy = config.PRODUCTION_RECIPES.packed_milk
+	local option = farmMath.findProductionOption(dairy, "medium")
+	local floorReward = math.ceil(job.forgone * option.returnMultiplier)
 	assert(
-		after == before - dairy.cost + math.max(dairy.reward, floorReward),
-		"reward is server configured and never below the forgone-income floor"
+		after == before + math.max(option.reward, floorReward),
+		"reward is server configured and never below the option's forgone-income floor"
 	)
-	assert(
-		after - (before - dairy.cost) > job.forgone,
-		"the facility always pays more than leaving the animals in place"
-	)
+	assert(after - before > job.forgone, "the facility always pays more than leaving the animals in place")
 	for _, animal in data.animals do
 		assert(animal.task == nil, "animals return to their zone when the job is claimed")
 	end
-	assert(not fire("sell", "dairy", job.uid).ok and data.cash == after, "double claim cannot pay")
-	request.OnServerEvent.fire(player, "start", "dairy", nil, startSequence, data.activeMainFarmId)
-	assert(data.production.dairy == nil, "old start replay stays rejected even after claim")
-	assert(fire("start", "dairy", nil).ok, "production is repeatable with new sequence")
+	assert(not fire("sell", "packed_milk", job.uid).ok and data.cash == after, "double claim cannot pay")
+	request.OnServerEvent.fire(player, "start", "packed_milk", "medium", startSequence, data.activeMainFarmId)
+	assert(data.production.packed_milk == nil, "old start replay stays rejected even after claim")
+	assert(fire("start", "packed_milk", "medium").ok, "production is repeatable with new sequence")
 	local snap = codec.encode(data, now)
 	assert(snap.version == 4, "new jobs require schema4 to keep old servers from dropping them")
-	local readyAt = snap.mainFarms["1"].production.dairy.readyAt
-	data.production.dairy.readyAt += 100
-	assert(snap.mainFarms["1"].production.dairy.readyAt == readyAt, "in-flight datastore snapshot owns nested job copy")
+	local readyAt = snap.mainFarms["1"].production.packed_milk.readyAt
+	data.production.packed_milk.readyAt += 100
+	assert(
+		snap.mainFarms["1"].production.packed_milk.readyAt == readyAt,
+		"in-flight datastore snapshot owns nested job copy"
+	)
 	local reloaded, offlineEarned = codec.decode(snap, config, farmMath, now + 86400, uid)
 	assert(reloaded, "offline pending batch reloads")
 	assert(
-		reloaded.production.dairy.readyAt == readyAt and reloaded.cash == data.cash + offlineEarned,
+		reloaded.production.packed_milk.readyAt == readyAt and reloaded.cash == data.cash + offlineEarned,
 		"offline completion never automatically pays or repeats"
 	)
 	for _, animal in reloaded.animals do
 		assert(animal.task == nil, "tasks that ended while offline return the animals home on load")
 	end
-	reloaded.production.dairy.readyAt += 1
-	assert(snap.mainFarms["1"].production.dairy.readyAt == readyAt, "decoded jobs do not alias stored payload")
+	reloaded.production.packed_milk.readyAt += 1
+	assert(snap.mainFarms["1"].production.packed_milk.readyAt == readyAt, "decoded jobs do not alias stored payload")
 	for _, invalid in
-		{ false, { unknown = { uid = "u", readyAt = now } }, { dairy = { uid = "u", readyAt = math.huge } } }
+		{ false, { unknown = { uid = "u", readyAt = now } }, { packed_milk = { uid = "u", readyAt = math.huge } } }
 	do
 		local corrupt = table.clone(snap)
 		corrupt.mainFarms = table.clone(snap.mainFarms)
@@ -341,7 +347,71 @@ return function(createService: any, createLimiter: any, rules: any, codec: any, 
 	farmMath.addGoods(data, "milk", farmMath.getGoodsCap(data))
 	local fullBlocked = fire("start", "milk_goods", nil)
 	assert(not fullBlocked.ok and data.production.milk_goods == nil, "a full barn blocks the next batch")
-	assert(fire("start", "dairy", nil).ok, "a full barn does not block cash recipes")
+	assert(fire("start", "packed_milk", "medium").ok, "a full barn does not block cash recipes")
+	-- Para tesisi seçenekleri: ücretsiz, her parti kendi hayvan sayısını ister ve seçilen partinin ödülünü verir
+	reset()
+	local milkRecipe = config.PRODUCTION_RECIPES.packed_milk
+	local small = farmMath.findProductionOption(milkRecipe, "small")
+	local large = farmMath.findProductionOption(milkRecipe, "large")
+	assert(small.requiredAdults == 1 and large.requiredAdults == 4, "the options ask for different animal counts")
+	local lacking = fire("start", "packed_milk", "large")
+	assert(
+		not lacking.ok and data.production.packed_milk == nil,
+		"a batch that needs 4 cows cannot start with only 2 adults"
+	)
+	local cashBeforeSmall = data.cash
+	assert(fire("start", "packed_milk", "small").ok, "a one-cow batch starts")
+	local smallJob = data.production.packed_milk
+	assert(
+		data.cash == cashBeforeSmall and smallJob.optionId == "small",
+		"cash batches are free and remember the option"
+	)
+	local smallWorking = 0
+	for _, animal in data.animals do
+		if animal.task and animal.task.id == "packed_milk" then
+			smallWorking += 1
+		end
+	end
+	assert(smallWorking == 1, "a small batch takes exactly one animal")
+	assert(
+		smallJob.readyAt - smallJob.startedAt == farmMath.getFacilityDuration(data, milkRecipe, "small"),
+		"the batch runs for its own duration"
+	)
+	local reloadedSnap = codec.encode(data, now)
+	local reloadedOptions = assert(codec.decode(reloadedSnap, config, farmMath, now, uid), "job with an option reloads")
+	assert(reloadedOptions.production.packed_milk.optionId == "small", "the chosen option survives a reload")
+	local bogus = table.clone(reloadedSnap)
+	bogus.mainFarms = table.clone(reloadedSnap.mainFarms)
+	bogus.mainFarms["1"] = table.clone(reloadedSnap.mainFarms["1"])
+	bogus.mainFarms["1"].production = {
+		packed_milk = table.clone(reloadedSnap.mainFarms["1"].production.packed_milk),
+	}
+	bogus.mainFarms["1"].production.packed_milk.optionId = "bogus"
+	local repaired = assert(codec.decode(bogus, config, farmMath, now, uid), "an unknown option id is repaired")
+	assert(repaired.production.packed_milk.optionId == nil, "an unknown option id falls back to the first option")
+	now = smallJob.readyAt + 1
+	local cashBeforeClaim = data.cash
+	assert(fire("sell", "packed_milk", smallJob.uid).ok, "the small batch is claimed")
+	assert(
+		data.cash - cashBeforeClaim == math.max(small.reward, math.ceil(smallJob.forgone * small.returnMultiplier)),
+		"the small batch pays the small option's reward"
+	)
+	-- Yeterli hayvan olunca en büyük parti de alınır ve hayvan başına daha çok öder
+	for _ = 1, 2 do
+		table.insert(data.animals, { uid = uid(), animalId = "cow", zoneId = "starter", bornAt = 0, stage = "adult" })
+	end
+	assert(fire("start", "packed_milk", "large").ok, "a four-cow batch starts once four adults are idle")
+	local largeWorking = 0
+	for _, animal in data.animals do
+		if animal.task and animal.task.id == "packed_milk" then
+			largeWorking += 1
+		end
+	end
+	assert(largeWorking == 4, "the large batch takes four animals")
+	assert(
+		large.reward / large.requiredAdults > small.reward / small.requiredAdults,
+		"more animals pay more per animal"
+	)
 	assert(saves == pushes and saves > 0 and settlements > 0, "each mutation pushes and schedules persistence")
 	print(
 		"PASS production: actual service ownership, adult/price checks, replay, timed claims, incubation capacity, persistence and schema4 migration"

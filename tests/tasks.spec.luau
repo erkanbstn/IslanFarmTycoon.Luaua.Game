@@ -49,7 +49,7 @@ return function(
 	assert(baseIncome > 0, "an adult cow earns")
 	local rate = baseIncome / 100
 
-	cow.task = { kind = "production", id = "dairy", startedAt = now + 20, endsAt = now + 60 }
+	cow.task = { kind = "production", id = "packed_milk", startedAt = now + 20, endsAt = now + 60 }
 	near(farmMath.computeIncomeOverInterval(save, now, now + 100, true), rate * 60, "production window earns nothing")
 	near(
 		farmMath.computeIncomeOverInterval(save, now + 50, now + 150, true),
@@ -198,26 +198,38 @@ return function(
 	local rewardSave = newSave()
 	addAnimal(rewardSave, "cow", "starter")
 	addAnimal(rewardSave, "cow", "starter")
-	local dairy = config.PRODUCTION_RECIPES.dairy
-	local normal = farmMath.getProductionReward(rewardSave, dairy, now)
+	local dairy = config.PRODUCTION_RECIPES.packed_milk
+	local medium = farmMath.findProductionOption(dairy, "medium")
+	local normal =
+		farmMath.getProductionReward(rewardSave, dairy, now, { uid = "j", readyAt = now, optionId = "medium" })
+	assert(normal == medium.reward, "the option's own reward is paid")
 	local hugeForgone = normal * 10
-	local floored =
-		farmMath.getProductionReward(rewardSave, dairy, now, { uid = "j", readyAt = now, forgone = hugeForgone })
+	local floored = farmMath.getProductionReward(
+		rewardSave,
+		dairy,
+		now,
+		{ uid = "j", readyAt = now, forgone = hugeForgone, optionId = "medium" }
+	)
 	assert(
-		floored == math.ceil((hugeForgone + farmMath.getFacilityCost(rewardSave, dairy)) * config.PRODUCTION_MIN_RETURN),
-		"reward follows the forgone-income floor"
+		floored == math.ceil((hugeForgone + farmMath.getFacilityCost(rewardSave, dairy)) * medium.returnMultiplier),
+		"reward follows the option's forgone-income floor"
 	)
 	assert(floored > hugeForgone, "reward always exceeds the forgone income")
 	assert(
-		farmMath.getProductionReward(rewardSave, dairy, now, { uid = "j", readyAt = now, forgone = 0 }) == normal,
+		farmMath.getProductionReward(
+			rewardSave,
+			dairy,
+			now,
+			{ uid = "j", readyAt = now, forgone = 0, optionId = "medium" }
+		) == normal,
 		"a small forgone income does not lower the configured reward"
 	)
-	local animals = farmMath.pickProductionAnimals(rewardSave, dairy, now)
+	local animals = farmMath.pickProductionAnimals(rewardSave, dairy, now, "medium")
 	assert(animals and #animals == 2, "two dairy animals are picked")
 	assert(farmMath.estimateForgoneIncome(rewardSave, animals, 60) > 0, "forgone income is positive")
 	local planned = farmMath.estimateForgoneIncome(rewardSave, animals, 60)
 	for _, animal in animals do
-		animal.task = { kind = "production", id = "dairy", startedAt = now, endsAt = now + 60 }
+		animal.task = { kind = "production", id = "packed_milk", startedAt = now, endsAt = now + 60 }
 	end
 	near(
 		farmMath.computeIncomeOverInterval(rewardSave, now, now + 60, false),
@@ -241,12 +253,15 @@ return function(
 		task = { kind = "extension", id = "folluk_garden", startedAt = now - 10, endsAt = now + 110 },
 	})
 	addAnimal(stored, "cow", "starter", {
-		task = { kind = "production", id = "dairy", startedAt = now, endsAt = now + 60 },
+		task = { kind = "production", id = "packed_milk", startedAt = now, endsAt = now + 60 },
 	})
-	stored.production.dairy = { uid = "job-1", readyAt = now + 60, startedAt = now, forgone = 123.5 }
+	stored.production.packed_milk = { uid = "job-1", readyAt = now + 60, startedAt = now, forgone = 123.5 }
 	local encoded = codec.encode(stored, now)
 	local farm = encoded.mainFarms["1"]
-	assert(farm.production.dairy.startedAt == now and farm.production.dairy.forgone == 123.5, "job fields are saved")
+	assert(
+		farm.production.packed_milk.startedAt == now and farm.production.packed_milk.forgone == 123.5,
+		"job fields are saved"
+	)
 	local tasks = 0
 	for _, entry in farm.animals do
 		if entry.task then
@@ -264,14 +279,14 @@ return function(
 		end
 	end
 	assert(live == 2, "both running tasks survive a short reload")
-	assert(reloaded.production.dairy.forgone == 123.5, "forgone survives a reload")
+	assert(reloaded.production.packed_milk.forgone == 123.5, "forgone survives a reload")
 
 	-- Çevrimdışıyken biten görevler hayvanı eve döndürür; bonus penceresi çevrimdışı gelire işlenir.
 	local late = assert(codec.decode(encoded, config, farmMath, now + 1000, uid), "offline reload")
 	for _, animal in late.animals do
 		assert(animal.task == nil and animal.extensionId == nil, "finished tasks are cleared on load")
 	end
-	assert(late.production.dairy ~= nil, "the job itself stays until claimed")
+	assert(late.production.packed_milk ~= nil, "the job itself stays until claimed")
 	local stayEncoded = codec.encode(stored, now)
 	stayEncoded.mainFarms["1"].lastSeen = now - 10
 	local plainEncoded = codec.encode(stored, now)
@@ -300,11 +315,11 @@ return function(
 	-- Bozuk görev yok sayılır, hayvan korunur
 	for _, bad in
 		{
-			{ kind = "hack", id = "dairy", startedAt = now, endsAt = now + 60 },
+			{ kind = "hack", id = "packed_milk", startedAt = now, endsAt = now + 60 },
 			{ kind = "production", id = "nope", startedAt = now, endsAt = now + 60 },
-			{ kind = "production", id = "dairy", startedAt = now, endsAt = math.huge },
-			{ kind = "production", id = "dairy", startedAt = now + 100, endsAt = now + 50 },
-			{ kind = "production", id = "dairy", startedAt = now, endsAt = now + 10 * 86400 },
+			{ kind = "production", id = "packed_milk", startedAt = now, endsAt = math.huge },
+			{ kind = "production", id = "packed_milk", startedAt = now + 100, endsAt = now + 50 },
+			{ kind = "production", id = "packed_milk", startedAt = now, endsAt = now + 10 * 86400 },
 			"task",
 		}
 	do
