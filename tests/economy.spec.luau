@@ -86,7 +86,7 @@ return function(FarmMath: any, Config: any, Environment: any)
 
 	-- Hız yükseltmesi 44 saniyelik eski ilerlemeyi 88 saniyeye dönüştürmemeli.
 	save = saveAt(start)
-	local oldSpeeds = { cow = FarmMath.getGrowthSpeed(save, "cow") }
+	local oldSpeeds = FarmMath.snapshotGrowthSpeeds(save)
 	save.purchased.silo = true
 	FarmMath.applyDerived(save)
 	FarmMath.preserveGrowthProgress(save, oldSpeeds, start + 44)
@@ -385,21 +385,21 @@ return function(FarmMath: any, Config: any, Environment: any)
 	expandFarm.expansions = { starter = 1 }
 	assert(
 		FarmMath.getZoneCapacity(expandFarm, "starter") == starterZone.capacity + FarmMath.getExpansionStep(starterZone),
-		"each level adds one step"
+		"a capacity level adds one step"
 	)
 	assert(
 		FarmMath.getFreeSlots(expandFarm, "cow") == expandFreeBefore + FarmMath.getExpansionStep(starterZone),
 		"expansion opens free slots"
 	)
 	local previousExpansionCost = 0
-	for level = 0, Config.ZONE_EXPANSION.maxLevel - 1 do
+	for level = 0, Config.BUILD_UPGRADES.maxLevel - 1 do
 		expandFarm.expansions = { starter = level }
 		local cost = FarmMath.getExpansionCost(expandFarm, "starter")
 		assert(cost > previousExpansionCost and cost < math.huge, "expansion costs grow with each level")
 		previousExpansionCost = cost
 	end
-	expandFarm.expansions = { starter = Config.ZONE_EXPANSION.maxLevel + 9 }
-	assert(FarmMath.getExpansionLevel(expandFarm, "starter") == Config.ZONE_EXPANSION.maxLevel, "levels are clamped")
+	expandFarm.expansions = { starter = Config.BUILD_UPGRADES.maxLevel + 9 }
+	assert(FarmMath.getExpansionLevel(expandFarm, "starter") == Config.BUILD_UPGRADES.maxLevel, "levels are clamped")
 	assert(FarmMath.getExpansionStatus(expandFarm, "starter") == "max", "maximum expansion is reported")
 	assert(
 		FarmMath.getZoneCapacity(expandFarm, "ghost") == 0
@@ -408,6 +408,54 @@ return function(FarmMath: any, Config: any, Environment: any)
 	)
 	expandFarm.unlockedZones.pasture = false
 	assert(FarmMath.getExpansionStatus(expandFarm, "pasture") == "locked", "a locked zone cannot be expanded")
+	-- Çok etkili geliştirme: her seviye işlevine uygun fayda verir ve sayılar birikir
+	local effectFarm = saveAt(start)
+	local function cowIncome(): number
+		return FarmMath.getAnimalIncome(
+			effectFarm,
+			"cow",
+			{ uid = "x", animalId = "cow", zoneId = "starter", bornAt = 0, stage = "adult" }
+		)
+	end
+	local incomeBase = cowIncome()
+	local speedBase = FarmMath.getGrowthSpeed(effectFarm, "cow", "starter")
+	effectFarm.expansions = { starter = 2 }
+	assert(
+		FarmMath.getGrowthSpeed(effectFarm, "cow", "starter") > speedBase * 1.05,
+		"growth-speed levels must speed animals up in that zone"
+	)
+	assert(
+		FarmMath.getGrowthSpeed(effectFarm, "cow", "meadow") == speedBase or Config.ZONES.meadow == nil,
+		"zone growth bonuses must not leak into other zones"
+	)
+	effectFarm.expansions = { starter = 3 }
+	assert(cowIncome() > incomeBase, "income levels must raise animal income")
+	-- Tesis: süre kısalır, başlatma maliyeti düşer, ödül artar; hiçbiri sıfıra ya da negatife inmez
+	local facilityFarm = saveAt(start)
+	local cheese = Config.PRODUCTION_RECIPES.cheese
+	local durationBase = FarmMath.getFacilityDuration(facilityFarm, cheese)
+	local costBase = FarmMath.getFacilityCost(facilityFarm, cheese)
+	local rewardBase = FarmMath.getProductionReward(facilityFarm, cheese, 0)
+	facilityFarm.expansions = { cheese = Config.BUILD_UPGRADES.maxLevel }
+	assert(FarmMath.getFacilityDuration(facilityFarm, cheese) < durationBase, "facility levels shorten production")
+	assert(FarmMath.getFacilityCost(facilityFarm, cheese) < costBase, "facility levels cut the start cost")
+	assert(FarmMath.getProductionReward(facilityFarm, cheese, 0) > rewardBase, "facility levels raise the reward")
+	assert(FarmMath.getFacilityCost(facilityFarm, cheese) >= 1, "start cost stays positive")
+	-- Bir tesis geliştirmesi tesis kurulmadan alınamaz
+	local emptyFarm = saveAt(start)
+	emptyFarm.purchased[cheese.upgradeId] = nil
+	assert(FarmMath.getExpansionStatus(emptyFarm, "cheese") == "locked", "an unbuilt facility cannot be upgraded")
+	-- Her profilin seviye sayısı maxLevel ile aynı; her hedef bir profile bağlı
+	for name, profile in Config.BUILD_UPGRADES.profiles do
+		assert(#profile == Config.BUILD_UPGRADES.maxLevel, `{name} profile must have maxLevel levels`)
+	end
+	for zoneId, zone in Config.ZONES do
+		assert(Config.BUILD_UPGRADES.profiles[zone.upgradeProfile or "barn"], `zone {zoneId} has a profile`)
+		assert(FarmMath.getMaxZoneCapacity(zoneId) > zone.capacity, `zone {zoneId} must be able to grow`)
+	end
+	for recipeId, recipe in Config.PRODUCTION_RECIPES do
+		assert(Config.BUILD_UPGRADES.profiles[recipe.upgradeProfile or "factory"], `recipe {recipeId} has a profile`)
+	end
 	-- Her tema kendine özgü bir işaret yapısı kullanır (HomeBuildings.landmark türleri)
 	local landmarkKinds = { daisy = true, tulip = true, sunflower = true, rose = true, pine = true, cherry = true }
 	local seenLandmarks: { [string]: boolean } = {}

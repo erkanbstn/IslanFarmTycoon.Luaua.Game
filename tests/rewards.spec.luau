@@ -173,7 +173,7 @@ return function(Rewards: any, Config: any, FarmMath: any)
 		for _, zone in Config.ZONES do
 			if Config.themeHasIsland(farmId, zone.island) then
 				-- Alan genişletmesiyle ulaşılabilecek en büyük kapasite
-				local maxCapacity = zone.capacity + Config.ZONE_EXPANSION.maxLevel * FarmMath.getExpansionStep(zone)
+				local maxCapacity = FarmMath.getMaxZoneCapacity(zone.id)
 				capacity += maxCapacity
 				if Config.zoneAllows(zone, "cow", farmId) then
 					cowCapacity += maxCapacity

@@ -12,7 +12,8 @@ function ProductionRules.countAdults(save: any, recipe: any, farmMath: any, now:
 		if
 			save.unlockedZones[animal.zoneId]
 			and table.find(recipe.animalIds, animal.animalId)
-			and farmMath.getStage(animal.bornAt, now, farmMath.getGrowthSpeed(save, animal.animalId)) == "adult"
+			and farmMath.getStage(animal.bornAt, now, farmMath.getGrowthSpeed(save, animal.animalId, animal.zoneId))
+				== "adult"
 		then
 			count += 1
 		end

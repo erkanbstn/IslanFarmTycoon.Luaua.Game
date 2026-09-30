@@ -143,11 +143,7 @@ local function changeEquipment(player: Player, mutate: () -> ())
 	for _, farmId in PlayerDataService.getFarmIds(player) do
 		local view = PlayerDataService.getFarmView(player, farmId)
 		if view then
-			local speeds: { [string]: number } = {}
-			for _, animal in view.animals do
-				speeds[animal.animalId] = FarmMath.getGrowthSpeed(view, animal.animalId)
-			end
-			table.insert(views, { view = view, speeds = speeds })
+			table.insert(views, { view = view, speeds = FarmMath.snapshotGrowthSpeeds(view) })
 		end
 	end
 	mutate()

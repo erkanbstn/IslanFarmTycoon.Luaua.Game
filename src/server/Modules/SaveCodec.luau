@@ -140,15 +140,16 @@ local function decodeFarm(
 			rewardFactor = factor,
 		}
 	end
-	-- Alan genişletme seviyeleri (isteğe bağlı): tanınmayan bölge atılır, seviye sıkıştırılır
+	-- Yapı geliştirme seviyeleri (isteğe bağlı; bölge ya da tesis): tanınmayan hedef atılır, seviye sıkıştırılır
 	save.expansions = {}
 	if source.expansions ~= nil then
 		if typeof(source.expansions) ~= "table" then
 			return nil, 0, "Alan genişletme kaydı bozuk; orijinal kayıt korunuyor"
 		end
 		for zoneId, level in source.expansions do
-			if typeof(zoneId) == "string" and config.ZONES[zoneId] and SessionLock.isFinite(level) then
-				local clamped = math.clamp(math.floor(level), 0, config.ZONE_EXPANSION.maxLevel)
+			local known = typeof(zoneId) == "string" and (config.ZONES[zoneId] or config.PRODUCTION_RECIPES[zoneId])
+			if known and SessionLock.isFinite(level) then
+				local clamped = math.clamp(math.floor(level), 0, config.BUILD_UPGRADES.maxLevel)
 				if clamped > 0 then
 					save.expansions[zoneId] = clamped
 				end
@@ -230,7 +231,7 @@ local function decodeFarm(
 				animalId = animalId,
 				zoneId = zoneId,
 				bornAt = bornAt,
-				stage = farmMath.getStage(bornAt, now, farmMath.getGrowthSpeed(save, animalId)),
+				stage = farmMath.getStage(bornAt, now, farmMath.getGrowthSpeed(save, animalId, zoneId)),
 				extensionId = extensionId,
 			})
 		end
@@ -260,7 +261,7 @@ local function decodeFarm(
 				and farmMath.getStage(
 						animal.bornAt,
 						source.lastSeen,
-						farmMath.getGrowthSpeed(save, animal.animalId)
+						farmMath.getGrowthSpeed(save, animal.animalId, animal.zoneId)
 					)
 					~= "adult"
 			then

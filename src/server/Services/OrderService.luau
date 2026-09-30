@@ -53,7 +53,7 @@ function OrderService.update(player: Player, elapsed: number, startedAt: number?
 		anyOwned = true
 		adultSeconds += OrderRules.adultSeconds(
 			animal.bornAt,
-			FarmMath.getGrowthSpeed(data, animal.animalId),
+			FarmMath.getGrowthSpeed(data, animal.animalId, animal.zoneId),
 			start,
 			now,
 			Config

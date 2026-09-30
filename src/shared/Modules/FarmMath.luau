@@ -93,8 +93,11 @@ function FarmMath.getUpgradeCost(save: PlayerSave?, upgrade: Config.UpgradeConfi
 end
 
 -- Bir hayvan türünün büyüme hızı: genel güçlendirmeler (silo) x o türe özel (ör. Tavuk Adası) x takılı muska
-function FarmMath.getGrowthSpeed(save: PlayerSave, animalId: string): number
+function FarmMath.getGrowthSpeed(save: PlayerSave, animalId: string, zoneId: string?): number
 	local speed = FarmMath.getEquippedMultiplier(save, "growthSpeed")
+	if zoneId then
+		speed *= FarmMath.getBuildMultiplier(save, zoneId, "growthSpeed") -- bölge geliştirmesi (ör. yemlik, kuluçka)
+	end
 	for _, upgrade in Config.UPGRADES do
 		if not save.purchased[upgrade.id] then
 			continue
@@ -158,66 +161,165 @@ function FarmMath.getStorageCap(save: PlayerSave): number
 	return math.floor(FarmMath.getBarnConfig(save).storageCap * (1 + bonus))
 end
 
--- Alan genişletme: seviye, adım, etkin kapasite, maliyet ve durum
-function FarmMath.getExpansionLevel(save: PlayerSave, zoneId: string): number
+-- Yapı geliştirme: her bölge ve her üretim tesisi 5 seviyelik bir yoldur; seviyeler işlevine uygun faydalar verir.
+-- Seviyeler `save.expansions[hedefId]` içinde tutulur (hedef = bölge ya da tarif kimliği).
+local function buildProfile(targetId: string): { Config.BuildLevelEffects }?
+	local zone = Config.ZONES[targetId]
+	if zone then
+		return Config.BUILD_UPGRADES.profiles[zone.upgradeProfile or "barn"]
+	end
+	local recipe = Config.PRODUCTION_RECIPES[targetId]
+	if recipe then
+		return Config.BUILD_UPGRADES.profiles[recipe.upgradeProfile or "factory"]
+	end
+	return nil
+end
+
+function FarmMath.getExpansionLevel(save: PlayerSave, targetId: string): number
 	local expansions = save.expansions
-	local level = if expansions then expansions[zoneId] else nil
+	local level = if expansions then expansions[targetId] else nil
 	if typeof(level) ~= "number" or not isFinite(level) then
 		return 0
 	end
-	return math.clamp(math.floor(level), 0, Config.ZONE_EXPANSION.maxLevel)
+	return math.clamp(math.floor(level), 0, Config.BUILD_UPGRADES.maxLevel)
+end
+
+-- Ulaşılmış seviyelerdeki fayda anahtarının toplamı (kapasite adımı, verim, mevsim uyumu, ödül, tasarruf)
+function FarmMath.getBuildBonus(save: PlayerSave, targetId: string, key: string): number
+	local profile = buildProfile(targetId)
+	local total = 0
+	if profile then
+		for level = 1, FarmMath.getExpansionLevel(save, targetId) do
+			local value = if profile[level] then (profile[level] :: any)[key] else nil
+			if typeof(value) == "number" then
+				total += value
+			end
+		end
+	end
+	return total
+end
+
+-- Ulaşılmış seviyelerdeki fayda anahtarının çarpımı (büyüme hızı, tesis hızı)
+function FarmMath.getBuildMultiplier(save: PlayerSave, targetId: string, key: string): number
+	local profile = buildProfile(targetId)
+	local product = 1
+	if profile then
+		for level = 1, FarmMath.getExpansionLevel(save, targetId) do
+			local value = if profile[level] then (profile[level] :: any)[key] else nil
+			if typeof(value) == "number" then
+				product *= value
+			end
+		end
+	end
+	return product
+end
+
+-- Bir sonraki seviyenin fayda demeti (en üst seviyede nil)
+function FarmMath.getNextBuildLevel(save: PlayerSave, targetId: string): Config.BuildLevelEffects?
+	local profile = buildProfile(targetId)
+	local level = FarmMath.getExpansionLevel(save, targetId)
+	if not profile or level >= Config.BUILD_UPGRADES.maxLevel then
+		return nil
+	end
+	return profile[level + 1]
 end
 
 function FarmMath.getExpansionStep(zone: Config.ZoneConfig): number
 	return math.max(2, math.ceil(zone.capacity / 4))
 end
 
--- Bölgenin bu çiftlikteki kapasitesi (taban + genişletme)
+-- Bölgenin bu çiftlikteki kapasitesi (taban + geliştirmeyle kazanılan adımlar)
 function FarmMath.getZoneCapacity(save: PlayerSave, zoneId: string): number
 	local zone = Config.ZONES[zoneId]
 	if not zone then
 		return 0
 	end
-	return zone.capacity + FarmMath.getExpansionLevel(save, zoneId) * FarmMath.getExpansionStep(zone)
+	return zone.capacity + FarmMath.getBuildBonus(save, zoneId, "capacity") * FarmMath.getExpansionStep(zone)
 end
 
--- Bölge `level` -> `level + 1` genişletme maliyeti; en üst seviyede veya bilinmeyen bölgede math.huge
-function FarmMath.getExpansionCost(save: PlayerSave, zoneId: string): number
+-- Bütün seviyeler tamamlanınca ulaşılabilecek en büyük kapasite (başarım ulaşılabilirliği ve testler)
+function FarmMath.getMaxZoneCapacity(zoneId: string): number
 	local zone = Config.ZONES[zoneId]
-	local expansion = Config.ZONE_EXPANSION
-	local level = FarmMath.getExpansionLevel(save, zoneId)
-	if not zone or level >= expansion.maxLevel then
+	local profile = buildProfile(zoneId)
+	if not zone or not profile then
+		return 0
+	end
+	local steps = 0
+	for _, bundle in profile do
+		steps += bundle.capacity or 0
+	end
+	return zone.capacity + steps * FarmMath.getExpansionStep(zone)
+end
+
+-- Sonraki seviyenin maliyeti; en üst seviyede veya bilinmeyen hedefte math.huge
+function FarmMath.getExpansionCost(save: PlayerSave, targetId: string): number
+	local config = Config.BUILD_UPGRADES
+	local level = FarmMath.getExpansionLevel(save, targetId)
+	if level >= config.maxLevel then
 		return math.huge
 	end
-	local animalId = Config.getZoneAnimals(zone, save.farmId or save.activeMainFarmId)[1]
-	local animalConfig = Config.ANIMALS[animalId]
-	if not animalConfig then
+	local raw: number
+	local zone = Config.ZONES[targetId]
+	local recipe = Config.PRODUCTION_RECIPES[targetId]
+	if zone then
+		local animalId = Config.getZoneAnimals(zone, save.farmId or save.activeMainFarmId)[1]
+		local animalConfig = Config.ANIMALS[animalId]
+		if not animalConfig then
+			return math.huge
+		end
+		raw = animalConfig.price * config.costMultiplier * config.costGrowth ^ level
+	elseif recipe then
+		raw = recipe.reward * config.facilityCostMultiplier * config.facilityCostGrowth ^ level
+	else
 		return math.huge
 	end
-	local raw = animalConfig.price * expansion.costMultiplier * expansion.costGrowth ^ level
 	local step = 10 ^ (math.floor(math.log10(raw)) - 1)
 	return math.floor(raw / step + 0.5) * step
 end
 
 export type ExpansionStatus = "available" | "locked" | "max"
 
--- Genişletme: bölge açık ve dolu olmalı. Üçüncü değer: sonraki seviye maliyeti.
-function FarmMath.getExpansionStatus(save: PlayerSave, zoneId: string): (ExpansionStatus, string?, number)
-	local zone = Config.ZONES[zoneId]
-	if not zone then
-		return "locked", "Bilinmeyen bölge", math.huge
+-- Geliştirme durumu. Bölge açık olmalı; kapasite veren bir seviye için bölge dolu olmalı. Tesis kurulu olmalı.
+-- Üçüncü değer: sonraki seviye maliyeti.
+function FarmMath.getExpansionStatus(save: PlayerSave, targetId: string): (ExpansionStatus, string?, number)
+	local zone = Config.ZONES[targetId]
+	local recipe = Config.PRODUCTION_RECIPES[targetId]
+	if not zone and not recipe then
+		return "locked", "Bilinmeyen yapı", math.huge
 	end
-	if FarmMath.getExpansionLevel(save, zoneId) >= Config.ZONE_EXPANSION.maxLevel then
+	if FarmMath.getExpansionLevel(save, targetId) >= Config.BUILD_UPGRADES.maxLevel then
 		return "max", nil, math.huge
 	end
-	local cost = FarmMath.getExpansionCost(save, zoneId)
-	if not save.unlockedZones[zoneId] then
-		return "locked", "Bölge henüz açık değil", cost
+	local cost = FarmMath.getExpansionCost(save, targetId)
+	if zone then
+		if not save.unlockedZones[targetId] then
+			return "locked", "Bölge henüz açık değil", cost
+		end
+		local nextLevel = FarmMath.getNextBuildLevel(save, targetId)
+		if
+			nextLevel
+			and (nextLevel.capacity or 0) > 0
+			and FarmMath.countInZone(save, targetId) < FarmMath.getZoneCapacity(save, targetId)
+		then
+			return "locked", "Önce bölgeyi hayvanla doldur", cost
+		end
+		return "available", nil, cost
 	end
-	if FarmMath.countInZone(save, zoneId) < FarmMath.getZoneCapacity(save, zoneId) then
-		return "locked", "Önce bölgeyi hayvanla doldur", cost
+	local built = recipe and save.purchased[recipe.upgradeId] and save.unlockedIslands[recipe.island]
+	if not built then
+		return "locked", "Önce bu tesisi kur", cost
 	end
 	return "available", nil, cost
+end
+
+-- Tesis istatistikleri: geliştirmeden sonra süre, başlatma maliyeti ve ödül çarpanı
+function FarmMath.getFacilityDuration(save: PlayerSave, recipe: Config.ProductionRecipeConfig): number
+	return math.max(10, math.floor(recipe.duration * FarmMath.getBuildMultiplier(save, recipe.id, "speed")))
+end
+
+function FarmMath.getFacilityCost(save: PlayerSave, recipe: Config.ProductionRecipeConfig): number
+	local thrift = math.clamp(FarmMath.getBuildBonus(save, recipe.id, "thrift"), 0, 0.8)
+	return math.max(1, math.floor(recipe.cost * (1 - thrift)))
 end
 
 -- Irk geliştirme seviyesi (0..maxLevel); kayıt alanı yoksa 0
@@ -262,8 +364,18 @@ function FarmMath.getLineageStatus(save: PlayerSave, animalId: string): (Lineage
 end
 
 -- Bir hayvan türünün toplam çarpanı (ahır seviyesi x güçlendirmeler)
-function FarmMath.getAnimalMultiplier(save: PlayerSave, animalId: string, neutralWeather: boolean?): number
+function FarmMath.getAnimalMultiplier(
+	save: PlayerSave,
+	animalId: string,
+	neutralWeather: boolean?,
+	zoneId: string?
+): number
 	local bonus = 0
+	local affinity = 0
+	if zoneId then
+		bonus += FarmMath.getBuildBonus(save, zoneId, "incomeBonus") -- bölge geliştirmesi: verim
+		affinity = FarmMath.getBuildBonus(save, zoneId, "seasonAffinity")
+	end
 	for _, upgrade in Config.UPGRADES do
 		local boost = upgrade.incomeBoost
 		if boost and save.purchased[upgrade.id] then
@@ -285,7 +397,9 @@ function FarmMath.getAnimalMultiplier(save: PlayerSave, animalId: string, neutra
 		end
 	end
 	-- Ahır seviyesi x güçlendirmeler x mevsim/hava x geçit
-	local environment = if neutralWeather then 1 else Environment.getIncomeMultiplier(animalId, save.envOverride)
+	local environment = if neutralWeather
+		then 1
+		else Environment.getIncomeMultiplier(animalId, save.envOverride, affinity)
 	return FarmMath.getBarnConfig(save).incomeMultiplier * (1 + bonus) * environment * passFactor
 end
 
@@ -308,7 +422,7 @@ function FarmMath.getAnimalIncome(save: PlayerSave, animalId: string, animal: Ga
 		return 0
 	end
 	return animalConfig.baseIncomePerSecond
-		* FarmMath.getAnimalMultiplier(save, animalId)
+		* FarmMath.getAnimalMultiplier(save, animalId, nil, if animal then animal.zoneId else nil)
 		* extensionFactor(save, animal)
 end
 
@@ -321,10 +435,12 @@ function FarmMath.computeIncomePerSecond(save: PlayerSave): number
 		if not animalConfig or not save.unlockedZones[animal.zoneId] then
 			continue
 		end
-		local rate = rates[animal.animalId]
+		local cacheKey = `{animal.animalId}|{animal.zoneId}`
+		local rate = rates[cacheKey]
 		if rate == nil then
-			rate = animalConfig.baseIncomePerSecond * FarmMath.getAnimalMultiplier(save, animal.animalId)
-			rates[animal.animalId] = rate
+			rate = animalConfig.baseIncomePerSecond
+				* FarmMath.getAnimalMultiplier(save, animal.animalId, nil, animal.zoneId)
+			rates[cacheKey] = rate
 		end
 		local stageMul = Config.STAGE_INCOME_MULTIPLIER[animal.stage] or 1
 		total += (rate :: number) * extensionFactor(save, animal) * stageMul
@@ -351,16 +467,17 @@ function FarmMath.computeIncomeOverInterval(
 		if not animalConfig or not save.unlockedZones[animal.zoneId] then
 			continue
 		end
-		local speed = speeds[animal.animalId]
+		local cacheKey = `{animal.animalId}|{animal.zoneId}`
+		local speed = speeds[cacheKey]
 		if speed == nil then
-			speed = FarmMath.getGrowthSpeed(save, animal.animalId)
-			speeds[animal.animalId] = speed
+			speed = FarmMath.getGrowthSpeed(save, animal.animalId, animal.zoneId)
+			speeds[cacheKey] = speed
 		end
-		local baseRate = rates[animal.animalId]
+		local baseRate = rates[cacheKey]
 		if baseRate == nil then
 			baseRate = animalConfig.baseIncomePerSecond
-				* FarmMath.getAnimalMultiplier(save, animal.animalId, neutralWeather)
-			rates[animal.animalId] = baseRate
+				* FarmMath.getAnimalMultiplier(save, animal.animalId, neutralWeather, animal.zoneId)
+			rates[cacheKey] = baseRate
 		end
 		local rate = (baseRate :: number) * extensionFactor(save, animal)
 		local start = math.max(startedAt, animal.bornAt)
@@ -396,10 +513,11 @@ function FarmMath.countProductionAdults(save: PlayerSave, recipe: Config.Product
 		if not save.unlockedZones[animal.zoneId] or not table.find(recipe.animalIds, animal.animalId) then
 			continue
 		end
-		local speed = speeds[animal.animalId]
+		local cacheKey = `{animal.animalId}|{animal.zoneId}`
+		local speed = speeds[cacheKey]
 		if speed == nil then
-			speed = FarmMath.getGrowthSpeed(save, animal.animalId)
-			speeds[animal.animalId] = speed
+			speed = FarmMath.getGrowthSpeed(save, animal.animalId, animal.zoneId)
+			speeds[cacheKey] = speed
 		end
 		if FarmMath.getStage(animal.bornAt, now, speed :: number) == "adult" then
 			count += 1
@@ -420,15 +538,28 @@ function FarmMath.getProductionReward(
 		Config.PRODUCTION_MAX_BONUS_ADULTS
 	)
 	local bonus = extra * Config.PRODUCTION_BONUS_PER_ADULT
-	return math.floor(recipe.reward * (1 + bonus)), bonus
+	local facilityYield = 1 + FarmMath.getBuildBonus(save, recipe.id, "yield") -- tesis geliştirmesi
+	return math.floor(recipe.reward * (1 + bonus) * facilityYield), bonus
 end
 
--- Yeni büyüme hızı yalnızca satın alımdan sonraki süreye uygulanır.
+-- Büyüme hızı değişmeden önce her hayvanın (tür|bölge) hızını kaydeder; preserveGrowthProgress ile birlikte kullanılır.
+function FarmMath.snapshotGrowthSpeeds(save: PlayerSave): { [string]: number }
+	local speeds: { [string]: number } = {}
+	for _, animal in save.animals do
+		local key = `{animal.animalId}|{animal.zoneId}`
+		if speeds[key] == nil then
+			speeds[key] = FarmMath.getGrowthSpeed(save, animal.animalId, animal.zoneId)
+		end
+	end
+	return speeds
+end
+
+-- Yeni büyüme hızı yalnızca değişiklikten sonraki süreye uygulanır.
 function FarmMath.preserveGrowthProgress(save: PlayerSave, previousSpeeds: { [string]: number }, now: number)
 	for _, animal in save.animals do
-		local previous = previousSpeeds[animal.animalId]
+		local previous = previousSpeeds[`{animal.animalId}|{animal.zoneId}`]
 		if previous and animal.bornAt ~= 0 then
-			local speed = FarmMath.getGrowthSpeed(save, animal.animalId)
+			local speed = FarmMath.getGrowthSpeed(save, animal.animalId, animal.zoneId)
 			local age = math.max(0, now - animal.bornAt) * previous
 			animal.bornAt = now - age / speed
 			animal.stage = FarmMath.getStage(animal.bornAt, now, speed)

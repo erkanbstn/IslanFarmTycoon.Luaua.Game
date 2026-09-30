@@ -9,7 +9,21 @@ export type ZoneConfig = {
 	island: string, -- Hangi çiftlik adasında (FARM_ISLANDS id)
 	capacity: number,
 	allowedAnimals: { string },
+	upgradeProfile: string?, -- BUILD_UPGRADES.profiles anahtarı (yoksa "barn")
 	themed: boolean?, -- true: bölgenin hayvanı temanın ana ada hayvanıdır (homeAnimal)
+}
+
+-- Yapı geliştirme: her bölge (ahır, ağıl, kafes) ve her üretim tesisi 5 seviyelik bir yoldur; her seviye işlevine uygun bir fayda demeti verir.
+-- Bölge: capacity (adım sayısı), growthSpeed (çarpan), incomeBonus (toplanır), seasonAffinity (olumlu mevsim/hava etkileri büyür, olumsuzlar küçülür).
+-- Tesis: speed (süre çarpanı), yield (satış ödülü artışı), thrift (başlatma maliyeti indirimi).
+export type BuildLevelEffects = {
+	capacity: number?,
+	growthSpeed: number?,
+	incomeBonus: number?,
+	seasonAffinity: number?,
+	speed: number?,
+	yield: number?,
+	thrift: number?,
 }
 
 export type ProductionRecipeConfig = {
@@ -26,6 +40,7 @@ export type ProductionRecipeConfig = {
 	cost: number,
 	reward: number,
 	output: "cash" | "chicken",
+	upgradeProfile: string?, -- BUILD_UPGRADES.profiles anahtarı (yoksa "factory")
 }
 
 export type AnimalConfig = {
@@ -348,12 +363,66 @@ local Config = {
 	UPGRADE_COST_BASE = 200,
 	UPGRADE_COST_EXPONENT = 0.95,
 	BULK_MULTIPLIERS = { 1, 2, 3, 5 }, -- Pazarda toplu alım çarpanları
-	-- Alan genişletme: dolu bir bölgenin kapasitesi seviye başına artar (adım = max(2, kapasite/4)).
-	-- Seviye n -> n+1 maliyeti = bölgedeki hayvanın taban fiyatı x costMultiplier x costGrowth^n (2 anlamlı basamak).
-	ZONE_EXPANSION = {
-		maxLevel = 4,
-		costMultiplier = 120,
-		costGrowth = 2.5,
+	-- Yapı geliştirme (bölgeler ve tesisler): seviye n -> n+1 maliyeti, bölgede bölgedeki hayvanın taban fiyatı, tesiste tarifin satış ödülü
+	-- x çarpan x büyüme^n (2 anlamlı basamak). Kapasite adımı = max(2, taban kapasite / 4). Bir seviye kapasite veriyorsa bölge dolu olmalıdır.
+	-- Kayıt: save.expansions[hedefId] = seviye (hedef bölge ya da tarif kimliği).
+	BUILD_UPGRADES = {
+		maxLevel = 5,
+		costMultiplier = 70,
+		costGrowth = 2.2,
+		facilityCostMultiplier = 25,
+		facilityCostGrowth = 1.8,
+		profiles = {
+			barn = {
+				{ capacity = 1 },
+				{ capacity = 1, growthSpeed = 1.12 },
+				{ incomeBonus = 0.05 },
+				{ capacity = 1, incomeBonus = 0.03 },
+				{ capacity = 1, growthSpeed = 1.15, seasonAffinity = 0.25 },
+			},
+			coop = {
+				{ capacity = 1 },
+				{ capacity = 1, growthSpeed = 1.12 },
+				{ incomeBonus = 0.06 },
+				{ capacity = 1, growthSpeed = 1.1 },
+				{ capacity = 1, incomeBonus = 0.04, seasonAffinity = 0.2 },
+			},
+			stable = {
+				{ capacity = 1 },
+				{ incomeBonus = 0.05 },
+				{ capacity = 1, growthSpeed = 1.12 },
+				{ capacity = 1, incomeBonus = 0.06, seasonAffinity = 0.2 },
+				{ capacity = 1, incomeBonus = 0.08 },
+			},
+			fold = {
+				{ capacity = 1 },
+				{ capacity = 1, growthSpeed = 1.1, incomeBonus = 0.03 },
+				{ incomeBonus = 0.05, seasonAffinity = 0.25 },
+				{ capacity = 1, incomeBonus = 0.05 },
+				{ capacity = 1, growthSpeed = 1.12, incomeBonus = 0.04 },
+			},
+			sea = {
+				{ capacity = 1 },
+				{ capacity = 1, seasonAffinity = 0.3 },
+				{ growthSpeed = 1.15 },
+				{ capacity = 1, incomeBonus = 0.05 },
+				{ capacity = 1, seasonAffinity = 0.35, incomeBonus = 0.06 },
+			},
+			factory = {
+				{ speed = 0.9 },
+				{ yield = 0.1 },
+				{ thrift = 0.1 },
+				{ speed = 0.88 },
+				{ yield = 0.15, speed = 0.9 },
+			},
+			hatchery = {
+				{ speed = 0.9 },
+				{ thrift = 0.12 },
+				{ speed = 0.88 },
+				{ yield = 0.12 },
+				{ speed = 0.9, yield = 0.1 },
+			},
+		} :: { [string]: { BuildLevelEffects } },
 	},
 	-- Irk geliştirme (oyun sonu para harcama yolu): her hayvan türü için ayrı, çiftlik başına seviye.
 	-- Seviye n -> n+1 maliyeti = türün taban fiyatı x costMultiplier x costGrowth^n (2 anlamlı basamak).
@@ -1603,6 +1672,45 @@ for _, chain in LEVEL_CHAINS do
 		end
 		table.insert(Config.UPGRADES, upgrade)
 	end
+end
+
+-- Yapı geliştirme profilleri: bölgenin/tesisin işlevine göre (varsayılan: bölge "barn", tesis "factory")
+for zoneId, profile in
+	{
+		poultry = "coop",
+		pond = "coop",
+		stable = "stable",
+		goatpen = "fold",
+		sheepfold = "fold",
+		pigpen = "fold",
+		fishpen = "sea",
+	}
+do
+	Config.ZONES[zoneId].upgradeProfile = profile
+end
+Config.PRODUCTION_RECIPES.hatchery.upgradeProfile = "hatchery"
+
+-- Geliştirilebilir yapılar: bölgeler ve üretim tesisleri (ada + ad + simge tek yerden)
+Config.BUILD_TARGETS = {} :: { [string]: { island: string, icon: string, isZone: boolean } }
+Config.BUILD_ORDER = {} :: { string }
+for _, zoneId in Config.ZONE_ORDER do
+	local zone = Config.ZONES[zoneId]
+	Config.BUILD_TARGETS[zoneId] = { island = zone.island, icon = zone.icon, isZone = true }
+	table.insert(Config.BUILD_ORDER, zoneId)
+end
+for _, recipeId in Config.PRODUCTION_ORDER do
+	local recipe = Config.PRODUCTION_RECIPES[recipeId]
+	Config.BUILD_TARGETS[recipeId] = { island = recipe.island, icon = recipe.icon, isZone = false }
+	table.insert(Config.BUILD_ORDER, recipeId)
+end
+
+function Config.getBuildTargetName(targetId: string, farmId: string?): string
+	local zone = Config.ZONES[targetId]
+	if zone then
+		return Config.getZoneName(zone, farmId)
+	end
+	local recipe = Config.PRODUCTION_RECIPES[targetId]
+	return if recipe then recipe.displayName else targetId
 end
 
 -- Maliyet eğrisi: taban fiyattan ölçeklenmiş fiyat (2 anlamlı basamak). Yükseltmeler ve ek ana çiftlik fiyatları aynı eğriyi kullanır.

@@ -77,7 +77,7 @@ end
 
 local function refreshStages()
 	for _, animal in save.animals do
-		animal.stage = FarmMath.getStage(animal.bornAt, now, FarmMath.getGrowthSpeed(save, animal.animalId))
+		animal.stage = FarmMath.getStage(animal.bornAt, now, FarmMath.getGrowthSpeed(save, animal.animalId, animal.zoneId))
 	end
 end
 
@@ -100,10 +100,7 @@ local function buyAnimal(animalId: string, zoneId: string)
 end
 
 local function buyUpgrade(upgrade: any)
-	local speeds: { [string]: number } = {}
-	for animalId in Config.ANIMALS do
-		speeds[animalId] = FarmMath.getGrowthSpeed(save, animalId)
-	end
+	local speeds = FarmMath.snapshotGrowthSpeeds(save)
 	save.cash -= upgrade.cost
 	save.purchased[upgrade.id] = true
 	FarmMath.applyDerived(save)
@@ -168,18 +165,20 @@ for step = 1, steps do
 		-- Alan genişletme: en ucuz yükseltmeyle yarışır (dolu bölgeler genişletilebilir)
 		local expandZone: string? = nil
 		local expandCost = math.huge
-		for zoneId, zone in Config.ZONES do
-			if table.find(themeIslands, zone.island) then
-				local status, _, cost = FarmMath.getExpansionStatus(save, zoneId)
+		for targetId, target in Config.BUILD_TARGETS do
+			if table.find(themeIslands, target.island) then
+				local status, _, cost = FarmMath.getExpansionStatus(save, targetId)
 				if status == "available" and cost <= save.cash and cost < expandCost then
-					expandZone, expandCost = zoneId, cost
+					expandZone, expandCost = targetId, cost
 				end
 			end
 		end
 		if expandZone and (not cheapest or expandCost < cheapest.cost) then
 			save.cash -= expandCost
 			save.expansions = save.expansions or {}
+			local speedsBefore = FarmMath.snapshotGrowthSpeeds(save)
 			save.expansions[expandZone] = FarmMath.getExpansionLevel(save, expandZone) + 1
+			FarmMath.preserveGrowthProgress(save, speedsBefore, now)
 			expansionTotal += 1
 			expansionSpent += expandCost
 			for _, mark_at in { 5, 15, 30 } do

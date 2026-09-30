@@ -56,6 +56,18 @@ return function(visuals: any, createEnvironment: any, config: any)
 	assert(config.SEASONS[2].weather[summerWeather.id], "an overridden season gets weather from its own pool")
 	assert(environment.getWeather(summer).id == summerWeather.id, "the overridden weather is stable within a window")
 	assert(environment.getSeasonEndsAt(summer) == now + 100, "the override carries its own timer")
+	-- Mevsim uyumu (bölge geliştirmesi): olumlu etkiler büyür, olumsuzlar küçülür, hiçbiri zarar vermez
+	for _, season in config.SEASONS do
+		local override = { seasonId = season.id, seasonEndsAt = now + 100 }
+		for animalId, mod in season.incomeModifiers do
+			local plain = environment.getIncomeMultiplier(animalId, override)
+			local tuned = environment.getIncomeMultiplier(animalId, override, 0.3)
+			assert(tuned >= plain - 1e-9, "season affinity must never hurt")
+			if mod ~= 0 and plain > 0.2 then
+				assert(tuned ~= plain, "season affinity must change a non-neutral season")
+			end
+		end
+	end
 	assert(environment.getNextSeason(summer).id == "autumn", "the next season follows the overridden one")
 	assert(
 		environment.getSeason({ seasonId = "summer", seasonEndsAt = now - 1 }).id == "winter",

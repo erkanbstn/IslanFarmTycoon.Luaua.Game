@@ -184,10 +184,11 @@ local function updateGrowth(player: Player, farm: any?)
 	local speedByAnimal: { [string]: number } = {}
 	local changed = false
 	for _, animal in data.animals do
-		local speed = speedByAnimal[animal.animalId]
+		local speedKey = `{animal.animalId}|{animal.zoneId}`
+		local speed = speedByAnimal[speedKey]
 		if not speed then
-			speed = FarmMath.getGrowthSpeed(data, animal.animalId)
-			speedByAnimal[animal.animalId] = speed
+			speed = FarmMath.getGrowthSpeed(data, animal.animalId, animal.zoneId)
+			speedByAnimal[speedKey] = speed
 		end
 		local stage = FarmMath.getStage(animal.bornAt, now, speed)
 		if stage ~= animal.stage then

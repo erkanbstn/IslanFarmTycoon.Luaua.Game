@@ -156,7 +156,7 @@ local function create(parent: ScreenGui): UiKit.Window
 			if job then
 				local remaining = math.max(0, math.ceil(job.readyAt - now))
 				entry.progress.Visible = true
-				entry.fill(1 - remaining / recipe.duration, UiKit.Color.Green)
+				entry.fill(1 - remaining / FarmMath.getFacilityDuration(state, recipe), UiKit.Color.Green)
 				card.detail.Text = if remaining > 0
 					then `{recipe.description}\nKalan: {math.floor(remaining / 60)}:{string.format(
 						"%02d",
@@ -191,11 +191,14 @@ local function create(parent: ScreenGui): UiKit.Window
 				local adults = FarmMath.countProductionAdults(state, recipe, now)
 				local bonusLine = if bonus > 0 then `\nYetişkin bonusu: +%{math.round(bonus * 100)}` else ""
 				card.detail.Text =
-					`{recipe.description}\n{recipe.duration} sn · Satış {FarmMath.formatMoney(reward)}\nYetişkin hayvan: {adults}/{recipe.requiredAdults}{bonusLine}`
-				card.action.Text = `Başlat · {FarmMath.formatMoney(recipe.cost)}`
+					`{recipe.description}\n{FarmMath.getFacilityDuration(state, recipe)} sn · Satış {FarmMath.formatMoney(
+						reward
+					)}\nYetişkin hayvan: {adults}/{recipe.requiredAdults}{bonusLine}`
+				local startCost = FarmMath.getFacilityCost(state, recipe)
+				card.action.Text = `Başlat · {FarmMath.formatMoney(startCost)}`
 				variant = if adults < recipe.requiredAdults
 					then "disabled"
-					elseif state.cash >= recipe.cost then "primary"
+					elseif state.cash >= startCost then "primary"
 					else "warning"
 			end
 			UiKit.setVariant(card.action, if blocked then "disabled" else variant)

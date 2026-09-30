@@ -58,10 +58,15 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
   Görünürlük: `AnimalVisualService.applyLineage` hayvanın üstüne kademe renkli yıldız + "Sv.N" rozeti (`LineageTag`) koyar; seviye değişince hayvan
   yeniden kurulmaz, rozet yerinde yenilenir (`Lineage` özniteliği).
   Denge: `simulate-economy.py` tüm yükseltmelerden sonra ırk satın alır (`IRK toplam Sv.N` adımları); sonraki içerik bunu beslemeli.
-- **Alan genişletme**: `Config.ZONE_EXPANSION` (maxLevel, costMultiplier, costGrowth); adım = `max(2, kapasite/4)`. Bölge kapasitesini **her yerde**
-  `FarmMath.getZoneCapacity(save, zoneId)` ile oku (`ZONES[x].capacity` yalnızca taban). Kayıt alanı `expansions { [zoneId] = 1..maxLevel }`
-  (opsiyonel, `FarmProfiles.FIELDS`'te). Şart: bölge açık ve dolu (`getExpansionStatus`). Sunucu `UpgradeService.tryExpandZone`
-  (`RequestExpandZone`); arayüz Yükseltmeler penceresindeki "Alan genişletme" kartları. Sim çıktısı `ALAN toplam Sv.N`.
+- **Yapı geliştirme** (bölgeler ve üretim tesisleri): `Config.BUILD_UPGRADES` (maxLevel 5, costMultiplier/costGrowth bölge, facilityCost* tesis, `profiles` = seviye başına fayda
+  demeti). Bölge profilleri (`ZONES[x].upgradeProfile`, varsayılan barn): `capacity` (adım sayısı; adım = `max(2, kapasite/4)`), `growthSpeed`, `incomeBonus`, `seasonAffinity`
+  (olumlu mevsim/hava etkisi büyür, olumsuzlar küçülür). Tesis profilleri (`PRODUCTION_RECIPES[x].upgradeProfile`, varsayılan factory): `speed` (süre çarpanı), `yield`
+  (satış ödülü), `thrift` (başlatma maliyeti). Her yerde yardımcıları kullan: `getZoneCapacity`, `getGrowthSpeed(save, animalId, zoneId)`, `getAnimalMultiplier(.., zoneId)`,
+  `getFacilityDuration/getFacilityCost`, `getProductionReward`; büyüme hızı anlık görüntüsü için `snapshotGrowthSpeeds` + `preserveGrowthProgress` (anahtar `animalId|zoneId`).
+  Kayıt alanı `expansions { [bölgeVeyaTarifId] = 1..maxLevel }` (opsiyonel, `FarmProfiles.FIELDS`'te; SaveCodec tanınmayan hedefi atar). Kapasite veren seviye için bölge dolu,
+  tesis için kurulu olmalı (`getExpansionStatus`). Sunucu `UpgradeService.tryExpandZone` (`RequestExpandZone`); arayüz Yükseltmeler penceresindeki "Yapı geliştirme" kartları
+  (`Config.BUILD_ORDER/BUILD_TARGETS`). Yeni profil/seviye eklersen `tests/economy.spec.luau` (seviye sayısı = maxLevel, her bölge büyüyebilmeli) ve sim kalibrasyonu
+  (`scripts/simulate-economy.py`: `ALAN toplam Sv.N`; hedef ada süreleri ve "TÜM YÜKSELTMELER" korunmalı).
   Tempo (ideal oyuncu): ilk ada ~9 dk, tüm yükseltmeler ~3,3 saat, tüm ırk seviyeleri ~11 saat; sayıları değiştirirsen `simulate-economy.py`'ı yeniden koştur.
 - **Mevsim hedefi**: `Config.SEASONAL_GOALS` (mevsim id -> `earned` veya `invest`), `SEASONAL_REWARD_SECONDS/MIN_REWARD`. Hesap düzeyi opsiyonel kayıt
   alanı `seasonal {key, progress, target, base, claimed}` (key = `Rewards.seasonNumber`; bozuk kayıt sessizce atılır). Mantık saf `Rewards.seasonal*`

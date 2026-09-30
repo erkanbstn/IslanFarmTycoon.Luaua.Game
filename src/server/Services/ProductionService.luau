@@ -41,10 +41,12 @@ local function act(player: Player, action: unknown, recipeId: unknown, jobUid: u
 			return false, reason or "Üretim başlatılamadı."
 		end
 		EconomyService.settlePlayer(player)
-		if not PlayerDataService.trySpend(player, recipe.cost) then
-			return false, `Yeterli para yok ({FarmMath.formatMoney(recipe.cost)}).`
+		local startCost = FarmMath.getFacilityCost(data, recipe)
+		if not PlayerDataService.trySpend(player, startCost) then
+			return false, `Yeterli para yok ({FarmMath.formatMoney(startCost)}).`
 		end
-		data.production[recipe.id] = { uid = HttpService:GenerateGUID(false), readyAt = now + recipe.duration }
+		data.production[recipe.id] =
+			{ uid = HttpService:GenerateGUID(false), readyAt = now + FarmMath.getFacilityDuration(data, recipe) }
 	else
 		local job = data.production[recipe.id]
 		if not job or job.uid ~= jobUid then

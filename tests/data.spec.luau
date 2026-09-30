@@ -128,12 +128,21 @@ return function(lock: any, codec: any, config: any, farmMath: any)
 	local withExpansion = assert(codec.decode(expansionRaw, config, farmMath, now, uid))
 	assert(
 		withExpansion.expansions.starter == 2
-			and withExpansion.expansions.pasture == config.ZONE_EXPANSION.maxLevel
+			and withExpansion.expansions.pasture == config.BUILD_UPGRADES.maxLevel
 			and withExpansion.expansions.ghost == nil
 			and withExpansion.expansions.poultry == nil,
 		"expansion levels must be clamped and unknown zones dropped"
 	)
 	assert(codec.encode(withExpansion, now).mainFarms["1"].expansions.starter == 2, "expansions must survive saves")
+	-- Tesis kimlikleri de geçerli hedeftir
+	expansionRaw.mainFarms["1"].expansions = { hatchery = 3, cheese = 99, nothing = 2 }
+	local withFacility = assert(codec.decode(expansionRaw, config, farmMath, now, uid))
+	assert(
+		withFacility.expansions.hatchery == 3
+			and withFacility.expansions.cheese == config.BUILD_UPGRADES.maxLevel
+			and withFacility.expansions.nothing == nil,
+		"facility upgrade levels must be kept, clamped and validated"
+	)
 	expansionRaw.mainFarms["1"].expansions = 5
 	assert(codec.decode(expansionRaw, config, farmMath, now, uid) == nil, "corrupt expansions must fail closed")
 	-- Mevsim hedefi: geçerli kayıt korunur, bozuk kayıt sessizce atılır

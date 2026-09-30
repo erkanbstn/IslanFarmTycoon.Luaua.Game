@@ -77,8 +77,10 @@ hatasından ayrıdır.
    Aynı türden aldıkça fiyat %18 artar.
 4b. **Irk geliştirme:** Pazar'da sahip olduğun her hayvan türünün kartında ikinci düğme vardır. Her seviye o türün gelirini %8 artırır (en fazla Sv.10);
    maliyet her seviyede üstel büyür. Seviyeler çiftlik başınadır ve kayıtlıdır. Bu, yol haritası bittikten sonra da para harcama yoludur. Geliştirilmiş hayvanın üstünde kademe renginde (bronz, gümüş, altın, elmas) bir yıldız ve seviye rozeti görünür.
-4c. **Alan genişletme:** Yükseltmeler penceresinde, açık ve **dolu** bir bölgenin altında "Alan genişletme" kartı çıkar. Her seviye bölgenin kapasitesini artırır
-   (en fazla 4 seviye); maliyet bölgedeki hayvanın fiyatına ve seviyeye bağlıdır. Seviyeler çiftlik başınadır ve kayıtlıdır.
+4c. **Yapı geliştirme:** Yükseltmeler penceresinde, açık bölgelerin (ahır, kümes, ağıl, kafes...) ve kurulu üretim tesislerinin altında "Yapı geliştirme" kartı çıkar. Her yapı 5
+   seviyelidir ve her seviye yapının işlevine uygun bir fayda verir: bölgelerde **kapasite** (dolu bölgede açılır), **büyüme hızı**, **verim** ve **mevsim uyumu** (olumlu mevsim/hava
+   etkisi büyür, olumsuzlar küçülür); tesislerde **üretim süresi**, **satış ödülü** ve **başlatma maliyeti**. Bazı seviyeler iki fayda birden verir (ör. kapasite + büyüme).
+   Maliyet bölgedeki hayvanın ya da tesisin ödülünün değerine ve seviyeye bağlıdır. Seviyeler çiftlik başınadır ve kayıtlıdır.
 4d. **Mevsim hedefi:** Çiftliğim penceresinde her mevsim (15 dk) yeni bir hedef vardır: bahar ve sonbaharda para kazan, yaz ve kışta yatırım yap
    (hayvan, yükseltme, ırk veya alan genişletme). Tamamlayınca ödülü al; mevsim değişince alınmamış hedef kaybolur. Ödül gelire göre ölçeklenir.
 4e. **Gezgin tüccar (rastgele olay):** Her oyuncuya ayrı zamanlarda, yaklaşık 15 dakikalık dönemlerde ve 4 dakikalığına gelir. Geldiğinde bildirim çıkar ve

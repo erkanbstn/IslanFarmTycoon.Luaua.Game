@@ -652,15 +652,15 @@ local function updateGoal(state: PlayerSave, income: number)
 		end
 	end
 	local lateIslands = FarmMath.themeIslands(state)
-	for zoneId, zone in Config.ZONES do
-		if table.find(lateIslands, zone.island) then
-			local status, _, cost = FarmMath.getExpansionStatus(state, zoneId)
+	for targetId, target in Config.BUILD_TARGETS do
+		if table.find(lateIslands, target.island) then
+			local status, _, cost = FarmMath.getExpansionStatus(state, targetId)
 			if status == "available" and cost < lateCost then
 				lateCost = cost
 				lateLabel =
-					`{Config.getZoneName(zone, state.activeMainFarmId)} · Genişlet Sv.{FarmMath.getExpansionLevel(
+					`{Config.getBuildTargetName(targetId, state.activeMainFarmId)} · Geliştir Sv.{FarmMath.getExpansionLevel(
 						state,
-						zoneId
+						targetId
 					) + 1} · {FarmMath.formatMoney(cost)}`
 			end
 		end

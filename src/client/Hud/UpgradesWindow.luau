@@ -67,48 +67,81 @@ function UpgradesWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Up
 		end)
 	end
 
-	-- Alan genişletme: seçili adanın açık bölgeleri; dolu bölgenin kapasitesi seviye başına artar
+	-- Yapı geliştirme: seçili adanın açık bölgeleri ve kurulu tesisleri; her seviye yapının işlevine uygun bir fayda demeti verir
 	local EXPANSION_ORDER = 1000
-	local expansionHeader = UiKit.sectionHeader(upgradesWindow.list, "Alan genişletme", EXPANSION_ORDER)
+	local expansionHeader = UiKit.sectionHeader(upgradesWindow.list, "Yapı geliştirme", EXPANSION_ORDER)
 	local expansionCards: { [string]: UiKit.Card } = {}
-	for index, zoneId in Config.ZONE_ORDER do
-		local zone = Config.ZONES[zoneId]
-		local card = UiKit.card(upgradesWindow.list, EXPANSION_ORDER + index, zone.icon)
+	for index, targetId in Config.BUILD_ORDER do
+		local card = UiKit.card(upgradesWindow.list, EXPANSION_ORDER + index, Config.BUILD_TARGETS[targetId].icon)
 		card.frame.Visible = false
-		expansionCards[zoneId] = card
+		expansionCards[targetId] = card
 		card.action.Activated:Connect(function()
 			if card.action.Active then
-				PurchaseController.submit("RequestExpandZone", zoneId)
+				PurchaseController.submit("RequestExpandZone", targetId)
 			end
 		end)
+	end
+
+	-- Bir seviyenin faydaları: " · " ile ayrılmış kısa parçalar (her parça ayrı çevrilir)
+	local function effectText(zone: Config.ZoneConfig?, bundle: Config.BuildLevelEffects): string
+		local parts: { string } = {}
+		if bundle.capacity then
+			local step = if zone then FarmMath.getExpansionStep(zone) else 0
+			table.insert(parts, `+{bundle.capacity * step} kapasite`)
+		end
+		if bundle.growthSpeed then
+			table.insert(parts, `Büyüme +%{math.round((bundle.growthSpeed - 1) * 100)}`)
+		end
+		if bundle.incomeBonus then
+			table.insert(parts, `Verim +%{math.round(bundle.incomeBonus * 100)}`)
+		end
+		if bundle.seasonAffinity then
+			table.insert(parts, `Mevsim uyumu +%{math.round(bundle.seasonAffinity * 100)}`)
+		end
+		if bundle.speed then
+			table.insert(parts, `Süre -%{math.round((1 - bundle.speed) * 100)}`)
+		end
+		if bundle.yield then
+			table.insert(parts, `Satış +%{math.round(bundle.yield * 100)}`)
+		end
+		if bundle.thrift then
+			table.insert(parts, `Başlatma -%{math.round(bundle.thrift * 100)}`)
+		end
+		return table.concat(parts, " · ")
 	end
 
 	local function updateExpansions(state: PlayerSave, content: boolean)
 		local selectedIsland = IslandContext.get()
 		local any = false
-		for _, zoneId in Config.ZONE_ORDER do
-			local zone = Config.ZONES[zoneId]
-			local card = expansionCards[zoneId]
-			local relevant = zone.island == selectedIsland and state.unlockedZones[zoneId] == true
-			card.frame.Visible = relevant
-			if not relevant then
+		for _, targetId in Config.BUILD_ORDER do
+			local target = Config.BUILD_TARGETS[targetId]
+			local card = expansionCards[targetId]
+			local zone = Config.ZONES[targetId]
+			local status, reason, cost = FarmMath.getExpansionStatus(state, targetId)
+			local shown = target.island == selectedIsland
+				and (if target.isZone then state.unlockedZones[targetId] == true else status ~= "locked")
+			card.frame.Visible = shown
+			if not shown then
 				continue
 			end
 			any = true
-			local status, _, cost = FarmMath.getExpansionStatus(state, zoneId)
-			local capacity = FarmMath.getZoneCapacity(state, zoneId)
 			if content then
-				card.title.Text = Config.getZoneName(zone, state.activeMainFarmId)
-				card.detail.Text =
-					`Kapasite {capacity} → {capacity + FarmMath.getExpansionStep(zone)} · Sv.{FarmMath.getExpansionLevel(
-						state,
-						zoneId
-					)}/{Config.ZONE_EXPANSION.maxLevel}`
+				local level = FarmMath.getExpansionLevel(state, targetId)
+				local nextLevel = FarmMath.getNextBuildLevel(state, targetId)
+				card.title.Text =
+					`{Config.getBuildTargetName(targetId, state.activeMainFarmId)} · Sv.{level}/{Config.BUILD_UPGRADES.maxLevel}`
+				card.detail.Text = if nextLevel
+					then `Sonraki seviye\n{effectText(zone, nextLevel)}`
+					else "Tüm geliştirmeler tamamlandı"
 			end
 			if status == "max" then
-				setPurchaseButton(card.action, "En büyük boy", "owned")
+				setPurchaseButton(card.action, "En üst seviye", "owned")
 			elseif status == "locked" then
-				setPurchaseButton(card.action, "Dolunca açılır", "disabled")
+				setPurchaseButton(
+					card.action,
+					if reason == "Önce bölgeyi hayvanla doldur" then "Dolunca açılır" else "Kilitli",
+					"disabled"
+				)
 			else
 				setPurchaseButton(
 					card.action,

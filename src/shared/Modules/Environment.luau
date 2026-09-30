@@ -192,10 +192,15 @@ function Environment.getLightFactor(clock: number): number
 end
 
 -- Mevsim + hava toplam gelir çarpanı (en az 0.2)
-function Environment.getIncomeMultiplier(animalId: string, override: Override?): number
+function Environment.getIncomeMultiplier(animalId: string, override: Override?, affinity: number?): number
 	local seasonMod = Environment.getSeason(override).incomeModifiers[animalId] or 0
 	local weatherMod = Environment.getWeather(override).incomeModifiers[animalId] or 0
-	return math.max(1 + seasonMod + weatherMod, 0.2)
+	local mods = seasonMod + weatherMod
+	-- Mevsim uyumu (bölge geliştirmesi): olumlu etkiler büyür, olumsuzlar küçülür
+	if affinity and affinity ~= 0 then
+		mods = if mods > 0 then mods * (1 + affinity) else mods * (1 - math.min(affinity, 1))
+	end
+	return math.max(1 + mods, 0.2)
 end
 
 -- "At +%25 · Tavuk -%10" gibi özet (sıralı, sabit)
