@@ -847,4 +847,6 @@ return {
 	["Ahır siparişi teslim edildi: +{}"] = "Stallauftrag abgegeben: +{1}",
 	["Bu sipariş bu turda zaten teslim edildi"] = "Dieser Auftrag wurde in dieser Runde schon abgegeben",
 	["Ahır deposunda yeterli ürün yok"] = "Nicht genug Waren im Stalllager",
+	["Ahır siparişi: ürün merkezlerinde üret"] = "Stallauftrag: in den Produktionszentren herstellen",
+	["depodan teslim et"] = "aus dem Lager abgeben",
 }

@@ -847,4 +847,6 @@ return {
 	["Ahır siparişi teslim edildi: +{}"] = "Barn order delivered: +{1}",
 	["Bu sipariş bu turda zaten teslim edildi"] = "This order was already delivered this round",
 	["Ahır deposunda yeterli ürün yok"] = "Not enough goods in the barn storage",
+	["Ahır siparişi: ürün merkezlerinde üret"] = "Barn order: produce at the production centers",
+	["depodan teslim et"] = "deliver from the storage",
 }

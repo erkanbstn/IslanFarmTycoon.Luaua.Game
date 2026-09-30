@@ -847,4 +847,6 @@ return {
 	["Ahır siparişi teslim edildi: +{}"] = "Заказ амбара сдан: +{1}",
 	["Bu sipariş bu turda zaten teslim edildi"] = "Этот заказ уже сдан в этом раунде",
 	["Ahır deposunda yeterli ürün yok"] = "На складе амбара недостаточно товаров",
+	["Ahır siparişi: ürün merkezlerinde üret"] = "Заказ амбара: производите в производственных центрах",
+	["depodan teslim et"] = "сдавайте со склада",
 }
