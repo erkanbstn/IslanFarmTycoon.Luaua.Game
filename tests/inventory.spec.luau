@@ -9,17 +9,21 @@ return function(Inventory: any, Config: any, FarmMath: any, SaveCodec: any, Sess
 		seen[itemId] = true
 		assert(Config.ITEM_SLOTS[item.slot], `item {itemId} uses unknown slot {item.slot}`)
 		assert(item.price > 0 and item.displayName ~= "" and item.icon ~= "", `item {itemId} is malformed`)
-		local kinds = (if item.effects then 1 else 0) + (if item.power then 1 else 0)
-		assert(kinds <= 1, `item {itemId} cannot be both an effect and a power item`)
+		local effectCount = 0
+		for _ in item.effects or {} do
+			effectCount += 1
+		end
 		if item.slot == "staff" then
 			assert(
 				item.power and (item.power.kind == "season" or item.power.kind == "weather"),
 				`staff {itemId} needs a power`
 			)
+			assert(effectCount >= 1, `staff {itemId} also needs a passive effect`)
 		elseif item.slot == "tool" or item.slot == "charm" then
-			assert(item.effects, `{item.slot} {itemId} needs an effect`)
+			-- Tek bir fayda yerine birkaç farklı fayda: eşyalar sadece "aynı şeyin artırılmışı" olmasın
+			assert(item.power == nil and effectCount >= 2, `{item.slot} {itemId} needs at least two different effects`)
 		else
-			assert(kinds == 0, `cosmetic {itemId} must not carry effects`)
+			assert(item.power == nil and effectCount == 0, `cosmetic {itemId} must not carry effects`)
 		end
 		assert(item.look and #item.look.parts > 0, `item {itemId} needs a visible look`)
 		assert(

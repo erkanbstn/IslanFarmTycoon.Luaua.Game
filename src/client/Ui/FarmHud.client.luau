@@ -279,11 +279,13 @@ local function merchantNotice(state: PlayerSave?)
 	local golden = Golden.current(state, localPlayer.UserId, Workspace:GetServerTimeNow())
 	if golden and golden.cycle ~= lastGoldenCycle then
 		lastGoldenCycle = golden.cycle
+		Sfx.play("golden_spawn")
 		showToast("Bir hayvanın altın gibi parlıyor! Yakala ve ödülünü al.", "info")
 	end
 	local offer = Merchant.offer(state, localPlayer.UserId, Workspace:GetServerTimeNow())
 	if offer and offer.cycle ~= lastMerchantCycle then
 		lastMerchantCycle = offer.cycle
+		Sfx.play("merchant_arrive")
 		showToast("Gezgin tüccar meydana geldi: Pazar'da indirimli hayvanlar var!", "info")
 	end
 end
@@ -412,6 +414,9 @@ IslandContext.Changed:Connect(IslandTabs.refreshSafe)
 Remotes.get("Notify").OnClientEvent:Connect(function(message: string, kind: string?, amount: number?)
 	if typeof(message) == "string" then
 		showToast(message, kind)
+		if kind == "info" then
+			Sfx.play("notify")
+		end
 	end
 	-- Para toplama ödülü: ses + kasa sayısı zıplaması (yüzen yazı ve parçacık CollectorGuide'da)
 	if kind == "money" and typeof(amount) == "number" then

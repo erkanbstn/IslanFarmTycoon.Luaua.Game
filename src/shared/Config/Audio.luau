@@ -9,10 +9,32 @@ return {
 	-- aldığın `rbxassetid://NUMARA` kimliklerini aşağıya yaz. Kimlik doğrulaması Studio'da yapılır.
 	SOUNDS = {
 		click = { id = "rbxasset://sounds/clickfast.wav", volume = 0.1, pitch = 0.92 },
-		coin = { id = "rbxasset://sounds/electronicpingshort.wav", volume = 0.55, pitch = 1.6 },
+		coin = { id = "rbxasset://sounds/electronicpingshort.wav", volume = 0.16, pitch = 1.25 },
 		success = { id = "rbxasset://sounds/electronicpingshort.wav", volume = 0.45, pitch = 1.15 },
 		error = { id = "rbxasset://sounds/switch.wav", volume = 0.4, pitch = 0.7 },
 		build = { id = "rbxasset://sounds/victory.wav", volume = 0.3 },
+
+		-- Aşağıdakiler yeni yuvalar: kimlik boş (sessiz) olduğu sürece çalınmaz. Kimlik yazınca kod aynen kullanır.
+		-- Ne zaman çaldıkları docs/SESLER.md içinde listelidir (bağlantılar Interaction/EventSounds ve arayüzde).
+		ui_open = { id = "", volume = 0.25 }, -- pencere açılır
+		ui_close = { id = "", volume = 0.2 }, -- pencere kapanır
+		notify = { id = "", volume = 0.3 }, -- bilgi bildirimi (toast: info)
+		animal_buy = { id = "", volume = 0.45 }, -- hayvan satın alındı
+		animal_sell = { id = "", volume = 0.35 }, -- hayvan satıldı
+		upgrade_buy = { id = "", volume = 0.5 }, -- yükseltme alındı
+		expansion_buy = { id = "", volume = 0.5 }, -- bölge/tesis geliştirme seviyesi
+		barn_level = { id = "", volume = 0.6 }, -- ahır seviyesi arttı
+		production_start = { id = "", volume = 0.35 }, -- üretim partisi başladı
+		production_ready = { id = "", volume = 0.45 }, -- parti hazır
+		production_claim = { id = "", volume = 0.4 }, -- parti teslim alındı
+		contract_done = { id = "", volume = 0.5 }, -- ahır siparişi teslim edildi
+		achievement = { id = "", volume = 0.55 }, -- başarım ödülü alındı
+		daily_claim = { id = "", volume = 0.45 }, -- günlük ödül alındı
+		item_buy = { id = "", volume = 0.45 }, -- eşya alındı
+		item_equip = { id = "", volume = 0.35 }, -- eşya takıldı/çıkarıldı
+		season_change = { id = "", volume = 0.4 }, -- mevsim değişti
+		golden_spawn = { id = "", volume = 0.5 }, -- altın hayvan belirdi
+		merchant_arrive = { id = "", volume = 0.45 }, -- gezgin tüccar geldi
 	} :: { [string]: Types.SoundConfig },
 
 	-- Ortam döngüleri (mevsim, hava ve gece): boş kimlik = o katman yok.

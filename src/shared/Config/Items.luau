@@ -64,7 +64,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🔨",
 		slot = "tool",
 		price = 60000,
-		effects = { upgradeDiscount = 0.05 },
+		effects = { upgradeDiscount = 0.05, expansionDiscount = 0.03 },
 		look = hammerLook(Color3.fromRGB(184, 115, 51), "Metal"),
 	})
 	add({
@@ -73,7 +73,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🔨",
 		slot = "tool",
 		price = 250000,
-		effects = { upgradeDiscount = 0.1 },
+		effects = { upgradeDiscount = 0.1, expansionDiscount = 0.06, sellBonus = 0.05 },
 		look = hammerLook(Color3.fromRGB(150, 155, 165), "Metal"),
 	})
 	add({
@@ -82,7 +82,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🔨",
 		slot = "tool",
 		price = 800000,
-		effects = { upgradeDiscount = 0.15 },
+		effects = { upgradeDiscount = 0.15, expansionDiscount = 0.09, sellBonus = 0.08, facilitySpeed = 0.05 },
 		look = hammerLook(GOLD, "Neon"),
 	})
 	add({
@@ -91,7 +91,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🔨",
 		slot = "tool",
 		price = 2000000,
-		effects = { upgradeDiscount = 0.2 },
+		effects = { upgradeDiscount = 0.2, expansionDiscount = 0.12, sellBonus = 0.12, facilitySpeed = 0.08 },
 		look = hammerLook(Color3.fromRGB(110, 220, 255), "Neon"),
 	})
 
@@ -103,6 +103,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🪄",
 		slot = "staff",
 		price = 150000,
+		effects = { contractBonus = 0.02 },
 		power = { kind = "season", usesPerDay = 1 },
 		look = staffLook(seasonOrb, WOOD),
 	})
@@ -112,6 +113,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🪄",
 		slot = "staff",
 		price = 600000,
+		effects = { contractBonus = 0.04 },
 		power = { kind = "season", usesPerDay = 3 },
 		look = staffLook(seasonOrb, Color3.fromRGB(90, 60, 110)),
 	})
@@ -121,6 +123,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🪄",
 		slot = "staff",
 		price = 1500000,
+		effects = { contractBonus = 0.06 },
 		power = { kind = "season", usesPerDay = 5 },
 		look = staffLook(seasonOrb, Color3.fromRGB(60, 40, 90)),
 	})
@@ -130,6 +133,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🪄",
 		slot = "staff",
 		price = 6000000,
+		effects = { contractBonus = 0.1 },
 		power = { kind = "season" },
 		look = staffLook(Color3.fromRGB(255, 230, 120), GOLD),
 	})
@@ -139,6 +143,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🪄",
 		slot = "staff",
 		price = 100000,
+		effects = { goodsYield = 0.02 },
 		power = { kind = "weather", usesPerDay = 1 },
 		look = staffLook(weatherOrb, WOOD),
 	})
@@ -148,6 +153,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🪄",
 		slot = "staff",
 		price = 400000,
+		effects = { goodsYield = 0.04 },
 		power = { kind = "weather", usesPerDay = 3 },
 		look = staffLook(weatherOrb, Color3.fromRGB(60, 90, 130)),
 	})
@@ -157,6 +163,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🪄",
 		slot = "staff",
 		price = 1000000,
+		effects = { goodsYield = 0.06 },
 		power = { kind = "weather", usesPerDay = 5 },
 		look = staffLook(weatherOrb, Color3.fromRGB(40, 70, 120)),
 	})
@@ -166,6 +173,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🪄",
 		slot = "staff",
 		price = 4000000,
+		effects = { goodsYield = 0.1 },
 		power = { kind = "weather" },
 		look = staffLook(Color3.fromRGB(200, 240, 255), Color3.fromRGB(220, 235, 250)),
 	})
@@ -177,7 +185,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "📿",
 		slot = "charm",
 		price = 40000,
-		effects = { storageBonus = 0.15 },
+		effects = { storageBonus = 0.15, offlineBonus = 0.1 },
 		look = charmLook(Color3.fromRGB(190, 140, 80), 0.6),
 	})
 	add({
@@ -186,7 +194,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "📿",
 		slot = "charm",
 		price = 400000,
-		effects = { storageBonus = 0.35 },
+		effects = { storageBonus = 0.35, offlineBonus = 0.2 },
 		look = charmLook(Color3.fromRGB(230, 170, 70), 0.8),
 	})
 	add({
@@ -195,7 +203,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "📿",
 		slot = "charm",
 		price = 50000,
-		effects = { growthSpeed = 1.15 },
+		effects = { growthSpeed = 1.15, facilitySpeed = 0.05 },
 		look = charmLook(Color3.fromRGB(110, 210, 110), 0.6),
 	})
 	add({
@@ -204,7 +212,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "📿",
 		slot = "charm",
 		price = 600000,
-		effects = { growthSpeed = 1.4 },
+		effects = { growthSpeed = 1.4, facilitySpeed = 0.1 },
 		look = charmLook(Color3.fromRGB(60, 240, 120), 0.8),
 	})
 	add({
@@ -213,7 +221,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "📿",
 		slot = "charm",
 		price = 150000,
-		effects = { incomeBonus = 0.03 },
+		effects = { incomeBonus = 0.03, sellBonus = 0.05 },
 		look = charmLook(Color3.fromRGB(255, 220, 100), 0.6),
 	})
 	add({
@@ -222,7 +230,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "📿",
 		slot = "charm",
 		price = 900000,
-		effects = { incomeBonus = 0.06 },
+		effects = { incomeBonus = 0.06, sellBonus = 0.1 },
 		look = charmLook(Color3.fromRGB(255, 200, 60), 0.8),
 	})
 	add({
@@ -231,7 +239,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "📿",
 		slot = "charm",
 		price = 5000000,
-		effects = { incomeBonus = 0.1 },
+		effects = { incomeBonus = 0.1, sellBonus = 0.15 },
 		look = charmLook(Color3.fromRGB(255, 240, 150), 1),
 	})
 
@@ -379,7 +387,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "📿",
 		slot = "charm",
 		price = 90000,
-		effects = { goodsYield = 0.1 },
+		effects = { goodsYield = 0.1, offlineBonus = 0.05 },
 		look = charmLook(Color3.fromRGB(200, 170, 110), 0.6),
 	})
 	add({
@@ -388,7 +396,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "📿",
 		slot = "charm",
 		price = 700000,
-		effects = { goodsYield = 0.25 },
+		effects = { goodsYield = 0.25, offlineBonus = 0.12 },
 		look = charmLook(Color3.fromRGB(255, 215, 90), 0.8),
 	})
 	add({
@@ -397,7 +405,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "📿",
 		slot = "charm",
 		price = 120000,
-		effects = { contractBonus = 0.06 },
+		effects = { contractBonus = 0.06, sellBonus = 0.03 },
 		look = charmLook(Color3.fromRGB(120, 170, 235), 0.6),
 	})
 	add({
@@ -406,7 +414,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "📿",
 		slot = "charm",
 		price = 800000,
-		effects = { contractBonus = 0.14 },
+		effects = { contractBonus = 0.14, sellBonus = 0.07 },
 		look = charmLook(Color3.fromRGB(90, 140, 255), 0.8),
 	})
 

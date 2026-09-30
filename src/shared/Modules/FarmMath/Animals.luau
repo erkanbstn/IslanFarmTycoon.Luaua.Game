@@ -4,6 +4,7 @@
 
 local Config = require(script.Parent.Parent.Parent:WaitForChild("Config"))
 local GameTypes = require(script.Parent.Parent.Parent:WaitForChild("GameTypes"))
+local Core = require(script.Parent:WaitForChild("Core"))
 local Counts = require(script.Parent:WaitForChild("Counts"))
 local Expansion = require(script.Parent:WaitForChild("Expansion"))
 
@@ -29,7 +30,10 @@ function Animals.getSellPrice(save: PlayerSave, animalId: string): number
 	if not animalConfig or owned <= 0 then
 		return 0
 	end
-	return math.floor(animalConfig.price * Config.ANIMAL_PRICE_GROWTH ^ (owned - 1) * Config.ANIMAL_SELL_FRACTION)
+	local bonus = 1 + Core.getBonus(save, "sellBonus")
+	return math.floor(
+		animalConfig.price * Config.ANIMAL_PRICE_GROWTH ^ (owned - 1) * Config.ANIMAL_SELL_FRACTION * bonus
+	)
 end
 
 -- Satılacak hayvan: aynı türün en genci. Görevdeki (tesise verilmiş ya da eklentide duran) hayvan satılmaz.

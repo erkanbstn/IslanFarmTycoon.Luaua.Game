@@ -70,6 +70,25 @@ function Core.getEquippedBonus(save: PlayerSave, key: string): number
 	return total
 end
 
+-- Satın alınmış yükseltmelerin aynı anahtarlı faydaları toplamı (ör. ada özellikleri: facilitySpeed, sellBonus...)
+function Core.getUpgradeBonus(save: PlayerSave, key: string): number
+	local total = 0
+	for _, upgrade in Config.UPGRADES do
+		if save.purchased[upgrade.id] then
+			local value = (upgrade :: any)[key]
+			if typeof(value) == "number" and isFinite(value) then
+				total += value
+			end
+		end
+	end
+	return total
+end
+
+-- Takılı eşya + yükseltme faydalarının toplamı (contractBonus, goodsYield, sellBonus, offlineBonus, facilitySpeed, expansionDiscount)
+function Core.getBonus(save: PlayerSave, key: string): number
+	return Core.getEquippedBonus(save, key) + Core.getUpgradeBonus(save, key)
+end
+
 -- Çarpılan etki: growthSpeed
 function Core.getEquippedMultiplier(save: PlayerSave, key: string): number
 	local product = 1

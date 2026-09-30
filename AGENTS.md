@@ -115,7 +115,7 @@ Yeni dosya eklerken `docs/MIMARI.md`'deki "Yeni şey nereye?" tablosuna bak.
   Değişken içeren metinlerde boşluğu `{}` yaz, hedefte `{1}`, `{2}` kullan (örn. `["Önce: {}"] = "Requires: {1}"`).
   Parçalar " · ", satır sonu ve ", " ile ayrı ayrı da çevrilir; hazır ifadeyi tek başına sözlüğe eklemek yeterli.
 - Metni sunucuda parçalayıp birleştirme; olduğu gibi tam cümle kur ki sözlük eşleşebilsin. Bulunamayan metin Türkçe kalır.
-- Dil seçimi: ilk girişte Roblox dilinden (`LocaleId`), desteklenmiyorsa ülkeden algılanır. Ayarlar → Dil ile değişir ve
+- Dil seçimi: ilk girişte Roblox sistem dilinden (`LocaleId`); desteklenmiyorsa İngilizce (ülkeye bakılmaz). Ayarlar → Dil ile değişir ve
   sunucuda `save.language` olarak saklanır (`RequestSetLanguage`, `SavedLanguage` özniteliği).
 - Bayraklar emoji değil, `UiKit.flag` ile şekillerle çizilir (Roblox yazı tipleri bayrak emojisini göstermez).
 

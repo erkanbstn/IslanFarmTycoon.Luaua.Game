@@ -10,7 +10,7 @@ local Controls = require(script.Parent:WaitForChild("Controls"))
 local Grid = {}
 
 local TILE_WIDTH = 108
-local TILE_HEIGHT = 168
+local TILE_HEIGHT = 214
 local GAP = 8
 
 -- Karoların dizildiği kap (yüksekliği içeriğe göre büyür); içine `Grid.tile` konur.
@@ -60,7 +60,7 @@ function Grid.tile(parent: Instance, order: number, icon: string): Controls.Card
 	local chip = Base.iconChip(frame, icon, 38, Tokens.Color.Gold)
 	chip.LayoutOrder = 1
 	local title = caption(frame, 30, 13, true, 2)
-	local detail = caption(frame, 42, 12, false, 3)
+	local detail = caption(frame, 88, 12, false, 3)
 	local action = Controls.button(frame, "", "primary")
 	action.Size = UDim2.new(1, 0, 0, 30)
 	action.TextSize = 13

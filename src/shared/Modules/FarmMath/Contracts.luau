@@ -91,11 +91,7 @@ function Contracts.offers(save: PlayerSave, now: number, bonus: number?): { Offe
 			lines = lines,
 			worth = worth,
 			rewardFactor = tier.rewardFactor,
-			reward = Contracts.reward(
-				worth,
-				tier.rewardFactor,
-				(bonus or 0) + Core.getEquippedBonus(save, "contractBonus")
-			),
+			reward = Contracts.reward(worth, tier.rewardFactor, (bonus or 0) + Core.getBonus(save, "contractBonus")),
 		})
 	end
 	return offers

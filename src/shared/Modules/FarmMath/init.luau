@@ -30,6 +30,8 @@ FarmMath.formatRate = Format.formatRate
 -- Core
 FarmMath.applyDerived = Core.applyDerived
 FarmMath.getEquippedBonus = Core.getEquippedBonus
+FarmMath.getBonus = Core.getBonus
+FarmMath.getUpgradeBonus = Core.getUpgradeBonus
 FarmMath.getEquippedMultiplier = Core.getEquippedMultiplier
 FarmMath.getUpgradeCost = Core.getUpgradeCost
 FarmMath.hasAutoCollect = Core.hasAutoCollect

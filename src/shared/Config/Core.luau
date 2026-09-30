@@ -9,7 +9,7 @@ return {
 	MAIN_FARM_LIMIT = 6,
 
 	-- Arayüz dilleri. Kaynak dil Türkçe; diğerleri src/shared/Locales/<kod>.luau içinde.
-	-- countries: oyuncunun Roblox dili desteklenmiyorsa ülkesinden seçilen dil (ISO 3166-1 alpha-2).
+	-- countries: kullanılmıyor (başlangıç dili yalnızca Roblox sistem dilinden; desteklenmiyorsa İngilizce).
 	LANGUAGE_ORDER = { "tr", "en", "de", "ru" },
 
 	-- Grafik tercihi (hesaba kaydedilir): auto = cihaza ve kare hızına göre otomatik

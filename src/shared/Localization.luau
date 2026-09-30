@@ -236,19 +236,12 @@ local function apply(code: string)
 	end
 end
 
--- Roblox dili (LocaleId, ör. "tr-tr") öncelikli; desteklenmiyorsa ülkeden, o da yoksa varsayılan dil.
-function Localization.detect(localeId: string?, country: string?): string
+-- Başlangıç dili: oyuncunun Roblox (sistem) dili desteklenen bir dilse o; desteklenmiyorsa İngilizce (DEFAULT_LANGUAGE).
+-- Ülkeye bakılmaz. Ayarlar'dan seçilen ve kaydedilen dil (SavedLanguage) bunun önüne geçer.
+function Localization.detect(localeId: string?): string
 	local language = if localeId then string.lower(string.match(localeId, "^%a+") or "") else ""
 	if Config.LANGUAGES[language] then
 		return language
-	end
-	if country then
-		local upper = string.upper(country)
-		for _, code in Config.LANGUAGE_ORDER do
-			if table.find(Config.LANGUAGES[code].countries, upper) then
-				return code
-			end
-		end
 	end
 	return Config.DEFAULT_LANGUAGE
 end
@@ -266,22 +259,7 @@ end
 
 if RunService:IsClient() then
 	local player = Players.LocalPlayer
-	apply(Localization.detect(player.LocaleId, nil))
-	-- Ülkeye bakmak ağ isteğidir; yalnızca Roblox dili desteklenmiyorsa gerekir.
-	if not Config.LANGUAGES[string.lower(string.match(player.LocaleId, "^%a+") or "")] then
-		task.spawn(function()
-			local ok, region = pcall(function()
-				return game:GetService("LocalizationService"):GetCountryRegionForPlayerAsync(player)
-			end)
-			if
-				ok
-				and typeof(region) == "string"
-				and not Localization.isSupported(player:GetAttribute("SavedLanguage"))
-			then
-				apply(Localization.detect(nil, region))
-			end
-		end)
-	end
+	apply(Localization.detect(player.LocaleId))
 
 	-- Sunucudaki kayıtlı tercih (boş metin = hiç seçilmemiş) otomatik algılamanın önüne geçer.
 	local function applySaved()

@@ -202,13 +202,14 @@ function Income.computeOfflineEarnings(save: PlayerSave, lastSeen: number, now: 
 		return 0
 	end
 	local endedAt = math.min(now, lastSeen + Config.OFFLINE_MAX_HOURS * 3600)
-	local potential = Income.computeIncomeOverInterval(save, lastSeen, endedAt, true) * Config.OFFLINE_EARNING_RATE
+	local rate = Config.OFFLINE_EARNING_RATE * (1 + Core.getBonus(save, "offlineBonus"))
+	local potential = Income.computeIncomeOverInterval(save, lastSeen, endedAt, true) * rate
 	return math.floor(math.max(0, math.min(potential, Income.getOfflineCap(save))))
 end
 
 -- Çevrimdışı kazancın üst sınırı (kasaya eklenir, depoyu doldurmaz)
 function Income.getOfflineCap(save: PlayerSave): number
-	return Core.getStorageCap(save) * Config.OFFLINE_STORAGE_MULTIPLIER
+	return Core.getStorageCap(save) * Config.OFFLINE_STORAGE_MULTIPLIER * (1 + Core.getBonus(save, "offlineBonus"))
 end
 
 return Income

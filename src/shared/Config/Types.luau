@@ -124,6 +124,10 @@ export type ItemEffects = {
 	incomeBonus: number?, -- Bütün gelir (0.03 = +%3)
 	contractBonus: number?, -- Ahır siparişi ödülü (0.06 = +%6)
 	goodsYield: number?, -- Ürün merkezlerinin teslim miktarı (0.1 = +%10)
+	facilitySpeed: number?, -- Üretim tesisi süreleri kısalır (0.05 = %5)
+	sellBonus: number?, -- Hayvan satış geliri (0.05 = +%5)
+	offlineBonus: number?, -- Çevrimdışı kazanç (0.1 = +%10)
+	expansionDiscount: number?, -- Bölge/tesis geliştirme maliyeti indirimi (0.03 = -%3)
 }
 export type ItemPower = { kind: string, usesPerDay: number? } -- kind: season | weather; usesPerDay nil = sınırsız
 export type ItemConfig = {
@@ -190,6 +194,13 @@ export type UpgradeConfig = {
 	growthSpeed: number?, -- Tüm hayvanların büyüme hızı çarpanı
 	growthBoost: { [string]: number }?, -- animalId -> büyüme hızı çarpanı
 	storageBonus: number?, -- Depo kapasitesine ek (0.25 = +%25)
+	-- Genel kalıcı fayda anahtarları (yükseltme alınınca geçerli; takılı eşya etkileriyle toplanır: Core.getBonus)
+	facilitySpeed: number?, -- Üretim tesisi süreleri kısalır (0.12 = %12)
+	contractBonus: number?, -- Ahır siparişi ödülü (0.08 = +%8)
+	goodsYield: number?, -- Ürün merkezi teslim miktarı (0.1 = +%10)
+	sellBonus: number?, -- Hayvan satış geliri (0.15 = +%15)
+	offlineBonus: number?, -- Çevrimdışı kazanç (0.25 = +%25)
+	expansionDiscount: number?, -- Bölge/tesis geliştirme maliyeti indirimi (0.08 = -%8)
 	autoCollect: boolean?, -- Depo yerine para doğrudan kasaya
 	extensionId: string?, -- kind == "extension" → Config.EXTENSIONS; kind == "level" ile eklenti kapasite yükseltmesi
 	extensionCapacity: number?, -- Eklenti kapasite yükseltmesi: +1 hayvan (kind == "level", extensionId ile)

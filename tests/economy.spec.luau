@@ -602,5 +602,33 @@ return function(FarmMath: any, Config: any, Environment: any)
 			end
 		end
 	end
+	-- Ada özellikleri ve eşya etkileri: hayvandan bağımsız genel faydalar (Core.getBonus = eşya + yükseltme)
+	local perks = saveAt(start)
+	perks.animals = {
+		{ uid = "p1", animalId = "cow", zoneId = "starter", bornAt = 0, stage = "adult" },
+		{ uid = "p2", animalId = "cow", zoneId = "starter", bornAt = 0, stage = "adult" },
+	}
+	perks.purchased = { milk_factory = true, milk_center = true }
+	FarmMath.applyDerived(perks)
+	local milkRecipe = Config.PRODUCTION_RECIPES.milk_goods
+	local baseDuration = FarmMath.getFacilityDuration(perks, milkRecipe)
+	local baseSell = FarmMath.getSellPrice(perks, "cow")
+	local baseExpand = FarmMath.getExpansionCost(perks, "starter")
+	local baseOffline = FarmMath.getOfflineCap(perks)
+	perks.purchased.island_poultry = true
+	assert(FarmMath.getFacilityDuration(perks, milkRecipe) < baseDuration, "the poultry island speeds production up")
+	perks.purchased.island_duck = true
+	assert(FarmMath.getSellPrice(perks, "cow") > baseSell, "the duck island raises sale prices")
+	perks.purchased.island_pig = true
+	assert(FarmMath.getExpansionCost(perks, "starter") < baseExpand, "the pig island cuts upgrade costs")
+	perks.purchased.island_goat = true
+	assert(FarmMath.getOfflineCap(perks) > baseOffline, "the goat island raises offline earnings")
+	-- Takılı eşya aynı anahtarlara eklenir
+	perks.inventory = { items = { diamond_hammer = true }, equipped = { tool = "diamond_hammer" } }
+	assert(
+		FarmMath.getBonus(perks, "expansionDiscount") > FarmMath.getUpgradeBonus(perks, "expansionDiscount"),
+		"items add to island perks"
+	)
+	assert(FarmMath.getBonus(perks, "sellBonus") > 0.15, "the diamond hammer adds sell bonus on top of the island")
 	print("PASS economy: growth boundaries, integrated offline/elapsed income, cap, growth upgrade, fish pricing")
 end

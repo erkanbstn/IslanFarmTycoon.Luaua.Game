@@ -144,7 +144,7 @@ function Production.getGoodsYield(
 	)
 	local bonus = extra * Config.PRODUCTION_BONUS_PER_ADULT
 	local facilityYield = 1 + Expansion.getBuildBonus(save, recipe.id, "yield")
-	local charm = 1 + Core.getEquippedBonus(save, "goodsYield") -- takılı ambar muskası
+	local charm = 1 + Core.getBonus(save, "goodsYield") -- takılı ambar muskası
 	local amount = math.floor(recipe.goodsAmount * (1 + bonus) * facilityYield * charm)
 	if job and job.forgone then
 		local floorAmount = math.ceil(

@@ -32,6 +32,7 @@ return function(codec: any, config: any, farmMath: any)
 
 	-- Teklifler: kademe başına bir teklif; satır sayısı kademeyle artar, ödül ürün değerinin üstündedir
 	local save = newSave(true)
+	local islandBonus = farmMath.getBonus(save, "contractBonus") -- ada yükseltmelerinden gelen sipariş bonusu (At Adası)
 	local offers = farmMath.getContractOffers(save, now, 0)
 	assert(#offers == #config.GOODS_CONTRACTS.tiers, "one offer per tier")
 	local cap = farmMath.getGoodsCap(save)
@@ -47,13 +48,19 @@ return function(codec: any, config: any, farmMath: any)
 			assert(line.amount >= 1 and line.amount <= cap, "amounts always fit in the barn")
 			worth += line.amount * config.GOODS[line.goodsId].value
 		end
-		assert(offer.worth == worth and offer.reward == math.floor(worth * tier.rewardFactor), "reward follows worth")
+		assert(
+			offer.worth == worth and offer.reward == math.floor(worth * tier.rewardFactor * (1 + islandBonus)),
+			"reward follows worth"
+		)
 		assert(offer.reward > worth, "delivering beats the raw goods value")
 		assert(tier.rewardFactor > previousFactor, "bigger tiers pay a better rate")
 		previousFactor = tier.rewardFactor
 	end
 	local seasonal = farmMath.getContractOffers(save, now, 0.5)
-	assert(seasonal[1].reward == math.floor(offers[1].worth * offers[1].rewardFactor * 1.5), "season bonus applies")
+	assert(
+		seasonal[1].reward == math.floor(offers[1].worth * offers[1].rewardFactor * (1.5 + islandBonus)),
+		"season bonus applies"
+	)
 	-- Takılı muskalar: sipariş ödülü ve ürün merkezi verimi artar
 	local milkRecipe = config.PRODUCTION_RECIPES.milk_goods
 	local plainYield = farmMath.getGoodsYield(save, milkRecipe, now)
@@ -63,7 +70,10 @@ return function(codec: any, config: any, farmMath: any)
 	}
 	local charmed = farmMath.getContractOffers(save, now, 0)
 	assert(charmed[1].reward > offers[1].reward, "the merchant ledger raises delivery rewards")
-	assert(charmed[1].reward == math.floor(offers[1].worth * offers[1].rewardFactor * (1 + 0.14)), "exact charm bonus")
+	assert(
+		charmed[1].reward == math.floor(offers[1].worth * offers[1].rewardFactor * (1 + 0.14 + islandBonus)),
+		"exact charm bonus"
+	)
 	save.inventory.equipped = { charm = "barn_charm_2" }
 	assert(farmMath.getGoodsYield(save, milkRecipe, now) > plainYield, "the barn key raises production center yield")
 	save.inventory = nil

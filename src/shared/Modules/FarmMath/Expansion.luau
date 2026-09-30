@@ -144,6 +144,7 @@ function Expansion.getExpansionCost(save: PlayerSave, targetId: string): number
 	else
 		return math.huge
 	end
+	raw *= 1 - math.clamp(Core.getBonus(save, "expansionDiscount"), 0, 0.5)
 	local step = 10 ^ (math.floor(math.log10(raw)) - 1)
 	return math.floor(raw / step + 0.5) * step
 end
@@ -189,7 +190,8 @@ function Expansion.getFacilityDuration(
 	optionId: string?
 ): number
 	local resolved = Recipes.resolve(recipe, optionId)
-	return math.max(10, math.floor(resolved.duration * Expansion.getBuildMultiplier(save, recipe.id, "speed")))
+	local faster = 1 - math.clamp(Core.getBonus(save, "facilitySpeed"), 0, 0.5) -- eşya ve ada özellikleri
+	return math.max(10, math.floor(resolved.duration * Expansion.getBuildMultiplier(save, recipe.id, "speed") * faster))
 end
 
 -- Başlatma ücreti; ücretsiz (cost = 0) para tesislerinde 0, diğerlerinde en az 1

@@ -165,7 +165,9 @@ return function(createService: any, createLimiter: any, codec: any, config: any,
 	local cashBefore = data.cash
 	assert(fire(small.key).ok, "a small offer is delivered")
 	assert(
-		data.cash - cashBefore == small.reward and small.reward == math.floor(small.worth * small.rewardFactor * 1.5),
+		data.cash - cashBefore == small.reward
+			and small.reward
+				== math.floor(small.worth * small.rewardFactor * (1.5 + farmMath.getBonus(data, "contractBonus"))),
 		"the season bonus applies"
 	)
 

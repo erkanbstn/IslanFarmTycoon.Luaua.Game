@@ -10,6 +10,7 @@ local Players = game:GetService("Players")
 local Tokens = require(script.Parent:WaitForChild("Tokens"))
 local Base = require(script.Parent:WaitForChild("Base"))
 local Controls = require(script.Parent:WaitForChild("Controls"))
+local Sfx = require(script.Parent.Parent.Parent:WaitForChild("Core"):WaitForChild("Sfx"))
 
 local Windows = {}
 
@@ -137,6 +138,7 @@ function Windows.window(parent: Instance, options: WindowOptions): Window
 			selectedBefore = GuiService.SelectedObject
 			resize()
 			frame.Visible = true
+			Sfx.play("ui_open", 0.04)
 			if UserInputService.GamepadEnabled then
 				GuiService.SelectedObject = close
 			end
@@ -148,6 +150,9 @@ function Windows.window(parent: Instance, options: WindowOptions): Window
 		close = function()
 			if frame.Visible and GuiService.SelectedObject and GuiService.SelectedObject:IsDescendantOf(frame) then
 				GuiService.SelectedObject = if selectedBefore and selectedBefore.Parent then selectedBefore else nil
+			end
+			if frame.Visible then
+				Sfx.play("ui_close", 0.04)
 			end
 			frame.Visible = false
 		end,
