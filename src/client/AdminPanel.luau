@@ -270,6 +270,9 @@ local function create(parent: ScreenGui): UiKit.Window
 	choices("forceGolden", { { id = "now", label = "Altın hayvanı çağır" } }, 41)
 	choices("completeSeason", { { id = "now", label = "Mevsim hedefini tamamla" } }, 42)
 	choices("resetEvents", { { id = "now", label = "Olayları ve mevsim hedefini sıfırla" } }, 43)
+	UiKit.text(created.list, "Envanter (test)", "Heading").LayoutOrder = 44
+	choices("grantItems", { { id = "now", label = "Bütün eşyaları ver (takmaz)" } }, 45)
+	choices("clearItems", { { id = "now", label = "Envanteri boşalt" } }, 46)
 
 	local function choiceLabel(options: { { id: string, label: string } }, value: string): string
 		for _, option in options do

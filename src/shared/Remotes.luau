@@ -20,6 +20,9 @@ export type EventName =
 	| "RequestClaimSeasonal"
 	| "RequestBuyMerchantOffer"
 	| "RequestClaimGolden"
+	| "RequestBuyItem"
+	| "RequestEquipItem"
+	| "RequestUseItem"
 	| "RequestBuyAnimal"
 	| "RequestReplaceFish"
 	| "PurchaseResult"
@@ -59,6 +62,9 @@ local EVENTS = {
 	"RequestClaimSeasonal", -- Client -> Sunucu mevsim hedefi ödülünü al (_, requestId)
 	"RequestBuyMerchantOffer", -- Client -> Sunucu gezgin tüccarın teklifini al (_, requestId, expectedFarmId)
 	"RequestClaimGolden", -- Client -> Sunucu altın hayvan ödülünü al (_, requestId, expectedFarmId)
+	"RequestBuyItem", -- Client -> Sunucu eşya satın al (itemId, requestId)
+	"RequestEquipItem", -- Client -> Sunucu eşyayı tak / çıkar (itemId, requestId)
+	"RequestUseItem", -- Client -> Sunucu asa gücünü kullan (itemId, requestId, expectedFarmId, argüman: mevsim/hava kimliği)
 	"RequestBuyAnimal", -- Client -> Sunucu hayvan satın alma (animalId)
 	"RequestReplaceFish", -- Client -> Sunucu hamsiyi levrekle değiştir (uid, requestId)
 	"PurchaseResult", -- Sunucu -> Client (requestId, success, message?)

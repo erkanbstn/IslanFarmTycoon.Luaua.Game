@@ -26,7 +26,7 @@ local MAX_LOOK_YAW = 0.9
 -- Her satıcı işine göre iki selam arasında dönüşümlü konuşur (çeviri Localizer'da)
 local GREETINGS: { [string]: { string } } = {
 	orders = { "Merhaba! Günün siparişlerine göz at.", "Siparişleri zamanında teslim et, ödülü büyük!" },
-	store = { "Dükkânım çok yakında açılıyor!", "Destek paketleri için biraz daha sabır." },
+	store = { "Çekiç, asa, muska... hepsi burada!", "Bir kez al, ömür boyu faydasını gör." },
 	roadmap = {
 		"Sıradaki hedefini mi arıyorsun? Yol haritası bende.",
 		"Her yatırım çiftliğini büyütür, sırayı sen seç.",

@@ -47,9 +47,54 @@ function FarmMath.applyDerived(save: PlayerSave)
 	save.unlockedZones = zones
 end
 
--- Bir hayvan türünün büyüme hızı: genel güçlendirmeler (silo) x o türe özel (ör. Tavuk Adası)
+-- Takılı eşyaların etkileri (envanter): slot başına bir eşya; sahiplik ve slot uyumu kayıtta doğrulanır.
+local function forEachEquippedEffect(save: PlayerSave, key: string, apply: (value: number) -> ())
+	local inventory = save.inventory
+	if not inventory or not inventory.equipped or not inventory.items then
+		return
+	end
+	for _, itemId in inventory.equipped do
+		local item = Config.ITEMS[itemId]
+		local value = if item and item.effects and inventory.items[itemId] then (item.effects :: any)[key] else nil
+		if typeof(value) == "number" and isFinite(value) then
+			apply(value)
+		end
+	end
+end
+
+-- Toplanan etkiler: upgradeDiscount, storageBonus, incomeBonus
+function FarmMath.getEquippedBonus(save: PlayerSave, key: string): number
+	local total = 0
+	forEachEquippedEffect(save, key, function(value: number)
+		total += value
+	end)
+	return total
+end
+
+-- Çarpılan etki: growthSpeed
+function FarmMath.getEquippedMultiplier(save: PlayerSave, key: string): number
+	local product = 1
+	forEachEquippedEffect(save, key, function(value: number)
+		product *= value
+	end)
+	return product
+end
+
+-- Yükseltmenin bu oyuncu için maliyeti: takılı alet indirimi uygulanır (en az 1). Gösterim ve tahsilat aynı işlevi kullanır.
+function FarmMath.getUpgradeCost(save: PlayerSave?, upgrade: Config.UpgradeConfig): number
+	if not save then
+		return upgrade.cost
+	end
+	local discount = math.clamp(FarmMath.getEquippedBonus(save, "upgradeDiscount"), 0, 0.9)
+	if discount <= 0 then
+		return upgrade.cost
+	end
+	return math.max(1, math.floor(upgrade.cost * (1 - discount)))
+end
+
+-- Bir hayvan türünün büyüme hızı: genel güçlendirmeler (silo) x o türe özel (ör. Tavuk Adası) x takılı muska
 function FarmMath.getGrowthSpeed(save: PlayerSave, animalId: string): number
-	local speed = 1
+	local speed = FarmMath.getEquippedMultiplier(save, "growthSpeed")
 	for _, upgrade in Config.UPGRADES do
 		if not save.purchased[upgrade.id] then
 			continue
@@ -103,6 +148,7 @@ function FarmMath.getStorageCap(save: PlayerSave): number
 			bonus += upgrade.storageBonus
 		end
 	end
+	bonus += FarmMath.getEquippedBonus(save, "storageBonus")
 	-- Oyun geçidi: ekstra depo
 	for key, pass in Config.PRODUCTS.passes do
 		if pass.storageBonus and save.passes and save.passes[key] then
@@ -228,6 +274,7 @@ function FarmMath.getAnimalMultiplier(save: PlayerSave, animalId: string, neutra
 			end
 		end
 	end
+	bonus += FarmMath.getEquippedBonus(save, "incomeBonus")
 	-- Irk geliştirme: her seviye bu türün gelirini incomePerLevel kadar artırır
 	bonus += FarmMath.getLineageLevel(save, animalId) * Config.LINEAGE.incomePerLevel
 	-- Oyun geçidi çarpanı (sunucu doğrular; client yalnızca gösterir)

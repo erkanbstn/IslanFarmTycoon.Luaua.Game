@@ -36,6 +36,8 @@ function AdminPolicy.validAction(value: unknown): boolean
 		or value == "forceGolden"
 		or value == "completeSeason"
 		or value == "resetEvents"
+		or value == "grantItems"
+		or value == "clearItems"
 end
 
 return AdminPolicy

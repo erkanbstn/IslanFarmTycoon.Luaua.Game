@@ -341,6 +341,30 @@ return function(policy: any, createService: any, createLimiter: any, config: any
 			and data.golden == nil,
 		"resetEvents clears every event marker"
 	)
+	-- Envanter test araçları
+	now += 1
+	fire(stranger, "grantItems", "now", 216)
+	assert(data.inventory == nil, "strangers cannot grant items")
+	now += 1
+	fire(owner, "grantItems", "now", 217)
+	local itemCount, total = 0, 0
+	for itemId in config.ITEMS do
+		total += 1
+		if data.inventory.items[itemId] then
+			itemCount += 1
+		end
+	end
+	assert(
+		results[#results].ok and itemCount == total and next(data.inventory.equipped) == nil,
+		"grantItems gives every item without equipping"
+	)
+	now += 1
+	data.inventory.equipped.tool = "copper_hammer"
+	fire(owner, "clearItems", "now", 218)
+	assert(
+		results[#results].ok and next(data.inventory.items) == nil and next(data.inventory.equipped) == nil,
+		"clearItems empties the inventory"
+	)
 	owner.attributes.SelectedFarmIsland = nil
 	local newcomer = makePlayer(43)
 	players.PlayerAdded.fire(newcomer)

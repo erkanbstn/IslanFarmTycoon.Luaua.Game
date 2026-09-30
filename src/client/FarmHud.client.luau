@@ -33,6 +33,8 @@ local RewardsSection = require(Hud:WaitForChild("RewardsSection"))
 local BoardSection = require(Hud:WaitForChild("BoardSection"))
 local SeasonBar = require(Hud:WaitForChild("SeasonBar"))
 local Onboarding = require(Hud:WaitForChild("Onboarding"))
+local ItemShopWindow = require(Hud:WaitForChild("ItemShopWindow"))
+local InventoryWindow = require(Hud:WaitForChild("InventoryWindow"))
 local IslandTabs = require(Hud:WaitForChild("IslandTabs"))
 local ShopWindow = require(Hud:WaitForChild("ShopWindow"))
 local RoadmapWindow = require(Hud:WaitForChild("RoadmapWindow"))
@@ -104,6 +106,11 @@ local storeWindow = UiKit.window(screenGui, {
 table.insert(centerWindows, goalsWindow)
 table.insert(centerWindows, boardWindow)
 table.insert(centerWindows, storeWindow)
+-- Eşya Dükkânı (meydandaki satıcı) ve Envanter: ortadaki pencereler, birbirini kapatır
+local itemShop = ItemShopWindow.create(screenGui)
+local inventoryPanel = InventoryWindow.create(screenGui)
+table.insert(centerWindows, itemShop.window)
+table.insert(centerWindows, inventoryPanel.window)
 
 ---------------------------------------------------------------------------
 -- Sol panel: para, gelir, depo, mevsim, sıradaki hedef
@@ -293,6 +300,14 @@ local goalsButton = UiKit.menuButton(dock, "🏆", "Çiftliğim", Color.Gold, ni
 goalsButton.Activated:Connect(function()
 	openCenter(goalsWindow)
 end)
+local inventoryButton = UiKit.menuButton(dock, "🎒", "Envanter", Color.Orange, if hasKeyboard then "B" else nil)
+inventoryButton.Activated:Connect(function()
+	if inventoryPanel.window.isOpen() then
+		inventoryPanel.window.close()
+	else
+		openCenter(inventoryPanel.window)
+	end
+end)
 local homeButton = UiKit.menuButton(dock, "🏠", "Adama Dön", Color.Orange, nil)
 local settingsButton = UiKit.menuButton(dock, "⚙️", "Ayarlar", Color.TextMuted, nil)
 local adminButton = UiKit.menuButton(dock, "🔑", "Yönetici", Color.Gold, nil)
@@ -306,6 +321,7 @@ local menuEntries: { MenuEntry } = {
 	{ button = productionButton, compactDock = false },
 	{ button = islandsButton, compactDock = false },
 	{ button = goalsButton, compactDock = true },
+	{ button = inventoryButton, compactDock = false },
 	{ button = homeButton, compactDock = false },
 	{ button = settingsButton, compactDock = false },
 	{ button = adminButton, compactDock = false },
@@ -399,7 +415,7 @@ local vendorActions: { [string]: () -> () } = {
 		openCenter(boardWindow)
 	end,
 	store = function()
-		openCenter(storeWindow)
+		openCenter(itemShop.window)
 	end,
 	roadmap = function()
 		if not roadmapWindow.isOpen() then
@@ -441,6 +457,12 @@ UserInputService.InputBegan:Connect(function(input: InputObject, gameProcessed: 
 		toggleWindow(upgradesWindow)
 	elseif input.KeyCode == Enum.KeyCode.I then
 		IslandManager.open()
+	elseif input.KeyCode == Enum.KeyCode.B then
+		if inventoryPanel.window.isOpen() then
+			inventoryPanel.window.close()
+		else
+			openCenter(inventoryPanel.window)
+		end
 	end
 end)
 
@@ -540,7 +562,7 @@ local function updateBadges(state: PlayerSave)
 			upgrade.kind ~= "island"
 			and IslandContext.upgradeIsland(upgrade) == IslandContext.get()
 			and FarmMath.getUpgradeStatus(state, upgrade.id) == "available"
-			and state.cash >= upgrade.cost
+			and state.cash >= FarmMath.getUpgradeCost(state, upgrade)
 		then
 			upgrades += 1
 		end
@@ -560,12 +582,12 @@ local function updateGoal(state: PlayerSave, income: number)
 	for _, upgrade in Config.UPGRADES do
 		if
 			FarmMath.getUpgradeStatus(state, upgrade.id) == "available"
-			and (not cheapest or upgrade.cost < cheapest.cost)
+			and (not cheapest or FarmMath.getUpgradeCost(state, upgrade) < FarmMath.getUpgradeCost(state, cheapest))
 		then
 			cheapest = upgrade
 		end
 	end
-	local step = onboarding.apply(state, cheapest ~= nil and state.cash >= cheapest.cost)
+	local step = onboarding.apply(state, cheapest ~= nil and state.cash >= FarmMath.getUpgradeCost(state, cheapest))
 	if step == 2 then
 		goalTitle.Text = "İLK ADIMLAR 2/3"
 		goalLabel.Text = "Yeşil platforma basıp parayı topla"
@@ -573,8 +595,10 @@ local function updateGoal(state: PlayerSave, income: number)
 		return
 	elseif step == 3 and cheapest then
 		goalTitle.Text = "İLK ADIMLAR 3/3"
-		goalLabel.Text = `İlk yükseltme: {cheapest.displayName} · {FarmMath.formatMoney(cheapest.cost)}`
-		goalDetail.Text = purchaseHint(state, cheapest.cost, income)
+		goalLabel.Text = `İlk yükseltme: {cheapest.displayName} · {FarmMath.formatMoney(
+			FarmMath.getUpgradeCost(state, cheapest)
+		)}`
+		goalDetail.Text = purchaseHint(state, FarmMath.getUpgradeCost(state, cheapest), income)
 		return
 	end
 	if step == 1 then
@@ -592,7 +616,11 @@ local function updateGoal(state: PlayerSave, income: number)
 		local status = FarmMath.getUpgradeStatus(state, upgrade.id)
 		local useful = upgrade.id ~= "zone_pasture"
 			or FarmMath.countInZone(state, "starter") >= FarmMath.getZoneCapacity(state, "starter")
-		if useful and status == "available" and (not best or upgrade.cost < best.cost) then
+		if
+			useful
+			and status == "available"
+			and (not best or FarmMath.getUpgradeCost(state, upgrade) < FarmMath.getUpgradeCost(state, best))
+		then
 			best = upgrade
 		end
 	end
@@ -606,8 +634,8 @@ local function updateGoal(state: PlayerSave, income: number)
 		end
 	end
 	if best then
-		goalLabel.Text = `{best.displayName} · {FarmMath.formatMoney(best.cost)}`
-		goalDetail.Text = purchaseHint(state, best.cost, income)
+		goalLabel.Text = `{best.displayName} · {FarmMath.formatMoney(FarmMath.getUpgradeCost(state, best))}`
+		goalDetail.Text = purchaseHint(state, FarmMath.getUpgradeCost(state, best), income)
 		return
 	end
 	-- Yükseltme kalmadı: oyun sonu yatırımları (en ucuz ırk seviyesi ya da alan genişletmesi) hedef olur
@@ -708,12 +736,12 @@ local function updateIslandGoal(state: PlayerSave, income: number)
 		return
 	end
 	islandChip.Text = island.icon
-	islandName.Text = `{island.displayName} · {FarmMath.formatMoney(upgrade.cost)}`
+	islandName.Text = `{island.displayName} · {FarmMath.formatMoney(FarmMath.getUpgradeCost(state, upgrade))}`
 	islandTrait.Text = island.trait
 	local status, missing = FarmMath.getUpgradeStatus(state, upgrade.id)
 	islandEta.Text = if status == "locked"
 		then `Önce: {table.concat(missing, ", ")}`
-		else purchaseHint(state, upgrade.cost, income)
+		else purchaseHint(state, FarmMath.getUpgradeCost(state, upgrade), income)
 end
 
 local shopDirty, roadmapDirty, upgradesDirty = true, true, true
@@ -761,6 +789,12 @@ local function onState(state: PlayerSave, structural: boolean)
 	updateGoal(state, income)
 	updateRewards(state)
 	updateBoard(state)
+	if itemShop.window.isOpen() then
+		itemShop.update(state)
+	end
+	if inventoryPanel.window.isOpen() then
+		inventoryPanel.update(state)
+	end
 	shopDirty = shopDirty or structural
 	roadmapDirty = roadmapDirty or structural
 	upgradesDirty = upgradesDirty or structural
@@ -789,6 +823,16 @@ local function redraw()
 		onState(state, true)
 	end
 end
+itemShop.window.frame:GetPropertyChangedSignal("Visible"):Connect(function()
+	if itemShop.window.isOpen() then
+		redraw()
+	end
+end)
+inventoryPanel.window.frame:GetPropertyChangedSignal("Visible"):Connect(function()
+	if inventoryPanel.window.isOpen() then
+		redraw()
+	end
+end)
 shopWindow.frame:GetPropertyChangedSignal("Visible"):Connect(function()
 	if shopWindow.isOpen() then
 		redraw()

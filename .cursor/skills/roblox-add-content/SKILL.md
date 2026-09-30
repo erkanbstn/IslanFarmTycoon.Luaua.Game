@@ -18,6 +18,7 @@ Tek kaynak `src/shared/Config.luau`. Önce benzer mevcut kaydı bul ve aynı ala
 | Eklenti | `EXTENSIONS` + kind extension upgrade | `ExtensionVisualService` |
 | Üretim | `PRODUCTION_RECIPES` | `ProductionRules`, `IslandSpecialization` |
 | Mevsim/hava | `SEASONS`, `WEATHER` (incomeModifiers) | `WeatherEffects` WEATHER_LOOK, `SEASON_TINT` |
+| Eşya (çekiç, asa, muska, kozmetik) | `Config.ITEMS` (+ `ITEM_SLOTS`) — `effects`/`power`/`look` | etki `FarmMath`'te okunur; çeviri (ad + şablon); `tests/inventory.spec.luau` |
 
 ## Adımlar
 ```

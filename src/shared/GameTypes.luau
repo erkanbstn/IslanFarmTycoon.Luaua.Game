@@ -31,6 +31,12 @@ export type MainFarmSummary = {
 }
 export type SeasonalGoal = { key: number, progress: number, target: number, base: number, claimed: boolean }
 
+export type InventoryData = {
+	items: { [string]: boolean },
+	equipped: { [string]: string },
+	uses: { [string]: { day: number, count: number, last: number } },
+}
+
 export type PlayerSave = {
 	activeMainFarmId: string,
 	farmId: string?, -- Yalnızca etkin olmayan çiftlik görünümlerinde: o çiftliğin numarası (tema için)
@@ -39,6 +45,7 @@ export type PlayerSave = {
 	lifetimeEarned: number?, -- Ömür boyu kazanç (başarımlar için)
 	daily: { day: number, streak: number }?, -- Günlük ödül: son alınan gün (UTC gün numarası) ve seri
 	achievements: { [string]: boolean }?, -- Ödülü alınmış başarımlar
+	inventory: InventoryData?, -- Envanter (hesap düzeyi): sahip olunan, takılı eşyalar ve asa hakları
 	golden: { key: number }?, -- Altın hayvan: ödülü alınan son pencerenin döngü numarası
 	merchant: { key: number, bought: boolean }?, -- Gezgin tüccar: son teklifin döngü numarası ve alınıp alınmadığı
 	seasonal: SeasonalGoal?, -- Şu anki mevsim hedefi (hesap düzeyi; key = mevsim numarası)

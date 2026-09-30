@@ -104,7 +104,14 @@ local function disc(
 end
 
 -- Taş kaide + parlayan halka + havada dönen altın para; renk (yeterli/yetersiz) client'ta halkaya uygulanır.
-local function buildPad(container: Model, plot: Model, frame: CFrame, upgrade: Config.UpgradeConfig, slot: Vector2)
+local function buildPad(
+	container: Model,
+	plot: Model,
+	frame: CFrame,
+	upgrade: Config.UpgradeConfig,
+	slot: Vector2,
+	cost: number
+)
 	local origin = frame * CFrame.new(slot.X, 0, slot.Y)
 	local pad = disc(
 		container,
@@ -118,7 +125,7 @@ local function buildPad(container: Model, plot: Model, frame: CFrame, upgrade: C
 	local ring =
 		disc(container, "Ring", 4.4, 0.12, origin * CFrame.new(0, 0.56, 0), UiTheme.Color.Disabled, Enum.Material.Neon)
 	ring:SetAttribute("UpgradeId", upgrade.id)
-	ring:SetAttribute("Cost", upgrade.cost)
+	ring:SetAttribute("Cost", cost)
 	CollectionService:AddTag(ring, "BuyPad")
 	disc(
 		container,
@@ -139,13 +146,13 @@ local function buildPad(container: Model, plot: Model, frame: CFrame, upgrade: C
 	coin.Material = Enum.Material.Metal
 	coin.Anchored = true
 	coin.CanCollide, coin.CanTouch, coin.CanQuery, coin.CastShadow = false, false, false, false
-	coin:SetAttribute("Cost", upgrade.cost)
+	coin:SetAttribute("Cost", cost)
 	coin:SetAttribute("BasePos", coinPosition)
 	coin.Parent = container
 	CollectionService:AddTag(coin, "BuyPadSpin")
 
 	WorldUi.tag(pad, "PadTag", {
-		text = `{upgrade.displayName} · {FarmMath.formatMoney(upgrade.cost)}`,
+		text = `{upgrade.displayName} · {FarmMath.formatMoney(cost)}`,
 		icon = upgrade.icon,
 		tint = UiTheme.Color.Gold,
 		widthStuds = 11,
@@ -186,7 +193,7 @@ function BuyPadService.clear(plot: Model)
 end
 
 function BuyPadService.apply(plot: Model, save: any)
-	local wanted: { { island: string, upgrade: Config.UpgradeConfig, slot: Vector2 } } = {}
+	local wanted: { { island: string, upgrade: Config.UpgradeConfig, slot: Vector2, cost: number } } = {}
 	local ids: { string } = {}
 	for _, islandId in Config.FARM_ISLAND_ORDER do
 		local slots = SLOTS[islandId] or SATELLITE_SLOTS
@@ -194,8 +201,10 @@ function BuyPadService.apply(plot: Model, save: any)
 			continue
 		end
 		for index, upgrade in BuyPadService.pickUpgrades(save, islandId, #slots) do
-			table.insert(wanted, { island = islandId, upgrade = upgrade, slot = slots[index] })
-			table.insert(ids, `{islandId}:{upgrade.id}`)
+			-- Fiyat takılı alet indirimine göre değişir: imzaya girer ki düğmeler eski fiyatla kalmasın
+			local cost = FarmMath.getUpgradeCost(save, upgrade)
+			table.insert(wanted, { island = islandId, upgrade = upgrade, slot = slots[index], cost = cost })
+			table.insert(ids, `{islandId}:{upgrade.id}:{cost}`)
 		end
 	end
 	local signature = table.concat(ids, ",")
@@ -215,7 +224,7 @@ function BuyPadService.apply(plot: Model, save: any)
 	for _, entry in wanted do
 		local frame = surfaceFrame(plot, entry.island)
 		if frame then
-			buildPad(container, plot, frame, entry.upgrade, entry.slot)
+			buildPad(container, plot, frame, entry.upgrade, entry.slot, entry.cost)
 		end
 	end
 	container.Parent = plot

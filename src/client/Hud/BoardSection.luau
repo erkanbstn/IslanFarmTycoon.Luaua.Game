@@ -22,6 +22,9 @@ local BoardSection = {}
 function BoardSection.create(list: Instance): (PlayerSave?) -> ()
 	local BOARD_ORDER = 60
 	local _, boardMeta = UiKit.sectionHeader(list, "Sipariş panosu", BOARD_ORDER)
+	local lockedNote =
+		UiKit.text(list, "Siparişler, yol haritasındaki her şey tamamlanınca açılır.", "Body", Color.TextMuted)
+	lockedNote.LayoutOrder = BOARD_ORDER - 1
 	local boardEvent = UiKit.text(list, "", "Caption", Color.Gold)
 	boardEvent.LayoutOrder = BOARD_ORDER + 1
 	local boardCards: { UiKit.Card } = {}
@@ -77,7 +80,8 @@ function BoardSection.create(list: Instance): (PlayerSave?) -> ()
 			return
 		end
 		boardSignature = signature
-		boardOffers = offers;
+		boardOffers = offers
+		lockedNote.Visible = not ordersUnlocked(state);
 		(boardMeta.Parent :: GuiObject).Visible = visible
 		boardEvent.Visible = visible and bonus > 0
 		if bonus > 0 and season.eventName then

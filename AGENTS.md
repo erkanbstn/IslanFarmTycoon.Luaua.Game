@@ -96,7 +96,7 @@ Tam metin `.cursor/skills/<ad>/SKILL.md` içindedir (`.claude/skills/<ad>/SKILL.
 - Buton tipleri: primary = alınabilir, warning = para yetmiyor, disabled = kilitli/dolu, owned = alındı.
 - HUD bölgeleri: sol orta `Stats` paneli, alt orta menü karoları (dar ekranda sağ orta 3 karo),
  sağda pencereler, üst ortada bildirimler. Sağ üst (oyuncu listesi) ve sol üst (sohbet) boş kalır.
- Ayrıntılı bilgi ana HUD'a değil "Çiftliğim" penceresine gider. Sipariş Panosu, Destek Dükkânı, Pazar, Yol Haritası ve Yükseltmeler
+ Ayrıntılı bilgi ana HUD'a değil "Çiftliğim" penceresine gider. Sipariş Panosu, Eşya Dükkânı, Envanter, Pazar, Yol Haritası ve Yükseltmeler
   ayrı pencerelerdir; pencere ve bölüm kodu `src/client/Hud/` altında, `FarmHud.client.luau` yalnızca orkestrasyondur.
 - Sunucu bildirim (Notify) metinlerine emoji koyma; bildirimin türü (success/error/money/info) işareti belirler.
 

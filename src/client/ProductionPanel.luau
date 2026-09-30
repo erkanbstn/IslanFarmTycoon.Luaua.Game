@@ -180,10 +180,12 @@ local function create(parent: ScreenGui): UiKit.Window
 							then `Önce: {table.concat(missing, ", ")}`
 							else "Önce üretim tesisini kur."
 					)
-				card.action.Text = if upgrade then `Tesisi kur · {FarmMath.formatMoney(upgrade.cost)}` else "Kilitli"
+				card.action.Text = if upgrade
+					then `Tesisi kur · {FarmMath.formatMoney(FarmMath.getUpgradeCost(state, upgrade))}`
+					else "Kilitli"
 				variant = if not upgrade or status == "locked"
 					then "disabled"
-					elseif state.cash >= upgrade.cost then "primary"
+					elseif state.cash >= FarmMath.getUpgradeCost(state, upgrade) then "primary"
 					else "warning"
 			else
 				local adults = FarmMath.countProductionAdults(state, recipe, now)

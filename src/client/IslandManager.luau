@@ -333,12 +333,12 @@ local function create(): UiKit.Window
 				end)
 			elseif island.upgradeId then
 				local upgrade = Config.getUpgrade(island.upgradeId)
-				if upgrade and state.cash < upgrade.cost then
+				if upgrade and state.cash < FarmMath.getUpgradeCost(state, upgrade) then
 					if notifyHook then
 						notifyHook(
-							`Yeterli para yok: {island.displayName} {FarmMath.formatMoney(upgrade.cost)} (kasanda {FarmMath.formatMoney(
-								state.cash
-							)})`,
+							`Yeterli para yok: {island.displayName} {FarmMath.formatMoney(
+								FarmMath.getUpgradeCost(state, upgrade)
+							)} (kasanda {FarmMath.formatMoney(state.cash)})`,
 							"error"
 						)
 					end
@@ -542,11 +542,11 @@ local function create(): UiKit.Window
 				card.detail.Text = island.trait
 					.. (if status == "locked" then `\nÖnce: {table.concat(missing, ", ")}` else "")
 				card.action.Text = if upgrade
-					then `Küçük adayı aç · {FarmMath.formatMoney(upgrade.cost)}`
+					then `Küçük adayı aç · {FarmMath.formatMoney(FarmMath.getUpgradeCost(state, upgrade))}`
 					else "Kilitli"
 				variant = if not upgrade or status == "locked"
 					then "disabled"
-					elseif state.cash >= upgrade.cost then "primary"
+					elseif state.cash >= FarmMath.getUpgradeCost(state, upgrade) then "primary"
 					else "warning"
 			end
 			UiKit.setVariant(card.action, if unavailable then "disabled" else variant)

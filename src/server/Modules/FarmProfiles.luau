@@ -62,6 +62,7 @@ function FarmProfiles.view(data: any, farmId: string): any
 		farm.cash = data.cash
 		farm.farmId = farmId
 		farm.passes = data.passes -- Oyun geçitleri hesap düzeyindedir; etkin olmayan çiftliğe de uygulanır
+		farm.inventory = data.inventory -- Envanter de hesap düzeyindedir: takılı eşyalar her çiftliğin gelirini etkiler
 	end
 	return farm
 end

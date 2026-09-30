@@ -1003,7 +1003,7 @@ end
 -- küçük bir tabela; alınınca kaldırılır ve yerine bina kurulur (oyuncu neyin nereye geleceğini görür).
 local SITE_HALF = 4.4
 
-local function buildSite(upgrade: Config.UpgradeConfig, spot: BasePart, parent: Instance)
+local function buildSite(upgrade: Config.UpgradeConfig, spot: BasePart, parent: Instance, price: number)
 	local site = Instance.new("Model")
 	site.Name = upgrade.id
 	site:SetAttribute("UpgradeId", upgrade.id)
@@ -1068,7 +1068,7 @@ local function buildSite(upgrade: Config.UpgradeConfig, spot: BasePart, parent: 
 	WorldUi.sign(board, Enum.NormalId.Front, {
 		icon = upgrade.icon,
 		title = upgrade.displayName,
-		text = `Yapım alanı · {FarmMath.formatMoney(upgrade.cost)}`,
+		text = `Yapım alanı · {FarmMath.formatMoney(price)}`,
 	})
 	site.Parent = parent
 end
@@ -1118,7 +1118,7 @@ function UpgradeVisualService.apply(plot: Model, save: PlayerSave?)
 			and BUILDERS[upgrade.id] ~= nil
 			and FarmMath.getUpgradeStatus(save, upgrade.id) == "available"
 		if wantSite and not site then
-			buildSite(upgrade, spot :: BasePart, sitesFolder :: Instance)
+			buildSite(upgrade, spot :: BasePart, sitesFolder :: Instance, FarmMath.getUpgradeCost(save, upgrade))
 		elseif not wantSite and site then
 			site:Destroy()
 		end

@@ -138,7 +138,10 @@ function UpgradesWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Up
 				continue
 			end
 			local status, missing = FarmMath.getUpgradeStatus(state, upgrade.id)
-			local group = if status == "locked" then 2 elseif state.cash >= upgrade.cost then 0 else 1
+			local group = if status == "locked"
+				then 2
+				elseif state.cash >= FarmMath.getUpgradeCost(state, upgrade) then 0
+				else 1
 			card.frame.LayoutOrder = index + 1 + group * #Config.UPGRADES
 			if content then
 				card.frame.Visible = status ~= "owned"
@@ -150,8 +153,13 @@ function UpgradesWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Up
 				remaining += 1
 				setPurchaseButton(
 					card.action,
-					if status == "locked" then "Kilitli" else FarmMath.formatMoney(upgrade.cost),
-					if status == "locked" then "disabled" elseif state.cash >= upgrade.cost then "primary" else "warning"
+					if status == "locked"
+						then "Kilitli"
+						else FarmMath.formatMoney(FarmMath.getUpgradeCost(state, upgrade)),
+					if status == "locked"
+						then "disabled"
+						elseif state.cash >= FarmMath.getUpgradeCost(state, upgrade) then "primary"
+						else "warning"
 				)
 			end
 		end

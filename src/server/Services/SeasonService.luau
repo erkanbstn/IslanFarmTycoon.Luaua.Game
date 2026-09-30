@@ -22,6 +22,9 @@ local weatherEndsAt = 0
 local adminWeatherId: string? = nil
 local adminSeasonIndex: number? = nil
 local adminSeasonEndsAt = 0
+-- Mevsim asası: seçilen mevsim tam süre sürer, sonra doğal döngüye dönülür (yönetici sabitlemesi bunun önüne geçer)
+local playerSeasonIndex: number? = nil
+local playerSeasonEndsAt = 0
 local beforeEnvironmentChange: (() -> ())? = nil
 local initialized = false
 
@@ -65,7 +68,10 @@ end
 
 local function update(announce: boolean)
 	local now = os.time()
-	local seasonIndex = adminSeasonIndex or Environment.seasonIndexAt(now)
+	if playerSeasonIndex and now >= playerSeasonEndsAt then
+		playerSeasonIndex = nil
+	end
+	local seasonIndex = adminSeasonIndex or playerSeasonIndex or Environment.seasonIndexAt(now)
 	local repeatForcedSeason = adminSeasonIndex ~= nil and now >= adminSeasonEndsAt
 	if repeatForcedSeason then
 		adminSeasonEndsAt += (math.floor((now - adminSeasonEndsAt) / Config.SEASON_SECONDS) + 1) * Config.SEASON_SECONDS
@@ -77,6 +83,7 @@ local function update(announce: boolean)
 		local season = Config.SEASONS[seasonIndex]
 		local endsAt = if adminSeasonIndex
 			then adminSeasonEndsAt
+			elseif playerSeasonIndex then playerSeasonEndsAt
 			else (math.floor(now / Config.SEASON_SECONDS) + 1) * Config.SEASON_SECONDS
 		Environment.setSeason(season, endsAt)
 		if announce and seasonChanged then
@@ -159,6 +166,41 @@ function SeasonService.setAdminSeason(id: string?): boolean
 	currentSeasonIndex = 0 -- Aynı mevsim seçilse bile zamanlayıcı yeniden kurulur.
 	update(true)
 	return true
+end
+
+-- Mevsim asası: yetkiyi ve günlük hakkı çağıran InventoryService doğrular. Yönetici mevsimi sabitlediyse reddeder.
+function SeasonService.setPlayerSeason(id: string): (boolean, string?)
+	if adminSeasonIndex then
+		return false, "Mevsim yönetici tarafından sabitlenmiş"
+	end
+	local index: number? = nil
+	for candidateIndex, season in Config.SEASONS do
+		if season.id == id then
+			index = candidateIndex
+			break
+		end
+	end
+	if not index then
+		return false, "Bilinmeyen mevsim"
+	end
+	playerSeasonIndex = index
+	playerSeasonEndsAt = os.time() + Config.SEASON_SECONDS
+	currentSeasonIndex = 0 -- Aynı mevsim seçilse bile zamanlayıcı yeniden kurulur.
+	update(true)
+	return true, nil
+end
+
+-- Hava asası: o anki havayı seçilene çevirir (normal süresi kadar sürer, sonra doğal döngü sürer).
+function SeasonService.setPlayerWeather(id: string): (boolean, string?)
+	if adminWeatherId then
+		return false, "Hava yönetici tarafından sabitlenmiş"
+	end
+	local weather = Config.WEATHER[id]
+	if not weather then
+		return false, "Bilinmeyen hava"
+	end
+	setWeather(weather, true)
+	return true, nil
 end
 
 local DEBUG_WEATHER_ORDER = { "sunny", "cloudy", "rain", "storm", "snow" }

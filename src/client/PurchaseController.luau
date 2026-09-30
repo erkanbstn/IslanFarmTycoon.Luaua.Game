@@ -23,7 +23,7 @@ function PurchaseController.notify(success: boolean, message: string)
 	Sfx.play(if success then "success" else "error")
 end
 
-function PurchaseController.submit(remote: Remotes.EventName, value: string, extra: number?): boolean
+function PurchaseController.submit(remote: Remotes.EventName, value: string, extra: (number | string)?): boolean
 	local state = ClientState.get()
 	if pending or not state then
 		return false

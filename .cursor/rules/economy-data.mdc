@@ -85,3 +85,12 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
 - **Yönetici olay araçları**: `forceMerchant/forceGolden/completeSeason/resetEvents` (AdminPolicy listesi + AdminService + AdminPanel). Zorlama yalnızca çalışma anı
   alanı `save.adminForce` ile yapılır (`Merchant.offer` ve `Golden.current` okur, SaveCodec yazmaz); mevsim hedefini `EngagementService.refreshSeasonal` tamamlar.
   Yeni bir rastgele olay eklersen aynı kalıpla bir test aracı da ekle (oynayarak görebilmek için).
+- **Envanter ve eşyalar**: `Config.ITEM_SLOTS/ITEM_SLOT_ORDER/ITEMS/ITEM_ORDER` (slot başına bir eşya; `effects` = takılıyken kalıcı fayda, `power` = asa gücü, `look` = karakterde
+  görünen parçalar; Vector3 yerine `{x, y, z}` tabloları). Hesap düzeyinde opsiyonel kayıt alanı `inventory { items, equipped, uses }` (`SaveCodec` tanınmayan eşyayı atar, takılı
+  eşya sahipli ve kendi slotunda olmalı, hak kayıtları sınırlanır; yeni/eski hesap boş envanterle açılır; `FarmProfiles.view` envanteri etkin olmayan çiftliğe de taşır). Saf
+  mantık `Inventory` (sahiplik, takma, günlük haklar: hak **güç türüne** göredir, eşyaya değil; UTC gün). Ekonomik etkiler **yalnızca** `FarmMath`'te: `getUpgradeCost(save, upgrade)`
+  (çekiç indirimi; her gösterim ve tahsilat bunu kullanır, `upgrade.cost` doğrudan okunmaz), `getStorageCap`, `getGrowthSpeed`, `getAnimalMultiplier`. Yeni etki eklersen `effects`
+  anahtarını `FarmMath.getEquippedBonus/getEquippedMultiplier` ile oku. Sunucu `InventoryService` (`RequestBuyItem/EquipItem/UseItem`): fiyat ve haklar sunucuda doğrulanır;
+  takma/çıkarma `changeEquipment` ile geçen süreyi eski etkiyle kapatır, büyüme ilerlemesini korur, dünyayı ve karakteri yeniler. Asa gücü `SeasonService.setPlayerSeason/
+  setPlayerWeather` (yönetici sabitlemesi önce gelir). Test araçları `grantItems/clearItems`. Yeni eşya ailesi eklerken `tests/inventory.spec.luau` (pahalı kademe daha güçlü olmalı)
+  ve çeviri anahtarları (ad + şablon açıklama) gerekir.

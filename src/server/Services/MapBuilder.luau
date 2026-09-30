@@ -23,7 +23,7 @@ local MapBuilder = {}
 
 -- Harita düzenini (adalar, bölgeler, yapı yerleri) değiştirince bunu 1 artır:
 -- oyun, place'e kaydedilmiş eski haritayı fark edip uyarır.
-local MAP_VERSION = 34
+local MAP_VERSION = 35
 
 local SURFACE_Y = 4 -- Ada ve meydan yüzeyinin yüksekliği
 local WATER_Y = 0 -- Deniz yüzeyi
@@ -1123,11 +1123,11 @@ local function buildHub(parent: Instance)
 		{
 			angle = 150,
 			spec = {
-				name = "Gezgin Satıcı",
-				title = "Dükkân",
+				name = "Usta Ömer",
+				title = "Eşyalar",
 				icon = "🎒",
 				action = "store",
-				prompt = "Paketlere bak",
+				prompt = "Eşyalara bak",
 				shirt = Color3.fromRGB(150, 90, 170),
 				hat = Color3.fromRGB(60, 50, 90),
 				awning = Color3.fromRGB(120, 80, 170),

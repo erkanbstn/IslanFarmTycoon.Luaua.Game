@@ -163,11 +163,11 @@ function RoadmapWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Roa
 			local variant: UiKit.Variant = if status == "owned"
 				then "owned"
 				elseif status == "locked" then "disabled"
-				elseif state.cash >= upgrade.cost then "primary"
+				elseif state.cash >= FarmMath.getUpgradeCost(state, upgrade) then "primary"
 				else "warning"
 			setPurchaseButton(
 				card.action,
-				if status == "owned" then "Alındı" else FarmMath.formatMoney(upgrade.cost),
+				if status == "owned" then "Alındı" else FarmMath.formatMoney(FarmMath.getUpgradeCost(state, upgrade)),
 				variant
 			)
 		end

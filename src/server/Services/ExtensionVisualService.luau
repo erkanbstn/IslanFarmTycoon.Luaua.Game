@@ -186,7 +186,8 @@ function ExtensionVisualService.apply(plot: Model, save: PlayerSave?)
 		local count = if save ~= nil then FarmMath.countInExtension(save, extensionId) else 0
 		-- Durum değişmediyse yapıyı yeniden kurma: her yenilemede tabela ve balonlar silinip yeniden
 		-- oluşunca ekranda yanıp sönüyordu.
-		local signature = `{islandUnlocked}|{owned}|{count}|{upgrade.cost}`
+		local price = FarmMath.getUpgradeCost(save, upgrade)
+		local signature = `{islandUnlocked}|{owned}|{count}|{price}`
 		local folder = island:FindFirstChild("ExtensionVisuals")
 		if folder and folder:GetAttribute("Signature") == signature then
 			continue
@@ -211,12 +212,7 @@ function ExtensionVisualService.apply(plot: Model, save: PlayerSave?)
 				model:SetAttribute("VisualCreatedAt", game:GetService("Workspace"):GetServerTimeNow())
 			end
 		else
-			model = IslandSpecialization.buildForSaleSign(
-				folder,
-				surfaceCf,
-				extensionId,
-				FarmMath.formatMoney(upgrade.cost)
-			)
+			model = IslandSpecialization.buildForSaleSign(folder, surfaceCf, extensionId, FarmMath.formatMoney(price))
 		end
 		attachPrompts(plot, model, extensionId, upgrade.id, owned, save)
 	end

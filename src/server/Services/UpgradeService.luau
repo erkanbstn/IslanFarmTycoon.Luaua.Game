@@ -45,8 +45,9 @@ function UpgradeService.tryBuy(player: Player, upgradeId: unknown): (boolean, st
 	end
 
 	EconomyService.settlePlayer(player)
-	if not PlayerDataService.trySpend(player, upgrade.cost) then
-		return false, `Yeterli para yok ({FarmMath.formatMoney(upgrade.cost)})`
+	local price = FarmMath.getUpgradeCost(data, upgrade)
+	if not PlayerDataService.trySpend(player, price) then
+		return false, `Yeterli para yok ({FarmMath.formatMoney(price)})`
 	end
 
 	local previousSpeeds: { [string]: number } = {}

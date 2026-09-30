@@ -1,0 +1,217 @@
+--!strict
+-- Envanter: slotlara takılı eşyalar, sahip olunan eşyalar (tak/çıkar) ve takılı asanın gücü (mevsim/hava değiştir).
+-- Kararlar sunucudadır; burada yalnızca gösterim ve istek vardır (Inventory saf modülü kalan hakkı aynı hesapla verir).
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
+
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Config = require(Shared:WaitForChild("Config"))
+local GameTypes = require(Shared:WaitForChild("GameTypes"))
+local Environment = require(Shared:WaitForChild("Modules"):WaitForChild("Environment"))
+local Inventory = require(Shared:WaitForChild("Modules"):WaitForChild("Inventory"))
+local ClientState = require(script.Parent.Parent:WaitForChild("ClientState"))
+local UiKit = require(script.Parent.Parent:WaitForChild("UiKit"))
+local PurchaseController = require(script.Parent.Parent:WaitForChild("PurchaseController"))
+local HudCommon = require(script.Parent:WaitForChild("HudCommon"))
+local ItemText = require(script.Parent:WaitForChild("ItemText"))
+
+type PlayerSave = GameTypes.PlayerSave
+
+local Color = UiKit.Color
+local setPurchaseButton = HudCommon.setPurchaseButton
+
+local InventoryWindow = {}
+
+export type Panel = {
+	window: UiKit.Window,
+	update: (state: PlayerSave) -> (),
+}
+
+local SLOTS_ORDER = 10
+local POWER_ORDER = 30
+local OWNED_ORDER = 40
+local WEATHER_ORDER = { "sunny", "cloudy", "rain", "storm", "snow" }
+local POWER_BUTTONS = 5
+
+function InventoryWindow.create(screenGui: ScreenGui): Panel
+	local window = UiKit.window(screenGui, {
+		title = "Envanter",
+		icon = "🎒",
+		tint = Color.Orange,
+		width = 380,
+		maxHeight = 480,
+		anchor = Vector2.new(0.5, 0.5),
+		position = UDim2.fromScale(0.5, 0.5),
+	})
+	UiKit.text(window.list, "Her slota bir eşya takılır. Eşyaları meydandaki Usta Ömer'den alırsın.", "Caption").LayoutOrder =
+		0
+
+	-- Takılı eşyalar: slot başına bir satır
+	UiKit.sectionHeader(window.list, "Takılı eşyalar", SLOTS_ORDER)
+	local slotCards: { [string]: UiKit.Card } = {}
+	for index, slotId in Config.ITEM_SLOT_ORDER do
+		local slot = Config.ITEM_SLOTS[slotId]
+		local card = UiKit.card(window.list, SLOTS_ORDER + index, slot.icon)
+		card.title.Text = slot.displayName
+		slotCards[slotId] = card
+		card.action.Activated:Connect(function()
+			local state = ClientState.get()
+			local itemId = if state then Inventory.equippedId(state, slotId) else nil
+			if itemId and card.action.Active then
+				PurchaseController.submit("RequestEquipItem", itemId)
+			end
+		end)
+	end
+
+	-- Asa gücü: takılı asaya göre mevsim ya da hava seçenekleri
+	local powerHeader = UiKit.sectionHeader(window.list, "Asa gücü", POWER_ORDER)
+	local powerCard = UiKit.card(window.list, POWER_ORDER + 1, "🪄")
+	local powerRow = Instance.new("Frame")
+	powerRow.Name = "PowerRow"
+	powerRow.BackgroundTransparency = 1
+	powerRow.Size = UDim2.new(1, 0, 0, 36)
+	powerRow.LayoutOrder = 3
+	powerRow.Parent = powerCard.frame
+	UiKit.list(powerRow, 4, true)
+	local powerButtons: { TextButton } = {}
+	for index = 1, POWER_BUTTONS do
+		local button = UiKit.button(powerRow, "", "secondary")
+		button.LayoutOrder = index
+		button.Size = UDim2.new(1 / POWER_BUTTONS, -4, 1, 0)
+		button.TextScaled = true
+		local fit = Instance.new("UITextSizeConstraint")
+		fit.MaxTextSize = 13
+		fit.MinTextSize = 8
+		fit.Parent = button
+		powerButtons[index] = button
+		button.Activated:Connect(function()
+			local state = ClientState.get()
+			local staffId = if state then Inventory.equippedId(state, "staff") else nil
+			local optionId = button:GetAttribute("OptionId")
+			if staffId and typeof(optionId) == "string" and button.Active then
+				PurchaseController.submit("RequestUseItem", staffId, optionId)
+			end
+		end)
+	end
+	local function setPowerVisible(visible: boolean)
+		(powerHeader.Parent :: GuiObject).Visible = visible
+		powerCard.frame.Visible = visible
+	end
+
+	-- Sahip olunan eşyalar
+	UiKit.sectionHeader(window.list, "Eşyalarım", OWNED_ORDER)
+	local emptyText = UiKit.text(
+		window.list,
+		"Henüz eşyan yok. Meydandaki Usta Ömer'den eşya alabilirsin.",
+		"Body",
+		Color.TextMuted
+	)
+	emptyText.LayoutOrder = OWNED_ORDER + 1
+	local ownedCards: { [string]: UiKit.Card } = {}
+	for position, itemId in Config.ITEM_ORDER do
+		local item = Config.ITEMS[itemId]
+		local card = UiKit.card(window.list, OWNED_ORDER + 1 + position, item.icon)
+		card.title.Text = item.displayName
+		card.detail.Text = ItemText.describe(item)
+		card.frame.Visible = false
+		ownedCards[itemId] = card
+		card.action.Activated:Connect(function()
+			if card.action.Active then
+				PurchaseController.submit("RequestEquipItem", itemId)
+			end
+		end)
+	end
+
+	local function powerOptions(kind: string): ({ { id: string, label: string } }, string)
+		local options: { { id: string, label: string } } = {}
+		if kind == "season" then
+			for _, season in Config.SEASONS do
+				table.insert(options, { id = season.id, label = season.displayName })
+			end
+			return options, Environment.getSeason().id
+		end
+		local pool = Environment.getSeason().weather
+		for _, weatherId in WEATHER_ORDER do
+			if pool[weatherId] and Config.WEATHER[weatherId] then
+				table.insert(options, { id = weatherId, label = Config.WEATHER[weatherId].displayName })
+			end
+		end
+		return options, Environment.getWeather().id
+	end
+
+	local function update(state: PlayerSave)
+		local now = Workspace:GetServerTimeNow()
+		-- Takılı eşyalar
+		local ownedAny = false
+		for slotId, card in slotCards do
+			local itemId = Inventory.equippedId(state, slotId)
+			local item = if itemId then Config.ITEMS[itemId] else nil
+			if item then
+				card.icon.Text = item.icon
+				card.detail.Text = `{item.displayName} · {ItemText.describe(item)}`
+				setPurchaseButton(card.action, "Çıkar", "secondary")
+			else
+				card.icon.Text = Config.ITEM_SLOTS[slotId].icon
+				card.detail.Text = "Boş"
+				setPurchaseButton(card.action, "Boş", "disabled")
+			end
+		end
+		-- Sahip olunanlar
+		for itemId, card in ownedCards do
+			local owned = Inventory.owns(state, itemId)
+			card.frame.Visible = owned
+			ownedAny = ownedAny or owned
+			if owned then
+				setPurchaseButton(
+					card.action,
+					if Inventory.isEquipped(state, itemId) then "Çıkar" else "Tak",
+					if Inventory.isEquipped(state, itemId) then "secondary" else "primary"
+				)
+			end
+		end
+		emptyText.Visible = not ownedAny
+		-- Asa gücü
+		local staffId = Inventory.equippedId(state, "staff")
+		local staff = if staffId then Config.ITEMS[staffId] else nil
+		setPowerVisible(staff ~= nil)
+		if not staff or not staffId or not staff.power then
+			return
+		end
+		local left = Inventory.usesLeft(state, staffId, now)
+		powerCard.icon.Text = staff.icon
+		powerCard.title.Text = staff.displayName
+		powerCard.detail.Text = if left == math.huge
+			then "Sınırsız hak"
+			else `Bugün kalan hak: {left}/{Inventory.usesPerDay(staff)}`
+		local options, currentId = powerOptions(staff.power.kind)
+		local usable = Inventory.canUse(state, staffId, now)
+		for index, button in powerButtons do
+			local option = options[index]
+			button.Visible = option ~= nil
+			if option then
+				button:SetAttribute("OptionId", option.id)
+				setPurchaseButton(
+					button,
+					option.label,
+					if usable and option.id ~= currentId then "primary" else "disabled"
+				)
+			end
+		end
+	end
+
+	-- Kalan hak ve bekleme süresi zamanla değişir: pencere açıkken saniyede bir tazele
+	task.spawn(function()
+		while true do
+			task.wait(1)
+			local state = ClientState.get()
+			if state and window.isOpen() then
+				update(state)
+			end
+		end
+	end)
+
+	return { window = window, update = update }
+end
+
+return InventoryWindow

@@ -52,6 +52,30 @@ local function execute(player: Player, action: string, value: unknown): (boolean
 		PlayerDataService.requestSave(player)
 		return true, "Para güncellendi"
 	end
+	if action == "grantItems" or action == "clearItems" then
+		-- Test aracı: bütün eşyaları ver (takmaz) ya da envanteri boşalt; para harcamaz, yalnızca yöneticinin kendi profili.
+		if player:GetAttribute("WorldReady") ~= true then
+			return false, "Çiftliğin henüz hazır değil"
+		end
+		local data = PlayerDataService.tryGet(player)
+		if not data then
+			return false, "Kayıt oturumu artık etkin değil"
+		end
+		EconomyService.settlePlayer(player) -- takılı eşyaların etkisi değişebilir: geçen süre eski etkiyle kapanır
+		local inventory = if action == "clearItems" then { items = {}, equipped = {}, uses = {} } else data.inventory
+		inventory = inventory or { items = {}, equipped = {}, uses = {} }
+		data.inventory = inventory
+		if action == "grantItems" then
+			for itemId in Config.ITEMS do
+				inventory.items[itemId] = true
+			end
+		end
+		PlayerDataService.pushState(player)
+		PlayerDataService.requestSave(player)
+		PlotService.refreshPlayerWorld(player)
+		return true,
+			if action == "grantItems" then "Bütün eşyalar verildi (Envanter'den tak)" else "Envanter boşaltıldı"
+	end
 	if
 		action == "forceMerchant"
 		or action == "forceGolden"

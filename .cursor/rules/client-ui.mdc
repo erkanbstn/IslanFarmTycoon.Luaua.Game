@@ -21,7 +21,7 @@ alwaysApply: false
 | Alt orta | `Menu` karo çubuğu (geniş ekran) |
 | Sağ orta | `Menu` 3 karoluk sütun (kompakt: genişlik < 900 veya yükseklik < 560) |
 | Sağ (pencere) | Pazar / Yol Haritası / Yükseltmeler pencereleri (`WINDOW_POSITION`) |
-| Orta (pencere) | Çiftliğim, Sipariş Panosu, Destek Dükkânı (birbirine karışmaz; meydan satıcıları ve pazar tezgâhı ilgili pencereyi açar) |
+| Orta (pencere) | Çiftliğim, Sipariş Panosu, Destek Dükkânı (henüz kapalı, sonraki Robux turu için), Eşya Dükkânı, Envanter (birbirini kapatır: `openCenter`; meydan satıcıları ve pazar tezgâhı ilgili pencereyi açar) |
 | Üst orta | Bildirimler (toast) |
 | Sağ üst / sol üst | Roblox oyuncu listesi ve sohbet — HUD buraya bir şey koymaz |
 
@@ -43,7 +43,7 @@ alwaysApply: false
 
 - HUD ana betiği `src/client/FarmHud.client.luau` yalnızca orkestrasyondur (sol panel, menü, durum dağıtımı). Pencereler ve
   bölümler `src/client/Hud/` altındadır: `ShopWindow`, `RoadmapWindow`, `UpgradesWindow`, `IslandTabs`, `StoreSection`,
-  `RewardsSection`, `BoardSection`, `SeasonBar`, `Onboarding` (ilk adımlar: durumdan türetilir, `UiKit.pulse` vurgusu + `TutorialGuide` özniteliğiyle CollectorGuide ışını), ortak `HudCommon` (`setPurchaseButton`, `purchaseHint`). Yeni pencere/bölüm
+  `RewardsSection`, `BoardSection`, `ItemShopWindow` + `InventoryWindow` (+ ortak `ItemText`), `SeasonBar`, `Onboarding` (ilk adımlar: durumdan türetilir, `UiKit.pulse` vurgusu + `TutorialGuide` özniteliğiyle CollectorGuide ışını), ortak `HudCommon` (`setPurchaseButton`, `purchaseHint`). Yeni pencere/bölüm
   eklerken ana betiğe yığmak yerine buraya `create(...)` + `update(state)` kalıbıyla yeni modül yaz.
 - Ada bağlamı: paneller `IslandContext.get()` adasını gösterir. Açık adaya girince `IslandAutoSelect` sunucuda gerçek seçim yapar; kilitli adaya girince yalnızca
   client'ta önizleme (`IslandContext.setPreview`) kurar (sunucu kilitli adayı seçmeyi reddeder). Sunucuya giden hiçbir karar `get()` değerine dayanmamalı; sunucunun
