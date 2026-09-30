@@ -67,6 +67,9 @@ return {
 
 	INCOME_TICK_SECONDS = 1,
 
+	-- Toplama platformunda iki toplama arası en az bu kadar saniye (platformda durmak da toplar)
+	COLLECT_COOLDOWN_SECONDS = 3,
+
 	MAX_INCOME_CATCHUP_SECONDS = 60,
 
 	FISH_REPLACEMENT_REFUND_RATE = 0.5,

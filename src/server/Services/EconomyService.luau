@@ -51,26 +51,15 @@ local function updateCollector(player: Player)
 	end
 end
 
--- Platformdan inmeden ikinci kez toplanmaz: parayı aldıktan sonra platformdan çıkarken vücudun başka parçaları
--- değdiğinde (Touched) aynı ziyarette ikinci bildirim gelmesin. Oyuncu platformdan uzaklaşınca bayrak sıfırlanır.
-local collectedOnPad: { [Player]: boolean } = {}
-local PAD_LEAVE_MARGIN = 7
-
-local function isNearCollector(player: Player): boolean
-	local plot = PlotService.getPlot(player)
-	local collector = plot and plot:FindFirstChild("Collector")
-	local character = player.Character
-	local root = character and character:FindFirstChild("HumanoidRootPart")
-	if not collector or not collector:IsA("BasePart") or not root or not root:IsA("BasePart") then
-		return false
-	end
-	local offset = collector.CFrame:PointToObjectSpace(root.Position)
-	local halfSize = collector.Size * 0.5
-	return math.abs(offset.X) <= halfSize.X + PAD_LEAVE_MARGIN and math.abs(offset.Z) <= halfSize.Z + PAD_LEAVE_MARGIN
-end
+-- Platformda iki toplama arası en az Config.COLLECT_COOLDOWN_SECONDS geçer; oyuncu platformda durarak da toplar.
+local lastCollectAt: { [Player]: number } = {}
 
 function EconomyService.collect(player: Player)
 	if not RateLimiter.allow(player, "collect", 0.5) then
+		return
+	end
+	local last = lastCollectAt[player]
+	if last and os.clock() - last < Config.COLLECT_COOLDOWN_SECONDS then
 		return
 	end
 
@@ -109,7 +98,7 @@ function EconomyService.collect(player: Player)
 		return
 	end
 	data.stored -= amount
-	collectedOnPad[player] = true
+	lastCollectAt[player] = os.clock()
 	PlayerDataService.addCash(player, amount)
 	Metrics.increment("Collections")
 	updateCollector(player)
@@ -168,12 +157,7 @@ function EconomyService.init()
 			local character = hit:FindFirstAncestorOfClass("Model")
 			local player = character and Players:GetPlayerFromCharacter(character)
 			-- Sadece adanın sahibi toplayabilir
-			if
-				player
-				and not collectedOnPad[player]
-				and PlotService.getOwner(plot) == player
-				and PlotService.getPlot(player) == plot
-			then
+			if player and PlotService.getOwner(plot) == player and PlotService.getPlot(player) == plot then
 				EconomyService.collect(player)
 			end
 		end)
@@ -184,13 +168,11 @@ function EconomyService.init()
 			task.wait(Config.INCOME_TICK_SECONDS)
 			for _, player in Players:GetPlayers() do
 				EconomyService.settlePlayer(player)
-				if collectedOnPad[player] and not isNearCollector(player) then
-					collectedOnPad[player] = nil
-				end
+				EconomyService.collect(player)
 			end
-			for player in collectedOnPad do
+			for player in lastCollectAt do
 				if player.Parent == nil then
-					collectedOnPad[player] = nil
+					lastCollectAt[player] = nil
 				end
 			end
 		end

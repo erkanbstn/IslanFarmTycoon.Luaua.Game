@@ -419,6 +419,10 @@ local function retheme(plot: Model, farmId: string)
 	ExtensionVisualService.apply(plot, nil)
 	AnimalVisualService.clear(plot)
 	DecorReveal.reset(plot)
+	local pads = plot:FindFirstChild("BuyPads")
+	if pads then
+		pads:Destroy() -- eski temanın ada yuvalarına kurulmuştu
+	end
 	MapBuilder.applyTheme(plot, themeOf(farmId))
 end
 
