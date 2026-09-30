@@ -77,7 +77,11 @@ function ExtensionService.tryUnassign(player: Player, extensionId: string): (boo
 		local animal = data.animals[index]
 		if animal.extensionId == extensionId then
 			local zone = Config.ZONES[extension.sourceZoneId]
-			if zone and FarmMath.countInZone(data, extension.sourceZoneId) >= zone.capacity then
+			if
+				zone
+				and FarmMath.countInZone(data, extension.sourceZoneId)
+					>= FarmMath.getZoneCapacity(data, extension.sourceZoneId)
+			then
 				return false, "Ana bölge dolu; önce yer aç"
 			end
 			animal.extensionId = nil

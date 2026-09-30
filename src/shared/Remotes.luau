@@ -16,6 +16,7 @@ export type EventName =
 	| "EconomyTick"
 	| "RequestBuyUpgrade"
 	| "RequestUpgradeLineage"
+	| "RequestExpandZone"
 	| "RequestBuyAnimal"
 	| "RequestReplaceFish"
 	| "PurchaseResult"
@@ -51,6 +52,7 @@ local EVENTS = {
 	"EconomyTick", -- Sunucu -> Client sadece (cash, stored); her saniye
 	"RequestBuyUpgrade", -- Client -> Sunucu yol haritası satın alma (upgradeId)
 	"RequestUpgradeLineage", -- Client -> Sunucu ırk geliştirme (animalId, requestId, expectedFarmId)
+	"RequestExpandZone", -- Client -> Sunucu alan genişletme (zoneId, requestId, expectedFarmId)
 	"RequestBuyAnimal", -- Client -> Sunucu hayvan satın alma (animalId)
 	"RequestReplaceFish", -- Client -> Sunucu hamsiyi levrekle değiştir (uid, requestId)
 	"PurchaseResult", -- Sunucu -> Client (requestId, success, message?)

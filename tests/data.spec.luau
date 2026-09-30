@@ -121,6 +121,21 @@ return function(lock: any, codec: any, config: any, farmMath: any)
 	assert(codec.encode(withLineage, now).mainFarms["1"].lineage.cow == 3, "lineage must survive saves")
 	lineageRaw.mainFarms["1"].lineage = "broken"
 	assert(codec.decode(lineageRaw, config, farmMath, now, uid) == nil, "corrupt lineage must fail closed")
+	-- Alan genişletme: seviyeler sıkıştırılır, tanınmayan bölge atılır, bozuk kayıt reddedilir
+	local expansionRaw = codec.encode(save, now)
+	assert(next(expansionRaw.mainFarms["1"].expansions) == nil, "new farms start without expansions")
+	expansionRaw.mainFarms["1"].expansions = { starter = 2, pasture = 99, ghost = 3, poultry = -1 }
+	local withExpansion = assert(codec.decode(expansionRaw, config, farmMath, now, uid))
+	assert(
+		withExpansion.expansions.starter == 2
+			and withExpansion.expansions.pasture == config.ZONE_EXPANSION.maxLevel
+			and withExpansion.expansions.ghost == nil
+			and withExpansion.expansions.poultry == nil,
+		"expansion levels must be clamped and unknown zones dropped"
+	)
+	assert(codec.encode(withExpansion, now).mainFarms["1"].expansions.starter == 2, "expansions must survive saves")
+	expansionRaw.mainFarms["1"].expansions = 5
+	assert(codec.decode(expansionRaw, config, farmMath, now, uid) == nil, "corrupt expansions must fail closed")
 	-- Hesap düzeyi ilerleme: ömür boyu kazanç, günlük ödül serisi, alınmış başarımlar
 	local accountRaw = codec.encode(save, now)
 	assert(

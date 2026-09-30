@@ -549,7 +549,7 @@ local function updateGoal(state: PlayerSave, income: number)
 	for _, upgrade in Config.UPGRADES do
 		local status = FarmMath.getUpgradeStatus(state, upgrade.id)
 		local useful = upgrade.id ~= "zone_pasture"
-			or FarmMath.countInZone(state, "starter") >= Config.ZONES.starter.capacity
+			or FarmMath.countInZone(state, "starter") >= FarmMath.getZoneCapacity(state, "starter")
 		if useful and status == "available" and (not best or upgrade.cost < best.cost) then
 			best = upgrade
 		end
@@ -570,8 +570,8 @@ local function updateGoal(state: PlayerSave, income: number)
 	end
 	goalTitle.Text = "ÇİFTLİK USTALIĞI VE SİPARİŞ"
 	local capacity = 0
-	for _, zone in Config.ZONES do
-		capacity += zone.capacity
+	for zoneId in Config.ZONES do
+		capacity += FarmMath.getZoneCapacity(state, zoneId)
 	end
 	local adults = 0
 	for _, animal in state.animals do
@@ -658,7 +658,7 @@ local function onState(state: PlayerSave, structural: boolean)
 	for zoneId, zone in Config.ZONES do
 		if zone.island == IslandContext.get() and state.unlockedZones[zoneId] then
 			islandAnimals += FarmMath.countInZone(state, zoneId)
-			islandCapacity += zone.capacity
+			islandCapacity += FarmMath.getZoneCapacity(state, zoneId)
 		end
 	end
 	barnDetail.Text =

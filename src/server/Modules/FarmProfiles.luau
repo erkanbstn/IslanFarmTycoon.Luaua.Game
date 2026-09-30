@@ -5,6 +5,7 @@ local FIELDS = {
 	"stored",
 	"purchased",
 	"lineage",
+	"expansions",
 	"animals",
 	"ordersCompleted",
 	"order",

@@ -131,6 +131,9 @@ return function(policy: any, createService: any, createLimiter: any, config: any
 			save.derived = true
 			save.unlockedZones = { poultry = save.purchased.island_poultry == true }
 		end,
+		getZoneCapacity = function(_save: any, zoneId: string): number
+			return config.ZONES[zoneId].capacity
+		end,
 		countInZone = function(save: any, zoneId: string): number
 			local count = 0
 			for _, animal in save.animals do

@@ -362,5 +362,51 @@ return function(FarmMath: any, Config: any, Environment: any)
 	lineageFarm.lineage = {}
 	lineageFarm.animals = { { uid = "calf", animalId = "cow", zoneId = "starter", bornAt = start, stage = "calf" } }
 	assert(FarmMath.getLineageStatus(lineageFarm, "cow") == "locked", "lineage needs an adult animal of the species")
+	-- Alan genişletme: kapasite, maliyet eğrisi, dolu-bölge şartı ve boş yer hesabı
+	local expandFarm = saveAt(start)
+	local starterZone = Config.ZONES.starter
+	assert(
+		FarmMath.getZoneCapacity(expandFarm, "starter") == starterZone.capacity,
+		"no expansion keeps the base capacity"
+	)
+	local expandStatus, _, expandCost = FarmMath.getExpansionStatus(expandFarm, "starter")
+	assert(
+		expandStatus == "locked" and expandCost == FarmMath.getExpansionCost(expandFarm, "starter"),
+		"a non-full zone cannot be expanded"
+	)
+	while FarmMath.countInZone(expandFarm, "starter") < FarmMath.getZoneCapacity(expandFarm, "starter") do
+		table.insert(
+			expandFarm.animals,
+			{ uid = `fill-{#expandFarm.animals}`, animalId = "cow", zoneId = "starter", bornAt = 0, stage = "adult" }
+		)
+	end
+	assert(FarmMath.getExpansionStatus(expandFarm, "starter") == "available", "a full unlocked zone can be expanded")
+	local expandFreeBefore = FarmMath.getFreeSlots(expandFarm, "cow")
+	expandFarm.expansions = { starter = 1 }
+	assert(
+		FarmMath.getZoneCapacity(expandFarm, "starter") == starterZone.capacity + FarmMath.getExpansionStep(starterZone),
+		"each level adds one step"
+	)
+	assert(
+		FarmMath.getFreeSlots(expandFarm, "cow") == expandFreeBefore + FarmMath.getExpansionStep(starterZone),
+		"expansion opens free slots"
+	)
+	local previousExpansionCost = 0
+	for level = 0, Config.ZONE_EXPANSION.maxLevel - 1 do
+		expandFarm.expansions = { starter = level }
+		local cost = FarmMath.getExpansionCost(expandFarm, "starter")
+		assert(cost > previousExpansionCost and cost < math.huge, "expansion costs grow with each level")
+		previousExpansionCost = cost
+	end
+	expandFarm.expansions = { starter = Config.ZONE_EXPANSION.maxLevel + 9 }
+	assert(FarmMath.getExpansionLevel(expandFarm, "starter") == Config.ZONE_EXPANSION.maxLevel, "levels are clamped")
+	assert(FarmMath.getExpansionStatus(expandFarm, "starter") == "max", "maximum expansion is reported")
+	assert(
+		FarmMath.getZoneCapacity(expandFarm, "ghost") == 0
+			and FarmMath.getExpansionCost(expandFarm, "ghost") == math.huge,
+		"unknown zones are inert"
+	)
+	expandFarm.unlockedZones.pasture = false
+	assert(FarmMath.getExpansionStatus(expandFarm, "pasture") == "locked", "a locked zone cannot be expanded")
 	print("PASS economy: growth boundaries, integrated offline/elapsed income, cap, growth upgrade, fish pricing")
 end

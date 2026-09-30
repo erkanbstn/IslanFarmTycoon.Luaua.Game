@@ -125,6 +125,7 @@ local function upgradeGain(upgrade: any): number
 end
 
 local lineageTotal, lineageSpent = 0, 0
+local expansionTotal, expansionSpent = 0, 0
 local cashSpent = 0
 local lastReport = 0
 local reports: { string } = {}
@@ -164,7 +165,30 @@ for step = 1, steps do
 				end
 			end
 		end
-		if cheapest then
+		-- Alan genişletme: en ucuz yükseltmeyle yarışır (dolu bölgeler genişletilebilir)
+		local expandZone: string? = nil
+		local expandCost = math.huge
+		for zoneId, zone in Config.ZONES do
+			if table.find(themeIslands, zone.island) then
+				local status, _, cost = FarmMath.getExpansionStatus(save, zoneId)
+				if status == "available" and cost <= save.cash and cost < expandCost then
+					expandZone, expandCost = zoneId, cost
+				end
+			end
+		end
+		if expandZone and (not cheapest or expandCost < cheapest.cost) then
+			save.cash -= expandCost
+			save.expansions = save.expansions or {}
+			save.expansions[expandZone] = FarmMath.getExpansionLevel(save, expandZone) + 1
+			expansionTotal += 1
+			expansionSpent += expandCost
+			for _, mark_at in { 5, 15, 30 } do
+				if expansionTotal == mark_at then
+					mark(`ALAN toplam Sv.{mark_at}`)
+				end
+			end
+			bought = true
+		elseif cheapest then
 			buyUpgrade(cheapest)
 			bought = true
 		elseif milestones["TÜM YÜKSELTMELER"] ~= nil then
@@ -249,6 +273,7 @@ for _, upgrade in Config.UPGRADES do
 	end
 end
 print(string.format("Sonuç: %d/%d yükseltme alındı, kasa %s", owned, total, FarmMath.formatMoney(save.cash)))
+print(string.format("Alan genişletme: toplam Sv.%d, harcanan %s", expansionTotal, FarmMath.formatMoney(expansionSpent)))
 print(string.format("Irk geliştirme: toplam Sv.%d, harcanan %s", lineageTotal, FarmMath.formatMoney(lineageSpent)))
 """
 

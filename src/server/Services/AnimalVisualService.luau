@@ -12,6 +12,7 @@ local AssetSanitizer = require(script.Parent.Parent:WaitForChild("Modules"):Wait
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local GameTypes = require(Shared:WaitForChild("GameTypes"))
+local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 local WorldUi = require(Shared:WaitForChild("WorldUi"))
 
 local ExtensionAreas = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("ExtensionAreas"))
@@ -662,7 +663,13 @@ function AnimalVisualService.refresh(plot: Model, data: PlayerSave)
 				continue
 			end
 			perZoneCount[animal.zoneId] = (perZoneCount[animal.zoneId] or 0) + 1
-			visual = buildAnimal(animal, ground, perZoneCount[animal.zoneId], zoneConfig.capacity, nil)
+			visual = buildAnimal(
+				animal,
+				ground,
+				perZoneCount[animal.zoneId],
+				FarmMath.getZoneCapacity(data, animal.zoneId),
+				nil
+			)
 		end
 		if existing then
 			existing:Destroy()

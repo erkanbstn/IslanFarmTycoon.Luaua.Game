@@ -56,3 +56,8 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
   gelir etkisi `getAnimalMultiplier` içinde doğrusal (+incomePerLevel/seviye), maliyet üstel. Sunucu `UpgradeService.tryUpgradeLineage`
   (`RequestUpgradeLineage`, en az bir yetişkin şart, `settlePlayer` sonra `trySpend`). Arayüz: Hayvan Pazarı kartlarında ikinci düğme.
   Denge: `simulate-economy.py` tüm yükseltmelerden sonra ırk satın alır (`IRK toplam Sv.N` adımları); sonraki içerik bunu beslemeli.
+- **Alan genişletme**: `Config.ZONE_EXPANSION` (maxLevel, costMultiplier, costGrowth); adım = `max(2, kapasite/4)`. Bölge kapasitesini **her yerde**
+  `FarmMath.getZoneCapacity(save, zoneId)` ile oku (`ZONES[x].capacity` yalnızca taban). Kayıt alanı `expansions { [zoneId] = 1..maxLevel }`
+  (opsiyonel, `FarmProfiles.FIELDS`'te). Şart: bölge açık ve dolu (`getExpansionStatus`). Sunucu `UpgradeService.tryExpandZone`
+  (`RequestExpandZone`); arayüz Yükseltmeler penceresindeki "Alan genişletme" kartları. Sim çıktısı `ALAN toplam Sv.N`.
+  Tempo (ideal oyuncu): ilk ada ~9 dk, tüm yükseltmeler ~3,3 saat, tüm ırk seviyeleri ~11 saat; sayıları değiştirirsen `simulate-economy.py`'ı yeniden koştur.

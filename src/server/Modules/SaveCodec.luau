@@ -140,6 +140,23 @@ local function decodeFarm(
 			rewardFactor = factor,
 		}
 	end
+	-- Alan genişletme seviyeleri (isteğe bağlı): tanınmayan bölge atılır, seviye sıkıştırılır
+	save.expansions = {}
+	if source.expansions ~= nil then
+		if typeof(source.expansions) ~= "table" then
+			return nil, 0, "Alan genişletme kaydı bozuk; orijinal kayıt korunuyor"
+		end
+		for zoneId, level in source.expansions do
+			if typeof(zoneId) == "string" and config.ZONES[zoneId] and SessionLock.isFinite(level) then
+				local clamped = math.clamp(math.floor(level), 0, config.ZONE_EXPANSION.maxLevel)
+				if clamped > 0 then
+					save.expansions[zoneId] = clamped
+				end
+			else
+				repairs += 1
+			end
+		end
+	end
 	local seen: { [string]: boolean } = {}
 	local function uniqueUid(candidate: unknown): string
 		local uid = if typeof(candidate) == "string"
@@ -174,7 +191,10 @@ local function decodeFarm(
 				not zone
 				or not save.unlockedZones[zoneId]
 				or not farmMath.zoneAllows(save, zone, animalId)
-				or (not pendingExtension and farmMath.countInZone(save, zoneId) >= zone.capacity)
+				or (
+					not pendingExtension
+					and farmMath.countInZone(save, zoneId) >= farmMath.getZoneCapacity(save, zoneId)
+				)
 			then
 				zoneId = farmMath.findZoneForAnimal(save, animalId)
 				repairs += 1
@@ -270,6 +290,12 @@ local function encodeFarm(save: any, now: number): { [string]: any }
 		end
 	end
 	table.sort(purchased)
+	local expansions = {}
+	for zoneId, level in save.expansions or {} do
+		if level > 0 then
+			expansions[zoneId] = level
+		end
+	end
 	local lineage = {}
 	for animalId, level in save.lineage or {} do
 		if level > 0 then
@@ -284,6 +310,7 @@ local function encodeFarm(save: any, now: number): { [string]: any }
 		version = 3,
 		production = production,
 		lineage = lineage,
+		expansions = expansions,
 		cash = amount(save.cash, 0),
 		stored = amount(save.stored, 0),
 		purchased = purchased,

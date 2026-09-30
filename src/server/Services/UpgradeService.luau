@@ -126,6 +126,67 @@ local function buyAndNotify(player: Player, upgradeId: unknown, requestId: unkno
 	end
 end
 
+-- Alan genişletme: dolu bir bölgenin kapasitesini bir seviye artırır
+function UpgradeService.tryExpandZone(player: Player, zoneId: unknown): (boolean, string?)
+	if not RateLimiter.allow(player, "purchase", 0.2) then
+		return false, nil
+	end
+	if typeof(zoneId) ~= "string" or not RateLimiter.validId(zoneId) or not Config.ZONES[zoneId] then
+		return false, "Geçersiz istek"
+	end
+	local data = PlayerDataService.tryGet(player)
+	if not data or player:GetAttribute("WorldReady") ~= true then
+		return false, "Veri henüz yüklenmedi"
+	end
+	if not Config.themeHasIsland(data.activeMainFarmId, Config.ZONES[zoneId].island) then
+		return false, "Bu ada bu çiftlikte yok"
+	end
+	local status, reason, cost = FarmMath.getExpansionStatus(data, zoneId)
+	if status == "max" then
+		return false, "Bu alan zaten en büyük boyutta"
+	elseif status == "locked" then
+		return false, reason
+	end
+	EconomyService.settlePlayer(player)
+	if not PlayerDataService.trySpend(player, cost) then
+		return false, `Yeterli para yok ({FarmMath.formatMoney(cost)})`
+	end
+	local expansions = data.expansions or {}
+	data.expansions = expansions
+	expansions[zoneId] = FarmMath.getExpansionLevel(data, zoneId) + 1
+	PlayerDataService.pushState(player)
+	PlayerDataService.requestSave(player)
+	Metrics.increment("ZoneExpanded")
+	PlotService.refreshPlayerWorld(player)
+	return true, nil
+end
+
+local function expandAndNotify(player: Player, zoneId: unknown, requestId: unknown)
+	if not RateLimiter.acceptRequest(player, requestId) then
+		return
+	end
+	local ok, err = UpgradeService.tryExpandZone(player, zoneId)
+	if ok then
+		local data = PlayerDataService.tryGet(player) :: any
+		local zone = Config.ZONES[zoneId :: string]
+		err =
+			`{Config.getZoneName(zone, data.activeMainFarmId)} genişletildi! Yeni kapasite: {FarmMath.getZoneCapacity(
+				data,
+				zoneId :: string
+			)}`
+	elseif err == nil then
+		if typeof(requestId) ~= "number" or not RateLimiter.allow(player, "purchaseThrottleReply", 0.5) then
+			return
+		end
+		err = "Çok hızlı işlem yapıyorsun; biraz bekle."
+	end
+	if typeof(requestId) == "number" then
+		Remotes.get("PurchaseResult"):FireClient(player, requestId, ok, err)
+	else
+		Remotes.get("Notify"):FireClient(player, err, if ok then "success" else "error")
+	end
+end
+
 local function lineageAndNotify(player: Player, animalId: unknown, requestId: unknown)
 	if not RateLimiter.acceptRequest(player, requestId) then
 		return
@@ -149,6 +210,22 @@ local function lineageAndNotify(player: Player, animalId: unknown, requestId: un
 end
 
 function UpgradeService.init()
+	Remotes.get("RequestExpandZone").OnServerEvent
+		:Connect(function(player: Player, zoneId: unknown, requestId: unknown, expectedFarmId: unknown)
+			local data = PlayerDataService.tryGet(player)
+			if not data or expectedFarmId ~= data.activeMainFarmId then
+				if typeof(requestId) == "number" and RateLimiter.allow(player, "farmContextReply", 0.5) then
+					Remotes.get("PurchaseResult"):FireClient(
+						player,
+						requestId,
+						false,
+						"Etkin çiftlik değişti; işlemi yeni çiftlikte tekrar seç."
+					)
+				end
+				return
+			end
+			expandAndNotify(player, zoneId, requestId)
+		end)
 	Remotes.get("RequestUpgradeLineage").OnServerEvent
 		:Connect(function(player: Player, animalId: unknown, requestId: unknown, expectedFarmId: unknown)
 			local data = PlayerDataService.tryGet(player)

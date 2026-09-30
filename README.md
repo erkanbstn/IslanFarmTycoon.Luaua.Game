@@ -71,6 +71,8 @@ hatasından ayrıdır.
    Aynı türden aldıkça fiyat %18 artar.
 4b. **Irk geliştirme:** Pazar'da sahip olduğun her hayvan türünün kartında ikinci düğme vardır. Her seviye o türün gelirini %8 artırır (en fazla Sv.10);
    maliyet her seviyede üstel büyür. Seviyeler çiftlik başınadır ve kayıtlıdır. Bu, yol haritası bittikten sonra da para harcama yoludur.
+4c. **Alan genişletme:** Yükseltmeler penceresinde, açık ve **dolu** bir bölgenin altında "Alan genişletme" kartı çıkar. Her seviye bölgenin kapasitesini artırır
+   (en fazla 4 seviye); maliyet bölgedeki hayvanın fiyatına ve seviyeye bağlıdır. Seviyeler çiftlik başınadır ve kayıtlıdır.
 5. **Yol Haritası:** Oyuncu sırayı kendi seçer; sadece ön koşulu olanlar kilitlidir.
 6. **Adalar:** Herhangi bir ada tabelasına ya da meydandaki "🧭 Adalar" tabelasına yaklaşıp **E** →
    meydana veya başka bir adaya ışınlan.

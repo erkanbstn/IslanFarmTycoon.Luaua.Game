@@ -106,7 +106,7 @@ local function execute(player: Player, action: string, value: unknown): (boolean
 			local added = 0
 			for zoneId, zone in Config.ZONES do
 				if zone.island == islandId and data.unlockedZones[zoneId] then
-					for _ = FarmMath.countInZone(data, zoneId) + 1, zone.capacity do
+					for _ = FarmMath.countInZone(data, zoneId) + 1, FarmMath.getZoneCapacity(data, zoneId) do
 						addAnimal(Config.getZoneAnimals(zone, data.activeMainFarmId)[1], zoneId, nil)
 						added += 1
 					end

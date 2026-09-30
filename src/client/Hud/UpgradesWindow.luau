@@ -67,7 +67,61 @@ function UpgradesWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Up
 		end)
 	end
 
+	-- Alan genişletme: seçili adanın açık bölgeleri; dolu bölgenin kapasitesi seviye başına artar
+	local EXPANSION_ORDER = 1000
+	local expansionHeader = UiKit.sectionHeader(upgradesWindow.list, "Alan genişletme", EXPANSION_ORDER)
+	local expansionCards: { [string]: UiKit.Card } = {}
+	for index, zoneId in Config.ZONE_ORDER do
+		local zone = Config.ZONES[zoneId]
+		local card = UiKit.card(upgradesWindow.list, EXPANSION_ORDER + index, zone.icon)
+		card.frame.Visible = false
+		expansionCards[zoneId] = card
+		card.action.Activated:Connect(function()
+			if card.action.Active then
+				PurchaseController.submit("RequestExpandZone", zoneId)
+			end
+		end)
+	end
+
+	local function updateExpansions(state: PlayerSave, content: boolean)
+		local selectedIsland = IslandContext.get()
+		local any = false
+		for _, zoneId in Config.ZONE_ORDER do
+			local zone = Config.ZONES[zoneId]
+			local card = expansionCards[zoneId]
+			local relevant = zone.island == selectedIsland and state.unlockedZones[zoneId] == true
+			card.frame.Visible = relevant
+			if not relevant then
+				continue
+			end
+			any = true
+			local status, _, cost = FarmMath.getExpansionStatus(state, zoneId)
+			local capacity = FarmMath.getZoneCapacity(state, zoneId)
+			if content then
+				card.title.Text = Config.getZoneName(zone, state.activeMainFarmId)
+				card.detail.Text =
+					`Kapasite {capacity} → {capacity + FarmMath.getExpansionStep(zone)} · Sv.{FarmMath.getExpansionLevel(
+						state,
+						zoneId
+					)}/{Config.ZONE_EXPANSION.maxLevel}`
+			end
+			if status == "max" then
+				setPurchaseButton(card.action, "En büyük boy", "owned")
+			elseif status == "locked" then
+				setPurchaseButton(card.action, "Dolunca açılır", "disabled")
+			else
+				setPurchaseButton(
+					card.action,
+					FarmMath.formatMoney(cost),
+					if state.cash >= cost then "primary" else "warning"
+				)
+			end
+		end
+		(expansionHeader.Parent :: GuiObject).Visible = any
+	end
+
 	local function updateUpgrades(state: PlayerSave, content: boolean)
+		updateExpansions(state, content)
 		local remaining = 0
 		local selectedIsland = IslandContext.get()
 		if content then

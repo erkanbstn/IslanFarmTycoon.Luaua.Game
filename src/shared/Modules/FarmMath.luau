@@ -112,6 +112,68 @@ function FarmMath.getStorageCap(save: PlayerSave): number
 	return math.floor(FarmMath.getBarnConfig(save).storageCap * (1 + bonus))
 end
 
+-- Alan genişletme: seviye, adım, etkin kapasite, maliyet ve durum
+function FarmMath.getExpansionLevel(save: PlayerSave, zoneId: string): number
+	local expansions = save.expansions
+	local level = if expansions then expansions[zoneId] else nil
+	if typeof(level) ~= "number" or not isFinite(level) then
+		return 0
+	end
+	return math.clamp(math.floor(level), 0, Config.ZONE_EXPANSION.maxLevel)
+end
+
+function FarmMath.getExpansionStep(zone: Config.ZoneConfig): number
+	return math.max(2, math.ceil(zone.capacity / 4))
+end
+
+-- Bölgenin bu çiftlikteki kapasitesi (taban + genişletme)
+function FarmMath.getZoneCapacity(save: PlayerSave, zoneId: string): number
+	local zone = Config.ZONES[zoneId]
+	if not zone then
+		return 0
+	end
+	return zone.capacity + FarmMath.getExpansionLevel(save, zoneId) * FarmMath.getExpansionStep(zone)
+end
+
+-- Bölge `level` -> `level + 1` genişletme maliyeti; en üst seviyede veya bilinmeyen bölgede math.huge
+function FarmMath.getExpansionCost(save: PlayerSave, zoneId: string): number
+	local zone = Config.ZONES[zoneId]
+	local expansion = Config.ZONE_EXPANSION
+	local level = FarmMath.getExpansionLevel(save, zoneId)
+	if not zone or level >= expansion.maxLevel then
+		return math.huge
+	end
+	local animalId = Config.getZoneAnimals(zone, save.farmId or save.activeMainFarmId)[1]
+	local animalConfig = Config.ANIMALS[animalId]
+	if not animalConfig then
+		return math.huge
+	end
+	local raw = animalConfig.price * expansion.costMultiplier * expansion.costGrowth ^ level
+	local step = 10 ^ (math.floor(math.log10(raw)) - 1)
+	return math.floor(raw / step + 0.5) * step
+end
+
+export type ExpansionStatus = "available" | "locked" | "max"
+
+-- Genişletme: bölge açık ve dolu olmalı. Üçüncü değer: sonraki seviye maliyeti.
+function FarmMath.getExpansionStatus(save: PlayerSave, zoneId: string): (ExpansionStatus, string?, number)
+	local zone = Config.ZONES[zoneId]
+	if not zone then
+		return "locked", "Bilinmeyen bölge", math.huge
+	end
+	if FarmMath.getExpansionLevel(save, zoneId) >= Config.ZONE_EXPANSION.maxLevel then
+		return "max", nil, math.huge
+	end
+	local cost = FarmMath.getExpansionCost(save, zoneId)
+	if not save.unlockedZones[zoneId] then
+		return "locked", "Bölge henüz açık değil", cost
+	end
+	if FarmMath.countInZone(save, zoneId) < FarmMath.getZoneCapacity(save, zoneId) then
+		return "locked", "Önce bölgeyi hayvanla doldur", cost
+	end
+	return "available", nil, cost
+end
+
 -- Irk geliştirme seviyesi (0..maxLevel); kayıt alanı yoksa 0
 function FarmMath.getLineageLevel(save: PlayerSave, animalId: string): number
 	local lineage = save.lineage
@@ -385,7 +447,7 @@ function FarmMath.getFreeSlots(save: PlayerSave, animalId: string): number
 	for _, zoneId in Config.ZONE_ORDER do
 		local zone = Config.ZONES[zoneId]
 		if zone and FarmMath.zoneAllows(save, zone, animalId) and save.unlockedZones[zoneId] then
-			free += math.max(0, zone.capacity - FarmMath.countInZone(save, zoneId))
+			free += math.max(0, FarmMath.getZoneCapacity(save, zoneId) - FarmMath.countInZone(save, zoneId))
 		end
 	end
 	return free
@@ -452,7 +514,7 @@ function FarmMath.findZoneForAnimal(save: PlayerSave, animalId: string): (string
 		end
 		if save.unlockedZones[zoneId] then
 			anyUnlocked = true
-			if FarmMath.countInZone(save, zoneId) < zone.capacity then
+			if FarmMath.countInZone(save, zoneId) < FarmMath.getZoneCapacity(save, zoneId) then
 				return zoneId, nil
 			end
 		elseif lockedBy == nil then
