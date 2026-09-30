@@ -9,7 +9,7 @@ local GameTypes = require(Shared:WaitForChild("GameTypes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 local Inventory = require(Shared:WaitForChild("Modules"):WaitForChild("Inventory"))
 local UiKit = require(script.Parent.Parent:WaitForChild("UiKit"))
-local PurchaseController = require(script.Parent.Parent:WaitForChild("PurchaseController"))
+local PurchaseController = require(script.Parent.Parent.Parent:WaitForChild("Core"):WaitForChild("PurchaseController"))
 local HudCommon = require(script.Parent:WaitForChild("HudCommon"))
 local ItemText = require(script.Parent:WaitForChild("ItemText"))
 

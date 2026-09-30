@@ -239,19 +239,21 @@ Eski `ReplicatedStorage.Assets` konumu geçiş için desteklenir, yeni modelleri
 
 ```
 src/
-  server/Services/
-    PlayerDataService   → yükleme/kaydetme (DataStore), leaderstats
-    MapBuilder          → deniz, meydan, köprüler, adalar
-    PlotService         → ada atama/sıfırlama, ışınlama, bölge kilitleri
-    UpgradeService      → yol haritası satın alma
-    AnimalService       → hayvan satın alma + büyüme
-    EconomyService      → gelir, depo, toplama platformu
-    OrderService        → tekrar eden üretim siparişleri
-    *VisualService      → ahır, hayvan ve bina görselleri
-  client/FarmHud        → arayüz (panel, Pazar, Yol Haritası, bildirimler)
-  shared/Config         → TÜM oyun dengesi (fiyatlar, gelirler, yol haritası)
-  shared/Modules/FarmMath → sunucu ve client'ın ortak hesapları
+  server/
+    Modules/        → saf sunucu mantığı (kayıt kodlama, kilit, hız sınırı)
+    World/          → statik harita: MapBuilder, WorldDecor, HomeBuildings, HubNpcs...
+    Presentation/   → oyuncu durumundan dünyaya çizim (hayvan, bina, bölge görselleri)
+    Services/       → oyun mantığı: PlayerData, Plot, Economy, Animal, Upgrade, Production, Order...
+  client/
+    Core/           → ClientState, PurchaseController, Localizer, Sfx
+    Effects/        → gün-gece, hava, mevsim, su altı, grafik kalitesi, kuşlar/balıklar
+    Ui/             → UiKit, FarmHud, Hud/* pencereleri, ayarlar, yönetici paneli
+    Interaction/    → satın alma platformları, toplama, NPC, ada geçişi
+  shared/Config            → TÜM oyun dengesi (fiyatlar, gelirler, yol haritası)
+  shared/Modules/FarmMath  → sunucu ve client'ın ortak hesapları
 ```
+
+Ayrıntı ve bağımlılık kuralları: [docs/MIMARI.md](docs/MIMARI.md).
 
 AI araçları için kurallar: `AGENTS.md`
 

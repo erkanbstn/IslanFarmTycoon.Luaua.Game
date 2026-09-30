@@ -11,7 +11,7 @@ local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath")
 local Environment = require(Shared:WaitForChild("Modules"):WaitForChild("Environment"))
 local OrderBoard = require(Shared:WaitForChild("Modules"):WaitForChild("OrderBoard"))
 local UiKit = require(script.Parent.Parent:WaitForChild("UiKit"))
-local PurchaseController = require(script.Parent.Parent:WaitForChild("PurchaseController"))
+local PurchaseController = require(script.Parent.Parent.Parent:WaitForChild("Core"):WaitForChild("PurchaseController"))
 
 type PlayerSave = GameTypes.PlayerSave
 

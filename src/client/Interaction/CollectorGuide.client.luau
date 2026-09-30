@@ -12,7 +12,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local GameTypes = require(Shared:WaitForChild("GameTypes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
-local ClientState = require(script.Parent:WaitForChild("ClientState"))
+local ClientState = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("ClientState"))
 local UiTheme = require(Shared:WaitForChild("UiTheme"))
 local WorldUi = require(Shared:WaitForChild("WorldUi"))
 

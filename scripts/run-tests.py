@@ -123,7 +123,7 @@ def main() -> int:
                {"Config", "Remotes", "FarmMath", "UiTheme", "WorldUi", "PlayerDataService", "PlotService", "OrderService", "RateLimiter", "Metrics"},
                "game, Remotes, PlayerDataService, PlotService, OrderService, RateLimiter, UiTheme, WorldUi, Metrics, os, DateTime, task"),
         module("mainFarmSpec", "tests/main-farm.spec.luau"),
-        module("ClientStateFactory", "src/client/ClientState.luau", {"Remotes", "GameTypes"}, "game, Remotes, task, os, warn"),
+        module("ClientStateFactory", "src/client/Core/ClientState.luau", {"Remotes", "GameTypes"}, "game, Remotes, task, os, warn"),
         module("clientFarmStateSpec", "tests/client-farm-state.spec.luau"),
         "dataSpec(SessionLock, SaveCodec, Config, FarmMath)\n",
         "economySpec(FarmMath, Config, Environment)\n",

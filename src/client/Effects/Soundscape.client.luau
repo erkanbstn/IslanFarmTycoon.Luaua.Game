@@ -14,7 +14,7 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local Environment = require(Shared:WaitForChild("Modules"):WaitForChild("Environment"))
-local Sfx = require(script.Parent:WaitForChild("Sfx"))
+local Sfx = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("Sfx"))
 
 local player = Players.LocalPlayer
 local UPDATE_SECONDS = 1

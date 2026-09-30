@@ -11,9 +11,9 @@ local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Remotes = require(Shared:WaitForChild("Remotes"))
-local ClientState = require(script.Parent:WaitForChild("ClientState"))
-local IslandContext = require(script.Parent:WaitForChild("IslandContext"))
-local IslandManager = require(script.Parent:WaitForChild("IslandManager"))
+local ClientState = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("ClientState"))
+local IslandContext = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("IslandContext"))
+local IslandManager = require(script.Parent.Parent:WaitForChild("Ui"):WaitForChild("IslandManager"))
 
 local player = Players.LocalPlayer
 local CHECK_INTERVAL = 0.4

@@ -8,9 +8,9 @@ local Config = require(Shared:WaitForChild("Config"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local GameTypes = require(Shared:WaitForChild("GameTypes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
-local ClientState = require(script.Parent.Parent:WaitForChild("ClientState"))
+local ClientState = require(script.Parent.Parent.Parent:WaitForChild("Core"):WaitForChild("ClientState"))
 local UiKit = require(script.Parent.Parent:WaitForChild("UiKit"))
-local IslandContext = require(script.Parent.Parent:WaitForChild("IslandContext"))
+local IslandContext = require(script.Parent.Parent.Parent:WaitForChild("Core"):WaitForChild("IslandContext"))
 
 type PlayerSave = GameTypes.PlayerSave
 

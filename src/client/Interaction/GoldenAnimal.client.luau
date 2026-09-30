@@ -11,9 +11,9 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 local Golden = require(Shared:WaitForChild("Modules"):WaitForChild("Golden"))
-local ClientState = require(script.Parent:WaitForChild("ClientState"))
-local UiKit = require(script.Parent:WaitForChild("UiKit"))
-local PurchaseController = require(script.Parent:WaitForChild("PurchaseController"))
+local ClientState = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("ClientState"))
+local UiKit = require(script.Parent.Parent:WaitForChild("Ui"):WaitForChild("UiKit"))
+local PurchaseController = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("PurchaseController"))
 
 local localPlayer = Players.LocalPlayer
 local playerGui = localPlayer:WaitForChild("PlayerGui")

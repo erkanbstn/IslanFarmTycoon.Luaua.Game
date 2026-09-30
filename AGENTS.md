@@ -46,6 +46,12 @@ Tam metin `.cursor/skills/<ad>/SKILL.md` içindedir (`.claude/skills/<ad>/SKILL.
 | `src/shared` | `ReplicatedStorage.Shared` | İkisi de erişebilir |
 | `src/first` | `ReplicatedFirst` | Client'ta ilk çalışan (yükleme ekranı) |
 
+## Mimari (kod nereye konur?) — önce `docs/MIMARI.md`
+Sunucu katmanları (alttan üste, yukarıya bağımlılık yok): `Modules/` (saf mantık) → `World/` (statik harita, eklenti de çalıştırır) →
+`Presentation/` (durumdan dünyaya çizim) → `Services/` (oyun mantığı, Remote). İstemci: `Core/` → `Effects/` → `Ui/` → `Interaction/`.
+`shared` sunucu/istemciye bağlanmaz; tüm denge `Config`'te, tüm hesap `FarmMath`'te. Kurallar `python scripts/check-architecture.py` ile denetlenir.
+Yeni dosya eklerken `docs/MIMARI.md`'deki "Yeni şey nereye?" tablosuna bak.
+
 ## Dosya adlandırma (Rojo kuralları)
 - `*.server.luau` → Script (sunucu)
 - `*.client.luau` → LocalScript (client)
@@ -86,7 +92,7 @@ Tam metin `.cursor/skills/<ad>/SKILL.md` içindedir (`.claude/skills/<ad>/SKILL.
   (`ZONES[x].island`); açık adalar/bölgeler `FarmMath.applyDerived` ile `purchased`'dan türetilir.
 
 ## Arayüz (UI) standardı
-- Ekran arayüzü `src/client/UiKit.luau` bileşenleriyle yazılır (panel, window, card, button, menuButton,
+- Ekran arayüzü `src/client/Ui/UiKit.luau` bileşenleriyle yazılır (panel, window, card, button, menuButton,
   closeButton, badge, progressBar, toastHost). Renk/yazı tipi/boyutu UiKit tablolarından al, elle değer yazma.
 - Dünyadaki tabelalar (BillboardGui/SurfaceGui) `src/shared/WorldUi.luau` ile yazılır: `tag` (havada etiket),
   `sign` (tahta tabela yüzü); güncellemek için `setTag` / `setSignText`.
@@ -97,12 +103,12 @@ Tam metin `.cursor/skills/<ad>/SKILL.md` içindedir (`.claude/skills/<ad>/SKILL.
 - HUD bölgeleri: sol orta `Stats` paneli, alt orta menü karoları (dar ekranda sağ orta 3 karo),
  sağda pencereler, üst ortada bildirimler. Sağ üst (oyuncu listesi) ve sol üst (sohbet) boş kalır.
  Ayrıntılı bilgi ana HUD'a değil "Çiftliğim" penceresine gider. Sipariş Panosu, Eşya Dükkânı, Envanter, Pazar, Yol Haritası ve Yükseltmeler
-  ayrı pencerelerdir; pencere ve bölüm kodu `src/client/Hud/` altında, `FarmHud.client.luau` yalnızca orkestrasyondur.
+  ayrı pencerelerdir; pencere ve bölüm kodu `src/client/Ui/Hud/` altında, `FarmHud.client.luau` yalnızca orkestrasyondur.
 - Sunucu bildirim (Notify) metinlerine emoji koyma; bildirimin türü (success/error/money/info) işareti belirler.
 
 ## Yerelleştirme (diller)
 - Desteklenen diller `Config.LANGUAGES` içinde: Türkçe (kaynak), İngilizce, Almanca, Rusça.
-- Kod Türkçe metin yazmaya devam eder; `src/client/Localizer.client.luau` ekrandaki ve tabelalardaki
+- Kod Türkçe metin yazmaya devam eder; `src/client/Core/Localizer.client.luau` ekrandaki ve tabelalardaki
   (TextLabel/TextButton/ProximityPrompt) yazıları çevirir. Sunucu bildirimleri de böyle çevrilir, sunucuda dil bilinmez.
 - **Yeni metin eklediysen** `src/shared/Locales/en.luau`, `de.luau`, `ru.luau` içine aynı Türkçe anahtarla çeviri ekle.
   Değişken içeren metinlerde boşluğu `{}` yaz, hedefte `{1}`, `{2}` kullan (örn. `["Önce: {}"] = "Requires: {1}"`).

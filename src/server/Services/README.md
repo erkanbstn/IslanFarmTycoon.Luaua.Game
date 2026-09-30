@@ -1,4 +1,4 @@
 # Server/Services
 
-Sunucu servisleri (ör. `DataService.luau`, `CombatService.luau`) buraya.
-Her servis bir ModuleScript olarak yazılır ve `init.server.luau` içinden `require` edilip başlatılır.
+Oyun mantığı ve çalışma anı durumu (Remote dinler, doğrular, ödeme/kayıt yapar). Bağımlılık kuralları: docs/MIMARI.md.
+Görsel/dünya kodu `../Presentation` ve `../World` klasörlerindedir; buraya konmaz.

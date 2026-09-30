@@ -9,8 +9,8 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
-local ClientState = require(script.Parent:WaitForChild("ClientState"))
-local UiKit = require(script.Parent:WaitForChild("UiKit"))
+local ClientState = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("ClientState"))
+local UiKit = require(script.Parent.Parent:WaitForChild("Ui"):WaitForChild("UiKit"))
 
 local player = Players.LocalPlayer
 local SPIN_DISTANCE = 90

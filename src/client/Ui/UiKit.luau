@@ -15,7 +15,7 @@ local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 
 local UiTheme = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("UiTheme"))
-local Sfx = require(script.Parent:WaitForChild("Sfx"))
+local Sfx = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("Sfx"))
 
 local UiKit = {}
 

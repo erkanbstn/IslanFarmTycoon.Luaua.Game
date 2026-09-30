@@ -28,7 +28,7 @@ LITERAL_PATTERNS = [
 TURKISH = re.compile(r"[A-Za-zÇĞİÖŞÜçğıöşü]{2,}")
 SPLITTERS = re.compile(r" · |\n|, ")
 # Yalnızca oyun sahibinin gördüğü Türkçe araç paneli ve bilinçli istisnalar
-IGNORE_FILES = {"src/client/AdminPanel.luau"}
+IGNORE_FILES = {"src/client/Ui/AdminPanel.luau"}
 IGNORE_TEXTS = {"Dil / Language", "+$0/sn"}
 
 

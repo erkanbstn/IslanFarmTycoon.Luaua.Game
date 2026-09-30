@@ -6,7 +6,7 @@ alwaysApply: false
 
 # Arayüz standardı
 
-- Bileşenler `src/client/UiKit.luau`: panel, window, card, button, menuButton (karo), closeButton,
+- Bileşenler `src/client/Ui/UiKit.luau`: panel, window, card, button, menuButton (karo), closeButton,
   badge, progressBar, sectionHeader, toastHost, iconChip, flag, textInput.
 - Renk/yazı/boyut `UiKit.Color / UiKit.Font / UiKit.TextSize / UiKit.Radius` (kaynak `UiTheme`).
   Elle `Color3.fromRGB` veya font yazma.
@@ -31,7 +31,7 @@ alwaysApply: false
 - Her yeni ekran metni için çeviri gerekir (localization rule). Kısa etiket seç; karo yazısı 76 px.
 
 ## Ses ve para biçimi
-- Sesler `src/client/Sfx.luau` üzerinden çalınır (`Sfx.play("coin")`, `Sfx.playAt`); kimlikler
+- Sesler `src/client/Core/Sfx.luau` üzerinden çalınır (`Sfx.play("coin")`, `Sfx.playAt`); kimlikler
   `Config.SOUNDS / AMBIENCE / ANIMAL_SOUNDS`. Boş `id` = ses yok. Ses düzeyi `SoundVolume` özniteliği
   (Ayarlar kaydırıcısı, `UiKit.slider`). Ortam ve hayvan sesleri `Soundscape.client`.
 - Para her yerde `FarmMath.formatMoney` ile yazılır: 10.000'e kadar tam ($9,999), üstü kısaltılır
@@ -41,8 +41,8 @@ alwaysApply: false
 - Durum güncellemesi yapısal (`structural`) ve para değişimi ayrı ele alınır; aynı metni tekrar yazma
   (`buttonStates` imza kalıbı). Her karede UI güncelleme yok; 0.25–1 sn aralık yeterli.
 
-- HUD ana betiği `src/client/FarmHud.client.luau` yalnızca orkestrasyondur (sol panel, menü, durum dağıtımı). Pencereler ve
-  bölümler `src/client/Hud/` altındadır: `ShopWindow`, `RoadmapWindow`, `UpgradesWindow`, `IslandTabs`, `StoreSection`,
+- HUD ana betiği `src/client/Ui/FarmHud.client.luau` yalnızca orkestrasyondur (sol panel, menü, durum dağıtımı). Pencereler ve
+  bölümler `src/client/Ui/Hud/` altındadır: `ShopWindow`, `RoadmapWindow`, `UpgradesWindow`, `IslandTabs`, `StoreSection`,
   `RewardsSection`, `BoardSection`, `ItemShopWindow` + `InventoryWindow` (+ ortak `ItemText`), `SeasonBar`, `Onboarding` (ilk adımlar: durumdan türetilir, `UiKit.pulse` vurgusu + `TutorialGuide` özniteliğiyle CollectorGuide ışını), ortak `HudCommon` (`setPurchaseButton`, `purchaseHint`). Yeni pencere/bölüm
   eklerken ana betiğe yığmak yerine buraya `create(...)` + `update(state)` kalıbıyla yeni modül yaz.
 - Mevsim/hava: ReplicatedStorage attribute'larını doğrudan okuma/dinleme; `Environment.getSeason()/getWeather()` ve `Environment.onChanged` kullan (asa ile oyuncuya özel katman otomatik uygulanır).

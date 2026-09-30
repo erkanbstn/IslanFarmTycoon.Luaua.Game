@@ -1,6 +1,6 @@
 ---
 description: Harita üretimi, dünya görselleri, gece ışıkları ve Lighting sahipliği
-globs: src/server/World/**,src/server/Presentation/**,plugin/**,src/client/DayNight.client.luau,src/client/WeatherEffects.client.luau,src/client/SeasonalScenery.luau
+globs: src/server/World/**,src/server/Presentation/**,plugin/**,src/client/Effects/DayNight.client.luau,src/client/Effects/WeatherEffects.client.luau,src/client/Effects/SeasonalScenery.luau
 alwaysApply: false
 ---
 
@@ -24,7 +24,7 @@ alwaysApply: false
 - Yapım alanları: `UpgradeVisualService.apply` satın alınabilen ama alınmamış, karada yapı noktası olan binaların yerine `plot.Sites` altında toprak zemin +
   kazık + sarı şerit + fiyatlı tabela koyar (çalışma anında, harita sürümü gerekmez); alınınca kaldırılır ve bina kurulur. Denizdeki nokta (`BoatPatrolX`) atlanır.
 - Meydan dekoru (`HubNpcs.fountain/bench/planter`): köprü ışınlarından (0°, 60°, ...) ve doğma noktasından uzak tut; satıcılar `HubNpc` etiketi taşır,
-  `src/client/HubNpcs.client.luau` onları canlandırır (göz teması, el sallama, selam balonu; yalnızca client'ta CFrame yazılır).
+  `src/client/Interaction/HubNpcs.client.luau` onları canlandırır (göz teması, el sallama, selam balonu; yalnızca client'ta CFrame yazılır).
 - Tabelalar (giriş, ada, "satılık"): uzun direk, tahta alt kenarı yerden >= 10 stud, tahta `CanCollide=false` (yolu kapatmaz).
   Yeni tabela eklerken `tests/map-structure.spec.luau` bu yüksekliği denetler.
 - Dekor bitince `WorldDecor.optimize(root)`: küçük parçalar gölge düşürmez, çarpışmayanlar `CanQuery=false` olur.

@@ -22,3 +22,4 @@ alwaysApply: false
   commit mesajında yaz.
 
 - **Tip analizi**: `python scripts/check-types.py` (luau-lsp analyze + Roblox tip tanımları + rojo sourcemap). Roblox kodunda çok gürültü çıktığı için bulgular `scripts/types-baseline.json` tabanına kaydedilir; yalnızca **yeni ya da artan** bulgu hata sayılır. Araçlar `.tools/luau-lsp` altındadır (git'e girmez; `powershell scripts/setup-types.ps1` indirir; yoksa adım atlanır). Yeni bulguyu önce gerçek hata diye incele (ör. `local T = { f = function() T.x() end }` içinde `T` yerel değildir → çalışma anında nil); gürültüyse bilinçli `--update`.
+- **Mimari kuralları**: `python scripts/check-architecture.py` katmanların yalnızca izinli katmanlara `require` ile bağlandığını denetler (docs/MIMARI.md). Bilinçli istisna gerekçesiyle `ALLOW` listesine eklenir.

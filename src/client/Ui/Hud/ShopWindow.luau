@@ -11,10 +11,10 @@ local GameTypes = require(Shared:WaitForChild("GameTypes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 local Environment = require(Shared:WaitForChild("Modules"):WaitForChild("Environment"))
 local Merchant = require(Shared:WaitForChild("Modules"):WaitForChild("Merchant"))
-local ClientState = require(script.Parent.Parent:WaitForChild("ClientState"))
+local ClientState = require(script.Parent.Parent.Parent:WaitForChild("Core"):WaitForChild("ClientState"))
 local UiKit = require(script.Parent.Parent:WaitForChild("UiKit"))
-local PurchaseController = require(script.Parent.Parent:WaitForChild("PurchaseController"))
-local IslandContext = require(script.Parent.Parent:WaitForChild("IslandContext"))
+local PurchaseController = require(script.Parent.Parent.Parent:WaitForChild("Core"):WaitForChild("PurchaseController"))
+local IslandContext = require(script.Parent.Parent.Parent:WaitForChild("Core"):WaitForChild("IslandContext"))
 local HudCommon = require(script.Parent:WaitForChild("HudCommon"))
 
 type PlayerSave = GameTypes.PlayerSave
