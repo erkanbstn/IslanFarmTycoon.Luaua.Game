@@ -13,7 +13,7 @@ Tek kaynak `src/shared/Config/` (`Upgrades`, `Animals` = bölge/hayvan, `Islands
 |---|---|---|
 | Hayvan | `ANIMALS` + `ANIMAL_ORDER` | model `assets/Animals`, `server/Presentation/AnimalVisualService`; bir `ZONES[x].allowedAnimals` (ana ada hayvanıysa `THEMES[n].homeAnimal`) |
 | Bölge | `ZONES` (`island` alanı zorunlu) + açan `UPGRADES` (kind zone) | `server/World/MapBuilder` bölge yerleşimi → `MAP_VERSION` +1; geliştirme profili: `ZONES[x].upgradeProfile` |
-| Yükseltme | `UPGRADES` (`stage`, `requires`, `cost`) | görseli `server/Presentation/UpgradeVisualService`; yapı noktası gerekiyorsa `World/MapBuilder` `BuildSpots` |
+| Yükseltme | `UPGRADES` (`stage`, `requires`, `cost`) | görseli `server/Presentation/UpgradeBuilders*` (bina id → kurucu; ortak parçalar `UpgradeParts`, birleştirme `UpgradeVisualService`); yapı noktası gerekiyorsa `World/MapBuilder` `BuildSpots` |
 | Uzman ada | `FARM_ISLANDS` + `FARM_ISLAND_ORDER` + island upgrade + `THEMES[n].satellites` + `ROADMAP_STAGES` (**sona ekle**: `upgrade.stage` indeksidir) | MapBuilder `SATELLITE_TYPES`, `IslandSpecialization.SITES`; ana hayvanın kendi adası temada olmaz, inek yoksa `dairy` bulunur |
 | Eklenti | `EXTENSIONS` + kind extension upgrade | `Presentation/ExtensionVisualService` |
 | Üretim | `PRODUCTION_RECIPES` (+ `upgradeProfile`) | `ProductionRules`, `World/IslandSpecialization`; tesis geliştirmesi `BUILD_UPGRADES.profiles` |

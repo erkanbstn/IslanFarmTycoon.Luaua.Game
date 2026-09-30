@@ -24,9 +24,9 @@ alwaysApply: false
   `orders`/`store`/`roadmap`/`travel`; client `FarmHud.client` ilgili pencereyi açar). Satıcı doğma noktasından >= 15 stud uzakta durur.
 - Ana ada avlusu (`IslandBuilder.decorateHome`): ana yolu çerçeveleyen çitler, saman balyaları, korkuluk, el arabası, kavşak yön tabelası (`buildSignpost`, ok yönleri `yaw` ile).
   Yeni avlu parçası `WorldDecor` yardımcısı (`fenceRun/hayBale/scarecrow/wheelbarrow`) olarak yazılır; çit/dekor çarpışmaz (`CanCollide=false`).
-- Çalışma anı seviye işaretleri: `UpgradeVisualService.applyLevelMarks` (tesis dibinde altın halkalar + "Sv.N" etiketi), `ZoneVisualService.applyLevelFlags` (bölge bayrakları).
+- Çalışma anı seviye işaretleri: `UpgradeSites.applyLevelMarks` (UpgradeVisualService çağırır) (tesis dibinde altın halkalar + "Sv.N" etiketi), `ZoneVisualService.applyLevelFlags` (bölge bayrakları).
 - NPC tabelasında `title` + işlev satırı (`blurb`) vardır; NPC adı etkileşim ipucunda (`ObjectText`). Yeni satıcıya `blurb` zorunlu.
-- Yapım alanları: `UpgradeVisualService.apply` satın alınabilen ama alınmamış, karada yapı noktası olan binaların yerine `plot.Sites` altında toprak zemin +
+- Yapım alanları (`UpgradeSites.buildSite`): `UpgradeVisualService.apply` satın alınabilen ama alınmamış, karada yapı noktası olan binaların yerine `plot.Sites` altında toprak zemin +
   kazık + sarı şerit + fiyatlı tabela koyar (çalışma anında, harita sürümü gerekmez); alınınca kaldırılır ve bina kurulur. Denizdeki nokta (`BoatPatrolX`) atlanır.
 - Meydan dekoru (`HubNpcs.fountain/bench/planter`): köprü ışınlarından (0°, 60°, ...) ve doğma noktasından uzak tut; satıcılar `HubNpc` etiketi taşır,
   `src/client/Interaction/HubNpcs.client.luau` onları canlandırır (göz teması, el sallama, selam balonu; yalnızca client'ta CFrame yazılır).

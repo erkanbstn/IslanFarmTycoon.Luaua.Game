@@ -24,7 +24,7 @@ Bağımlılık yönü: aşağıdaki liste **alttan üste**; bir katman kendi ve 
 |---|---|---|---|
 | 1 | `Modules/` | Saf sunucu mantığı | Kayıt kodlama (`SaveCodec`), kilit, hız sınırı, kurallar. Roblox servisine ya da başka katmana bağlanmaz. |
 | 2 | `World/` | **Statik harita** (Studio'da bir kez kurulup place'e kaydedilir) | `MapBuilder` (sürüm, doğrulama, ışık/deniz, `build`/`ensure`), `MapLayout` (düzen sabitleri ve yerleşimler), `MapParts` (yapı taşları), `IslandBuilder`, `SatelliteBuilder`, `HubBuilder`, `WorldDecor`, `HomeBuildings`, `HubNpcs`, `IslandSpecialization`, `BarnVisualService`. Oyun servislerini bilmez; eklenti (`plugin/`) bu klasörü kopyalayıp çalıştırır. |
-| 3 | `Presentation/` | **Durumdan dünyaya çizim** (oyuncu verisi değişince yeniden çizilir) | `AnimalVisualService`, `UpgradeVisualService`, `ZoneVisualService`, `ExtensionVisualService`, `CollectorVisualService`. Kayıt nesnesini okur, dünyayı günceller; para/kayıt yazmaz. |
+| 3 | `Presentation/` | **Durumdan dünyaya çizim** (oyuncu verisi değişince yeniden çizilir) | `AnimalVisualService`, `UpgradeVisualService` (+ `UpgradeParts`, `UpgradeBuildersHome`/`Barnyard`/`Workshops`, `UpgradeSites`), `ZoneVisualService`, `ExtensionVisualService`, `CollectorVisualService`. Kayıt nesnesini okur, dünyayı günceller; para/kayıt yazmaz. |
 | 4 | `Services/` | **Oyun mantığı ve çalışma anı durumu** | `PlayerDataService`, `PlotService`, `EconomyService`, `AnimalService`, `UpgradeService`, `ProductionService`, `OrderService`, `SeasonService`, `InventoryService`, `MainFarmService`, `ExtensionService`, `BuyPadService`, `EngagementService`, `MonetizationService`, `AdminService`. Remote dinler, doğrular, ödeme/kayıt yapar, `Presentation`'ı çağırır. |
 | — | `init.server.luau` | Bileşim noktası | Servisleri başlatır ve Remote'ları bağlar; iş mantığı içermez. |
 
@@ -88,5 +88,4 @@ Kural: `shared` sunucu ya da istemci klasörlerine bağlanmaz.
 
 ## Bilinen mimari borç
 
-- `UpgradeVisualService` (~1200) büyük dosya; bölümlere ayrılabilir.
 - `Presentation` ↔ `Services` döngüsü (`PlotService` görselleri çağırır, bazı görseller servisleri okur) tembel `require` ile kırılıyor; bir arayüz (olay) katmanıyla kaldırılabilir.
