@@ -29,7 +29,7 @@ Harita kodla üretilir ama **düzenleme modunda** kurulup place'e kaydedilir, b�
    ```
    rojo build plugin.project.json --plugin IslandFarmTycoonHarita.rbxm
    ```
-2. Studio → **Plugins** sekmesi → **Island Farm Tycoon → Panel** ile sabit işlemler panelini aç (ya da doğrudan **Haritayı Kur** düğmesi).
+2. Studio → **Plugins** sekmesi → **Island Farm Tycoon → Panel** ile sabit işlemler panelini aç (tek düğme; panel bir kez daha basınca kapanır).
    Panelde: **Haritayı Kur**, **Haritayı Doğrula** (validate + harita yapı testi + dünya testi), **Harita Bilgisi**, **Rojo Kontrolü**, **Günlüğü Temizle**.
    Sonuçlar panelde ve Output'ta görünür. (Harita kurulumu Ctrl+Z ile geri alınır.)
    Testler eklentinin içinde gömülüdür; kodu değiştirince `rojo build plugin.project.json --plugin IslandFarmTycoonHarita.rbxm` ile eklentiyi yenile.

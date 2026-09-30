@@ -28,16 +28,13 @@ local TAG = "[Island Farm Tycoon]"
 ---------------------------------------------------------------------------
 
 local toolbar = plugin:CreateToolbar("Island Farm Tycoon")
-local panelButton = toolbar:CreateButton("Panel", "Sabit işlemler panelini aç/kapat.", "")
-local buildButton = toolbar:CreateButton(
-	"Haritayı Kur",
-	"Denizi, meydanı ve adaları koddan sıfırdan kurar. Plots/World ve merkezdeki Terrain alanı yenilenir (Ctrl+Z ile geri alınabilir).",
+local panelButton = toolbar:CreateButton(
+	"Panel",
+	"Sabit işlemler panelini aç/kapat (harita kur, doğrula, bilgi, Rojo kontrolü).",
 	""
 )
 panelButton.ClickableWhenViewportHidden = true
-buildButton.ClickableWhenViewportHidden = true
 
--- Yeni Studio sürümleri CreateDockWidgetPluginGuiAsync ister, eskiler yalnızca CreateDockWidgetPluginGui bilir.
 local widgetInfo = DockWidgetPluginGuiInfo.new(Enum.InitialDockState.Right, false, false, 340, 520, 260, 300)
 local pluginAny = plugin :: any
 local hasAsync = pcall(function()
@@ -432,11 +429,9 @@ widget:GetPropertyChangedSignal("Enabled"):Connect(function()
 	panelButton:SetActive(widget.Enabled)
 end)
 
--- Araç çubuğundaki hızlı düğme panelden bağımsız çalışır; sonuç panele ve Output'a yazılır.
-buildButton.Click:Connect(function()
-	buildButton:SetActive(false)
-	widget.Enabled = true
-	runAction(actions[1])
-end)
+-- Studio panelin açık/kapalı durumunu oturumlar arasında saklar; görünmez "açık" duruma düşmesin diye her açılışta kapalı başlatılır
+-- (ilk tıklama paneli açar).
+widget.Enabled = false
+panelButton:SetActive(false)
 
 log("info", "Panel hazır. Haritayı kurduktan sonra 'Haritayı Doğrula'yı çalıştır.")
