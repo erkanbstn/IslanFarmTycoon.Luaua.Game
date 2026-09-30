@@ -9,6 +9,7 @@ local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local SoundService = game:GetService("SoundService")
+local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local player = Players.LocalPlayer
@@ -159,10 +160,121 @@ local function swimEmitter(character: Model): ParticleEmitter?
 	return emitter
 end
 
+-- Dipte sabit baloncuk sütunları: kameranın çevresindeki hücrelerden (40 stud) deterministik olarak seçilir; her sütun
+-- gerçek deniz tabanına ışınla oturtulur (ada gövdesinin içinde çıkmaz). Havuz küçük ve kaliteye bağlıdır.
+local VENT_CELL = 40
+local VENT_RADIUS = 70
+local VENT_POOL = { low = 2, medium = 4, high = 6 }
+local ventFolder = Instance.new("Folder")
+ventFolder.Name = "Vents"
+ventFolder.Parent = folder
+local ventEmitters: { ParticleEmitter } = {}
+local ventAnchors: { Part } = {}
+local floorParams = RaycastParams.new()
+floorParams.FilterType = Enum.RaycastFilterType.Exclude
+floorParams.IgnoreWater = true
+floorParams.FilterDescendantsInstances = { folder }
+
+local function ventPool(): number
+	local quality = player:GetAttribute("EffectsQuality")
+	return if quality == "low" then VENT_POOL.low elseif quality == "high" then VENT_POOL.high else VENT_POOL.medium
+end
+
+local function ensureVents(count: number)
+	while #ventEmitters < count do
+		local anchor = Instance.new("Part")
+		anchor.Name = "VentAnchor"
+		anchor.Anchored = true
+		anchor.CanCollide, anchor.CanTouch, anchor.CanQuery = false, false, false
+		anchor.CastShadow = false
+		anchor.Transparency = 1
+		anchor.Size = Vector3.one
+		anchor.Parent = ventFolder
+		local emitter = newBubbleEmitter(anchor)
+		emitter.Name = "VentBubbles"
+		emitter.Speed = NumberRange.new(3, 5)
+		emitter.SpreadAngle = Vector2.new(5, 5)
+		emitter.Lifetime = NumberRange.new(3, 4.5)
+		emitter.Acceleration = Vector3.new(0, 0.8, 0)
+		table.insert(ventEmitters, emitter)
+		table.insert(ventAnchors, anchor)
+	end
+end
+
+local function ventHash(cx: number, cz: number): number
+	local h = (cx * 73856093 + cz * 19349663) % 2147483647
+	return (h * 48271) % 2147483647
+end
+
+local function refreshVents(cameraPosition: Vector3)
+	local count = ventPool()
+	ensureVents(count)
+	local used = 0
+	local baseX = math.floor(cameraPosition.X / VENT_CELL)
+	local baseZ = math.floor(cameraPosition.Z / VENT_CELL)
+	for dx = -2, 2 do
+		for dz = -2, 2 do
+			if used >= count then
+				break
+			end
+			local cx, cz = baseX + dx, baseZ + dz
+			local hash = ventHash(cx, cz)
+			if hash % 5 ~= 0 then
+				continue
+			end
+			local x = (cx + (hash % 97) / 97) * VENT_CELL
+			local z = (cz + ((hash // 97) % 89) / 89) * VENT_CELL
+			if (Vector3.new(x, cameraPosition.Y, z) - cameraPosition).Magnitude > VENT_RADIUS then
+				continue
+			end
+			local hit = Workspace:Raycast(Vector3.new(x, WATER_LEVEL - 1, z), Vector3.new(0, -60, 0), floorParams)
+			-- Yalnızca derin taban (ada gövdesi ve sığ kıyı değil)
+			if hit and hit.Position.Y < WATER_LEVEL - 6 then
+				used += 1
+				ventAnchors[used].Position = hit.Position + Vector3.new(0, 0.3, 0)
+				ventEmitters[used].Rate = 5
+			end
+		end
+	end
+	for index = used + 1, #ventEmitters do
+		ventEmitters[index].Rate = 0
+	end
+end
+
+local function stopVents()
+	for _, emitter in ventEmitters do
+		emitter.Rate = 0
+	end
+end
+
+-- Yüzme izi: yüzeyde genişleyip sönen halka (yalnızca hareket ederken, düşük kalitede yok)
+local lastWake = 0
+local function wake(position: Vector3)
+	local ring = Instance.new("Part")
+	ring.Name = "WakeRing"
+	ring.Shape = Enum.PartType.Cylinder
+	ring.Anchored = true
+	ring.CanCollide, ring.CanTouch, ring.CanQuery = false, false, false
+	ring.CastShadow = false
+	ring.Material = Enum.Material.SmoothPlastic
+	ring.Color = Color3.fromRGB(225, 242, 255)
+	ring.Transparency = 0.55
+	ring.Size = Vector3.new(0.05, 1.5, 1.5)
+	ring.CFrame = CFrame.new(position.X, WATER_LEVEL + 0.12, position.Z) * CFrame.Angles(0, 0, math.rad(90))
+	ring.Parent = folder
+	TweenService:Create(
+		ring,
+		TweenInfo.new(1.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+		{ Size = Vector3.new(0.05, 7, 7), Transparency = 1 }
+	):Play()
+	Debris:AddItem(ring, 1.3)
+end
+
 local strength = 0 -- 0 = su üstü, 1 = tam su altı (yumuşak geçiş)
 local submerged = false
 local wasInWater = false
 local elapsed = 0
+local ventElapsed = 0
 local savedReverb: Enum.ReverbType = SoundService.AmbientReverb
 
 local function setSubmerged(value: boolean)
@@ -223,6 +335,17 @@ RunService.Heartbeat:Connect(function(dt: number)
 			setSubmerged(false)
 		end
 	end
+	local cameraNow = Workspace.CurrentCamera
+	ventElapsed += 0.1
+	if submerged and cameraNow then
+		if ventElapsed >= 1 then
+			ventElapsed = 0
+			refreshVents(cameraNow.CFrame.Position)
+		end
+	elseif #ventEmitters > 0 and ventElapsed >= 1 then
+		ventElapsed = 0
+		stopVents()
+	end
 	-- Karakter: suya giriş/çıkış sıçraması ve yüzerken baş baloncukları
 	local character = player.Character
 	local root = character and character:FindFirstChild("HumanoidRootPart")
@@ -238,6 +361,16 @@ RunService.Heartbeat:Connect(function(dt: number)
 		local emitter = swimEmitter(character)
 		if emitter then
 			emitter.Rate = if inWater then budget().swim else 0
+		end
+		if
+			inWater
+			and player:GetAttribute("EffectsQuality") ~= "low"
+			and not reduced()
+			and root.AssemblyLinearVelocity.Magnitude > 3
+			and os.clock() - lastWake > 0.55
+		then
+			lastWake = os.clock()
+			wake(root.Position)
 		end
 	else
 		wasInWater = false
