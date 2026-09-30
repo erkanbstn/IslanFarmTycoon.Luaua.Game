@@ -869,4 +869,5 @@ return {
 	["Ahır siparişi ödülü +%{}"] = "Barn order reward +{1}%",
 	["Ürün merkezi verimi +%{}"] = "Production center yield +{1}%",
 	["Açık"] = "Clear",
+	["Sahne hazırlanıyor"] = "Preparing the scene",
 }

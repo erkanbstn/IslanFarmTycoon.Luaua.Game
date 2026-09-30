@@ -869,4 +869,5 @@ return {
 	["Ahır siparişi ödülü +%{}"] = "Stallauftrags-Belohnung +{1}%",
 	["Ürün merkezi verimi +%{}"] = "Ertrag der Produktionszentren +{1}%",
 	["Açık"] = "Klar",
+	["Sahne hazırlanıyor"] = "Szene wird vorbereitet",
 }
