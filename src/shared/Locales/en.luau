@@ -724,4 +724,10 @@ return {
 	["Hızlı kazanç: {} Sv.{}"] = "Quick win: {1} Lv.{2}",
 	["{} · Tüm aşamalar ve ilerlemen. Alışveriş için Yükseltmeler (U)"] = "{1} · All stages and your progress. Shop in Upgrades (U)",
 	["Tüm aşamalar ve ilerlemen. Alışveriş için Yükseltmeler (U)"] = "All stages and your progress. Shop in Upgrades (U)",
+	["Ödüllü görevler"] = "Rewarded tasks",
+	["Kalıcı eşyalar"] = "Permanent items",
+	["Sıradaki adımlar"] = "Next steps",
+	["Adalara yolculuk"] = "Travel to islands",
+	["Başarımları gizle"] = "Hide achievements",
+	["Ödül var"] = "Reward ready",
 }

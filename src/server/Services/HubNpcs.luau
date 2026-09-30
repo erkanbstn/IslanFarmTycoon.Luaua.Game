@@ -17,6 +17,7 @@ export type NpcSpec = {
 	title: string,
 	icon: string,
 	action: string, -- "orders" | "store" | "roadmap" | "upgrades" | "travel"
+	blurb: string, -- Tabelada görünen tek satır işlev açıklaması (NPC adı etkileşim ipucunda)
 	prompt: string,
 	shirt: Color3,
 	hat: Color3,
@@ -125,7 +126,7 @@ function HubNpcs.vendor(parent: Instance, base: CFrame, spec: NpcSpec)
 		Enum.Material.WoodPlanks
 	)
 	board.CanCollide = false
-	WorldUi.sign(board, Enum.NormalId.Front, { icon = spec.icon, title = spec.title, text = spec.name })
+	WorldUi.sign(board, Enum.NormalId.Front, { icon = spec.icon, title = spec.title, text = spec.blurb })
 
 	local anchor =
 		part(model, "VendorPromptAnchor", Vector3.one, base * CFrame.new(0, 3, -3.6), WOOD, Enum.Material.SmoothPlastic)

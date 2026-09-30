@@ -23,7 +23,7 @@ local MapBuilder = {}
 
 -- Harita düzenini (adalar, bölgeler, yapı yerleri) değiştirince bunu 1 artır:
 -- oyun, place'e kaydedilmiş eski haritayı fark edip uyarır.
-local MAP_VERSION = 35
+local MAP_VERSION = 36
 
 local SURFACE_Y = 4 -- Ada ve meydan yüzeyinin yüksekliği
 local WATER_Y = 0 -- Deniz yüzeyi
@@ -1114,6 +1114,7 @@ local function buildHub(parent: Instance)
 				title = "Siparişler",
 				icon = "📋",
 				action = "orders",
+				blurb = "Ödüllü görevler",
 				prompt = "Siparişlere bak",
 				shirt = Color3.fromRGB(70, 130, 90),
 				hat = Color3.fromRGB(120, 85, 50),
@@ -1127,6 +1128,7 @@ local function buildHub(parent: Instance)
 				title = "Eşyalar",
 				icon = "🎒",
 				action = "store",
+				blurb = "Kalıcı eşyalar",
 				prompt = "Eşyalara bak",
 				shirt = Color3.fromRGB(150, 90, 170),
 				hat = Color3.fromRGB(60, 50, 90),
@@ -1140,6 +1142,7 @@ local function buildHub(parent: Instance)
 				title = "Yol Haritası",
 				icon = "🗺️",
 				action = "roadmap",
+				blurb = "Sıradaki adımlar",
 				prompt = "Konuş",
 				shirt = Color3.fromRGB(60, 120, 190),
 				hat = Color3.fromRGB(230, 200, 90),
@@ -1153,6 +1156,7 @@ local function buildHub(parent: Instance)
 				title = "Adalar",
 				icon = "⚓",
 				action = "travel",
+				blurb = "Adalara yolculuk",
 				prompt = "Adalara Git",
 				shirt = Color3.fromRGB(235, 235, 240),
 				hat = Color3.fromRGB(30, 50, 100),

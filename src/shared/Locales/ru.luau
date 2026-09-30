@@ -724,4 +724,10 @@ return {
 	["Hızlı kazanç: {} Sv.{}"] = "Быстрая выгода: {1} Ур.{2}",
 	["{} · Tüm aşamalar ve ilerlemen. Alışveriş için Yükseltmeler (U)"] = "{1} · Все этапы и твой прогресс. Покупки — в Улучшениях (U)",
 	["Tüm aşamalar ve ilerlemen. Alışveriş için Yükseltmeler (U)"] = "Все этапы и твой прогресс. Покупки — в Улучшениях (U)",
+	["Ödüllü görevler"] = "Задания с наградой",
+	["Kalıcı eşyalar"] = "Постоянные предметы",
+	["Sıradaki adımlar"] = "Следующие шаги",
+	["Adalara yolculuk"] = "Путешествие на острова",
+	["Başarımları gizle"] = "Скрыть достижения",
+	["Ödül var"] = "Есть награда",
 }

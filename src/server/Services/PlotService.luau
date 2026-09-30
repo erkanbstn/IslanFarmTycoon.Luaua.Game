@@ -256,6 +256,10 @@ local function applyZoneState(plot: Model, data: PlayerSave?)
 
 		if data and unlocked then
 			local label = `{zoneName} · {FarmMath.countInZone(data, zoneId)}/{FarmMath.getZoneCapacity(data, zoneId)}`
+			local zoneLevel = FarmMath.getExpansionLevel(data, zoneId)
+			if zoneLevel > 0 then
+				label ..= ` · Sv.{zoneLevel}`
+			end
 			for extensionId, extension in Config.EXTENSIONS do
 				if extension.sourceZoneId == zoneId then
 					local upgrade = Config.getExtensionUpgrade(extensionId)

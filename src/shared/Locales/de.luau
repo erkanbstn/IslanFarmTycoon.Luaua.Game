@@ -724,4 +724,10 @@ return {
 	["Hızlı kazanç: {} Sv.{}"] = "Schneller Gewinn: {1} St.{2}",
 	["{} · Tüm aşamalar ve ilerlemen. Alışveriş için Yükseltmeler (U)"] = "{1} · Alle Stufen und dein Fortschritt. Einkaufen unter Ausbauten (U)",
 	["Tüm aşamalar ve ilerlemen. Alışveriş için Yükseltmeler (U)"] = "Alle Stufen und dein Fortschritt. Einkaufen unter Ausbauten (U)",
+	["Ödüllü görevler"] = "Belohnte Aufträge",
+	["Kalıcı eşyalar"] = "Dauerhafte Gegenstände",
+	["Sıradaki adımlar"] = "Nächste Schritte",
+	["Adalara yolculuk"] = "Reise zu den Inseln",
+	["Başarımları gizle"] = "Erfolge ausblenden",
+	["Ödül var"] = "Belohnung bereit",
 }

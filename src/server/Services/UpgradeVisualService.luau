@@ -1073,6 +1073,70 @@ local function buildSite(upgrade: Config.UpgradeConfig, spot: BasePart, parent: 
 	site.Parent = parent
 end
 
+-- Tesis geliştirme seviyesi dünyada görünür: binanın dibinde seviye kadar altın halka ve üstünde "Sv.N" etiketi.
+-- Kurulu değilse ya da seviye 0 ise çizilmez; seviye değişince yenilenir.
+local function applyLevelMarks(plot: Model, spots: Instance, save: PlayerSave?)
+	local folder = plot:FindFirstChild("LevelMarks")
+	if not folder then
+		folder = Instance.new("Folder")
+		folder.Name = "LevelMarks"
+		folder.Parent = plot
+	end
+	local marksFolder = folder :: Instance
+	for upgradeId, recipeId in PRODUCTION_RECIPES do
+		local level = if save and save.purchased[upgradeId] then FarmMath.getExpansionLevel(save, recipeId) else 0
+		local existing = marksFolder:FindFirstChild(upgradeId)
+		if existing and existing:GetAttribute("Level") ~= level then
+			existing:Destroy()
+			existing = nil
+		end
+		local spot = spots:FindFirstChild(upgradeId)
+		if level > 0 and not existing and spot and spot:IsA("BasePart") then
+			local mark = Instance.new("Model")
+			mark.Name = upgradeId
+			mark:SetAttribute("Level", level)
+			local ground = spot.Position.Y - spot.Size.Y / 2
+			for ring = 1, level do
+				local disc = Instance.new("Part")
+				disc.Name = "LevelRing"
+				disc.Shape = Enum.PartType.Cylinder
+				disc.Size = Vector3.new(0.12, 9 + ring * 1.4, 9 + ring * 1.4)
+				disc.CFrame = CFrame.new(spot.Position.X, ground + 0.08 + ring * 0.02, spot.Position.Z)
+					* CFrame.Angles(0, 0, math.rad(90))
+				disc.Color = GOLD
+				disc.Material = Enum.Material.Neon
+				disc.Transparency = 0.55 + (level - ring) * 0.05
+				disc.Anchored = true
+				disc.CanCollide = false
+				disc.CanTouch = false
+				disc.CanQuery = false
+				disc.CastShadow = false
+				disc.Parent = mark
+			end
+			local anchor = Instance.new("Part")
+			anchor.Name = "LevelTagAnchor"
+			anchor.Size = Vector3.one
+			anchor.Position = Vector3.new(spot.Position.X, ground + 1, spot.Position.Z)
+			anchor.Transparency = 1
+			anchor.Anchored = true
+			anchor.CanCollide = false
+			anchor.CanTouch = false
+			anchor.CanQuery = false
+			anchor.Parent = mark
+			WorldUi.tag(anchor, "LevelTag", {
+				text = `Sv.{level}`,
+				icon = "⭐",
+				tint = GOLD,
+				widthStuds = 5,
+				heightStuds = 1.6,
+				worldOffset = Vector3.new(0, 13, 0),
+				maxDistance = 70,
+			})
+			mark.Parent = marksFolder
+		end
+	end
+end
+
 function UpgradeVisualService.apply(plot: Model, save: PlayerSave?)
 	local spots = plot:FindFirstChild("BuildSpots")
 	if not spots then
@@ -1123,6 +1187,7 @@ function UpgradeVisualService.apply(plot: Model, save: PlayerSave?)
 			site:Destroy()
 		end
 	end
+	applyLevelMarks(plot, spots, save)
 end
 
 return UpgradeVisualService

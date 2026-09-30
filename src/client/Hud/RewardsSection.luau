@@ -64,10 +64,31 @@ function RewardsSection.create(list: Instance, setGoalsBadge: (number) -> ()): (
 		end
 	end
 
-	local _, achievementsMeta = UiKit.sectionHeader(list, "Başarımlar", 21)
+	-- Başarımlar uzun bir liste: varsayılan kapalıdır; düğmeyle açılır (ödül alınabiliyorsa düğme vurgulanır)
+	local achievementsToggle = UiKit.button(list, "Başarımlar", "secondary")
+	achievementsToggle.Size = UDim2.new(1, 0, 0, 38)
+	achievementsToggle.LayoutOrder = 21
+	local achievementsOpen = false
 	local achievementCards: { [string]: UiKit.Card } = {}
+	local achievementsSummary = ""
+	local achievementsClaimable = 0
+	local function refreshAchievementsToggle()
+		achievementsToggle.Text = if achievementsOpen then "Başarımları gizle" else achievementsSummary
+		UiKit.setVariant(
+			achievementsToggle,
+			if achievementsClaimable > 0 and not achievementsOpen then "primary" else "secondary"
+		)
+		for _, card in achievementCards do
+			card.frame.Visible = achievementsOpen
+		end
+	end
+	achievementsToggle.Activated:Connect(function()
+		achievementsOpen = not achievementsOpen
+		refreshAchievementsToggle()
+	end)
 	for index, achievement in Config.ACHIEVEMENTS do
 		local card = UiKit.card(list, 21 + index, achievement.icon)
+		card.frame.Visible = false
 		card.title.Text = achievement.displayName
 		achievementCards[achievement.id] = card
 		card.action.Activated:Connect(function()
@@ -114,7 +135,11 @@ function RewardsSection.create(list: Instance, setGoalsBadge: (number) -> ()): (
 			dailyCard.action.Text = "Alındı"
 			UiKit.setVariant(dailyCard.action, "owned")
 		end
-		achievementsMeta.Text = `{claimed}/{#Config.ACHIEVEMENTS}`
+		achievementsClaimable = claimable
+		achievementsSummary = if claimable > 0
+			then `Başarımlar · {claimed}/{#Config.ACHIEVEMENTS} · Ödül var`
+			else `Başarımlar · {claimed}/{#Config.ACHIEVEMENTS}`
+		refreshAchievementsToggle()
 		for _, achievement in Config.ACHIEVEMENTS do
 			local card = achievementCards[achievement.id]
 			local owned = state.achievements ~= nil and state.achievements[achievement.id] == true
