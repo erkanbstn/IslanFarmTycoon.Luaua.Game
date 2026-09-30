@@ -137,7 +137,7 @@ function SeasonalScenery.start(): () -> ()
 			local color = source.color
 			local visible = true
 			local size: Vector3? = nil
-			if source.kind == "ground" then
+			if source.kind == "ground" or source.kind == "zoneground" then
 				if part:GetAttribute("Locked") == true then
 					if source.tween then
 						source.tween:Cancel()
@@ -152,7 +152,10 @@ function SeasonalScenery.start(): () -> ()
 				end
 				local warmth = sample.autumn * (1 - sample.snow)
 				color = color:Lerp(Color3.fromRGB(165, 146, 80), warmth * 0.45):Lerp(SNOW, sample.snow * 0.94)
-				part.Material = if sample.snow > 0.35 then Enum.Material.Snow else Enum.Material.Grass
+				part.Material = if sample.snow > 0.35
+					then Enum.Material.Snow
+					elseif source.kind == "zoneground" then source.material
+					else Enum.Material.Grass
 			elseif source.kind == "evergreen" then
 				color = color:Lerp(SNOW, sample.snow * 0.65)
 			elseif source.kind == "flower" then
@@ -247,6 +250,19 @@ function SeasonalScenery.start(): () -> ()
 		local kind: string? = nil
 		if instance.Name == "PlotBase" or instance.Name == "IslandBase" then
 			kind = "ground"
+		elseif
+			instance.Name == "Ground"
+			and instance.Transparency < 1
+			and parent.Parent ~= nil
+			and parent.Parent.Name == "Zones"
+			and (
+				instance.Material == Enum.Material.Grass
+				or instance.Material == Enum.Material.Sand
+				or instance.Material == Enum.Material.Ground
+			)
+		then
+			-- Bölge zeminleri (küçük adalarda yüzeyin çoğunu kaplar) ada tabanıyla birlikte karlanır.
+			kind = "zoneground"
 		elseif instance.Name == "Needles" and parent.Name == "PineTree" then
 			kind = "evergreen"
 		elseif instance.Name == "Leaves" and parent.Name == "OakTree" then

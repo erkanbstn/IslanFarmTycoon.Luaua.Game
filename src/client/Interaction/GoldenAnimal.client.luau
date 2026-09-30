@@ -23,6 +23,12 @@ local CHECK_SECONDS = 0.5
 local highlight: Highlight? = nil
 local billboard: BillboardGui? = nil
 local shownUid: string? = nil
+local shownModel: Model? = nil
+
+local PROXIMITY_CHECK_SECONDS = 0.12
+local CLAIM_RETRY_SECONDS = 1.2
+local CLAIM_REACH = 6 -- hayvanın sınır kutusuna bu kadar yaklaşınca otomatik toplanır
+local lastClaimAttempt = -math.huge
 
 local function findModel(uid: string): Model?
 	for _, instance in CollectionService:GetTagged("Animal") do
@@ -43,6 +49,7 @@ local function clear()
 		billboard = nil
 	end
 	shownUid = nil
+	shownModel = nil
 end
 
 local function show(event: Golden.Event, model: Model)
@@ -79,6 +86,7 @@ local function show(event: Golden.Event, model: Model)
 	end)
 	billboard = gui
 	shownUid = event.uid
+	shownModel = model
 end
 
 local elapsed = 0
@@ -105,4 +113,35 @@ RunService.Heartbeat:Connect(function(dt: number)
 	end
 	clear()
 	show(event, model)
+end)
+
+-- Parlayan hayvanın yanına gelince (üstünden geçince) otomatik topla; düğme yedek olarak kalır.
+-- Sunucu ödülü yine Golden.current ile doğrular; burada yalnızca tetikleme var.
+local proximityElapsed = 0
+RunService.Heartbeat:Connect(function(dt: number)
+	proximityElapsed += dt
+	if proximityElapsed < PROXIMITY_CHECK_SECONDS then
+		return
+	end
+	proximityElapsed = 0
+	local model = shownModel
+	if not model or not model.Parent or not shownUid then
+		return
+	end
+	local now = os.clock()
+	if now - lastClaimAttempt < CLAIM_RETRY_SECONDS then
+		return
+	end
+	local root = localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart")
+	if not root or not root:IsA("BasePart") then
+		return
+	end
+	local boxCf, boxSize = model:GetBoundingBox()
+	local offset = root.Position - boxCf.Position
+	local flat = math.sqrt(offset.X * offset.X + offset.Z * offset.Z)
+	local reach = math.max(boxSize.X, boxSize.Z) / 2 + CLAIM_REACH
+	if flat <= reach and math.abs(offset.Y) <= boxSize.Y / 2 + 8 then
+		lastClaimAttempt = now
+		PurchaseController.submit("RequestClaimGolden", "golden")
+	end
 end)

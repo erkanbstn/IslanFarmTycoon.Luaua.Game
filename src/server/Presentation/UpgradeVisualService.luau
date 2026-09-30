@@ -1071,6 +1071,22 @@ local function buildSite(upgrade: Config.UpgradeConfig, spot: BasePart, parent: 
 		title = upgrade.displayName,
 		text = `Yapım alanı · {FarmMath.formatMoney(price)}`,
 	})
+	-- Tabelaya yaklaşınca "Satın al": satın almayı BuyPadService sunucuda doğrular (UpgradeService.tryBuy).
+	local promptAnchor =
+		piece("SitePromptAnchor", Vector3.one * 0.2, CFrame.new(0, 2.6, -SITE_HALF - 1.4), METAL, Enum.Material.Metal)
+	promptAnchor.Transparency = 1
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.Name = "BuySitePrompt"
+	prompt.ActionText = "Satın al"
+	prompt.ObjectText = upgrade.displayName
+	prompt.KeyboardKeyCode = Enum.KeyCode.E
+	prompt.HoldDuration = 0
+	prompt.MaxActivationDistance = 12
+	prompt.RequiresLineOfSight = false
+	prompt:SetAttribute("Locked", true) -- IslandPrompts: yalnızca sahibine görünür
+	prompt:SetAttribute("UpgradeId", upgrade.id)
+	WorldUi.configureProximityPrompt(prompt)
+	prompt.Parent = promptAnchor
 	site.Parent = parent
 end
 

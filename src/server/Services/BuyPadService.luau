@@ -7,12 +7,14 @@
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
+local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
+local RateLimiter = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("RateLimiter"))
 local UiTheme = require(Shared:WaitForChild("UiTheme"))
 local WorldUi = require(Shared:WaitForChild("WorldUi"))
 
@@ -173,16 +175,25 @@ local function buildPad(
 	prompt:SetAttribute("UpgradeId", upgrade.id)
 	prompt.Parent = pad
 	prompt.Triggered:Connect(function(player: Player)
-		if PlotService.getOwner(plot) ~= player or PlotService.getPlot(player) ~= plot then
-			return
-		end
-		local ok, err = UpgradeService.tryBuy(player, upgrade.id)
-		if ok then
-			Remotes.get("Notify"):FireClient(player, `{upgrade.displayName} alındı!`, "success")
-		elseif err then
-			Remotes.get("Notify"):FireClient(player, err, "error")
-		end
+		BuyPadService.buyFromWorld(player, plot, upgrade.id)
 	end)
+end
+
+-- Dünyadaki bir satın alma promptundan (kaide ya da yapım alanı tabelası) alım: sahiplik ve fiyat sunucuda doğrulanır.
+function BuyPadService.buyFromWorld(player: Player, plot: Model, upgradeId: string)
+	if PlotService.getOwner(plot) ~= player or PlotService.getPlot(player) ~= plot then
+		return
+	end
+	local upgrade = Config.getUpgrade(upgradeId)
+	if not upgrade then
+		return
+	end
+	local ok, err = UpgradeService.tryBuy(player, upgradeId)
+	if ok then
+		Remotes.get("Notify"):FireClient(player, `{upgrade.displayName} alındı!`, "success")
+	elseif err then
+		Remotes.get("Notify"):FireClient(player, err, "error")
+	end
 end
 
 function BuyPadService.clear(plot: Model)
@@ -242,6 +253,22 @@ local function refreshAll()
 end
 
 function BuyPadService.init()
+	-- Yapım alanı tabelasındaki "Satın al" promptu (UpgradeVisualService kurar; alım burada).
+	ProximityPromptService.PromptTriggered:Connect(function(prompt: ProximityPrompt, player: Player)
+		if prompt.Name ~= "BuySitePrompt" then
+			return
+		end
+		local upgradeId = prompt:GetAttribute("UpgradeId")
+		if typeof(upgradeId) ~= "string" or not RateLimiter.allow(player, "buySitePrompt", 0.4) then
+			return
+		end
+		for _, plot in PlotService.getAllPlots() do
+			if prompt:IsDescendantOf(plot) then
+				BuyPadService.buyFromWorld(player, plot, upgradeId)
+				return
+			end
+		end
+	end)
 	task.spawn(function()
 		while true do
 			task.wait(UPDATE_SECONDS)
