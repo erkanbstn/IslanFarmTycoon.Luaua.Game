@@ -61,21 +61,31 @@ local COLORS = {
 	accent = Color3.fromRGB(70, 140, 220),
 }
 
-local root = Instance.new("Frame")
+-- Tüm panel tek bir kaydırılabilir alan: düğmeler, sonra sonuçlar. Yazılar sarılır, panel küçük olsa da her şeye erişilir.
+local root = Instance.new("ScrollingFrame")
 root.Size = UDim2.fromScale(1, 1)
 root.BackgroundColor3 = COLORS.background
 root.BorderSizePixel = 0
+root.ScrollBarThickness = 8
+root.ScrollingDirection = Enum.ScrollingDirection.Y
+root.CanvasSize = UDim2.new()
+root.AutomaticCanvasSize = Enum.AutomaticSize.Y
 root.Parent = widget
 
 local rootPadding = Instance.new("UIPadding")
 rootPadding.PaddingTop = UDim.new(0, 8)
 rootPadding.PaddingBottom = UDim.new(0, 8)
 rootPadding.PaddingLeft = UDim.new(0, 8)
-rootPadding.PaddingRight = UDim.new(0, 8)
+rootPadding.PaddingRight = UDim.new(0, 14) -- Kaydırma çubuğuna yer bırak
 rootPadding.Parent = root
+local rootLayout = Instance.new("UIListLayout")
+rootLayout.Padding = UDim.new(0, 8)
+rootLayout.SortOrder = Enum.SortOrder.LayoutOrder
+rootLayout.Parent = root
 
 local actionsFrame = Instance.new("Frame")
 actionsFrame.Name = "Actions"
+actionsFrame.LayoutOrder = 1
 actionsFrame.BackgroundTransparency = 1
 actionsFrame.Size = UDim2.new(1, 0, 0, 0)
 actionsFrame.AutomaticSize = Enum.AutomaticSize.Y
@@ -85,31 +95,35 @@ actionsLayout.Padding = UDim.new(0, 6)
 actionsLayout.SortOrder = Enum.SortOrder.LayoutOrder
 actionsLayout.Parent = actionsFrame
 
-local logFrame = Instance.new("ScrollingFrame")
+local logTitle = Instance.new("TextLabel")
+logTitle.LayoutOrder = 2
+logTitle.BackgroundTransparency = 1
+logTitle.Size = UDim2.new(1, 0, 0, 18)
+logTitle.Font = Enum.Font.GothamBold
+logTitle.TextSize = 13
+logTitle.TextXAlignment = Enum.TextXAlignment.Left
+logTitle.TextColor3 = COLORS.muted
+logTitle.Text = "SONUÇLAR"
+logTitle.Parent = root
+
+local logFrame = Instance.new("Frame")
 logFrame.Name = "Log"
+logFrame.LayoutOrder = 3
 logFrame.BackgroundColor3 = Color3.fromRGB(22, 24, 28)
 logFrame.BorderSizePixel = 0
-logFrame.ScrollBarThickness = 6
-logFrame.CanvasSize = UDim2.new()
-logFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+logFrame.Size = UDim2.new(1, 0, 0, 0)
+logFrame.AutomaticSize = Enum.AutomaticSize.Y
 logFrame.Parent = root
 local logLayout = Instance.new("UIListLayout")
-logLayout.Padding = UDim.new(0, 2)
+logLayout.Padding = UDim.new(0, 3)
 logLayout.SortOrder = Enum.SortOrder.LayoutOrder
 logLayout.Parent = logFrame
 local logPadding = Instance.new("UIPadding")
 logPadding.PaddingLeft = UDim.new(0, 6)
 logPadding.PaddingRight = UDim.new(0, 6)
-logPadding.PaddingTop = UDim.new(0, 4)
+logPadding.PaddingTop = UDim.new(0, 6)
+logPadding.PaddingBottom = UDim.new(0, 6)
 logPadding.Parent = logFrame
-
--- Günlük alanı, eylemler düğmelerinin altını kaplar
-local function layoutLog()
-	local top = actionsFrame.AbsoluteSize.Y + 14
-	logFrame.Position = UDim2.new(0, 0, 0, top)
-	logFrame.Size = UDim2.new(1, 0, 1, -top)
-end
-actionsFrame:GetPropertyChangedSignal("AbsoluteSize"):Connect(layoutLog)
 
 local logCount = 0
 local function log(kind: string, text: string)
@@ -135,7 +149,10 @@ local function log(kind: string, text: string)
 		else "· "}{text}`
 	line.LayoutOrder = logCount
 	line.Parent = logFrame
-	logFrame.CanvasPosition = Vector2.new(0, 1e6)
+	-- Yeni satır görünsün: tuval boyutu bir sonraki karede güncellenir
+	task.defer(function()
+		root.CanvasPosition = Vector2.new(0, 1e6)
+	end)
 	if kind == "error" then
 		warn(`{TAG} {text}`)
 	else
@@ -358,7 +375,8 @@ for index, action in actions do
 	local button = Instance.new("TextButton")
 	button.Name = action.label
 	button.LayoutOrder = index
-	button.Size = UDim2.new(1, 0, 0, 44)
+	button.Size = UDim2.new(1, 0, 0, 0)
+	button.AutomaticSize = Enum.AutomaticSize.Y
 	button.BackgroundColor3 = if action.accent then COLORS.accent else COLORS.button
 	button.BorderSizePixel = 0
 	button.AutoButtonColor = true
@@ -367,10 +385,22 @@ for index, action in actions do
 	local corner = Instance.new("UICorner")
 	corner.CornerRadius = UDim.new(0, 6)
 	corner.Parent = button
+	local buttonPadding = Instance.new("UIPadding")
+	buttonPadding.PaddingTop = UDim.new(0, 7)
+	buttonPadding.PaddingBottom = UDim.new(0, 8)
+	buttonPadding.PaddingLeft = UDim.new(0, 10)
+	buttonPadding.PaddingRight = UDim.new(0, 10)
+	buttonPadding.Parent = button
+	local buttonLayout = Instance.new("UIListLayout")
+	buttonLayout.Padding = UDim.new(0, 2)
+	buttonLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	buttonLayout.Parent = button
 	local title = Instance.new("TextLabel")
+	title.LayoutOrder = 1
 	title.BackgroundTransparency = 1
-	title.Position = UDim2.fromOffset(10, 4)
-	title.Size = UDim2.new(1, -20, 0, 18)
+	title.Size = UDim2.new(1, 0, 0, 0)
+	title.AutomaticSize = Enum.AutomaticSize.Y
+	title.TextWrapped = true
 	title.Font = Enum.Font.GothamBold
 	title.TextSize = 14
 	title.TextXAlignment = Enum.TextXAlignment.Left
@@ -378,11 +408,13 @@ for index, action in actions do
 	title.Text = action.label
 	title.Parent = button
 	local description = Instance.new("TextLabel")
+	description.LayoutOrder = 2
 	description.BackgroundTransparency = 1
-	description.Position = UDim2.fromOffset(10, 22)
-	description.Size = UDim2.new(1, -20, 0, 16)
+	description.Size = UDim2.new(1, 0, 0, 0)
+	description.AutomaticSize = Enum.AutomaticSize.Y
+	description.TextWrapped = true
 	description.Font = Enum.Font.Gotham
-	description.TextSize = 11
+	description.TextSize = 12
 	description.TextXAlignment = Enum.TextXAlignment.Left
 	description.TextColor3 = if action.accent then COLORS.text else COLORS.muted
 	description.Text = action.description
@@ -391,7 +423,6 @@ for index, action in actions do
 		runAction(action)
 	end)
 end
-layoutLog()
 
 panelButton.Click:Connect(function()
 	widget.Enabled = not widget.Enabled
