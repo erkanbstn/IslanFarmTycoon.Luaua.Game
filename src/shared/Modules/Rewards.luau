@@ -42,6 +42,19 @@ function Rewards.dailyAmount(save: any, streak: number): number
 	return math.floor(base * multiplier)
 end
 
+local function countTrue(map: { [string]: boolean }?): number
+	local count = 0
+	if not map then
+		return 0
+	end
+	for _, value in map do
+		if value then
+			count += 1
+		end
+	end
+	return count
+end
+
 -- Başarım metriğinin şu anki değeri
 function Rewards.progress(save: any, achievement: Config.AchievementConfig): number
 	local metric = achievement.metric
@@ -64,6 +77,52 @@ function Rewards.progress(save: any, achievement: Config.AchievementConfig): num
 		return save.lifetimeEarned or 0
 	elseif metric == "orders" then
 		return if save.contracts then save.contracts.completed else 0
+	elseif string.sub(metric, 1, 7) == "animal:" then
+		return FarmMath.countAnimals(save, string.sub(metric, 8))
+	elseif metric == "fish" then
+		return FarmMath.countAnimals(save, "anchovy") + FarmMath.countAnimals(save, "seabass")
+	elseif metric == "species" then
+		local kinds: { [string]: boolean } = {}
+		local count = 0
+		for _, animal in save.animals do
+			if not kinds[animal.animalId] then
+				kinds[animal.animalId] = true
+				count += 1
+			end
+		end
+		return count
+	elseif metric == "zones" then
+		return countTrue(save.unlockedZones)
+	elseif metric == "barn" then
+		return save.barnLevel or 1
+	elseif metric == "expansions" then
+		local total = 0
+		for _, level in save.expansions or {} do
+			total += level
+		end
+		return total
+	elseif metric == "facilities" or metric == "centers" then
+		-- Kurulu üretim tesisleri: para fabrikaları (facilities) ve ürün merkezleri (centers)
+		local count = 0
+		for _, recipe in Config.PRODUCTION_RECIPES do
+			local isCenter = recipe.output == "goods"
+			if
+				save.purchased[recipe.upgradeId]
+				and (isCenter == (metric == "centers"))
+				and recipe.output ~= "chicken"
+			then
+				count += 1
+			end
+		end
+		return count
+	elseif metric == "goods" then
+		local total = 0
+		for _, amount in save.goods or {} do
+			total += amount
+		end
+		return total
+	elseif metric == "items" then
+		return if save.inventory then countTrue(save.inventory.items) else 0
 	end
 	return 0
 end

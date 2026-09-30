@@ -200,7 +200,7 @@ export type AchievementConfig = {
 	displayName: string,
 	description: string,
 	icon: string,
-	metric: string, -- "cows" | "animals" | "islands" | "purchases" | "earned" | "orders"
+	metric: string, -- "cows" | "animals" | "islands" | "purchases" | "earned" | "orders" | "animal:<id>" | "fish" | "species" | "zones" | "barn" | "expansions" | "facilities" | "centers" | "goods" | "items"
 	target: number,
 	reward: number,
 }

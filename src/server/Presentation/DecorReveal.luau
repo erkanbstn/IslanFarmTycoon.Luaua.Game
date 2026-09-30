@@ -53,11 +53,11 @@ function DecorReveal.isRevealed(model: Instance, save: PlayerSave?): boolean
 end
 
 local function scan(plot: Model): { Entry }
-	local entries = registry[plot]
-	if entries then
-		return entries
+	local existing = registry[plot]
+	if existing then
+		return existing
 	end
-	entries = {}
+	local entries: { Entry } = {}
 	for _, instance in CollectionService:GetTagged(TAG) do
 		if instance:IsA("Model") and instance:IsDescendantOf(plot) and instance.Parent then
 			table.insert(entries, { model = instance, parent = instance.Parent })

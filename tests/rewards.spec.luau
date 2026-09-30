@@ -160,6 +160,36 @@ return function(Rewards: any, Config: any, FarmMath: any)
 		assert(seasonal.seasonal.progress == seasonal.seasonal.target, "a claimed goal stops counting")
 	end
 
+	-- Yeni başarım metrikleri
+	local stats = save()
+	stats.animals = {
+		{ uid = "a", animalId = "cow", zoneId = "starter", bornAt = 0, stage = "adult" },
+		{ uid = "b", animalId = "chicken", zoneId = "starter", bornAt = 0, stage = "adult" },
+		{ uid = "c", animalId = "anchovy", zoneId = "starter", bornAt = 0, stage = "adult" },
+		{ uid = "d", animalId = "seabass", zoneId = "starter", bornAt = 0, stage = "adult" },
+	}
+	stats.unlockedZones = { starter = true, pasture = true, poultry = true }
+	stats.barnLevel = 3
+	stats.expansions = { starter = 2, packed_milk = 1 }
+	stats.goods = { milk = 30, egg = 25 }
+	stats.inventory = { items = { farmer_hat = true, flat_cap = true }, equipped = {} }
+	stats.purchased = { milk_factory = true, milk_center = true, egg_center = true, hatchery = true }
+	local function progressOf(id: string): number
+		return Rewards.progress(stats, achievement(id))
+	end
+	assert(progressOf("species_4") == 4, "distinct species are counted")
+	assert(progressOf("fish_10") == 2, "both fish species count as fish")
+	assert(progressOf("zones_4") == 3, "unlocked zones are counted")
+	assert(progressOf("barn_3") == 3, "the barn level is the metric")
+	assert(progressOf("expansions_5") == 3, "upgrade levels are summed")
+	assert(progressOf("facilities_1") == 1, "cash factories are counted (the hatchery is neither cash nor goods)")
+	assert(progressOf("centers_1") == 2, "goods centers are counted")
+	assert(progressOf("goods_50") == 55, "stored goods are summed")
+	assert(progressOf("items_1") == 2, "owned items are counted")
+	-- Alınabilirler claimableCount'a girer
+	stats.goods = { milk = 60 }
+	assert(Rewards.isComplete(stats, achievement("goods_50")), "enough stored goods complete the goods achievement")
+
 	-- Her başarım her temada ulaşılabilir olmalı (çiftlik yalnızca kendi adalarını alabilir)
 	for index, theme in Config.THEMES do
 		local farmId = tostring(index)
@@ -179,12 +209,45 @@ return function(Rewards: any, Config: any, FarmMath: any)
 				end
 			end
 		end
+		-- Temaya göre üst sınırlar: bölge, tür, tesis ve ürün merkezi sayıları yalnızca çiftliğin kendi adalarıyla sınırlıdır
+		local zoneCount, targetCount, facilityCount, centerCount = 0, 0, 0, 0
+		local species: { [string]: boolean } = {}
+		local speciesCount = 0
+		for _, zone in Config.ZONES do
+			if Config.themeHasIsland(farmId, zone.island) then
+				zoneCount += 1
+				targetCount += 1
+				for animalId in Config.ANIMALS do
+					if not species[animalId] and Config.zoneAllows(zone, animalId, farmId) then
+						species[animalId] = true
+						speciesCount += 1
+					end
+				end
+			end
+		end
+		for _, recipe in Config.PRODUCTION_RECIPES do
+			if Config.themeHasIsland(farmId, recipe.island) then
+				targetCount += 1
+				if recipe.output == "goods" then
+					centerCount += 1
+				elseif recipe.output == "cash" then
+					facilityCount += 1
+				end
+			end
+		end
 		for _, entry in Config.ACHIEVEMENTS do
 			local reachable = if entry.metric == "purchases"
 				then purchasable
 				elseif entry.metric == "animals" then capacity
 				elseif entry.metric == "cows" then cowCapacity
 				elseif entry.metric == "islands" then #Config.getThemeIslands(farmId)
+				elseif entry.metric == "zones" then zoneCount
+				elseif entry.metric == "species" then speciesCount
+				elseif entry.metric == "facilities" then facilityCount
+				elseif entry.metric == "centers" then centerCount
+				elseif entry.metric == "expansions" then targetCount * Config.BUILD_UPGRADES.maxLevel
+				elseif entry.metric == "barn" then #Config.BARN_LEVELS
+				elseif entry.metric == "items" then #Config.ITEM_ORDER
 				else math.huge
 			assert(
 				entry.target <= reachable,

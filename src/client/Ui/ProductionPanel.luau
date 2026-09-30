@@ -25,6 +25,8 @@ local nextSendAt = 0
 local message = ""
 local success = true
 local focused: string? = nil
+-- Bir binanın "Üretim" promptundan açıldıysa yalnızca o binanın tarifleri gösterilir (menüden açılınca hepsi)
+local focusedUpgrade: string? = nil
 
 local function refresh()
 	if render then
@@ -87,6 +89,15 @@ local function create(parent: ScreenGui): UiKit.Window
 		0
 	local selectedLabel = UiKit.text(created.list, "", "Heading")
 	selectedLabel.LayoutOrder = 1
+	local showAll = UiKit.button(created.list, "Adadaki tüm tesisleri göster", "secondary")
+	showAll.Size = UDim2.new(1, 0, 0, 34)
+	showAll.LayoutOrder = 19
+	showAll.Visible = false
+	showAll.Activated:Connect(function()
+		focusedUpgrade = nil
+		focused = nil
+		refresh()
+	end)
 	local changeIsland = UiKit.button(created.list, "Adalarımı yönet", "primary")
 	changeIsland.Size = UDim2.new(1, 0, 0, 36)
 	changeIsland.LayoutOrder = 20
@@ -157,7 +168,11 @@ local function create(parent: ScreenGui): UiKit.Window
 			return
 		end
 		feedback.Text = message
-		selectedLabel.Text = IslandContext.name()
+		local focusedBuilding = if focusedUpgrade then Config.getUpgrade(focusedUpgrade) else nil
+		selectedLabel.Text = if focusedBuilding
+			then `{focusedBuilding.displayName} · {IslandContext.name()}`
+			else IslandContext.name()
+		showAll.Visible = focusedBuilding ~= nil
 		feedback.Visible = message ~= ""
 		feedback.TextColor3 = if success then UiKit.Color.Green else UiKit.Color.Red
 		local now = Workspace:GetServerTimeNow()
@@ -170,6 +185,7 @@ local function create(parent: ScreenGui): UiKit.Window
 			local entry = entries[id]
 			local card = entry.card
 			card.frame.Visible = recipe.island == IslandContext.get()
+				and (focusedUpgrade == nil or recipe.upgradeId == focusedUpgrade)
 			card.frame.LayoutOrder = if focused == id then 2 else index + 3
 			entry.keep.Visible = false
 			entry.progress.Visible = false
@@ -300,6 +316,7 @@ function ProductionPanel.open(parent: ScreenGui, recipeId: string?)
 	screen = parent
 	focused = recipeId
 	local recipe = recipeId and Config.PRODUCTION_RECIPES[recipeId]
+	focusedUpgrade = if recipe then recipe.upgradeId else nil
 	if recipe and recipe.island ~= IslandContext.get() then
 		-- Tesise yürüyerek gelindiğinde yönetim bağlamını değiştir; oyuncuyu geri ışınlama.
 		Remotes.get("RequestTravelIsland"):FireServer(recipe.island, true)

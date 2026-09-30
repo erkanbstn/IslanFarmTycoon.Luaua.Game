@@ -70,6 +70,11 @@ function RewardsSection.create(list: Instance, setRewardsBadge: (number) -> ()):
 	achievementsToggle.LayoutOrder = 21
 	local achievementsOpen = false
 	local achievementCards: { [string]: UiKit.Card } = {}
+	local cardClaimable: { [string]: boolean } = {}
+	-- Alınabilir başarımlar pencerenin en üstünde, kendi başlığıyla görünür (liste kapalı olsa da)
+	local claimableHeader = UiKit.sectionHeader(list, "Alınabilir başarımlar", 0)
+	local claimableHeaderRow = claimableHeader.Parent :: GuiObject
+	claimableHeaderRow.Visible = false
 	local achievementsSummary = ""
 	local achievementsClaimable = 0
 	local function refreshAchievementsToggle()
@@ -78,8 +83,8 @@ function RewardsSection.create(list: Instance, setRewardsBadge: (number) -> ()):
 			achievementsToggle,
 			if achievementsClaimable > 0 and not achievementsOpen then "primary" else "secondary"
 		)
-		for _, card in achievementCards do
-			card.frame.Visible = achievementsOpen
+		for id, card in achievementCards do
+			card.frame.Visible = achievementsOpen or cardClaimable[id] == true
 		end
 	end
 	achievementsToggle.Activated:Connect(function()
@@ -139,6 +144,25 @@ function RewardsSection.create(list: Instance, setRewardsBadge: (number) -> ()):
 		achievementsSummary = if claimable > 0
 			then `Başarımlar · {claimed}/{#Config.ACHIEVEMENTS} · Ödül var`
 			else `Başarımlar · {claimed}/{#Config.ACHIEVEMENTS}`
+		-- Sıralama: alınabilirler en üstte, sonra tamamlanmaya en yakın olanlar, alınmışlar en altta
+		local claimableIndex = 0
+		for index, achievement in Config.ACHIEVEMENTS do
+			local card = achievementCards[achievement.id]
+			local owned = state.achievements ~= nil and state.achievements[achievement.id] == true
+			local progress = Rewards.progress(state, achievement)
+			if owned then
+				card.frame.LayoutOrder = 3000 + index
+				cardClaimable[achievement.id] = false
+			elseif progress >= achievement.target then
+				claimableIndex += 1
+				card.frame.LayoutOrder = claimableIndex
+				cardClaimable[achievement.id] = true
+			else
+				card.frame.LayoutOrder = 100 + math.floor((1 - progress / achievement.target) * 1000)
+				cardClaimable[achievement.id] = false
+			end
+		end
+		claimableHeaderRow.Visible = claimableIndex > 0
 		refreshAchievementsToggle()
 		for _, achievement in Config.ACHIEVEMENTS do
 			local card = achievementCards[achievement.id]
