@@ -44,30 +44,30 @@ local function buildSatelliteDecor(islandId: string, parent: Instance, cf: CFram
 		-- Trüf ormanı: yoğun çam ve çalı, bölgenin çevresinde
 		for index, spot in
 			{
-				Vector2.new(-13, 32),
-				Vector2.new(13, 32),
-				Vector2.new(-30, 12),
-				Vector2.new(31, 8),
-				Vector2.new(-28, -6),
-				Vector2.new(24, 27),
+				Vector2.new(-6, 49),
+				Vector2.new(8, 50),
+				Vector2.new(-41, 14),
+				Vector2.new(41, 10),
+				Vector2.new(-38, -10),
+				Vector2.new(36, -18),
 			}
 		do
 			WorldDecor.pineTree(parent, at(spot.X, spot.Y), seedFrom(cf) + index * 7)
 		end
-		WorldDecor.bush(parent, at(-24, 25), 31)
-		WorldDecor.bush(parent, at(25, -25), 33)
+		WorldDecor.bush(parent, at(-36, 30), 31)
+		WorldDecor.bush(parent, at(35, -26), 33)
 	elseif islandId == "goat" then
-		WorldDecor.pineTree(parent, at(30, 11), seedFrom(cf))
-		WorldDecor.bush(parent, at(23, -25), 23)
+		WorldDecor.pineTree(parent, at(41, 12), seedFrom(cf))
+		WorldDecor.bush(parent, at(33, -28), 23)
 	else
-		for _, x in { -13, 13 } do
+		for _, x in { -41, 41 } do
 			if islandId == "horse" then
-				WorldDecor.pineTree(parent, at(x, 32), seedFrom(cf) + x)
+				WorldDecor.pineTree(parent, at(x, 18), seedFrom(cf) + x)
 			else
-				WorldDecor.oakTree(parent, at(x, 31), seedFrom(cf) + x)
+				WorldDecor.oakTree(parent, at(x, 17), seedFrom(cf) + x)
 			end
 		end
-		WorldDecor.bush(parent, at(25, 25), 21 + #islandId)
+		WorldDecor.bush(parent, at(35, 30), 21 + #islandId)
 	end
 	IslandSpecialization.build(parent, islandId, cf * CFrame.new(0, SURFACE_Y, 0))
 	local layoutZone = if SATELLITE_TYPES[islandId] then SATELLITE_TYPES[islandId].zone else nil
@@ -78,8 +78,9 @@ local function buildSatelliteDecor(islandId: string, parent: Instance, cf: CFram
 		SATELLITE_RADIUS,
 		if layoutZone then { layoutZone } else {},
 		{
-			{ x = 0, z = -30, hx = 4, hz = 22 }, -- köprü yolu
-			{ x = 0, z = 26, hx = 9, hz = 7 }, -- üretim binası yeri
+			{ x = 0, z = -31, hx = 4, hz = 23 }, -- köprü yolu
+			{ x = 18, z = 37, hx = 12, hz = 8 }, -- üretim binası yeri
+			{ x = -18, z = 37, hx = 12, hz = 8 }, -- ürün merkezi yeri
 		},
 		45,
 		seedFrom(cf)
@@ -145,7 +146,7 @@ local function buildSatellite(
 	local forSale = Instance.new("Model")
 	forSale.Name = "LockedDecor"
 	forSale.Parent = islandModel
-	for index, spot in { Vector2.new(-27, -9), Vector2.new(27, -9), Vector2.new(-25, 25), Vector2.new(25, 25) } do
+	for index, spot in { Vector2.new(-35, -14), Vector2.new(35, -14), Vector2.new(-34, 30), Vector2.new(34, 30) } do
 		local saleBase = cf * CFrame.new(spot.X, SURFACE_Y, spot.Y) * CFrame.Angles(0, math.rad(index * 40), 0)
 		local pole = makePart(
 			"SalePole",

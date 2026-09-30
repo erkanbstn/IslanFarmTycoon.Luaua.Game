@@ -89,6 +89,51 @@ function Shore.dock(parent: Instance, start: CFrame, length: number, surfaceY: n
 			Shore.pierPile(model, pos, surfaceY, seabedY)
 		end
 	end
+	-- İskele başında küçük balıkçı kulübesi (olta takımı ve ağ askısı)
+	local hutBase = start * CFrame.new(5.6, 0, -7)
+	local function hutPart(name: string, size: Vector3, offset: CFrame, color: Color3, material: Enum.Material)
+		local at = hutBase * offset
+		return part(
+			model,
+			name,
+			size,
+			CFrame.new(at.Position.X, deckY + size.Y / 2 + offset.Y - 0.3, at.Position.Z) * at.Rotation,
+			color,
+			material
+		)
+	end
+	hutPart("HutFloor", Vector3.new(5, 0.4, 4.6), CFrame.new(0, 0.3, 0), wood, Enum.Material.WoodPlanks)
+	hutPart(
+		"HutBody",
+		Vector3.new(4.6, 3.2, 4.2),
+		CFrame.new(0, 2.2, 0),
+		Color3.fromRGB(96, 140, 165),
+		Enum.Material.WoodPlanks
+	)
+	hutPart(
+		"HutRoof",
+		Vector3.new(5.6, 0.5, 5.2),
+		CFrame.new(0, 4.3, 0),
+		Color3.fromRGB(150, 70, 60),
+		Enum.Material.Slate
+	)
+	hutPart(
+		"HutDoor",
+		Vector3.new(0.3, 2.2, 1.4),
+		CFrame.new(-2.35, 1.9, 0),
+		Color3.fromRGB(110, 72, 42),
+		Enum.Material.Wood
+	)
+	hutPart(
+		"HutRack",
+		Vector3.new(0.25, 0.25, 3),
+		CFrame.new(2.4, 3.6, 0),
+		Color3.fromRGB(80, 60, 40),
+		Enum.Material.Wood
+	)
+	for _, corner in { Vector2.new(-2.2, -2), Vector2.new(2.2, -2), Vector2.new(-2.2, 2), Vector2.new(2.2, 2) } do
+		Shore.pierPile(model, (hutBase * CFrame.new(corner.X, 0, corner.Y)).Position, surfaceY, seabedY)
+	end
 	local tip = start * CFrame.new(0, 0, -length + 2)
 	Props.barrel(model, CFrame.new(tip.Position.X, deckY + 0.3, tip.Position.Z) * tip.Rotation * CFrame.new(-1.8, 0, 0))
 	-- Olta

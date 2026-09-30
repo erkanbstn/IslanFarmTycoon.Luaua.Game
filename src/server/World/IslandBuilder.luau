@@ -84,6 +84,7 @@ local function decorateHome(decor: Instance, islandCf: CFrame, plotIndex: number
 	WorldDecor.path(decor, pos(-15, 28), pos(-16, 54), 5)
 	WorldDecor.path(decor, pos(-16, 54), pos(0, ISLAND_RADIUS - 2), 5)
 	WorldDecor.path(decor, pos(-4, -50), pos(DOCK_START.X, DOCK_START.Z), 4) -- balık kafesi iskelesine
+	WorldDecor.path(decor, pos(-33, -51), pos(DOCK_START.X + 2, DOCK_START.Z + 3), 4) -- balık merkezinin kapısından iskeleye
 
 	local trees = {
 		Vector2.new(-45, -35),
@@ -92,7 +93,6 @@ local function decorateHome(decor: Instance, islandCf: CFrame, plotIndex: number
 		Vector2.new(58, -8),
 		Vector2.new(-54, 20),
 		Vector2.new(54, 20),
-		Vector2.new(-32, -48),
 		Vector2.new(30, -58),
 	}
 	for _, spot in trees do

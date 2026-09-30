@@ -32,8 +32,10 @@ alwaysApply: false
   `src/client/Interaction/HubNpcs.client.luau` onları canlandırır (göz teması, el sallama, selam balonu; yalnızca client'ta CFrame yazılır).
 - Tabelalar (giriş, ada, "satılık"): uzun direk, tahta alt kenarı yerden >= 10 stud, tahta `CanCollide=false` (yolu kapatmaz).
   Yeni tabela eklerken `tests/map-structure.spec.luau` bu yüksekliği denetler.
-- Ahır sandığı: `BarnVisualService.addStorageChest` (kapının sağı; `BarnChestPrompt` → Envanter/Ahır Deposu). Ürün merkezleri (8 bina) ana adada ahırın arkasında
-  (`HOME_BUILD_SPOTS.milk_center/fish_cannery`), küçük adalarda `SATELLITE_TYPES[...].itemSpot` (-17, 0, 27); yeni bir "boost" yükseltmesi için yapı noktası zorunludur.
+- Ahır sandığı: `BarnVisualService.addStorageChest` (kapının sağı; `BarnChestPrompt` → Envanter/Ahır Deposu). Ürün merkezleri (8 bina): süt merkezi ana adada ahırın arkasında, balık merkezi iskelenin yanında (`HOME_BUILD_SPOTS.milk_center/fish_cannery`, kapısı iskeleye bakar; iskele başında küçük balıkçı kulübesi `Shore.dock`),
+  küçük adalarda `SATELLITE_TYPES[...].buildSpot/itemSpot` (±18, 0, 37). Küçük adalar yarıçap 52'dir; yuvalar (`SATELLITE_SLOTS`) komşu çiftliklerle arada en az ~24 stud su kalacak biçimde hesaplıdır
+  (yarıçap/yuva değişirse 6'lı halka için yeniden hesapla). Adadaki ağaç/çalı süsleri bina yerlerinden (`addIslandGrass` kaçınma dikdörtgenleri) uzak tutulur; yeni bina yeri eklerken kaçınma listesini de güncelle.
+  Yeni bir "boost" yükseltmesi için yapı noktası zorunludur.
 - Dekor bitince `WorldDecor.optimize(root)`: küçük parçalar gölge düşürmez, çarpışmayanlar `CanQuery=false` olur.
 - Ana ada düzeni temaya göre değişir: `MapLayout.homePlacements(plotIndex)` batı kümesinde bahçe↔ambar ve değirmen↔kovan, doğuda çiftlik evi↔meyve bahçesi yer
   değiştirir, kuyu iki yandan birinde durur (6 düzen, yuvalar sabit; yol/bölge/yapı noktaları değişmez). Çim kaçınma dikdörtgenleri aynı yerleşimden türer

@@ -14,7 +14,7 @@ local WATER_Y = 0 -- Deniz yüzeyi
 
 local ISLAND_RADIUS = 70
 
-local SATELLITE_RADIUS = 42
+local SATELLITE_RADIUS = 52
 
 local HUB_RADIUS = 40
 
@@ -80,9 +80,9 @@ local HOME_BUILD_SPOTS: { [string]: Vector3 } = {
 	silo = Vector3.new(-31, 0, 33),
 	milk_machine = Vector3.new(31, 0, 33),
 	auto_collector = Vector3.new(24, 0, -40),
-	-- Ürün merkezleri (depoya ürün üretir): ahırın arkasında, iki yanda (merkez yolu x=0 ve köprü yolları boş kalır)
+	-- Ürün merkezleri (depoya ürün üretir): süt merkezi ahırın arkasında; balık merkezi iskelenin yanında (kapısı iskeleye bakar)
 	milk_center = Vector3.new(-20, 0, 56),
-	fish_cannery = Vector3.new(20, 0, 56),
+	fish_cannery = Vector3.new(-34, 0, -46),
 }
 
 -- Denizdeki bina yerleri (su seviyesinde): Balıkçı Teknesi kafesin dış kenarına bağlanır
@@ -102,7 +102,8 @@ export type SatelliteLayout = {
 -- Uzman adalar (kendi yerel koordinatlarında -Z ana adaya, yani köprüye bakar).
 -- Üç yuva her ana adada aynıdır; yuvaya hangi ada türünün konacağını ana çiftlik numarasının teması belirler
 -- (Config.THEMES). Ada türünün zemini, bölgesi ve yapı noktası burada tanımlıdır.
-local SATELLITE_SLOTS = { Vector3.new(-85, 0, 105), Vector3.new(85, 0, 105), Vector3.new(0, 0, 165) }
+-- Komşu çiftliklerin adalarına en az ~24 stud su kalacak biçimde hesaplandı (6 ada halkası, yarıçap 175).
+local SATELLITE_SLOTS = { Vector3.new(-85, 0, 105), Vector3.new(85, 0, 105), Vector3.new(0, 0, 200) }
 
 export type SatelliteType = {
 	groundColor: Color3,
@@ -129,38 +130,38 @@ local SATELLITE_TYPES: { [string]: SatelliteType } = {
 	poultry = {
 		groundColor = Color3.fromRGB(150, 165, 80),
 		zone = satelliteZone("poultry", Color3.fromRGB(205, 185, 125), 8),
-		buildSpot = { upgradeId = "egg_factory", offset = Vector3.new(0, 0, 26) },
-		itemSpot = { upgradeId = "egg_center", offset = Vector3.new(-17, 0, 27) },
+		buildSpot = { upgradeId = "egg_factory", offset = Vector3.new(18, 0, 37) },
+		itemSpot = { upgradeId = "egg_center", offset = Vector3.new(-18, 0, 37) },
 	},
 	horse = {
 		groundColor = Color3.fromRGB(90, 150, 70),
 		zone = satelliteZone("stable", Color3.fromRGB(145, 110, 80), 8),
-		buildSpot = { upgradeId = "golden_horseshoe", offset = Vector3.new(0, 0, 25) },
-		itemSpot = { upgradeId = "horseshoe_forge", offset = Vector3.new(-17, 0, 27) },
+		buildSpot = { upgradeId = "golden_horseshoe", offset = Vector3.new(18, 0, 37) },
+		itemSpot = { upgradeId = "horseshoe_forge", offset = Vector3.new(-18, 0, 37) },
 	},
 	goat = {
 		groundColor = Color3.fromRGB(120, 140, 95),
 		zone = satelliteZone("goatpen", Color3.fromRGB(130, 150, 90), 5),
-		buildSpot = { upgradeId = "cheese_dairy", offset = Vector3.new(0, 0, 26) },
-		itemSpot = { upgradeId = "cheese_cellar", offset = Vector3.new(-17, 0, 27) },
+		buildSpot = { upgradeId = "cheese_dairy", offset = Vector3.new(18, 0, 37) },
+		itemSpot = { upgradeId = "cheese_cellar", offset = Vector3.new(-18, 0, 37) },
 	},
 	duck = {
 		groundColor = Color3.fromRGB(105, 165, 100),
 		zone = satelliteZone("pond", Color3.fromRGB(88, 160, 200), 8),
-		buildSpot = { upgradeId = "duck_house", offset = Vector3.new(0, 0, 26) },
-		itemSpot = { upgradeId = "down_workshop", offset = Vector3.new(-17, 0, 27) },
+		buildSpot = { upgradeId = "duck_house", offset = Vector3.new(18, 0, 37) },
+		itemSpot = { upgradeId = "down_workshop", offset = Vector3.new(-18, 0, 37) },
 	},
 	sheep = {
 		groundColor = Color3.fromRGB(118, 172, 88),
 		zone = satelliteZone("sheepfold", Color3.fromRGB(122, 168, 88), 6),
-		buildSpot = { upgradeId = "wool_mill", offset = Vector3.new(0, 0, 26) },
-		itemSpot = { upgradeId = "wool_loom", offset = Vector3.new(-17, 0, 27) },
+		buildSpot = { upgradeId = "wool_mill", offset = Vector3.new(18, 0, 37) },
+		itemSpot = { upgradeId = "wool_loom", offset = Vector3.new(-18, 0, 37) },
 	},
 	pig = {
 		groundColor = Color3.fromRGB(112, 128, 82),
 		zone = satelliteZone("pigpen", Color3.fromRGB(118, 92, 64), 6),
-		buildSpot = { upgradeId = "truffle_kitchen", offset = Vector3.new(0, 0, 26) },
-		itemSpot = { upgradeId = "meat_smokehouse", offset = Vector3.new(-17, 0, 27) },
+		buildSpot = { upgradeId = "truffle_kitchen", offset = Vector3.new(18, 0, 37) },
+		itemSpot = { upgradeId = "meat_smokehouse", offset = Vector3.new(-18, 0, 37) },
 	},
 }
 
@@ -237,6 +238,10 @@ local function homeBuildingAvoidRects(plotIndex: number): { { x: number, z: numb
 	local rects = {}
 	for _, spot in homePlacements(plotIndex) do
 		table.insert(rects, { x = spot.x, z = spot.z, hx = spot.hx, hz = spot.hz })
+	end
+	-- Güçlendirme ve ürün merkezi binaları (yanlarındaki bidon/sandık gibi süsler dahil) da çim tutamı almaz
+	for _, spot in HOME_BUILD_SPOTS do
+		table.insert(rects, { x = spot.X, z = spot.Z, hx = 12, hz = 8 })
 	end
 	return rects
 end
