@@ -4,7 +4,7 @@
 --   * Haritayı Doğrula  : MapBuilder.validate + harita yapı testi + dünya testi (sonuç panelde ve Output'ta).
 --   * Harita Bilgisi    : place'teki harita sürümü, ada sayısı, meydan durumu.
 --   * Rojo Kontrolü     : oyun kodu bu place'e senkronize mi?
--- Harita kodu tek kaynaktır: src/server/Services/MapBuilder.luau (eklenti kodun kopyasını taşımaz; her işlemde
+-- Harita kodu tek kaynaktır: src/server/World/MapBuilder.luau (eklenti kodun kopyasını taşımaz; her işlemde
 -- Rojo ile gelen güncel kodu kopyalayıp çalıştırır). Testler eklentinin içinde gömülüdür (tests/*.spec.luau).
 --
 -- Kurulum (bir kez):  rojo build plugin.project.json --plugin IslandFarmTycoonHarita.rbxm
@@ -174,18 +174,18 @@ end
 local function loadFreshMapBuilder(): (any, Instance)
 	local shared = ReplicatedStorage:FindFirstChild("Shared")
 	local server = ServerScriptService:FindFirstChild("Server")
-	local services = server and server:FindFirstChild("Services")
-	if not shared or not services then
+	local world = server and server:FindFirstChild("World")
+	if not shared or not world then
 		error("Oyun kodu bulunamadı. Önce 'rojo serve' çalıştırıp Rojo eklentisinden Connect'e bas.")
 	end
 
 	local sandbox = Instance.new("Folder")
 	sandbox.Name = "AhirTycoonMapSandbox"
 	shared:Clone().Parent = sandbox
-	local servicesCopy = services:Clone()
-	servicesCopy.Parent = sandbox
+	local worldCopy = world:Clone()
+	worldCopy.Parent = sandbox
 
-	local module = servicesCopy:FindFirstChild("MapBuilder")
+	local module = worldCopy:FindFirstChild("MapBuilder")
 	if not module or not module:IsA("ModuleScript") then
 		sandbox:Destroy()
 		error("MapBuilder modülü bulunamadı.")

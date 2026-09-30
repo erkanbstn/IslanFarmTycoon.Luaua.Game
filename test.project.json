@@ -12,7 +12,9 @@
       "Server": {
         "$className": "Folder",
         "Modules": { "$path": "src/server/Modules" },
-        "Services": { "$path": "src/server/Services" }
+        "Services": { "$path": "src/server/Services" },
+        "World": { "$path": "src/server/World" },
+        "Presentation": { "$path": "src/server/Presentation" }
       },
       "Tests": { "$path": "tests" }
     },

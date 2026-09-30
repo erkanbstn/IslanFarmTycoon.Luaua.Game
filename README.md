@@ -278,7 +278,7 @@ Saf testler ayrı test place'inde de çalıştırılabilir: `rojo build test.pro
 Eski yöntem (Command Bar, test place'inde düzenleme modunda) hâlâ geçerlidir:
 
 ```luau
-require(game:GetService("ServerScriptService").Server.Services.MapBuilder).ensure()
+require(game:GetService("ServerScriptService").Server.World.MapBuilder).ensure()
 require(game:GetService("ServerScriptService").Tests["world.spec"])()
 require(game:GetService("ServerScriptService").Tests["map-structure.spec"])()
 ```

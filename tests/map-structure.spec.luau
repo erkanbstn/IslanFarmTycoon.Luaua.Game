@@ -16,9 +16,7 @@ return function(context: any?)
 		else require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 	local mapBuilder = if context and context.mapBuilder
 		then context.mapBuilder
-		else require(
-			ServerScriptService:WaitForChild("Server"):WaitForChild("Services"):WaitForChild("MapBuilder")
-		)
+		else require(ServerScriptService:WaitForChild("Server"):WaitForChild("World"):WaitForChild("MapBuilder"))
 
 	mapBuilder.validate()
 	local plots = Workspace:FindFirstChild("Plots") :: Folder

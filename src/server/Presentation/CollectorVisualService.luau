@@ -9,8 +9,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 
-local PlayerDataService = require(script.Parent:WaitForChild("PlayerDataService"))
-local PlotService = require(script.Parent:WaitForChild("PlotService"))
+local PlayerDataService = require(script.Parent.Parent:WaitForChild("Services"):WaitForChild("PlayerDataService"))
+local PlotService = require(script.Parent.Parent:WaitForChild("Services"):WaitForChild("PlotService"))
 
 local CollectorVisualService = {}
 

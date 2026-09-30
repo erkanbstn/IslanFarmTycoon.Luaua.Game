@@ -3,7 +3,7 @@
 -- Bölge açılınca kurulur, kapanınca (ada boşalınca) silinir; kilitli bölge çıplak toprak görünür.
 -- Koordinatlar bölge zemininin merkezine göre: -Z ön (doğma noktası), +Z arka.
 
-local WorldDecor = require(script.Parent:WaitForChild("WorldDecor"))
+local WorldDecor = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("WorldDecor"))
 
 local ZoneVisualService = {}
 

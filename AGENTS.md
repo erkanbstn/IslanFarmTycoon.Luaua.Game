@@ -70,7 +70,7 @@ Tam metin `.cursor/skills/<ad>/SKILL.md` içindedir (`.claude/skills/<ad>/SKILL.
 - Sunucu `Remotes.init()` çağırır, iki taraf `Remotes.get("Ad")` ile erişir.
 
 ## Harita
-- Harita `src/server/Services/MapBuilder.luau` ile üretilir; Studio'da `plugin/` eklentisinin
+- Harita `src/server/World/MapBuilder.luau` ile üretilir; Studio'da `plugin/` eklentisinin
   "Haritayı Kur" butonuyla düzenleme modunda kurulup place'e kaydedilir.
 - Meydandaki satıcı NPC'ler `HubNpcs.luau`, genel ada yapıları `HomeBuildings.luau`. Tabelalar uzun direklere asılır, tahtası çarpışmaz
   (yol kapanmasın); dekor kurulumunun sonunda `WorldDecor.optimize` çağrılır.

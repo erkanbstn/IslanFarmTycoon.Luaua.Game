@@ -14,7 +14,7 @@ local Config = require(Shared:WaitForChild("Config"))
 local GameTypes = require(Shared:WaitForChild("GameTypes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 local WorldUi = require(Shared:WaitForChild("WorldUi"))
-local WorldDecor = require(script.Parent:WaitForChild("WorldDecor"))
+local WorldDecor = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("WorldDecor"))
 
 type PlayerSave = GameTypes.PlayerSave
 type Builder = (model: Model, base: CFrame) -> ()

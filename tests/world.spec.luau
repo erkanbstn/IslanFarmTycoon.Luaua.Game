@@ -13,7 +13,7 @@ return function(context: any?)
 	local sanitizer = require(server:WaitForChild("Modules"):WaitForChild("AssetSanitizer"))
 	local mapBuilder = if context and context.mapBuilder
 		then context.mapBuilder
-		else require(server:WaitForChild("Services"):WaitForChild("MapBuilder"))
+		else require(server:WaitForChild("World"):WaitForChild("MapBuilder"))
 
 	local template = Instance.new("Model")
 	local nested = Instance.new("Folder")

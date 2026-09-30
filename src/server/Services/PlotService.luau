@@ -25,13 +25,16 @@ local UiTheme = require(Shared:WaitForChild("UiTheme"))
 local WorldUi = require(Shared:WaitForChild("WorldUi"))
 
 local PlayerDataService = require(script.Parent:WaitForChild("PlayerDataService"))
-local MapBuilder = require(script.Parent:WaitForChild("MapBuilder"))
-local AnimalVisualService = require(script.Parent:WaitForChild("AnimalVisualService"))
-local BarnVisualService = require(script.Parent:WaitForChild("BarnVisualService"))
-local UpgradeVisualService = require(script.Parent:WaitForChild("UpgradeVisualService"))
-local ZoneVisualService = require(script.Parent:WaitForChild("ZoneVisualService"))
-local ExtensionVisualService = require(script.Parent:WaitForChild("ExtensionVisualService"))
-local IslandSpecialization = require(script.Parent:WaitForChild("IslandSpecialization"))
+local MapBuilder = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("MapBuilder"))
+local AnimalVisualService =
+	require(script.Parent.Parent:WaitForChild("Presentation"):WaitForChild("AnimalVisualService"))
+local BarnVisualService = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("BarnVisualService"))
+local UpgradeVisualService =
+	require(script.Parent.Parent:WaitForChild("Presentation"):WaitForChild("UpgradeVisualService"))
+local ZoneVisualService = require(script.Parent.Parent:WaitForChild("Presentation"):WaitForChild("ZoneVisualService"))
+local ExtensionVisualService =
+	require(script.Parent.Parent:WaitForChild("Presentation"):WaitForChild("ExtensionVisualService"))
+local IslandSpecialization = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("IslandSpecialization"))
 
 type PlayerSave = GameTypes.PlayerSave
 

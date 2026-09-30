@@ -10,19 +10,19 @@ local GameTypes = require(Shared:WaitForChild("GameTypes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 local WorldUi = require(Shared:WaitForChild("WorldUi"))
 
-local IslandSpecialization = require(script.Parent:WaitForChild("IslandSpecialization"))
+local IslandSpecialization = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("IslandSpecialization"))
 local ExtensionAreas = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("ExtensionAreas"))
 
 local function plotService()
-	return require(script.Parent:WaitForChild("PlotService"))
+	return require(script.Parent.Parent:WaitForChild("Services"):WaitForChild("PlotService"))
 end
 
 local function extensionService()
-	return require(script.Parent:WaitForChild("ExtensionService"))
+	return require(script.Parent.Parent:WaitForChild("Services"):WaitForChild("ExtensionService"))
 end
 
 local function upgradeService()
-	return require(script.Parent:WaitForChild("UpgradeService"))
+	return require(script.Parent.Parent:WaitForChild("Services"):WaitForChild("UpgradeService"))
 end
 
 type PlayerSave = GameTypes.PlayerSave

@@ -17,7 +17,10 @@ import sys
 
 
 ROOT = Path(__file__).resolve().parents[1]
-REQUIRE_LINE = re.compile(r"^local (\w+) = require\([^\r\n]+\)\r?$", re.MULTILINE)
+# Tek ya da çok satırlı (stylua ile bölünmüş) `local X = require(...)`; iç içe parantez üç düzeye kadar eşleşir.
+REQUIRE_LINE = re.compile(
+    r"^local (\w+) =\s+require\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)\r?$", re.MULTILINE
+)
 
 
 def module(name: str, path: str, dependencies: set[str] | None = None, factory_args: str = "") -> str:

@@ -1,6 +1,6 @@
 ---
 description: Harita üretimi, dünya görselleri, gece ışıkları ve Lighting sahipliği
-globs: src/server/Services/MapBuilder.luau,src/server/Services/WorldDecor.luau,src/server/Services/HomeBuildings.luau,src/server/Services/HubNpcs.luau,src/server/Services/*VisualService.luau,src/server/Services/IslandSpecialization.luau,plugin/**,src/client/DayNight.client.luau,src/client/WeatherEffects.client.luau,src/client/SeasonalScenery.luau
+globs: src/server/World/**,src/server/Presentation/**,plugin/**,src/client/DayNight.client.luau,src/client/WeatherEffects.client.luau,src/client/SeasonalScenery.luau
 alwaysApply: false
 ---
 
@@ -16,7 +16,7 @@ alwaysApply: false
   parça eklersen oraya ve `tests/world.spec.luau` / `tests/map-structure.spec.luau`'ya ekle (Studio düzenleme modu).
 
 ## Ana ada yapıları
-- `HomeBuildings.luau` (Services): pazar tezgâhı (`MarketPrompt` → Hayvan Pazarı penceresi), çiftlik evi, yel değirmeni
+- `HomeBuildings.luau` (World): pazar tezgâhı (`MarketPrompt` → Hayvan Pazarı penceresi), çiftlik evi, yel değirmeni
   (kanatlar `Windmill` etiketi, döndürme `Windmill.client`), kuyu, sebze bahçesi, meyve bahçesi, arı kovanları, ambar.
   `MapBuilder.decorateHome` çağırır; yerleri `addIslandGrass` kaçınma listesinde de tutulur. Kapılar >= 4.6 x 6.6 stud.
 - Meydan (`MapBuilder.buildHub`): doğma noktası, Adalar tabelası ve `HubNpcs.vendor` ile 4 satıcı (`VendorPrompt`, `Action`:
