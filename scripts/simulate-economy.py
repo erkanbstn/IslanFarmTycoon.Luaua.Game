@@ -632,13 +632,14 @@ local function onlineStep()
 	reportCheck()
 end
 
--- Çevrimdışı dönem: her çiftlik için gerçek computeOfflineEarnings (kasaya yatar, ömür boyu kazanca sayılmaz)
+-- Çevrimdışı dönem: SaveCodec gibi yalnızca etkin çiftlik (kök kayıt) için computeOfflineEarnings kasaya yatar
+-- (ömür boyu kazanca sayılmaz); park edilmiş çiftlikler çevrimdışıyken kazanç getirmez.
 local function goOffline(from: number, to: number)
 	local lastSeen = START + from
 	now = START + to
+	earn(FarmMath.computeOfflineEarnings(save, lastSeen, now), "çevrimdışı", false)
 	for farmId in save.mainFarms do
 		local farm = FarmProfiles.view(save, farmId)
-		earn(FarmMath.computeOfflineEarnings(farm, lastSeen, now), "çevrimdışı", false)
 		for _, animal in farm.animals do
 			if animal.task and animal.task.endsAt <= now then
 				animal.task = nil
