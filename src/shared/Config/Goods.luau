@@ -22,14 +22,14 @@ return {
 	-- Ahır siparişleri: pano `seconds` saniyede bir yenilenir; 6 kademe (1-4 ürün çeşidi; "toptan" tek üründen çok ister). Ürün merkezi zaten kaçırılan gelirin
 	-- üstünde ürün verdiği için çarpan küçüktür; büyük sipariş ürün başına daha çok öder (daha çok çeşit = daha çok emek).
 	GOODS_CONTRACTS = {
-		seconds = 600,
+		seconds = 420,
 		-- Pano ızgara biçimindedir: her pencerede `slots` teklif, her biri ağırlıklı rastgele kademe + rastgele ürünler
 		-- (pencere numarası ve sıra ile türetilir; sunucu ve client aynı sonucu bulur). Birim sayısı kademe değerinin
 		-- ± variation oranında değişir.
 		slots = 9,
 		variation = 0.34,
 		-- Ödül tabanı: etkin çiftliğin geliri x bu süre (sn). Ödül = max(ürün değeri, taban) x kademe çarpanı x bonus.
-		incomeSeconds = 60,
+		incomeSeconds = 300,
 		tiers = {
 			{ id = "quick", displayName = "Hızlı", lines = 1, units = 2, rewardFactor = 1.05, weight = 3 },
 			{ id = "small", displayName = "Küçük", lines = 1, units = 3, rewardFactor = 1.1, weight = 3 },
