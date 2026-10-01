@@ -280,7 +280,13 @@ ContextActionService:BindActionAtPriority(
 	"HudGamepadMenu",
 	function(_name: string, state: Enum.UserInputState, input: InputObject): Enum.ContextActionResult
 		local open = gamepadMenu[input.KeyCode]
-		if state ~= Enum.UserInputState.Begin or open == nil or GuiService.SelectedObject ~= nil then
+		-- HUD veri gelmeden kapalıdır: görünmez pencere açılmasın
+		if
+			state ~= Enum.UserInputState.Begin
+			or open == nil
+			or not screenGui.Enabled
+			or GuiService.SelectedObject ~= nil
+		then
 			return Enum.ContextActionResult.Pass
 		end
 		open()
