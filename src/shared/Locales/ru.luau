@@ -976,4 +976,13 @@ return {
 	-- Meydan sıralama panosu
 	["Sunucu Sıralaması"] = "Рейтинг сервера",
 	["{} ada"] = "островов: {1}",
+
+	-- Mevsim/hava etkileri paneli
+	["Etkileri göster"] = "Показать эффекты",
+	["Etkileri gizle"] = "Скрыть эффекты",
+	["Mevsim etkisi"] = "Эффекты сезона",
+	["Hava etkisi"] = "Эффекты погоды",
+	["Toplam etki"] = "Общий эффект",
+	["Sipariş ödülü"] = "Награда за заказ",
+	["Etki yok"] = "Нет эффекта",
 }

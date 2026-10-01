@@ -978,4 +978,13 @@ return {
 	-- Meydan sıralama panosu
 	["Sunucu Sıralaması"] = "Server-Rangliste",
 	["{} ada"] = "{1} Insel(n)",
+
+	-- Mevsim/hava etkileri paneli
+	["Etkileri göster"] = "Effekte anzeigen",
+	["Etkileri gizle"] = "Effekte ausblenden",
+	["Mevsim etkisi"] = "Jahreszeiteneffekte",
+	["Hava etkisi"] = "Wettereffekte",
+	["Toplam etki"] = "Gesamteffekt",
+	["Sipariş ödülü"] = "Auftragsbelohnung",
+	["Etki yok"] = "Kein Effekt",
 }

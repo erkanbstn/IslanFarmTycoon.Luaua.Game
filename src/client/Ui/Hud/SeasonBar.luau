@@ -65,6 +65,122 @@ function SeasonBar.create(stats: Instance): Bar
 	local nextSeasonLabel = UiKit.text(seasonBar, "", "Caption")
 	nextSeasonLabel.LayoutOrder = 5
 
+	-- Açılır/kapanır "Etkiler" bölümü: mevsimin, havanın ve ikisinin toplam gelir etkisi (hayvan başına)
+	local toggle = UiKit.button(seasonBar, "Etkileri göster", "secondary")
+	toggle.Name = "EffectsToggle"
+	toggle.Size = UDim2.new(1, 0, 0, 26)
+	toggle.TextSize = 12
+	toggle.LayoutOrder = 6
+	-- Uzun listeler küçük ekranlarda paneli taşırmasın: sabit yükseklikte kaydırılır
+	local details = Instance.new("ScrollingFrame")
+	details.Name = "EffectDetails"
+	details.BackgroundTransparency = 1
+	details.BorderSizePixel = 0
+	details.Size = UDim2.new(1, 0, 0, 180)
+	details.CanvasSize = UDim2.new()
+	details.AutomaticCanvasSize = Enum.AutomaticSize.Y
+	details.ScrollBarThickness = 4
+	details.LayoutOrder = 7
+	details.Visible = false
+	details.Parent = seasonBar
+	UiKit.list(details, 3)
+	local detailsOpen = false
+	local compactMode = false
+	local detailsSignature = ""
+
+	local function percent(value: number): string
+		return string.format("%+d%%", math.floor(value * 100 + 0.5))
+	end
+	local function addTitle(text: string, order: number)
+		local label = UiKit.text(details, text, "Caption", Color.Gold)
+		label.LayoutOrder = order
+	end
+	-- Satır: solda ikon + ad, sağda renkli yüzde (yeşil = artı, kırmızı = eksi)
+	local function addRow(icon: string, name: string, value: number, order: number)
+		local row = Instance.new("Frame")
+		row.BackgroundTransparency = 1
+		row.Size = UDim2.new(1, 0, 0, 18)
+		row.LayoutOrder = order
+		row.Parent = details
+		UiKit.iconChip(row, icon, 18, Color.SurfaceRaised)
+		local label = UiKit.text(row, name, "Caption")
+		label.AutomaticSize = Enum.AutomaticSize.None
+		label.Position = UDim2.fromOffset(24, 0)
+		label.Size = UDim2.new(1, -78, 1, 0)
+		label.TextWrapped = false
+		label.TextTruncate = Enum.TextTruncate.AtEnd
+		local amount = UiKit.text(row, percent(value), "Caption", if value >= 0 then Color.Green else Color.Red)
+		amount.AutomaticSize = Enum.AutomaticSize.None
+		amount.AnchorPoint = Vector2.new(1, 0)
+		amount.Position = UDim2.new(1, 0, 0, 0)
+		amount.Size = UDim2.fromOffset(52, 18)
+		amount.TextXAlignment = Enum.TextXAlignment.Right
+	end
+	local function addModifierRows(modifiers: { [string]: number }, order: number): number
+		local count = 0
+		for _, animalId in Config.ANIMAL_ORDER do
+			local value = modifiers[animalId]
+			local animal = Config.ANIMALS[animalId]
+			if value and value ~= 0 and animal then
+				count += 1
+				addRow(animal.icon, animal.displayName, value, order + count)
+			end
+		end
+		return count
+	end
+
+	local function renderDetails(season: Config.SeasonConfig, weather: Config.WeatherConfig)
+		local signature = `{season.id}|{weather.id}`
+		if signature == detailsSignature then
+			return
+		end
+		detailsSignature = signature
+		for _, child in details:GetChildren() do
+			if child:IsA("GuiObject") then
+				child:Destroy()
+			end
+		end
+		local order = 0
+		addTitle("Mevsim etkisi", order)
+		order += 1
+		local seasonRows = addModifierRows(season.incomeModifiers, order)
+		order += seasonRows + 1
+		if (season.orderBonus or 0) ~= 0 then
+			addRow("📋", "Sipariş ödülü", season.orderBonus or 0, order)
+			order += 1
+		end
+		addTitle("Hava etkisi", order)
+		order += 1
+		local weatherRows = addModifierRows(weather.incomeModifiers, order)
+		order += weatherRows + 1
+		if weatherRows == 0 then
+			local none = UiKit.text(details, "Etki yok", "Caption")
+			none.LayoutOrder = order
+			order += 1
+		end
+		addTitle("Toplam etki", order)
+		order += 1
+		local total: { [string]: number } = {}
+		for _, animalId in Config.ANIMAL_ORDER do
+			total[animalId] = Environment.getIncomeMultiplier(animalId) - 1
+		end
+		local totalRows = addModifierRows(total, order)
+		if totalRows == 0 then
+			local none = UiKit.text(details, "Etki yok", "Caption")
+			none.LayoutOrder = order + 1
+		end
+	end
+
+	local function applyDetailsVisibility()
+		toggle.Visible = not compactMode
+		details.Visible = detailsOpen and not compactMode
+		toggle.Text = if detailsOpen then "Etkileri gizle" else "Etkileri göster"
+	end
+	toggle.Activated:Connect(function()
+		detailsOpen = not detailsOpen
+		applyDetailsVisibility()
+	end)
+
 	local seasonTints: { [string]: Color3 } = {
 		spring = Color.Green,
 		summer = Color.Gold,
@@ -92,6 +208,7 @@ function SeasonBar.create(stats: Instance): Bar
 		nextSeasonLabel.Text = if ReplicatedStorage:GetAttribute("AdminSeasonOverride")
 			then "Mevsim sabit"
 			else `Sonra: {Environment.getNextSeason().displayName}`
+		renderDetails(season, weather)
 		local clockHour = Environment.getClockTime(now)
 		local isNight = Environment.getNightFactor(clockHour) >= 0.5
 		local dayPart = if isNight then "Gece" else "Gündüz"
@@ -111,6 +228,8 @@ function SeasonBar.create(stats: Instance): Bar
 		nextSeasonLabel.Visible = not compact
 		seasonClock.Visible = not compact
 		seasonProgress.Visible = not compact
+		compactMode = compact
+		applyDetailsVisibility()
 	end
 	return { update = updateSeasonBar, setCompact = setCompact }
 end
