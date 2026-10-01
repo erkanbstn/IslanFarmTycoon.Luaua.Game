@@ -60,6 +60,9 @@ try {
 		& $compiler --null @sourceFiles
 	}
 	Invoke-Check "Pure Luau regression tests" { & $Python scripts/run-tests.py --luau $interpreter }
+	Invoke-Check "Economy simulation smoke (--json parses)" {
+		& $Python scripts/simulate-economy.py --luau $interpreter --persona casual --hours 2 --json | & $Python -c "import json,sys; d=json.load(sys.stdin); assert d['totals']['animals'] > 0"
+	}
 	Invoke-Check "Locale key parity and UI literal coverage" { & $Python scripts/check-locales.py --strict-literals }
 	Invoke-Check "AI guide consistency" { & $Python scripts/check-ai-docs.py }
 	Invoke-Check "Pure helper type analysis (SessionLock, SeasonVisuals only)" {

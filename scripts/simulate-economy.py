@@ -15,6 +15,12 @@ Her mekanik açılıp kapanabilir (bayraklar persona ön ayarını ezer):
   --orders / --no-orders, --rewards / --no-rewards, --golden-chance 0..1, --farms N, --react SN
   --days N (= --hours N*24), --json (makine okunur çıktı)
 
+Bilinen sınırlar (bilinçli sadeleştirme):
+  - Çevrimdışı kazanç yalnızca etkin çiftliğe yatar (SaveCodec gibi); park edilmişler çevrimdışıyken kazanmaz.
+  - Persona oturum düzeni --hours 6'da tek oturum üretir (casual: 20 dk çevrimiçi); persona karşılaştırması için --days kullan.
+  - "Depo dolu" yalnızca toplama aralığına göre ölçülür, oturum içi AFK modellenmez.
+  - Üretim ve eklenti yalnızca etkin çiftlikte elle yapılır; park edilmişlerde yalnızca yardımcılar (pet) çalışır.
+
 Kullanım:  python scripts/simulate-economy.py [--hours 8] [--farm 1..6] [--persona casual --days 7] [--luau PATH]
 """
 
