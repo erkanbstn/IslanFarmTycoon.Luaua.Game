@@ -9,6 +9,7 @@ return function(createPlotService: any, Config: any)
 		local pushes: { [any]: number } = {}
 		local plots: { any } = {}
 		local themes: { [any]: number } = {}
+		local themeCalls = 0
 		for index = 1, Config.MAP_PLOT_COUNT do
 			local plot: any = { Name = `Plot{index}`, attributes = { PlotId = tostring(index) } }
 			function plot:IsA(class: string): boolean
@@ -57,6 +58,7 @@ return function(createPlotService: any, Config: any)
 				assert(not invalidMap, "Injected malformed map")
 			end,
 			applyTheme = function(target: any, themeIndex: number): boolean
+				themeCalls += 1
 				themes[target] = themeIndex
 				return true
 			end,
@@ -105,6 +107,9 @@ return function(createPlotService: any, Config: any)
 			rendered = rendered,
 			pushes = pushes,
 			themes = themes,
+			themeSwaps = function(): number
+				return themeCalls
+			end,
 			calls = function(): (number, number)
 				return ensureCalls, validateCalls
 			end,
@@ -166,6 +171,7 @@ return function(createPlotService: any, Config: any)
 	local mine, theirs = service.getPlot(alice), service.getPlot(bob)
 	assert(mine ~= nil and theirs ~= nil and mine ~= theirs, "each player gets a different random free plot")
 	assert(service.getFarmId(mine) == "1", "every player starts on farm 1")
+	assert(multi.themeSwaps() == 0, "assigning a plot before the profile loads must not rebuild any theme")
 	local records: any = {}
 	for index = 1, 4 do
 		records[tostring(index)] = {
@@ -226,8 +232,10 @@ return function(createPlotService: any, Config: any)
 	assert(not service.selectMainFarm(alice, "unknown"), "unowned logical farm cannot activate")
 	assert(records["1"].stored == 123 and records["4"].stored == 492, "switching never mutates saved farm contents")
 
+	local swapsBefore = multi.themeSwaps()
 	service.release(alice)
-	assert(service.getOwner(mine) == nil and multi.themes[mine] == 1, "a released plot returns to the base theme")
+	assert(multi.themeSwaps() == swapsBefore, "releasing a plot must not rebuild its theme")
+	assert(service.getOwner(mine) == nil and multi.themes[mine] == 5, "a released plot keeps its theme (no reset)")
 	local newcomer = player(108)
 	assert(service.assign(newcomer), "a free plot is available again")
 	local received = service.getPlot(newcomer)

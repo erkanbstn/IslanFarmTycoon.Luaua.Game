@@ -413,8 +413,8 @@ local function themeOf(farmId: string): number
 	return tonumber(farmId) or 1
 end
 
--- Adanın görünen hâlini temizler ve temayı değiştirir; sonrasında renderFarm/resetPlot çizer.
-local function retheme(plot: Model, farmId: string)
+-- Adadaki sahibe ait görselleri temizler (tema içeriğine dokunmaz); sonrasında renderFarm/resetPlot çizer.
+local function clearOwnerVisuals(plot: Model)
 	UpgradeVisualService.apply(plot, nil)
 	ExtensionVisualService.apply(plot, nil)
 	AnimalVisualService.clear(plot)
@@ -423,19 +423,20 @@ local function retheme(plot: Model, farmId: string)
 	if pads then
 		pads:Destroy() -- eski temanın ada yuvalarına kurulmuştu
 	end
-	MapBuilder.applyTheme(plot, themeOf(farmId))
 end
 
 local function resetPlot(plot: Model)
 	plot:SetAttribute("OwnerUserId", nil)
 	plot:SetAttribute("MainFarmId", nil)
 	plot:SetAttribute("FarmActive", nil)
-	retheme(plot, "1")
+	-- Boş ada temasını korur (ada şablon kopyasıyla giydirilir; boşalırken yeniden giydirmek gereksiz). Sonraki sahip
+	-- restoreMainFarms/selectMainFarm ile kendi temasını giydirir.
+	clearOwnerVisuals(plot)
 	setOwnerDisplay(plot, nil)
 	BarnVisualService.applyForPlayer(plot, 1)
 	applyIslandState(plot, nil)
 	applyZoneState(plot, nil)
-	-- Yapı/eklenti/hayvan/BuyPads temizliği retheme içinde yapıldı; burada yalnızca para yığını kalır.
+	-- Yapı/eklenti/hayvan/BuyPads temizliği clearOwnerVisuals içinde yapıldı; burada yalnızca para yığını kalır.
 	local pile = plot:FindFirstChild("CollectorPile")
 	if pile then
 		pile:Destroy()
@@ -447,10 +448,14 @@ local function resetPlot(plot: Model)
 end
 
 -- Oyuncunun adasını verilen çiftliğe bağlar. Yield etmez; para/kayıt işlemini MainFarmService yönetir.
-local function bindFarm(player: Player, farmId: string, plot: Model)
+-- keepTheme: kayıt henüz yüklenmedi (assign); ada mevcut temasında kalır, tema restoreMainFarms'ta bir kez giydirilir.
+local function bindFarm(player: Player, farmId: string, plot: Model, keepTheme: boolean?)
 	local plotId = plot:GetAttribute("PlotId") :: string
 	if farmIdByPlotId[plotId] ~= farmId or ownerByPlotId[plotId] ~= player then
-		retheme(plot, farmId)
+		clearOwnerVisuals(plot)
+	end
+	if not keepTheme then
+		MapBuilder.applyTheme(plot, themeOf(farmId)) -- ada zaten bu temadaysa hiçbir şey yapmaz
 	end
 	ownedPlots[player] = { [farmId] = plot }
 	activePlots[player] = plot
@@ -525,7 +530,7 @@ function PlotService.assign(player: Player): boolean
 		warn(`[Plot] Boş ada yok: {player.Name}`)
 		return false
 	end
-	bindFarm(player, "1", plot)
+	bindFarm(player, "1", plot, true)
 	characterConnections[player] = player.CharacterAdded:Connect(function(character)
 		onCharacterAdded(player, character)
 	end)
