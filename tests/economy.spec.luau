@@ -121,7 +121,7 @@ return function(FarmMath: any, Config: any, Environment: any)
 	oldSpeeds = FarmMath.snapshotGrowthSpeeds(save)
 	save.purchased.silo = true
 	FarmMath.applyDerived(save)
-	FarmMath.preserveGrowthProgress(save, oldSpeeds, start + 1000)
+	FarmMath.preserveGrowthProgress(save, oldSpeeds, start + growSeconds + 1000)
 	near(save.animals[1].bornAt + growSeconds / 2, start + growSeconds)
 	assert(save.animals[1].stage == "adult", "an adult stays adult after a speed change")
 

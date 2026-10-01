@@ -14,6 +14,7 @@ local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Co
 local ACTION = "Sprint"
 local NORMAL_FOV = 70
 local SPRINT_FOV = 80
+local BRIDGE_FOV = 78 -- Köprüde (BridgeBoost) kamera hafifçe genişler
 local FOV_TWEEN = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
 local localPlayer = Players.LocalPlayer
@@ -26,14 +27,18 @@ end
 
 local function apply()
 	local humanoid = getHumanoid()
+	local onBridge = localPlayer:GetAttribute("OnBridge") == true
 	if humanoid then
-		humanoid.WalkSpeed = if sprinting then Config.SPRINT_SPEED else Config.WALK_SPEED
+		local base = if sprinting then Config.SPRINT_SPEED else Config.WALK_SPEED
+		humanoid.WalkSpeed = if onBridge then base * Config.BRIDGE_SPEED_MULTIPLIER else base
 	end
 	local camera = Workspace.CurrentCamera
 	if camera then
-		TweenService:Create(camera, FOV_TWEEN, { FieldOfView = if sprinting then SPRINT_FOV else NORMAL_FOV }):Play()
+		local fov = if sprinting then SPRINT_FOV elseif onBridge then BRIDGE_FOV else NORMAL_FOV
+		TweenService:Create(camera, FOV_TWEEN, { FieldOfView = fov }):Play()
 	end
 end
+localPlayer:GetAttributeChangedSignal("OnBridge"):Connect(apply)
 
 local function setSprinting(value: boolean)
 	if sprinting == value then

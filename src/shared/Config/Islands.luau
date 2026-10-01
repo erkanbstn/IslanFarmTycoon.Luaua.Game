@@ -6,8 +6,8 @@ local Types = require(script.Parent:WaitForChild("Types"))
 return {
 	-- Bir hayvanın her evrede kaldığı süre (saniye). Yetişkin olunca tam gelir verir.
 	GROWTH_SECONDS = {
-		calf = 240,
-		young = 480,
+		calf = 600,
+		young = 1200,
 	},
 
 	BARN_LEVELS = {

@@ -21,7 +21,7 @@ return function(
 			end,
 		}
 	end
-	local now, serial = 1000, 0
+	local now, serial = 100000, 0 -- eski ineğin (bornAt = 0) yetişkin sayılması için büyüme süresinden büyük
 	local function uid(): string
 		serial += 1
 		return `farm-test-{serial}`
