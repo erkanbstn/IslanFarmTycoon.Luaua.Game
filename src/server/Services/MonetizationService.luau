@@ -94,7 +94,8 @@ local function isSupported(effect: any): boolean
 end
 
 local function applyProduct(player: Player, data: any, product: Config.ProductConfig): boolean
-	local handler = productEffects[product.effect]
+	local effect = product.effect
+	local handler = if effect ~= nil then productEffects[effect] else nil
 	return handler ~= nil and handler(player, data, product)
 end
 
