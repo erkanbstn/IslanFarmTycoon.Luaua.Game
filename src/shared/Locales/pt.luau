@@ -1248,4 +1248,7 @@ return {
 	["Oyuncu bu sunucuda değil"] = "Esse jogador não está neste servidor",
 	["Alıcının çiftliği henüz hazır değil"] = "A fazenda do destinatário ainda não está pronta",
 	["Alıcının kasası bu tutarı alamaz"] = "O caixa do destinatário não comporta esse valor",
+	["Yönetici sana {} verdi"] = "O administrador deu {1} a você",
+	["Yönetici kasandan {} aldı"] = "O administrador tirou {1} do seu caixa",
+	["Yönetici kasanı {} yaptı"] = "O administrador definiu seu dinheiro como {1}",
 }

@@ -59,6 +59,11 @@ local function execute(target: Player, action: string, value: unknown): (boolean
 	end
 	PlayerDataService.pushState(target)
 	PlayerDataService.requestSave(target)
+	local notice = if action == "giveCash"
+		then `Yönetici sana {FarmMath.formatMoney(amount)} verdi`
+		elseif action == "takeCash" then `Yönetici kasandan {FarmMath.formatMoney(before - data.cash)} aldı`
+		else `Yönetici kasanı {FarmMath.formatMoney(data.cash)} yaptı`
+	Remotes.get("Notify"):FireClient(target, notice, if action == "takeCash" then "info" else "money")
 	return true, `{target.DisplayName} kasası: {FarmMath.formatMoney(before)} → {FarmMath.formatMoney(data.cash)}`
 end
 

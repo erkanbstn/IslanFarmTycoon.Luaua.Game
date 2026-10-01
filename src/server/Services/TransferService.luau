@@ -71,6 +71,8 @@ function TransferService.trySend(player: Player, targetUserId: unknown, amount: 
 	PlayerDataService.requestSave(target)
 	Remotes.get("Notify")
 		:FireClient(target, `{player.DisplayName} sana {FarmMath.formatMoney(value)} gönderdi`, "money")
+	local sentText = `{target.DisplayName} oyuncusuna {FarmMath.formatMoney(value)} gönderildi`
+	Remotes.get("Notify"):FireClient(player, sentText, "money")
 	return true, `{target.DisplayName} oyuncusuna {FarmMath.formatMoney(value)} gönderildi`
 end
 
