@@ -139,7 +139,7 @@ Kullanıcı raporu: ahır siparişi 9 süt için $274K, panoda "Süt 41/9". Kök
 | Açılış ürünü (Çiftlik 2, toplam birim) | 244 | 23 (değer/para fiyatı %0,8 -> %18; en az 1 birim kuralı) |
 | En pahalı tek kalem (Ç1 / Ç6) | 3,3M / 900M | değişmedi; tavan `DIFFICULTY.tiers[n].maxPrice` |
 
-Sim (7 gün): casual sipariş payı %9,3 -> %8,9, toplam gelir aynı ($1,2 mlr); hardcore payı %19,7 -> ~%12; Çiftlik süreleri `simulate-tiers.py`: ideal birebir (12 / 45 / 114 dk, tüm yükseltmeler 4,6 sa Çiftlik 1; tema 2-6 +-1 dk), casual ve idle üç persona monoton, ~1,4-1,5x/kademe
+Sim (7 gün): casual sipariş payı %9,3 -> %8,9, toplam gelir aynı ($1,2 mlr); hardcore payı %19,7 -> %14,3; Çiftlik süreleri `simulate-tiers.py`: ideal birebir (12 / 45 / 114 dk, tüm yükseltmeler 4,6 sa Çiftlik 1; tema 2-6 +-1 dk), casual ve idle üç persona monoton, ~1,4-1,5x/kademe
 (casual Çiftlik 2+ %20-30 uzadı, idle Çiftlik 1 aynı; oturum basamaklı olduğundan +-%5 tutmak mümkün değil).
 Düzeltme: `FarmMath/Contracts.reward` ürün değerine bağlı (gelir tabanı yok), `getGoodsYield` artıları toplar ve sınırlar, ürün değerleri `Config/Goods`+`Species` "DEĞER KURALI"ndan türetildi, hızlı satış/takas oranı küçüldü,
 `Config.ECONOMY_LIMITS` + `tests/goods.spec` "ekonomi değişmezleri" + `audit-economy.py --check` (verify.ps1) korur. Kayıt şeması değişmedi (`SessionLock.VERSION` aynı).
@@ -311,7 +311,7 @@ Birleştirilen kaynaklar: eski ara raporlar ve ikinci tur. `DIFFICULTY.tiers` ç
 | Q16 | `SaveStore` yedek zaman damgası artık arka plan görevi çalışınca basılıyor (aynı saniye) | Kabul |
 | Q17 | Büyük parti çarpanı, sipariş ödül tabanı (ürün değer çarpanı, `unitRefValue`, `maxLineUnits`) ve pano süresi (7 dk) telemetri verisine göre yeniden bakılacak | Gelir verisi gelince |
 | Q18 | Sabah eğrisi saatleri (`Environment.NIGHT_CURVE`: 03:30 şafak, 07:00 tam gündüz) ve halo görünümü (`DayNight` `HALO_*`) uygun mu | Studio'da gör, beğenilmezse eğri noktalarını/halo ölçeğini ayarla |
-| Q19 | Sipariş ödülü artık ürün değerine bağlı (gelir tabanı yok): casual payı ~%8,9, hardcore ~%12 (eskiden %35). Daha yüksek pay için ürün değer çarpanını (`audit-economy.py` D) büyütmek tek tek siparişi gelirin dakikalarına yaklaştırır | Ürün değer çarpanı ile oyna; sim'de kontrol |
+| Q19 | Sipariş ödülü artık ürün değerine bağlı (gelir tabanı yok): casual payı ~%8,9, hardcore ~%14 (eskiden %20; belge eski ölçümü %35). Daha yüksek pay için ürün değer çarpanını (`audit-economy.py` D) büyütmek tek tek siparişi gelirin dakikalarına yaklaştırır | Ürün değer çarpanı ile oyna; sim'de kontrol |
 | Q20 | Takas oranı satışla aynı (0.5) kalsın mı; ürün talep ağırlığı eklensin mi | Aynı kalsın; talep ağırlığı telemetri sonrası |
 | Q21 | Mevcut kayıtlarda yeni uzun büyüme süresi yüzünden yakın alınmış hayvan gençleşebilir; süre arayüzde gösterilsin mi (`getGrowthSeconds` hazır) | Kabul et; göstermek istersen küçük bir iş |
 | Q22 | Tek `PreRender`/`BulkMoveTo` pet döngüsü yapılmadı; düşükte ışınlanma tamamen kalktı | Studio'da kare süresine bak, gerekirse birleştir |
