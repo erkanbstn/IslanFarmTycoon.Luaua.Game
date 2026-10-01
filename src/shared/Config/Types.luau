@@ -242,7 +242,7 @@ export type ExtensionConfig = {
 	sourceZoneId: string,
 	animalId: string,
 	capacity: number, -- Aynı anda eklentide durabilecek hayvan (taban); kapasite yükseltmeleriyle artar
-	incomeBonus: number, -- 1 = +%100 gelir (eklentide duran hayvanlar)
+	incomeBonus: number, -- 1 = +%100 gelir (eklentide duran hayvanlar); toplam bonus = incomeBonus x stayDuration
 	stayDuration: number, -- Bir hayvanın eklentide kalma süresi (saniye); sonra ana bölgesine döner
 }
 

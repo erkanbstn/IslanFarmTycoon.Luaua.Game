@@ -742,12 +742,12 @@ return {
 	["Hayvan artık bulunamıyor"] = "The animal can no longer be found",
 
 	-- Eklentiler (süreli kalış) ve üretim tesisi görevleri
-	["2 tavuk · 2 dk kalır · +%100 gelir"] = "2 chickens · stay 2 min · +100% income",
-	["2 at · 2 dk kalır · +%100 gelir"] = "2 horses · stay 2 min · +100% income",
-	["2 keçi · 2 dk kalır · +%100 gelir"] = "2 goats · stay 2 min · +100% income",
-	["2 ördek · 2 dk kalır · +%100 gelir"] = "2 ducks · stay 2 min · +100% income",
-	["2 koyun · 2 dk kalır · +%100 gelir"] = "2 sheep · stay 2 min · +100% income",
-	["2 domuz · 2 dk kalır · +%100 gelir"] = "2 pigs · stay 2 min · +100% income",
+	["2 tavuk · 6 dk kalır · +%33 gelir"] = "2 chickens · stay 6 min · +33% income",
+	["2 at · 6 dk kalır · +%33 gelir"] = "2 horses · stay 6 min · +33% income",
+	["2 keçi · 6 dk kalır · +%33 gelir"] = "2 goats · stay 6 min · +33% income",
+	["2 ördek · 6 dk kalır · +%33 gelir"] = "2 ducks · stay 6 min · +33% income",
+	["2 koyun · 6 dk kalır · +%33 gelir"] = "2 sheep · stay 6 min · +33% income",
+	["2 domuz · 6 dk kalır · +%33 gelir"] = "2 pigs · stay 6 min · +33% income",
 	["Kaya Tırmanışı"] = "Rock Climb",
 	["Kaya tırmanışı"] = "Rock climb",
 	["Kayalığa tırmanan keçiler"] = "Goats climbing the cliffs",

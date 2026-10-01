@@ -377,7 +377,7 @@ return {
 		{
 			id = "ext_folluk_garden",
 			displayName = "Folluk Bahçesi",
-			description = "2 tavuk · 2 dk kalır · +%100 gelir",
+			description = "2 tavuk · 6 dk kalır · +%33 gelir",
 			icon = "🐔",
 			stage = 3,
 			cost = 1400,
@@ -388,7 +388,7 @@ return {
 		{
 			id = "ext_training_course",
 			displayName = "Koşu ve Engel Parkuru",
-			description = "2 at · 2 dk kalır · +%100 gelir",
+			description = "2 at · 6 dk kalır · +%33 gelir",
 			icon = "🏇",
 			stage = 4,
 			cost = 2200,
@@ -399,7 +399,7 @@ return {
 		{
 			id = "ext_rocky_terraces",
 			displayName = "Kayalık Otlak Terasları",
-			description = "2 keçi · 2 dk kalır · +%100 gelir",
+			description = "2 keçi · 6 dk kalır · +%33 gelir",
 			icon = "🐐",
 			stage = 5,
 			cost = 3200,
@@ -410,7 +410,7 @@ return {
 		{
 			id = "ext_goat_cliffs",
 			displayName = "Kaya Tırmanışı",
-			description = "2 keçi · 2 dk kalır · +%100 gelir",
+			description = "2 keçi · 6 dk kalır · +%33 gelir",
 			icon = "🐐",
 			stage = 5,
 			cost = 3800,
@@ -421,7 +421,7 @@ return {
 		{
 			id = "ext_duck_cove",
 			displayName = "Ördek Koyu",
-			description = "2 ördek · 2 dk kalır · +%100 gelir",
+			description = "2 ördek · 6 dk kalır · +%33 gelir",
 			icon = "🦆",
 			stage = 6,
 			cost = 1500,
@@ -432,7 +432,7 @@ return {
 		{
 			id = "ext_hillside_pasture",
 			displayName = "Yün Yamacı",
-			description = "2 koyun · 2 dk kalır · +%100 gelir",
+			description = "2 koyun · 6 dk kalır · +%33 gelir",
 			icon = "🐑",
 			stage = 7,
 			cost = 4200,
@@ -443,7 +443,7 @@ return {
 		{
 			id = "ext_truffle_grove",
 			displayName = "Trüf Korusu",
-			description = "2 domuz · 2 dk kalır · +%100 gelir",
+			description = "2 domuz · 6 dk kalır · +%33 gelir",
 			icon = "🐖",
 			stage = 8,
 			cost = 6500,

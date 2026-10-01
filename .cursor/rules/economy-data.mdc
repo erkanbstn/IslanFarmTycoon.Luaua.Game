@@ -136,7 +136,7 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
 - **Hayvan görevleri (üretim tesisi ve eklenti)**: `AnimalRecord.task { kind = "production"|"extension", id, startedAt, endsAt }` kaydedilir
   (`SaveCodec.decodeTask`: bozuk görev atılır, hayvan korunur; çevrimdışıyken biten görev yüklemede temizlenir; eski kalıcı `extensionId` eve döner).
   Görev süresince: **üretim** → hayvan tesiste çalışır, gelir getirmez, görünmez, satılamaz; **eklenti** → `Config.EXTENSIONS[id].incomeBonus` kadar
-  bonus, `stayDuration` (120 sn) sonra ana bölgesine döner. Gelir `FarmMath.computeIncomeOverInterval` içinde yalnızca görev penceresiyle kesişen
+  bonus, `stayDuration` (360 sn; toplam bonus = `incomeBonus` x `stayDuration` sabit kalsın: 1/3 x 360 = 1 x 120) sonra ana bölgesine döner. Gelir `FarmMath.computeIncomeOverInterval` içinde yalnızca görev penceresiyle kesişen
   kısma uygulanır (`taskMultiplier`: üretim 0, eklenti 1+bonus); anlık gelir `computeIncomePerSecond(save, now)`. Ana bölgedeki yer ayrılı kalır
   (`countInZone` görevdeki hayvanı da sayar). **Bir görevi başlatmadan/bitirmeden önce her zaman `EconomyService.settlePlayer`** çağır (yoksa pencere
   geriye dönük değişir). Üretim: `ProductionService` `FarmMath.pickProductionAnimals` ile boşta yetişkinleri verir, `job.forgone` = kaçırılan gelir

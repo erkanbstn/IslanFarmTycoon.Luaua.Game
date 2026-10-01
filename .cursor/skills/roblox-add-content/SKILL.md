@@ -19,7 +19,7 @@ Tek kaynak `src/shared/Config/` (`Upgrades`, `Animals` = bölge/hayvan, `Islands
 | Üretim | `PRODUCTION_RECIPES` (+ `upgradeProfile`; para tesisi: `cost = 0` + `options` 2-3 parti, çok hayvan = hayvan başına daha çok ödül; kimlik bölge kimliğiyle çakışmamalı) | `ProductionRules`, `World/IslandSpecialization`; tesis geliştirmesi `BUILD_UPGRADES.profiles` |
 | Yapı geliştirme | `BUILD_UPGRADES` (`profiles`, `costMultiplier/costGrowth`) | etki `FarmMath`'te; `tests/economy.spec.luau`; `simulate-economy.py` kalibrasyonu |
 | Mevsim/hava | `SEASONS`, `WEATHER` (incomeModifiers) | `client/Effects/WeatherEffects` WEATHER_LOOK, `SEASON_TINT` |
-| Eklenti (süreli kalış: 2 dk bonus, kapasite 2-4) | `Config.EXTENSIONS` (+ `UPGRADES` kind "extension"; kapasite yükseltmeleri otomatik üretilir) | `IslandLayout.EXTENSIONS` (yer) + `IslandSiteBuilders` (görsel) + `IslandSpecialization.buildExtensionVisual`; `MAP_VERSION` +1; çeviri; `tests/tasks.spec.luau` |
+| Eklenti (süreli kalış: 6 dk, +%33 bonus, kapasite 2-4) | `Config.EXTENSIONS` (+ `UPGRADES` kind "extension"; kapasite yükseltmeleri otomatik üretilir) | `IslandLayout.EXTENSIONS` (yer) + `IslandSiteBuilders` (görsel) + `IslandSpecialization.buildExtensionVisual`; `MAP_VERSION` +1; çeviri; `tests/tasks.spec.luau` |
 | Eşya (çekiç, asa, muska, kozmetik) | `Config.ITEMS` (+ `ITEM_SLOTS`) — `effects`/`power`/`look` | etki `FarmMath`'te okunur; çeviri (ad + şablon); `tests/inventory.spec.luau` |
 
 ## Adımlar

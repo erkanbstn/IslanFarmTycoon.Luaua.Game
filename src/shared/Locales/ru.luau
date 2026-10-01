@@ -742,12 +742,12 @@ return {
 	["Hayvan artık bulunamıyor"] = "Животное больше не найдено",
 
 	-- Eklentiler (süreli kalış) ve üretim tesisi görevleri
-	["2 tavuk · 2 dk kalır · +%100 gelir"] = "2 курицы · 2 мин · +100% дохода",
-	["2 at · 2 dk kalır · +%100 gelir"] = "2 лошади · 2 мин · +100% дохода",
-	["2 keçi · 2 dk kalır · +%100 gelir"] = "2 козы · 2 мин · +100% дохода",
-	["2 ördek · 2 dk kalır · +%100 gelir"] = "2 утки · 2 мин · +100% дохода",
-	["2 koyun · 2 dk kalır · +%100 gelir"] = "2 овцы · 2 мин · +100% дохода",
-	["2 domuz · 2 dk kalır · +%100 gelir"] = "2 свиньи · 2 мин · +100% дохода",
+	["2 tavuk · 6 dk kalır · +%33 gelir"] = "2 курицы · 6 мин · +33% дохода",
+	["2 at · 6 dk kalır · +%33 gelir"] = "2 лошади · 6 мин · +33% дохода",
+	["2 keçi · 6 dk kalır · +%33 gelir"] = "2 козы · 6 мин · +33% дохода",
+	["2 ördek · 6 dk kalır · +%33 gelir"] = "2 утки · 6 мин · +33% дохода",
+	["2 koyun · 6 dk kalır · +%33 gelir"] = "2 овцы · 6 мин · +33% дохода",
+	["2 domuz · 6 dk kalır · +%33 gelir"] = "2 свиньи · 6 мин · +33% дохода",
 	["Kaya Tırmanışı"] = "Скалолазание",
 	["Kaya tırmanışı"] = "Скалолазание",
 	["Kayalığa tırmanan keçiler"] = "Козы, лазающие по скалам",

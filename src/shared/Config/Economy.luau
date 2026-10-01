@@ -21,7 +21,7 @@ return {
 	PRODUCTION_MIN_RETURN = 1.4,
 
 	-- Eklentide duran hayvanlar bu süre (sn) bonus kazanır, sonra ana bölgesine döner; kapasite yükseltmeyle 2 -> 4.
-	EXTENSION_STAY_SECONDS = 120,
+	EXTENSION_STAY_SECONDS = 360,
 	EXTENSION_CAPACITY_LEVELS = 2,
 
 	ANIMAL_PRICE_GROWTH = 1.18,
