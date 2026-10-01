@@ -193,7 +193,9 @@ function SeasonService.init(beforeChange: (() -> ())?)
 	task.spawn(function()
 		while true do
 			task.wait(1)
-			local ok, err = pcall(update, true)
+			local ok, err = pcall(function()
+				update(true)
+			end)
 			if not ok then
 				warn(`[Season] Mevsim güncellenemedi: {err}`)
 				Metrics.increment("LoopError")
