@@ -153,14 +153,16 @@ function UpgradesWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Upg
 				card.detail.Text = if nextLevel then effectText(zone, nextLevel) else "Tüm seviyeler tamamlandı"
 			end
 			if status == "max" then
+				UiKit.setCardStatus(card, nil)
 				setPurchaseButton(card.action, "En üst seviye", "owned")
 			elseif status == "locked" then
-				setPurchaseButton(
-					card.action,
-					if reason == "Önce bölgeyi hayvanla doldur" then "Dolunca açılır" else "Kilitli",
-					"disabled"
+				-- Kilitli: düğme yerine kartın sağ üstünde kırmızı yazı
+				UiKit.setCardStatus(
+					card,
+					if reason == "Önce bölgeyi hayvanla doldur" then "Dolunca açılır" else "Kilitli"
 				)
 			else
+				UiKit.setCardStatus(card, nil)
 				setPurchaseButton(
 					card.action,
 					FarmMath.formatMoney(cost),
@@ -201,13 +203,14 @@ function UpgradesWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Upg
 			end
 			if status ~= "owned" then
 				remaining += 1
-				setPurchaseButton(
-					card.action,
-					if status == "locked"
-						then "Kilitli"
-						else FarmMath.formatMoney(FarmMath.getUpgradeCost(state, upgrade)),
-					if status == "locked" then "disabled" else HudCommon.upgradeVariant(state, upgrade)
-				)
+				UiKit.setCardStatus(card, if status == "locked" then "Kilitli" else nil)
+				if status ~= "locked" then
+					setPurchaseButton(
+						card.action,
+						FarmMath.formatMoney(FarmMath.getUpgradeCost(state, upgrade)),
+						HudCommon.upgradeVariant(state, upgrade)
+					)
+				end
 			end
 		end
 		if content then

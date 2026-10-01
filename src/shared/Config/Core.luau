@@ -52,7 +52,7 @@ return {
 
 	-- Kayıt (DataStore). Studio'da çalışması için: Game Settings → Security → Enable Studio Access to API Services
 	-- Yayından sonra bu ad DEĞİŞMEMELİ: değişirse mevcut oyuncu kayıtları bulunamaz.
-	DATASTORE_NAME = "IslandFarmTycoon_v1",
+	DATASTORE_NAME = "IslandFarmTycoon_v2",
 
 	AUTOSAVE_SECONDS = 60,
 

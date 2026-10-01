@@ -66,3 +66,4 @@ Katman: `src/client/Ui/` (UiKit, FarmHud, `Hud/*`, paneller, `IslandManager`, `I
 - Ada bağlamı: paneller `IslandContext.get()` adasını gösterir. Açık adaya girince `IslandAutoSelect` sunucuda gerçek seçim yapar; kilitli adaya girince yalnızca
   client'ta önizleme (`IslandContext.setPreview`) kurar (sunucu kilitli adayı seçmeyi reddeder). Sunucuya giden hiçbir karar `get()` değerine dayanmamalı; sunucunun
   bildiği seçim `IslandContext.selected()`.
+- Kartta durum bildirimi ("Dolu", "Kilitli", "Dolunca açılır") ölü bir düğme olarak değil, kartın sağ üstünde kırmızı yazı olarak gösterilir: `UiKit.setCardStatus(card, metin)` (yazı varken aksiyon düğmesi gizlenir, kart büyümez; metin yoksa `nil`). "Alındı"/"En üst seviye" gibi olumlu durumlar düğmede kalır.

@@ -331,7 +331,31 @@ export type Card = {
 	title: TextLabel,
 	detail: TextLabel,
 	action: TextButton,
+	status: TextLabel, -- Sağ üstte kırmızı durum yazısı ("Dolu", "Kilitli"): düğme yerine; boşken gizli
 }
+
+-- Kartın sağ üst köşesindeki durum yazısı. parent bir düzen (UIListLayout) altındaysa sıfır yükseklikli bir tutucuya konur.
+function Controls.statusLabel(parent: Instance): TextLabel
+	local label = Base.text(parent, "", "Caption", Tokens.Color.Red)
+	label.AnchorPoint = Vector2.new(1, 0)
+	label.Position = UDim2.new(1, 0, 0, 0)
+	label.AutomaticSize = Enum.AutomaticSize.XY
+	label.Size = UDim2.fromOffset(0, 0)
+	label.TextWrapped = false
+	label.TextXAlignment = Enum.TextXAlignment.Right
+	label.ZIndex = 3
+	label.Visible = false
+	return label
+end
+
+-- Durum yazısını yazar/gizler; yazı varken kartın aksiyon düğmesi gizlenir (kart büyümesin)
+function Controls.setStatus(card: Card, text: string?)
+	card.status.Visible = text ~= nil
+	if text then
+		card.status.Text = text
+	end
+	card.action.Visible = text == nil
+end
 
 -- Liste kartı: ikon kutusu | başlık + açıklama | aksiyon düğmesi
 function Controls.card(parent: Instance, order: number, icon: string): Card
@@ -371,7 +395,8 @@ function Controls.card(parent: Instance, order: number, icon: string): Card
 	action.Size = UDim2.new(1, 0, 0, 40)
 	action.LayoutOrder = 2
 
-	return { frame = frame, icon = chip, title = title, detail = detail, action = action }
+	local status = Controls.statusLabel(row)
+	return { frame = frame, icon = chip, title = title, detail = detail, action = action, status = status }
 end
 
 return Controls

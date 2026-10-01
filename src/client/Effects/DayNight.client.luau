@@ -238,6 +238,9 @@ end
 -- Gökyüzü ve ortam
 ---------------------------------------------------------------------------
 
+-- Hava koşuluna göre ışıkların en az yanma oranı (gündüz fırtınasında lambalar yanar)
+local WEATHER_LIGHT_FLOOR: { [string]: number } = { rain = 0.35, storm = 0.8 }
+
 local weatherExposure: number? = nil
 local firstUpdate = true
 
@@ -284,6 +287,8 @@ local function updateSky(dt: number)
 	nightGrade.Brightness = 0.01 * night
 
 	local targetRamp = Environment.getLightFactor(clock)
+	-- Gündüz bile yağmur/fırtına etrafı karartıyorsa lambalar kısmen yanar (karanlık hava + sönük ışık kötü görünüyordu)
+	targetRamp = math.max(targetRamp, WEATHER_LIGHT_FLOOR[Environment.getWeather().id] or 0)
 	-- Yönetici testi: ışıkları zorla aç/kapat ve parlaklığı ayarla
 	local lightsOverride = Environment.getLightsOverride()
 	if lightsOverride == "on" then

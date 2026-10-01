@@ -176,6 +176,11 @@ function RoadmapWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Road
 				if status == "owned" then "Alındı" else FarmMath.formatMoney(FarmMath.getUpgradeCost(state, upgrade)),
 				variant
 			)
+			-- Kilitli: düğme yerine kartın sağ üstünde kırmızı yazı
+			UiKit.setCardStatus(card, if status == "locked" then "Kilitli" else nil)
+			if extensionRow and status == "owned" then
+				card.action.Visible = false
+			end
 		end
 		if content then
 			for stageIndex in Config.ROADMAP_STAGES do

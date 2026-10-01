@@ -238,8 +238,10 @@ function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 				end
 			end
 			if not zoneId then
-				setPurchaseButton(card.action, if block == "full" then "Dolu" else "Kilitli", "disabled")
+				-- Dolu/kilitli: ölü bir düğme yerine kartın sağ üstünde kırmızı yazı
+				UiKit.setCardStatus(card, if block == "full" then "Dolu" else "Kilitli")
 			else
+				UiKit.setCardStatus(card, nil)
 				setPurchaseButton(
 					card.action,
 					if count > 1 then `x{count} · {FarmMath.formatMoney(price)}` else FarmMath.formatMoney(price),
@@ -248,14 +250,14 @@ function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 			end
 			local barterButton = barterButtons[animalId]
 			local barterWorth = FarmMath.getGoodsBarterWorth(state)
-			barterButton.Visible = zoneId ~= nil and barterWorth > 0
-			if zoneId and barterWorth > 0 then
+			local roomForBarter = zoneId ~= nil and FarmMath.getFreeSlots(state, animalId) >= 1
+			barterButton.Visible = roomForBarter and barterWorth > 0
+			if roomForBarter and barterWorth > 0 then
 				local single = FarmMath.getBulkPrice(state, animalId, 1)
-				local free = FarmMath.getFreeSlots(state, animalId) >= 1
 				setPurchaseButton(
 					barterButton,
-					if not free then "Dolu" elseif barterWorth >= single then "Ürünle al" else "Ürün yetmiyor",
-					if free and barterWorth >= single then "primary" else "disabled"
+					if barterWorth >= single then "Ürünle al" else "Ürün yetmiyor",
+					if barterWorth >= single then "primary" else "disabled"
 				)
 			end
 		end

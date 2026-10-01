@@ -56,6 +56,7 @@ UiKit.slider = Controls.slider
 UiKit.closeButton = Controls.closeButton
 UiKit.badge = Controls.badge
 UiKit.card = Controls.card
+UiKit.setCardStatus = Controls.setStatus
 UiKit.grid = Grid.grid
 UiKit.tile = Grid.tile
 UiKit.autoGrid = Grid.autoGrid

@@ -66,6 +66,13 @@ function Grid.tile(
 	local layout = Base.list(frame, 4)
 	layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
+	local statusHolder = Instance.new("Frame")
+	statusHolder.Name = "StatusHolder"
+	statusHolder.BackgroundTransparency = 1
+	statusHolder.Size = UDim2.new(1, 0, 0, 0)
+	statusHolder.LayoutOrder = 0
+	statusHolder.Parent = frame
+	local status = Controls.statusLabel(statusHolder)
 	local chip = Base.iconChip(frame, icon, 38, Tokens.Color.Gold)
 	chip.LayoutOrder = 1
 	local title = caption(frame, 30, 13, true, 2)
@@ -74,7 +81,7 @@ function Grid.tile(
 	action.Size = UDim2.new(1, 0, 0, 30)
 	action.TextSize = 13
 	action.LayoutOrder = 4
-	return { frame = frame, icon = chip, title = title, detail = detail, action = action }
+	return { frame = frame, icon = chip, title = title, detail = detail, action = action, status = status }
 end
 
 -- Esnek ızgara: karolar sütun sayısına göre pencere genişliğini paylaşır, yükseklikleri içeriğe göre büyür (sarmalı satırlar).
@@ -128,6 +135,13 @@ function Grid.autoTile(grid: Frame, order: number, icon: string): Controls.Card
 	local layout = Base.list(frame, 4)
 	layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
+	local statusHolder = Instance.new("Frame")
+	statusHolder.Name = "StatusHolder"
+	statusHolder.BackgroundTransparency = 1
+	statusHolder.Size = UDim2.new(1, 0, 0, 0)
+	statusHolder.LayoutOrder = 0
+	statusHolder.Parent = frame
+	local status = Controls.statusLabel(statusHolder)
 	local chip = Base.iconChip(frame, icon, 34, Tokens.Color.Gold)
 	chip.LayoutOrder = 1
 	local title = autoCaption(frame, 13, true, 2)
@@ -136,7 +150,7 @@ function Grid.autoTile(grid: Frame, order: number, icon: string): Controls.Card
 	action.Size = UDim2.new(1, 0, 0, 30)
 	action.TextSize = 13
 	action.LayoutOrder = 4
-	return { frame = frame, icon = chip, title = title, detail = detail, action = action }
+	return { frame = frame, icon = chip, title = title, detail = detail, action = action, status = status }
 end
 
 -- Kategori sekmeleri: biri seçiliyken diğerleri soluk; tıklanınca onSelect(id) çağrılır.

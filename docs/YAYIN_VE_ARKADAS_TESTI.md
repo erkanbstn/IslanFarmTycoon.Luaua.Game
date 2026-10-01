@@ -15,7 +15,7 @@ panelinde elle yapılır; kod bunları değiştiremez.
 1. **File → Publish to Roblox** (yeni deneyim oluştur). Haritanın place içinde kayıtlı olduğundan emin ol.
 2. Deneyim sayfası **Settings → Privacy: Private** (ya da yalnızca arkadaşlara): arkadaşlarını **Permissions** ile ekle,
    ya da **Public** yapıp bağlantıyı yalnızca onlarla paylaş. Yayın **Save to Roblox** ile kaydedilmeden arkadaşlar son sürümü görmez.
-3. Kayıt DataStore'u yayınlanmış deneyimde otomatik çalışır (anahtar: `IslandFarmTycoon_v1`; Studio `_Studio` ekli ayrı depo kullanır).
+3. Kayıt DataStore'u yayınlanmış deneyimde otomatik çalışır (anahtar: `IslandFarmTycoon_v2`; Studio `_Studio` ekli ayrı depo kullanır).
 4. `AdminPolicy` yalnızca sabit UserId'ye yetki verir (`OWNER_USER_ID`). Kendi UserId'nle eşleştiğini kontrol et;
    arkadaşların yönetici paneline erişemez.
 
