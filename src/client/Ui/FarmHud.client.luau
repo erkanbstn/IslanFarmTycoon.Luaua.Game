@@ -117,8 +117,20 @@ table.insert(centerWindows, inventoryPanel.window)
 ---------------------------------------------------------------------------
 
 local statsHud = StatsPanel.create(screenGui)
-local menu = MenuBar.create(screenGui)
-local onboarding = Onboarding.create(menu.shopButton, menu.upgradesButton)
+-- Bildirim alanı aşağıda kurulur; menü karosu açılış bildirimi oraya aktarılır
+local toastRelay: { show: (message: string, kind: string?) -> () } = {
+	show = function(_message: string, _kind: string?) end,
+}
+local storeForSale = StoreSection.isForSale()
+local menu = MenuBar.create(screenGui, function(message: string)
+	toastRelay.show(message, "info")
+end)
+local onboarding = Onboarding.create({
+	shop = menu.shopButton,
+	upgrades = menu.upgradesButton,
+	roadmap = menu.roadmapButton,
+	production = menu.productionButton,
+})
 local goal = GoalCard.create(statsHud.frame, onboarding)
 local celebrate = Celebration.create(screenGui)
 
@@ -129,6 +141,15 @@ menu.rewardsButton.Activated:Connect(function()
 		openCenter(rewardsWindow)
 	end
 end)
+if storeForSale then
+	menu.storeButton.Activated:Connect(function()
+		if storeWindow.isOpen() then
+			storeWindow.close()
+		else
+			openCenter(storeWindow)
+		end
+	end)
+end
 menu.inventoryButton.Activated:Connect(function()
 	if inventoryPanel.window.isOpen() then
 		inventoryPanel.window.close()
@@ -141,13 +162,16 @@ end)
 -- Ödüller penceresi: günlük ödül ve başarımlar
 ---------------------------------------------------------------------------
 
-local updateStore = StoreSection.create(storeWindow.list)
+-- Satışta ürün yoksa dükkân karosu da güncelleme de yoktur (kimlikler Config/Shop'ta doldurulunca açılır)
+local updateStore: ((PlayerSave) -> ())? = if storeForSale then StoreSection.create(storeWindow.list) else nil
 local updateRewardsSection = RewardsSection.create(rewardsWindow.list, menu.setRewardsBadge)
 local function updateRewards(state: PlayerSave?)
 	if not state then
 		return
 	end
-	updateStore(state)
+	if updateStore then
+		updateStore(state)
+	end
 	updateRewardsSection(state)
 end
 
@@ -255,6 +279,7 @@ UserInputService.InputBegan:Connect(function(input: InputObject, gameProcessed: 
 	end
 end)
 local showToast = UiKit.toastHost(screenGui)
+toastRelay.show = showToast
 local toastHolder = screenGui:FindFirstChild("Toasts") :: Frame
 -- Bildirimler üst menü çubuğunun (60 px) altında, sağ menü sütununa ve sol panele taşmadan durur.
 toastHolder.AnchorPoint = Vector2.new(0.5, 0)
@@ -369,6 +394,7 @@ shopWindow.frame:GetPropertyChangedSignal("Visible"):Connect(function()
 end)
 roadmapWindow.frame:GetPropertyChangedSignal("Visible"):Connect(function()
 	if roadmapWindow.isOpen() then
+		Onboarding.markRoadmapOpened() -- ilk adımlar: 4. adım biter
 		redraw()
 	end
 end)

@@ -21,6 +21,7 @@ local AdminPanel = require(script.Parent.Parent:WaitForChild("AdminPanel"))
 local ProductionPanel = require(script.Parent.Parent:WaitForChild("ProductionPanel"))
 local IslandManager = require(script.Parent.Parent:WaitForChild("IslandManager"))
 local Onboarding = require(script.Parent:WaitForChild("Onboarding"))
+local StoreSection = require(script.Parent:WaitForChild("StoreSection"))
 
 type PlayerSave = GameTypes.PlayerSave
 
@@ -42,13 +43,24 @@ export type Hud = {
 	homeButton: TextButton,
 	settingsButton: TextButton,
 	adminButton: TextButton,
+	storeButton: TextButton,
 	setRewardsBadge: (count: number) -> (),
 	updateBadges: (state: PlayerSave) -> (),
 	updateProductionBadge: (state: PlayerSave?) -> (),
 	updateVisibility: (state: PlayerSave) -> (),
 }
 
-function MenuBar.create(screenGui: ScreenGui): Hud
+-- Karo ilk kez açıldığında bir kez gösterilen bildirim metinleri (tam cümle: çeviri sözlüğü eşleşsin)
+local UNLOCK_NOTICES: { [string]: string } = {
+	["Yükseltmeler"] = "Yeni menü açıldı: Yükseltmeler",
+	["Yol Haritası"] = "Yeni menü açıldı: Yol Haritası",
+	["Üretim"] = "Yeni menü açıldı: Üretim",
+	["Adalar"] = "Yeni menü açıldı: Adalar",
+	["Envanter"] = "Yeni menü açıldı: Envanter",
+}
+
+-- onUnlocked: karo oturum içinde ilk kez belirince (bildirim metni) çağrılır
+function MenuBar.create(screenGui: ScreenGui, onUnlocked: ((message: string) -> ())?): Hud
 	-- Üst çubuk: oyun içi ana pencereler. Bildirimler (toast) bunun altında durur.
 	local topBar = Instance.new("Frame")
 	topBar.Name = "MenuTop"
@@ -94,12 +106,15 @@ function MenuBar.create(screenGui: ScreenGui): Hud
 	local homeButton = UiKit.menuButton(sideBar, "🏠", "Adama Dön", Color.Orange, nil)
 	local settingsButton = UiKit.menuButton(sideBar, "⚙️", "Ayarlar", Color.TextMuted, nil)
 	local adminButton = UiKit.menuButton(sideBar, "🔑", "Yönetici", Color.Gold, nil)
+	-- Destek Dükkânı: yalnızca Config/Shop'ta satışa açık (kimliği 0 olmayan) ürün varsa görünür
+	local storeButton = UiKit.menuButton(sideBar, "💎", "Destek", Color.Blue, nil)
+	storeButton.Visible = StoreSection.isForSale()
 
 	-- Çubuk içi sıra
 	for index, button in { shopButton, upgradesButton, roadmapButton, productionButton, islandsButton } do
 		button.LayoutOrder = index
 	end
-	for index, button in { inventoryButton, rewardsButton, homeButton, settingsButton, adminButton } do
+	for index, button in { inventoryButton, rewardsButton, storeButton, homeButton, settingsButton, adminButton } do
 		button.LayoutOrder = index
 	end
 	local function updateAdminAccess()
@@ -182,12 +197,17 @@ function MenuBar.create(screenGui: ScreenGui): Hud
 	-- (Kısayollar ve pencereler yine çalışır; yalnızca düğme gizlenir.)
 	local menuPulses: { [GuiObject]: (boolean) -> () } = {}
 	local menuWasVisible: { [GuiObject]: boolean } = {}
-	local function setMenuTile(button: GuiObject, visible: boolean)
+	local announced: { [GuiObject]: boolean } = {}
+	local function setMenuTile(button: GuiObject, visible: boolean, notice: string?)
 		local was = menuWasVisible[button]
 		button.Visible = visible
 		menuWasVisible[button] = visible
-		-- Yeni belirdiyse (oturumun ilk durumu hariç) birkaç saniye vurgulanır
+		-- Yeni belirdiyse (oturumun ilk durumu hariç) bir kez bildirilir ve birkaç saniye vurgulanır
 		if visible and was == false then
+			if notice and onUnlocked and not announced[button] then
+				announced[button] = true
+				onUnlocked(notice)
+			end
 			local pulse = menuPulses[button]
 			if not pulse then
 				pulse = UiKit.pulse(button)
@@ -202,7 +222,8 @@ function MenuBar.create(screenGui: ScreenGui): Hud
 
 	local function updateMenuVisibility(state: PlayerSave)
 		local earned = state.lifetimeEarned or 0
-		local veteran = Onboarding.stepFor(state) == 0
+		local step = Onboarding.stepFor(state)
+		local basicsDone = Onboarding.basicsDone(state)
 		local ownsFactory = next(state.production or {}) ~= nil
 		for _, recipe in Config.PRODUCTION_RECIPES do
 			if state.purchased[recipe.upgradeId] then
@@ -211,12 +232,13 @@ function MenuBar.create(screenGui: ScreenGui): Hud
 		end
 		local ownsItems = (state.inventory ~= nil and next(state.inventory.items) ~= nil)
 			or FarmMath.getGoodsWorth(state) > 0 -- ahır deposunda ürün birikince de görünür
-		setMenuTile(upgradesButton, veteran or Onboarding.stepFor(state) >= 3)
-		setMenuTile(roadmapButton, veteran or earned >= 300)
-		setMenuTile(productionButton, ownsFactory)
-		setMenuTile(islandsButton, veteran)
+		-- Adım ilerlemesine göre: 3. adımda Yükseltmeler, 4. adımda Yol Haritası, temel adımlar bitince Adalar
+		setMenuTile(upgradesButton, step == 0 or step >= 3, UNLOCK_NOTICES["Yükseltmeler"])
+		setMenuTile(roadmapButton, step == 0 or step >= 4 or earned >= 300, UNLOCK_NOTICES["Yol Haritası"])
+		setMenuTile(productionButton, ownsFactory, UNLOCK_NOTICES["Üretim"])
+		setMenuTile(islandsButton, basicsDone, UNLOCK_NOTICES["Adalar"])
 		setMenuTile(homeButton, true) -- "Adama Dön" her zaman görünür: oyuncular adasını bulmakta zorlanıyor
-		setMenuTile(inventoryButton, ownsItems or earned >= 1000)
+		setMenuTile(inventoryButton, ownsItems or earned >= 1000, UNLOCK_NOTICES["Envanter"])
 	end
 
 	return {
@@ -232,6 +254,7 @@ function MenuBar.create(screenGui: ScreenGui): Hud
 		homeButton = homeButton,
 		settingsButton = settingsButton,
 		adminButton = adminButton,
+		storeButton = storeButton,
 		setRewardsBadge = setRewardsBadge,
 		updateBadges = updateBadges,
 		updateProductionBadge = updateProductionBadge,

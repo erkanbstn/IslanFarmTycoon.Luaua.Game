@@ -15,6 +15,18 @@ local Color = UiKit.Color
 
 local StoreSection = {}
 
+-- Satışta ürün var mı (Config/Shop'ta kimliği 0 olmayan en az bir geçit ya da ürün). Yoksa dükkân karosu çıkmaz, güncelleme çalışmaz.
+function StoreSection.isForSale(): boolean
+	for _, group in { Config.PRODUCTS.passes, Config.PRODUCTS.products } do
+		for _, product in group do
+			if product.id ~= 0 then
+				return true
+			end
+		end
+	end
+	return false
+end
+
 -- Listeyi kurar; durum geldikçe çağrılacak güncelleme işlevini döner
 function StoreSection.create(list: Instance): (PlayerSave) -> ()
 	local STORE_ORDER = 90
