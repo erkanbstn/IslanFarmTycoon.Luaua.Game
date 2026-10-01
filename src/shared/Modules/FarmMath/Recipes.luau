@@ -48,4 +48,11 @@ function Recipes.resolve(recipe: Config.ProductionRecipeConfig, optionId: unknow
 	return resolved
 end
 
+-- Tarifi yönetebilecek yardımcı türü: ürün merkezi "goods"; para fabrikası ve kuluçka (civciv çıkar) "cash"; yoksa nil.
+-- Elle/otomatik teslim, kayıt doğrulaması ve arayüz aynı eşlemeyi kullanır.
+function Recipes.petKindFor(recipe: Config.ProductionRecipeConfig): string?
+	local output = recipe.output
+	return if output == "goods" then "goods" elseif output == "cash" or output == "chicken" then "cash" else nil
+end
+
 return Recipes

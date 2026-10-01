@@ -37,7 +37,7 @@ local function publish(player: Player, data: any, claims: { [string]: number }?)
 	end
 	for _, recipeId in Config.PRODUCTION_ORDER do
 		local recipe = Config.PRODUCTION_RECIPES[recipeId]
-		local kind = ProductionLogic.petKind(recipe)
+		local kind = ProductionLogic.petKind(recipe, FarmMath)
 		if kind then
 			local key = `{kind}:{recipe.island}`
 			if jobs[key] == "" and data.production[recipeId] then

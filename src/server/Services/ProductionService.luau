@@ -77,7 +77,7 @@ local function act(player: Player, action: unknown, recipeId: unknown, detail: u
 		if detail == "off" then
 			data.autoRepeat[recipe.id] = nil
 		else
-			local kind = if recipe.output == "goods" then "goods" elseif recipe.output == "cash" then "cash" else nil
+			local kind = FarmMath.petKindFor(recipe)
 			if not kind or not FarmMath.hasPet(data, kind) then
 				return false, "Bunun için önce yardımcı almalısın."
 			end
@@ -104,20 +104,10 @@ local function act(player: Player, action: unknown, recipeId: unknown, detail: u
 			if recipe.output ~= "chicken" then
 				return false, "Bu üretim yalnızca satılabilir."
 			end
-			local zoneId, reason = FarmMath.findZoneForAnimal(data, "chicken")
-			if not zoneId then
+			local kept, reason = ProductionLogic.claimChicken(data, recipe, now, FarmMath, hooks)
+			if not kept then
 				return false, reason or "Kümeste yer yok; civcivi satabilirsin."
 			end
-			hooks.settle()
-			ProductionLogic.releaseAnimals(data, recipe.id)
-			data.production[recipe.id] = nil
-			table.insert(data.animals, {
-				uid = hooks.newUid(),
-				animalId = "chicken",
-				zoneId = zoneId,
-				stage = "calf",
-				bornAt = now,
-			})
 		else
 			reward, goodsMessage = ProductionLogic.claim(data, data, recipe, job, now, FarmMath, Config, hooks)
 		end

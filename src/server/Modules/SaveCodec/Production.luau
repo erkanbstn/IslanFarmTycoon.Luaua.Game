@@ -17,10 +17,7 @@ function Production.decodeAutoRepeat(
 	if typeof(source.autoRepeat) == "table" then
 		for recipeId, optionId in source.autoRepeat do
 			local recipe = if typeof(recipeId) == "string" then config.PRODUCTION_RECIPES[recipeId] else nil
-			local kind = if recipe and recipe.output == "goods"
-				then "goods"
-				elseif recipe and recipe.output == "cash" then "cash"
-				else nil
+			local kind = if recipe then farmMath.petKindFor(recipe) else nil
 			local optionOk = typeof(optionId) == "string"
 				and (optionId == "default" or farmMath.findProductionOption(recipe, optionId) ~= nil)
 			if recipe and kind and farmMath.hasPet(save, kind) and optionOk and not ghostIsland(recipe.island) then

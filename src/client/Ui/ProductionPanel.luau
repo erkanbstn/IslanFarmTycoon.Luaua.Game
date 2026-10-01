@@ -238,7 +238,7 @@ local function create(parent: Instance): UiKit.Window
 				button.Visible = false
 			end
 			-- Otomatik tekrar düğmesi: yalnızca kurulu para fabrikası/ürün merkezinde; yardımcı yoksa kapalı
-			local petKind = if recipe.output == "goods" then "goods" elseif recipe.output == "cash" then "cash" else nil
+			local petKind = FarmMath.petKindFor(recipe)
 			local built = petKind ~= nil and state.purchased[recipe.upgradeId] == true
 			entry.repeatToggle.Visible = built
 			if built and petKind then

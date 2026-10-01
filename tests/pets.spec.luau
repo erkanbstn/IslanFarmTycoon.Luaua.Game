@@ -66,7 +66,7 @@ return function(codec: any, config: any, farmMath: any, logic: any)
 	assert(seenSlots["cash:home"] and seenSlots["goods:home"], "the home island has both pets")
 	for recipeId in config.PRODUCTION_RECIPES do
 		local recipe = config.PRODUCTION_RECIPES[recipeId]
-		local kind = logic.petKind(recipe)
+		local kind = logic.petKind(recipe, farmMath)
 		if kind and data.purchased[recipe.upgradeId] and data.unlockedIslands[recipe.island] then
 			assert(seenSlots[`{kind}:{recipe.island}`], `{recipe.island} has a {kind} pet for its facility`)
 		end
@@ -172,11 +172,79 @@ return function(codec: any, config: any, farmMath: any, logic: any)
 		{ packed_milk = "huge", milk_goods = "default", ghost = "default", hatchery = "default" }
 	local repaired = assert(codec.decode(bogus, config, farmMath, now, uid), "a bad repeat record is repaired")
 	assert(
-		repaired.autoRepeat.packed_milk == nil
-			and repaired.autoRepeat.ghost == nil
-			and repaired.autoRepeat.hatchery == nil,
-		"unknown batches, recipes and non-pet recipes are dropped"
+		repaired.autoRepeat.packed_milk == nil and repaired.autoRepeat.ghost == nil,
+		"unknown batches and recipes are dropped"
 	)
+	assert(repaired.autoRepeat.hatchery == "default", "a hatchery repeat is a valid cash-pet repeat")
 	assert(repaired.autoRepeat.milk_goods == "default", "a valid repeat is kept")
-	print("PASS pets: auto-collect, auto-repeat, full barn wait, parked farms, shared barn and save repairs")
+
+	-- Kuluçka (output = chicken): para yardımcısı partiyi teslim alır (civciv kümeye eklenir) ve tekrar başlatır
+	do
+		local hatchery = config.PRODUCTION_RECIPES.hatchery
+		assert(logic.petKind(hatchery, farmMath) == "cash", "the hatchery is run by the cash pet")
+		local function henHouse(): any
+			local hd = newData()
+			hd.animals = {}
+			for _ = 1, 2 do
+				table.insert(
+					hd.animals,
+					{ uid = uid(), animalId = "chicken", zoneId = "poultry", bornAt = 0, stage = "adult" }
+				)
+			end
+			hd.autoRepeat = { hatchery = "default" }
+			return hd
+		end
+		local hd = henHouse()
+		assert(farmMath.findZoneForAnimal(hd, "chicken") ~= nil, "fixture has coop room")
+		assert(logic.start(hd, hd, hatchery, nil, now, farmMath, hooksFor(hd)), "a hatch starts")
+		local readyAt = hd.production.hatchery.readyAt
+		local before = #hd.animals
+		local hatchEarly = run(hd, now + 1)
+		assert(next(hatchEarly.changedFarms) == nil and #hd.animals == before, "nothing hatches hatchEarly")
+		local hatchLate = run(hd, readyAt + 1)
+		assert(#hd.animals == before + 1, "the pet adds the chick to the coop")
+		assert(
+			hatchLate.claims["1"] ~= nil and hatchLate.claims["1"]["cash:poultry"] == 1,
+			"the hatch counts as a cash-pet delivery"
+		)
+		assert(hd.production.hatchery ~= nil and hatchLate.started >= 1, "the hatchery restarts automatically")
+
+		-- Yardımcı yoksa otomatik teslim olmaz (parti elle alınmayı bekler)
+		local bare = henHouse()
+		bare.purchased.pet_cash_lv1 = nil
+		assert(not farmMath.hasPet(bare, "cash"), "fixture has no cash pet")
+		assert(logic.start(bare, bare, hatchery, nil, now, farmMath, hooksFor(bare)), "hatch without pet starts")
+		local bareBefore = #bare.animals
+		run(bare, bare.production.hatchery.readyAt + 1)
+		assert(#bare.animals == bareBefore and bare.production.hatchery ~= nil, "without the pet the hatch waits")
+		assert(
+			logic.canClaimAutomatically(bare, bare, hatchery, bare.production.hatchery, readyAt + 1, farmMath),
+			"(room exists, only the pet is missing)"
+		)
+
+		-- Küme dolu: teslim bekler, hiçbir şey kaybolmaz; yer açılınca teslim edilir
+		local fullCoop = henHouse()
+		assert(
+			logic.start(fullCoop, fullCoop, hatchery, nil, now, farmMath, hooksFor(fullCoop)),
+			"hatch starts before the coop fills"
+		)
+		local cap = farmMath.getZoneCapacity(fullCoop, "poultry")
+		while farmMath.findZoneForAnimal(fullCoop, "chicken") ~= nil do
+			table.insert(
+				fullCoop.animals,
+				{ uid = uid(), animalId = "chicken", zoneId = "poultry", bornAt = 0, stage = "adult" }
+			)
+			assert(#fullCoop.animals <= cap + 50, "coop eventually fills")
+		end
+		local fullCount = #fullCoop.animals
+		local waiting = run(fullCoop, fullCoop.production.hatchery.readyAt + 1)
+		assert(
+			#fullCoop.animals == fullCount and fullCoop.production.hatchery ~= nil and waiting.started == 0,
+			"a fullCoop coop keeps the finished hatch waiting"
+		)
+		table.remove(fullCoop.animals)
+		run(fullCoop, fullCoop.production.hatchery.readyAt + 2)
+		assert(#fullCoop.animals == fullCount, "the chick is delivered once room opens")
+	end
+	print("PASS pets: auto-collect, auto-repeat, fullCoop barn wait, parked farms, shared barn and save repairs")
 end

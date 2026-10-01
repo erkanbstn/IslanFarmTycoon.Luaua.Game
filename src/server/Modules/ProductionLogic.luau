@@ -75,8 +75,12 @@ function ProductionLogic.canClaimAutomatically(
 	now: number,
 	farmMath: any
 ): boolean
-	if job.readyAt > now or recipe.output == "chicken" then
+	if job.readyAt > now then
 		return false
+	end
+	if recipe.output == "chicken" then
+		-- Civciv kümese eklenir; yer yoksa teslim bekler (elle teslimdeki "Kümeste yer yok" kuralıyla aynı)
+		return farmMath.findZoneForAnimal(farm, "chicken") ~= nil
 	end
 	if recipe.output == "goods" and recipe.goodsId then
 		local yield = farmMath.getGoodsYield(farm, recipe, now, job)
@@ -120,11 +124,36 @@ function ProductionLogic.claim(
 	return reward, ""
 end
 
+-- Kuluçka partisini teslim alır: civciv kümese eklenir (para yok). Yer yoksa hiçbir şey değişmez; (false, sebep) döner.
+function ProductionLogic.claimChicken(
+	farm: any,
+	recipe: any,
+	now: number,
+	farmMath: any,
+	hooks: Hooks
+): (boolean, string?)
+	local zoneId, reason = farmMath.findZoneForAnimal(farm, "chicken")
+	if not zoneId then
+		return false, reason or "Kümeste yer yok; civcivi satabilirsin."
+	end
+	hooks.settle()
+	ProductionLogic.releaseAnimals(farm, recipe.id)
+	farm.production[recipe.id] = nil
+	table.insert(farm.animals, {
+		uid = hooks.newUid(),
+		animalId = "chicken",
+		zoneId = zoneId,
+		stage = "calf",
+		bornAt = now,
+	})
+	return true, nil
+end
+
 export type PetSlot = { kind: string, island: string }
 
--- Yardımcı türü: para fabrikası "cash", ürün merkezi "goods"; diğer tarifleri (kuluçka) yardımcı yönetmez.
-function ProductionLogic.petKind(recipe: any): string?
-	return if recipe.output == "goods" then "goods" elseif recipe.output == "cash" then "cash" else nil
+-- Yardımcı türü (tek kaynak: FarmMath.petKindFor): ürün merkezi "goods", para fabrikası ve kuluçka "cash".
+function ProductionLogic.petKind(recipe: any, farmMath: any): string?
+	return farmMath.petKindFor(recipe)
 end
 
 -- Bir çiftlikte yardımcı duran (tür, ada) yuvaları: o türün yardımcısı alınmış ve o adada kurulu en az bir tesis var.
@@ -133,7 +162,7 @@ function ProductionLogic.petSlots(farm: any, recipeOrder: { string }, farmMath: 
 	local seen: { [string]: boolean } = {}
 	for _, recipeId in recipeOrder do
 		local recipe = config.PRODUCTION_RECIPES[recipeId]
-		local kind = ProductionLogic.petKind(recipe)
+		local kind = ProductionLogic.petKind(recipe, farmMath)
 		if
 			kind
 			and farmMath.hasPet(farm, kind)
@@ -182,7 +211,7 @@ function ProductionLogic.runPets(
 		end
 		for _, recipeId in recipeOrder do
 			local recipe = config.PRODUCTION_RECIPES[recipeId]
-			local kind = if recipe.output == "goods" then "goods" elseif recipe.output == "cash" then "cash" else nil
+			local kind = ProductionLogic.petKind(recipe, farmMath)
 			if
 				not kind
 				or not farmMath.hasPet(farm, kind)
@@ -193,16 +222,25 @@ function ProductionLogic.runPets(
 			end
 			local job = farm.production[recipeId]
 			if job and ProductionLogic.canClaimAutomatically(root, farm, recipe, job, now, farmMath) then
-				local reward, message = ProductionLogic.claim(root, farm, recipe, job, now, farmMath, config, hooks)
+				local reward, message = 0, ""
+				if recipe.output == "chicken" then
+					if ProductionLogic.claimChicken(farm, recipe, now, farmMath, hooks) then
+						message = "Civciv kümese eklendi"
+					end
+				else
+					reward, message = ProductionLogic.claim(root, farm, recipe, job, now, farmMath, config, hooks)
+				end
 				summary.cash += reward
 				local petName = if kind == "cash" then "Para Yardımcısı" else "Ürün Yardımcısı"
 				table.insert(
 					summary.messages,
 					if kind == "cash"
-						then `{petName} · {recipe.displayName} · +{farmMath.formatMoney(reward)}`
+						then (if recipe.output == "chicken"
+							then `{petName} · {recipe.displayName} · {message}`
+							else `{petName} · {recipe.displayName} · +{farmMath.formatMoney(reward)}`)
 						else `{petName} · {recipe.displayName} · {message}`
 				)
-				if message ~= "" then
+				if message ~= "" and recipe.output ~= "chicken" then
 					table.insert(summary.goodsMessages, message)
 				end
 				summary.changedFarms[farmId] = true
