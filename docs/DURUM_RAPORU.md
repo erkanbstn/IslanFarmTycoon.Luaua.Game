@@ -233,7 +233,7 @@ Birleştirilen kaynaklar: eski ara raporlar ve ikinci tur. `FARM_COST_STEP` 6, �
 | Q14 | Süt fabrikası geri ödemesi 57 dk (bant 25-40) | Küçük nominal artış; telemetri sonrası |
 | Q15 | `data.spec` Pasif Gelir beklentisi sabit ×3 yerine Config'ten türetildi (oran × saat = ×3,0) | Kabul; sıkılaştı |
 | Q16 | `SaveStore` yedek zaman damgası artık arka plan görevi çalışınca basılıyor (aynı saniye) | Kabul |
-| Q17 | Büyük parti çarpanı, sipariş tabanı (300 sn) ve pano süresi (7 dk) telemetri verisine göre yeniden bakılacak | Gelir verisi gelince |
+| Q17 | Büyük parti çarpanı, sipariş ödül tabanı (`GOODS_CONTRACTS.incomeSeconds`, `floorWeight`, `floorExponent`), satır adedi payı (`capShare`, `maxLineUnits`) ve pano süresi (7 dk) telemetri verisine göre yeniden bakılacak | Gelir verisi gelince |
 | Q18 | Sabah eğrisi saatleri (`Environment.NIGHT_CURVE`: 03:30 şafak, 07:00 tam gündüz) ve halo görünümü (`DayNight` `HALO_*`) uygun mu | Studio'da gör, beğenilmezse eğri noktalarını/halo ölçeğini ayarla |
 | Q19 | Casual ilk gün gelir -%17 kabul mü? Hardcore sipariş +%22 mi | `GOODS_CONTRACTS.incomeSeconds` ile oyna; sim'de kontrol |
 | Q20 | Takas oranı satışla aynı (0.5) kalsın mı; ürün talep ağırlığı eklensin mi | Aynı kalsın; talep ağırlığı telemetri sonrası |
