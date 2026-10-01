@@ -1021,4 +1021,10 @@ return {
 	["Bilinmeyen ürün"] = "Unknown product",
 	["Satacak ürün yok"] = "Nothing to sell",
 	["Hızlı satış ürün değerinin %{}'ini öder; ahır siparişi her zaman daha çok kazandırır."] = "Quick sale pays %{1} of the goods' value; barn orders always pay more.",
+	["Ürünle al"] = "Buy with goods",
+	["Ürün yetmiyor"] = "Not enough goods",
+	["Ürünle al: depodaki ürünler değerinin %{}'i kadar sayılır (ahır deposu)."] = "Buy with goods: barn goods count for %{1} of their value (barn storage).",
+	["Ürünlerle takas edildi"] = "Traded with goods",
+	["Ürünlerin değeri yetmiyor (gereken {}, eldeki {})"] = "Goods are not worth enough (need {1}, have {2})",
+	["Ürünler artık yetmiyor"] = "The goods no longer suffice",
 }

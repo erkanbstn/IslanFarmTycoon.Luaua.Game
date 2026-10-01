@@ -1021,4 +1021,10 @@ return {
 	["Bilinmeyen ürün"] = "Unbekanntes Produkt",
 	["Satacak ürün yok"] = "Nichts zu verkaufen",
 	["Hızlı satış ürün değerinin %{}'ini öder; ahır siparişi her zaman daha çok kazandırır."] = "Der Schnellverkauf zahlt %{1} des Warenwerts; Scheunenaufträge zahlen immer mehr.",
+	["Ürünle al"] = "Mit Ware kaufen",
+	["Ürün yetmiyor"] = "Zu wenig Ware",
+	["Ürünle al: depodaki ürünler değerinin %{}'i kadar sayılır (ahır deposu)."] = "Mit Ware kaufen: Scheunenware zählt zu %{1} ihres Werts (Scheunenlager).",
+	["Ürünlerle takas edildi"] = "Gegen Ware getauscht",
+	["Ürünlerin değeri yetmiyor (gereken {}, eldeki {})"] = "Der Warenwert reicht nicht (nötig {1}, vorhanden {2})",
+	["Ürünler artık yetmiyor"] = "Die Ware reicht nicht mehr",
 }

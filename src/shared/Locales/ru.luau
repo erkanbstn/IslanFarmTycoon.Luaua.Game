@@ -1019,4 +1019,10 @@ return {
 	["Bilinmeyen ürün"] = "Неизвестный товар",
 	["Satacak ürün yok"] = "Нечего продавать",
 	["Hızlı satış ürün değerinin %{}'ini öder; ahır siparişi her zaman daha çok kazandırır."] = "Быстрая продажа платит %{1} стоимости товара; заказы амбара всегда выгоднее.",
+	["Ürünle al"] = "Купить за товар",
+	["Ürün yetmiyor"] = "Мало товара",
+	["Ürünle al: depodaki ürünler değerinin %{}'i kadar sayılır (ahır deposu)."] = "Купить за товар: товары амбара засчитываются на %{1} стоимости (склад амбара).",
+	["Ürünlerle takas edildi"] = "Обмен на товар выполнен",
+	["Ürünlerin değeri yetmiyor (gereken {}, eldeki {})"] = "Стоимости товаров не хватает (нужно {1}, есть {2})",
+	["Ürünler artık yetmiyor"] = "Товара уже не хватает",
 }

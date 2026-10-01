@@ -124,6 +124,47 @@ function AnimalService.tryBuyMerchantOffer(player: Player): (boolean, string?)
 	return true, nil
 end
 
+-- Ürünle takas: bir hayvanın normal fiyatı, depodaki ürünlerin değerinin GOODS_BARTER.rate katıyla karşılanır. Fiyat, ürün planı ve boş yer
+-- sunucuda hesaplanır; ürünler düşer + hayvan eklenir tek adımda (yer yoksa ya da ürün yetmiyorsa hiçbir şey değişmez). Nakit harcanmaz,
+-- yani çiftlik fiyat çarpanı ve bölge kapasitesi normal alımla aynıdır; gezgin tüccar indirimi takasa uygulanmaz.
+function AnimalService.tryBarter(player: Player, animalId: unknown): (boolean, string?)
+	if not RateLimiter.allow(player, "purchase", 0.2) then
+		return false, nil
+	end
+	if typeof(animalId) ~= "string" or not RateLimiter.validId(animalId) or not Config.ANIMALS[animalId] then
+		return false, "Bilinmeyen hayvan"
+	end
+	local data = PlayerDataService.tryGet(player)
+	if not data or player:GetAttribute("WorldReady") ~= true or not PlotService.getPlot(player) then
+		return false, "Veri henüz yüklenmedi"
+	end
+	local zoneId, reason = FarmMath.findZoneForAnimal(data, animalId)
+	if not zoneId then
+		return false, reason
+	end
+	if FarmMath.getFreeSlots(data, animalId) < 1 then
+		return false, "Yeterli yer yok (0 boş yer var)"
+	end
+	local price = FarmMath.getBulkPrice(data, animalId, 1)
+	local plan, have = FarmMath.planGoodsBarter(data, price)
+	if not plan then
+		return false,
+			`Ürünlerin değeri yetmiyor (gereken {FarmMath.formatMoney(price)}, eldeki {FarmMath.formatMoney(have)})`
+	end
+	EconomyService.settlePlayer(player)
+	if not FarmMath.applyGoodsBarter(data, plan) then
+		return false, "Ürünler artık yetmiyor"
+	end
+	addAnimals(data, animalId, 1)
+	TelemetryService.funnel(player, "first_animal")
+	Rewards.recordInvest(data, DateTime.now().UnixTimestamp)
+	PlayerDataService.pushState(player)
+	PlayerDataService.requestSave(player)
+	Metrics.increment("AnimalsBartered")
+	PlotService.refreshPlayerWorld(player)
+	return true, nil
+end
+
 function AnimalService.tryReplaceFish(player: Player, uid: unknown): (boolean, string?)
 	if not RateLimiter.allow(player, "purchase", 0.2) then
 		return false, nil
@@ -270,6 +311,21 @@ function AnimalService.init()
 				reply(player, requestId, ok, err)
 			end
 		)
+
+	Remotes.get("RequestBarterAnimal").OnServerEvent
+		:Connect(function(player: Player, animalId: unknown, requestId: unknown, expectedFarmId: unknown)
+			if not RateLimiter.acceptRequest(player, requestId) then
+				return
+			end
+			if not RequestGuard.activeFarm(player, requestId, expectedFarmId, FARM_GUARD) then
+				return
+			end
+			local ok, err = AnimalService.tryBarter(player, animalId)
+			if ok then
+				err = `Ürünlerle takas edildi · Yeni {Config.ANIMALS[animalId :: string].displayName} geldi!`
+			end
+			reply(player, requestId, ok, err)
+		end)
 
 	Remotes.get("RequestSellAnimal").OnServerEvent
 		:Connect(function(player: Player, animalId: unknown, requestId: unknown, expectedFarmId: unknown)

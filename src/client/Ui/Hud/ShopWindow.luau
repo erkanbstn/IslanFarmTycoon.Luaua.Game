@@ -70,6 +70,7 @@ function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 	local lineageRows: { [string]: Frame } = {}
 	local lineageButtons: { [string]: TextButton } = {}
 	local sellButtons: { [string]: TextButton } = {}
+	local barterButtons: { [string]: TextButton } = {}
 	local animalGrid = UiKit.autoGrid(shopWindow.list, 2)
 	for index, animalId in Config.ANIMAL_ORDER do
 		local card = UiKit.autoTile(animalGrid, index, Config.ANIMALS[animalId].icon)
@@ -99,6 +100,18 @@ function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 		lineageButton.Activated:Connect(function()
 			if lineageButton.Active then
 				PurchaseController.submit("RequestUpgradeLineage", animalId)
+			end
+		end)
+		-- Ürünle satın al: depodaki ürünlerin değeri (GOODS_BARTER.rate) hayvanın fiyatını karşılıyorsa tek hayvan takasla alınır
+		local barterButton = UiKit.button(card.frame, "", "secondary")
+		barterButton.Size = UDim2.new(1, 0, 0, 30)
+		barterButton.TextSize = 13
+		barterButton.LayoutOrder = 5
+		barterButton.Visible = false
+		barterButtons[animalId] = barterButton
+		barterButton.Activated:Connect(function()
+			if barterButton.Active then
+				PurchaseController.submit("RequestBarterAnimal", animalId)
 			end
 		end)
 		card.action.Activated:Connect(function()
@@ -164,7 +177,9 @@ function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 			shopInfo.Text =
 				`Açık bölgelerdeki hayvanlar listelenir (ada seçimi dükkânı gizlemez). Yavru doğar, büyüdükçe kazanç artar.\nIrk geliştirme: her seviye o türün gelirini +%{math.round(
 					Config.LINEAGE.incomePerLevel * 100
-				)} artırır.`
+				)} artırır.\nÜrünle al: depodaki ürünler değerinin %{math.round(
+					Config.GOODS_BARTER.rate * 100
+				)}'i kadar sayılır (ahır deposu).`
 		end
 		for index, animalId in Config.ANIMAL_ORDER do
 			local card = animalCards[animalId]
@@ -229,6 +244,18 @@ function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 					card.action,
 					if count > 1 then `x{count} · {FarmMath.formatMoney(price)}` else FarmMath.formatMoney(price),
 					if state.cash >= price then "primary" else "warning"
+				)
+			end
+			local barterButton = barterButtons[animalId]
+			local barterWorth = FarmMath.getGoodsBarterWorth(state)
+			barterButton.Visible = zoneId ~= nil and barterWorth > 0
+			if zoneId and barterWorth > 0 then
+				local single = FarmMath.getBulkPrice(state, animalId, 1)
+				local free = FarmMath.getFreeSlots(state, animalId) >= 1
+				setPurchaseButton(
+					barterButton,
+					if not free then "Dolu" elseif barterWorth >= single then "Ürünle al" else "Ürün yetmiyor",
+					if free and barterWorth >= single then "primary" else "disabled"
 				)
 			end
 		end

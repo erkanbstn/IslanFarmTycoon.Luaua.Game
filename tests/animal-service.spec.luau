@@ -189,6 +189,139 @@ return function(
 	local again = trader.fire("RequestBuyMerchantOffer", nil, trader.nextId(), tdata.activeMainFarmId)
 	assert(again and again.ok == false and tdata.cash == offer.price, "a second purchase in the same visit is refused")
 
+	-- Ürünle takas: ürünler düşer + hayvan gelir (tek adım), nakit harcanmaz; yetmeyen ürün, dolu bölge, tekrar, yanlış çiftlik reddedilir
+	local barter = setup()
+	local bdata = barter.data
+	local function barterBuy(h2: any, animalId: any, farmId: any?, requestId: any?): any
+		return h2.fire("RequestBarterAnimal", animalId, requestId or h2.nextId(), farmId or h2.data.activeMainFarmId)
+	end
+	local bprice = farmMath.getBulkPrice(bdata, "cow", 1)
+	bdata.goods = {}
+	bdata.cash = 123
+	local nothingYet = barterBuy(barter, "cow")
+	assert(
+		nothingYet
+			and nothingYet.ok == false
+			and string.find(nothingYet.message, "Ürünlerin değeri yetmiyor", 1, true) ~= nil,
+		"an empty barn cannot barter"
+	)
+	assert(bdata.cash == 123, "a refused barter changes nothing")
+	local unitValue = math.floor(config.GOODS.milk.value * config.GOODS_BARTER.rate)
+	local needed = math.ceil(bprice / unitValue)
+	farmMath.addGoods(bdata, "milk", math.min(needed - 1, farmMath.getGoodsCap(bdata)))
+	assert(farmMath.getGoodsAmount(bdata, "milk") < needed, "the short stack stays under the price")
+	do
+		local short = barterBuy(barter, "cow")
+		assert(short and short.ok == false, "goods worth just under the price are refused")
+		assert(
+			farmMath.getGoodsAmount(bdata, "milk") == math.min(needed - 1, farmMath.getGoodsCap(bdata)),
+			"the goods are untouched"
+		)
+	end
+	-- Yeterli ürün: gereken kadar ürün düşer, hayvan eklenir, para değişmez
+	bdata.goods = {}
+	local capNow = farmMath.getGoodsCap(bdata)
+	local giveAll = math.min(capNow, needed + 3)
+	assert(farmMath.addGoods(bdata, "milk", giveAll) == giveAll, "the barn holds the test goods")
+	assert(giveAll >= needed, "the fixture barn can hold enough milk to pay for a cow")
+	do
+		local animalsBeforeBarter = #bdata.animals
+		local pushesBefore = barter.counters.pushes
+		local ok = barterBuy(barter, "cow")
+		assert(ok and ok.ok == true, "enough goods buys the animal")
+		assert(
+			#bdata.animals == animalsBeforeBarter + 1 and bdata.cash == 123,
+			"one animal arrives and no cash is spent"
+		)
+		assert(farmMath.getGoodsAmount(bdata, "milk") == giveAll - needed, "only the needed units leave the barn")
+		assert(
+			barter.counters.pushes == pushesBefore + 1 and barter.metricCounts.AnimalsBartered == 1,
+			"state is pushed and the barter counted"
+		)
+		assert(string.find(ok.message, "Ürünlerle takas edildi", 1, true) ~= nil, "the player gets a confirmation")
+		assert(needed * unitValue >= bprice, "the goods that left cover the price")
+		assert(
+			farmMath.getGoodsSellValue("milk", needed) >= needed * unitValue,
+			"bartering never pays more than selling the same goods"
+		)
+	end
+
+	-- Doğrulama: bilinmeyen tür, yanlış çiftlik, yabancı, tekrar, kilitli ve dolu bölge, hız sınırı
+	local guardBarter = setup()
+	local gdata = guardBarter.data
+	gdata.goods = {}
+	farmMath.addGoods(gdata, "cheese", farmMath.getGoodsCap(gdata))
+	gdata.cash = 5
+	local stock = farmMath.getGoodsAmount(gdata, "cheese")
+	assert(stock > 0, "the fixture holds goods")
+	for _, bad in { "dragon", 5, "", {} } do
+		local reply = barterBuy(guardBarter, bad)
+		assert(reply and reply.ok == false, "an unknown animal is refused")
+	end
+	local staleFarm = barterBuy(guardBarter, "cow", "bogus-farm")
+	assert(
+		staleFarm
+			and staleFarm.ok == false
+			and string.find(staleFarm.message, "Etkin çiftlik değişti", 1, true) ~= nil,
+		"farm"
+	)
+	local strangerBarter = guardBarter.fireAs(
+		guardBarter.stranger,
+		"RequestBarterAnimal",
+		"cow",
+		guardBarter.nextId(),
+		gdata.activeMainFarmId
+	)
+	assert(
+		strangerBarter and strangerBarter.ok == false and farmMath.getGoodsAmount(gdata, "cheese") == stock,
+		"a player without data cannot barter"
+	)
+	local before2 = #gdata.animals
+	local fixedId = guardBarter.nextId()
+	local first = barterBuy(guardBarter, "cow", nil, fixedId)
+	assert(first and first.ok == true and #gdata.animals == before2 + 1, "cheese pays for a cow")
+	local stockAfter = farmMath.getGoodsAmount(gdata, "cheese")
+	assert(
+		guardBarter.fireRaw(guardBarter.player, "RequestBarterAnimal", "cow", fixedId, gdata.activeMainFarmId) == nil,
+		"a replayed request id is ignored"
+	)
+	assert(
+		#gdata.animals == before2 + 1 and farmMath.getGoodsAmount(gdata, "cheese") == stockAfter,
+		"a replay trades nothing"
+	)
+	local spam = guardBarter.fireRaw(
+		guardBarter.player,
+		"RequestBarterAnimal",
+		"cow",
+		guardBarter.nextId(),
+		gdata.activeMainFarmId
+	)
+	assert(
+		spam and spam.ok == false and spam.message == "Çok hızlı işlem yapıyorsun; biraz bekle.",
+		"spam gets the throttle reply"
+	)
+	assert(
+		farmMath.getGoodsAmount(gdata, "cheese") == stockAfter and #gdata.animals == before2 + 1,
+		"the throttled request trades nothing"
+	)
+	-- Dolu bölge: ürün düşmez
+	local fullBarter = setup()
+	local fdata = fullBarter.data
+	fdata.goods = {}
+	farmMath.addGoods(fdata, "cheese", farmMath.getGoodsCap(fdata))
+	while farmMath.getFreeSlots(fdata, "cow") > 0 do
+		table.insert(fdata.animals, { uid = `full-{#fdata.animals}`, animalId = "cow", zoneId = "starter", bornAt = 0 })
+	end
+	local cheeseBefore = farmMath.getGoodsAmount(fdata, "cheese")
+	local full = barterBuy(fullBarter, "cow")
+	assert(
+		full and full.ok == false and farmMath.getGoodsAmount(fdata, "cheese") == cheeseBefore,
+		"a full zone refuses the barter and keeps the goods"
+	)
+	fullBarter.worldReady = false
+	local notReady = barterBuy(fullBarter, "cow")
+	assert(notReady and notReady.ok == false and farmMath.getGoodsAmount(fdata, "cheese") == cheeseBefore, "not ready")
+
 	-- Balık değiştirme: bilinmeyen kimlik reddedilir (para düşmez)
 	local fish = setup()
 	fish.data.cash = 1e6
