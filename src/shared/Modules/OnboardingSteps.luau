@@ -62,13 +62,19 @@ function OnboardingSteps.stepFor(save: any, progress: Progress?): number
 		end
 	end
 	local expanded = hasAny(save.expansions)
-	if not expanded and not (progress and progress.roadmapOpened) then
+	-- Yol Haritası adımı yalnızca yeni hesaplara gösterilir (oturuma özgü olduğundan kıdemliye her girişte çıkmasın)
+	if earned < OnboardingSteps.SKIP_BASICS_EARNED and not expanded and not (progress and progress.roadmapOpened) then
 		return 4
 	end
-	if not expanded and OnboardingSteps.cheapestExpansion(save) ~= nil then
-		return 5
+	local factoryPending = OnboardingSteps.ownsFactory(save) and not hasAny(save.production)
+	if not expanded then
+		local targetId, cost = OnboardingSteps.cheapestExpansion(save)
+		-- Genişletmeye para yetmiyorken hazır bir tesis varsa önce ilk parti (5. adım 6'yı bekletmesin)
+		if targetId ~= nil and (save.cash >= cost or not factoryPending) then
+			return 5
+		end
 	end
-	if OnboardingSteps.ownsFactory(save) and not hasAny(save.production) then
+	if factoryPending then
 		return 6
 	end
 	return 0

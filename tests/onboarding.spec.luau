@@ -39,10 +39,10 @@ return function(OnboardingSteps: any, Config: any, FarmMath: any)
 	assert(OnboardingSteps.stepFor(save) == 4, "ilk yükseltme alındı: Yol Haritası")
 	assert(OnboardingSteps.stepFor(save, { roadmapOpened = true }) ~= 4, "Yol Haritası açılınca 4. adım biter")
 
-	-- 1,5 bin kazanç temel adımları atlar ama 4. adımı atlamaz
+	-- 1,5 bin kazanç temel adımları ve (oturuma özgü) Yol Haritası adımını atlar
 	local mid = newSave()
 	mid.lifetimeEarned = OnboardingSteps.SKIP_BASICS_EARNED
-	assert(OnboardingSteps.stepFor(mid) == 4, "1,5 bin kazanç yalnızca 1-3'ü atlar")
+	assert(OnboardingSteps.stepFor(mid) ~= 4, "kıdemliye her girişte 4. adım çıkmaz")
 	assert(
 		OnboardingSteps.basicsDone(4) and OnboardingSteps.basicsDone(0) and not OnboardingSteps.basicsDone(3),
 		"temel adımlar bitti mi"
@@ -68,6 +68,23 @@ return function(OnboardingSteps: any, Config: any, FarmMath: any)
 	local empty = newSave()
 	empty.lifetimeEarned = OnboardingSteps.SKIP_BASICS_EARNED
 	assert(OnboardingSteps.stepFor(empty, { roadmapOpened = true }) == 0, "yapılabilir genişletme yoksa adım yok")
+
+	-- Genişletmeye para yetmiyorken hazır tesis varsa 6. adım öne geçer; para yetince 5
+	local blocked = newSave()
+	blocked.lifetimeEarned = OnboardingSteps.SKIP_BASICS_EARNED
+	blocked.purchased.barn_2 = true
+	fillStarter(blocked)
+	local recipe0: any = nil
+	for _, candidate in Config.PRODUCTION_RECIPES do
+		recipe0 = recipe0 or candidate
+	end
+	blocked.purchased[recipe0.upgradeId] = true
+	blocked.unlockedIslands[recipe0.island] = true
+	local _, expansionCost = OnboardingSteps.cheapestExpansion(blocked)
+	blocked.cash = 0
+	assert(OnboardingSteps.stepFor(blocked) == 6, "para yetmiyorken tesis 5. adımı geçer")
+	blocked.cash = expansionCost
+	assert(OnboardingSteps.stepFor(blocked) == 5, "para yetince 5. adım")
 
 	-- 6: tesis kurulu ve hiç parti yoksa
 	local recipe: any = nil
