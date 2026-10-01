@@ -339,7 +339,7 @@ return function(FarmMath: any, Config: any, Environment: any)
 	local view = saveAt(start)
 	view.farmId = "3"
 	assert(
-		table.find(FarmMath.themeIslands(view), "pig") and not table.find(FarmMath.themeIslands(view), "goat"),
+		table.find(FarmMath.themeIslands(view), "dairy") and not table.find(FarmMath.themeIslands(view), "poultry"),
 		"inactive farm views use their own farm id"
 	)
 	for _, upgrade in Config.UPGRADES do
@@ -596,6 +596,22 @@ return function(FarmMath: any, Config: any, Environment: any)
 	end
 	for recipeId, recipe in Config.PRODUCTION_RECIPES do
 		assert(Config.BUILD_UPGRADES.profiles[recipe.upgradeProfile or "factory"], `recipe {recipeId} has a profile`)
+	end
+	-- Her tema erken (Ahır 2), orta (Ahır 3) ve geç (Ahır 4) birer ada türü içerir: yeni ada arası boşluk kalmaz
+	for index, theme in Config.THEMES do
+		local needed: { [number]: boolean } = {}
+		for _, islandId in theme.satellites do
+			local upgrade = assert(Config.getUpgrade(Config.FARM_ISLANDS[islandId].upgradeId), "island upgrade exists")
+			local barn = 1
+			for _, requiredId in upgrade.requires do
+				local barnLevel = tonumber(string.match(requiredId, "^barn_(%d+)$"))
+				if barnLevel then
+					barn = barnLevel
+				end
+			end
+			needed[barn] = true
+		end
+		assert(needed[2] and needed[3] and needed[4], `theme {index} needs one island each for barn 2, 3 and 4`)
 	end
 	-- Her tema kendine özgü bir işaret yapısı kullanır (HomeBuildings.landmark türleri)
 	local landmarkKinds = { daisy = true, tulip = true, sunflower = true, rose = true, pine = true, cherry = true }

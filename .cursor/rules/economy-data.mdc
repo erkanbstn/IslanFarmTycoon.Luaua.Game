@@ -42,7 +42,7 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
   `UPGRADE_COST_BASE/EXPONENT` eğrisi yükleme sırasında uygulanır (Config sonunda; ek ana çiftlik fiyatları `MAIN_FARM_PRICES` da aynı eğriden geçer, simülasyon tek çiftliği modeller); `--cost-exp/--cost-base/--price-growth` ile deneme yapılır.
 - **Ada temaları**: `Config.THEMES[n]` = ana çiftlik numarası n'nin (tema) 3 küçük adası. Ada türleri
   `FARM_ISLANDS` + `ZONES` + `ANIMALS` + `UPGRADES` (island + boost) içinde tanımlıdır; ada yükseltmesi yalnızca
-  `barn_N`'e bağlanır (tema sırası bozulmasın; test doğrular). Mantık `Config.getTheme/themeHasIsland` ve
+  `barn_N`'e bağlanır; her tema Ahır 2, 3 ve 4 için birer ada içerir ve hiçbir tema diğeriyle aynı değildir (test doğrular). Mantık `Config.getTheme/themeHasIsland` ve
   `FarmMath.themeIslands` ile temaya bakar; `UpgradeService.tryBuy` tema dışı adayı reddeder. Harita yuvaları
   `MapBuilder.SATELLITE_SLOTS` + `SATELLITE_TYPES`; oyuncunun etkin çiftliği kendi fiziksel adasına `MapBuilder.applyTheme` ile giydirilir (`PlotService.bindFarm`).
 - **Ana ada hayvanı**: `theme.homeAnimal` (inek/tavuk/ördek) `starter` ve `pasture` bölgelerinin (`themed = true`) hayvanını
@@ -67,7 +67,7 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
   tesis için kurulu olmalı (`getExpansionStatus`). Sunucu `UpgradeService.tryExpandZone` (`RequestExpandZone`); arayüz Yükseltmeler penceresindeki "Geliştirmeler" kartları (alınabilirlik sırasıyla, tamamlananlar listeden çıkar, rozet sayar, hedef kartında "Hızlı kazanç")
   (`Config.BUILD_ORDER/BUILD_TARGETS`). Yeni profil/seviye eklersen `tests/economy.spec.luau` (seviye sayısı = maxLevel, her bölge büyüyebilmeli) ve sim kalibrasyonu
   (`scripts/simulate-economy.py`: `ALAN toplam Sv.N`; hedef ada süreleri ve "TÜM YÜKSELTMELER" korunmalı).
-  Tempo (ideal oyuncu, `simulate-economy.py`): ilk ada ~9 dk, at adası ~40 dk, keçi adası ~97 dk, tüm yükseltmeler ~3,7 saat, ırk Sv.30 ~4 saat; sayıları değiştirirsen yeniden koştur ve bu satırı güncelle.
+  Tempo (ideal oyuncu, `simulate-economy.py`): 1. çiftlikte ilk ada ~19 dk, at adası ~54 dk, keçi adası ~158 dk, tüm yükseltmeler ~4,9 saat; 3. temada (Güneşli Tarla: süt, at, keçi) süt ~24, at ~47, keçi ~140 dk (`--farm 3`); sayıları değiştirirsen yeniden koştur ve bu satırı güncelle.
 - **Mevsim hedefi**: `Config.SEASONAL_GOALS` (mevsim id -> `earned` veya `invest`), `SEASONAL_REWARD_SECONDS/MIN_REWARD`. Hesap düzeyi opsiyonel kayıt
   alanı `seasonal {key, progress, target, base, claimed}` (key = `Rewards.seasonNumber`; bozuk kayıt sessizce atılır). Mantık saf `Rewards.seasonal*`
   (kazanç = `lifetimeEarned - base` canlı; yatırım sayacı sunucu kancalarıyla `Rewards.recordInvest`: hayvan alma, yükseltme, ırk, alan genişletme).
