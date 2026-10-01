@@ -79,7 +79,8 @@ local Config = {
 	-- Economy
 	OFFLINE_EARNING_RATE = Economy.OFFLINE_EARNING_RATE,
 	OFFLINE_MAX_HOURS = Economy.OFFLINE_MAX_HOURS,
-	OFFLINE_STORAGE_MULTIPLIER = Economy.OFFLINE_STORAGE_MULTIPLIER,
+	OFFLINE_UPGRADED_EARNING_RATE = Economy.OFFLINE_UPGRADED_EARNING_RATE,
+	OFFLINE_UPGRADED_MAX_HOURS = Economy.OFFLINE_UPGRADED_MAX_HOURS,
 	PRODUCTION_BONUS_PER_ADULT = Economy.PRODUCTION_BONUS_PER_ADULT,
 	PRODUCTION_MAX_BONUS_ADULTS = Economy.PRODUCTION_MAX_BONUS_ADULTS,
 	ANIMAL_PRICE_GROWTH = Economy.ANIMAL_PRICE_GROWTH,
@@ -219,12 +220,12 @@ local LEVEL_CHAINS = {
 		effect = "storage",
 		amount = 0.12,
 	},
-	-- Pasif Gelir (çevrimdışı gelir): satın alınmadıkça sen yokken yalnızca depo birikir (dolunca durur, kasaya geçmez).
-	-- Alınınca çevrimdışı kazanç doğrudan kasaya yatar. Yalnızca bir yetenek: etkisi SaveCodec/FarmMath.hasOfflineIncome.
+	-- Pasif Gelir (çevrimdışı gelir): çevrimdışı kazanç oranını ve süresini artırır (Config.OFFLINE_UPGRADED_*).
+	-- Yalnızca bir yetenek: etkisi FarmMath.hasOfflineIncome / getOfflineTerms.
 	{
 		id = "offline_income",
 		displayName = "Pasif Gelir",
-		description = "Sen yokken kazanç depoda kalmaz, doğrudan kasana yatar",
+		description = "Çevrimdışı kazanç %25'ten %50'ye, süre 2 saatten 8 saate çıkar",
 		icon = "💤",
 		requires = "barn_2",
 		costs = { 6000 },

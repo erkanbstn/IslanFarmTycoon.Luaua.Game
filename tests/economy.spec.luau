@@ -55,28 +55,47 @@ return function(FarmMath: any, Config: any, Environment: any)
 		regular += FarmMath.computeIncomeOverInterval(save, start + elapsed - 1, start + elapsed, true)
 	end
 	near(FarmMath.computeIncomeOverInterval(save, start, start + 180, true), regular)
-	-- Çevrimdışı kazanç kasaya gider: dolu depo onu engellemez, üst sınır depo x OFFLINE_STORAGE_MULTIPLIER.
+	-- Çevrimdışı kazanç kasaya gider ve depoya bağlı değildir: dolu depo onu engellemez; sınır "saat x gelir"dir.
 	save.stored = FarmMath.getStorageCap(save)
 	near(
 		FarmMath.computeOfflineEarnings(save, start, start + growSeconds),
 		math.floor(growIncome * Config.OFFLINE_EARNING_RATE)
 	)
-	local offlineCap = FarmMath.getOfflineCap(save)
-	near(offlineCap, FarmMath.getStorageCap(save) * Config.OFFLINE_STORAGE_MULTIPLIER)
-	-- Üst sınır: tek hayvan sınıra ulaşamaz (kazanç oranı belirler); yeterince hayvanla sınırda durur
-	local singleOffline = FarmMath.computeOfflineEarnings(save, start, start + Config.OFFLINE_MAX_HOURS * 3600)
-	assert(singleOffline <= offlineCap, "offline earnings never exceed the cap")
+	save.stored = 0
 	local crowded = saveAt(start)
 	for index = 2, 40 do
 		local copy = table.clone(crowded.animals[1])
 		copy.uid = `crowd-{index}`
 		table.insert(crowded.animals, copy)
 	end
+	-- Pasif Gelir yokken: gelirin OFFLINE_EARNING_RATE'i, en çok OFFLINE_MAX_HOURS saat; fazla uzaklık ek kazanç vermez.
+	local baseRate, baseHours = FarmMath.getOfflineTerms(crowded)
+	assert(baseRate == Config.OFFLINE_EARNING_RATE and baseHours == Config.OFFLINE_MAX_HOURS, "base offline terms")
+	local atLimit = FarmMath.computeOfflineEarnings(crowded, start, start + baseHours * 3600)
 	near(
-		FarmMath.computeOfflineEarnings(crowded, start, start + Config.OFFLINE_MAX_HOURS * 3600),
-		FarmMath.getOfflineCap(crowded)
+		atLimit,
+		math.floor(FarmMath.computeIncomeOverInterval(crowded, start, start + baseHours * 3600, true) * baseRate)
 	)
-	save.stored = 0
+	near(FarmMath.computeOfflineEarnings(crowded, start, start + 100 * 3600), atLimit)
+	assert(atLimit > 0, "an away player without the upgrade still earns")
+	-- Pasif Gelir: oran ve süre artar; sınır yine saat x gelirdir (depo büyüklüğü fark etmez).
+	crowded.purchased.offline_income_lv1 = true
+	local upgradedRate, upgradedHours = FarmMath.getOfflineTerms(crowded)
+	assert(
+		upgradedRate == Config.OFFLINE_UPGRADED_EARNING_RATE and upgradedHours == Config.OFFLINE_UPGRADED_MAX_HOURS,
+		"upgraded offline terms"
+	)
+	assert(upgradedRate > baseRate and upgradedHours > baseHours, "the upgrade improves both rate and duration")
+	local upgradedLimit = FarmMath.computeOfflineEarnings(crowded, start, start + upgradedHours * 3600)
+	near(
+		upgradedLimit,
+		math.floor(
+			FarmMath.computeIncomeOverInterval(crowded, start, start + upgradedHours * 3600, true) * upgradedRate
+		)
+	)
+	near(FarmMath.computeOfflineEarnings(crowded, start, start + 100 * 3600), upgradedLimit)
+	assert(upgradedLimit > atLimit * 2, "the upgraded limit is far above the base limit")
+	crowded.purchased.offline_income_lv1 = nil
 
 	-- Üretim ödülü (seçeneksiz tarif): gerekenden fazla her yetişkin bonus verir, üst sınırda durur.
 	local dairy = Config.PRODUCTION_RECIPES.hatchery
@@ -626,7 +645,7 @@ return function(FarmMath: any, Config: any, Environment: any)
 	local baseDuration = FarmMath.getFacilityDuration(perks, milkRecipe)
 	local baseSell = FarmMath.getSellPrice(perks, "cow")
 	local baseExpand = FarmMath.getExpansionCost(perks, "starter")
-	local baseOffline = FarmMath.getOfflineCap(perks)
+	local baseOffline = FarmMath.getOfflineTerms(perks)
 	perks.purchased.island_poultry = true
 	assert(FarmMath.getFacilityDuration(perks, milkRecipe) < baseDuration, "the poultry island speeds production up")
 	perks.purchased.island_duck = true
@@ -634,7 +653,7 @@ return function(FarmMath: any, Config: any, Environment: any)
 	perks.purchased.island_pig = true
 	assert(FarmMath.getExpansionCost(perks, "starter") < baseExpand, "the pig island cuts upgrade costs")
 	perks.purchased.island_goat = true
-	assert(FarmMath.getOfflineCap(perks) > baseOffline, "the goat island raises offline earnings")
+	assert(FarmMath.getOfflineTerms(perks) > baseOffline, "the goat island raises offline earnings")
 	-- Takılı eşya aynı anahtarlara eklenir
 	perks.inventory = { items = { diamond_hammer = true }, equipped = { tool = "diamond_hammer" } }
 	assert(

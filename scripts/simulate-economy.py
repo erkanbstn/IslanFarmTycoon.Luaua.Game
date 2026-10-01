@@ -295,7 +295,7 @@ def main() -> int:
     parser.add_argument("--farm", default="1", help="Çiftlik numarası (tema): 1-6")
     parser.add_argument("--cost-base", type=float, default=600, help="Deneme: bu değerin üstündeki yükseltme maliyetleri büyütülür")
     parser.add_argument("--cost-exp", type=float, default=0, help="Deneme: maliyet üssü (0 = kapalı)")
-    parser.add_argument("--collect", type=float, default=0, help="Oyuncu platforma kaç saniyede bir uğrar (0 = anında topla)")
+    parser.add_argument("--collect", type=float, default=120, help="Oyuncu platforma kaç saniyede bir uğrar (varsayılan 120; 0 = anında topla)")
     parser.add_argument("--cap-mult", type=float, default=1, help="Deneme: ahır depo kapasitelerinin çarpanı")
     parser.add_argument("--price-growth", type=float, default=0, help="Deneme: ANIMAL_PRICE_GROWTH (0 = Config değeri)")
     args = parser.parse_args()

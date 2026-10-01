@@ -973,8 +973,7 @@ return {
 	-- Pasif Gelir (çevrimdışı kazanç)
 	["Pasif Gelir"] = "Passive Income",
 	["Pasif Gelir Sv.1"] = "Passive Income Lv.1",
-	["Sen yokken kazanç depoda kalmaz, doğrudan kasana yatar"] = "While you are away, earnings go straight to your cash instead of staying in storage",
-	["Sen yokken depoda {} birikti. Toplama platformundan al."] = "While you were away {1} built up in storage. Collect it at the collection pad.",
+	["Çevrimdışı kazanç %25'ten %50'ye, süre 2 saatten 8 saate çıkar"] = "Offline earnings rise from 25% to 50% and the time from 2 to 8 hours",
 
 	-- Meydan sıralama panosu
 	["Sunucu Sıralaması"] = "Server Ranking",

@@ -197,19 +197,22 @@ function Income.estimateForgoneIncome(save: PlayerSave, animals: { GameTypes.Ani
 	return total
 end
 
+-- Çevrimdışı kazanç oranı (eşya/ada bonusu dahil) ve en çok sayılan süre (saat). Pasif Gelir ikisini de artırır.
+function Income.getOfflineTerms(save: PlayerSave): (number, number)
+	local upgraded = Core.hasOfflineIncome(save)
+	local baseRate = if upgraded then Config.OFFLINE_UPGRADED_EARNING_RATE else Config.OFFLINE_EARNING_RATE
+	local hours = if upgraded then Config.OFFLINE_UPGRADED_MAX_HOURS else Config.OFFLINE_MAX_HOURS
+	return baseRate * (1 + Core.getBonus(save, "offlineBonus")), hours
+end
+
+-- Sınır depoya değil süreye bağlıdır: en çok `hours` saatlik gelirin `rate` oranı kasaya yatar.
 function Income.computeOfflineEarnings(save: PlayerSave, lastSeen: number, now: number): number
 	if not isFinite(lastSeen) or not isFinite(now) then
 		return 0
 	end
-	local endedAt = math.min(now, lastSeen + Config.OFFLINE_MAX_HOURS * 3600)
-	local rate = Config.OFFLINE_EARNING_RATE * (1 + Core.getBonus(save, "offlineBonus"))
-	local potential = Income.computeIncomeOverInterval(save, lastSeen, endedAt, true) * rate
-	return math.floor(math.max(0, math.min(potential, Income.getOfflineCap(save))))
-end
-
--- Çevrimdışı kazancın üst sınırı (kasaya eklenir, depoyu doldurmaz)
-function Income.getOfflineCap(save: PlayerSave): number
-	return Core.getStorageCap(save) * Config.OFFLINE_STORAGE_MULTIPLIER * (1 + Core.getBonus(save, "offlineBonus"))
+	local rate, hours = Income.getOfflineTerms(save)
+	local endedAt = math.min(now, lastSeen + hours * 3600)
+	return math.floor(math.max(0, Income.computeIncomeOverInterval(save, lastSeen, endedAt, true) * rate))
 end
 
 return Income

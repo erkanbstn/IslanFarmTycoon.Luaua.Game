@@ -971,8 +971,7 @@ return {
 	-- Pasif Gelir (çevrimdışı kazanç)
 	["Pasif Gelir"] = "Пассивный доход",
 	["Pasif Gelir Sv.1"] = "Пассивный доход ур.1",
-	["Sen yokken kazanç depoda kalmaz, doğrudan kasana yatar"] = "Пока тебя нет, доход идёт сразу в кассу, а не остаётся на складе",
-	["Sen yokken depoda {} birikti. Toplama platformundan al."] = "Пока тебя не было, на складе накопилось {1}. Забери на площадке сбора.",
+	["Çevrimdışı kazanç %25'ten %50'ye, süre 2 saatten 8 saate çıkar"] = "Доход в офлайне растёт с 25% до 50%, а время — с 2 до 8 часов",
 
 	-- Meydan sıralama panosu
 	["Sunucu Sıralaması"] = "Рейтинг сервера",

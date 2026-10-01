@@ -251,7 +251,7 @@ return function(lock: any, codec: any, config: any, farmMath: any)
 	)
 	local _, _, _, _, grown = codec.decode(codec.encode(save, now - 100000), config, farmMath, now, uid)
 	assert(typeof(grown) == "number" and grown >= 0, "decode reports animals grown while away")
-	-- Pasif Gelir: yokken yalnızca depo birikir (dolunca durur); satın alınınca doğrudan kasaya yatar
+	-- Çevrimdışı kazanç her zaman kasaya yatar; Pasif Gelir oranı (%25 -> %50) ve süreyi (2 -> 8 saat) artırır
 	local serial = 0
 	local function offlineUid(): string
 		serial += 1
@@ -273,28 +273,34 @@ return function(lock: any, codec: any, config: any, farmMath: any)
 	local plain = farmWithAnimals()
 	plain.purchased.offline_income_lv1 = nil
 	local plainSnap = codec.encode(plain, now)
-	local awayShort, earnedShort, _, _, _, storedShort =
-		codec.decode(plainSnap, config, farmMath, now + 600, offlineUid)
-	assert(awayShort and earnedShort == 0, "without Passive Income nothing reaches the wallet offline")
-	assert(awayShort.cash == plain.cash, "the wallet stays untouched while away")
-	assert(storedShort > 0 and awayShort.stored == storedShort, "the storage fills while away")
-	local awayLong, _, _, _, _, storedLong = codec.decode(plainSnap, config, farmMath, now + 8 * 3600, offlineUid)
-	assert(awayLong and awayLong.stored <= farmMath.getStorageCap(awayLong), "storage never exceeds its capacity")
+	local awayShort, earnedShort = codec.decode(plainSnap, config, farmMath, now + 600, offlineUid)
+	assert(awayShort and earnedShort > 0, "without Passive Income offline earnings still arrive")
+	assert(awayShort.cash == plain.cash + earnedShort, "they go straight into the wallet")
+	assert(awayShort.stored == plain.stored, "and never touch the storage")
+	local _, earnedAtLimit =
+		codec.decode(plainSnap, config, farmMath, now + config.OFFLINE_MAX_HOURS * 3600, offlineUid)
+	local awayLong, earnedLong = codec.decode(plainSnap, config, farmMath, now + 20 * 3600, offlineUid)
 	assert(
-		awayLong.stored == farmMath.getStorageCap(awayLong) and awayLong.cash == plain.cash,
-		"a full storage stops and does not spill into cash"
+		awayLong and earnedLong == earnedAtLimit and earnedLong > earnedShort,
+		"without the upgrade only OFFLINE_MAX_HOURS of income counts"
 	)
-	assert(storedLong == awayLong.stored, "the summary reports what was stored")
 
 	local perk = farmWithAnimals()
 	perk.purchased.offline_income_lv1 = true
 	local perkSnap = codec.encode(perk, now)
-	local paid, earnedPaid, _, _, _, storedPaid = codec.decode(perkSnap, config, farmMath, now + 600, offlineUid)
+	local paid, earnedPaid = codec.decode(perkSnap, config, farmMath, now + 600, offlineUid)
 	assert(
-		paid and earnedPaid > 0 and paid.cash == perk.cash + earnedPaid,
-		"Passive Income pays offline earnings into the wallet"
+		paid and earnedPaid > earnedShort and paid.cash == perk.cash + earnedPaid,
+		"Passive Income pays more offline earnings into the wallet"
 	)
-	assert(storedPaid == 0 and paid.stored == 0, "and leaves the storage empty")
+	assert(paid.stored == 0, "and leaves the storage untouched")
+	local _, paidAtLimit =
+		codec.decode(perkSnap, config, farmMath, now + config.OFFLINE_UPGRADED_MAX_HOURS * 3600, offlineUid)
+	local _, paidLong = codec.decode(perkSnap, config, farmMath, now + 40 * 3600, offlineUid)
+	assert(
+		paidLong == paidAtLimit and paidAtLimit > earnedLong * 3,
+		"with the upgrade up to OFFLINE_UPGRADED_MAX_HOURS of income counts at the higher rate"
+	)
 
 	print(
 		"data: lock ownership, response-loss retries, revision, migration, numeric, capacity and account guards passed"

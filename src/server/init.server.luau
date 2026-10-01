@@ -8,7 +8,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
-local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 
 local Services = script:WaitForChild("Services")
 local PlayerDataService = require(Services:WaitForChild("PlayerDataService"))
@@ -262,17 +261,9 @@ local function onPlayerAdded(player: Player)
 
 	Remotes.get("Notify"):FireClient(player, `{Config.GAME_NAME}'a hoş geldin! Yol Haritası'ndan ilerle.`, "info")
 	-- Dönüş özeti: sen yokken kazanılan para ve büyüyen hayvanlar (client küçük bir pencere gösterir)
-	local offline, grown, stored = PlayerDataService.takeOfflineSummary(player)
+	local offline, grown = PlayerDataService.takeOfflineSummary(player)
 	if offline > 0 or grown > 0 then
 		Remotes.get("OfflineSummary"):FireClient(player, offline, grown)
-	end
-	if stored > 0 then
-		-- Pasif Gelir yokken sen yokken kazanç yalnızca depoda birikir; kasaya geçmez
-		Remotes.get("Notify"):FireClient(
-			player,
-			`Sen yokken depoda {FarmMath.formatMoney(stored)} birikti. Toplama platformundan al.`,
-			"info"
-		)
 	end
 	if Rewards.dailyStatus(data.daily, DateTime.now().UnixTimestamp).canClaim then
 		Remotes.get("Notify"):FireClient(player, "Günlük ödülün hazır! Ödüller menüsünden al.", "info")

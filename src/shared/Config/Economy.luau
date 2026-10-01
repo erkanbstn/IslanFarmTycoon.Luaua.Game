@@ -5,12 +5,11 @@
 local Types = require(script.Parent:WaitForChild("Types"))
 return {
 	-- Oyuncu yokken kazanç doğrudan kasaya eklenir: normal gelirin bu oranı kadar, en fazla bu kadar saat için.
-	-- Üst sınır depo kapasitesinin OFFLINE_STORAGE_MULTIPLIER katıdır; büyük ahır = daha çok çevrimdışı kazanç.
-	OFFLINE_EARNING_RATE = 0.5,
-
-	OFFLINE_MAX_HOURS = 8,
-
-	OFFLINE_STORAGE_MULTIPLIER = 24,
+	-- Sınır depoya değil süreye bağlıdır (saat x gelir). Pasif Gelir yükseltmesi oranı ve süreyi artırır.
+	OFFLINE_EARNING_RATE = 0.25,
+	OFFLINE_MAX_HOURS = 2,
+	OFFLINE_UPGRADED_EARNING_RATE = 0.5,
+	OFFLINE_UPGRADED_MAX_HOURS = 8,
 
 	-- Üretimde gerekenden fazla her yetişkin hayvan satış ödülünü bu oranda artırır (en fazla MAX kadar hayvan).
 	PRODUCTION_BONUS_PER_ADULT = 0.25,

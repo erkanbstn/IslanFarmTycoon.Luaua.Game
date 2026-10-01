@@ -139,7 +139,7 @@ return {
 			description = "Para depoya değil doğrudan kasana gelir",
 			icon = "🤖",
 			stage = 4,
-			cost = 15000,
+			cost = 5000,
 			requires = { "barn_3" },
 			kind = "boost",
 			autoCollect = true,
