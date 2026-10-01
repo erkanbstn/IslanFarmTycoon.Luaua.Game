@@ -71,21 +71,31 @@ function MonetizationService.refreshPasses(player: Player)
 	PlayerDataService.pushState(player)
 end
 
-local function applyProduct(player: Player, data: any, product: Config.ProductConfig): boolean
-	if product.effect == "instantProduction" then
+-- Desteklenen ürün etkileri tek kaynaktır: processReceipt yalnızca burada olanları işler.
+local productEffects: { [string]: (player: Player, data: any, product: Config.ProductConfig) -> boolean } = {
+	instantProduction = function(player, data)
 		for _, job in data.production do
 			job.readyAt = 0
 		end
 		PlayerDataService.pushState(player)
 		return true
-	elseif product.effect == "incomePack" then
+	end,
+	incomePack = function(player, data, product)
 		local income = FarmMath.computeIncomePerSecond(data)
 		local amount = math.max(income * 3600 * (product.incomeHours or 1), Config.PRODUCT_MIN_INCOME_PACK)
 		PlayerDataService.addCash(player, math.floor(amount))
 		PlayerDataService.pushState(player)
 		return true
-	end
-	return false
+	end,
+}
+
+local function isSupported(effect: any): boolean
+	return typeof(effect) == "string" and productEffects[effect] ~= nil
+end
+
+local function applyProduct(player: Player, data: any, product: Config.ProductConfig): boolean
+	local handler = productEffects[product.effect]
+	return handler ~= nil and handler(player, data, product)
 end
 
 -- Roblox aynı makbuzu tekrar gönderebilir; ödül yalnızca ilk kez verilir.
@@ -106,7 +116,7 @@ function MonetizationService.processReceipt(receiptInfo: any): Enum.ProductPurch
 		warn(`[Monetization] Bilinmeyen ürün {tostring(receiptInfo.ProductId)}; makbuz işlenmedi`)
 		return Enum.ProductPurchaseDecision.NotProcessedYet
 	end
-	if product.effect ~= "instantProduction" and product.effect ~= "incomePack" then
+	if not isSupported(product.effect) then
 		warn(`[Monetization] Ürün etkisi geçersiz {tostring(product.effect)}; makbuz işlenmedi`)
 		return Enum.ProductPurchaseDecision.NotProcessedYet
 	end
