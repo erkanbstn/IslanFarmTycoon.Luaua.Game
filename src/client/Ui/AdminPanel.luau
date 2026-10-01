@@ -10,6 +10,7 @@ local UiKit = require(script.Parent:WaitForChild("UiKit"))
 local ClientState = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("ClientState"))
 local player = Players.LocalPlayer
 local AdminPanel = {}
+local playerConnections: { RBXScriptConnection } = {}
 
 local window: UiKit.Window? = nil
 local render: (() -> ())? = nil
@@ -26,7 +27,7 @@ local function refresh()
 	end
 end
 
-local function submit(action: string, value: string | number)
+local function submit(action: string, value: string | number, targetUserId: number?)
 	if player:GetAttribute("IsAdmin") ~= true or pending ~= nil or os.clock() < nextSendAt then
 		return
 	end
@@ -37,7 +38,11 @@ local function submit(action: string, value: string | number)
 	resultText = "Sunucu yanıtı bekleniyor."
 	resultSuccess = nil
 	refresh()
-	Remotes.get("RequestAdminAction"):FireServer(action, value, id)
+	if targetUserId then
+		Remotes.get("RequestAdminPlayerAction"):FireServer(targetUserId, action, value, id)
+	else
+		Remotes.get("RequestAdminAction"):FireServer(action, value, id)
+	end
 	task.delay(0.6, refresh)
 	task.delay(10, function()
 		if pending ~= id then
@@ -274,6 +279,104 @@ local function create(parent: Instance): UiKit.Window
 	choices("grantItems", { { id = "now", label = "Bütün eşyaları ver (takmaz)" } }, 45)
 	choices("clearItems", { { id = "now", label = "Envanteri boşalt" } }, 46)
 
+	-- Oyuncu işlemleri: seçilen oyuncuya para ver/al/ayarla, kayıt özeti, sunucudan at. Hedef ve tutar sunucuda yeniden doğrulanır.
+	UiKit.text(created.list, "Oyuncu işlemleri", "Heading").LayoutOrder = 47
+	local targetStatus = UiKit.text(created.list, "Önce bir oyuncu seç.", "Caption")
+	targetStatus.LayoutOrder = 48
+	local playerList = Instance.new("Frame")
+	playerList.BackgroundTransparency = 1
+	playerList.Size = UDim2.new(1, 0, 0, 0)
+	playerList.AutomaticSize = Enum.AutomaticSize.Y
+	playerList.LayoutOrder = 49
+	playerList.Parent = created.list
+	UiKit.list(playerList, 4)
+	local selectedTarget: Player? = nil
+	local function rebuildPlayers()
+		for _, child in playerList:GetChildren() do
+			if child:IsA("TextButton") then
+				child:Destroy()
+			end
+		end
+		if selectedTarget and selectedTarget.Parent == nil then
+			selectedTarget = nil
+		end
+		for index, other in Players:GetPlayers() do
+			local label = if other == player then `{other.DisplayName} (ben)` else other.DisplayName
+			local button = UiKit.button(playerList, label, if other == selectedTarget then "primary" else "secondary")
+			button.Size = UDim2.new(1, 0, 0, 34)
+			button.LayoutOrder = index
+			button.Activated:Connect(function()
+				selectedTarget = other
+				targetStatus.Text = `Seçili: {other.DisplayName}`
+				rebuildPlayers()
+			end)
+		end
+		if not selectedTarget then
+			targetStatus.Text = "Önce bir oyuncu seç."
+		end
+	end
+	table.insert(playerConnections, Players.PlayerAdded:Connect(rebuildPlayers))
+	table.insert(
+		playerConnections,
+		Players.PlayerRemoving:Connect(function()
+			task.defer(rebuildPlayers)
+		end)
+	)
+	rebuildPlayers()
+	local targetAmount = UiKit.textInput(created.list, "Tutar (para işlemleri için)")
+	targetAmount.Name = "TargetAmount"
+	targetAmount.LayoutOrder = 50
+	local function targetRow(order: number, options: { { id: string, label: string, needsAmount: boolean } })
+		local frame = row(order)
+		for index, option in options do
+			local button = UiKit.button(frame, option.label, "primary")
+			button.Size = UDim2.new(1 / #options, -4, 1, 0)
+			button.LayoutOrder = index
+			table.insert(controls, { button = button, action = `target:{option.id}`, value = nil })
+			button.Activated:Connect(function()
+				if not button.Active then
+					return
+				end
+				local target = selectedTarget
+				if not target then
+					resultText = "Önce bir oyuncu seç."
+					resultSuccess = false
+					refresh()
+					return
+				end
+				local number = 0
+				if option.needsAmount then
+					local parsed = tonumber(targetAmount.Text)
+					local least = if option.id == "setTargetCash" then 0 else 1
+					if
+						not parsed
+						or parsed ~= parsed
+						or parsed < least
+						or parsed % 1 ~= 0
+						or parsed > MAX_COMMAND_CASH
+					then
+						resultText = "Geçerli bir tam sayı tutar yaz."
+						resultSuccess = false
+						refresh()
+						return
+					end
+					number = parsed
+					targetAmount:ReleaseFocus()
+				end
+				submit(option.id, number, target.UserId)
+			end)
+		end
+	end
+	targetRow(51, {
+		{ id = "giveCash", label = "Para ver", needsAmount = true },
+		{ id = "takeCash", label = "Para al", needsAmount = true },
+		{ id = "setTargetCash", label = "Bakiyeyi ayarla", needsAmount = true },
+	})
+	targetRow(52, {
+		{ id = "inspect", label = "Kasayı göster", needsAmount = false },
+		{ id = "kickPlayer", label = "Sunucudan at", needsAmount = false },
+	})
+
 	local function choiceLabel(options: { { id: string, label: string } }, value: string): string
 		for _, option in options do
 			if option.id == value then
@@ -351,6 +454,10 @@ local function create(parent: Instance): UiKit.Window
 	local stopState = ClientState.onChanged(updateBalance)
 	created.frame.Destroying:Connect(function()
 		stopState()
+		for _, connection in playerConnections do
+			connection:Disconnect()
+		end
+		table.clear(playerConnections)
 		for _, connection in connections do
 			connection:Disconnect()
 		end

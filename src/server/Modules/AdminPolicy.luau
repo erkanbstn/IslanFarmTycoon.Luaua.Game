@@ -40,4 +40,17 @@ function AdminPolicy.validAction(value: unknown): boolean
 		or value == "clearItems"
 end
 
+-- Başka bir oyuncuyu hedefleyen eylemler (Services/AdminPlayerService). Para eylemlerinde değer tutardır.
+function AdminPolicy.validTargetAction(value: unknown): boolean
+	return value == "giveCash"
+		or value == "takeCash"
+		or value == "setTargetCash"
+		or value == "inspect"
+		or value == "kickPlayer"
+end
+
+function AdminPolicy.validTargetUserId(value: unknown): boolean
+	return typeof(value) == "number" and value == value and value >= 1 and value <= 2 ^ 53 and value % 1 == 0
+end
+
 return AdminPolicy

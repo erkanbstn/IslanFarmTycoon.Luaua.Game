@@ -186,6 +186,8 @@ def main() -> int:
                {"Config", "GameTypes", "Remotes", "FarmMath", "PlayerDataService", "EconomyService", "PlotService", "SeasonService", "AdminPolicy", "RateLimiter"},
                "game, Remotes, PlayerDataService, EconomyService, PlotService, FarmMath, SeasonService, RateLimiter"),
         module("adminSpec", "tests/admin.spec.luau"),
+        module("TransferRules", "src/server/Modules/TransferRules.luau"),
+        module("transferSpec", "tests/transfer.spec.luau"),
         module("SeasonServiceFactory", "src/server/Services/SeasonService.luau",
                {"Config", "Remotes", "Environment", "AdminPolicy", "RateLimiter", "Metrics"},
                "game, os, Random, Remotes, task, Environment, RateLimiter, Metrics, warn"),

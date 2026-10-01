@@ -9,6 +9,7 @@ local Config = require(Shared:WaitForChild("Config"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 local UiKit = require(script.Parent:WaitForChild("UiKit"))
+local SendMoney = require(script.Parent:WaitForChild("SendMoney"))
 local HudCommon = require(script.Parent:WaitForChild("Hud"):WaitForChild("HudCommon"))
 local ClientState = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("ClientState"))
 local Sfx = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("Sfx"))
@@ -431,6 +432,18 @@ local function create(): UiKit.Window
 				Remotes.get("RequestTravel"):FireServer(id)
 				created.close()
 			end)
+			if owner then
+				local give = UiKit.button(card.frame, "Para gönder", "secondary")
+				give.Size = UDim2.new(1, 0, 0, 30)
+				give.TextSize = 13
+				give.LayoutOrder = 5
+				give.Activated:Connect(function()
+					if blocked() then
+						return
+					end
+					SendMoney.open(owner.UserId, owner.DisplayName)
+				end)
+			end
 		end
 	end
 	refresh = function()

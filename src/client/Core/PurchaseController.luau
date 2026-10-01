@@ -46,6 +46,29 @@ function PurchaseController.submit(remote: Remotes.EventName, value: string, ext
 	return true
 end
 
+-- (hedef, tutar, requestId) biçimli istek (para gönderme): etkin çiftlik bağlamı yok, kimlik aynı sayaçtan gelir (sunucuda tekrar kimlik reddedilir).
+function PurchaseController.submitTargeted(remote: Remotes.EventName, target: number, amount: number): boolean
+	if pending or not ClientState.get() then
+		return false
+	end
+	sequence += 1
+	local id = sequence
+	pending = id
+	sentAt = os.clock()
+	changed:Fire()
+	Remotes.get(remote):FireServer(target, amount, id)
+	task.delay(10, function()
+		if pending ~= id then
+			return
+		end
+		pending = nil
+		ClientState.requestSnapshot()
+		changed:Fire()
+		completed:Fire(false, "Yanıt gecikti; durum yenileniyor. Tekrar göndermeden önce kasanı kontrol et.")
+	end)
+	return true
+end
+
 Remotes.get("PurchaseResult").OnClientEvent:Connect(function(id: number, success: boolean, message: string?)
 	if pending ~= id then
 		return

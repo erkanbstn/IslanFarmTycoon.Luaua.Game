@@ -40,6 +40,8 @@ export type EventName =
 	| "RequestClaimAchievement"
 	| "OfflineSummary"
 	| "RequestAdminAction"
+	| "RequestAdminPlayerAction"
+	| "RequestSendMoney"
 	| "AdminResult"
 	| "RequestProductionAction"
 	| "ProductionResult"
@@ -59,6 +61,8 @@ local EVENTS = {
 	"RequestSetLanguage", -- Client -> Sunucu arayüz dili tercihi (kod); sunucu Config.LANGUAGES ile doğrular
 	"RequestAdminAction", -- Sadece sunucudaki AdminPolicy'nin izin verdiği hesap.
 	"AdminResult", -- Sunucu -> yetkili client (requestId, success, message).
+	"RequestAdminPlayerAction", -- Yetkili -> Sunucu başka oyuncuya işlem (targetUserId, action, value, requestId); sonuç AdminResult
+	"RequestSendMoney", -- Client -> Sunucu başka oyuncuya para gönder (targetUserId, amount, requestId); sonuç PurchaseResult
 	"Notify", -- Sunucu -> Client bilgi mesajı (message, kind?)
 	"PlayerState", -- Sunucu -> Client kaydın tamamı (yapısal değişikliklerde)
 	"EconomyTick", -- Sunucu -> Client sadece (cash, stored, revision, farmId); her saniye
