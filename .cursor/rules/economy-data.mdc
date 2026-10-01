@@ -38,7 +38,7 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
 - **Sipariş panosu** yalnızca ahır siparişlerinden oluşur (aşağıda); eski zaman tabanlı sipariş (`save.order`) kaldırıldı. Mevsim bonusu `SEASONS[x].orderBonus` ahır
   siparişi ödülüne uygulanır.
 - **Denge ölçümü**: `python scripts/simulate-economy.py --hours 8 --farm 1..6` (ideal oyuncu, gerçek Config/FarmMath; her temayı dene).
-  Tempo hedefi: ilk küçük ada ~10 dk, ikinci ~30 dk, üçüncü ~1 saat, tüm yükseltmeler ~3 saat. `UPGRADES[].cost` taban fiyattır:
+  Tempo hedefleri aşağıdaki "Depo ve toplama dengesi" ve "Yapı geliştirme" maddelerindedir. `UPGRADES[].cost` taban fiyattır:
   `UPGRADE_COST_BASE/EXPONENT` eğrisi yükleme sırasında uygulanır (Config sonunda; ek ana çiftlik fiyatları `MAIN_FARM_PRICES` da aynı eğriden geçer, simülasyon tek çiftliği modeller); `--cost-exp/--cost-base/--price-growth` ile deneme yapılır.
 - **Ada temaları**: `Config.THEMES[n]` = ana çiftlik numarası n'nin (tema) 3 küçük adası. Ada türleri
   `FARM_ISLANDS` + `ZONES` + `ANIMALS` + `UPGRADES` (island + boost) içinde tanımlıdır; ada yükseltmesi yalnızca
