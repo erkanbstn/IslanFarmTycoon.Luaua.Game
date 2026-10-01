@@ -134,14 +134,10 @@ function GoalCard.create(stats: Frame, onboarding: Onboarding.Hud): Hud
 			goalTitle.Text = "İLK ADIMLAR 1/6"
 			local homeAnimal = Config.getHomeAnimal(state.activeMainFarmId)
 			-- Hayvansız başlanır: ilk hayvan başlangıç parasıyla alınır
+			local homeName = Config.ANIMALS[homeAnimal].displayName
 			goalLabel.Text = if #state.animals == 0
-				then if homeAnimal == "chicken"
-					then "İlk hedef: ilk tavuğunu satın al"
-					elseif homeAnimal == "duck" then "İlk hedef: ilk ördeğini satın al"
-					else "İlk hedef: ilk ineğini satın al"
-				elseif homeAnimal == "chicken" then "İlk hedef: yeni bir tavuk"
-				elseif homeAnimal == "duck" then "İlk hedef: yeni bir ördek"
-				else "İlk hedef: yeni bir inek"
+				then `İlk hedef: ilk hayvanını satın al ({homeName})`
+				else `İlk hedef: yeni bir hayvan ({homeName})`
 			goalDetail.Text = purchaseHint(state, FarmMath.getAnimalPrice(state, homeAnimal), income)
 			return
 		end
