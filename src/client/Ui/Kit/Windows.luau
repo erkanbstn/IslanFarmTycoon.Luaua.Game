@@ -33,6 +33,8 @@ export type WindowOptions = {
 	position: UDim2,
 }
 
+-- Sağ kenardaki pencerelerin üstten bırakacağı gerçek piksel: Roblox üst çubuğu + sağ üst oyuncu listesi (6 oyuncuya kadar)
+local TOP_RESERVE = 190
 local SLIDE_TWEEN = TweenInfo.new(0.22, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
 
 local openWindows: { Window } = {}
@@ -104,11 +106,16 @@ function Windows.window(parent: Instance, options: WindowOptions): Window
 		local compact = viewport.X < 900 or viewport.Y < 600
 		frame.AnchorPoint = if compact then Vector2.new(0.5, 0.5) else options.anchor
 		targetPosition = if compact then UDim2.fromScale(0.5, 0.5) else options.position
+		local height = math.min(options.maxHeight, math.max(160, viewport.Y - 80))
+		-- Sağ kenardaki pencereler Roblox'un sağ üst oyuncu listesinin altında başlar (üstten TOP_RESERVE px ayrılır)
+		if not compact and options.anchor.X == 1 then
+			local top = TOP_RESERVE / Screen.scale()
+			frame.AnchorPoint = Vector2.new(1, 0)
+			targetPosition = UDim2.new(options.position.X.Scale, options.position.X.Offset, 0, top)
+			height = math.min(options.maxHeight, math.max(160, viewport.Y - top - 12))
+		end
 		frame.Position = targetPosition
-		frame.Size = UDim2.fromOffset(
-			math.min(options.width, math.max(200, viewport.X - 24)),
-			math.min(options.maxHeight, math.max(160, viewport.Y - 80))
-		)
+		frame.Size = UDim2.fromOffset(math.min(options.width, math.max(200, viewport.X - 24)), height)
 	end
 	local cameraConnection: RBXScriptConnection? = nil
 	local function watchCamera()

@@ -46,6 +46,7 @@ function UpgradesWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Upg
 	local refreshTab: (() -> ())? = nil
 	UiKit.tabs(upgradesWindow.list, 0, {
 		{ id = "upgrades", label = "Yapılar" },
+		{ id = "levels", label = "Seviyeler" },
 		{ id = "expansions", label = "Geliştirmeler" },
 	}, function(id: string)
 		currentTab = id
@@ -191,10 +192,12 @@ function UpgradesWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Upg
 				continue
 			end
 			local status, missing = FarmMath.getUpgradeStatus(state, upgrade.id)
+			-- Seviyeli zincirler (yem kalitesi, depo, büyüme, yardımcılar, eklenti kapasitesi) kendi sekmesinde
+			local tabId = if upgrade.leveled then "levels" else "upgrades"
 			local group = if status == "locked" then 2 elseif HudCommon.upgradeAffordable(state, upgrade) then 0 else 1
 			card.frame.LayoutOrder = index + 1 + group * #Config.UPGRADES
 			if content then
-				card.frame.Visible = status ~= "owned" and currentTab == "upgrades"
+				card.frame.Visible = status ~= "owned" and currentTab == tabId
 				local needs = if status == "locked" then nil else HudCommon.goodsNeedText(state, upgrade)
 				card.detail.Text = if status == "locked"
 					then `Önce: {table.concat(missing, ", ")}`
@@ -202,7 +205,9 @@ function UpgradesWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Upg
 					else upgrade.description
 			end
 			if status ~= "owned" then
-				remaining += 1
+				if tabId == "upgrades" then
+					remaining += 1
+				end
 				UiKit.setCardStatus(card, if status == "locked" then "Kilitli" else nil)
 				if status ~= "locked" then
 					setPurchaseButton(

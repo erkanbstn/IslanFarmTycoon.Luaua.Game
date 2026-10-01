@@ -1219,4 +1219,5 @@ return {
 	["İlk hedef: yeni bir hayvan ({})"] = "Erstes Ziel: ein neues Tier ({1})",
 	["Angora Eğirme"] = "Angora-Spinnerei",
 	["Çok zor: önce daha kolay çiftlikleri al. Hayvanları ve yatırımları ayrı gelişir; kasa ve depo ortaktır."] = "Sehr schwer: kaufe zuerst die leichteren Farmen. Tiere und Investitionen entwickeln sich getrennt; Geld und Lager sind gemeinsam.",
+	["Seviyeler"] = "Stufen",
 }
