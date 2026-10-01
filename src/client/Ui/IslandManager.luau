@@ -215,6 +215,7 @@ local function create(): UiKit.Window
 	local buyInfo = UiKit.text(created.list, "", "Caption")
 	buyInfo.LayoutOrder = 5
 	local freeList = section(6)
+	local freeGrid = UiKit.autoGrid(freeList, 1)
 	local freeCards: { [string]: UiKit.Card } = {}
 	local plotsById: { [string]: Instance } = {}
 	local offerById: { [string]: Offer } = {}
@@ -241,7 +242,7 @@ local function create(): UiKit.Window
 
 	for index = 1, Config.MAP_PLOT_COUNT do
 		local id = tostring(index)
-		local card = UiKit.card(freeList, index, "🌴")
+		local card = UiKit.autoTile(freeGrid, index, "🌴")
 		card.frame.BackgroundColor3 = UiKit.Color.SurfaceRaised
 		freeCards[id] = card
 		card.action.Activated:Connect(function()
@@ -283,6 +284,7 @@ local function create(): UiKit.Window
 	specialtyList.LayoutOrder = 2
 	specialtyList.Parent = specialtyBox
 	UiKit.list(specialtyList, 8)
+	local specialtyGrid = UiKit.autoGrid(specialtyList, 1)
 	applySpecialtyOpen = function()
 		specialtyBox.Visible = specialtyOpen
 		for _, arrow in arrows do
@@ -296,7 +298,7 @@ local function create(): UiKit.Window
 			continue
 		end
 		local island = Config.FARM_ISLANDS[id]
-		local card = UiKit.card(specialtyList, index, island.icon)
+		local card = UiKit.autoTile(specialtyGrid, index, island.icon)
 		card.frame.BackgroundColor3 = UiKit.Color.SurfaceRaised
 		specialtyCards[id] = card
 		card.action.Activated:Connect(function()
@@ -380,6 +382,7 @@ local function create(): UiKit.Window
 		end
 		UiKit.text(visits, "Diğer oyuncuların adalarını ziyaret edebilirsin; onlara dokunamazsın.", "Caption").LayoutOrder =
 			0
+		local visitGrid = UiKit.autoGrid(visits, 1)
 		for index = 1, Config.MAP_PLOT_COUNT do
 			local id = tostring(index)
 			local plot = plotsById[id]
@@ -388,7 +391,7 @@ local function create(): UiKit.Window
 				continue
 			end
 			local owner = Players:GetPlayerByUserId(ownerId)
-			local card = UiKit.card(visits, index, tostring(plot:GetAttribute("IslandIcon") or "🏝️"))
+			local card = UiKit.autoTile(visitGrid, index, tostring(plot:GetAttribute("IslandIcon") or "🏝️"))
 			card.frame.BackgroundColor3 = UiKit.Color.SurfaceRaised
 			card.title.Text = tostring(plot:GetAttribute("IslandName") or plot.Name)
 			card.detail.Text = `{if owner then owner.DisplayName else "Oyuncu"} · Çiftlik {tostring(

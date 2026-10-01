@@ -68,23 +68,28 @@ function RoadmapWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Roa
 				order += 1
 			end
 
+			-- Aşamanın kartları 2 sütunlu esnek ızgaradır
+			local stageGrid = UiKit.autoGrid(roadmapWindow.list, order)
+			table.insert(stageGroups[stageIndex], stageGrid)
+			order += 1
+			local tileOrder = 0
+
 			if stageIndex == 1 then
-				local free = UiKit.card(roadmapWindow.list, order, "🎁")
+				local free = UiKit.autoTile(stageGrid, tileOrder, "🎁")
+				tileOrder += 1
 				free.title.Text = "Başlangıç hediyesi"
 				free.detail.Text = `{Config.BARN_LEVELS[1].displayName}, ana ağıl, ilk hayvanın parası`
 				free.action.Text = "Alındı"
 				UiKit.setVariant(free.action, "owned")
-				table.insert(stageGroups[stageIndex], free.frame)
-				order += 1
 			end
 
 			for _, upgrade in Config.UPGRADES do
 				if upgrade.stage ~= stageIndex then
 					continue
 				end
-				local card = UiKit.card(roadmapWindow.list, order, upgrade.icon)
+				local card = UiKit.autoTile(stageGrid, tileOrder, upgrade.icon)
 				card.title.Text = upgrade.displayName
-				order += 1
+				tileOrder += 1
 				upgradeCards[upgrade.id] = card
 				card.action.Activated:Connect(function()
 					if card.action.Active then
@@ -95,15 +100,17 @@ function RoadmapWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Roa
 					local row = Instance.new("Frame")
 					row.Name = "ExtensionActions"
 					row.BackgroundTransparency = 1
-					row.Size = UDim2.new(1, 0, 0, 40)
+					row.Size = UDim2.new(1, 0, 0, 68)
 					row.LayoutOrder = 3
 					row.Visible = false
 					row.Parent = card.frame
-					UiKit.list(row, 8, true)
+					UiKit.list(row, 4)
 					local add = UiKit.button(row, "Hayvan gönder", "primary")
-					add.Size = UDim2.new(0.5, -4, 1, 0)
+					add.Size = UDim2.new(1, 0, 0, 32)
+					add.LayoutOrder = 1
 					local remove = UiKit.button(row, "Geri çağır", "warning")
-					remove.Size = UDim2.new(0.5, -4, 1, 0)
+					remove.Size = UDim2.new(1, 0, 0, 32)
+					remove.LayoutOrder = 2
 					local extensionId = upgrade.extensionId :: string
 					add.Activated:Connect(function()
 						Remotes.get("RequestExtensionAction"):FireServer(extensionId, "assign")

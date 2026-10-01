@@ -91,8 +91,9 @@ function RewardsSection.create(list: Instance, setRewardsBadge: (number) -> ()):
 		achievementsOpen = not achievementsOpen
 		refreshAchievementsToggle()
 	end)
+	local achievementGrid = UiKit.autoGrid(list, 21)
 	for index, achievement in Config.ACHIEVEMENTS do
-		local card = UiKit.card(list, 21 + index, achievement.icon)
+		local card = UiKit.autoTile(achievementGrid, index, achievement.icon)
 		card.frame.Visible = false
 		card.title.Text = achievement.displayName
 		achievementCards[achievement.id] = card

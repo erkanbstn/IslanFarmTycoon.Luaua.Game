@@ -23,6 +23,7 @@ function StoreSection.create(list: Instance): (PlayerSave) -> ()
 	local storeEntries: { StoreEntry } = {}
 	local storeEmpty = UiKit.text(list, "Dükkân çok yakında açılıyor.", "Caption", Color.TextMuted)
 	storeEmpty.LayoutOrder = STORE_ORDER - 1
+	local storeGrid = UiKit.autoGrid(list, STORE_ORDER + 1)
 	for _, group in
 		{ { kind = "pass", items = Config.PRODUCTS.passes }, { kind = "product", items = Config.PRODUCTS.products } }
 	do
@@ -33,7 +34,7 @@ function StoreSection.create(list: Instance): (PlayerSave) -> ()
 		table.sort(keys)
 		for _, key in keys do
 			local product = group.items[key]
-			local card = UiKit.card(list, STORE_ORDER + #storeEntries + 1, product.icon)
+			local card = UiKit.autoTile(storeGrid, #storeEntries + 1, product.icon)
 			card.title.Text = product.displayName
 			card.detail.Text = product.description
 			card.action.Activated:Connect(function()

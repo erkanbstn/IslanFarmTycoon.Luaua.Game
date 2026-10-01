@@ -77,6 +77,68 @@ function Grid.tile(
 	return { frame = frame, icon = chip, title = title, detail = detail, action = action }
 end
 
+-- Esnek ızgara: karolar sütun sayısına göre pencere genişliğini paylaşır, yükseklikleri içeriğe göre büyür (sarmalı satırlar).
+-- Sabit karo boyutu gerektirmediği için uzun yazılı ve ek düğmeli kartlar da (yükseltme, yol haritası, dükkân) sığar.
+function Grid.autoGrid(parent: Instance, order: number, columns: number?): Frame
+	local host = Instance.new("Frame")
+	host.BackgroundTransparency = 1
+	host.Size = UDim2.new(1, 0, 0, 0)
+	host.AutomaticSize = Enum.AutomaticSize.Y
+	host.LayoutOrder = order
+	host:SetAttribute("Columns", columns or 2)
+	host.Parent = parent
+	local layout = Instance.new("UIListLayout")
+	layout.FillDirection = Enum.FillDirection.Horizontal
+	layout.Wraps = true
+	layout.SortOrder = Enum.SortOrder.LayoutOrder
+	layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+	layout.VerticalAlignment = Enum.VerticalAlignment.Top
+	layout.Padding = UDim.new(0, GAP)
+	layout.Parent = host
+	return host
+end
+
+local function autoCaption(parent: Instance, size: number, bold: boolean, order: number): TextLabel
+	local label = Base.text(parent, "", "Caption", if bold then Tokens.Color.Text else nil)
+	if bold then
+		label.FontFace = Tokens.Font.Bold
+	end
+	label.TextSize = size
+	label.TextXAlignment = Enum.TextXAlignment.Center
+	label.TextYAlignment = Enum.TextYAlignment.Top
+	label.TextWrapped = true
+	label.AutomaticSize = Enum.AutomaticSize.Y
+	label.Size = UDim2.new(1, 0, 0, 0)
+	label.LayoutOrder = order
+	return label
+end
+
+-- Esnek karo (Card ile aynı alanlar): üstte ikon, başlık, açıklama (satır sayısı kadar uzar), altta aksiyon düğmesi.
+function Grid.autoTile(grid: Frame, order: number, icon: string): Controls.Card
+	local columns = (grid:GetAttribute("Columns") :: number?) or 2
+	local frame = Instance.new("Frame")
+	frame.BackgroundColor3 = Tokens.Color.Surface
+	frame.LayoutOrder = order
+	frame.Size = UDim2.new(1 / columns, -math.ceil(GAP * (columns - 1) / columns) - 1, 0, 0)
+	frame.AutomaticSize = Enum.AutomaticSize.Y
+	frame.Parent = grid
+	Base.corner(frame, Tokens.Radius.Card)
+	Base.stroke(frame, 0.94)
+	Base.padding(frame, 8)
+	local layout = Base.list(frame, 4)
+	layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+	local chip = Base.iconChip(frame, icon, 34, Tokens.Color.Gold)
+	chip.LayoutOrder = 1
+	local title = autoCaption(frame, 13, true, 2)
+	local detail = autoCaption(frame, 12, false, 3)
+	local action = Controls.button(frame, "", "primary")
+	action.Size = UDim2.new(1, 0, 0, 30)
+	action.TextSize = 13
+	action.LayoutOrder = 4
+	return { frame = frame, icon = chip, title = title, detail = detail, action = action }
+end
+
 -- Kategori sekmeleri: biri seçiliyken diğerleri soluk; tıklanınca onSelect(id) çağrılır.
 -- Dönen ikinci işlev seçimi koddan değiştirir (onSelect'i tetiklemez).
 function Grid.tabs(

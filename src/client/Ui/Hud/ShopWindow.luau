@@ -70,22 +70,24 @@ function ShopWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Shop
 	local lineageRows: { [string]: Frame } = {}
 	local lineageButtons: { [string]: TextButton } = {}
 	local sellButtons: { [string]: TextButton } = {}
+	local animalGrid = UiKit.autoGrid(shopWindow.list, 2)
 	for index, animalId in Config.ANIMAL_ORDER do
-		local card = UiKit.card(shopWindow.list, index + 1, Config.ANIMALS[animalId].icon)
+		local card = UiKit.autoTile(animalGrid, index, Config.ANIMALS[animalId].icon)
 		animalCards[animalId] = card
 		local lineageRow = Instance.new("Frame")
 		lineageRow.Name = "LineageRow"
 		lineageRow.BackgroundTransparency = 1
-		lineageRow.Size = UDim2.new(1, 0, 0, 34)
+		lineageRow.Size = UDim2.new(1, 0, 0, 68)
 		lineageRow.LayoutOrder = 3
 		lineageRow.Visible = false
 		lineageRow.Parent = card.frame
+		UiKit.list(lineageRow, 4)
 		local lineageButton = UiKit.button(lineageRow, "", "secondary")
-		lineageButton.Size = UDim2.new(1, -100, 1, 0)
+		lineageButton.Size = UDim2.new(1, 0, 0, 32)
+		lineageButton.LayoutOrder = 1
 		local sellButton = UiKit.button(lineageRow, "", "secondary")
-		sellButton.AnchorPoint = Vector2.new(1, 0)
-		sellButton.Position = UDim2.fromScale(1, 0)
-		sellButton.Size = UDim2.new(0, 94, 1, 0)
+		sellButton.Size = UDim2.new(1, 0, 0, 32)
+		sellButton.LayoutOrder = 2
 		sellButtons[animalId] = sellButton
 		sellButton.Activated:Connect(function()
 			if sellButton.Active then
