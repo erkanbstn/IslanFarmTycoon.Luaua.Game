@@ -308,6 +308,10 @@ function GoalCard.create(stats: Frame, onboarding: Onboarding.Hud): Hud
 		if #chores < 2 and FarmMath.getReadyContractCount(state, now, 0) > 0 then
 			table.insert(chores, "Ahır siparişi teslime hazır")
 		end
+		local fullGoods = FarmMath.getFullGoods(state)
+		if #chores < 2 and #fullGoods > 0 then
+			table.insert(chores, `Ahır deposu dolmak üzere: {Config.GOODS[fullGoods[1]].displayName}`)
+		end
 		return chores
 	end
 

@@ -169,6 +169,7 @@ function MenuBar.create(screenGui: Instance, onUnlocked: ((message: string) -> (
 	local setUpgradesBadge = UiKit.badge(upgradesButton)
 	local setProductionBadge = UiKit.badge(productionButton)
 	local setRewardsBadge = UiKit.badge(rewardsButton)
+	local setInventoryBadge = UiKit.badge(inventoryButton) -- dolmak üzere olan ahır deposu ürünleri
 
 	local function updateProductionBadge(state: PlayerSave?)
 		local ready = 0
@@ -185,6 +186,7 @@ function MenuBar.create(screenGui: Instance, onUnlocked: ((message: string) -> (
 
 	local function updateBadges(state: PlayerSave)
 		updateProductionBadge(state)
+		setInventoryBadge(#FarmMath.getFullGoods(state))
 		local animals, upgrades = 0, 0
 		for _, animalId in Config.ANIMAL_ORDER do
 			if

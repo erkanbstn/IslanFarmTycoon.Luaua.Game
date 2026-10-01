@@ -1027,4 +1027,5 @@ return {
 	["Ürünlerle takas edildi"] = "Traded with goods",
 	["Ürünlerin değeri yetmiyor (gereken {}, eldeki {})"] = "Goods are not worth enough (need {1}, have {2})",
 	["Ürünler artık yetmiyor"] = "The goods no longer suffice",
+	["Ahır deposu dolmak üzere: {}"] = "Barn storage almost full: {1}",
 }

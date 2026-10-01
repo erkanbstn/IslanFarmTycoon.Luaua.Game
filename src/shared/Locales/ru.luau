@@ -1025,4 +1025,5 @@ return {
 	["Ürünlerle takas edildi"] = "Обмен на товар выполнен",
 	["Ürünlerin değeri yetmiyor (gereken {}, eldeki {})"] = "Стоимости товаров не хватает (нужно {1}, есть {2})",
 	["Ürünler artık yetmiyor"] = "Товара уже не хватает",
+	["Ahır deposu dolmak üzere: {}"] = "Склад амбара почти полон: {1}",
 }

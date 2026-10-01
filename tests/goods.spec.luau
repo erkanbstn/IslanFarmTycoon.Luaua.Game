@@ -221,6 +221,21 @@ return function(codec: any, config: any, farmMath: any, rules: any, logic: any)
 		)
 	end
 
+	-- Doluluk uyarısı: kapasitenin GOODS_FULL_WARNING oranına ulaşan ürünler listelenir
+	local warn = newSave()
+	warn.goods = {}
+	assert(#farmMath.getFullGoods(warn) == 0, "an empty barn warns about nothing")
+	local warnCap = farmMath.getGoodsCap(warn)
+	local limit = math.ceil(warnCap * config.GOODS_FULL_WARNING)
+	farmMath.addGoods(warn, "egg", limit - 1)
+	assert(#farmMath.getFullGoods(warn) == 0, "just under the threshold is quiet")
+	farmMath.addGoods(warn, "egg", 1)
+	farmMath.addGoods(warn, "milk", warnCap)
+	local fullList = farmMath.getFullGoods(warn)
+	assert(#fullList == 2 and fullList[1] == "milk" and fullList[2] == "egg", "full goods follow the goods order")
+	farmMath.sellGoods(warn, "milk", "all")
+	assert(#farmMath.getFullGoods(warn) == 1, "selling clears the warning")
+
 	-- Takas: yığılmış ürünlerden başlar, yeterli değilse plan yok, plan uygulanınca ürünler düşer
 	local barter = newSave()
 	barter.goods = {}

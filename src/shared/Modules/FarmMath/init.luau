@@ -50,6 +50,7 @@ FarmMath.getGoodsSpace = Goods.getGoodsSpace
 FarmMath.addGoods = Goods.addGoods
 FarmMath.removeGoods = Goods.removeGoods
 FarmMath.getGoodsWorth = Goods.getGoodsWorth
+FarmMath.getFullGoods = Goods.getFullGoods
 FarmMath.getGoodsSellAmount = Goods.getSellAmount
 FarmMath.getGoodsSellValue = Goods.getSellValue
 FarmMath.sellGoods = Goods.sellGoods

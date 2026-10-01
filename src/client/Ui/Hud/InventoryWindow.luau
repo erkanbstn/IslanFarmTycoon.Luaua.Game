@@ -224,9 +224,13 @@ function InventoryWindow.create(screenGui: Instance): Panel
 		local now = Workspace:GetServerTimeNow()
 		-- Ahır deposu
 		local cap = FarmMath.getGoodsCap(state)
+		local fullGoods = FarmMath.getFullGoods(state)
 		for goodId, card in goodsCards do
 			local amount = FarmMath.getGoodsAmount(state, goodId)
-			card.detail.Text = `{amount}/{cap} · Değer {FarmMath.formatMoney(amount * Config.GOODS[goodId].value)}`
+			local worth = FarmMath.formatMoney(amount * Config.GOODS[goodId].value)
+			card.detail.Text = if table.find(fullGoods, goodId)
+				then `{amount}/{cap} · Depo dolu · Değer {worth}`
+				else `{amount}/{cap} · Değer {worth}`
 			card.frame.BackgroundTransparency = if amount > 0 then 0 else 0.5
 			local halfAmount = FarmMath.getGoodsSellAmount(state, goodId, "half")
 			if amount > 0 then

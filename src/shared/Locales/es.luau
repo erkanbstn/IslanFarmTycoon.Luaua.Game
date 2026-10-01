@@ -1027,4 +1027,5 @@ return {
 	["Ürünlerle takas edildi"] = "Canje con productos hecho",
 	["Ürünlerin değeri yetmiyor (gereken {}, eldeki {})"] = "El valor de los productos no alcanza (hace falta {1}, hay {2})",
 	["Ürünler artık yetmiyor"] = "Los productos ya no alcanzan",
+	["Ahır deposu dolmak üzere: {}"] = "Almacén del granero casi lleno: {1}",
 }

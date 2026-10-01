@@ -91,6 +91,18 @@ function Goods.getGoodsWorth(save: PlayerSave): number
 	return total
 end
 
+-- Kapasitenin GOODS_FULL_WARNING oranına ulaşmış ürünler (GOODS_ORDER sırasıyla): menü rozeti ve hedef kartı uyarısı için
+function Goods.getFullGoods(save: PlayerSave): { string }
+	local full: { string } = {}
+	local limit = math.max(1, math.ceil(Goods.getGoodsCap(save) * Config.GOODS_FULL_WARNING))
+	for _, goodId in Config.GOODS_ORDER do
+		if Goods.getGoodsAmount(save, goodId) >= limit then
+			table.insert(full, goodId)
+		end
+	end
+	return full
+end
+
 -- Hızlı boşaltma ("Hepsini sat" / "Yarısını sat"): bir ürünün satılacak adedi ("all" = hepsi, "half" = yarısı, yukarı yuvarlanır;
 -- tek birim kaldıysa o satılır). Geçersiz kip ya da ürün yoksa 0.
 function Goods.getSellAmount(save: PlayerSave, goodId: string, mode: unknown): number

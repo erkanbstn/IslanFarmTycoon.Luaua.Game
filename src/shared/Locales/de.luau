@@ -1027,4 +1027,5 @@ return {
 	["Ürünlerle takas edildi"] = "Gegen Ware getauscht",
 	["Ürünlerin değeri yetmiyor (gereken {}, eldeki {})"] = "Der Warenwert reicht nicht (nötig {1}, vorhanden {2})",
 	["Ürünler artık yetmiyor"] = "Die Ware reicht nicht mehr",
+	["Ahır deposu dolmak üzere: {}"] = "Scheunenlager fast voll: {1}",
 }

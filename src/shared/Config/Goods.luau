@@ -114,6 +114,10 @@ return {
 		} :: { Types.GoodsContractTierConfig },
 	},
 
+	-- Ahır deposu uyarısı: bir ürün kapasitenin bu oranına ulaşınca Envanter menüsünde rozet ve hedef kartında "dolmak üzere" satırı çıkar
+	-- (üretim zaten yer yoksa başlamaz; oyuncu görmeden takılı kalmasın).
+	GOODS_FULL_WARNING = 0.9,
+
 	-- Hızlı boşaltma ("Hepsini sat" / "Yarısını sat"): depodaki ürün, değerinin `rate` katına paraya çevrilir. Sipariş ödülü her zaman en az
 	-- değer x 1.05 olduğundan sipariş hâlâ en iyi seçenektir; üretimin depoya sığmayan fazlası da aynı oranla paraya çevrilir (kaçak olmasın).
 	GOODS_SELL = {
