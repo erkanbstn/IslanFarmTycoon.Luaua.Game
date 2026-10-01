@@ -41,6 +41,7 @@ return function(createService: any, Logic: any, Config: any)
 			"season",
 			"golden",
 			"order",
+			"goodsSale",
 			"production",
 			"refund",
 		}

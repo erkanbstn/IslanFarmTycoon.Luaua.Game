@@ -1014,4 +1014,11 @@ return {
 	["Destek"] = "Support",
 	["Tüccar Toptan"] = "Merchant Bulk",
 	["Dev Karma"] = "Giant Mix",
+	["Ürün satıldı"] = "Goods sold",
+	["{} adet"] = "{1} pcs",
+	["Yarısı"] = "Half",
+	["Hepsi"] = "All",
+	["Bilinmeyen ürün"] = "Unknown product",
+	["Satacak ürün yok"] = "Nothing to sell",
+	["Hızlı satış ürün değerinin %{}'ini öder; ahır siparişi her zaman daha çok kazandırır."] = "Quick sale pays %{1} of the goods' value; barn orders always pay more.",
 }

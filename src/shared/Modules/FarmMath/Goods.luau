@@ -91,4 +91,98 @@ function Goods.getGoodsWorth(save: PlayerSave): number
 	return total
 end
 
+-- Hızlı boşaltma ("Hepsini sat" / "Yarısını sat"): bir ürünün satılacak adedi ("all" = hepsi, "half" = yarısı, yukarı yuvarlanır;
+-- tek birim kaldıysa o satılır). Geçersiz kip ya da ürün yoksa 0.
+function Goods.getSellAmount(save: PlayerSave, goodId: string, mode: unknown): number
+	if not Config.GOODS[goodId] then
+		return 0
+	end
+	local current = Goods.getGoodsAmount(save, goodId)
+	if mode == "all" then
+		return current
+	elseif mode == "half" then
+		return math.ceil(current / 2)
+	end
+	return 0
+end
+
+-- Satış geliri: değer x GOODS_SELL.rate (sipariş ödülünün ve takasın üstüne çıkamaz; ürün başına tam sayı)
+function Goods.getSellValue(goodId: string, amount: number): number
+	local good = Config.GOODS[goodId]
+	if not good or amount ~= amount or amount <= 0 then
+		return 0
+	end
+	return math.floor(amount * good.value * Config.GOODS_SELL.rate)
+end
+
+-- Ürünü depodan düşer ve para karşılığını (çağıran ekler) döner: (nakit, satılan adet). Satacak ürün yoksa hiçbir şey değişmez; (nil, nil).
+function Goods.sellGoods(save: PlayerSave, goodId: string, mode: unknown): (number?, number?)
+	local amount = Goods.getSellAmount(save, goodId, mode)
+	if amount <= 0 or not Goods.removeGoods(save, goodId, amount) then
+		return nil, nil
+	end
+	return Goods.getSellValue(goodId, amount), amount
+end
+
+-- Depodaki ürünlerin takasta sayılan değeri (değer x GOODS_BARTER.rate)
+function Goods.getBarterWorth(save: PlayerSave): number
+	local total = 0
+	for goodId, good in Config.GOODS do
+		total += math.floor(Goods.getGoodsAmount(save, goodId) * good.value * Config.GOODS_BARTER.rate)
+	end
+	return total
+end
+
+-- Takas planı: `price` tutarını ürünlerle karşılar. En çok yığılmış (doluluğu en yüksek) ürünlerden başlar; her üründen en az birim alınır.
+-- Döner: ({ [ürün] = adet }, sayılan değer) ya da değerler yetmiyorsa (nil, eldeki toplam). Plan uygulanmaz (uygula: Goods.applyBarter).
+function Goods.planBarter(save: PlayerSave, price: number): ({ [string]: number }?, number)
+	local rate = Config.GOODS_BARTER.rate
+	local cap = math.max(Goods.getGoodsCap(save), 1)
+	local order: { string } = {}
+	for _, goodId in Config.GOODS_ORDER do
+		if Goods.getGoodsAmount(save, goodId) > 0 then
+			table.insert(order, goodId)
+		end
+	end
+	table.sort(order, function(a: string, b: string): boolean
+		local fillA, fillB = Goods.getGoodsAmount(save, a) / cap, Goods.getGoodsAmount(save, b) / cap
+		if fillA ~= fillB then
+			return fillA > fillB
+		end
+		return a < b
+	end)
+	local plan: { [string]: number } = {}
+	local credited = 0
+	for _, goodId in order do
+		if credited >= price then
+			break
+		end
+		local unit = math.floor(Config.GOODS[goodId].value * rate)
+		if unit <= 0 then
+			continue
+		end
+		local need = math.ceil((price - credited) / unit)
+		local take = math.min(need, Goods.getGoodsAmount(save, goodId))
+		plan[goodId] = take
+		credited += take * unit
+	end
+	if credited < price then
+		return nil, Goods.getBarterWorth(save)
+	end
+	return plan, credited
+end
+
+-- Planı uygular (hepsi ya da hiçbiri): ürünleri düşer; yetmezse hiçbir şey değişmez ve false döner.
+function Goods.applyBarter(save: PlayerSave, plan: { [string]: number }): boolean
+	for goodId, amount in plan do
+		if Goods.getGoodsAmount(save, goodId) < amount then
+			return false
+		end
+	end
+	for goodId, amount in plan do
+		assert(Goods.removeGoods(save, goodId, amount), "goods vanished during a barter")
+	end
+	return true
+end
+
 return Goods

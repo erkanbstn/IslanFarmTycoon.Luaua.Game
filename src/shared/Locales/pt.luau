@@ -1014,4 +1014,11 @@ return {
 	["Destek"] = "Apoio",
 	["Tüccar Toptan"] = "Atacado do mercador",
 	["Dev Karma"] = "Grande sortido",
+	["Ürün satıldı"] = "Produtos vendidos",
+	["{} adet"] = "{1} un.",
+	["Yarısı"] = "Metade",
+	["Hepsi"] = "Tudo",
+	["Bilinmeyen ürün"] = "Produto desconhecido",
+	["Satacak ürün yok"] = "Nada para vender",
+	["Hızlı satış ürün değerinin %{}'ini öder; ahır siparişi her zaman daha çok kazandırır."] = "A venda rápida paga %{1} do valor; os pedidos do celeiro sempre pagam mais.",
 }

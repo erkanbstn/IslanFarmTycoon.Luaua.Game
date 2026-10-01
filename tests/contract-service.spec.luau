@@ -62,11 +62,14 @@ return function(
 		end,
 	})
 	local request = { OnServerEvent = signal() }
+	local sellRequest = { OnServerEvent = signal() }
 	local results: { any } = {}
 	local remotes = {
 		get = function(name: string): any
 			if name == "RequestFulfillContract" then
 				return request
+			elseif name == "RequestSellGoods" then
+				return sellRequest
 			end
 			return {
 				FireClient = function(_self: any, target: any, id: number, ok: boolean, message: string)
@@ -78,12 +81,14 @@ return function(
 	local active = true
 	local bonus = 0
 	local pushes, saves, increments = 0, 0, 0
+	local cashReasons: { string } = {}
 	local dataService = {
 		tryGet = function(target: any): any
 			return if active and target == player then data else nil
 		end,
-		addCash = function(_target: any, amount: number)
+		addCash = function(_target: any, amount: number, reason: string?)
 			data.cash += amount
+			table.insert(cashReasons, reason or "")
 		end,
 		pushState = function()
 			pushes += 1
@@ -203,5 +208,99 @@ return function(
 	local notReady = fire(offers()[2].key)
 	assert(notReady and not notReady.ok, "a farm that is not ready cannot deliver")
 	worldReady = true
+
+	-- ---------------------------------------------------------------- hızlı boşaltma (Hepsini sat / Yarısını sat)
+	local function sell(goodsId: any, mode: any, target: any?, farmId: any?): any
+		clockNow += 1
+		sequence += 1
+		local count = #results
+		sellRequest.OnServerEvent.fire(target or player, goodsId, sequence, farmId or data.activeMainFarmId, mode)
+		return if #results > count then results[#results] else nil
+	end
+	data.goods = {}
+	local milk = config.GOODS.milk
+	farmMath.addGoods(data, "milk", 11)
+	local cashBefore2, pushesBefore2, savesBefore2 = data.cash, pushes, saves
+	local half = sell("milk", "half")
+	assert(
+		half and half.ok and farmMath.getGoodsAmount(data, "milk") == 5,
+		"selling half removes the upper half, 6 of 11"
+	)
+	assert(
+		data.cash - cashBefore2 == math.floor(6 * milk.value * config.GOODS_SELL.rate),
+		"half pays value x rate for the removed units"
+	)
+	assert(cashReasons[#cashReasons] == "goodsSale", "the sale is reported to telemetry as its own source")
+	assert(pushes == pushesBefore2 + 1 and saves == savesBefore2 + 1, "a sale pushes state and saves")
+	assert(string.find(half.message, "Ürün satıldı", 1, true) ~= nil, "the player gets a confirmation")
+	local cashBefore3 = data.cash
+	local all = sell("milk", "all")
+	assert(all and all.ok and farmMath.getGoodsAmount(data, "milk") == 0, "selling all empties the stack")
+	assert(
+		data.cash - cashBefore3 == math.floor(5 * milk.value * config.GOODS_SELL.rate),
+		"all pays value x rate for the rest"
+	)
+	local nothing = sell("milk", "all")
+	assert(
+		nothing and not nothing.ok and data.cash == cashBefore3 + math.floor(5 * milk.value * config.GOODS_SELL.rate),
+		"an empty stack pays nothing"
+	)
+	farmMath.addGoods(data, "egg", 1)
+	local single = sell("egg", "half")
+	assert(single and single.ok and farmMath.getGoodsAmount(data, "egg") == 0, "half of a single unit sells that unit")
+
+	-- Doğrulama: bilinmeyen ürün, geçersiz kip, yanlış tür, yabancı oyuncu, çiftlik uyuşmazlığı, tekrar, hız sınırı
+	farmMath.addGoods(data, "down", 8)
+	local guard = data.cash
+	for _, badGoods in { "nope", "", 5, {}, "__index", string.rep("a", 80) } do
+		local reply = sell(badGoods, "all")
+		assert(reply and not reply.ok, "an unknown good is refused with a reply")
+	end
+	for _, badMode in { "everything", "", 5, {}, "ALL", false } do
+		local reply = sell("down", badMode)
+		assert(reply and not reply.ok, "an invalid mode is refused")
+	end
+	assert(data.cash == guard and farmMath.getGoodsAmount(data, "down") == 8, "refused sales change nothing")
+	local stranger2 = sell("down", "all", stranger)
+	assert(
+		stranger2 and not stranger2.ok and farmMath.getGoodsAmount(data, "down") == 8,
+		"a player without data cannot sell"
+	)
+	local wrongFarm = sell("down", "all", nil, "99")
+	assert(
+		wrongFarm and not wrongFarm.ok and farmMath.getGoodsAmount(data, "down") == 8,
+		"a request for another farm is refused"
+	)
+	local repliesBefore2 = #results
+	sellRequest.OnServerEvent.fire(player, "down", sequence, data.activeMainFarmId, "all")
+	assert(
+		#results == repliesBefore2 and farmMath.getGoodsAmount(data, "down") == 8,
+		"a replayed request id is ignored"
+	)
+	-- Hız sınırı: saat ilerlemeden ikinci satış reddedilir
+	sequence += 1
+	clockNow += 1
+	sellRequest.OnServerEvent.fire(player, "down", sequence, data.activeMainFarmId, "half")
+	local sold = farmMath.getGoodsAmount(data, "down")
+	sequence += 1
+	sellRequest.OnServerEvent.fire(player, "down", sequence, data.activeMainFarmId, "half")
+	assert(farmMath.getGoodsAmount(data, "down") == sold and sold == 4, "a second sale inside the cooldown is refused")
+	worldReady = false
+	local notReadySell = sell("down", "all")
+	assert(
+		notReadySell and not notReadySell.ok and farmMath.getGoodsAmount(data, "down") == 4,
+		"a farm that is not ready cannot sell"
+	)
+	worldReady = true
+
+	-- Sömürü yok: satış gelirinin değeri hiçbir zaman sipariş ödülünün (ürün değeri x kademe çarpanı) altında kalmaz; sipariş teslimi satıştan fazla öder
+	local lowestFactor = math.huge
+	for _, tier in config.GOODS_CONTRACTS.tiers do
+		lowestFactor = math.min(lowestFactor, tier.rewardFactor)
+	end
+	assert(
+		config.GOODS_SELL.rate < 1 / lowestFactor,
+		"even the cheapest order tier pays more than selling the same goods"
+	)
 	print("PASS contract service: actual service ownership, replay, atomic delivery, season bonus and persistence")
 end

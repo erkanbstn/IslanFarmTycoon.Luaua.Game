@@ -106,10 +106,10 @@ function ProductionLogic.claim(
 		local added = farmMath.addGoods(root, recipe.goodsId, amount)
 		local good = config.GOODS[recipe.goodsId]
 		local message = `Ahıra eklendi · {good.displayName} · +{added}`
-		-- Depoya sığmayan kısım ürün değerinin 1.0 katıyla paraya çevrilir (boşa gitmez)
+		-- Depoya sığmayan kısım "Hepsini sat" ile aynı oranla paraya çevrilir (boşa gitmez; satıştan kaçak olmasın)
 		local overflow = amount - added
 		if overflow > 0 then
-			local cash = overflow * good.value
+			local cash = farmMath.getGoodsSellValue(recipe.goodsId, overflow)
 			hooks.addCash(cash)
 			return cash, `{message} · Fazlası paraya çevrildi · +{farmMath.formatMoney(cash)}`
 		end

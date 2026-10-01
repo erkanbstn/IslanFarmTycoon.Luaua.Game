@@ -200,7 +200,7 @@ def main() -> int:
         module("uiScaleSpec", "tests/ui-scale.spec.luau"),
         module("preferencesSpec", "tests/preferences.spec.luau"),
         module("ContractServiceFactory", "src/server/Services/ContractService.luau",
-               {"Remotes", "FarmMath", "Environment", "Rewards", "PlayerDataService", "RateLimiter", "Metrics", "RequestGuard"},
+               {"Config", "Remotes", "FarmMath", "Environment", "Rewards", "PlayerDataService", "RateLimiter", "Metrics", "RequestGuard"},
                "game, Remotes, FarmMath, Environment, Rewards, PlayerDataService, RateLimiter, Metrics, DateTime, RequestGuard"),
         module("contractServiceSpec", "tests/contract-service.spec.luau"),
         module("ProductionServiceFactory", "src/server/Services/ProductionService.luau",

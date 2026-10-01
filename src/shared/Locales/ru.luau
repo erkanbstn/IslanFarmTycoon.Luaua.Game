@@ -1012,4 +1012,11 @@ return {
 	["Destek"] = "Поддержка",
 	["Tüccar Toptan"] = "Оптовый заказ",
 	["Dev Karma"] = "Огромный микс",
+	["Ürün satıldı"] = "Товар продан",
+	["{} adet"] = "{1} шт.",
+	["Yarısı"] = "Половина",
+	["Hepsi"] = "Всё",
+	["Bilinmeyen ürün"] = "Неизвестный товар",
+	["Satacak ürün yok"] = "Нечего продавать",
+	["Hızlı satış ürün değerinin %{}'ini öder; ahır siparişi her zaman daha çok kazandırır."] = "Быстрая продажа платит %{1} стоимости товара; заказы амбара всегда выгоднее.",
 }

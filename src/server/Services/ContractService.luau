@@ -4,6 +4,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Remotes = require(Shared:WaitForChild("Remotes"))
+local Config = require(Shared:WaitForChild("Config"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 local Environment = require(Shared:WaitForChild("Modules"):WaitForChild("Environment"))
 local Rewards = require(Shared:WaitForChild("Modules"):WaitForChild("Rewards"))
@@ -37,6 +38,34 @@ function ContractService.tryFulfill(player: Player, key: unknown): (boolean, str
 	return true, `Ahır siparişi teslim edildi: +{FarmMath.formatMoney(reward)}`
 end
 
+-- Hızlı boşaltma: tek üründen "hepsi" ya da "yarısı" depo değerinin GOODS_SELL.rate katına paraya çevrilir. Ürün, kip ve para sunucuda
+-- hesaplanır (istemci yalnızca ürün kimliği ve kip gönderir); düşme ve nakit aynı adımdadır, tekrar oynatma `requestId` ile elenir.
+function ContractService.trySell(player: Player, goodsId: unknown, mode: unknown): (boolean, string?)
+	if not RateLimiter.allow(player, "sellGoods", 0.5) then
+		return false, nil
+	end
+	if typeof(goodsId) ~= "string" or not RateLimiter.validId(goodsId) or not Config.GOODS[goodsId] then
+		return false, "Bilinmeyen ürün"
+	end
+	if mode ~= "all" and mode ~= "half" then
+		return false, "Geçersiz miktar"
+	end
+	local data = PlayerDataService.tryGet(player)
+	if not data or player:GetAttribute("WorldReady") ~= true then
+		return false, "Çiftliğin henüz hazır değil"
+	end
+	local cash, amount = FarmMath.sellGoods(data, goodsId, mode)
+	if not cash or not amount then
+		return false, "Satacak ürün yok"
+	end
+	Metrics.increment("GoodsSold")
+	PlayerDataService.addCash(player, cash, "goodsSale")
+	PlayerDataService.pushState(player)
+	PlayerDataService.requestSave(player)
+	return true,
+		`Ürün satıldı · {Config.GOODS[goodsId].displayName} · {amount} adet · +{FarmMath.formatMoney(cash)}`
+end
+
 function ContractService.init()
 	Remotes.get("RequestFulfillContract").OnServerEvent
 		:Connect(function(player: Player, key: unknown, requestId: unknown, expectedFarmId: unknown)
@@ -53,6 +82,18 @@ function ContractService.init()
 			if message and typeof(requestId) == "number" then
 				Remotes.get("PurchaseResult"):FireClient(player, requestId, ok, message)
 			end
+		end)
+
+	Remotes.get("RequestSellGoods").OnServerEvent
+		:Connect(function(player: Player, goodsId: unknown, requestId: unknown, expectedFarmId: unknown, mode: unknown)
+			if not RateLimiter.acceptRequest(player, requestId) then
+				return
+			end
+			if not RequestGuard.activeFarm(player, requestId, expectedFarmId, FARM_GUARD) then
+				return
+			end
+			local ok, message = ContractService.trySell(player, goodsId, mode)
+			RequestGuard.reply(player, requestId, ok, message)
 		end)
 end
 

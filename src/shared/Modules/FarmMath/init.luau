@@ -50,6 +50,12 @@ FarmMath.getGoodsSpace = Goods.getGoodsSpace
 FarmMath.addGoods = Goods.addGoods
 FarmMath.removeGoods = Goods.removeGoods
 FarmMath.getGoodsWorth = Goods.getGoodsWorth
+FarmMath.getGoodsSellAmount = Goods.getSellAmount
+FarmMath.getGoodsSellValue = Goods.getSellValue
+FarmMath.sellGoods = Goods.sellGoods
+FarmMath.getGoodsBarterWorth = Goods.getBarterWorth
+FarmMath.planGoodsBarter = Goods.planBarter
+FarmMath.applyGoodsBarter = Goods.applyBarter
 -- Counts
 FarmMath.countInZone = Counts.countInZone
 FarmMath.countInExtension = Counts.countInExtension

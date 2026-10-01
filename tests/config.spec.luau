@@ -238,5 +238,19 @@ return function(Config: any, FarmMath: any)
 		end
 	end
 	assert(cashRecipes >= 7, "the cash facilities all have options")
+	-- Ahır deposu: hızlı satış ve takas oranları sipariş ödülünü ve birbirini aşmaz (ürünü satıp hayvan almaktan kârlı kaçak yok)
+	local sellRate, barterRate = Config.GOODS_SELL.rate, Config.GOODS_BARTER.rate
+	assert(sellRate > 0 and sellRate < 1, "bulk selling pays only part of the goods' value")
+	assert(barterRate > 0 and barterRate <= sellRate, "bartering never beats selling the goods and buying the animal")
+	local cheapestTier = math.huge
+	for _, tier in Config.GOODS_CONTRACTS.tiers do
+		cheapestTier = math.min(cheapestTier, tier.rewardFactor)
+		assert(
+			tier.rewardFactor >= 1 and tier.units >= 1 and tier.capShare > 0 and tier.lines >= 1,
+			`{tier.id}: tier shape`
+		)
+	end
+	assert(sellRate * cheapestTier < 1, "an order always pays more than bulk selling the same goods")
+	assert(Config.GOODS_CONTRACTS.maxLineUnits >= 20, "wholesale orders can reach 20+ units")
 	print("PASS config: cross-references, prerequisite graph, seasonal goals and start state")
 end

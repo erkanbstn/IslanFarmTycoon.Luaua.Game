@@ -1014,4 +1014,11 @@ return {
 	["Destek"] = "Support",
 	["Tüccar Toptan"] = "Händler-Großauftrag",
 	["Dev Karma"] = "Riesiger Mix",
+	["Ürün satıldı"] = "Ware verkauft",
+	["{} adet"] = "{1} Stk.",
+	["Yarısı"] = "Hälfte",
+	["Hepsi"] = "Alles",
+	["Bilinmeyen ürün"] = "Unbekanntes Produkt",
+	["Satacak ürün yok"] = "Nichts zu verkaufen",
+	["Hızlı satış ürün değerinin %{}'ini öder; ahır siparişi her zaman daha çok kazandırır."] = "Der Schnellverkauf zahlt %{1} des Warenwerts; Scheunenaufträge zahlen immer mehr.",
 }

@@ -35,6 +35,8 @@ export type EventName =
 	| "RequestClaimDaily"
 	| "RequestPromptProduct"
 	| "RequestFulfillContract"
+	| "RequestSellGoods"
+	| "RequestBarterAnimal"
 	| "RequestClaimAchievement"
 	| "OfflineSummary"
 	| "RequestAdminAction"
@@ -75,6 +77,8 @@ local EVENTS = {
 	"PurchaseResult", -- Sunucu -> Client (requestId, success, message?)
 	"RequestPlayerState", -- Client hazır / tekrar eşitleme
 	"RequestFulfillContract", -- Ahır siparişini depodaki ürünlerle teslim et (offerKey, requestId, expectedFarmId); sonuç PurchaseResult
+	"RequestSellGoods", -- Depodaki ürünü paraya çevir (goodsId, requestId, expectedFarmId, "all"|"half"); oran Config.GOODS_SELL, sonuç PurchaseResult
+	"RequestBarterAnimal", -- Depodaki ürünlerle hayvan satın al (animalId, requestId, expectedFarmId); oran Config.GOODS_BARTER, sonuç PurchaseResult
 	"RequestPromptProduct", -- Oyun geçidi/ürün satın alma penceresini aç ("pass"|"product", anahtar); fiyatı sunucu belirler
 	"RequestClaimDaily", -- Günlük giriş ödülünü al (_, requestId); sonuç PurchaseResult
 	"RequestClaimAchievement", -- Başarım ödülünü al (achievementId, requestId); sonuç PurchaseResult

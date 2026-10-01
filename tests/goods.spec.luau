@@ -193,6 +193,71 @@ return function(codec: any, config: any, farmMath: any, rules: any, logic: any)
 	local sources = farmMath.getContractGoods(shared)
 	assert(table.find(sources, "egg") ~= nil, "a goods center on any farm makes the good orderable")
 
+	-- ------------------------------------------------------------------ hızlı satış ve takas hesapları
+	local trade = newSave()
+	trade.goods = {}
+	farmMath.addGoods(trade, "milk", 7)
+	assert(farmMath.getGoodsSellAmount(trade, "milk", "all") == 7, "all sells the whole stack")
+	assert(farmMath.getGoodsSellAmount(trade, "milk", "half") == 4, "half rounds up")
+	assert(
+		farmMath.getGoodsSellAmount(trade, "milk", "x") == 0 and farmMath.getGoodsSellAmount(trade, "nope", "all") == 0,
+		"bad input sells nothing"
+	)
+	local cash, soldAmount = farmMath.sellGoods(trade, "milk", "half")
+	assert(
+		cash == math.floor(4 * config.GOODS.milk.value * config.GOODS_SELL.rate) and soldAmount == 4,
+		"half pays value x rate"
+	)
+	assert(farmMath.getGoodsAmount(trade, "milk") == 3, "sold units leave the barn")
+	assert(farmMath.sellGoods(trade, "egg", "all") == nil, "an empty stack sells nothing")
+	assert(
+		farmMath.getGoodsSellValue("milk", 0) == 0 and farmMath.getGoodsSellValue("milk", 0 / 0) == 0,
+		"no value for nothing"
+	)
+	for goodsId, good in config.GOODS do
+		assert(
+			farmMath.getGoodsSellValue(goodsId, 10) <= 10 * good.value * config.GOODS_SELL.rate,
+			"selling never pays above value x rate"
+		)
+	end
+
+	-- Takas: yığılmış ürünlerden başlar, yeterli değilse plan yok, plan uygulanınca ürünler düşer
+	local barter = newSave()
+	barter.goods = {}
+	farmMath.addGoods(barter, "milk", 10)
+	farmMath.addGoods(barter, "cheese", 1)
+	local worth = farmMath.getGoodsBarterWorth(barter)
+	assert(
+		worth
+			== math.floor(10 * config.GOODS.milk.value * config.GOODS_BARTER.rate)
+				+ math.floor(config.GOODS.cheese.value * config.GOODS_BARTER.rate),
+		"barter worth is value x barter rate"
+	)
+	local unit = math.floor(config.GOODS.milk.value * config.GOODS_BARTER.rate)
+	local plan, credited = farmMath.planGoodsBarter(barter, unit * 3)
+	assert(
+		plan and plan.milk == 3 and plan.cheese == nil and credited >= unit * 3,
+		"the fullest stack pays first, only what is needed"
+	)
+	local none, have = farmMath.planGoodsBarter(barter, worth + 1)
+	assert(none == nil and have == worth, "an unaffordable price has no plan and reports what the barn is worth")
+	assert(farmMath.applyGoodsBarter(barter, plan :: any), "a plan applies")
+	assert(
+		farmMath.getGoodsAmount(barter, "milk") == 7 and farmMath.getGoodsAmount(barter, "cheese") == 1,
+		"only the planned units leave"
+	)
+	assert(
+		not farmMath.applyGoodsBarter(barter, { milk = 99 }) and farmMath.getGoodsAmount(barter, "milk") == 7,
+		"a stale plan changes nothing"
+	)
+	local mixed = newSave()
+	mixed.goods = {}
+	farmMath.addGoods(mixed, "milk", 2)
+	farmMath.addGoods(mixed, "egg", 2)
+	local mixedWorth = farmMath.getGoodsBarterWorth(mixed)
+	local mixedPlan = farmMath.planGoodsBarter(mixed, mixedWorth)
+	assert(mixedPlan and mixedPlan.milk == 2 and mixedPlan.egg == 2, "a price equal to the whole barn takes everything")
+
 	-- ------------------------------------------------------------------ verim
 	local yieldSave = newSave()
 	addAnimal(yieldSave, "cow", "starter")
@@ -247,7 +312,7 @@ return function(codec: any, config: any, farmMath: any, rules: any, logic: any)
 	)
 	farmMath.removeGoods(bonusSave, "milk", preview - recipe.goodsAmount)
 	assert(rules.canStart(bonusSave, recipe, farmMath, now), "the same batch starts once the whole yield fits")
-	-- Parti toplam kapasiteyi aşsa bile boş depoda başlar; sığmayan kısım teslimde ürün değerinin 1.0 katıyla paraya çevrilir
+	-- Parti toplam kapasiteyi aşsa bile boş depoda başlar; sığmayan kısım teslimde "Hepsini sat" oranıyla paraya çevrilir
 	local hugeMath = setmetatable({
 		previewGoodsYield = function(): number
 			return 1e7
@@ -278,8 +343,9 @@ return function(codec: any, config: any, farmMath: any, rules: any, logic: any)
 	local reward = logic.claim(hugeSave, hugeSave, recipe, job, now, farmMath, config, hooks)
 	assert(farmMath.getGoodsAmount(hugeSave, "milk") == hugeCap, "the fitting part is stored")
 	assert(
-		reward == (expectedYield - hugeCap) * config.GOODS.milk.value and cashed == reward,
-		"the overflow pays goods value x1.0 in cash"
+		reward == math.floor((expectedYield - hugeCap) * config.GOODS.milk.value * config.GOODS_SELL.rate)
+			and cashed == reward,
+		"the overflow pays the bulk-sell rate in cash (never more than selling from the barn)"
 	)
 	local other = config.PRODUCTION_RECIPES.packed_milk
 	assert(rules.canStart(startSave, other, farmMath, now), "a full barn does not block cash recipes")

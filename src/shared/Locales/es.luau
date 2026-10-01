@@ -1014,4 +1014,11 @@ return {
 	["Destek"] = "Apoyo",
 	["Tüccar Toptan"] = "Mayorista",
 	["Dev Karma"] = "Gran surtido",
+	["Ürün satıldı"] = "Productos vendidos",
+	["{} adet"] = "{1} uds.",
+	["Yarısı"] = "Mitad",
+	["Hepsi"] = "Todo",
+	["Bilinmeyen ürün"] = "Producto desconocido",
+	["Satacak ürün yok"] = "Nada que vender",
+	["Hızlı satış ürün değerinin %{}'ini öder; ahır siparişi her zaman daha çok kazandırır."] = "La venta rápida paga el %{1} del valor; los pedidos del granero siempre pagan más.",
 }

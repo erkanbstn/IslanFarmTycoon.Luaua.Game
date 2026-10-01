@@ -66,7 +66,7 @@ local function totalWorth(lines: { Line }): number
 end
 
 -- Siparişin ağırlığı: ödül tabanının boyutunu belirler (ucuz ürün tabanı küçültür, pahalı ürün en çok unitRefValue sayılır).
-local function totalWeight(lines: { Line }): number
+local function ordersWeight(lines: { Line }): number
 	local weight = 0
 	for _, line in lines do
 		weight += line.amount * math.min(Config.GOODS[line.goodsId].value, Config.GOODS_CONTRACTS.unitRefValue)
@@ -95,7 +95,7 @@ end
 -- Gelir tabanı: etkin çiftliğin geliri x incomeSeconds x (siparişin ağırlığı / floorWeight)
 function Contracts.incomeFloor(incomePerSecond: number, lines: { Line }): number
 	local settings = Config.GOODS_CONTRACTS
-	return incomePerSecond * settings.incomeSeconds * totalWeight(lines) / settings.floorWeight
+	return incomePerSecond * settings.incomeSeconds * ordersWeight(lines) / settings.floorWeight
 end
 
 -- Park-Miller üreteci: pencere ve sıraya bağlı, sunucu ile client'ta aynı sonucu verir (Roblox Random gerekmez).

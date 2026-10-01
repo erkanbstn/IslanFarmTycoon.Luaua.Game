@@ -83,14 +83,46 @@ function InventoryWindow.create(screenGui: Instance): Panel
 
 	-- Ahır deposu: ürün merkezlerinin ürettiği ürünler (meydandaki Sipariş Panosu'nda "Ahır siparişleri" olarak teslim edilir)
 	local _, goodsMeta = UiKit.sectionHeader(goodsPage, "Ahır Deposu", GOODS_ORDER)
-	local goodsGrid = UiKit.grid(goodsPage, GOODS_ORDER + 1, true)
+	local goodsNote = UiKit.text(goodsPage, "", "Caption", Color.TextMuted)
+	goodsNote.LayoutOrder = GOODS_ORDER + 1
+	-- Esnek karolar (2 sütun): her ürünün altında "Yarısı" ve "Hepsi" hızlı satış düğmeleri (para ve ürün sunucuda hesaplanır)
+	local goodsGrid = UiKit.autoGrid(goodsPage, GOODS_ORDER + 2, 2)
 	local goodsCards: { [string]: UiKit.Card } = {}
+	local halfButtons: { [string]: TextButton } = {}
+	local allButtons: { [string]: TextButton } = {}
 	for index, goodId in Config.GOODS_ORDER do
 		local good = Config.GOODS[goodId]
-		local card = UiKit.tile(goodsGrid, index, good.icon, true)
+		local card = UiKit.autoTile(goodsGrid, index, good.icon)
 		card.title.Text = good.displayName
 		card.action.Visible = false
 		goodsCards[goodId] = card
+		local row = Instance.new("Frame")
+		row.Name = "SellRow"
+		row.BackgroundTransparency = 1
+		row.Size = UDim2.new(1, 0, 0, 30)
+		row.LayoutOrder = 5
+		row.Parent = card.frame
+		UiKit.list(row, 4, true)
+		local halfButton = UiKit.button(row, "", "secondary")
+		halfButton.Size = UDim2.new(0.5, -2, 1, 0)
+		halfButton.TextSize = 12
+		halfButton.LayoutOrder = 1
+		halfButtons[goodId] = halfButton
+		local allButton = UiKit.button(row, "", "secondary")
+		allButton.Size = UDim2.new(0.5, -2, 1, 0)
+		allButton.TextSize = 12
+		allButton.LayoutOrder = 2
+		allButtons[goodId] = allButton
+		halfButton.Activated:Connect(function()
+			if halfButton.Active then
+				PurchaseController.submit("RequestSellGoods", goodId, "half")
+			end
+		end)
+		allButton.Activated:Connect(function()
+			if allButton.Active then
+				PurchaseController.submit("RequestSellGoods", goodId, "all")
+			end
+		end)
 	end
 
 	-- Takılı eşyalar: slot başına bir karo
@@ -196,8 +228,26 @@ function InventoryWindow.create(screenGui: Instance): Panel
 			local amount = FarmMath.getGoodsAmount(state, goodId)
 			card.detail.Text = `{amount}/{cap} · Değer {FarmMath.formatMoney(amount * Config.GOODS[goodId].value)}`
 			card.frame.BackgroundTransparency = if amount > 0 then 0 else 0.5
+			local halfAmount = FarmMath.getGoodsSellAmount(state, goodId, "half")
+			if amount > 0 then
+				setPurchaseButton(
+					halfButtons[goodId],
+					`Yarısı · {FarmMath.formatMoney(FarmMath.getGoodsSellValue(goodId, halfAmount))}`,
+					"secondary"
+				)
+				setPurchaseButton(
+					allButtons[goodId],
+					`Hepsi · {FarmMath.formatMoney(FarmMath.getGoodsSellValue(goodId, amount))}`,
+					"primary"
+				)
+			else
+				setPurchaseButton(halfButtons[goodId], "Yarısı", "disabled")
+				setPurchaseButton(allButtons[goodId], "Hepsi", "disabled")
+			end
 		end
 		goodsMeta.Text = FarmMath.formatMoney(FarmMath.getGoodsWorth(state))
+		goodsNote.Text =
+			`Hızlı satış ürün değerinin %{math.round(Config.GOODS_SELL.rate * 100)}'ini öder; ahır siparişi her zaman daha çok kazandırır.`
 		-- Takılı eşyalar
 		local ownedAny = false
 		for slotId, card in slotCards do
