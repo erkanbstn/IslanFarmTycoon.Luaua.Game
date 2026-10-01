@@ -928,7 +928,7 @@ return {
 	["{} yükseltme al"] = "Купите {1} улучшений",
 	["Adadaki tüm tesisleri göster"] = "Показать все производства острова",
 	["Alınabilir başarımlar"] = "Доступные достижения",
-	["Hayvanlar %14 daha hızlı büyür"] = "Животные растут на 14% быстрее",
+	["Hayvanlar %25 daha hızlı büyür"] = "Животные растут на 25% быстрее",
 	["İlk hedef: ilk ineğini satın al"] = "Первая цель: купите первую корову",
 	["İlk hedef: ilk tavuğunu satın al"] = "Первая цель: купите первую курицу",
 	["İlk hedef: ilk ördeğini satın al"] = "Первая цель: купите первую утку",

@@ -215,7 +215,7 @@ function MenuBar.create(screenGui: ScreenGui): Hud
 		setMenuTile(roadmapButton, veteran or earned >= 300)
 		setMenuTile(productionButton, ownsFactory)
 		setMenuTile(islandsButton, veteran)
-		setMenuTile(homeButton, veteran)
+		setMenuTile(homeButton, true) -- "Adama Dön" her zaman görünür: oyuncular adasını bulmakta zorlanıyor
 		setMenuTile(inventoryButton, ownsItems or earned >= 1000)
 	end
 
