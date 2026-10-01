@@ -529,7 +529,7 @@ function SaveCodec.decode(
 		return nil, 0, problem
 	end
 	local source: any = if typeof(raw) == "table" then raw else {}
-	if source.version ~= 4 and source.mainFarms == nil then
+	if source.version ~= SessionLock.VERSION and source.mainFarms == nil then
 		local data, earned, err, repairs, grown = decodeFarm(raw, config, farmMath, now, newUid)
 		if data then
 			FarmProfiles.ensure(data)
@@ -807,7 +807,7 @@ function SaveCodec.encode(save: any, now: number): { [string]: any }
 		farms[id].cash = 0
 	end
 	return {
-		version = 4,
+		version = SessionLock.VERSION,
 		cash = amount(save.cash, 0),
 		mainFarms = farms,
 		activeMainFarmId = save.activeMainFarmId,

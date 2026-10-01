@@ -4,6 +4,7 @@ local SessionLock = {}
 
 export type RawSave = { [string]: any }
 local VERSION = 4
+SessionLock.VERSION = VERSION -- kayıt şema sürümünün tek kaynağı (SaveCodec de bunu kullanır)
 local MAX_REVISION = 9007199254740990
 -- acquire'ın "kilit başka sunucuda" reddi; çağıran bunu bekleyip yeniden deneyebilir.
 SessionLock.HELD = "Profil başka bir sunucuda açık"
