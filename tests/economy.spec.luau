@@ -729,16 +729,16 @@ return function(FarmMath: any, Config: any, Environment: any)
 	end
 	-- Gelir dağılımı: toplayıcılı çiftlik her şeyi kasaya yatırır; toplayıcısız park edilmiş çiftlik PARKED_FARM_PAY_RATE kadar
 	do
-		local farm = saveAt(start)
-		farm.stored = 40
-		local cash, stored = FarmMath.settleFarmIncome(farm, 100, true)
+		local settled = saveAt(start)
+		settled.stored = 40
+		local cash, stored = FarmMath.settleFarmIncome(settled, 100, true)
 		near(cash, 100 * Config.PARKED_FARM_PAY_RATE)
 		near(stored, 40)
-		cash, stored = FarmMath.settleFarmIncome(farm, 100, false)
+		cash, stored = FarmMath.settleFarmIncome(settled, 100, false)
 		near(cash, 0)
-		near(stored, math.min(140, FarmMath.getStorageCap(farm)))
-		farm.purchased.auto_collector = true
-		cash, stored = FarmMath.settleFarmIncome(farm, 100, true)
+		near(stored, math.min(140, FarmMath.getStorageCap(settled)))
+		settled.purchased.auto_collector = true
+		cash, stored = FarmMath.settleFarmIncome(settled, 100, true)
 		near(cash, 140)
 		near(stored, 0)
 	end
