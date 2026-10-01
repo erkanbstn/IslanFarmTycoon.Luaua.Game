@@ -158,11 +158,11 @@ return function(createService: any, Config: any)
 		local remotes = {
 			get = function(name: string): any
 				return {
-					FireClient = function(_self: any, _player: any, payload: any, revision: any)
+					FireClient = function(_self: any, _player: any, payload: any, second: any, third: any)
 						if name == "PlayerState" then
-							table.insert(sent, { at = clock, payload = payload, revision = revision })
+							table.insert(sent, { at = clock, payload = payload, revision = second })
 						elseif name == "EconomyTick" then
-							table.insert(economy, { at = clock, payload = payload, revision = revision })
+							table.insert(economy, { at = clock, payload = payload, revision = third })
 						end
 					end,
 				}
@@ -562,7 +562,12 @@ return function(createService: any, Config: any)
 	idle()
 	assert(#push.sent == 1, "same-frame pushState calls collapse into one packet")
 	local firstPacket = push.sent[1]
-	assert(firstPacket.payload.mainFarms == nil, "parked farm records are not sent to the client")
+	local lightFarms = firstPacket.payload.mainFarms
+	assert(
+		lightFarms ~= nil and lightFarms["1"] ~= nil and lightFarms["1"].barnLevel == firstPacket.payload.barnLevel,
+		"only a light farm view is sent to the client"
+	)
+	assert(lightFarms["1"].animals == nil and lightFarms["1"].cash == nil, "full parked farm records are not sent")
 	assert(
 		typeof(firstPacket.payload.mainFarmSummaries) == "table" and #firstPacket.payload.mainFarmSummaries == 1,
 		"summaries replace parked farm records"

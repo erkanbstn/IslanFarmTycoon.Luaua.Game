@@ -284,6 +284,15 @@ return function(
 		local farm = profiles.view(later, id)
 		assert(farm.stored <= farmMath.getStorageCap(farm), "offline income stays capped per farm")
 	end
+	-- İstemci yükü (hafif mainFarms) ile sunucu kaydı ortak FarmMath hesaplarında aynı sonucu vermeli.
+	profiles.capture(later)
+	local clientView = profiles.clientState(later, {}, {})
+	assert(
+		farmMath.getGoodsCap(clientView) == farmMath.getGoodsCap(later),
+		"client goods cap matches the server across all farms"
+	)
+	local serverGoods, clientGoods = farmMath.getContractGoods(later), farmMath.getContractGoods(clientView)
+	assert(table.concat(clientGoods, ",") == table.concat(serverGoods, ","), "client sees the same producible goods")
 	local malformed = table.clone(encoded)
 	malformed.activeMainFarmId = "6"
 	assert(codec.decode(malformed, config, farmMath, now, uid) == nil, "missing active farm fails closed")
