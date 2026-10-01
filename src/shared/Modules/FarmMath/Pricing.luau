@@ -16,10 +16,12 @@ local Pricing = {}
 
 export type PriceKind = "upgrade" | "animal" | "expansion" | "farm"
 
--- Çiftliğin zorluk kademesi: alım sırası (save.tier); eksik/bozuk kayıt 1. kademedir.
+-- Çiftliğin zorluk kademesi = TEMA numarası (çiftlik numarası; Config.THEMES sırası). Alım sırası serbesttir, fiyat ve zorluk temaya bağlıdır;
+-- eksik/bozuk kimlik 1. kademedir. Tek yer burasıdır.
 function Pricing.getTier(save: PlayerSave?): number
-	local tier = if save then save.tier else nil
-	if typeof(tier) ~= "number" or tier ~= tier then
+	local farmId = if save then save.farmId or save.activeMainFarmId else nil
+	local tier = if typeof(farmId) == "string" then tonumber(farmId) else nil
+	if tier == nil or tier ~= tier then
 		return 1
 	end
 	return math.clamp(math.floor(tier), 1, #Config.DIFFICULTY.tiers)
@@ -138,7 +140,7 @@ end
 --   "upgrade":   id = yükseltme kimliği (ada, bölge, bina, ahır, eklenti, seviye zincirleri); level kullanılmaz.
 --   "animal":    id = hayvan kimliği; level = zaten sahip olunan sayı (varsayılan: çiftlikteki gerçek sayı) -> sıradaki hayvanın fiyatı.
 --   "expansion": id = bölge ya da tesis kimliği; level = ulaşılmış seviye (varsayılan: gerçek seviye) -> sonraki seviyenin fiyatı.
---   "farm":      level = alınacak çiftliğin sırası (sahip olunan sayı + 1); çiftlik çarpanı uygulanmaz.
+--   "farm":      level = alınacak çiftliğin TEMA numarası (MAIN_FARM_PRICES[tema]); çiftlik çarpanı uygulanmaz.
 -- Bilinmeyen kimlik ve en üst seviye math.huge döner.
 function Pricing.getPrice(save: PlayerSave?, kind: PriceKind, id: string?, level: number?): number
 	if kind == "upgrade" then

@@ -1,7 +1,7 @@
 --!strict
 -- Gerçek PlayerDataService test runner tarafından bir factory içine alınır.
 -- Sadece Roblox servisleri/saat/scheduler taklit edilir; kayıt algoritması aynıdır.
-return function(createService: any, Config: any)
+return function(createService: any, Config: any, saveVersion: number)
 	local function copy(value: any): any
 		if typeof(value) ~= "table" then
 			return value
@@ -534,7 +534,7 @@ return function(createService: any, Config: any)
 		end),
 		"release before corruption"
 	)
-	local corrupt = { version = 4, mainFarms = 5, activeMainFarmId = "1", _revision = t.store.raw._revision }
+	local corrupt = { version = saveVersion, mainFarms = 5, activeMainFarmId = "1", _revision = t.store.raw._revision }
 	t.store.raw = corrupt
 	t.player.Parent = true
 	local recovered = t.call(function()
@@ -554,7 +554,7 @@ return function(createService: any, Config: any)
 	-- Gelecek sürüm: yedekle ezilmez (yükleme reddedilir, karantina yok)
 	local future = fixture()
 	future.store.raw = { version = 99, _revision = 3 }
-	future.store.extra["player_42_backup1"] = { version = 4, _backupAt = 1 }
+	future.store.extra["player_42_backup1"] = { version = saveVersion, _backupAt = 1 }
 	assert(not future.call(function()
 		return future.service.load(future.player)
 	end), "future schema is rejected")
@@ -565,7 +565,7 @@ return function(createService: any, Config: any)
 
 	-- Yedek yoksa bozuk kayıt yine kapalı kalır (veri uydurulmaz)
 	local noBackup = fixture()
-	noBackup.store.raw = { version = 4, mainFarms = 5, activeMainFarmId = "1" }
+	noBackup.store.raw = { version = saveVersion, mainFarms = 5, activeMainFarmId = "1" }
 	assert(not noBackup.call(function()
 		return noBackup.service.load(noBackup.player)
 	end), "corrupt primary without backup fails closed")

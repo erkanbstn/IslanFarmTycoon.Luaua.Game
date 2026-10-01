@@ -6,13 +6,7 @@ local Production = {}
 
 -- Yardımcı ile otomatik tekrar (isteğe bağlı): yalnızca tanınan tarif, geçerli parti ve satın alınmış yardımcı kabul edilir.
 -- Dönüş: onarım sayısı.
-function Production.decodeAutoRepeat(
-	source: any,
-	save: any,
-	config: any,
-	farmMath: any,
-	ghostIsland: (string?) -> boolean
-): number
+function Production.decodeAutoRepeat(source: any, save: any, config: any, farmMath: any): number
 	local repairs = 0
 	if typeof(source.autoRepeat) == "table" then
 		for recipeId, optionId in source.autoRepeat do
@@ -20,7 +14,7 @@ function Production.decodeAutoRepeat(
 			local kind = if recipe then farmMath.petKindFor(recipe) else nil
 			local optionOk = typeof(optionId) == "string"
 				and (optionId == "default" or farmMath.findProductionOption(recipe, optionId) ~= nil)
-			if recipe and kind and farmMath.hasPet(save, kind) and optionOk and not ghostIsland(recipe.island) then
+			if recipe and kind and farmMath.hasPet(save, kind) and optionOk then
 				save.autoRepeat[recipe.id] = optionId
 			else
 				repairs += 1
@@ -31,12 +25,7 @@ function Production.decodeAutoRepeat(
 end
 
 -- Süren işler. Dönüş: (sorun mesajı ya da nil, onarım sayısı); sorun varsa kayıt reddedilir.
-function Production.decodeJobs(
-	source: any,
-	save: any,
-	config: any,
-	ghostIsland: (string?) -> boolean
-): (string?, number)
+function Production.decodeJobs(source: any, save: any, config: any): (string?, number)
 	local repairs = 0
 	if source.production == nil then
 		return nil, repairs
@@ -49,10 +38,6 @@ function Production.decodeJobs(
 	for recipeId, job in source.production do
 		count += 1
 		local recipe = if typeof(recipeId) == "string" then config.PRODUCTION_RECIPES[recipeId] else nil
-		if recipe and ghostIsland(recipe.island) then
-			repairs += 1 -- temadan kalkan adadaki iş düşer (tesis bedeli Farm'da iade edildi)
-			continue
-		end
 		if
 			count > #config.PRODUCTION_ORDER
 			or not recipe

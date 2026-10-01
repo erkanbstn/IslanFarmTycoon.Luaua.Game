@@ -728,7 +728,7 @@ return function(FarmMath: any, Config: any, Environment: any)
 		-- Simülasyon: temadaki her şeyi ön koşul sırasıyla satın alabiliyor muyuz?
 		local probe = saveAt(start)
 		probe.activeMainFarmId = farmId
-		probe.tier = #Config.DIFFICULTY.tiers -- en ağır kademe: ürün gereksinimi de karşılanabilmeli (deadlock yok)
+		-- kademe = tema numarası (FarmMath.getTier): ürün gereksinimi her temanın kendi kademesinde karşılanabilmeli (deadlock yok)
 		probe.goods = {}
 		local progressed = true
 		while progressed do
@@ -791,48 +791,54 @@ return function(FarmMath: any, Config: any, Environment: any)
 		"items add to island perks"
 	)
 	assert(FarmMath.getBonus(perks, "sellBonus") > 0.15, "the diamond hammer adds sell bonus on top of the island")
-	-- Çiftlik zorluğu (alım sırası = tier): tier 1 = x1, sonrası Config.DIFFICULTY.tiers[tier].costMultiplier
+	-- Çiftlik zorluğu (kademe = TEMA numarası): tema 1 = x1, sonrası Config.DIFFICULTY.tiers[tema].costMultiplier
 	do
 		local first, second = saveAt(start), saveAt(start)
-		second.tier = 2
+		second.activeMainFarmId = "2"
 		local upgrade = Config.getUpgrade("barn_2") or Config.UPGRADES[1]
 		local mult = Config.DIFFICULTY.tiers[2].costMultiplier
-		assert(FarmMath.getFarmCostMultiplier(first) == 1, "farms without tier cost x1")
+		assert(FarmMath.getFarmCostMultiplier(first) == 1, "theme 1 costs x1")
 		assert(
 			FarmMath.getUpgradeCost(second, upgrade) == FarmMath.getUpgradeCost(first, upgrade) * mult,
-			"tier 2 upgrade"
+			"theme 2 upgrade"
 		)
 		-- Hayvan fiyatları tam sayıya yuvarlandığı için çarpan en çok 1 yuvarlama payıyla tutar
 		local function nearMultiple(actual: number, base: number)
 			assert(math.abs(actual - base * mult) <= mult, `Beklenen ~{base * mult}, sonuç {actual}`)
 		end
-		nearMultiple(FarmMath.getAnimalPrice(second, "cow"), FarmMath.getAnimalPrice(first, "cow"))
-		nearMultiple(FarmMath.getSellPrice(second, "cow"), FarmMath.getSellPrice(first, "cow"))
+		local homeOne, homeTwo = Config.getHomeAnimal("1"), Config.getHomeAnimal("2")
+		nearMultiple(FarmMath.getAnimalPrice(second, homeTwo), FarmMath.getAnimalPrice(first, homeTwo))
+		nearMultiple(FarmMath.getSellPrice(second, homeTwo), FarmMath.getSellPrice(first, homeTwo))
 		assert(
 			FarmMath.getExpansionCost(second, "starter") > FarmMath.getExpansionCost(first, "starter"),
-			"tier 2 expansion costs more"
+			"theme 2 expansion costs more"
 		)
-		second.tier = 3
+		second.activeMainFarmId = "3"
 		assert(
 			FarmMath.getFarmCostMultiplier(second) == Config.DIFFICULTY.tiers[3].costMultiplier,
-			"multiplier grows per farm"
+			"multiplier grows per theme"
 		)
-		-- Al-sat hiçbir çiftlikte kâr bırakmaz: satış, aynı çiftliğin tier'ıyla aynı çarpanı kullanır
+		-- Kademe temadan gelir, alım sırasından değil: kayıtta tier alanı olsa bile etkisizdir
+		local forged = saveAt(start)
+		forged.activeMainFarmId = "4";
+		(forged :: any).tier = 1
+		assert(FarmMath.getTier(forged) == 4, "tier is the theme number, never a stored value")
+		-- Al-sat hiçbir çiftlikte kâr bırakmaz: satış, aynı çiftliğin kademesiyle aynı çarpanı kullanır
 		for tier = 1, Config.MAIN_FARM_LIMIT do
 			local sellFarm = saveAt(start)
-			sellFarm.tier = tier
-			for _, animalId in { "cow", "chicken" } do
-				for n = 1, 4 do
-					local paid = FarmMath.getAnimalPrice(sellFarm, animalId)
-					table.insert(
-						sellFarm.animals,
-						{ uid = `s-{animalId}-{tier}-{n}`, animalId = animalId, zoneId = "starter", bornAt = 0 }
-					)
-					local refund = FarmMath.getSellPrice(sellFarm, animalId)
-					assert(refund < paid, `buy-then-sell must lose money (tier {tier} {animalId} #{n})`)
-				end
+			sellFarm.activeMainFarmId = tostring(tier)
+			local animalId = Config.getHomeAnimal(tostring(tier))
+			for n = 1, 4 do
+				local paid = FarmMath.getAnimalPrice(sellFarm, animalId)
+				table.insert(
+					sellFarm.animals,
+					{ uid = `s-{animalId}-{tier}-{n}`, animalId = animalId, zoneId = "starter", bornAt = 0 }
+				)
+				local refund = FarmMath.getSellPrice(sellFarm, animalId)
+				assert(refund < paid, `buy-then-sell must lose money (theme {tier} {animalId} #{n})`)
 			end
 		end
+		assert(homeOne ~= homeTwo, "the first two themes start with different animals")
 	end
 	-- Dinamik fiyat (FarmMath.getPrice): Çiftlik 1 yazılı tabanla birebir, kademe arttıkça her fiyat artar, gösterilen = tahsil edilen işlev
 	do
@@ -877,11 +883,11 @@ return function(FarmMath: any, Config: any, Environment: any)
 		local previous: { [string]: number } = {}
 		for tier = 1, #tiers do
 			local priced = saveAt(start)
-			priced.tier = tier
+			priced.activeMainFarmId = tostring(tier)
 			local row: { [string]: number } = {
 				upgrade = FarmMath.getPrice(priced, "upgrade", "barn_3"),
 				animal = FarmMath.getPrice(priced, "animal", "cow", 5),
-				zone = FarmMath.getPrice(priced, "expansion", "starter", 1),
+				zone = FarmMath.getPrice(priced, "expansion", "fishpen", 1), -- aynı hayvan (hamsi) her temada
 				facility = FarmMath.getPrice(priced, "expansion", "packed_milk", 1),
 			}
 			for key, value in row do
@@ -892,10 +898,10 @@ return function(FarmMath: any, Config: any, Environment: any)
 				previous[key] = value
 			end
 		end
-		for _, bad in { 0, -3, 99, 0 / 0, math.huge } do
+		for _, bad in { "0", "-3", "99", "x", "nan", "" } do
 			local broken = saveAt(start)
-			broken.tier = bad
-			assert(FarmMath.getTier(broken) >= 1 and FarmMath.getTier(broken) <= #tiers, "bad tier is clamped")
+			broken.activeMainFarmId = bad
+			assert(FarmMath.getTier(broken) >= 1 and FarmMath.getTier(broken) <= #tiers, "bad theme id is clamped")
 		end
 		assert(FarmMath.getPrice(first, "upgrade", "no-such-upgrade") == math.huge, "unknown upgrade")
 		assert(FarmMath.getPrice(first, "animal", "dragon") == math.huge, "unknown animal")
@@ -906,19 +912,33 @@ return function(FarmMath: any, Config: any, Environment: any)
 		)
 		assert(FarmMath.getPrice(nil, "farm", nil, 2) == Config.MAIN_FARM_PRICES[2], "farm price")
 		assert(FarmMath.getPrice(nil, "farm", nil, 99) == math.huge, "no farm beyond the limit")
-		-- Ada sırası çarpanı: ilk ada ve ana ada x1; slotSpread > 0 ise orta/geç ada kademe arttıkça göreli pahalanır
-		local ordered = saveAt(start)
-		ordered.tier = #tiers
-		ordered.activeMainFarmId = "1" -- Papatya: tavuk, at, keçi
-		assert(
-			FarmMath.getSlotFactor(ordered, "home") == 1 and FarmMath.getSlotFactor(ordered, "poultry") == 1,
-			"early x1"
-		)
-		assert(
-			FarmMath.getSlotFactor(ordered, "horse") <= FarmMath.getSlotFactor(ordered, "goat"),
-			"later islands never cost less"
-		)
-		assert(FarmMath.getSlotFactor(first, "goat") == 1, "farm 1 pays no slot premium")
+		-- Ada sırası çarpanı: ana ada x1; sonraki adalar (erken, orta, geç) hiçbir zaman daha ucuz olmaz; Çiftlik 1'de etkisiz
+		for themeIndex, theme in Config.THEMES do
+			local ordered = saveAt(start)
+			ordered.activeMainFarmId = tostring(themeIndex)
+			assert(FarmMath.getSlotFactor(ordered, "home") == 1, "the home island pays no slot premium")
+			local last = 1
+			for _, islandId in theme.satellites do
+				local factor = FarmMath.getSlotFactor(ordered, islandId)
+				assert(factor >= last, `theme {themeIndex}: later islands never cost less`)
+				assert(themeIndex > 1 or factor == 1, "farm 1 pays no slot premium")
+				last = factor
+			end
+		end
+		-- Çiftlik satın alma bedeli temanın numarasına bağlıdır ve temayla birlikte artar; fiyat/çarpan oranı tutarlıdır (DIFFICULTY.tiers ile uyumlu)
+		for index = 2, #Config.MAIN_FARM_PRICES do
+			assert(
+				Config.MAIN_FARM_PRICES[index] > Config.MAIN_FARM_PRICES[index - 1],
+				"a later theme costs more to buy"
+			)
+			-- Satın alma bedeli çarpandan az büyüyemez: geç tema göreli ucuz kalmaz (en kötü alım sırası da tutarlı)
+			assert(
+				Config.MAIN_FARM_PRICES[index] / tiers[index].costMultiplier
+						>= Config.MAIN_FARM_PRICES[index - 1] / tiers[index - 1].costMultiplier
+					or index == 2,
+				`theme {index}: farm price must not fall behind the tier multiplier`
+			)
+		end
 	end
 	-- Gelir dağılımı: toplayıcılı çiftlik her şeyi kasaya yatırır; toplayıcısız park edilmiş çiftlik PARKED_FARM_PAY_RATE kadar
 	do

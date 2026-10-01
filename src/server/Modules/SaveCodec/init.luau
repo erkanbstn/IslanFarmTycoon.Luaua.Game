@@ -12,20 +12,10 @@ local Farm = require(script.Farm)
 
 local SaveCodec = {}
 
--- farmId: çiftlik numarası; başlangıç hayvanı temanın ana ada hayvanı olur
--- tier: alım sırası (1 = ilk çiftlik); fiyat çarpanını belirler
-function SaveCodec.newFarm(
-	config: any,
-	farmMath: any,
-	now: number,
-	newUid: () -> string,
-	farmId: string?,
-	tier: number?
-): any
-	local farm = assert(
-		Farm.decode({ farmId = farmId, tier = tier }, config, farmMath, now, newUid),
-		"New farm initialization failed"
-	)
+-- farmId: çiftlik numarası (= tema); başlangıç hayvanı temanın ana ada hayvanı olur, fiyat kademesi de temadan gelir
+function SaveCodec.newFarm(config: any, farmMath: any, now: number, newUid: () -> string, farmId: string?): any
+	local farm =
+		assert(Farm.decode({ farmId = farmId }, config, farmMath, now, newUid), "New farm initialization failed")
 	return FarmProfiles.extract(farm)
 end
 
@@ -41,12 +31,13 @@ function SaveCodec.decode(
 		return nil, 0, problem
 	end
 	local source: any = if typeof(raw) == "table" then raw else {}
-	if source.version ~= SessionLock.VERSION and source.mainFarms == nil then
-		local data, earned, err, repairs, grown = Farm.decode(raw, config, farmMath, now, newUid)
+	if source.version ~= SessionLock.VERSION then
+		-- Yeni oyuncu ya da eski sürüm kayıt: oyun yayında olmadığından göç yoktur, temiz yeni oyun başlar
+		-- (kilit/revizyon alanları DataStore katmanındadır; yazımda yeni sürümle üzerine yazılır).
+		local data, earned, err, repairs, grown = Farm.decode(nil, config, farmMath, now, newUid)
 		if data then
 			FarmProfiles.ensure(data)
-			-- Yeni ya da eski tek çiftlikli kayıtlar boş envanterle başlar
-			data.inventory = data.inventory or { items = {}, equipped = {}, uses = {} }
+			data.inventory = { items = {}, equipped = {}, uses = {} }
 		end
 		return data, earned, err, repairs, grown
 	end
@@ -55,15 +46,6 @@ function SaveCodec.decode(
 	end
 	local farms = {}
 	local count, earnedTotal, repairTotal, refundedTotal, grownTotal = 0, 0, 0, 0, 0
-	-- Eski kayıtlarda depo ve sipariş çiftlik içindeydi: hepsi toplanıp hesap düzeyine taşınır
-	local legacyGoods: { [string]: number } = {}
-	local legacyContracts: any = nil
-	-- Eski kayıtlarda alım sırası yoktu: eksik tier = 1 (var olan çiftliklerin fiyatı geriye dönük artmaz).
-	-- Yalnızca bundan sonra satın alınan çiftlik sıradaki tier'ı alır (MainFarmService). tier çiftlik sayısını aşamaz.
-	local farmTotal = 0
-	for _ in source.mainFarms do
-		farmTotal += 1
-	end
 	for id, rawFarm in source.mainFarms do
 		count += 1
 		local numberId = if typeof(id) == "string" then tonumber(id) else nil
@@ -80,21 +62,10 @@ function SaveCodec.decode(
 		end
 		local farmInput = table.clone(rawFarm)
 		farmInput.farmId = id
-		if id == "1" then
-			farmInput.tier = 1 -- ilk çiftlik her zaman x1
-		elseif SessionLock.isFinite(farmInput.tier) then
-			farmInput.tier = math.min(farmInput.tier, math.max(farmTotal, 1))
-		end
 		farmInput.cash = 0 -- Cüzdan sadece kök kayıttan gelir; taşıma iadeleri ayrıca eklenir.
 		local farm, earned, err, repairs, grown = Farm.decode(farmInput, config, farmMath, now, newUid)
 		if not farm then
 			return nil, 0, err
-		end
-		for goodId, amountStored in farm.goods or {} do
-			legacyGoods[goodId] = (legacyGoods[goodId] or 0) + amountStored
-		end
-		if id == source.activeMainFarmId then
-			legacyContracts = farm.contracts
 		end
 		farms[id] = FarmProfiles.extract(farm)
 		refundedTotal += farm.cash
@@ -113,7 +84,7 @@ function SaveCodec.decode(
 	data.mainFarms = farms
 	data.activeMainFarmId = source.activeMainFarmId
 	-- Ortak ahır deposu (limit: tüm ahırların toplamı) ve ahır siparişleri
-	local accountGoods: { [string]: number }
+	local accountGoods: { [string]: number } = {}
 	if source.goods ~= nil then
 		local parsed, fixed = Goods.parseGoods(source.goods, config, 1e9)
 		if not parsed then
@@ -121,8 +92,6 @@ function SaveCodec.decode(
 		end
 		accountGoods = parsed
 		repairTotal += fixed
-	else
-		accountGoods = legacyGoods
 	end
 	local goodsCap = farmMath.getGoodsCap(data)
 	for goodId, stored in accountGoods do
@@ -137,8 +106,6 @@ function SaveCodec.decode(
 		end
 		data.contracts = parsed
 		repairTotal += fixed
-	elseif legacyContracts then
-		data.contracts = legacyContracts
 	end
 	Account.decode(source, data, config)
 	data.inventory = Inventory.decode(source.inventory, config)

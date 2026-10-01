@@ -160,16 +160,16 @@ return function(codec: any, config: any, farmMath: any, rules: any, logic: any)
 		"a non-table barn fails closed, preserving the save"
 	)
 
-	-- Eski kayıt: depo çiftlik içindeydi; bütün çiftliklerin depoları hesap deposunda toplanır
+	-- Depo hesap düzeyindedir: çiftlik kayıtlarındaki eski `goods` alanı artık okunmaz (göç yok)
 	local legacy = codec.encode(stored, now)
 	legacy.goods = nil
 	legacy.mainFarms["1"].goods = { milk = 5 }
 	legacy.mainFarms["2"] = table.clone(legacy.mainFarms["1"])
 	legacy.mainFarms["2"].goods = { milk = 9, egg = 4 }
-	local folded = assert(codec.decode(legacy, config, farmMath, now, uid), "a legacy per-farm barn folds in")
+	local folded = assert(codec.decode(legacy, config, farmMath, now, uid), "a per-farm barn field is ignored")
 	assert(
-		farmMath.getGoodsAmount(folded, "milk") == 14 and farmMath.getGoodsAmount(folded, "egg") == 4,
-		"legacy per-farm goods are summed into the shared barn"
+		farmMath.getGoodsAmount(folded, "milk") == 0 and farmMath.getGoodsAmount(folded, "egg") == 0,
+		"per-farm goods are not folded into the shared barn any more"
 	)
 
 	-- ------------------------------------------------------------------ ortak depo limiti

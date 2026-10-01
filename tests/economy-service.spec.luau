@@ -4,26 +4,15 @@ return function(createEconomy: any, createLimiter: any, codec: any, config: any,
 	local now = 100000
 	local serial = 0
 	local function newData(): any
-		return assert(
-			codec.decode(
-				{
-					version = 3,
-					cash = 10,
-					stored = 0,
-					purchased = {},
-					animals = { { uid = "cow-1", animalId = "cow", zoneId = "starter", bornAt = 0 } },
-					production = {},
-				},
-				config,
-				farmMath,
-				now,
-				function(): string
-					serial += 1
-					return `loop-test-{serial}`
-				end
-			),
-			"decode"
-		)
+		local function nextUid(): string
+			serial += 1
+			return `loop-test-{serial}`
+		end
+		local seed = assert(codec.decode(nil, config, farmMath, now, nextUid), "new account")
+		seed.cash, seed.stored, seed.purchased = 10, 0, {}
+		seed.animals = { { uid = "cow-1", animalId = "cow", zoneId = "starter", bornAt = 0, stage = "adult" } }
+		seed.production = {}
+		return assert(codec.decode(codec.encode(seed, now), config, farmMath, now, nextUid), "decode")
 	end
 	local healthy: any = { Parent = {} }
 	local broken: any = { Parent = {} }

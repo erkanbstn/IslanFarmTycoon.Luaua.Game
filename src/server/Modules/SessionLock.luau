@@ -3,7 +3,8 @@
 local SessionLock = {}
 
 export type RawSave = { [string]: any }
-local VERSION = 4
+-- 5: 24 benzersiz hayvanlı çiftlikler (tema/ada/hayvan kimlikleri değişti); eski sürüm kayıt temiz yeni oyuna döner (SaveCodec.decode).
+local VERSION = 5
 SessionLock.VERSION = VERSION -- kayıt şema sürümünün tek kaynağı (SaveCodec de bunu kullanır)
 local MAX_REVISION = 9007199254740990
 -- acquire'ın "kilit başka sunucuda" reddi; çağıran bunu bekleyip yeniden deneyebilir.

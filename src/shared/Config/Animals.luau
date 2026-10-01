@@ -192,10 +192,4 @@ return {
 		young = "Genç",
 		adult = "Yetişkin",
 	} :: { [string]: string },
-
-	-- Eski kayıtlardaki kaldırılmış yol haritası id'leri → yeni karşılıkları
-	LEGACY_UPGRADES = {
-		zone_poultry = "island_poultry",
-		zone_stable = "island_horse",
-	} :: { [string]: string },
 }

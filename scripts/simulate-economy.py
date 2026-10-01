@@ -97,7 +97,7 @@ local TOTAL = HOURS * 3600
 local USER_ID = 424242 -- altın hayvan pencereleri bu kimlikten türer (deterministik)
 
 local save: any = {
-	cash = Config.getStartingCash(FARM) * Config.DIFFICULTY.tiers[S.tier].costMultiplier,
+	cash = Config.getStartingCash(FARM) * Config.DIFFICULTY.tiers[tonumber(FARM) or 1].costMultiplier, -- kademe = tema numarası
 	stored = 0,
 	purchased = {},
 	animals = {},
@@ -109,7 +109,6 @@ local save: any = {
 	goods = {},
 	lifetimeEarned = 0,
 	activeMainFarmId = FARM,
-	tier = S.tier,
 }
 local homeAnimal = Config.getHomeAnimal(FARM)
 for index = 1, Config.STARTING_COW_COUNT do
@@ -304,7 +303,13 @@ local function ownedFarmCount(): number
 	return count
 end
 
+-- Alım sırası: S.order (tema numaraları; ör. 1,6,5) verilmişse ondan, yoksa en küçük sahip olunmayan tema
 local function nextFarmId(): string?
+	for _, index in S.order do
+		if save.mainFarms[tostring(index)] == nil then
+			return tostring(index)
+		end
+	end
 	for index = 1, Config.MAIN_FARM_LIMIT do
 		if save.mainFarms[tostring(index)] == nil then
 			return tostring(index)
@@ -318,7 +323,7 @@ local function buyFarm(farmId: string, price: number)
 	local farm = SaveCodec.newFarm(Config, FarmMath, now, function(): string
 		uidCounter += 1
 		return `farm-{uidCounter}`
-	end, farmId, ownedFarmCount() + 1)
+	end, farmId)
 	FarmProfiles.capture(save)
 	save.mainFarms[farmId] = farm
 	farmsBought += 1
@@ -657,7 +662,7 @@ local function invest()
 		end
 		-- Yeni çiftlik: fiyatı, bu çiftlikte alınabilecek en ucuz yatırımdan düşükse (ya da yatırım kalmadıysa) alınır
 		local farmId = nextFarmId()
-		local farmPrice = FarmMath.getPrice(save, "farm", nil, ownedFarmCount() + 1)
+		local farmPrice = if farmId then FarmMath.getPrice(save, "farm", nil, tonumber(farmId)) else nil
 		-- finishFirst: bir sonraki çiftlik yalnızca etkin çiftliğin tüm yükseltmeleri bitince alınır (çiftlik tamamlama süresi ölçümü)
 		local farmDue = if S.finishFirst then milestones[farmPrefix() .. "TÜM YÜKSELTMELER"] ~= nil else farmPrice ~= nil and farmPrice <= nextCost
 		if S.farms > ownedFarmCount() and farmId and farmPrice and farmPrice <= save.cash and farmDue then
@@ -1107,7 +1112,7 @@ def main() -> int:
     parser.add_argument("--hours", type=float, default=6.0, help="Simüle edilecek süre (saat)")
     parser.add_argument("--days", type=float, help="Simüle edilecek süre (gün); --hours'u ezer")
     parser.add_argument("--farm", default="1", help="Başlangıç çiftliği numarası (tema): 1-6")
-    parser.add_argument("--tier", type=int, default=1, help="Başlangıç çiftliğinin zorluk kademesi (alım sırası, save.tier): 1-6")
+    parser.add_argument("--order", default="", help="Çiftlik alım sırası (tema numaraları, virgülle; ör. 1,6,5,4,3,2 = en kötü sıra); boşsa 1,2,3...")
     parser.add_argument("--mults", default="", help="Deneme: kademe çiftlik çarpanları (virgülle: 1,2,3...); boşsa Config.DIFFICULTY")
     parser.add_argument("--cost-base", type=float, default=600, help="Deneme: bu değerin üstündeki yükseltme maliyetleri büyütülür")
     parser.add_argument("--cost-exp", type=float, default=0, help="Deneme: maliyet üssü (0 = kapalı)")
@@ -1163,7 +1168,7 @@ def main() -> int:
         "rewards": bool(pick("rewards", args.rewards, False)),
         "goldenChance": float(pick("golden", args.golden_chance, 1.0)),
         "farms": int(pick("farms", args.farms, 1)),
-        "tier": max(1, args.tier),
+        "order": [int(item) for item in args.order.split(",") if item.strip()],
         "finishFirst": args.finish_first,
         "mults": [float(item) for item in args.mults.split(",") if item.strip()],
         "sellAbove": float(pick("sell_above", args.sell_above, 0)),

@@ -172,9 +172,13 @@ return function(createService: any, createHarness: any, createLimiter: any, code
 
 	-- Ürünle açılış: para ve ürün tek adımda düşer; biri yetmezse hiçbir şey düşmez; yanlış çiftlik ve tekrar istek ödeme almaz
 	local gated = setup()
-	local gate = assert(config.getUpgrade("island_poultry"), "an island that asks goods in later farms")
+	local themeTwo = config.THEMES[2]
+	local gate = assert(
+		config.getUpgrade(config.FARM_ISLANDS[themeTwo.satellites[1]].upgradeId),
+		"the first island of theme 2 asks goods (tier = theme number)"
+	)
 	local gd = gated.data
-	gd.tier = 2
+	gd.activeMainFarmId = "2"
 	gd.purchased.barn_2 = true
 	farmMath.applyDerived(gd)
 	local goodsId, need = next(farmMath.getGoodsCost(gd, gate))
@@ -216,7 +220,7 @@ return function(createService: any, createHarness: any, createLimiter: any, code
 	assert(again and again.ok == false and gd.goods[goodsId] == 3, "an owned unlock takes no goods")
 	-- İstemci fiyat ya da ürün gönderemez: fazladan alanlar yok sayılır, tür dışı kimlik reddedilir
 	local forged = setup()
-	forged.data.tier = 2
+	forged.data.activeMainFarmId = "2"
 	forged.data.purchased.barn_2 = true
 	farmMath.applyDerived(forged.data)
 	forged.data.cash = gatePrice * 2
@@ -228,7 +232,7 @@ return function(createService: any, createHarness: any, createLimiter: any, code
 		"forged arguments change nothing"
 	)
 	local rapid = setup()
-	rapid.data.tier = 2
+	rapid.data.activeMainFarmId = "2"
 	rapid.data.purchased.barn_2 = true
 	farmMath.applyDerived(rapid.data)
 	rapid.data.cash = gatePrice * 2

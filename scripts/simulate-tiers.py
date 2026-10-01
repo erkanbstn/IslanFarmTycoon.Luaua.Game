@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 """Çiftlik kademeleri tablosu: çok çiftlikli oyuncu her çiftliği bitirip sıradakini alır (simulate-economy.py --finish-first).
 
-Her oyuncu tipi (ideal/casual/idle) için çiftlik başına: satın alma zamanı, ada açılışları, "tüm yükseltmeler" ve satın almadan
-tamamlamaya geçen süre. Doğrular: her çiftlik bitiyor (deadlock yok: ürün gereksinimleri dahil), ideal oyuncuda süre kademe arttıkça artıyor (casual/idle: Çiftlik 3'ten itibaren).
+Her oyuncu tipi (ideal/casual/idle) için tema (= kademe) başına: satın alma zamanı, satın almadan sonra ada açılışları (ritim), "tüm yükseltmeler" ve satın almadan
+tamamlamaya geçen süre. Doğrular: her çiftlik bitiyor (deadlock yok: ürün gereksinimleri dahil); `--assert-monotonic` ile süre tema 1 -> 6 her oyuncu tipinde KESİN artar.
 Hedef: Config/Difficulty.luau tiers[n].targetMinutes (ideal oyuncu). Kullanım:
 
     python scripts/simulate-tiers.py                        # ideal
     python scripts/simulate-tiers.py --personas ideal,casual,idle
     python scripts/simulate-tiers.py --mults 1,6.6,12,...   # çarpanları Config'e dokunmadan dene
+    python scripts/simulate-tiers.py --order 1,6,5,4,3,2     # en kötü alım sırası (önce en zor tema)
+    python scripts/simulate-tiers.py --personas ideal,casual,idle --assert-monotonic
 """
 
 from __future__ import annotations
@@ -26,13 +28,15 @@ SIMULATE = ROOT / "scripts" / "simulate-economy.py"
 FARMS = 6
 
 
-def run(persona: str, hours: float, mults: str, extra: list[str]) -> dict:
+def run(persona: str, hours: float, mults: str, extra: list[str], order: str = "") -> dict:
     command = [
         sys.executable, str(SIMULATE), "--persona", persona, "--hours", str(hours), "--farms", str(FARMS),
         "--finish-first", "--json", *extra,
     ]
     if mults:
         command += ["--mults", mults]
+    if order:
+        command += ["--order", order]
     env = dict(os.environ, PYTHONIOENCODING="utf-8")
     result = subprocess.run(command, cwd=ROOT, capture_output=True, env=env)
     if result.returncode != 0:
@@ -75,6 +79,12 @@ def main() -> int:
     parser.add_argument("--personas", default="ideal", help="Virgülle: ideal,casual,idle,hardcore")
     parser.add_argument("--days", type=float, default=0, help="Simüle edilecek süre (gün); 0 = oyuncu tipine göre")
     parser.add_argument("--mults", default="", help="Deneme: kademe çiftlik çarpanları (virgülle)")
+    parser.add_argument("--order", default="", help="Çiftlik alım sırası (tema numaraları; ör. 1,6,5,4,3,2 = en kötü sıra)")
+    parser.add_argument(
+        "--assert-monotonic",
+        action="store_true",
+        help="Her oyuncu tipinde tema 1 -> 6 çiftlik tamamlama süresi KESİN artmıyorsa hata (varsayılan alım sırasında)",
+    )
     args = parser.parse_args()
     sys.stdout.reconfigure(encoding="utf-8")
     personas = [name.strip() for name in args.personas.split(",") if name.strip()]
@@ -82,7 +92,9 @@ def main() -> int:
     horizon = {"ideal": 160.0, "hardcore": 240.0, "casual": 24 * 150.0, "idle": 24 * 365.0}
     with ThreadPoolExecutor(max_workers=len(personas)) as pool:
         futures = {
-            name: pool.submit(run, name, args.days * 24 if args.days else horizon.get(name, 240.0), args.mults, [])
+            name: pool.submit(
+                run, name, args.days * 24 if args.days else horizon.get(name, 240.0), args.mults, [], args.order
+            )
             for name in personas
         }
         results = {name: future.result() for name, future in futures.items()}
@@ -91,31 +103,36 @@ def main() -> int:
     for name in personas:
         data = results[name]
         rows = farm_rows(data)
-        print(f"\nOYUNCU: {name} — çiftlik tamamlama (satın almadan tüm yükseltmelere)")
-        print("  Çiftlik  alım            1. ada   2. ada   3. ada   tamam           süre        önceki x")
+        print(f"
+OYUNCU: {name} — çiftlik tamamlama (satın almadan tüm yükseltmelere){' · sıra ' + args.order if args.order else ''}")
+        print("  Tema  alım            1. ada      2. ada      3. ada      tamam       süre        önceki x")
+        print("        (adalar ve süre: satın almadan sonra)")
         previous: float | None = None
-        for row in rows:
-            islands = [format_duration(minutes) for _, minutes in row["islands"][:3]]
+        durations: list[float | None] = []
+        for row in sorted(rows, key=lambda item: (item["bought"] is None, item["bought"] or 0)):
+            bought = row["bought"]
+            islands = [format_duration(None if bought is None else minutes - bought) for _, minutes in row["islands"][:3]]
             islands += ["—"] * (3 - len(islands))
-            duration = None if row["bought"] is None or row["done"] is None else row["done"] - row["bought"]
+            duration = None if bought is None or row["done"] is None else row["done"] - bought
             ratio = "" if duration is None or previous is None else f"{duration / previous:.2f}"
             print(
-                f"  {row['tier']:>5}   {format_duration(row['bought']):<14}  "
-                + "  ".join(f"{text:<7}" for text in islands)
-                + f"  {format_duration(row['done']):<14}  {format_duration(duration):<10}  {ratio}"
+                f"  {row['tier']:>4}  {format_duration(bought):<14}  "
+                + "  ".join(f"{text:<10}" for text in islands)
+                + f"  {format_duration(duration):<10}  {ratio}"
             )
-            if duration is None and row["bought"] is not None:
+            if duration is None and bought is not None:
                 failed = True
-                print(f"    ! Çiftlik {row['tier']} süre tavanında bitmedi (deadlock ya da çok uzun)")
-            elif duration is not None:
-                shorter = previous is not None and (duration <= previous if name == "ideal" else duration < previous * 0.999)
-                if shorter and (name == "ideal" or row["tier"] > 2):
-                    failed = True
-                    print(f"    ! Çiftlik {row['tier']} süresi bir öncekinden kısa: kademe monoton artmıyor")
-                elif shorter:
-                    # Casual/idle: Çiftlik 1 oturum zincirine (üretim, geri dönüş) bağlı uzun sürer, Çiftlik 2 ise o sırada biriken kasayla hızlı biter
-                    print("    ~ Çiftlik 2, 1'den kısa: oturum sınırlı oyuncuda kasa birikir (bilinen davranış, hata sayılmaz)")
+                print(f"    ! Tema {row['tier']} süre tavanında bitmedi (deadlock ya da çok uzun)")
+            if duration is not None:
                 previous = duration
+        by_theme = {row["tier"]: (None if row["bought"] is None or row["done"] is None else row["done"] - row["bought"]) for row in rows}
+        durations = [by_theme.get(tier) for tier in range(1, FARMS + 1)]
+        if args.assert_monotonic and not args.order:
+            for tier in range(2, FARMS + 1):
+                before, after = durations[tier - 2], durations[tier - 1]
+                if before is not None and after is not None and after <= before:
+                    failed = True
+                    print(f"    ! Tema {tier} süresi ({format_duration(after)}) tema {tier - 1}'den ({format_duration(before)}) kısa/eşit: monoton artmıyor ({name})")
         goods = data.get("totals", {}).get("unlockGoods", {})
         if goods:
             print("  açılışlara harcanan ürün: " + ", ".join(f"{key} {value}" for key, value in sorted(goods.items())))

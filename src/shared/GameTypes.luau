@@ -55,7 +55,6 @@ export type InventoryData = {
 
 export type PlayerSave = {
 	activeMainFarmId: string,
-	tier: number?, -- Çiftliğin alım sırası (1 = ilk çiftlik); fiyat çarpanı 1 + Config.FARM_COST_STEP x (tier-1). Yoksa 1
 	farmId: string?, -- Yalnızca etkin olmayan çiftlik görünümlerinde: o çiftliğin numarası (tema için)
 	adminForce: { [string]: any }?, -- Yönetici olay test araçları (çalışma anı; kaydedilmez)
 	passes: { [string]: boolean }?, -- Doğrulanmış oyun geçitleri (kaydedilmez; sunucu MarketplaceService'ten yazar)

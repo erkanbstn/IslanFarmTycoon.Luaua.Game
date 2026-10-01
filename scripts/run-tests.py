@@ -267,7 +267,7 @@ def main() -> int:
         "configSpec(Config, FarmMath)\n",
         "inventorySpec(Inventory, Config, FarmMath, SaveCodec, SessionLock, FarmProfiles)\n",
         "monetizationSpec(ReceiptLog, FarmMath, Config, SaveCodec)\n",
-        "playerDataSpec(PlayerDataFactory, Config)\n",
+        "playerDataSpec(PlayerDataFactory, Config, SessionLock.VERSION)\n",
         "rateLimiterSpec(RateLimiterFactory)\n",
         "seasonsSpec(SeasonVisuals, EnvironmentFactory, Config)\n",
         "plotStartupSpec(PlotServiceFactory, Config)\n",

@@ -52,15 +52,27 @@ return function(lock: any, codec: any, config: any, farmMath: any)
 		"new save defaults must match Config"
 	)
 	assert(save.contracts.completed == 0 and next(save.contracts.done) == nil, "new profiles start with no barn orders")
-	local corrupt = { version = 1, cash = math.huge, stored = 0 / 0, purchased = { "unknown" }, animals = {} }
+	-- Güncel şema sınırı: tek çiftlikli kayıt `mainFarms` içinde taşınır (eski sürüm göçü yoktur)
+	local function currentSave(farm: any, extra: any?): any
+		local raw: any = { version = lock.VERSION, activeMainFarmId = "1", mainFarms = { ["1"] = farm } }
+		for key, value in extra or {} do
+			raw[key] = value
+		end
+		return raw
+	end
+	local corruptAnimals = {}
 	for i = 1, config.ZONES.starter.capacity + 4 do
-		table.insert(corrupt.animals, {
+		table.insert(corruptAnimals, {
 			uid = "duplicate",
 			animalId = "cow",
 			zoneId = "starter",
 			bornAt = if i == 1 then now - 2.5 else now + 100,
 		})
 	end
+	local corrupt = currentSave(
+		{ stored = 0 / 0, purchased = { "unknown" }, animals = corruptAnimals },
+		{ cash = math.huge }
+	)
 	local normalized = assert(codec.decode(corrupt, config, farmMath, now, uid))
 	assert(lock.isFinite(normalized.cash) and normalized.stored == 0, "corrupt money must normalize to finite values")
 	assert(#normalized.animals <= config.ZONES.starter.capacity, "loaded animals must fit zone capacity")
@@ -73,103 +85,56 @@ return function(lock: any, codec: any, config: any, farmMath: any)
 	assert(normalized.animals[1].bornAt == now - 2.5, "fractional age must be preserved")
 	local encoded = codec.encode(normalized, now)
 	local second = assert(codec.decode(encoded, config, farmMath, now, uid))
-	assert(second.cash == normalized.cash and #second.animals == #normalized.animals, "migration must be idempotent")
-	assert(normalized.tier == 1 and second.tier == 1, "single-farm saves are tier 1")
-	-- Çiftlik alım sırası (tier): kayıtla gidip gelir; eski çok çiftlikli kayıtta eksik tier 1 olur; bozuk değer 1'e iner
+	assert(second.cash == normalized.cash and #second.animals == #normalized.animals, "reload must be idempotent")
+	assert(normalized.tier == nil, "the difficulty tier is derived from the theme, never saved")
+	-- Kademe = tema numarası: kayıtta tier yoktur; fiyat çiftlik numarasından gelir (FarmMath.getTier)
 	do
 		local farms = codec.encode(save, now)
+		assert(farms.mainFarms["1"].tier == nil, "farm records carry no tier")
 		farms.mainFarms["3"] = table.clone(farms.mainFarms["1"])
-		farms.mainFarms["3"].tier = 2
-		farms.mainFarms["5"] = table.clone(farms.mainFarms["1"])
-		farms.mainFarms["5"].tier = nil
 		local loaded = assert(codec.decode(farms, config, farmMath, now, uid))
-		assert(loaded.mainFarms["3"].tier == 2, "saved tier must load")
-		assert(loaded.mainFarms["5"].tier == 1, "a legacy farm without tier stays x1 (no retroactive price increase)")
-		assert(codec.encode(loaded, now).mainFarms["3"].tier == 2, "tier must survive saves")
-		farms.mainFarms["3"].tier = 0 / 0
-		local broken = assert(codec.decode(farms, config, farmMath, now, uid))
-		assert(broken.mainFarms["3"].tier == 1, "non-finite tier falls back to 1")
-		-- Eski çok çiftlikli kayıt (hiç tier yok): hepsi 1; bozuk tier 1. çiftlikte ve çiftlik sayısının üstünde sınırlanır
-		local legacy = codec.encode(save, now)
-		legacy.mainFarms["2"] = table.clone(legacy.mainFarms["1"])
-		legacy.mainFarms["3"] = table.clone(legacy.mainFarms["1"])
-		for _, farm in legacy.mainFarms do
-			farm.tier = nil
-		end
-		local migrated = assert(codec.decode(legacy, config, farmMath, now, uid))
-		for id, farm in migrated.mainFarms do
-			assert(farm.tier == 1, `legacy farm {id} must stay tier 1`)
-		end
-		legacy.mainFarms["1"].tier = 6
-		legacy.mainFarms["2"].tier = 6
-		local clamped = assert(codec.decode(legacy, config, farmMath, now, uid))
-		assert(clamped.mainFarms["1"].tier == 1, "farm 1 is always tier 1")
-		assert(clamped.mainFarms["2"].tier <= 3, "tier cannot exceed the farm count")
+		assert(farmMath.getTier(loaded) == 1, "the active farm 1 is tier 1")
+		assert(farmMath.getTier(loaded.mainFarms["3"]) == 1, "a stored farm profile has no theme of its own")
+		local view = { activeMainFarmId = "3" }
+		assert(farmMath.getTier(view) == 3, "tier follows the theme number")
+		assert(farmMath.getTier({ farmId = "5", activeMainFarmId = "1" }) == 5, "a parked farm view uses its own theme")
 	end
-	-- 3. tema göçü: eski Güneşli Tarla kaydındaki tavuk/domuz adaları ve hayvanları temadan kalktı; bedeller iade edilir, kalıntı temizlenir
+	-- Eski sürüm kayıt (yayın öncesi: göç yok): çökmeden temiz yeni oyuna döner; gelecek sürüm ise yazılmaz
 	do
-		local ghost = codec.encode(save, now)
-		local farm3 = table.clone(ghost.mainFarms["1"])
-		farm3.tier = 1
-		farm3.cash = 0
-		farm3.purchased = { "barn_2", "barn_3", "island_poultry", "island_pig", "island_horse" }
-		farm3.animals = {
-			{ uid = "g-1", animalId = "chicken", zoneId = "poultry", bornAt = 0 },
-			{ uid = "g-2", animalId = "pig", zoneId = "pigpen", bornAt = 0 },
-			{ uid = "g-3", animalId = "duck", zoneId = "starter", bornAt = 0 },
-		}
-		farm3.production = {}
-		farm3.autoRepeat = {}
-		ghost.mainFarms["3"] = farm3
-		local loaded = assert(codec.decode(ghost, config, farmMath, now, uid))
-		local migrated = loaded.mainFarms["3"]
-		local refundExpected = config.getUpgrade("island_poultry").cost
-			+ config.getUpgrade("island_pig").cost
-			+ config.ANIMALS.chicken.price
-			+ config.ANIMALS.pig.price
-		local function purchasedSet(farm: any): { [string]: boolean }
-			return farm.purchased
-		end
-		local owned = purchasedSet(migrated)
-		assert(not owned.island_poultry and not owned.island_pig, "ghost island purchases are cleared")
-		assert(owned.island_horse and owned.barn_3, "the current theme's islands are kept")
-		assert(not migrated.unlockedIslands.poultry and not migrated.unlockedIslands.pig, "no ghost island stays open")
-		for _, animal in migrated.animals do
-			assert(animal.animalId == "duck", "animals on removed islands are refunded, not kept")
-		end
-		local baseline = table.clone(ghost)
-		baseline.mainFarms = table.clone(ghost.mainFarms)
-		local cleanFarm = table.clone(farm3)
-		cleanFarm.purchased = { "barn_2", "barn_3", "island_horse" }
-		cleanFarm.animals = { farm3.animals[3] }
-		baseline.mainFarms["3"] = cleanFarm
-		local clean = assert(codec.decode(baseline, config, farmMath, now, uid))
-		assert(loaded.cash - clean.cash == refundExpected, "the island and animal prices are refunded in full")
-		-- Idempotent: göçmüş kaydı yeniden yüklemek tekrar iade etmez
-		local resaved = codec.encode(loaded, now)
-		local again = assert(codec.decode(resaved, config, farmMath, now, uid))
-		assert(again.cash == loaded.cash, "migration must not refund twice")
-		assert(not purchasedSet(again.mainFarms["3"]).island_poultry, "the cleared purchases stay cleared")
-		-- Diğer temalar etkilenmez
-		ghost.mainFarms["2"] = table.clone(farm3)
-		local other = assert(codec.decode(ghost, config, farmMath, now, uid))
-		assert(purchasedSet(other.mainFarms["2"]).island_poultry == true, "other farms are not migrated")
+		local old = codec.encode(save, now)
+		old.version = lock.VERSION - 1
+		old.cash = 987654
+		old.mainFarms["1"].purchased = { "barn_2", "island_dairy", "island_poultry" }
+		old.mainFarms["1"].animals = { { uid = "x", animalId = "cow", zoneId = "dairy", bornAt = 0 } }
+		old.mainFarms["2"] = table.clone(old.mainFarms["1"])
+		local fresh = assert(codec.decode(old, config, farmMath, now, uid), "an older schema must not crash")
+		assert(fresh.cash == config.getStartingCash("1"), "an older save restarts with the starting cash")
+		assert(next(fresh.purchased) == nil and #fresh.animals == config.STARTING_COW_COUNT, "and a clean first farm")
+		assert(fresh.activeMainFarmId == "1" and next(fresh.mainFarms, next(fresh.mainFarms)) == nil, "one farm only")
+		local versionless =
+			assert(codec.decode({ cash = 5, animals = { { animalId = "dairy-cow" } } }, config, farmMath, now, uid))
+		assert(versionless.cash == config.getStartingCash("1"), "a save without a version is treated as old too")
 	end
 	assert(codec.decode({ version = 999 }, config, farmMath, now, uid) == nil, "future save schema must fail closed")
 	assert(
-		codec.decode({ version = 2, animals = { { animalId = "removed-species" } } }, config, farmMath, now, uid) == nil,
+		codec.decode(currentSave({ animals = { { animalId = "removed-species" } } }), config, farmMath, now, uid) == nil,
 		"unknown assets must be quarantined, not silently lost"
 	)
-	local missingZone = assert(codec.decode({
-		version = 1,
-		animals = { { uid = string.rep("x", 100), animalId = "cow", zoneId = "removed-zone", bornAt = 0 } },
-	}, config, farmMath, now, uid))
+	local missingZone = assert(codec.decode(
+		currentSave({
+			animals = { { uid = string.rep("x", 100), animalId = "cow", zoneId = "removed-zone", bornAt = 0 } },
+		}),
+		config,
+		farmMath,
+		now,
+		uid
+	))
 	assert(
 		#missingZone.animals == 1 and missingZone.animals[1].zoneId == "starter",
-		"legacy missing zone must rehome the animal"
+		"a missing zone must rehome the animal"
 	)
 	assert(#missingZone.animals[1].uid <= 64, "normalized IDs must fit remote validation")
-	local future = assert(codec.decode({ version = 1, lastSeen = now + 100 }, config, farmMath, now, uid))
+	local future = assert(codec.decode(currentSave({ lastSeen = now + 100 }), config, farmMath, now, uid))
 	assert(future.stored == 0, "future timestamp cannot award income")
 	local languageRaw = codec.encode(save, now)
 	assert(languageRaw.language == nil, "language must stay unset until the player chooses one")

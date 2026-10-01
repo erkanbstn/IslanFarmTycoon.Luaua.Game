@@ -250,7 +250,7 @@ local function create(): UiKit.Window
 		card.action.Activated:Connect(function()
 			if card.action.Active and isKnown(id) and not isOwned(id) then
 				local state = ClientState.get()
-				local price = if state then FarmMath.getPrice(state, "farm", nil, #summaries(state) + 1) else nil
+				local price = if state then FarmMath.getPrice(state, "farm", nil, index) else nil
 				if state and typeof(price) == "number" and state.cash < price then
 					-- Sunucuya gitmeden hemen bildir
 					if notifyHook then
@@ -468,16 +468,13 @@ local function create(): UiKit.Window
 				else "Bu ana çiftliği yönet"
 			UiKit.setVariant(card.action, if unavailable then "disabled" else "primary")
 		end
-		local nextPrice = FarmMath.getPrice(state, "farm", nil, #farms + 1)
 		local atLimit = #farms >= LIMIT
 		buyInfo.Text = if atLimit
 			then `En fazla {LIMIT} ana çiftliğin olabilir.`
-			elseif typeof(nextPrice) == "number" then `Bir çiftlik teması seç. Yeni çiftlik: {FarmMath.formatMoney(
-				nextPrice
-			)}. Satın alınca adan o çiftliğe dönüşür; önceki çiftliğin park edilir ve çalışmaya devam eder.`
-			else "Ana çiftlik fiyatı yükleniyor."
+			else "Bir çiftlik teması seç; her temanın kendi fiyatı vardır (ilerledikçe pahalı ve zor). Satın alınca adan o çiftliğe dönüşür; önceki çiftliğin park edilir ve çalışmaya devam eder."
 		for id, card in freeCards do
 			local known = isKnown(id)
+			local cardPrice = FarmMath.getPrice(state, "farm", nil, tonumber(id) or 1)
 			card.frame.Visible = not isOwned(id)
 			card.title.Text = nameOf(id) or `Ana alan {id}`
 			local offer = offerById[id]
@@ -489,10 +486,10 @@ local function create(): UiKit.Window
 				card.detail.Text, card.action.Text = "Alan bilgisi henüz yüklenmedi.", "Yükleniyor"
 			elseif atLimit then
 				card.detail.Text, card.action.Text = "Bu çiftlik teması henüz senin değil.", "Çiftlik sınırı"
-			elseif typeof(nextPrice) == "number" then
+			elseif typeof(cardPrice) == "number" then
 				card.detail.Text = "Hayvanları ve yatırımları ayrı gelişir; kasa ve depo ortaktır."
-				card.action.Text = if pending then "İşleniyor" else `Satın al · {FarmMath.formatMoney(nextPrice)}`
-				variant = if state.cash >= nextPrice then "primary" else "warning"
+				card.action.Text = if pending then "İşleniyor" else `Satın al · {FarmMath.formatMoney(cardPrice)}`
+				variant = if state.cash >= cardPrice then "primary" else "warning"
 			else
 				card.detail.Text, card.action.Text = "Fiyat bilgisi bekleniyor.", "Bekleniyor"
 			end

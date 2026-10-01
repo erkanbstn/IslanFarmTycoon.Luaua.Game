@@ -293,9 +293,9 @@ return function(Config: any, FarmMath: any)
 				end
 				-- Her kademede miktar tam sayı, en az 1 (Çiftlik 1'in erken adımı hariç) ve ahır kapasitesine sığar
 				local barn = Config.getBarnLevelConfig(Config.getMinBarnLevel(upgrade.id)) or Config.BARN_LEVELS[1]
-				for tier = 1, #Config.DIFFICULTY.tiers do
-					local cost =
-						FarmMath.getGoodsCost({ tier = tier, farmId = farmId, activeMainFarmId = farmId }, upgrade)
+				do
+					local tier = themeIndex -- kademe = tema numarası
+					local cost = FarmMath.getGoodsCost({ farmId = farmId, activeMainFarmId = farmId }, upgrade)
 					local free = settings.tutorialFree and tier == 1 and spec.step <= 1
 					assert(
 						(next(cost) == nil) == free,
@@ -314,7 +314,7 @@ return function(Config: any, FarmMath: any)
 					assert(
 						worth * Config.GOODS_SELL.rate
 							< FarmMath.getUpgradeCost(
-								{ tier = tier, farmId = farmId, activeMainFarmId = farmId, purchased = {} },
+								{ farmId = farmId, activeMainFarmId = farmId, purchased = {} },
 								upgrade
 							),
 						`{upgrade.id} theme {theme.id} tier {tier}: goods sell worth stays below the money price`
@@ -325,8 +325,7 @@ return function(Config: any, FarmMath: any)
 		assert(withGoods >= 8, "several unlocks ask goods")
 		-- Çiftlik 1'de ürün yükü paranın yanında küçük kalır (referans tempo korunur): tüm açılışların ürün değeri para fiyatlarının %15'inden az
 		for themeIndex = 1, #Config.THEMES do
-			local reference =
-				{ tier = 1, farmId = tostring(themeIndex), activeMainFarmId = tostring(themeIndex), purchased = {} }
+			local reference = { farmId = tostring(themeIndex), activeMainFarmId = tostring(themeIndex), purchased = {} }
 			local moneyTotal, goodsTotal = 0, 0
 			for _, upgrade in Config.UPGRADES do
 				if upgrade.goodsCost and Config.upgradeInTheme(upgrade, reference.farmId) then

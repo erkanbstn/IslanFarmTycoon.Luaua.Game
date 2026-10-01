@@ -26,23 +26,18 @@ return function(
 		serial += 1
 		return `farm-test-{serial}`
 	end
-	local data = assert(
-		codec.decode({
-			version = 3,
-			cash = 3000000,
-			stored = 17,
-			purchased = { "zone_pasture" },
-			animals = { { uid = "old-cow", animalId = "cow", zoneId = "starter", bornAt = 0 } },
-			production = {},
-		}, config, farmMath, now, uid),
-		"legacy migration"
-	)
+	local seed = assert(codec.decode(nil, config, farmMath, now, uid), "new account")
+	seed.cash, seed.stored = 3000000, 17
+	seed.purchased = { zone_pasture = true }
+	seed.animals = { { uid = "old-cow", animalId = "cow", zoneId = "starter", bornAt = 0, stage = "adult" } }
+	seed.production = {}
+	local data = assert(codec.decode(codec.encode(seed, now), config, farmMath, now, uid), "current-schema reload")
 	assert(
 		data.activeMainFarmId == "1"
 			and #profiles.ids(data) == 1
 			and data.purchased.zone_pasture
 			and data.animals[1].uid == "old-cow",
-		"v3 assets migrate unchanged to primary farm"
+		"a saved first farm reloads unchanged as the primary farm"
 	)
 	local player: any = {
 		attributes = { WorldReady = true },
@@ -284,8 +279,8 @@ return function(
 	)
 	local encoded = codec.encode(data, now)
 	assert(
-		encoded.version == 4 and encoded.mainFarms["1"] and encoded.mainFarms["2"],
-		"all independent farms are persisted in protected schema4"
+		encoded.version >= 4 and encoded.mainFarms["1"] and encoded.mainFarms["2"],
+		"all independent farms are persisted in protected schema 4+"
 	)
 	data.purchased.zone_pasture = nil
 	assert(

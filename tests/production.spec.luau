@@ -240,7 +240,7 @@ return function(createService: any, createLimiter: any, rules: any, codec: any, 
 	assert(data.production.packed_milk == nil, "old start replay stays rejected even after claim")
 	assert(fire("start", "packed_milk", "medium").ok, "production is repeatable with new sequence")
 	local snap = codec.encode(data, now)
-	assert(snap.version == 4, "new jobs require schema4 to keep old servers from dropping them")
+	assert(snap.version >= 4, "new jobs require schema 4+ to keep old servers from dropping them")
 	local readyAt = snap.mainFarms["1"].production.packed_milk.readyAt
 	data.production.packed_milk.readyAt += 100
 	assert(

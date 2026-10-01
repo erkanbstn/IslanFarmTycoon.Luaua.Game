@@ -37,11 +37,11 @@ local function apply(player: Player, action: unknown, target: unknown): (boolean
 		if #ids >= Config.MAIN_FARM_LIMIT then
 			return false, "Ana çiftlik sınırına ulaştın."
 		end
-		local price = FarmMath.getPrice(data, "farm", nil, #ids + 1)
 		local plotNumber = tonumber(target)
 		if not plotNumber or plotNumber % 1 ~= 0 or plotNumber < 1 or plotNumber > Config.MAIN_FARM_LIMIT then
 			return false, "Geçersiz ana alan."
 		end
+		local price = FarmMath.getPrice(data, "farm", nil, plotNumber) -- fiyat temanın numarasına bağlıdır (alım sırasına değil)
 		if data.mainFarms[tostring(plotNumber)] then
 			return false, "Bu ana çiftliğe zaten sahipsin."
 		end
@@ -52,7 +52,7 @@ local function apply(player: Player, action: unknown, target: unknown): (boolean
 		farmId = tostring(plotNumber)
 		local farm = SaveCodec.newFarm(Config, FarmMath, DateTime.now().UnixTimestampMillis / 1000, function(): string
 			return HttpService:GenerateGUID(false)
-		end, farmId, #ids + 1)
+		end, farmId)
 		data.mainFarms[farmId] = farm
 		charge = price
 	else

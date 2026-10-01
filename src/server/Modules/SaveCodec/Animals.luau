@@ -1,5 +1,5 @@
 --!strict
--- Çiftlik hayvanları için şema sınırı (bölge/eklenti/görev doğrulaması, 3. tema göçü iadeleri).
+-- Çiftlik hayvanları için şema sınırı (bölge/eklenti/görev doğrulaması).
 local SessionLock = require(script.Parent.Parent.SessionLock)
 local Common = require(script.Parent.Common)
 local Tasks = require(script.Parent.Tasks)
@@ -14,8 +14,7 @@ function Animals.decode(
 	config: any,
 	farmMath: any,
 	now: number,
-	newUid: () -> string,
-	ghostIsland: (string?) -> boolean
+	newUid: () -> string
 ): (string?, number)
 	local repairs = 0
 	local seen: { [string]: boolean } = {}
@@ -47,32 +46,18 @@ function Animals.decode(
 			local animalId = entry.animalId
 			local zoneId = entry.zoneId
 			local zone = if typeof(zoneId) == "string" then config.ZONES[zoneId] else nil
-			if zone and ghostIsland(zone.island) then
-				-- Temadan kalkan adadaki hayvan: tam fiyat iadesi (bu çiftliğin fiyat çarpanıyla)
-				save.cash = math.min(
-					Common.MAX_MONEY,
-					save.cash + math.floor(config.ANIMALS[animalId].price * farmMath.getFarmCostMultiplier(save))
-				)
-				repairs += 1
-				continue
-			end
-			-- Eski kayıt: eklentiye kalıcı atanmış hayvan (görev yok). Ana bölge dolu sayılsa da kaybolmaz; eve döner.
 			local task = Tasks.decodeTask(entry.task, config)
-			local legacyExtension = task == nil and typeof(entry.extensionId) == "string" and entry.extensionId ~= ""
 			if
 				not zone
 				or not save.unlockedZones[zoneId]
 				or not farmMath.zoneAllows(save, zone, animalId)
-				or (
-					not legacyExtension
-					and farmMath.countInZone(save, zoneId) >= farmMath.getZoneCapacity(save, zoneId)
-				)
+				or farmMath.countInZone(save, zoneId) >= farmMath.getZoneCapacity(save, zoneId)
 			then
 				zoneId = farmMath.findZoneForAnimal(save, animalId)
 				repairs += 1
 			end
 			if not zoneId then
-				-- Geçerli eski hayvanın yeri kalkmış/dolmuşsa tek seferlik taban fiyat iadesi.
+				-- Geçerli hayvanın yeri kalkmış/dolmuşsa tek seferlik taban fiyat iadesi.
 				save.cash = math.min(Common.MAX_MONEY, save.cash + config.ANIMALS[animalId].price)
 				continue
 			end
@@ -80,12 +65,8 @@ function Animals.decode(
 			if bornAt ~= entry.bornAt then
 				repairs += 1
 			end
-			-- Eklenti görevi yalnızca satın alınmış eklentide, doğru tür/bölge ve kapasite içinde geçerlidir;
-			-- eski kalıcı atamalar (görevsiz extensionId) eve döner.
+			-- Eklenti görevi yalnızca satın alınmış eklentide, doğru tür/bölge ve kapasite içinde geçerlidir.
 			local extensionId: string? = nil
-			if legacyExtension then
-				repairs += 1
-			end
 			if task and task.kind == "extension" then
 				local extension = config.getExtension(task.id)
 				local upgrade = if extension then config.getExtensionUpgrade(extension.id) else nil

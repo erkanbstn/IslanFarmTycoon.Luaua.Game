@@ -1,9 +1,8 @@
 --!strict
--- Tek çiftlik kaydı (eski tek çiftlikli kayıt ve `mainFarms` girdileri): çiftlik alanları, 3. tema göçü, çevrimdışı kazanç.
+-- Tek çiftlik kaydı (`mainFarms` girdileri ve yeni çiftlik): çiftlik alanları ve çevrimdışı kazanç. Göç yoktur (SaveCodec eski sürümü yeni oyuna çevirir).
 -- Üretim, hayvan ve ahır deposu/siparişi ayrıştırıcıları kardeş modüllerdedir.
 local SessionLock = require(script.Parent.Parent.SessionLock)
 local Common = require(script.Parent.Common)
-local Goods = require(script.Parent.Goods)
 local Production = require(script.Parent.Production)
 local Animals = require(script.Parent.Animals)
 
@@ -28,7 +27,6 @@ function Farm.decode(
 		return nil, 0, "Yükseltme kaydı bozuk; orijinal kayıt korunuyor"
 	end
 	local repairs = 0
-	-- V1/V2 → V3: eski yükseltmeler normalleştirilir; eksik üretim kuyruğu boş başlar.
 	local save: any = {
 		cash = Common.amount(
 			source.cash,
@@ -43,10 +41,6 @@ function Farm.decode(
 		production = {},
 		autoRepeat = {},
 		farmId = if typeof(source.farmId) == "string" then source.farmId else "1",
-		-- Çiftlik alım sırası (fiyat çarpanı); yoksa ya da bozuksa 1
-		tier = if SessionLock.isFinite(source.tier)
-			then math.clamp(math.floor(source.tier), 1, config.MAIN_FARM_LIMIT)
-			else 1,
 	}
 	if source.cash ~= nil and save.cash ~= source.cash then
 		repairs += 1
@@ -74,9 +68,8 @@ function Farm.decode(
 	if typeof(source.purchased) == "table" then
 		for _, id in source.purchased do
 			if typeof(id) == "string" then
-				local resolved = config.LEGACY_UPGRADES[id] or id
-				if config.getUpgrade(resolved) then
-					save.purchased[resolved] = true
+				if config.getUpgrade(id) then
+					save.purchased[id] = true
 				else
 					repairs += 1
 				end
@@ -85,43 +78,12 @@ function Farm.decode(
 			end
 		end
 	end
-	-- 3. tema (Güneşli Tarla) tavuk/domuz adalarından süt+at+keçiye geçti (MAP_VERSION 51): eski kayıtta artık temada olmayan
-	-- ada ve bölge yükseltmeleri kaldırılır, bedelleri iade edilir (hayvanlar ve üretim aşağıda). Tekrar çalıştırmak etkisizdir.
-	local function ghostIsland(island: string?): boolean
-		return save.farmId == "3" and island ~= nil and not config.themeHasIsland(save.farmId, island)
-	end
-	if save.farmId == "3" then
-		local farmCostMultiplier = farmMath.getFarmCostMultiplier(save)
-		for _, upgrade in config.UPGRADES do
-			if save.purchased[upgrade.id] and ghostIsland(config.getUpgradeIsland(upgrade)) then
-				save.purchased[upgrade.id] = nil
-				save.cash = math.min(Common.MAX_MONEY, save.cash + math.floor(upgrade.cost * farmCostMultiplier))
-				repairs += 1
-			end
-		end
-	end
 	farmMath.applyDerived(save)
-	-- Ahır siparişleri ve deposu (isteğe bağlı; yeni kayıtlarda hesap düzeyinde, eski kayıtlarda çiftlik içinde)
+	-- Ahır deposu ve siparişler hesap düzeyindedir (SaveCodec); çiftlik kaydında yoktur.
 	save.contracts = { window = 0, done = {}, completed = 0 }
-	if source.contracts ~= nil then
-		local parsed, fixed = Goods.parseContracts(source.contracts, config)
-		if not parsed then
-			return nil, 0, "Ahır siparişi kaydı bozuk; orijinal kayıt korunuyor"
-		end
-		save.contracts = parsed
-		repairs += fixed
-	end
 	save.goods = {}
-	if source.goods ~= nil then
-		local parsed, fixed = Goods.parseGoods(source.goods, config, farmMath.getGoodsCap(save))
-		if not parsed then
-			return nil, 0, "Ahır deposu kaydı bozuk; orijinal kayıt korunuyor"
-		end
-		save.goods = parsed
-		repairs += fixed
-	end
-	repairs += Production.decodeAutoRepeat(source, save, config, farmMath, ghostIsland)
-	local jobProblem, jobRepairs = Production.decodeJobs(source, save, config, ghostIsland)
+	repairs += Production.decodeAutoRepeat(source, save, config, farmMath)
+	local jobProblem, jobRepairs = Production.decodeJobs(source, save, config)
 	if jobProblem then
 		return nil, 0, jobProblem
 	end
@@ -144,7 +106,7 @@ function Farm.decode(
 			end
 		end
 	end
-	local animalProblem, animalRepairs = Animals.decode(source, save, config, farmMath, now, newUid, ghostIsland)
+	local animalProblem, animalRepairs = Animals.decode(source, save, config, farmMath, now, newUid)
 	if animalProblem then
 		return nil, 0, animalProblem
 	end
@@ -206,7 +168,6 @@ function Farm.encode(save: any, now: number): { [string]: any }
 	end
 	return {
 		version = 3,
-		tier = save.tier,
 		production = Production.encodeJobs(save.production),
 		autoRepeat = table.clone(save.autoRepeat or {}),
 		lineage = lineage,

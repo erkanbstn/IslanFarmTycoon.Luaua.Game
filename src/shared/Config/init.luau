@@ -154,7 +154,6 @@ local Config = {
 	ANIMALS = Animals.ANIMALS,
 	STAGE_INCOME_MULTIPLIER = Animals.STAGE_INCOME_MULTIPLIER,
 	STAGE_DISPLAY = Animals.STAGE_DISPLAY,
-	LEGACY_UPGRADES = Animals.LEGACY_UPGRADES,
 }
 
 -- Ana çiftlik numarasına (= fiziksel ada numarasına) bağlı tema; bilinmeyen numara ilk temayı kullanır.
