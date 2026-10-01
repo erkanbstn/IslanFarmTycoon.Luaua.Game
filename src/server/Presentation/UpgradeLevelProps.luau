@@ -638,11 +638,13 @@ local function applyPets(plot: Model, save: PlayerSave?)
 			if collector and collector:IsA("BasePart") then
 				local base = CFrame.new(collector.Position.X, collector.Position.Y - 0.75, collector.Position.Z)
 					* collector.CFrame.Rotation
-				-- Deniz yardımcısı toplama platformunun öbür yanında durur (süt/yumurta yardımcılarıyla karışmasın)
-				local side = if slot.island == "sea" then -6 else 6
+				-- Deniz yardımcısı platformun aynı yanında ama daha uzakta durur (süt/yumurta yardımcılarıyla karışmasın);
+				-- sol yanda Depo Genişletme istifi (-9) olduğundan oraya konmaz, yoksa istifin içine girer.
+				local side = 6
+				local far = if slot.island == "sea" then 6 else 0
 				home = if slot.kind == "cash"
-					then base * CFrame.new(side, 0, 3) * CFrame.Angles(0, math.rad(-150), 0)
-					else base * CFrame.new(side, 0, -3) * CFrame.Angles(0, math.rad(-30), 0)
+					then base * CFrame.new(side, 0, 3 + far) * CFrame.Angles(0, math.rad(-150), 0)
+					else base * CFrame.new(side, 0, -3 - far) * CFrame.Angles(0, math.rad(-30), 0)
 			end
 		elseif islands then
 			for _, island in islands:GetChildren() do
