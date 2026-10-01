@@ -119,5 +119,23 @@ return function(Merchant: any, Config: any, FarmMath: any)
 	assert(Merchant.offer(forcedFarm, userId, quiet + 101) == nil, "a forced visit ends on time")
 	forcedFarm.merchant = { key = forcedOffer.cycle, bought = true }
 	assert(Merchant.offer(forcedFarm, userId, quiet) == nil, "a forced visit still respects the bought marker")
+	-- Al-sat marjı: en iyi eşya takımıyla satış iadesi, tüccar fiyatının altında kalmalı (tüccardan al, geri sat = kâr yok)
+	local bestPerSlot: { [string]: number } = {}
+	for _, item in Config.ITEMS do
+		local bonus = if item.effects and item.effects.sellBonus then item.effects.sellBonus else 0
+		if bonus > (bestPerSlot[item.slot] or 0) then
+			bestPerSlot[item.slot] = bonus
+		end
+	end
+	local maxSellBonus = 0
+	for _, bonus in bestPerSlot do
+		maxSellBonus += bonus
+	end
+	local maxRefund = Config.ANIMAL_SELL_FRACTION * (1 + maxSellBonus)
+	assert(
+		maxRefund < 1 - settings.discount,
+		`sell refund {maxRefund} must stay below the merchant price ratio {1 - settings.discount}`
+	)
+
 	print("PASS merchant: visit windows, frequency, offer selection, discount and once-per-visit rule")
 end
