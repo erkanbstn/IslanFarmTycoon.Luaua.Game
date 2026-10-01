@@ -22,6 +22,10 @@ return {
 	-- başlatma maliyeti) x bu orandan az olamaz: tesis her zaman hayvanları yerinde bırakmaktan daha kârlıdır.
 	PRODUCTION_MIN_RETURN = 1.4,
 
+	-- Parti çarpanı (seçeneğin returnMultiplier'ı) bunu aşamaz: büyük parti fabrikayı tek başına en iyi yatırım yapmasın
+	-- (en iyi parti sürekli çalışırken geri ödeme ~25-40 dk bandında; `simulate-economy.py` "Tesis geri ödeme").
+	PRODUCTION_MAX_RETURN = 2.0,
+
 	-- Eklentide duran hayvanlar bu süre (sn) bonus kazanır, sonra ana bölgesine döner; kapasite yükseltmeyle 2 -> 4.
 	EXTENSION_STAY_SECONDS = 360,
 	EXTENSION_CAPACITY_LEVELS = 2,

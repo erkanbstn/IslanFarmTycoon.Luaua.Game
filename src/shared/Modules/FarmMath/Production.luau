@@ -118,7 +118,7 @@ function Production.getProductionReward(
 	if job and job.forgone then
 		local floorReward = math.ceil(
 			(job.forgone + Expansion.getFacilityCost(save, recipe))
-				* (recipe.returnMultiplier or Config.PRODUCTION_MIN_RETURN)
+				* math.min(recipe.returnMultiplier or Config.PRODUCTION_MIN_RETURN, Config.PRODUCTION_MAX_RETURN)
 		)
 		reward = math.max(reward, floorReward)
 	end

@@ -196,9 +196,40 @@ local function buyAnimal(animalId: string, zoneId: string)
 	end
 end
 
+-- Para tesisi geri ödemesi: tesisin satın alma bedeli / (en iyi partinin sürekli çalışmasından saniyelik net kazanç).
+-- Tesis kurulduktan sonra ilk uygun parti başlarken bir kez ölçülür (anahtar: Ç-öneki + tarif kimliği).
+local facilityCosts: { [string]: number } = {}
+local facilityPaybacks: { [string]: number } = {}
+local facilityOrder: { string } = {}
+local function recordFacilityPayback(farm: any, recipe: any, optionId: string?)
+	local key = farmPrefix() .. recipe.id
+	local cost = facilityCosts[key]
+	if facilityPaybacks[key] ~= nil or not cost or not optionId then
+		return
+	end
+	local animals = FarmMath.pickProductionAnimals(farm, recipe, now, optionId)
+	if not animals then
+		return
+	end
+	local duration = FarmMath.getFacilityDuration(farm, recipe, optionId)
+	local forgone = FarmMath.estimateForgoneIncome(farm, animals, duration)
+	local reward = FarmMath.getProductionReward(farm, recipe, now, { optionId = optionId, forgone = forgone })
+	local net = (reward - forgone - FarmMath.getFacilityCost(farm, recipe)) / math.max(duration, 1)
+	if net > 0 then
+		facilityPaybacks[key] = cost / net / 60
+		table.insert(facilityOrder, key)
+	end
+end
+
 local function buyUpgrade(upgrade: any)
 	local speeds = FarmMath.snapshotGrowthSpeeds(save)
-	save.cash -= FarmMath.getUpgradeCost(save, upgrade)
+	local upgradeCost = FarmMath.getUpgradeCost(save, upgrade)
+	for _, recipe in Config.PRODUCTION_RECIPES do
+		if recipe.upgradeId == upgrade.id and recipe.options then
+			facilityCosts[farmPrefix() .. recipe.id] = upgradeCost
+		end
+	end
+	save.cash -= upgradeCost
 	save.purchased[upgrade.id] = true
 	FarmMath.applyDerived(save)
 	FarmMath.preserveGrowthProgress(save, speeds, now)
@@ -327,6 +358,7 @@ local function productionTick()
 		if FarmMath.hasPet(save, kind) then
 			-- Yardımcı alınmış: oyuncu "otomatik tekrar"ı en iyi partiyle açar; teslim ve başlatma yardımcıda (anında)
 			local option = bestOption(save, recipe)
+			recordFacilityPayback(save, recipe, option)
 			if save.autoRepeat[recipeId] == nil or option ~= nil then
 				save.autoRepeat[recipeId] = option or "default"
 			end
@@ -338,7 +370,9 @@ local function productionTick()
 			actions += 1
 		end
 		if save.production[recipeId] == nil then
-			local started = ProductionLogic.start(save, save, recipe, bestOption(save, recipe), now, FarmMath, productionHooks)
+			local option = bestOption(save, recipe)
+			recordFacilityPayback(save, recipe, option)
+			local started = ProductionLogic.start(save, save, recipe, option, now, FarmMath, productionHooks)
 			if started then
 				actions += 1
 			end
@@ -746,6 +780,14 @@ do
 		end
 	end
 	emit("  tür başına en kötü (sa): " .. table.concat(parts, " · "))
+end
+
+if #facilityOrder > 0 then
+	local parts = {}
+	for _, key in facilityOrder do
+		table.insert(parts, string.format("%s %.0f", key, facilityPaybacks[key]))
+	end
+	emit("Tesis geri ödeme (dk, en iyi parti sürekli): " .. table.concat(parts, " · "))
 end
 
 -- Eylem, depo ve gelir kaynakları
