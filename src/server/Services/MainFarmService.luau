@@ -52,7 +52,7 @@ local function apply(player: Player, action: unknown, target: unknown): (boolean
 		farmId = tostring(plotNumber)
 		local farm = SaveCodec.newFarm(Config, FarmMath, DateTime.now().UnixTimestampMillis / 1000, function(): string
 			return HttpService:GenerateGUID(false)
-		end, farmId)
+		end, farmId, #ids + 1)
 		data.mainFarms[farmId] = farm
 		charge = price
 	else

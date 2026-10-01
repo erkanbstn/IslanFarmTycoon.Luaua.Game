@@ -123,6 +123,15 @@ return function(Config: any, FarmMath: any)
 	for extensionId, extension in Config.EXTENSIONS do
 		assert(Config.ANIMALS[extension.animalId], `extension {extensionId} uses unknown animal`)
 		assert(Config.ZONES[extension.sourceZoneId], `extension {extensionId} uses unknown source zone`)
+		-- Kalış süresi 120 -> 360 sn yapılırken toplam bonus (incomeBonus x süre = 120) korunur: sıklık düşer, kazanç aynı kalır
+		assert(
+			math.abs(extension.incomeBonus * extension.stayDuration - 120) < 0.001,
+			`extension {extensionId} total bonus drifted from 120`
+		)
+		assert(
+			extension.stayDuration == Config.EXTENSION_STAY_SECONDS,
+			`extension {extensionId} stay differs from the constant`
+		)
 	end
 
 	-- Ses ve ürün kayıtları: kullanılan her tür tanımlı, hayvan sesleri bilinen hayvanlara ait

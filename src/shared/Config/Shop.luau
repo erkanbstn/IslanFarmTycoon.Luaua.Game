@@ -98,12 +98,13 @@ return {
 	},
 
 	-- Altın hayvan (rastgele olay): her oyuncuya ayrı, sunucu saatinden türeyen kısa pencereler. Pencere açıkken
-	-- etkin çiftlikteki yetişkin hayvanlardan biri parlar; dokunan, o hayvanın rewardSeconds saniyelik gelirini alır.
+	-- etkin çiftlikteki yetişkin hayvanlardan biri parlar; dokunan, çiftliğin TOPLAM gelirinin rewardSeconds saniyelik karşılığını alır
+	-- (tek hayvanın değil; böylece ödül gelirle birlikte büyür).
 	GOLDEN = {
 		cycleSeconds = 600,
 		windowSeconds = 75,
 		chance = 0.6,
-		rewardSeconds = 150,
+		rewardSeconds = 90,
 		minReward = 100,
 	},
 

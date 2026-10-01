@@ -20,7 +20,7 @@ function Animals.getAnimalPrice(save: PlayerSave, animalId: string): number
 		return math.huge
 	end
 	local owned = Counts.countAnimals(save, animalId)
-	return math.floor(animalConfig.price * Config.ANIMAL_PRICE_GROWTH ^ owned)
+	return math.floor(animalConfig.price * Core.getFarmCostMultiplier(save) * Config.ANIMAL_PRICE_GROWTH ^ owned)
 end
 
 -- Satış: son alınan hayvanın (sahip olunan - 1) fiyatının ANIMAL_SELL_FRACTION'ı geri gelir
@@ -32,7 +32,11 @@ function Animals.getSellPrice(save: PlayerSave, animalId: string): number
 	end
 	local bonus = 1 + Core.getBonus(save, "sellBonus")
 	return math.floor(
-		animalConfig.price * Config.ANIMAL_PRICE_GROWTH ^ (owned - 1) * Config.ANIMAL_SELL_FRACTION * bonus
+		animalConfig.price
+			* Core.getFarmCostMultiplier(save)
+			* Config.ANIMAL_PRICE_GROWTH ^ (owned - 1)
+			* Config.ANIMAL_SELL_FRACTION
+			* bonus
 	)
 end
 
@@ -76,8 +80,9 @@ function Animals.getBulkPrice(save: PlayerSave, animalId: string, count: number)
 	end
 	local owned = Counts.countAnimals(save, animalId)
 	local total = 0
+	local multiplier = Core.getFarmCostMultiplier(save)
 	for index = 0, count - 1 do
-		total += math.floor(animalConfig.price * Config.ANIMAL_PRICE_GROWTH ^ (owned + index))
+		total += math.floor(animalConfig.price * multiplier * Config.ANIMAL_PRICE_GROWTH ^ (owned + index))
 	end
 	return total
 end
@@ -100,7 +105,9 @@ end
 function Animals.getFishReplacementPrice(save: PlayerSave): number
 	local price = Animals.getAnimalPrice(save, "seabass")
 	-- Yükselen mevcut hamsi fiyatını iade etme: al-sat döngüsü kâr üretememeli.
-	local refund = math.floor(Config.ANIMALS.anchovy.price * Config.FISH_REPLACEMENT_REFUND_RATE)
+	local refund = math.floor(
+		Config.ANIMALS.anchovy.price * Core.getFarmCostMultiplier(save) * Config.FISH_REPLACEMENT_REFUND_RATE
+	)
 	return math.max(0, price - math.min(price, refund))
 end
 

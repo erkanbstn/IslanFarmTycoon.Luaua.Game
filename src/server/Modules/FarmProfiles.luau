@@ -2,6 +2,7 @@
 -- Eski düz kayıt etkin çiftliğin görünümüdür. Cüzdan tek, çiftlik envanterleri ayrıdır.
 local FarmProfiles = {}
 local FIELDS = {
+	"tier",
 	"stored",
 	"purchased",
 	"lineage",

@@ -86,6 +86,25 @@ return function(FarmMath: any, Config: any, Environment: any)
 		"upgraded offline terms"
 	)
 	assert(upgradedRate > baseRate and upgradedHours > baseHours, "the upgrade improves both rate and duration")
+	-- Bonuslar dahil toplam çevrimdışı oran OFFLINE_MAX_TOTAL_RATE'i aşamaz (her bonus açıkken bile)
+	do
+		local maxed = saveAt(start)
+		for _, upgrade in Config.UPGRADES do
+			maxed.purchased[upgrade.id] = true
+		end
+		maxed.inventory = { items = {}, equipped = {} }
+		for itemId, item in Config.ITEMS do
+			if item.effects and (item.effects :: any).offlineBonus then
+				maxed.inventory.items[itemId] = true
+				maxed.inventory.equipped[item.slot] = itemId
+			end
+		end
+		assert(FarmMath.getBonus(maxed, "offlineBonus") > 0, "the fixture has offline bonuses")
+		assert(
+			FarmMath.getOfflineTerms(maxed) <= Config.OFFLINE_MAX_TOTAL_RATE,
+			"offline rate including bonuses is capped"
+		)
+	end
 	local upgradedLimit = FarmMath.computeOfflineEarnings(crowded, start, start + upgradedHours * 3600)
 	near(
 		upgradedLimit,
@@ -339,7 +358,7 @@ return function(FarmMath: any, Config: any, Environment: any)
 	local view = saveAt(start)
 	view.farmId = "3"
 	assert(
-		table.find(FarmMath.themeIslands(view), "pig") and not table.find(FarmMath.themeIslands(view), "goat"),
+		table.find(FarmMath.themeIslands(view), "dairy") and not table.find(FarmMath.themeIslands(view), "poultry"),
 		"inactive farm views use their own farm id"
 	)
 	for _, upgrade in Config.UPGRADES do
@@ -597,6 +616,22 @@ return function(FarmMath: any, Config: any, Environment: any)
 	for recipeId, recipe in Config.PRODUCTION_RECIPES do
 		assert(Config.BUILD_UPGRADES.profiles[recipe.upgradeProfile or "factory"], `recipe {recipeId} has a profile`)
 	end
+	-- Her tema erken (Ahır 2), orta (Ahır 3) ve geç (Ahır 4) birer ada türü içerir: yeni ada arası boşluk kalmaz
+	for index, theme in Config.THEMES do
+		local needed: { [number]: boolean } = {}
+		for _, islandId in theme.satellites do
+			local upgrade = assert(Config.getUpgrade(Config.FARM_ISLANDS[islandId].upgradeId), "island upgrade exists")
+			local barn = 1
+			for _, requiredId in upgrade.requires do
+				local barnLevel = tonumber(string.match(requiredId, "^barn_(%d+)$"))
+				if barnLevel then
+					barn = barnLevel
+				end
+			end
+			needed[barn] = true
+		end
+		assert(needed[2] and needed[3] and needed[4], `theme {index} needs one island each for barn 2, 3 and 4`)
+	end
 	-- Her tema kendine özgü bir işaret yapısı kullanır (HomeBuildings.landmark türleri)
 	local landmarkKinds = { daisy = true, tulip = true, sunflower = true, rose = true, pine = true, cherry = true }
 	local seenLandmarks: { [string]: boolean } = {}
@@ -687,5 +722,60 @@ return function(FarmMath: any, Config: any, Environment: any)
 		"items add to island perks"
 	)
 	assert(FarmMath.getBonus(perks, "sellBonus") > 0.15, "the diamond hammer adds sell bonus on top of the island")
+	-- Çiftlik numarası (alım sırası) fiyat çarpanı: tier 1 = x1, sonrası 1 + FARM_COST_STEP x (tier-1)
+	do
+		local first, second = saveAt(start), saveAt(start)
+		second.tier = 2
+		local upgrade = Config.getUpgrade("barn_2") or Config.UPGRADES[1]
+		local mult = 1 + Config.FARM_COST_STEP
+		assert(FarmMath.getFarmCostMultiplier(first) == 1, "farms without tier cost x1")
+		assert(
+			FarmMath.getUpgradeCost(second, upgrade) == FarmMath.getUpgradeCost(first, upgrade) * mult,
+			"tier 2 upgrade"
+		)
+		-- Hayvan fiyatları tam sayıya yuvarlandığı için çarpan en çok 1 yuvarlama payıyla tutar
+		local function nearMultiple(actual: number, base: number)
+			assert(math.abs(actual - base * mult) <= mult, `Beklenen ~{base * mult}, sonuç {actual}`)
+		end
+		nearMultiple(FarmMath.getAnimalPrice(second, "cow"), FarmMath.getAnimalPrice(first, "cow"))
+		nearMultiple(FarmMath.getSellPrice(second, "cow"), FarmMath.getSellPrice(first, "cow"))
+		assert(
+			FarmMath.getExpansionCost(second, "starter") > FarmMath.getExpansionCost(first, "starter"),
+			"tier 2 expansion costs more"
+		)
+		second.tier = 3
+		assert(FarmMath.getFarmCostMultiplier(second) == 1 + 2 * Config.FARM_COST_STEP, "multiplier grows per farm")
+		-- Al-sat hiçbir çiftlikte kâr bırakmaz: satış, aynı çiftliğin tier'ıyla aynı çarpanı kullanır
+		for tier = 1, Config.MAIN_FARM_LIMIT do
+			local sellFarm = saveAt(start)
+			sellFarm.tier = tier
+			for _, animalId in { "cow", "chicken" } do
+				for n = 1, 4 do
+					local paid = FarmMath.getAnimalPrice(sellFarm, animalId)
+					table.insert(
+						sellFarm.animals,
+						{ uid = `s-{animalId}-{tier}-{n}`, animalId = animalId, zoneId = "starter", bornAt = 0 }
+					)
+					local refund = FarmMath.getSellPrice(sellFarm, animalId)
+					assert(refund < paid, `buy-then-sell must lose money (tier {tier} {animalId} #{n})`)
+				end
+			end
+		end
+	end
+	-- Gelir dağılımı: toplayıcılı çiftlik her şeyi kasaya yatırır; toplayıcısız park edilmiş çiftlik PARKED_FARM_PAY_RATE kadar
+	do
+		local settled = saveAt(start)
+		settled.stored = 40
+		local cash, stored = FarmMath.settleFarmIncome(settled, 100, true)
+		near(cash, 100 * Config.PARKED_FARM_PAY_RATE)
+		near(stored, 40)
+		cash, stored = FarmMath.settleFarmIncome(settled, 100, false)
+		near(cash, 0)
+		near(stored, math.min(140, FarmMath.getStorageCap(settled)))
+		settled.purchased.auto_collector = true
+		cash, stored = FarmMath.settleFarmIncome(settled, 100, true)
+		near(cash, 140)
+		near(stored, 0)
+	end
 	print("PASS economy: growth boundaries, integrated offline/elapsed income, cap, growth upgrade, fish pricing")
 end

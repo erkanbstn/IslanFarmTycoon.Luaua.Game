@@ -742,12 +742,12 @@ return {
 	["Hayvan artık bulunamıyor"] = "The animal can no longer be found",
 
 	-- Eklentiler (süreli kalış) ve üretim tesisi görevleri
-	["2 tavuk · 2 dk kalır · +%100 gelir"] = "2 chickens · stay 2 min · +100% income",
-	["2 at · 2 dk kalır · +%100 gelir"] = "2 horses · stay 2 min · +100% income",
-	["2 keçi · 2 dk kalır · +%100 gelir"] = "2 goats · stay 2 min · +100% income",
-	["2 ördek · 2 dk kalır · +%100 gelir"] = "2 ducks · stay 2 min · +100% income",
-	["2 koyun · 2 dk kalır · +%100 gelir"] = "2 sheep · stay 2 min · +100% income",
-	["2 domuz · 2 dk kalır · +%100 gelir"] = "2 pigs · stay 2 min · +100% income",
+	["2 tavuk · 6 dk kalır · +%33 gelir"] = "2 chickens · stay 6 min · +33% income",
+	["2 at · 6 dk kalır · +%33 gelir"] = "2 horses · stay 6 min · +33% income",
+	["2 keçi · 6 dk kalır · +%33 gelir"] = "2 goats · stay 6 min · +33% income",
+	["2 ördek · 6 dk kalır · +%33 gelir"] = "2 ducks · stay 6 min · +33% income",
+	["2 koyun · 6 dk kalır · +%33 gelir"] = "2 sheep · stay 6 min · +33% income",
+	["2 domuz · 6 dk kalır · +%33 gelir"] = "2 pigs · stay 6 min · +33% income",
 	["Kaya Tırmanışı"] = "Rock Climb",
 	["Kaya tırmanışı"] = "Rock climb",
 	["Kayalığa tırmanan keçiler"] = "Goats climbing the cliffs",
@@ -822,11 +822,12 @@ return {
 	["Ürünler ahır deposunda birikir (ahırdaki sandıktan da açılır). Her slota bir eşya takılır; eşyaları meydandaki Usta Ömer'den alırsın."] = "Goods pile up in the barn storage (also opened from the chest at the barn). Each slot holds one item; you buy items from Master Omer in the square.",
 	["Değer {}"] = "Worth {1}",
 	["Depoya al"] = "Store",
+	["Fazlası paraya çevrildi"] = "Overflow converted to cash",
 	["Depo doldu"] = "Storage filled up",
 	["Ahır deposu: {}/{}"] = "Barn storage: {1}/{2}",
 	["Aç"] = "Open",
 	["Ahıra eklendi"] = "Added to the barn",
-	["Ahır deposunda bu ürün için yeterli yer yok."] = "Not enough room in the barn storage for this product.",
+	["Ahır deposunda bu ürün için yeterli yer yok ({} gerekli, {} boş)."] = "Not enough room in the barn storage for this product ({1} needed, {2} free).",
 
 	-- Para tesisi parti seçenekleri
 	["Küçük parti"] = "Small batch",

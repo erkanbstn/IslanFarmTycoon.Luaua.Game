@@ -128,7 +128,9 @@ return {
 			landmark = "sunflower",
 			displayName = "Güneşli Tarla",
 			homeAnimal = "duck",
-			satellites = { "dairy", "poultry", "pig" },
+			-- Süt (Ahır 2, ördek çiftliğinin ineği) + At (Ahır 3) + Keçi (Ahır 4): erken/orta/geç. Eskiden iki Ahır 2 adası (süt, tavuk)
+			-- vardı ve 86 dk yeni ada çıkmıyordu; domuz alternatifi kiraz temasıyla aynı olacağından geç ada keçi seçildi.
+			satellites = { "dairy", "horse", "goat" },
 		},
 		{
 			id = "gul",

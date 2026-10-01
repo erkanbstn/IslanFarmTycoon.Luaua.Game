@@ -125,6 +125,10 @@ local function decodeFarm(
 		production = {},
 		autoRepeat = {},
 		farmId = if typeof(source.farmId) == "string" then source.farmId else "1",
+		-- Çiftlik alım sırası (fiyat çarpanı); yoksa ya da bozuksa 1
+		tier = if SessionLock.isFinite(source.tier)
+			then math.clamp(math.floor(source.tier), 1, config.MAIN_FARM_LIMIT)
+			else 1,
 	}
 	if source.cash ~= nil and save.cash ~= source.cash then
 		repairs += 1
@@ -163,6 +167,21 @@ local function decodeFarm(
 			end
 		end
 	end
+	-- 3. tema (Güneşli Tarla) tavuk/domuz adalarından süt+at+keçiye geçti (MAP_VERSION 51): eski kayıtta artık temada olmayan
+	-- ada ve bölge yükseltmeleri kaldırılır, bedelleri iade edilir (hayvanlar ve üretim aşağıda). Tekrar çalıştırmak etkisizdir.
+	local function ghostIsland(island: string?): boolean
+		return save.farmId == "3" and island ~= nil and not config.themeHasIsland(save.farmId, island)
+	end
+	if save.farmId == "3" then
+		local farmCostMultiplier = farmMath.getFarmCostMultiplier(save)
+		for _, upgrade in config.UPGRADES do
+			if save.purchased[upgrade.id] and ghostIsland(config.getUpgradeIsland(upgrade)) then
+				save.purchased[upgrade.id] = nil
+				save.cash = math.min(MAX_MONEY, save.cash + math.floor(upgrade.cost * farmCostMultiplier))
+				repairs += 1
+			end
+		end
+	end
 	farmMath.applyDerived(save)
 	-- Ahır siparişleri ve deposu (isteğe bağlı; yeni kayıtlarda hesap düzeyinde, eski kayıtlarda çiftlik içinde)
 	save.contracts = { window = 0, done = {}, completed = 0 }
@@ -193,7 +212,7 @@ local function decodeFarm(
 				else nil
 			local optionOk = typeof(optionId) == "string"
 				and (optionId == "default" or farmMath.findProductionOption(recipe, optionId) ~= nil)
-			if recipe and kind and farmMath.hasPet(save, kind) and optionOk then
+			if recipe and kind and farmMath.hasPet(save, kind) and optionOk and not ghostIsland(recipe.island) then
 				save.autoRepeat[recipe.id] = optionId
 			else
 				repairs += 1
@@ -209,6 +228,10 @@ local function decodeFarm(
 		for recipeId, job in source.production do
 			count += 1
 			local recipe = if typeof(recipeId) == "string" then config.PRODUCTION_RECIPES[recipeId] else nil
+			if recipe and ghostIsland(recipe.island) then
+				repairs += 1 -- temadan kalkan adadaki iş düşer (tesis bedeli yukarıda iade edildi)
+				continue
+			end
 			if
 				count > #config.PRODUCTION_ORDER
 				or not recipe
@@ -300,6 +323,15 @@ local function decodeFarm(
 			local animalId = entry.animalId
 			local zoneId = entry.zoneId
 			local zone = if typeof(zoneId) == "string" then config.ZONES[zoneId] else nil
+			if zone and ghostIsland(zone.island) then
+				-- Temadan kalkan adadaki hayvan: tam fiyat iadesi (bu çiftliğin fiyat çarpanıyla)
+				save.cash = math.min(
+					MAX_MONEY,
+					save.cash + math.floor(config.ANIMALS[animalId].price * farmMath.getFarmCostMultiplier(save))
+				)
+				repairs += 1
+				continue
+			end
 			-- Eski kayıt: eklentiye kalıcı atanmış hayvan (görev yok). Ana bölge dolu sayılsa da kaybolmaz; eve döner.
 			local task = decodeTask(entry.task, config)
 			local legacyExtension = task == nil and typeof(entry.extensionId) == "string" and entry.extensionId ~= ""
@@ -455,6 +487,7 @@ local function encodeFarm(save: any, now: number): { [string]: any }
 	end
 	return {
 		version = 3,
+		tier = save.tier,
 		production = production,
 		autoRepeat = autoRepeat,
 		lineage = lineage,
@@ -468,9 +501,19 @@ local function encodeFarm(save: any, now: number): { [string]: any }
 end
 
 -- farmId: çiftlik numarası; başlangıç hayvanı temanın ana ada hayvanı olur
-function SaveCodec.newFarm(config: any, farmMath: any, now: number, newUid: () -> string, farmId: string?): any
-	local farm =
-		assert(decodeFarm({ farmId = farmId }, config, farmMath, now, newUid), "New farm initialization failed")
+-- tier: alım sırası (1 = ilk çiftlik); fiyat çarpanını belirler
+function SaveCodec.newFarm(
+	config: any,
+	farmMath: any,
+	now: number,
+	newUid: () -> string,
+	farmId: string?,
+	tier: number?
+): any
+	local farm = assert(
+		decodeFarm({ farmId = farmId, tier = tier }, config, farmMath, now, newUid),
+		"New farm initialization failed"
+	)
 	return FarmProfiles.extract(farm)
 end
 
@@ -503,6 +546,12 @@ function SaveCodec.decode(
 	-- Eski kayıtlarda depo ve sipariş çiftlik içindeydi: hepsi toplanıp hesap düzeyine taşınır
 	local legacyGoods: { [string]: number } = {}
 	local legacyContracts: any = nil
+	-- Eski kayıtlarda alım sırası yoktu: eksik tier = 1 (var olan çiftliklerin fiyatı geriye dönük artmaz).
+	-- Yalnızca bundan sonra satın alınan çiftlik sıradaki tier'ı alır (MainFarmService). tier çiftlik sayısını aşamaz.
+	local farmTotal = 0
+	for _ in source.mainFarms do
+		farmTotal += 1
+	end
 	for id, rawFarm in source.mainFarms do
 		count += 1
 		local numberId = if typeof(id) == "string" then tonumber(id) else nil
@@ -519,6 +568,11 @@ function SaveCodec.decode(
 		end
 		local farmInput = table.clone(rawFarm)
 		farmInput.farmId = id
+		if id == "1" then
+			farmInput.tier = 1 -- ilk çiftlik her zaman x1
+		elseif SessionLock.isFinite(farmInput.tier) then
+			farmInput.tier = math.min(farmInput.tier, math.max(farmTotal, 1))
+		end
 		farmInput.cash = 0 -- Cüzdan sadece kök kayıttan gelir; taşıma iadeleri ayrıca eklenir.
 		local farm, earned, err, repairs, grown = decodeFarm(farmInput, config, farmMath, now, newUid)
 		if not farm then

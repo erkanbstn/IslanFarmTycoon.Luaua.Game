@@ -67,7 +67,7 @@ export type AnimalConfig = {
 	baseIncomePerSecond: number,
 }
 
--- Ahır siparişi kademesi: kaç farklı ürün (lines) ve her üründen kaç birim (units) ister; ödül = ürün değerleri x rewardFactor
+-- Ahır siparişi kademesi: kaç farklı ürün (lines) ve her üründen kaç birim (units) ister; ödül = max(ürün değerleri, gelir x GOODS_CONTRACTS.incomeSeconds) x rewardFactor
 export type GoodsContractTierConfig = {
 	id: string,
 	displayName: string,
@@ -242,7 +242,7 @@ export type ExtensionConfig = {
 	sourceZoneId: string,
 	animalId: string,
 	capacity: number, -- Aynı anda eklentide durabilecek hayvan (taban); kapasite yükseltmeleriyle artar
-	incomeBonus: number, -- 1 = +%100 gelir (eklentide duran hayvanlar)
+	incomeBonus: number, -- 1 = +%100 gelir (eklentide duran hayvanlar); toplam bonus = incomeBonus x stayDuration
 	stayDuration: number, -- Bir hayvanın eklentide kalma süresi (saniye); sonra ana bölgesine döner
 }
 

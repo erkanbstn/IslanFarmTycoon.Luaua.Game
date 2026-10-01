@@ -68,7 +68,7 @@ function Golden.current(save: any, userId: number, now: number): Event?
 	local chosen = adults[math.floor(Merchant.rand(userId, span.cycle, 13) * #adults) + 1]
 	local reward = math.max(
 		Config.GOLDEN.minReward,
-		math.floor(FarmMath.getAnimalIncome(save, chosen.animalId, chosen) * Config.GOLDEN.rewardSeconds)
+		math.floor(FarmMath.computeIncomePerSecond(save, now) * Config.GOLDEN.rewardSeconds)
 	)
 	return { uid = chosen.uid, animalId = chosen.animalId, cycle = span.cycle, endsAt = span.endsAt, reward = reward }
 end

@@ -133,17 +133,13 @@ function EconomyService.settlePlayer(player: Player)
 			continue
 		end
 		local earned = FarmMath.computeIncomeOverInterval(farm, wallNow - elapsed, wallNow)
-		if FarmMath.hasAutoCollect(farm) then
-			local collected = earned + farm.stored
+		local collected, newStored = FarmMath.settleFarmIncome(farm, earned, farmId ~= data.activeMainFarmId)
+		farm.stored = newStored
+		if collected > 0 then
 			data.cash = math.min(1e15, data.cash + collected)
 			data.lifetimeEarned = math.min(1e18, (data.lifetimeEarned or 0) + collected)
-			farm.stored = 0
-			if collected > 0 then
-				TelemetryService.economy(player, "autoCollect", collected, data.cash)
-				TelemetryService.funnel(player, "first_collect")
-			end
-		else
-			farm.stored = math.min(farm.stored + earned, FarmMath.getStorageCap(farm))
+			TelemetryService.economy(player, "autoCollect", collected, data.cash)
+			TelemetryService.funnel(player, "first_collect")
 		end
 	end
 	PlayerDataService.pushEconomy(player)

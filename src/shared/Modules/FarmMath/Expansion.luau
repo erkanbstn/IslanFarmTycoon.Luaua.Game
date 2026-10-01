@@ -138,7 +138,7 @@ function Expansion.getExpansionCost(save: PlayerSave, targetId: string): number
 		if not animalConfig then
 			return math.huge
 		end
-		raw = animalConfig.price * config.costMultiplier * config.costGrowth ^ level
+		raw = animalConfig.price * config.costMultiplier * config.costGrowth ^ level * Core.getFarmCostMultiplier(save)
 	elseif recipe then
 		raw = recipe.reward * config.facilityCostMultiplier * config.facilityCostGrowth ^ level
 	else

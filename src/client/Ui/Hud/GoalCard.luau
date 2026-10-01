@@ -292,7 +292,11 @@ function GoalCard.create(stats: Frame, onboarding: Onboarding.Hud): Hud
 						recipe.output ~= "goods"
 						or (
 							recipe.goodsId ~= nil
-							and FarmMath.getGoodsSpace(state, recipe.goodsId) >= (recipe.goodsAmount or 0)
+							and FarmMath.getGoodsSpace(state, recipe.goodsId)
+								>= math.min(
+									math.max(recipe.goodsAmount or 0, FarmMath.previewGoodsYield(state, recipe, now)),
+									FarmMath.getGoodsCap(state)
+								)
 						)
 					)
 				then

@@ -108,16 +108,26 @@ function Core.getEquippedMultiplier(save: PlayerSave, key: string): number
 	return product
 end
 
--- Yükseltmenin bu oyuncu için maliyeti: takılı alet indirimi uygulanır (en az 1). Gösterim ve tahsilat aynı işlevi kullanır.
+-- Çiftlik numarasına (alım sırası) göre fiyat çarpanı: 1 + Config.FARM_COST_STEP x (tier - 1); 1. çiftlik ve bilinmeyen kayıt x1.
+function Core.getFarmCostMultiplier(save: PlayerSave?): number
+	local tier = if save then save.tier else nil
+	if not tier or tier <= 1 then
+		return 1
+	end
+	return 1 + Config.FARM_COST_STEP * (tier - 1)
+end
+
+-- Yükseltmenin bu oyuncu için maliyeti: çiftlik çarpanı ve takılı alet indirimi uygulanır (en az 1). Gösterim ve tahsilat aynı işlevi kullanır.
 function Core.getUpgradeCost(save: PlayerSave?, upgrade: Config.UpgradeConfig): number
 	if not save then
 		return upgrade.cost
 	end
+	local base = upgrade.cost * Core.getFarmCostMultiplier(save)
 	local discount = math.clamp(Core.getEquippedBonus(save, "upgradeDiscount"), 0, 0.9)
 	if discount <= 0 then
-		return upgrade.cost
+		return base
 	end
-	return math.max(1, math.floor(upgrade.cost * (1 - discount)))
+	return math.max(1, math.floor(base * (1 - discount)))
 end
 
 function Core.hasAutoCollect(save: PlayerSave): boolean
@@ -132,6 +142,17 @@ function Core.hasAutoCollect(save: PlayerSave): boolean
 		end
 	end
 	return false
+end
+
+-- Bir çiftliğin `earned` gelirinin dağılımı: (kasaya yatan, yeni depo). Toplayıcılı çiftlik her şeyi (depo dahil) kasaya yatırır;
+-- toplayıcısız park edilmiş çiftlik gelirin PARKED_FARM_PAY_RATE'ini kasaya yatırır ve deposuna dokunmaz; etkin çiftlik depoyu doldurur.
+function Core.settleFarmIncome(farm: PlayerSave, earned: number, parked: boolean): (number, number)
+	if Core.hasAutoCollect(farm) then
+		return earned + farm.stored, 0
+	elseif parked then
+		return earned * Config.PARKED_FARM_PAY_RATE, farm.stored
+	end
+	return 0, math.min(farm.stored + earned, Core.getStorageCap(farm))
 end
 
 function Core.getStage(bornAt: number, now: number, growthSpeed: number): AnimalStage

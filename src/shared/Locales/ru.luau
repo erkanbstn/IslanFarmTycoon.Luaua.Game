@@ -742,12 +742,12 @@ return {
 	["Hayvan artık bulunamıyor"] = "Животное больше не найдено",
 
 	-- Eklentiler (süreli kalış) ve üretim tesisi görevleri
-	["2 tavuk · 2 dk kalır · +%100 gelir"] = "2 курицы · 2 мин · +100% дохода",
-	["2 at · 2 dk kalır · +%100 gelir"] = "2 лошади · 2 мин · +100% дохода",
-	["2 keçi · 2 dk kalır · +%100 gelir"] = "2 козы · 2 мин · +100% дохода",
-	["2 ördek · 2 dk kalır · +%100 gelir"] = "2 утки · 2 мин · +100% дохода",
-	["2 koyun · 2 dk kalır · +%100 gelir"] = "2 овцы · 2 мин · +100% дохода",
-	["2 domuz · 2 dk kalır · +%100 gelir"] = "2 свиньи · 2 мин · +100% дохода",
+	["2 tavuk · 6 dk kalır · +%33 gelir"] = "2 курицы · 6 мин · +33% дохода",
+	["2 at · 6 dk kalır · +%33 gelir"] = "2 лошади · 6 мин · +33% дохода",
+	["2 keçi · 6 dk kalır · +%33 gelir"] = "2 козы · 6 мин · +33% дохода",
+	["2 ördek · 6 dk kalır · +%33 gelir"] = "2 утки · 6 мин · +33% дохода",
+	["2 koyun · 6 dk kalır · +%33 gelir"] = "2 овцы · 6 мин · +33% дохода",
+	["2 domuz · 6 dk kalır · +%33 gelir"] = "2 свиньи · 6 мин · +33% дохода",
 	["Kaya Tırmanışı"] = "Скалолазание",
 	["Kaya tırmanışı"] = "Скалолазание",
 	["Kayalığa tırmanan keçiler"] = "Козы, лазающие по скалам",
@@ -822,11 +822,12 @@ return {
 	["Ürünler ahır deposunda birikir (ahırdaki sandıktan da açılır). Her slota bir eşya takılır; eşyaları meydandaki Usta Ömer'den alırsın."] = "Товары копятся на складе амбара (его можно открыть и у сундука в амбаре). В каждый слот надевается один предмет; предметы покупают у мастера Омера на площади.",
 	["Değer {}"] = "Стоимость {1}",
 	["Depoya al"] = "На склад",
+	["Fazlası paraya çevrildi"] = "Излишек обращён в деньги",
 	["Depo doldu"] = "Склад заполнен",
 	["Ahır deposu: {}/{}"] = "Склад амбара: {1}/{2}",
 	["Aç"] = "Открыть",
 	["Ahıra eklendi"] = "Добавлено в амбар",
-	["Ahır deposunda bu ürün için yeterli yer yok."] = "На складе амбара недостаточно места для этого товара.",
+	["Ahır deposunda bu ürün için yeterli yer yok ({} gerekli, {} boş)."] = "На складе амбара недостаточно места для этого товара (нужно {1}, свободно {2}).",
 
 	-- Para tesisi parti seçenekleri
 	["Küçük parti"] = "Малая партия",

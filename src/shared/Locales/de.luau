@@ -742,12 +742,12 @@ return {
 	["Hayvan artık bulunamıyor"] = "Das Tier wurde nicht mehr gefunden",
 
 	-- Eklentiler (süreli kalış) ve üretim tesisi görevleri
-	["2 tavuk · 2 dk kalır · +%100 gelir"] = "2 Hühner · 2 Min. Aufenthalt · +100 % Einkommen",
-	["2 at · 2 dk kalır · +%100 gelir"] = "2 Pferde · 2 Min. Aufenthalt · +100 % Einkommen",
-	["2 keçi · 2 dk kalır · +%100 gelir"] = "2 Ziegen · 2 Min. Aufenthalt · +100 % Einkommen",
-	["2 ördek · 2 dk kalır · +%100 gelir"] = "2 Enten · 2 Min. Aufenthalt · +100 % Einkommen",
-	["2 koyun · 2 dk kalır · +%100 gelir"] = "2 Schafe · 2 Min. Aufenthalt · +100 % Einkommen",
-	["2 domuz · 2 dk kalır · +%100 gelir"] = "2 Schweine · 2 Min. Aufenthalt · +100 % Einkommen",
+	["2 tavuk · 6 dk kalır · +%33 gelir"] = "2 Hühner · 6 Min. Aufenthalt · +33 % Einkommen",
+	["2 at · 6 dk kalır · +%33 gelir"] = "2 Pferde · 6 Min. Aufenthalt · +33 % Einkommen",
+	["2 keçi · 6 dk kalır · +%33 gelir"] = "2 Ziegen · 6 Min. Aufenthalt · +33 % Einkommen",
+	["2 ördek · 6 dk kalır · +%33 gelir"] = "2 Enten · 6 Min. Aufenthalt · +33 % Einkommen",
+	["2 koyun · 6 dk kalır · +%33 gelir"] = "2 Schafe · 6 Min. Aufenthalt · +33 % Einkommen",
+	["2 domuz · 6 dk kalır · +%33 gelir"] = "2 Schweine · 6 Min. Aufenthalt · +33 % Einkommen",
 	["Kaya Tırmanışı"] = "Felsklettern",
 	["Kaya tırmanışı"] = "Felsklettern",
 	["Kayalığa tırmanan keçiler"] = "Ziegen, die auf die Felsen klettern",
@@ -822,11 +822,12 @@ return {
 	["Ürünler ahır deposunda birikir (ahırdaki sandıktan da açılır). Her slota bir eşya takılır; eşyaları meydandaki Usta Ömer'den alırsın."] = "Waren sammeln sich im Stalllager (auch an der Truhe im Stall erreichbar). Jeder Platz nimmt einen Gegenstand auf; Gegenstände kaufst du bei Meister Ömer auf dem Platz.",
 	["Değer {}"] = "Wert {1}",
 	["Depoya al"] = "Einlagern",
+	["Fazlası paraya çevrildi"] = "Überschuss in Geld umgewandelt",
 	["Depo doldu"] = "Lager ist voll",
 	["Ahır deposu: {}/{}"] = "Stalllager: {1}/{2}",
 	["Aç"] = "Öffnen",
 	["Ahıra eklendi"] = "Zum Stall hinzugefügt",
-	["Ahır deposunda bu ürün için yeterli yer yok."] = "Im Stalllager ist nicht genug Platz für dieses Produkt.",
+	["Ahır deposunda bu ürün için yeterli yer yok ({} gerekli, {} boş)."] = "Im Stalllager ist nicht genug Platz für dieses Produkt ({1} nötig, {2} frei).",
 
 	-- Para tesisi parti seçenekleri
 	["Küçük parti"] = "Kleine Charge",

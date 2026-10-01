@@ -36,11 +36,15 @@ function ProductionRules.canStart(
 	if save.production[recipe.id] then
 		return false, "Önce mevcut üretimi teslim almalısın."
 	end
-	if
-		recipe.output == "goods"
-		and farmMath.getGoodsSpace(goodsHolder or save, recipe.goodsId) < (recipe.goodsAmount or 0)
-	then
-		return false, "Ahır deposunda bu ürün için yeterli yer yok."
+	if recipe.output == "goods" then
+		-- Parti, hayvanların kaçıracağı gelir tabanı dahil gerçek teslim miktarıyla ölçülür: sığmayan ürün sessizce silinmesin.
+		local needed = math.max(recipe.goodsAmount or 0, farmMath.previewGoodsYield(save, baseRecipe, now))
+		-- Kapasiteyi aşan parti kilitlenmesin: yalnızca kapasiteye sığabilecek kısım için yer gerekir, fazlası teslimde paraya çevrilir.
+		needed = math.min(needed, farmMath.getGoodsCap(goodsHolder or save))
+		local space = farmMath.getGoodsSpace(goodsHolder or save, recipe.goodsId)
+		if space < needed then
+			return false, `Ahır deposunda bu ürün için yeterli yer yok ({needed} gerekli, {space} boş).`
+		end
 	end
 	if ProductionRules.countAdults(save, recipe, farmMath, now) < recipe.requiredAdults then
 		return false, `Bu üretim için boşta {recipe.requiredAdults} yetişkin hayvan gerekli.`

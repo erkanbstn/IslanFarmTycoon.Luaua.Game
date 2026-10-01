@@ -194,7 +194,7 @@ end
 
 local function buyUpgrade(upgrade: any)
 	local speeds = FarmMath.snapshotGrowthSpeeds(save)
-	save.cash -= upgrade.cost
+	save.cash -= FarmMath.getUpgradeCost(save, upgrade)
 	save.purchased[upgrade.id] = true
 	FarmMath.applyDerived(save)
 	FarmMath.preserveGrowthProgress(save, speeds, now)
@@ -239,7 +239,7 @@ local function buyFarm(farmId: string, price: number)
 	local farm = SaveCodec.newFarm(Config, FarmMath, now, function(): string
 		uidCounter += 1
 		return `farm-{uidCounter}`
-	end, farmId)
+	end, farmId, ownedFarmCount() + 1)
 	FarmProfiles.capture(save)
 	save.mainFarms[farmId] = farm
 	farmsBought += 1
@@ -250,7 +250,7 @@ local function buyFarm(farmId: string, price: number)
 	invested()
 end
 
--- Park edilmiş çiftliklerin geliri: otomatik toplayıcı varsa kasaya, yoksa kendi deposuna (kapasiteye kadar)
+-- Park edilmiş çiftliklerin geliri: FarmMath.settleFarmIncome (toplayıcı varsa tamamı, yoksa PARKED_FARM_PAY_RATE kasaya)
 local function accrueParked()
 	for farmId in save.mainFarms do
 		if farmId == save.activeMainFarmId then
@@ -258,11 +258,10 @@ local function accrueParked()
 		end
 		local farm = FarmProfiles.view(save, farmId)
 		local earned = FarmMath.computeIncomeOverInterval(farm, now - STEP, now)
-		if FarmMath.hasAutoCollect(farm) then
-			earn(earned + farm.stored, "park edilmiş çiftlik")
-			farm.stored = 0
-		else
-			farm.stored = math.min(farm.stored + earned, FarmMath.getStorageCap(farm))
+		local collected, newStored = FarmMath.settleFarmIncome(farm, earned, true)
+		farm.stored = newStored
+		if collected > 0 then
+			earn(collected, "park edilmiş çiftlik")
 		end
 	end
 end
@@ -458,12 +457,14 @@ local function invest()
 			continue
 		end
 		local cheapest: any = nil
+		local cheapestCost = math.huge
 		local nextCost = math.huge -- alınabilir en ucuz yükseltme/genişletme (parası yetmese de)
 		for _, upgrade in Config.UPGRADES do
 			if inTheme(upgrade) and FarmMath.getUpgradeStatus(save, upgrade.id) == "available" then
-				nextCost = math.min(nextCost, upgrade.cost)
-				if upgrade.cost <= save.cash and (not cheapest or upgrade.cost < cheapest.cost) then
-					cheapest = upgrade
+				local upgradeCost = FarmMath.getUpgradeCost(save, upgrade)
+				nextCost = math.min(nextCost, upgradeCost)
+				if upgradeCost <= save.cash and (not cheapest or upgradeCost < cheapestCost) then
+					cheapest, cheapestCost = upgrade, upgradeCost
 				end
 			end
 		end
@@ -489,7 +490,7 @@ local function invest()
 			bought = true
 			continue
 		end
-		if expandZone and (not cheapest or expandCost < cheapest.cost) then
+		if expandZone and (not cheapest or expandCost < cheapestCost) then
 			save.cash -= expandCost
 			save.expansions = save.expansions or {}
 			local speedsBefore = FarmMath.snapshotGrowthSpeeds(save)

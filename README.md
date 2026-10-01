@@ -149,7 +149,7 @@ Hangi üç küçük adanın geldiği **çiftlik numarasına (tema)** bağlıdır
 |---|---|---|---|
 | 1 | Klasik Çayır | İnek | Tavuk, At, Keçi |
 | 2 | Yün ve Süt | Tavuk | Süt, Koyun, Keçi |
-| 3 | Güneşli Tarla | Ördek | Süt, Tavuk, Domuz |
+| 3 | Güneşli Tarla | Ördek | Süt, At, Keçi |
 | 4 | Göl ve Hara | İnek | Ördek, At, Domuz |
 | 5 | Dağ ve Orman | Tavuk | Süt, At, Domuz |
 | 6 | Meyve ve Süt | Ördek | Süt, Koyun, Domuz |
