@@ -27,7 +27,7 @@ export type Hud = {
 	bounceCash: () -> (),
 }
 
-function StatsPanel.create(screenGui: ScreenGui): Hud
+function StatsPanel.create(screenGui: Instance): Hud
 	local stats = UiKit.panel(screenGui)
 	stats.Name = "Stats"
 	stats.AnchorPoint = Vector2.new(0, 0.5)

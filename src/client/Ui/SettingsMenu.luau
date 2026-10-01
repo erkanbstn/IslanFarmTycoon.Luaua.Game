@@ -15,7 +15,7 @@ if player:GetAttribute("ReducedMotion") == nil then
 	player:SetAttribute("ReducedMotion", false)
 end
 
-local function create(parent: ScreenGui): UiKit.Window
+local function create(parent: Instance): UiKit.Window
 	local created = UiKit.window(parent, {
 		title = "Ayarlar",
 		icon = "⚙️",
@@ -177,7 +177,7 @@ local function create(parent: ScreenGui): UiKit.Window
 	return created
 end
 
-function SettingsMenu.toggle(parent: ScreenGui)
+function SettingsMenu.toggle(parent: Instance)
 	local current = window
 	if current and current.isOpen() then
 		current.close()
@@ -186,7 +186,7 @@ function SettingsMenu.toggle(parent: ScreenGui)
 	SettingsMenu.open(parent)
 end
 
-function SettingsMenu.open(parent: ScreenGui)
+function SettingsMenu.open(parent: Instance)
 	local current = window
 	if current and current.frame.Parent ~= parent then
 		current.frame:Destroy()

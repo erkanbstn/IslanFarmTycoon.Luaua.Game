@@ -159,6 +159,8 @@ def main() -> int:
         module("petsSpec", "tests/pets.spec.luau"),
         module("MapPaths", "src/shared/MapPaths.luau"),
         module("mapPathsSpec", "tests/map-paths.spec.luau"),
+        module("UiScale", "src/shared/Modules/UiScale.luau"),
+        module("uiScaleSpec", "tests/ui-scale.spec.luau"),
         module("ContractServiceFactory", "src/server/Services/ContractService.luau",
                {"Remotes", "FarmMath", "Environment", "PlayerDataService", "RateLimiter", "Metrics"},
                "game, Remotes, FarmMath, Environment, PlayerDataService, RateLimiter, Metrics, DateTime"),

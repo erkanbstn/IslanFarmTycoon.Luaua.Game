@@ -41,7 +41,7 @@ local function show(earned: number, grown: number)
 	gui.DisplayOrder = 6
 	gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 	gui.Parent = player:WaitForChild("PlayerGui")
-	local window = UiKit.window(gui, {
+	local window = UiKit.window(UiKit.screenRoot(gui), {
 		title = "Tekrar hoş geldin",
 		icon = "🌅",
 		tint = UiKit.Color.Gold,

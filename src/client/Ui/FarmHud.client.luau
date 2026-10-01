@@ -54,16 +54,17 @@ local playerGui = localPlayer:WaitForChild("PlayerGui")
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "FarmHud"
 screenGui.ResetOnSpawn = false
-screenGui.IgnoreGuiInset = true -- üst menü çubuğu Roblox üst şeridinin altında değil, ekranın en üstünde durur
 screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 screenGui.Enabled = false -- Kayıt verisi gelince açılır (boş "$0" görünmesin)
 screenGui.Parent = playerGui
-ProductionPanel.bind(screenGui)
+-- Güvenli alan + ekran boyutuna bağlı ölçek: tüm HUD bu köke yerleşir (üst menü çubuğu kenardan kenara kalabilir)
+local hudRoot = UiKit.screenRoot(screenGui)
+ProductionPanel.bind(hudRoot)
 
 local compact = false
 
 -- Ödüller: günlük ödül, mevsim hedefi ve başarımlar.
-local rewardsWindow = UiKit.window(screenGui, {
+local rewardsWindow = UiKit.window(hudRoot, {
 	title = "Ödüller",
 	icon = "🏆",
 	tint = Color.Gold,
@@ -85,7 +86,7 @@ local function openCenter(window: UiKit.Window)
 end
 
 -- Sipariş panosu ve destek dükkânı kendi pencerelerinde (Ödüller'e karışmaz)
-local boardWindow = UiKit.window(screenGui, {
+local boardWindow = UiKit.window(hudRoot, {
 	title = "Sipariş Panosu",
 	icon = "📋",
 	tint = Color.Green,
@@ -94,7 +95,7 @@ local boardWindow = UiKit.window(screenGui, {
 	anchor = Vector2.new(0.5, 0.5),
 	position = UDim2.fromScale(0.5, 0.5),
 })
-local storeWindow = UiKit.window(screenGui, {
+local storeWindow = UiKit.window(hudRoot, {
 	title = "Destek Dükkânı",
 	icon = "🎒",
 	tint = Color.Blue,
@@ -107,8 +108,8 @@ table.insert(centerWindows, rewardsWindow)
 table.insert(centerWindows, boardWindow)
 table.insert(centerWindows, storeWindow)
 -- Eşya Dükkânı (meydandaki satıcı) ve Envanter: ortadaki pencereler, birbirini kapatır
-local itemShop = ItemShopWindow.create(screenGui)
-local inventoryPanel = InventoryWindow.create(screenGui)
+local itemShop = ItemShopWindow.create(hudRoot)
+local inventoryPanel = InventoryWindow.create(hudRoot)
 table.insert(centerWindows, itemShop.window)
 table.insert(centerWindows, inventoryPanel.window)
 
@@ -116,11 +117,11 @@ table.insert(centerWindows, inventoryPanel.window)
 -- Sol panel, menü ve hedef kartları (oluşturma sırası ekrandaki üst üste binmeyi belirler)
 ---------------------------------------------------------------------------
 
-local statsHud = StatsPanel.create(screenGui)
-local menu = MenuBar.create(screenGui)
+local statsHud = StatsPanel.create(hudRoot)
+local menu = MenuBar.create(hudRoot)
 local onboarding = Onboarding.create(menu.shopButton, menu.upgradesButton)
 local goal = GoalCard.create(statsHud.frame, onboarding)
-local celebrate = Celebration.create(screenGui)
+local celebrate = Celebration.create(hudRoot)
 
 menu.rewardsButton.Activated:Connect(function()
 	if rewardsWindow.isOpen() then
@@ -164,11 +165,11 @@ end)
 -- Sağ kenarda, sağ menü sütununun (76 px + boşluk) soluna yaslı
 local WINDOW_POSITION = UDim2.new(1, -96, 0.5, 0)
 
-local shop = ShopWindow.create(screenGui, WINDOW_POSITION)
+local shop = ShopWindow.create(hudRoot, WINDOW_POSITION)
 local shopWindow = shop.window
-local roadmap = RoadmapWindow.create(screenGui, WINDOW_POSITION)
+local roadmap = RoadmapWindow.create(hudRoot, WINDOW_POSITION)
 local roadmapWindow = roadmap.window
-local upgradesHud = UpgradesWindow.create(screenGui, WINDOW_POSITION)
+local upgradesHud = UpgradesWindow.create(hudRoot, WINDOW_POSITION)
 local upgradesWindow = upgradesHud.window
 
 local function toggleWindow(window: UiKit.Window)
@@ -254,8 +255,8 @@ UserInputService.InputBegan:Connect(function(input: InputObject, gameProcessed: 
 		end
 	end
 end)
-local showToast = UiKit.toastHost(screenGui)
-local toastHolder = screenGui:FindFirstChild("Toasts") :: Frame
+local showToast = UiKit.toastHost(hudRoot)
+local toastHolder = hudRoot:FindFirstChild("Toasts") :: Frame
 -- Bildirimler üst menü çubuğunun (60 px) altında, sağ menü sütununa ve sol panele taşmadan durur.
 toastHolder.AnchorPoint = Vector2.new(0.5, 0)
 toastHolder.Position = UDim2.new(0.5, 0, 0, 84)
@@ -383,12 +384,10 @@ Environment.onChanged(redraw)
 localPlayer:GetAttributeChangedSignal("DataStatus"):Connect(redraw)
 localPlayer:GetAttributeChangedSignal("DataError"):Connect(redraw)
 local function resizeHud()
-	local camera = Workspace.CurrentCamera
-	if not camera then
-		return
-	end
 	-- Kısa ama geniş pencerelerde (ör. 1600x645) tam yerleşim kullanılır; yalnızca dar ya da çok kısa ekran kompakt olur.
-	compact = camera.ViewportSize.X < 900 or camera.ViewportSize.Y < 560
+	-- Ölçüt, kök ölçek uygulanmış etkin boyuttur (telefonda 0,85 ile daha çok yer kalır).
+	local viewport = UiKit.viewport()
+	compact = viewport.X < 900 or viewport.Y < 560
 	statsHud.setCompact(compact)
 	-- Kompakt: kasa, depo çubuğu ve tek satırlık mevsim/hava.
 	seasonBar.setCompact(compact)

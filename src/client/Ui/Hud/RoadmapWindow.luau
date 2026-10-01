@@ -26,7 +26,7 @@ export type Roadmap = {
 	update: (state: PlayerSave, content: boolean) -> (),
 }
 
-function RoadmapWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Roadmap
+function RoadmapWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Roadmap
 	local roadmapWindow = UiKit.window(screenGui, {
 		title = "Yol Haritası",
 		icon = "🗺️",

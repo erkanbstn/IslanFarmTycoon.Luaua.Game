@@ -36,7 +36,7 @@ local OWNED_ORDER = 40
 local WEATHER_ORDER = { "sunny", "cloudy", "rain", "storm", "snow" }
 local POWER_BUTTONS = 5
 
-function InventoryWindow.create(screenGui: ScreenGui): Panel
+function InventoryWindow.create(screenGui: Instance): Panel
 	local window = UiKit.window(screenGui, {
 		title = "Envanter",
 		icon = "🎒",

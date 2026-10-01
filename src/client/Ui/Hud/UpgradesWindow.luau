@@ -27,7 +27,7 @@ export type Upgrades = {
 	update: (state: PlayerSave, content: boolean) -> (),
 }
 
-function UpgradesWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Upgrades
+function UpgradesWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Upgrades
 	local upgradesWindow = UiKit.window(screenGui, {
 		title = "Yükseltmeler",
 		icon = "🛠️",

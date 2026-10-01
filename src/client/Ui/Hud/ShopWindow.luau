@@ -29,7 +29,7 @@ export type Shop = {
 	update: (state: PlayerSave, content: boolean) -> (),
 }
 
-function ShopWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Shop
+function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 	local shopWindow = UiKit.window(screenGui, {
 		title = "Hayvan Pazarı",
 		icon = "🐄",

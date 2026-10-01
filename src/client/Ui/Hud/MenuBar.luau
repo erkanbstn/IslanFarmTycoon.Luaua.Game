@@ -48,7 +48,7 @@ export type Hud = {
 	updateVisibility: (state: PlayerSave) -> (),
 }
 
-function MenuBar.create(screenGui: ScreenGui): Hud
+function MenuBar.create(screenGui: Instance): Hud
 	-- Üst çubuk: oyun içi ana pencereler. Bildirimler (toast) bunun altında durur.
 	local topBar = Instance.new("Frame")
 	topBar.Name = "MenuTop"
