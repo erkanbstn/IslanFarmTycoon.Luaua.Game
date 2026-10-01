@@ -258,6 +258,22 @@ return function(createPlotService: any, Config: any)
 	local clearsAfter = multi.clears[carolPlot]
 	assert(service.restoreMainFarms(carol, { "1" }, "1"), "repeat restore")
 	assert(multi.clears[carolPlot] == clearsAfter, "an unchanged theme must not clear again")
+	-- Boş ada seçimi: yeni oyuncu (tema 1) kayıt gelmeden önce zaten tema 1'deki boş adaya konur
+	service.release(carol)
+	for _, free in service.getAllPlots() do
+		if service.getOwner(free) == nil then
+			free:SetAttribute("ThemeIndex", 3)
+		end
+	end
+	carolPlot:SetAttribute("ThemeIndex", 1)
+	local swapsBeforePick = multi.themeSwaps()
+	local newcomer = player(108)
+	assert(
+		service.assign(newcomer) and service.getPlot(newcomer) == carolPlot,
+		"a new player prefers an already theme-1 plot"
+	)
+	assert(multi.themeSwaps() == swapsBeforePick, "picking a matching plot must not rebuild a theme")
+	service.release(picker)
 	local newcomer = player(108)
 	assert(service.assign(newcomer), "a free plot is available again")
 	local received = service.getPlot(newcomer)

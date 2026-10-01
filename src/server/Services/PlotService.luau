@@ -498,15 +498,26 @@ local function bindFarm(player: Player, farmId: string, plot: Model, keepTheme: 
 	end
 end
 
--- Boş adalardan rastgele biri verilir; sahipsiz adalar kilitli/boş yer tutucu olarak görünür.
-local function findFreePlot(): Model?
+-- Aynı sunucuda ayrılan oyuncunun son teması: geri dönerse aynı temadaki boş adaya konur (kayıt gelince tema değişimi gerekmez).
+local lastThemeByUserId: { [number]: number } = {}
+
+-- Boş adalardan biri verilir; sahipsiz adalar kilitli/boş yer tutucu olarak görünür. Kayıt henüz yüklenmediği için tema
+-- bilinmez: oyuncunun bu sunucudaki son temasını, yoksa yeni oyuncu teması 1'i taşıyan adayı tercih eder (kayıtlı tema
+-- sonradan restoreMainFarms'ta zaten giydirilir; bu yalnızca gereksiz yeniden giydirmeyi azaltır).
+local function findFreePlot(player: Player?): Model?
 	local free: { Model } = {}
+	local preferred: { Model } = {}
+	local wanted = if player then lastThemeByUserId[player.UserId] or 1 else 1
 	for _, plot in plotOrder do
 		if not ownerByPlotId[plot:GetAttribute("PlotId") :: string] then
 			table.insert(free, plot)
+			if plot:GetAttribute("ThemeIndex") == wanted then
+				table.insert(preferred, plot)
+			end
 		end
 	end
-	return if #free > 0 then free[math.random(#free)] else nil
+	local pool = if #preferred > 0 then preferred else free
+	return if #pool > 0 then pool[math.random(#pool)] else nil
 end
 
 -- Kayıttaki etkin çiftliği oyuncunun adasına yükler (giriş).
@@ -549,7 +560,7 @@ function PlotService.assign(player: Player): boolean
 	if PlotService.getPlot(player) then
 		return true
 	end
-	local plot = findFreePlot()
+	local plot = findFreePlot(player)
 	if not plot then
 		warn(`[Plot] Boş ada yok: {player.Name}`)
 		return false
@@ -574,6 +585,11 @@ function PlotService.release(player: Player)
 		characterConnections[player] = nil
 	end
 	player.RespawnLocation = nil
+	local active = activePlots[player]
+	local activeTheme = active and active:GetAttribute("ThemeIndex")
+	if typeof(activeTheme) == "number" then
+		lastThemeByUserId[player.UserId] = activeTheme
+	end
 	for _, plot in table.clone(ownedOf(player)) do
 		local plotId = plot:GetAttribute("PlotId") :: string
 		ownerByPlotId[plotId], farmIdByPlotId[plotId] = nil, nil
