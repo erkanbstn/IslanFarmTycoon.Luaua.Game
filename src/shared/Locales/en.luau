@@ -1225,4 +1225,5 @@ return {
 	["Ziyaret"] = "Visit",
 	["{} geldi! Etkilere göz at (Mevsim çubuğu)"] = "{1} has arrived! See the effects (Season bar)",
 	["Hava: {} · Etkilere göz at"] = "Weather: {1} · See the effects",
+	["Ürünle al · {}"] = "Trade goods · {1}",
 }

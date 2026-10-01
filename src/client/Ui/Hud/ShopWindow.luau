@@ -251,14 +251,18 @@ function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 			local barterButton = barterButtons[animalId]
 			local barterWorth = FarmMath.getGoodsBarterWorth(state)
 			local roomForBarter = zoneId ~= nil and FarmMath.getFreeSlots(state, animalId) >= 1
-			barterButton.Visible = roomForBarter and barterWorth > 0
-			if roomForBarter and barterWorth > 0 then
-				local single = FarmMath.getBulkPrice(state, animalId, 1)
-				setPurchaseButton(
-					barterButton,
-					if barterWorth >= single then "Ürünle al" else "Ürün yetmiyor",
-					if barterWorth >= single then "primary" else "disabled"
-				)
+			local single = if roomForBarter then FarmMath.getBulkPrice(state, animalId, 1) else 0
+			local barterPlan = if roomForBarter and barterWorth > 0
+				then FarmMath.planGoodsBarter(state, single)
+				else nil
+			-- Ürünle alım mümkünse düğme hangi ürünlerin gideceğini yazar; ürün yetmiyorsa ölü düğme yerine kartın sağ üstünde kırmızı yazı
+			barterButton.Visible = barterPlan ~= nil
+			if barterPlan then
+				setPurchaseButton(barterButton, `Ürünle al · {FarmMath.formatGoodsCost(barterPlan)}`, "primary")
+			end
+			if roomForBarter and barterWorth > 0 and not barterPlan then
+				card.status.Text = "Ürün yetmiyor"
+				card.status.Visible = true
 			end
 		end
 		for multiplier, button in multiplierButtons do

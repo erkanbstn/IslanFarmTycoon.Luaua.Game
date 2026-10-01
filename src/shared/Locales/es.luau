@@ -1226,4 +1226,5 @@ return {
 	["Ziyaret"] = "Visitar",
 	["{} geldi! Etkilere göz at (Mevsim çubuğu)"] = "¡Llegó {1}! Mira los efectos (barra de estación)",
 	["Hava: {} · Etkilere göz at"] = "Clima: {1} · Mira los efectos",
+	["Ürünle al · {}"] = "Con productos · {1}",
 }
