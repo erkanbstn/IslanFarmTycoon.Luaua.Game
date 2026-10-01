@@ -139,9 +139,10 @@ function AnimalVisualService.refresh(plot: Model, data: PlayerSave)
 		-- böylece yeni eklenen hayvan onların yuvasına düşmez.
 		local isExtension = animal.extensionId ~= nil and animal.extensionId ~= ""
 		local slot: number
+		local extensionId = animal.extensionId or ""
 		if isExtension then
-			slot = (perExtensionCount[animal.extensionId :: string] or 0) + 1
-			perExtensionCount[animal.extensionId :: string] = slot
+			slot = (perExtensionCount[extensionId] or 0) + 1
+			perExtensionCount[extensionId] = slot
 		else
 			slot = (perZoneCount[animal.zoneId] or 0) + 1
 			perZoneCount[animal.zoneId] = slot
@@ -167,8 +168,8 @@ function AnimalVisualService.refresh(plot: Model, data: PlayerSave)
 
 		local visual: Model
 		if isExtension then
-			local areaCf, areaSize, movement = ExtensionAreas.find(plot, animal.extensionId)
-			local extension = Config.getExtension(animal.extensionId)
+			local areaCf, areaSize, movement = ExtensionAreas.find(plot, extensionId)
+			local extension = Config.getExtension(extensionId)
 			if not areaCf or not areaSize or not extension then
 				continue
 			end
@@ -177,7 +178,7 @@ function AnimalVisualService.refresh(plot: Model, data: PlayerSave)
 				areaCf,
 				areaSize,
 				slot,
-				FarmMath.getExtensionCapacity(data, animal.extensionId),
+				FarmMath.getExtensionCapacity(data, extensionId),
 				movement,
 				lineageLevel
 			)

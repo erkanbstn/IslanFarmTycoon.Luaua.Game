@@ -557,19 +557,19 @@ return function(createService: any, Config: any)
 	assert(#push.sent == 0, "pushState must not send synchronously")
 	idle()
 	assert(#push.sent == 1, "same-frame pushState calls collapse into one packet")
-	local first = push.sent[1]
-	assert(first.payload.mainFarms == nil, "parked farm records are not sent to the client")
+	local firstPacket = push.sent[1]
+	assert(firstPacket.payload.mainFarms == nil, "parked farm records are not sent to the client")
 	assert(
-		typeof(first.payload.mainFarmSummaries) == "table" and #first.payload.mainFarmSummaries == 1,
+		typeof(firstPacket.payload.mainFarmSummaries) == "table" and #firstPacket.payload.mainFarmSummaries == 1,
 		"summaries replace parked farm records"
 	)
 	assert(
-		first.payload.cash == Config.STARTING_CASH and first.payload.animals ~= nil,
+		firstPacket.payload.cash == Config.STARTING_CASH and firstPacket.payload.animals ~= nil,
 		"active farm fields stay at top level"
 	)
 	local data = push.service.tryGet(push.player)
 	assert(data.mainFarms ~= nil and data.mainFarmSummaries == nil, "server data is not mutated by sending")
-	assert(first.revision >= 1, "packet carries a revision")
+	assert(firstPacket.revision >= 1, "packet carries a revision")
 
 	-- Hemen ardından gelen çağrılar 0,25 sn dolunca tek pakette gider; son durum gönderilir.
 	push.service.pushState(push.player)
@@ -585,13 +585,13 @@ return function(createService: any, Config: any)
 	idle()
 	assert(#push.sent == 2, "pending calls flush once after the window")
 	assert(push.sent[2].payload.cash == data.cash, "flush carries the latest state")
-	assert(push.sent[2].revision > first.revision, "revisions keep increasing")
+	assert(push.sent[2].revision > firstPacket.revision, "revisions keep increasing")
 
 	-- Sessiz bir aradan sonra ilk çağrı gecikmesiz (aynı kare) gider.
 	push.advance(5)
 	push.service.pushState(push.player)
 	idle()
-	assert(#push.sent == 3, "first call after a quiet period is not delayed")
+	assert(#push.sent == 3, "firstPacket call after a quiet period is not delayed")
 
 	-- Oturum kapanınca bekleyen paket gönderilmez.
 	push.service.pushState(push.player)
