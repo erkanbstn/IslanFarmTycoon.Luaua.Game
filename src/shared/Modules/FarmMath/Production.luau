@@ -144,8 +144,10 @@ function Production.getProductionReward(
 	return reward, bonus
 end
 
--- Ürün merkezinin teslim miktarı: temel miktar x (1 + yetişkin bonusu) x tesis verimi. job verilirse miktar, kaçırılan
--- gelirin (+ başlatma maliyetinin) PRODUCTION_MIN_RETURN katı kadar para değerinin altına inemez. (miktar, bonus) döner.
+-- Ürün merkezinin teslim miktarı: temel miktar x çarpan; çarpan = 1 + yetişkin bonusu + tesis verimi + muska (artılar TOPLANIR, toplam
+-- PRODUCTION_YIELD_MAX_MULT'ı aşamaz). job verilirse miktar, kaçırılan gelirin (+ başlatma maliyetinin) PRODUCTION_MIN_RETURN katı kadar
+-- para değerinin altına inmemeye çalışır, ama PRODUCTION_MAX_BATCH_UNITS'i asla aşmaz: asgari getiri miktarı şişirerek değil, ürünün birim
+-- değeriyle sağlanır (Config/Goods.luau). (miktar, yetişkin bonusu) döner.
 function Production.getGoodsYield(
 	save: PlayerSave,
 	recipe: Config.ProductionRecipeConfig,
@@ -162,16 +164,21 @@ function Production.getGoodsYield(
 		Config.PRODUCTION_MAX_BONUS_ADULTS
 	)
 	local bonus = extra * Config.PRODUCTION_BONUS_PER_ADULT
-	local facilityYield = 1 + Expansion.getBuildBonus(save, recipe.id, "yield")
-	local charm = 1 + Core.getBonus(save, "goodsYield") -- takılı ambar muskası
-	local amount = math.floor(recipe.goodsAmount * (1 + bonus) * facilityYield * charm)
+	local multiplier = math.min(
+		1
+			+ bonus
+			+ Expansion.getBuildBonus(save, recipe.id, "yield") -- tesis geliştirmesi
+			+ Core.getBonus(save, "goodsYield"), -- takılı ambar muskası
+		Config.PRODUCTION_YIELD_MAX_MULT
+	)
+	local amount = math.floor(recipe.goodsAmount * multiplier)
 	if job and job.forgone then
 		local floorAmount = math.ceil(
 			(job.forgone + Expansion.getFacilityCost(save, recipe)) * Config.PRODUCTION_MIN_RETURN / good.value
 		)
 		amount = math.max(amount, floorAmount)
 	end
-	return amount, bonus
+	return math.clamp(amount, 1, Config.PRODUCTION_MAX_BATCH_UNITS), bonus
 end
 
 -- Büyüme hızı değişmeden önce her hayvanın (tür|bölge) hızını kaydeder; preserveGrowthProgress ile birlikte kullanılır.

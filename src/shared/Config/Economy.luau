@@ -18,6 +18,26 @@ return {
 
 	PRODUCTION_MAX_BONUS_ADULTS = 12,
 
+	-- Ürün merkezi partisi küçük kalır: yetişkin bonusu, tesis verimi ve muska ayrı çarpan DEĞİL, artıları toplanır ve toplam çarpan bu değeri aşamaz
+	-- (taban miktar 1-2 birim). Miktar ayrıca PRODUCTION_MAX_BATCH_UNITS ile sınırlanır: asgari getiri (PRODUCTION_MIN_RETURN) miktarı şişirerek
+	-- değil, ürünün birim DEĞERİYLE sağlanır (`Config/Goods.luau`; `scripts/audit-economy.py` bölüm D).
+	PRODUCTION_YIELD_MAX_MULT = 3,
+	PRODUCTION_MAX_BATCH_UNITS = 6,
+
+	-- "Uçuk sayı" sınırları (`tests/economy.spec.luau` ve `scripts/audit-economy.py --check` bunlara karşı ölçer; oyun mantığında kullanılmaz).
+	-- Değer sınırı yoktur, çoğu oran/sayıdır; fiyat tavanı kademe tablosundadır (`DIFFICULTY.tiers[n].maxPrice`).
+	ECONOMY_LIMITS = {
+		maxBatchUnits = 6, -- ürün merkezi partisi (tam yükseltilmiş çiftlik)
+		maxLineUnits = 12, -- sipariş satırı birimi
+		maxRewardRatio = 3.2, -- sipariş ödülü / ürünlerin değeri (ada sipariş bonusu dahil)
+		minRewardRatio = 1,
+		maxRewardMinutes = 15, -- sipariş ödülü, o evredeki gelirin en çok bu kadar dakikası
+		maxDisplayValue = 1e10, -- hiçbir ekran değeri bunu aşmaz
+		-- Ürün birim değeri / tam yükseltilmiş çiftlikte merkezin asgari parti getirisi (tabanı): bu bantta kalır (Config/Goods.luau "DEĞER KURALI")
+		valueToFloorMin = 8,
+		valueToFloorMax = 18,
+	},
+
 	-- Üretim tesisine verilen yetişkin hayvanlar iş boyunca gelir getirmez. Teslim ödülü, (hayvanların kaçırdığı gelir +
 	-- başlatma maliyeti) x bu orandan az olamaz: tesis her zaman hayvanları yerinde bırakmaktan daha kârlıdır.
 	PRODUCTION_MIN_RETURN = 1.4,

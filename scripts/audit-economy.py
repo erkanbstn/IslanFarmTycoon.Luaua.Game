@@ -60,6 +60,21 @@ local function buildSave(farm: number, fraction: number): any
 		save.purchased[list[index].id] = true
 	end
 	FarmMath.applyDerived(save)
+	-- Geç oyun: alan/tesis geliştirmeleri ve ırk seviyeleri evre kısmı kadar (son evre = hepsi en üst seviye); gelir ve kaçırılan gelir gerçeğe yaklaşır
+	save.expansions = {}
+	save.lineage = {}
+	for zoneId, zone in Config.ZONES do
+		if save.unlockedZones[zoneId] or save.purchased[zone.island] then
+			save.expansions[zoneId] = math.floor(Config.BUILD_UPGRADES.maxLevel * fraction)
+		end
+	end
+	for recipeId in Config.PRODUCTION_RECIPES do
+		save.expansions[recipeId] = math.floor(Config.BUILD_UPGRADES.maxLevel * fraction)
+	end
+	for animalId in Config.ANIMALS do
+		save.lineage[animalId] = math.floor(Config.LINEAGE.maxLevel * fraction)
+	end
+	FarmMath.applyDerived(save)
 	save.animals = {}
 	for zoneId in save.unlockedZones do
 		local zone = Config.ZONES[zoneId]
@@ -145,7 +160,7 @@ for _, farm in FARMS do
 end
 
 print("")
-print("== D) ÜRÜN DEĞERİ ÖNERİSİ (tam yükseltilmiş çiftlik: taban değer = (kaçırılan gelir + başlatma) x MIN_RETURN; öneri = taban x 1.5 / 4 birim) ==")
+print("== D) ÜRÜN DEĞERİ ÖNERİSİ (tam yükseltilmiş çiftlik: taban değer = (kaçırılan gelir + başlatma) x MIN_RETURN; değer / taban 8-18 bandında olmalı; öneri = taban x 13) ==")
 local suggested: { [string]: number } = {}
 for _, farm in FARMS do
 	local save = buildSave(farm, 1.0)
@@ -160,10 +175,35 @@ for _, farm in FARMS do
 		local forgone = FarmMath.estimateForgoneIncome(save, picked, duration)
 		local floorWorth = (forgone + FarmMath.getFacilityCost(save, recipe)) * Config.PRODUCTION_MIN_RETURN
 		local good = Config.GOODS[recipe.goodsId]
-		local value = floorWorth * 1.5 / 4
+		local value = floorWorth * 13
 		suggested[good.id] = math.max(suggested[good.id] or 0, value)
-		print(string.format("Ç%d %-16s %-14s taban %8s  şimdiki değer %6s  öneri %7s", farm, recipeId, good.id, fmt(floorWorth), fmt(good.value), fmt(value)))
+		print(string.format("Ç%d %-16s %-14s taban %8s  şimdiki değer %7s (x%.1f)  öneri %7s  raw=%d", farm, recipeId, good.id, fmt(floorWorth), fmt(good.value), good.value / floorWorth, fmt(value), floorWorth))
+		local limitsD = Config.ECONOMY_LIMITS
+		if limitsD and (good.value / floorWorth < limitsD.valueToFloorMin or good.value / floorWorth > limitsD.valueToFloorMax) then
+			problem(`{good.id} değer/taban {good.value / floorWorth} bantta değil (Ç{farm})`)
+		end
 	end
+end
+
+print("")
+print("== E) AÇILIŞ ÜRÜNÜ (goodsCost: birim ve değerin para fiyatına oranı) ==")
+for _, farm in FARMS do
+	local reference = { farmId = tostring(farm), activeMainFarmId = tostring(farm), purchased = {} }
+	local units, worthTotal, moneyTotal, count = 0, 0, 0, 0
+	local maxUnits = 0
+	for _, upgrade in Config.UPGRADES do
+		if upgrade.goodsCost and Config.upgradeInTheme(upgrade, reference.farmId) then
+			local money = FarmMath.getUpgradeCost(reference, upgrade)
+			for goodsId, amount in FarmMath.getGoodsCost(reference, upgrade) do
+				units += amount
+				maxUnits = math.max(maxUnits, amount)
+				worthTotal += amount * Config.GOODS[goodsId].value
+				count += 1
+			end
+			moneyTotal += money
+		end
+	end
+	print(string.format("Ç%d  %d kalem · toplam %d birim (kalem başına en çok %d) · ürün değeri / para fiyatı = %.3f", farm, count, units, maxUnits, worthTotal / math.max(moneyTotal, 1)))
 end
 
 print("")
@@ -171,14 +211,45 @@ print("== C) BÜYÜK SAYILAR ==")
 local biggest, biggestWhat = 0, ""
 for _, farm in FARMS do
 	local save = buildSave(farm, 0.01)
-	for _, upgrade in Config.UPGRADES do
-		local price = FarmMath.getPrice(save, "upgrade", upgrade.id, 0)
-		if price ~= math.huge and price > biggest then
-			biggest, biggestWhat = price, `Ç{farm} {upgrade.id}`
+	local tierBiggest, tierWhat = 0, ""
+	local function consider(price: number, what: string)
+		if price ~= math.huge and price > tierBiggest then
+			tierBiggest, tierWhat = price, what
 		end
 	end
+	local farmId = tostring(farm)
+	for _, upgrade in Config.UPGRADES do
+		if Config.upgradeInTheme(upgrade, farmId) then
+			consider(FarmMath.getPrice(save, "upgrade", upgrade.id, 0), upgrade.id)
+		end
+	end
+	for animalId in Config.ANIMALS do
+		consider(FarmMath.getPrice(save, "animal", animalId, 30), `hayvan {animalId}`)
+	end
+	for targetId, zone in Config.ZONES do
+		if Config.themeHasIsland(farmId, zone.island) then
+			for level = 0, Config.BUILD_UPGRADES.maxLevel - 1 do
+				consider(FarmMath.getPrice(save, "expansion", targetId, level), `genişletme {targetId} Sv.{level}`)
+			end
+		end
+	end
+	for targetId, recipe in Config.PRODUCTION_RECIPES do
+		if Config.themeHasIsland(farmId, recipe.island) then
+			for level = 0, Config.BUILD_UPGRADES.maxLevel - 1 do
+				consider(FarmMath.getPrice(save, "expansion", targetId, level), `tesis {targetId} Sv.{level}`)
+			end
+		end
+	end
+	local ceiling = Config.DIFFICULTY.tiers[farm].maxPrice
+	print(string.format("Ç%d en pahalı kalem: %s (%s) · tavan %s", farm, fmt(tierBiggest), tierWhat, ceiling and fmt(ceiling) or "-"))
+	if ceiling and tierBiggest > ceiling then
+		problem(`Ç{farm} fiyat {tierBiggest} > kademe tavanı {ceiling} ({tierWhat})`)
+	end
+	if tierBiggest > biggest then
+		biggest, biggestWhat = tierBiggest, `Ç{farm} {tierWhat}`
+	end
 end
-print(`en pahalı yükseltme: {fmt(biggest)} ({biggestWhat})`)
+print(`en pahalı kalem: {fmt(biggest)} ({biggestWhat})`)
 print(`en büyük parti: {maxYield} ürün; sipariş ödül/değer en çok {string.format("%.2f", worstRatio)}; ödül en çok {string.format("%.1f", worstMinutes)} dk gelir; satır en çok {worstLine}`)
 
 local limits = Config.ECONOMY_LIMITS

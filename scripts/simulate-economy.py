@@ -170,6 +170,8 @@ end
 
 -- Ürün (ahır deposu) ölçümü: üretim/tüketim/doluluk. FarmMath.addGoods sarılır; ProductionLogic aynı tabloyu kullanır.
 local goodsStat: { [string]: any } = {}
+-- Sipariş ve parti ölçümü (ödül/değer oranı, ödülün gelir dakikası, satır ve parti birimi): "uçuk sayı" denetimi (docs/ZORLUK_VE_FIYAT.md)
+local orderStat = { count = 0, ratioSum = 0, ratioMax = 0, minutesSum = 0, minutesMax = 0, lineMax = 0, batchMax = 0 }
 local function gstat(goodsId: string): any
 	local row = goodsStat[goodsId]
 	if not row then
@@ -185,6 +187,7 @@ do
 		local row = gstat(goodId)
 		row.produced += added
 		row.overflow += math.max(0, math.floor(amount) - added)
+		orderStat.batchMax = math.max(orderStat.batchMax, math.floor(amount))
 		return added
 	end
 end
@@ -562,8 +565,16 @@ local function ordersTick()
 		if keepsReserve and not FarmMath.isContractDone(save, offer) and FarmMath.canFulfillContract(save, offer) then
 			local reward = FarmMath.fulfillContract(save, offer.key, now, 0)
 			if reward then
+				local ratio = reward / math.max(offer.worth, 1)
+				local minutes = reward / math.max(FarmMath.computeIncomePerSecond(save, now) * 60, 1)
+				orderStat.count += 1
+				orderStat.ratioSum += ratio
+				orderStat.ratioMax = math.max(orderStat.ratioMax, ratio)
+				orderStat.minutesSum += minutes
+				orderStat.minutesMax = math.max(orderStat.minutesMax, minutes)
 				for _, line in offer.lines do
 					gstat(line.goodsId).ordered += line.amount
+					orderStat.lineMax = math.max(orderStat.lineMax, line.amount)
 				end
 				earn(reward, "sipariş")
 				actions += 1
@@ -996,6 +1007,9 @@ do
 		local minutes = math.max(onlineMinutes, 1e-9)
 		emit(string.format("  TOPLAM     üretim %6.2f/dk · pano %6.2f/dk · toptan %6.2f/dk · takas %6.2f/dk · ort. doluluk %%%5.1f", totalProduced / minutes, totalOrdered / minutes, totalSold / minutes, totalBartered / minutes, fillWeighted / fillSeconds * 100))
 	end
+	if orderStat.count > 0 then
+		emit(string.format("  SİPARİŞ ÖLÇÜMÜ: %d teslim · ödül/değer ort. %.2f, en çok %.2f · ödül ort. %.1f, en çok %.1f dk gelir · satır en çok %d birim · parti en çok %d birim", orderStat.count, orderStat.ratioSum / orderStat.count, orderStat.ratioMax, orderStat.minutesSum / orderStat.count, orderStat.minutesMax, orderStat.lineMax, orderStat.batchMax))
+	end
 	local unlockUnits, unlockWorth = 0, 0
 	for goodsId, amount in unlockGoods do
 		unlockUnits += amount
@@ -1089,6 +1103,7 @@ else
 			actionsPerMinute = actionsPerMinute,
 			storageFullPercent = fullPercent,
 			goods = goodsRows,
+			orders = orderStat,
 			unlockGoods = unlockGoods,
 			expansionLevels = expansionTotal,
 			expansionSpent = expansionSpent,

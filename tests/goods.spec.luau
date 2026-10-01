@@ -35,10 +35,9 @@ return function(codec: any, config: any, farmMath: any, rules: any, logic: any)
 		if recipe.output == "goods" then
 			local good = assert(config.GOODS[recipe.goodsId], `recipe {id} produces a known good`)
 			assert(recipe.goodsAmount and recipe.goodsAmount > 0, `recipe {id} has a positive amount`)
-			assert(
-				recipe.reward == recipe.goodsAmount * good.value,
-				`recipe {id} reward equals the worth of its goods (display and upgrade cost basis)`
-			)
+			-- `reward` yalnızca tesis ölçeğidir (geliştirme fiyatı tabanı); ürün değerinden bağımsızdır, değer ayarı fiyat temposunu bozmaz.
+			-- Ürünün değeri ise partinin asgari getirisine yetmelidir (aşağıda "verim" bölümü ve scripts/audit-economy.py bölüm D).
+			assert(recipe.reward > 0, `recipe {id} has a facility scale`)
 			assert(
 				table.find(recipe.animalIds, good.animalId) or table.find(recipe.animalIds, recipe.animalId),
 				`recipe {id} uses the good's animal`
@@ -294,17 +293,41 @@ return function(codec: any, config: any, farmMath: any, rules: any, logic: any)
 	addAnimal(yieldSave, "cow", "starter")
 	local withExtra, bonus = farmMath.getGoodsYield(yieldSave, recipe, now)
 	assert(bonus > 0 and withExtra > base, "extra adults raise the yield")
-	local floored = farmMath.getGoodsYield(yieldSave, recipe, now, { uid = "j", readyAt = now, forgone = 1e6 })
+	-- Kaçırılan gelir tabanı miktarı yükseltir ama toplam parti PRODUCTION_MAX_BATCH_UNITS'te kalır (miktar şişmez)
+	local milkValue = config.GOODS.milk.value
+	local moderate = 2.5 * milkValue / config.PRODUCTION_MIN_RETURN
+	local floored = farmMath.getGoodsYield(yieldSave, recipe, now, { uid = "j", readyAt = now, forgone = moderate })
 	assert(
 		floored
-			== math.ceil(
-				(1e6 + farmMath.getFacilityCost(yieldSave, recipe))
-					* config.PRODUCTION_MIN_RETURN
-					/ config.GOODS.milk.value
+			== math.clamp(
+				math.ceil(
+					(moderate + farmMath.getFacilityCost(yieldSave, recipe)) * config.PRODUCTION_MIN_RETURN / milkValue
+				),
+				1,
+				config.PRODUCTION_MAX_BATCH_UNITS
 			),
-		"the yield never drops below the forgone-income floor"
+		"the yield follows the forgone-income floor while it fits the batch limit"
 	)
-	assert(floored * config.GOODS.milk.value > 1e6, "goods are always worth more than the income the animals gave up")
+	assert(
+		floored * milkValue >= moderate * config.PRODUCTION_MIN_RETURN,
+		"below the batch limit the goods are worth more than the income the animals gave up"
+	)
+	local huge = farmMath.getGoodsYield(yieldSave, recipe, now, { uid = "j", readyAt = now, forgone = 1e9 })
+	assert(
+		huge == config.PRODUCTION_MAX_BATCH_UNITS,
+		"an enormous forgone income never inflates the batch past the limit"
+	)
+	-- Yetişkin bonusu, tesis verimi ve muska toplanır; toplam çarpan sınırlıdır
+	local boosted = newSave()
+	for _ = 1, config.PRODUCTION_MAX_BONUS_ADULTS + recipe.requiredAdults do
+		addAnimal(boosted, "cow", "starter")
+	end
+	boosted.expansions = { [recipe.id] = config.BUILD_UPGRADES.maxLevel }
+	assert(
+		farmMath.getGoodsYield(boosted, recipe, now)
+			<= math.floor(recipe.goodsAmount * config.PRODUCTION_YIELD_MAX_MULT),
+		"adult bonus and facility upgrades never multiply the batch past the yield multiplier cap"
+	)
 	assert(
 		farmMath.getGoodsYield(yieldSave, config.PRODUCTION_RECIPES.packed_milk, now) == 0,
 		"cash recipes have no goods yield"
@@ -355,6 +378,7 @@ return function(codec: any, config: any, farmMath: any, rules: any, logic: any)
 	farmMath.addGoods(hugeSave, "milk", 1)
 	assert(not rules.canStart(hugeSave, recipe, hugeMath, now), "a barn without room for the fitting part still blocks")
 	hugeSave.goods = {}
+	farmMath.addGoods(hugeSave, "milk", hugeCap - 1) -- tek birimlik yer kaldı: partinin kalanı paraya çevrilir
 	local cashed = 0
 	local hooks: any = {
 		settle = function() end,
@@ -364,16 +388,164 @@ return function(codec: any, config: any, farmMath: any, rules: any, logic: any)
 	}
 	local job: any = { uid = "j", readyAt = now, startedAt = now - 10, forgone = 1e9 }
 	local expectedYield = farmMath.getGoodsYield(hugeSave, recipe, now, job)
-	assert(expectedYield > hugeCap, "the fixture batch exceeds the capacity")
+	assert(expectedYield > 1, "the fixture batch exceeds the one free slot")
 	hugeSave.production[recipe.id] = job
 	local reward = logic.claim(hugeSave, hugeSave, recipe, job, now, farmMath, config, hooks)
 	assert(farmMath.getGoodsAmount(hugeSave, "milk") == hugeCap, "the fitting part is stored")
 	assert(
-		reward == math.floor((expectedYield - hugeCap) * config.GOODS.milk.value * config.GOODS_SELL.rate)
+		reward == math.floor((expectedYield - 1) * config.GOODS.milk.value * config.GOODS_SELL.rate)
 			and cashed == reward,
 		"the overflow pays the bulk-sell rate in cash (never more than selling from the barn)"
 	)
 	local other = config.PRODUCTION_RECIPES.packed_milk
 	assert(rules.canStart(startSave, other, farmMath, now), "a full barn does not block cash recipes")
+
+	-- ------------------------------------------------------------------ ekonomi değişmezleri (scripts/audit-economy.py ile aynı fixture)
+	-- Her çiftlik kademesi ve evrede: ürün merkezi partisi küçük, ürün değeri asgari getiriye yeter ama şişkin değil, sipariş ödülü ürün
+	-- değerinin 1-3 katı ve anlık gelirin birkaç dakikasını geçmez, hiçbir fiyat kademe tavanını aşmaz.
+	local limits = config.ECONOMY_LIMITS
+	local function economySave(farm: number, fraction: number): any
+		local built = assert(codec.decode(nil, config, farmMath, now, uid), "fixture decode failed")
+		built.activeMainFarmId = tostring(farm)
+		local list = {}
+		for _, upgrade in config.UPGRADES do
+			if not upgrade.leveled and config.upgradeInTheme(upgrade, built.activeMainFarmId) then
+				table.insert(list, upgrade)
+			end
+		end
+		for index = 1, math.max(1, math.floor(#list * fraction + 0.5)) do
+			built.purchased[list[index].id] = true
+		end
+		farmMath.applyDerived(built)
+		built.expansions = {}
+		built.lineage = {}
+		for zoneId, zone in config.ZONES do
+			if built.unlockedZones[zoneId] or built.purchased[zone.island] then
+				built.expansions[zoneId] = math.floor(config.BUILD_UPGRADES.maxLevel * fraction)
+			end
+		end
+		for recipeId in config.PRODUCTION_RECIPES do
+			built.expansions[recipeId] = math.floor(config.BUILD_UPGRADES.maxLevel * fraction)
+		end
+		for animalId in config.ANIMALS do
+			built.lineage[animalId] = math.floor(config.LINEAGE.maxLevel * fraction)
+		end
+		farmMath.applyDerived(built)
+		built.animals = {}
+		for zoneId in built.unlockedZones do
+			local zone = config.ZONES[zoneId]
+			local animalId = nil
+			for _, id in config.ANIMAL_ORDER do
+				if zone and config.zoneAllows(zone, id, built.activeMainFarmId) then
+					animalId = id
+					break
+				end
+			end
+			if animalId then
+				for _ = 1, math.max(1, math.floor(farmMath.getZoneCapacity(built, zoneId) * fraction + 0.5)) do
+					addAnimal(built, animalId, zoneId)
+				end
+			end
+		end
+		return built
+	end
+	local checkedBatches = 0
+	for farm = 1, #config.THEMES do
+		for _, fraction in { 0.6, 1.0 } do
+			local eco = economySave(farm, fraction)
+			local income = farmMath.computeIncomePerSecond(eco, now)
+			for _, recipeId in config.PRODUCTION_ORDER do
+				local center = config.PRODUCTION_RECIPES[recipeId]
+				if
+					center.output ~= "goods"
+					or not eco.purchased[center.upgradeId]
+					or not eco.unlockedIslands[center.island]
+				then
+					continue
+				end
+				local picked = farmMath.pickProductionAnimals(eco, center, now, nil)
+				assert(picked, `{recipeId} theme {farm}: the fixture has enough adults`)
+				local duration = farmMath.getFacilityDuration(eco, center, nil)
+				local forgone = farmMath.estimateForgoneIncome(eco, picked, duration)
+				local amount = farmMath.getGoodsYield(eco, center, now, { uid = "j", readyAt = now, forgone = forgone })
+				local good = config.GOODS[center.goodsId]
+				local floorWorth = (forgone + farmMath.getFacilityCost(eco, center)) * config.PRODUCTION_MIN_RETURN
+				checkedBatches += 1
+				assert(
+					amount >= 1 and amount <= limits.maxBatchUnits,
+					`{recipeId} theme {farm} x{fraction}: batch of {amount} stays small`
+				)
+				assert(amount * good.value >= floorWorth, `{recipeId} theme {farm}: the batch meets the minimum return`)
+				if fraction == 1.0 then
+					local ratio = good.value / floorWorth
+					assert(
+						ratio >= limits.valueToFloorMin and ratio <= limits.valueToFloorMax,
+						`{good.id} theme {farm}: unit value is {ratio}x the minimum-return floor (expected {limits.valueToFloorMin}-{limits.valueToFloorMax})`
+					)
+				end
+				-- Bir partiyi hızlıca satmak, hayvanları bırakmanın kârının MAX_RETURN katını aşmaz (ürün satışı en iyi para kaynağı olmasın)
+				assert(
+					amount * good.value * config.GOODS_SELL.rate
+						<= (forgone + farmMath.getFacilityCost(eco, center)) * config.PRODUCTION_MAX_RETURN,
+					`{recipeId} theme {farm} x{fraction}: bulk selling a batch stays within the maximum return`
+				)
+			end
+			for window = 0, 30 do
+				for _, offer in farmMath.getContractOffers(eco, now + window * config.GOODS_CONTRACTS.seconds, 0) do
+					local ratio = offer.reward / offer.worth
+					assert(
+						ratio >= limits.minRewardRatio and ratio <= limits.maxRewardRatio,
+						`theme {farm} x{fraction}: order reward is {ratio}x the goods' worth`
+					)
+					assert(
+						offer.reward <= income * 60 * limits.maxRewardMinutes,
+						`theme {farm} x{fraction}: order reward {offer.reward} exceeds {limits.maxRewardMinutes} minutes of income`
+					)
+					for _, line in offer.lines do
+						assert(line.amount <= limits.maxLineUnits, "order lines stay readable")
+					end
+				end
+			end
+		end
+		-- Hiçbir fiyat kademe tavanını ve ekran sınırını aşmaz (kademe tavanı Config/Difficulty.luau)
+		local priced = economySave(farm, 0.01)
+		local ceiling = config.DIFFICULTY.tiers[farm].maxPrice
+		assert(ceiling <= limits.maxDisplayValue, "tier ceilings stay within the display limit")
+		local farmId = tostring(farm)
+		local function underCeiling(price: number, what: string)
+			assert(
+				price == math.huge or price <= ceiling,
+				`theme {farm}: {what} costs {price}, over the tier ceiling {ceiling}`
+			)
+		end
+		for _, upgrade in config.UPGRADES do
+			if config.upgradeInTheme(upgrade, farmId) then
+				underCeiling(farmMath.getPrice(priced, "upgrade", upgrade.id, 0), upgrade.id)
+			end
+		end
+		for animalId in config.ANIMALS do
+			underCeiling(farmMath.getPrice(priced, "animal", animalId, 30), `animal {animalId}`)
+		end
+		for zoneId, zone in config.ZONES do
+			if config.themeHasIsland(farmId, zone.island) then
+				for level = 0, config.BUILD_UPGRADES.maxLevel - 1 do
+					underCeiling(farmMath.getPrice(priced, "expansion", zoneId, level), `{zoneId} level {level}`)
+				end
+			end
+		end
+		for recipeId, center in config.PRODUCTION_RECIPES do
+			if config.themeHasIsland(farmId, center.island) then
+				for level = 0, config.BUILD_UPGRADES.maxLevel - 1 do
+					underCeiling(farmMath.getPrice(priced, "expansion", recipeId, level), `{recipeId} level {level}`)
+				end
+			end
+		end
+	end
+	assert(checkedBatches >= 30, "the economy invariants checked many production batches")
+	assert(
+		config.BARN_LEVELS[1].goodsCap >= 2 * config.PRODUCTION_MAX_BATCH_UNITS,
+		"even the smallest barn holds two full batches"
+	)
+
 	print("PASS goods: config consistency, barn storage, save/decode repairs, yield floor and start rule")
 end
