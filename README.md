@@ -145,16 +145,17 @@ temaya özel bir işaret yapısı vardır (papatya halkası ve korkuluk, lale ta
 
 Hangi üç küçük adanın geldiği **çiftlik numarasına (tema)** bağlıdır; her ana çiftlik de kendi hayvanıyla başlar:
 
-| Çiftlik | Tema | Ana ada hayvanı | Küçük adalar |
+| Çiftlik | Tema | Ana ada hayvanı | Küçük adalar (erken → geç) |
 |---|---|---|---|
 | 1 | Klasik Çayır | İnek | Tavuk, At, Keçi |
-| 2 | Yün ve Süt | Tavuk | Süt, Koyun, Keçi |
-| 3 | Güneşli Tarla | Ördek | Süt, At, Keçi |
-| 4 | Göl ve Hara | İnek | Ördek, At, Domuz |
-| 5 | Dağ ve Orman | Tavuk | Süt, At, Domuz |
-| 6 | Meyve ve Süt | Ördek | Süt, Koyun, Domuz |
+| 2 | Göl ve Yün | Ördek | Tavşan, Koyun, Domuz |
+| 3 | Güneşli Tarla | Hindi | Arı, Deve, Tavus Kuşu |
+| 4 | Gül Vadisi | Manda | Bıldırcın, Güvercin, Salyangoz |
+| 5 | Dağ ve Orman | Yak | Lama, Geyik, Şahin |
+| 6 | Meyve Bahçesi | Sincap | İpek Böceği, Papağan, Kaplumbağa |
 
-Her ada yeni bir hayvan, kendine özel bir bonus, bir üretim tesisi ve bir eklenti alanı getirir.
+Her adada **tek bir hayvan** yaşar ve hiçbir hayvan iki çiftlikte yoktur (24 benzersiz tür). Her ada yeni bir hayvan, kendine özel bir bonus, bir para fabrikası ve bir ürün merkezi getirir
+(tasarım: `docs/ADA_TASARIMI.md`; yeni hayvan = `src/shared/Config/Species.luau` satırı).
 Ada ve yükseltme listesi, fiyatlar ve ön koşullar **yalnızca** `src/shared/Config/` içindedir; bu dosyada kopyalanmaz.
 
 **Tempo hedefleri:** ideal oyuncu için süreler `python scripts/simulate-economy.py --farm N` ile ölçülür (ilk hayvan saniyeler içinde, sonraki adalar ve tüm yükseltmeler saat ölçeğinde; sonuçlar Config'e bağlı olduğundan buraya yazılmaz). Yazılı yükseltme fiyatları taban

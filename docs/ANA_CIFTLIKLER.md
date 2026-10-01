@@ -22,8 +22,8 @@ Adalar menüsünün (I) üst bölümü ana çiftlikleri satın alma/etkinleştir
 ## Ortak ve ayrı olanlar
 
 İlk çiftlik mevcut kayıttır. Ek çiftliklerin satın alma fiyatları `Config.MAIN_FARM_PRICES` (taban değerler; yükseltmelerle aynı
-maliyet eğrisinden geçer, ilki ücretsiz), sınır `Config.MAIN_FARM_LIMIT`'tir. Çiftlik numarası (alım sırası) arttıkça o çiftlikteki
-yükseltme, hayvan ve yapı fiyatları `Config.DIFFICULTY.tiers[sıra].costMultiplier` katına çıkar (`FarmMath.getPrice`; ayrıntı `docs/ZORLUK_VE_FIYAT.md`).
+maliyet eğrisinden geçer, ilki ücretsiz), sınır `Config.MAIN_FARM_LIMIT`'tir. Çiftlik numarası (tema; zorluk kademesi) arttıkça o çiftlikteki
+yükseltme, hayvan ve yapı fiyatları `Config.DIFFICULTY.tiers[tema].costMultiplier` katına çıkar (alım sırası serbesttir; fiyat ve çiftlik satın alma bedeli temaya bağlıdır) (`FarmMath.getPrice`; ayrıntı `docs/ZORLUK_VE_FIYAT.md`).
 Dengeyi `scripts/simulate-economy.py` ile ölç.
 
 Para, envanter ve ahır deposundaki ürünler oyuncuya aittir ve **tüm çiftliklerde ortaktır**

@@ -91,7 +91,8 @@ Yeni dosya eklerken `docs/MIMARI.md`'deki "Yeni şey nereye?" tablosuna bak.
  (`WorldDecor.lamp` / `smallLamp` / `markNightWindow`). Gece/gündüz Lighting değerlerini yalnızca
  `DayNight.client` yazar; `WeatherEffects` pozlamayı `Lighting.WeatherExposure` özniteliğiyle bildirir.
 - Oyun dengesi (fiyat, gelir, yol haritası) sadece `src/shared/Config/` içinde (`init.luau` birleştirir; veri ilgili dosyada: fiyat/yükseltme `Upgrades`, hayvan/bölge `Animals`, ada/tema `Islands`, üretim `Production`, depo ürünleri `Goods`, eşya/olay/ürün `Shop`/`Items`, mevsim/hava `Weather`, ses `Audio`, sabitler `Core`/`Economy`).
-- Her ana çiftlik kendi hayvanıyla başlar (`theme.homeAnimal`: inek/tavuk/ördek); inek olmayanlarda inek `dairy` (Süt Adası) küçük adasındadır.
+- Her çiftlik = ana ada + 3 küçük ada, **her adada tek hayvan**, hiçbir hayvan iki çiftlikte yok (24 tür; `docs/ADA_TASARIMI.md`). Her ana çiftlik kendi hayvanıyla başlar (`theme.homeAnimal`); hayvan→ada→çiftlik eşlemesi
+  `THEMES` + `FARM_ISLANDS[ada].animalId`. Yeni hayvan = `Config/Species.luau` satırı (yükseltme/tarif/ürün/ada türer) + görsel şablon satırları. Süt Adası yoktur.
   Bölge izni `Config.zoneAllows`/`FarmMath.zoneAllows` ile sorulur, `allowedAnimals`'a doğrudan bakılmaz.
 - Her oyuncunun takımadası: ana ada + uzman adalar (`Config.FARM_ISLANDS`). Bölgeler bir adaya bağlıdır
   (`ZONES[x].island`); açık adalar/bölgeler `FarmMath.applyDerived` ile `purchased`'dan türetilir.

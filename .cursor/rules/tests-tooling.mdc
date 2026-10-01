@@ -11,6 +11,8 @@ alwaysApply: false
   başka biçimde `require` hata verir. Her modülün `dependencies` kümesi koddaki require'larla **tam eşleşmeli**, yoksa "Unexpected dependency / Dependency mismatch".
 - Klasör olan modüller parça listeleriyle birleştirilir: `CONFIG_PARTS`, `FARM_MATH_PARTS`, `SAVE_CODEC_PARTS` (`run-tests.py`). Bu klasörlere dosya ekler/çıkarır/yeniden adlandırırsan
   ilgili listeyi (sıra bağımlılığı izler) güncelle.
+- Sim ve çeviri denetimi: `scripts/simulate-tiers.py --personas ideal,casual,idle --assert-monotonic` (çiftlik süresi tema 1 -> 6 her personada artar; `--order` en kötü alım sırası) ve
+  `scripts/check-config-locales.py` (Config metinleri her dilde tam çevrili; yeni içerikte atomları sözlüğe ekle, birleşik cümleler şablonla çevrilir) `verify.ps1` içindedir.
 - Yeni spec: `tests/<ad>.spec.luau` bir fonksiyon döndürür → `run-tests.py` içinde `module(...)` ile ekle ve `main()` sonundaki çağrı listesine yaz. Roblox servisleri gerekiyorsa
   `factory_args` ile sahte (`game`, `task`, `os`...) enjekte edilir.
 - Servis testleri (Animal/Upgrade/Inventory/Engagement/Monetization/BuyPad/Contract...): `tests/service-harness.luau` ortak sahte dünyayı kurar (oyuncu + kayıt, Remote'lar, saat,

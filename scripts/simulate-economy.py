@@ -88,6 +88,18 @@ end
 if PRICE_GROWTH > 0 then
 	Config.ANIMAL_PRICE_GROWTH = PRICE_GROWTH
 end
+for slot, premium in S.premium do
+	Config.DIFFICULTY.islandPremium[slot] = { perTier = premium[1], power = premium[2] } -- ayar denemesi: ada açılış primi
+end
+if S.goodsTierGrowth then
+	Config.DIFFICULTY.goods.tierGrowth = S.goodsTierGrowth
+end
+if #S.goodsStepBase > 0 then
+	Config.DIFFICULTY.goods.stepBase = S.goodsStepBase
+end
+if S.slotSpread then
+	Config.DIFFICULTY.slotSpread = S.slotSpread
+end
 for index, mult in S.mults do
 	Config.DIFFICULTY.tiers[index].costMultiplier = mult -- ayar denemesi: kademe çiftlik çarpanları
 end
@@ -318,7 +330,9 @@ local function nextFarmId(): string?
 	return nil
 end
 
+local farmBuys: { any } = {} -- çiftlik alımları: tema, dakika, fiyat, alım öncesi kasa (en kötü sıra / fiyat tutarlılığı ölçümü)
 local function buyFarm(farmId: string, price: number)
+	table.insert(farmBuys, { id = farmId, minutes = math.floor(now / 6) / 10, price = price, cash = save.cash })
 	save.cash -= price
 	local farm = SaveCodec.newFarm(Config, FarmMath, now, function(): string
 		uidCounter += 1
@@ -1087,6 +1101,7 @@ else
 		},
 		sources = sourceRows,
 		farms = farmRows,
+		farmBuys = farmBuys,
 	}))
 end
 """
@@ -1114,6 +1129,10 @@ def main() -> int:
     parser.add_argument("--farm", default="1", help="Başlangıç çiftliği numarası (tema): 1-6")
     parser.add_argument("--order", default="", help="Çiftlik alım sırası (tema numaraları, virgülle; ör. 1,6,5,4,3,2 = en kötü sıra); boşsa 1,2,3...")
     parser.add_argument("--mults", default="", help="Deneme: kademe çiftlik çarpanları (virgülle: 1,2,3...); boşsa Config.DIFFICULTY")
+    parser.add_argument("--premium", default="", help="Deneme: ada açılış primi, sıra başına perTier:power (virgülle: 5:0.72,1.7:0.78,1.3:0.1)")
+    parser.add_argument("--goods-tier", type=float, default=None, help="Deneme: DIFFICULTY.goods.tierGrowth")
+    parser.add_argument("--goods-step", default="", help="Deneme: DIFFICULTY.goods.stepBase (virgülle 3 değer)")
+    parser.add_argument("--slot-spread", type=float, default=None, help="Deneme: DIFFICULTY.slotSpread")
     parser.add_argument("--cost-base", type=float, default=600, help="Deneme: bu değerin üstündeki yükseltme maliyetleri büyütülür")
     parser.add_argument("--cost-exp", type=float, default=0, help="Deneme: maliyet üssü (0 = kapalı)")
     parser.add_argument("--collect", type=float, default=None, help="Oyuncu platforma kaç saniyede bir uğrar (varsayılan 120 ya da persona; 0 = anında topla)")
@@ -1171,6 +1190,10 @@ def main() -> int:
         "order": [int(item) for item in args.order.split(",") if item.strip()],
         "finishFirst": args.finish_first,
         "mults": [float(item) for item in args.mults.split(",") if item.strip()],
+        "premium": [[float(value) for value in part.split(":")] for part in args.premium.split(",") if part.strip()],
+        "slotSpread": args.slot_spread if args.slot_spread is not None else False,
+        "goodsTierGrowth": args.goods_tier if args.goods_tier is not None else False,
+        "goodsStepBase": [float(item) for item in args.goods_step.split(",") if item.strip()],
         "sellAbove": float(pick("sell_above", args.sell_above, 0)),
         "json": args.json,
     }

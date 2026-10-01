@@ -47,6 +47,7 @@ FarmMath.getPrice = Pricing.getPrice
 FarmMath.getUpgradeCost = Pricing.getUpgradeCost
 FarmMath.getFarmCostMultiplier = Pricing.getFarmCostMultiplier
 FarmMath.getTier = Pricing.getTier
+FarmMath.getIslandPremium = Pricing.getIslandPremium
 FarmMath.getSlotFactor = Pricing.getSlotFactor
 FarmMath.getGoodsCost = Pricing.getGoodsCost
 FarmMath.listGoodsCost = Pricing.listGoodsCost

@@ -1,6 +1,7 @@
 # Üretim ve uzman adalar
 
-Harita sürümü `MapBuilder.luau` içindeki `MAP_VERSION`'dır. Mevcut takımadalardaki kayıtlı hayvan/bölge kimlikleri korunur.
+Harita sürümü `MapBuilder.luau` içindeki `MAP_VERSION`'dır. Oyun yayında olmadığından kayıt göçü yoktur: tema/ada/hayvan kimlikleri değişince `SessionLock.VERSION`
+artar ve eski sürüm kayıt çökmeden temiz yeni oyuna döner (`SaveCodec.decode`).
 Haritada `Config.MAP_PLOT_COUNT` kadar takımada oyuncu başına birer fiziksel adadır; oyuncu birden fazla çiftlik (tema)
 satın alabilir ve etkin olanı kendi adasında çizilir; her çiftliğin ana ve küçük adaları ayrı ilerler. Ayrıntılar
 [Ana çiftlikler](ANA_CIFTLIKLER.md) belgesindedir.
@@ -28,22 +29,14 @@ Bir fabrika yalnızca kendi adasında ve o adada yaşayan hayvanla kurulur; kura
 `Config/Upgrades.luau`'dadır. Tema kuralı `Config.upgradeInTheme`: adası temada olmalı; **ana ada fabrikalarında** (`homeAnimal` alanı)
 çiftliğin ana hayvanı da eşleşmeli (ana adada yalnızca ana hayvanın fabrikası çıkar).
 
-| Ada | Hayvan | Para fabrikası (tarif / yükseltme) | Ürün merkezi (tarif / yükseltme) |
-|---|---|---|---|
-| Ana ada, ana hayvan inek | inek | `packed_milk` / `milk_factory` | `milk_goods` / `milk_center` |
-| Ana ada, ana hayvan tavuk | tavuk | `egg_packing` / `egg_packer` | `egg_home_goods` / `egg_home_center` |
-| Ana ada, ana hayvan ördek | ördek | `duck_packing` / `duck_packer` | `down_home_goods` / `down_home_center` |
-| Ana ada (deniz, balık kafesi) | hamsi, levrek | `fish_dispatch` / `fishing_boat` | `fish_goods` / `fish_cannery` |
-| Süt Adası | inek | `dairy_packing` / `dairy_factory` | `dairy_goods` / `dairy_center` |
-| Tavuk Adası | tavuk | `hatchery` / `hatchery` | `egg_goods` / `egg_center` |
-| At Adası | at | `horse_training` / `horse_training` | `horseshoe_goods` / `horseshoe_forge` |
-| Keçi Adası | keçi | `cheese` / `cheese_dairy` | `cheese_goods` / `cheese_cellar` |
-| Ördek Adası | ördek | `duck_eggs` / `duck_house` | `down_goods` / `down_workshop` |
-| Koyun Adası | koyun | `wool` / `wool_mill` | `wool_goods` / `wool_loom` |
-| Domuz Adası | domuz | `truffle` / `truffle_kitchen` | `meat_goods` / `meat_smokehouse` |
+Her çiftlikte ana ada + 3 küçük ada vardır ve her adada TEK hayvan yaşar; tam liste (24 hayvan: çiftlik x ada x hayvan x ürün x fabrika x ürün merkezi x ada özelliği)
+[Ada tasarımı](ADA_TASARIMI.md) belgesindedir. Özet kural: her hayvanın bir para fabrikası ve bir ürün merkezi vardır; ana ada fabrikaları `homeAnimal` işaretiyle yalnızca o ana hayvanlı çiftlikte kurulur
+(ör. inek: `packed_milk` / `milk_factory`, ürün merkezi `milk_goods` / `milk_center`; ördek: `duck_packing` / `duck_packer`, `down_home_goods` / `down_home_center`). Süt Adası ve Ördek Adası yoktur.
+Elle yazılan eski türler (inek, tavuk, at, keçi, ördek, koyun, domuz, balık) `Config/Production.luau` ve `Config/Upgrades.luau`'dadır; 17 yeni hayvanın tarif, yükseltme ve ada satırları
+`Config/Species.luau` tablosundan türer (sıra profili: ana ada / erken / orta / geç). Balık (hamsi, levrek) "Deniz" dalıdır ve her çiftlikte ortaktır (`fish_dispatch` / `fishing_boat`, `fish_goods` / `fish_cannery`).
 
-Ana ada yuvaları (süt/yumurta/ördek) harita üzerinde aynı koordinatı paylaşır (`MapLayout.HOME_BUILD_SPOTS`); bir çiftlikte yalnızca ana
-hayvanın yükseltmesi alınabildiği için üst üste binmez. Görünüm: `UpgradeVisualService.BUILDER_ALIASES` (yeni yapı mevcut bir binanın görünümünü paylaşır).
+Ana ada yuvaları (her ana hayvanın fabrikası ve ürün merkezi) harita üzerinde aynı koordinatı paylaşır (`MapLayout.HOME_BUILD_SPOTS`, `Config.SPECIES` home satırlarından eklenir); bir çiftlikte yalnızca ana
+hayvanın yükseltmesi alınabildiği için üst üste binmez. Görünüm: yeni türlerin binaları `Presentation/UpgradeBuildersSpecies`, eski ördek ana ada binaları `UpgradeVisualService.BUILDER_ALIASES`.
 
 ## Kullanım
 

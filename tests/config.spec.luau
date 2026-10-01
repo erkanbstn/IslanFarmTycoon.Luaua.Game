@@ -296,7 +296,7 @@ return function(Config: any, FarmMath: any)
 				do
 					local tier = themeIndex -- kademe = tema numarası
 					local cost = FarmMath.getGoodsCost({ farmId = farmId, activeMainFarmId = farmId }, upgrade)
-					local free = settings.tutorialFree and tier == 1 and spec.step <= 1
+					local free = tier == 1 and spec.step <= settings.tutorialSteps
 					assert(
 						(next(cost) == nil) == free,
 						`{upgrade.id} theme {theme.id} tier {tier}: free only in the tutorial step`

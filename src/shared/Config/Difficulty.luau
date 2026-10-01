@@ -24,7 +24,7 @@ local TIME_GROWTH = 1.5
 -- ama 6. çiftlik (~35 sa ideal, hepsi ~96 sa) casual oyunda haftalar içinde biter.
 -- costMultipliers bu hedeflere `python scripts/simulate-tiers.py` / `simulate-economy.py --farms 6 --finish-first --mults ...` ile ayarlanır; maliyet ile süre doğrusal değildir
 -- (park edilmiş çiftlik geliri ve birikim): çarpan kademe başına ~2x büyür (1, 6.6, 17.6, 34.8, 62.7, 107.5).
-local COST_MULTIPLIERS = { 1, 6.6, 17.6, 34.8, 62.7, 107.5 }
+local COST_MULTIPLIERS = { 1, 5.9, 16.8, 34.8, 62.7, 125 }
 
 local tiers: { Types.DifficultyTier } = {}
 for tier, multiplier in COST_MULTIPLIERS do
@@ -42,6 +42,13 @@ return {
 		tiers = tiers,
 		-- Ada sırası çarpanı: 1 + slotSpread x (tier - 1) x (sıra - 1); sıra: ana ada ve erken ada = 1, orta = 2, geç = 3
 		slotSpread = 0.1,
+		-- Ada açılış bedeli primi (erken / orta / geç ada = THEMES.satellites sırası): 1 + perTier x (tier - 1) ^ power; Çiftlik 1'de x1.
+		-- Yalnızca "island" yükseltmesinin parasını çarpar (ürün gereksinimi, fabrikalar ve genişletmeler değişmez); ritim hedefi docs/ADA_TASARIMI.md.
+		islandPremium = {
+			{ perTier = 31, power = 0 }, -- erken ada: x32 (Çiftlik 2-6'da ilk ada ~20-80 dk sonra açılır)
+			{ perTier = 2.3, power = 0.35 }, -- orta ada: x3,3 (Çiftlik 2) ... x5 (Çiftlik 6)
+			{ perTier = 1.8, power = 0 }, -- geç ada: x2,8
+		},
 		-- n. alım eğrisi: hayvan fiyat artışına çiftlik başına eklenen pay
 		animalGrowthPerTier = 0.005,
 		-- Açılışlar para yanında ürün de ister (`Upgrades.luau` goodsCost; miktar: FarmMath.getGoodsCost): değer payı x adım x kademe / ürün değeri.
@@ -49,7 +56,7 @@ return {
 		goods = {
 			stepBase = { 1, 1, 1.25 },
 			tierGrowth = 0.5,
-			tutorialFree = true,
+			tutorialSteps = 3, -- Çiftlik 1'de bu adıma kadar (1 erken, 2 orta ada) ürün istenmez; oturum sınırlı oyuncuda çiftlik süresi tema 1 -> 6 artsın (Q29)
 			capShare = 0.5,
 		},
 	} :: Types.DifficultyConfig,

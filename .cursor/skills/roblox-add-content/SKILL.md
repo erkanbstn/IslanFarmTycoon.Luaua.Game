@@ -11,10 +11,11 @@ Tek kaynak `src/shared/Config/` (`init.luau` birleştirir; veri: `Upgrades`, `An
 ## Nereye ne eklenir
 | İçerik | Config | Ek dokunuş |
 |---|---|---|
-| Hayvan | `ANIMALS` + `ANIMAL_ORDER` | model `assets/Animals` (`Presentation/AnimalModels`), `Presentation/AnimalVisualService`; bir `ZONES[x].allowedAnimals` (ana ada hayvanıysa `THEMES[n].homeAnimal`) |
+| Hayvan (yeni tür) | **`Config/Species.luau` satırı** (hayvan, ürün, ada, bölge, fabrika, ürün merkezi, tarif, mevsim/hava türer) + `THEMES[n]` (ana hayvan / `satellites`) | görsel satırları: `Presentation/AnimalModelsSpecies`, `UpgradeBuildersSpecies`, `ZoneBuildersSpecies`, `World/IslandLooks`; çeviri; `MAP_VERSION` +1; `check-config-locales.py` |
+| Hayvan (elle) | `ANIMALS` + `ANIMAL_ORDER` | model `assets/Animals` (`Presentation/AnimalModels`), `Presentation/AnimalVisualService`; bir `ZONES[x].allowedAnimals` (ana ada hayvanıysa `THEMES[n].homeAnimal`) |
 | Bölge | `ZONES` (`island` alanı zorunlu) + açan `UPGRADES` (kind zone) | `World/MapLayout` bölge yerleşimi (+ görsel `Presentation/ZoneBuilders*`) → `MAP_VERSION` +1; geliştirme profili: `ZONES[x].upgradeProfile` |
 | Yükseltme | `UPGRADES` (`stage`, `requires`, `cost`) | görseli `server/Presentation/UpgradeBuilders*` (bina id → kurucu; ortak parçalar `UpgradeParts`, birleştirme `UpgradeVisualService`); yapı noktası gerekiyorsa `World/MapLayout` (`HOME_BUILD_SPOTS`, uydu adalarda `SATELLITE_TYPES`) |
-| Uzman ada | `FARM_ISLANDS` + `FARM_ISLAND_ORDER` + island upgrade + `THEMES[n].satellites` + `ROADMAP_STAGES` (**sona ekle**: `upgrade.stage` indeksidir) | `MapLayout.SATELLITE_TYPES`, `IslandSpecialization.SITES`; ana hayvanın kendi adası temada olmaz, inek yoksa `dairy` bulunur |
+| Uzman ada | `FARM_ISLANDS` + `FARM_ISLAND_ORDER` + island upgrade + `THEMES[n].satellites` + `ROADMAP_STAGES` (**sona ekle**: `upgrade.stage` indeksidir) | `MapLayout.SATELLITE_TYPES` `FARM_ISLANDS` + `World/IslandLooks`'tan türer, `IslandSpecialization.SITES`; her adada tek hayvan, hayvan iki çiftlikte olmaz |
 | Üretim | `PRODUCTION_RECIPES` (+ `upgradeProfile`; para tesisi: `cost = 0` + `options` partileri, çok hayvan = hayvan başına daha çok ödül; kimlik bölge kimliğiyle çakışmamalı) | `ProductionRules`, `World/IslandSpecialization`; tesis geliştirmesi `BUILD_UPGRADES.profiles` |
 | Ürün / ürün merkezi | `GOODS` + `GOODS_ORDER` + `PRODUCTION_RECIPES` (`output = "goods"`) + açan `UPGRADES` | bina `Presentation/UpgradeBuildersGoods` + yapı noktası; ayrıntı `economy-data.mdc` "Ahır deposu"; `tests/goods.spec.luau` |
 | Yapı geliştirme | `BUILD_UPGRADES` (`profiles`, `costMultiplier/costGrowth`) | etki `FarmMath`'te; `tests/economy.spec.luau`; `simulate-economy.py` kalibrasyonu |

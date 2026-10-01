@@ -79,6 +79,10 @@ def main() -> int:
     parser.add_argument("--personas", default="ideal", help="Virgülle: ideal,casual,idle,hardcore")
     parser.add_argument("--days", type=float, default=0, help="Simüle edilecek süre (gün); 0 = oyuncu tipine göre")
     parser.add_argument("--mults", default="", help="Deneme: kademe çiftlik çarpanları (virgülle)")
+    parser.add_argument("--premium", default="", help="Deneme: ada açılış primi (perTier:power, virgülle 3 sıra için)")
+    parser.add_argument("--goods-tier", type=float, default=None, help="Deneme: DIFFICULTY.goods.tierGrowth")
+    parser.add_argument("--goods-step", default="", help="Deneme: DIFFICULTY.goods.stepBase (virgülle 3 değer)")
+    parser.add_argument("--slot-spread", type=float, default=None, help="Deneme: DIFFICULTY.slotSpread")
     parser.add_argument("--order", default="", help="Çiftlik alım sırası (tema numaraları; ör. 1,6,5,4,3,2 = en kötü sıra)")
     parser.add_argument(
         "--assert-monotonic",
@@ -88,12 +92,21 @@ def main() -> int:
     args = parser.parse_args()
     sys.stdout.reconfigure(encoding="utf-8")
     personas = [name.strip() for name in args.personas.split(",") if name.strip()]
+    extra: list[str] = []
+    if args.premium:
+        extra += ["--premium", args.premium]
+    if args.goods_tier is not None:
+        extra += ["--goods-tier", str(args.goods_tier)]
+    if args.goods_step:
+        extra += ["--goods-step", args.goods_step]
+    if args.slot_spread is not None:
+        extra += ["--slot-spread", str(args.slot_spread)]
     # Süre tavanı (saat): ideal birkaç gün, casual/idle haftalar
     horizon = {"ideal": 160.0, "hardcore": 240.0, "casual": 24 * 150.0, "idle": 24 * 365.0}
     with ThreadPoolExecutor(max_workers=len(personas)) as pool:
         futures = {
             name: pool.submit(
-                run, name, args.days * 24 if args.days else horizon.get(name, 240.0), args.mults, [], args.order
+                run, name, args.days * 24 if args.days else horizon.get(name, 240.0), args.mults, extra, args.order
             )
             for name in personas
         }
@@ -103,8 +116,7 @@ def main() -> int:
     for name in personas:
         data = results[name]
         rows = farm_rows(data)
-        print(f"
-OYUNCU: {name} — çiftlik tamamlama (satın almadan tüm yükseltmelere){' · sıra ' + args.order if args.order else ''}")
+        print(f"\nOYUNCU: {name} — çiftlik tamamlama (satın almadan tüm yükseltmelere){' · sıra ' + args.order if args.order else ''}")
         print("  Tema  alım            1. ada      2. ada      3. ada      tamam       süre        önceki x")
         print("        (adalar ve süre: satın almadan sonra)")
         previous: float | None = None
@@ -133,6 +145,9 @@ OYUNCU: {name} — çiftlik tamamlama (satın almadan tüm yükseltmelere){' · 
                 if before is not None and after is not None and after <= before:
                     failed = True
                     print(f"    ! Tema {tier} süresi ({format_duration(after)}) tema {tier - 1}'den ({format_duration(before)}) kısa/eşit: monoton artmıyor ({name})")
+        buys = data.get("farmBuys", [])
+        if buys:
+            print("  çiftlik alımı (tema: fiyat / alım anındaki kasa): " + " · ".join(f"{item['id']}: {item['price']:.3g} / {item['cash']:.3g}" for item in buys))
         goods = data.get("totals", {}).get("unlockGoods", {})
         if goods:
             print("  açılışlara harcanan ürün: " + ", ".join(f"{key} {value}" for key, value in sorted(goods.items())))

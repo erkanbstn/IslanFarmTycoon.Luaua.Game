@@ -47,6 +47,20 @@ function Pricing.getSlotFactor(save: PlayerSave?, islandId: string?): number
 	return 1 + Config.DIFFICULTY.slotSpread * (Pricing.getTier(save) - 1) * (slot - 1)
 end
 
+-- Ada açılış primi (DIFFICULTY.islandPremium): çiftlik ilerledikçe orta ve geç adalar geç açılsın, ilk ada alınır alınmaz açılmasın; tier 1'de x1.
+function Pricing.getIslandPremium(save: PlayerSave?, islandId: string?): number
+	local tier = Pricing.getTier(save)
+	if tier <= 1 then
+		return 1
+	end
+	local premium = Config.DIFFICULTY.islandPremium[math.clamp(
+		Pricing.getIslandSlot(save, islandId),
+		1,
+		#Config.DIFFICULTY.islandPremium
+	)]
+	return 1 + premium.perTier * (tier - 1) ^ premium.power
+end
+
 -- Hayvanın bu çiftlikte yaşadığı ada (ilk uygun bölgenin adası; bulunamazsa ana ada)
 function Pricing.getAnimalIsland(save: PlayerSave?, animalId: string): string
 	local farmId = if save then save.farmId or save.activeMainFarmId else nil
@@ -85,7 +99,11 @@ local function upgradePrice(save: PlayerSave?, id: string): number
 	if not save then
 		return upgrade.cost
 	end
-	local base = math.floor(upgrade.cost * Pricing.getScale(save, Config.getUpgradeIsland(upgrade)) + 0.5)
+	local scale = Pricing.getScale(save, Config.getUpgradeIsland(upgrade))
+	if upgrade.kind == "island" then
+		scale *= Pricing.getIslandPremium(save, upgrade.islandId)
+	end
+	local base = math.floor(upgrade.cost * scale + 0.5)
 	local discount = math.clamp(Core.getEquippedBonus(save, "upgradeDiscount"), 0, 0.9)
 	if discount <= 0 then
 		return base
@@ -187,7 +205,7 @@ function Pricing.getGoodsCost(save: PlayerSave?, upgrade: Config.UpgradeConfig):
 	end
 	local tier = Pricing.getTier(save)
 	local settings = Config.DIFFICULTY.goods
-	if settings.tutorialFree and tier == 1 and spec.step <= 1 then
+	if tier == 1 and spec.step <= settings.tutorialSteps then
 		return result
 	end
 	local stepBase = settings.stepBase[math.clamp(spec.step, 1, #settings.stepBase)]

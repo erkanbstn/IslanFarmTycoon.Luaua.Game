@@ -115,11 +115,15 @@ export type DifficultyTier = {
 	targetMinutes: number, -- Çiftlik tek başına, ideal oyuncu tüm yükseltmeleri bu sürede (dk) bitirir
 	costMultiplier: number, -- Yükseltme, hayvan ve yapı geliştirme fiyatlarını çarpar
 }
+-- Ada açılış primi: prim = 1 + perTier x (tier - 1) ^ power. Çiftlik 2+'da ilk ada alınır alınmaz açılmasın, orta/geç ada kademeyle birlikte geç açılsın
+-- (Çiftlik 1'in ~%4 / %16 / %42 ritmi: ilk / orta / geç ada tamamlama süresinin payı olarak). Tier 1'de prim yoktur.
+export type DifficultyPremium = { perTier: number, power: number }
 export type DifficultyConfig = {
 	referenceMinutes: number,
 	timeGrowth: number,
 	tiers: { DifficultyTier },
 	slotSpread: number, -- Ada sırası çarpanı: 1 + slotSpread x (tier - 1) x (sıra - 1)
+	islandPremium: { DifficultyPremium }, -- Ada AÇILIŞ bedeli primi (ritim): sıra (erken/orta/geç ada) başına; yalnızca "island" yükseltmesini çarpar
 	animalGrowthPerTier: number, -- Hayvan n. alım eğrisine çiftlik başına eklenen pay
 	goods: DifficultyGoods,
 }
@@ -127,7 +131,7 @@ export type DifficultyConfig = {
 export type DifficultyGoods = {
 	stepBase: { number }, -- adım (1 erken, 2 orta, 3 geç) çarpanı
 	tierGrowth: number, -- kademe başına artış
-	tutorialFree: boolean, -- true: Çiftlik 1'in erken adımı ürün istemez (öğretici)
+	tutorialSteps: number, -- Çiftlik 1'de bu adıma kadar (1 erken, 2 orta, 3 geç) açılışlar ürün istemez (öğretici; 0 = hepsi ister)
 	capShare: number, -- bir ürün kalemi, açılışın gerektirdiği ahır seviyesinin ürün kapasitesinin en çok bu payı olur (deadlock olmasın)
 }
 

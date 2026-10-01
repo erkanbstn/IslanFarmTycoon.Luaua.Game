@@ -66,7 +66,10 @@ try {
 	Invoke-Check "Economy simulation smoke (--json parses)" {
 		& $Python scripts/simulate-economy.py --luau $interpreter --persona casual --hours 2 --json | & $Python -c "import json,sys; d=json.load(sys.stdin); assert d['totals']['animals'] > 0"
 	}
+	# Çiftlik tamamlama süresi tema 1 -> 6 her oyuncu tipinde (ideal/casual/idle) KESİN artar; deadlock yok (~2,5 dk)
+	Invoke-Check "Tier completion times grow with the theme (sim)" { & $Python scripts/simulate-tiers.py --personas ideal,casual,idle --assert-monotonic }
 	Invoke-Check "Locale key parity and UI literal coverage" { & $Python scripts/check-locales.py --strict-literals }
+	Invoke-Check "Config text translation coverage" { & $Python scripts/check-config-locales.py }
 	Invoke-Check "AI guide consistency" { & $Python scripts/check-ai-docs.py }
 	Invoke-Check "Pure helper type analysis (SessionLock, SeasonVisuals only)" {
 		& $analyzer src/server/Modules/SessionLock.luau src/shared/Modules/SeasonVisuals.luau

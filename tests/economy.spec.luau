@@ -930,6 +930,46 @@ return function(FarmMath: any, Config: any, Environment: any)
 				last = factor
 			end
 		end
+		-- Ada açılış primi (ritim): yalnızca "island" yükseltmesini çarpar; tier 1'de x1; tier >= 2'de en az x1 ve erken ada primi en yüksek
+		-- (ilk ada alınır alınmaz açılmasın); aynı temadaki fiyatı getPrice ile gösterim/tahsilat aynı çıkar
+		do
+			local premiums = Config.DIFFICULTY.islandPremium
+			assert(#premiums == 3, "one premium row per small-island slot (early, mid, late)")
+			for index, theme in Config.THEMES do
+				local probe = saveAt(start)
+				probe.activeMainFarmId = tostring(index)
+				local tierMult = Config.DIFFICULTY.tiers[index].costMultiplier
+				for slot, islandId in theme.satellites do
+					local premium = FarmMath.getIslandPremium(probe, islandId)
+					assert(premium >= 1, `theme {index} slot {slot}: premium never discounts`)
+					assert(index > 1 or premium == 1, "farm 1 pays no island premium")
+					local upgrade = Config.getUpgrade(Config.FARM_ISLANDS[islandId].upgradeId :: string) :: any
+					local expected =
+						math.floor(upgrade.cost * tierMult * FarmMath.getSlotFactor(probe, islandId) * premium + 0.5)
+					assert(
+						FarmMath.getUpgradeCost(probe, upgrade) == expected
+							and FarmMath.getPrice(probe, "upgrade", upgrade.id) == expected,
+						`theme {index} {upgrade.id}: island price = base x tier x slot x premium`
+					)
+				end
+				-- Prim yalnızca ada açılışına uygulanır: aynı adadaki fabrika yalnızca çiftlik ve ada sırası çarpanıyla çarpılır
+				local firstIsland = theme.satellites[1]
+				local factory = Config.getUpgrade(Config.FARM_ISLANDS[firstIsland].buildUpgradeId :: string) :: any
+				assert(
+					FarmMath.getUpgradeCost(probe, factory)
+						== math.floor(factory.cost * tierMult * FarmMath.getSlotFactor(probe, firstIsland) + 0.5),
+					`theme {index}: the premium never touches a factory price`
+				)
+				if index > 1 then
+					local early = FarmMath.getIslandPremium(probe, theme.satellites[1])
+					assert(
+						early >= FarmMath.getIslandPremium(probe, theme.satellites[2])
+							and early >= FarmMath.getIslandPremium(probe, theme.satellites[3]),
+						`theme {index}: the first island carries the highest premium`
+					)
+				end
+			end
+		end
 		-- Çiftlik satın alma bedeli temanın numarasına bağlıdır ve temayla birlikte artar; fiyat/çarpan oranı tutarlıdır (DIFFICULTY.tiers ile uyumlu)
 		for index = 2, #Config.MAIN_FARM_PRICES do
 			assert(

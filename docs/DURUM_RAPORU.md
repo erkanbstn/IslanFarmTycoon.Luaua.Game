@@ -1,4 +1,4 @@
-# Island Farm Tycoon — Durum Raporu (güncel: 2026-10-01, geri bildirim ve ada altyapısı turları sonrası)
+# Island Farm Tycoon — Durum Raporu (güncel: 2026-10-01, geri bildirim, ada altyapısı ve ada çeşitliliği turları sonrası)
 
 Kaynak: 1 Ekim 2026 proje analizi (metni silindi: `git show b15e796:docs/ANALIZ_RAPORU.md`); bulgu numaraları ona göre. Bu rapor kodla hedefli
 karşılaştırma ve `verify.ps1 -RequireTypes` / `simulate-economy.py` çıktılarıyla hazırlandı; Studio çalıştırılmadı. İkinci turda (güvenlik paketi,
@@ -8,6 +8,7 @@ es/pt, denge 3. tur, kayıt bölme) güncellendi. Ara raporlar silindi; bilgiler
 - Analizdeki 5 kritik risk ve bulguların çoğu koda işlendi: ekonomi tasması, çevrimdışı gelir, park edilmiş çiftlik, çiftlik maliyet çarpanı, açılış, ada tempoları, sipariş payı, döngü hata koruması, makbuz/kilit dayanıklılığı, güvenlik küçük paketi.
 - **Kazanım 1:** Ekonomi hedeflere oturdu: ideal ilk ada 13,1 / at 46,8 / keçi 115,8 dk; casual çevrimdışı payı %71,5, sipariş %12,3, 6. çiftlik 5,3 gün.
 - **Kazanım 2:** Kod yapısı sadeleşti: `SaveCodec/` (8 modül) + `SaveStore`, tip borcu 774 → 214, 38 spec, tip analizi `luau-lsp` ile yerelde çalışıyor.
+- **Kazanım 4 (ada çeşitliliği):** 6 çiftlik x 4 ada x tek hayvan = 24 benzersiz hayvan (`Config/Species.luau` tablosu), kademe = tema numarası, çiftlik süreleri üç personada tema 1 -> 6 monoton artıyor, kayıt göçleri silindi.
 - **Kazanım 3:** 5 dil (tr/en/de/ru + es/pt-BR), mobil güvenli alan/UIScale, ses grupları, gamepad, 6 adımlı onboarding, telemetri.
 - **Risk 1:** Bu işlerin hiçbiri Studio'da denenmedi (harita yeniden kurulumu, tema açılış süresi, eski kayıt göçleri, `SaveStore` ile kayıt akışı, mobil, es/pt metin taşması). Bekleyen tur büyük ve birbirine bağlı.
 - **Risk 2:** Yayın hazırlığı eksik: CI yok (P9, şimdilik yapılmıyor), ses kimlikleri boş (32 yuva), Robux kimlikleri 0, admin komutları canlıda açık (K1), es/pt çevirileri anadil incelemesinden geçmedi.
@@ -49,7 +50,7 @@ Durum: Çözüldü / Kısmen / Açık / Bilerek ertelendi. Kanıt: commit ya da 
 | 4.1 Depo tasması | Çözüldü | `92615fb`; `Config/Islands.luau:18-42` (50k/120k/300k/1M), Otomatik Toplayıcı tabanı 5000; sim depo dolu %0 | |
 | 4.2 Çevrimdışı gelir | Çözüldü | `92615fb`, `b587974`; `Config/Economy.luau:9-14` (%25/2 sa, Pasif Gelir %30/5 sa (`09fb6f5`), tavan 0,5) | Casual çevrimdışı payı %71,5 |
 | 4.3 Park edilmiş çiftlik | Çözüldü | `881762b` (`PARKED_FARM_PAY_RATE`); sim park payı %9,3 | Telemetri nedeni yanlış (risk 3.3) |
-| 4.4 Çiftlik başına maliyet çarpanı | Çözüldü | `85c7a57`, `287a124`; `Config/Difficulty.luau` (`DIFFICULTY.tiers[n].costMultiplier`; eskiden `FARM_COST_STEP = 6`) | Kademe çarpanı 1/6,6/17,6/34,8/62,7/107,5 (ada altyapısı turu) |
+| 4.4 Çiftlik başına maliyet çarpanı | Çözüldü | `85c7a57`, `287a124`; `Config/Difficulty.luau` (`DIFFICULTY.tiers[n].costMultiplier`; eskiden `FARM_COST_STEP = 6`) | Kademe = tema numarası; çarpan 1/5,9/16,8/34,8/62,7/125 (ada çeşitliliği turu; ada açılış primi `islandPremium` ayrı) |
 | 4.5 Geç oyun düzleşmesi | Çözüldü | `c423219` (ayrı çarpan), `99376e2` (büyüme 1,15), `bc51e68` (maxLevel 30 geri alındı) | 6-12. saat ≥%50 hedefi bilinçli gevşetildi; ırk geri dönüşü geç oyunda çöker (O10-2) |
 | 4.6 Ada temposu / 3. tema | Çözüldü | `0b9ac3e`, `04e02a1` (ideal ilk ada 13,1 / at 46,8 / keçi 115,8 dk) | |
 | 4.7 Açılış | Çözüldü | `3b81761` (`Config.STARTER_ADULT_ANIMALS = 3`, ilk 3 hayvan yetişkin doğar) | Silo'ya dokunulmadı |
@@ -79,7 +80,7 @@ Durum: Çözüldü / Kısmen / Açık / Bilerek ertelendi. Kanıt: commit ya da 
 | 6.4c Bozuk `_session` yedek yolu | Açık | — | |
 | 6.4d Şema sürümü sabiti | Çözüldü | `ffe489b` (`SessionLock.VERSION`) | Çiftlik anlık görüntüsü `version = 3` ayrı kavram |
 | 6.5 Telemetri | Çözüldü | `cebc649`, `a5d38e4`, `c866d0f` | |
-| 6.6 Sürüm etiketi/geri alma | Açık | `docs/YAYIN_VE_ARKADAS_TESTI.md`'de `place-vN` süreci yok | Süreç işi; şema sürümü hâlâ 4 |
+| 6.6 Sürüm etiketi/geri alma | Açık | `docs/YAYIN_VE_ARKADAS_TESTI.md`'de `place-vN` süreci yok | Süreç işi; şema sürümü şimdi 5 |
 | 7.1 README | Çözüldü | `7f6a6d2`, `01a149a` ("Çiftliğim" 0 geçiş) | |
 | 7.2 CI | Açık (P9) | `.github/workflows/` yok | |
 | 7.3 Servis testleri | Çözüldü | `3da3d9f`; 38 spec | |
@@ -113,13 +114,25 @@ Durum: Çözüldü / Kısmen / Açık / Bilerek ertelendi. Kanıt: commit ya da 
 | C | Ürünle açılış | Yapıldı (Studio'da görülmedi) | `2f4e82f`, `52630d3` | `goodsCost`, `FarmMath.getGoodsCost`, atomik `trySpend(..., goodsCost)`, kart/tabela/kaide gösterimi, en/de/ru/es/pt |
 | D | Sim ve testler | Yapıldı | `52630d3` | `scripts/simulate-tiers.py`, sim ürün modeli; testler `config/economy/upgrade-service/player-data-service/main-farm` |
 
+### Ada çeşitliliği (dal `feat/ada-cesitliligi`; 24 benzersiz hayvanlı çiftlikler)
+
+| # | Madde | Durum | Kanıt | Not |
+|---|---|---|---|---|
+| H1 | Tasarım belgesi: 24 hayvan, çiftlik x ada x hayvan x ürün x fabrika x özellik | Yapıldı | `docs/ADA_TASARIMI.md` | Hedef süreler, ürün zinciri ve ada ritmi gerekçeli |
+| H2 | Kayıt kuralı: göçler silindi, `SessionLock.VERSION` 5, eski sürüm kayıt temiz yeni oyuna döner | Yapıldı | `ea94751`; `tests/data.spec.luau` | 3. tema göçü, `ghostIsland` iadeleri, `LEGACY_UPGRADES`, eski depo/sipariş toplama, `save.tier` silindi; risk 3.4 kapandı |
+| H3 | Kademe = tema numarası (Q26) | Yapıldı | `Pricing.getTier`; `economy.spec` | Çiftlik satın alma bedeli de temanın numarasına bağlı (`MAIN_FARM_PRICES[tema]`); sim `--order` ile en kötü sıra ölçülür |
+| H4 | Veri altyapısı: `Config/Species.luau` (17 yeni hayvan), `THEMES` yeniden yazıldı, `FARM_ISLANDS[ada].animalId`, Süt/Ördek adası kalktı | Yapıldı | `c07373f`; `config.spec` (24 benzersiz hayvan, `dairy` yok, fabrika yalnızca kendi adasında) | Yeni hayvan = tablo satırı; ürün/fabrika/tarif/yükseltme/mevsim etkisi sıra profilinden türer |
+| H5 | Görseller: 17 hayvan modeli, 34 bina, 13 ağıl, 13 ada süsü (`IslandLooks`), MAP_VERSION 53 | Yapıldı (Studio'da görülmedi) | `f5a4ea1` | `AnimalModelsSpecies`, `UpgradeBuildersSpecies`, `ZoneBuildersSpecies` |
+| H6 | Çeviriler (en/de/ru/es/pt) ve Config çeviri denetimi | Yapıldı | `838eae9`; `scripts/check-config-locales.py` | Şablonla çevrilen birleşik metinler; `verify.ps1` çalıştırır |
+| H7 | Casual/idle monotonluğu (Q29) ve ada ritmi (Q30) | Yapıldı | `Config/Difficulty.luau` (`tutorialSteps`, `islandPremium`, çarpanlar); `simulate-tiers.py --assert-monotonic` | Sim tabloları §4 |
+
 ## 3. Yeni riskler
 
 | # | Önem | Dosya:satır | Neden | Öneri |
 |---|---|---|---|---|
 | 3.1 | Orta | `MapBuilder.luau:475-486` | Açılışta 6 tema şablonu eşzamanlı kuruluyor ve `optimize` ediliyor; süre ve ServerStorage belleği (~9-18 bin parça tahmini) hiç ölçülmedi. `xpcall` yarıda kalırsa tema ilk geçişte tembel kurulur ve aynı hata o oyuncuda tekrar eder | Studio'da Play → ilk giriş süresini ölç; uzunsa 1. tema eşzamanlı, kalanlar `task.defer` |
 | 3.2 | Düşük | `PlotService.luau` `findFreePlot` | Tercih artık tema 1 / son tema (`b24db7c`) ama kayıtlı tema giriş anında bilinmiyor: farklı temalı oyuncu ilk girişte yine tema değişimi görebilir (şablonla ucuz); temizlik yalnızca testle korunuyor | Studio'da iki istemciyle doğrula (§6-6, 34) |
-| 3.4 | Orta | `Modules/SaveCodec/Farm.luau` (3. tema göçü) | 3. tema göçü `save.farmId == "3"`'e sabit; iade sessiz, genişletme seviyeleri iade edilmiyor (zararsız ama değeri kayıp). Tema tablosu değişirse göç yeniden yazılmalı. Test yalnızca birim düzeyinde, Studio'da `BarnVisualService` ile denenmedi | Studio testi (§6); iade için tek seferlik bildirim; tema haritasından genel göç |
+| 3.4 | **Kapandı** | `Modules/SaveCodec/Farm.luau` | 3. tema göçü ve benzeri tema/ada göçleri silindi (yayın öncesi göç yok); tema/ada kimliği değişince `SessionLock.VERSION` artar ve eski sürüm kayıt çökmeden temiz yeni oyuna döner (`data.spec`) | — |
 | 3.5 | Düşük | `Config/Economy.luau`, sim | Casual çevrimdışı + park payı %81, aktif oyun (hayvan+üretim) %6; hardcore sipariş payı %35. Davranış gerçek oyuncuyla ölçülmedi | Telemetri sonrası bak (§8-5); Q17 |
 | 3.6 | Orta | `Config/Shop.luau:28-33`, `FarmMath/Lineage.luau` | Irk geri dönüşü maliyeti hayvan fiyatına bağlı, kazanç ilerlemeyle büyüyor: geç oyunda geri dönüş dakikalara iner (O10-2); eski Sv.10 kayıtta ayrı çarpanla ~×2,7 gelir sıçraması olabilir (O10-3) | `economy.spec`'e "en yüksek ahırda son seviye geri dönüş ≥ X dk" değişmezi; sim'de eski kayıt profili |
 | 3.7 | Düşük | `shared/GameTypes.luau:76`, `FarmProfiles.clientState` | İstemci yükünde `mainFarms` hafif görünüm; tip hâlâ `{ [string]: any }` ve "tam kayıt" der. İleride istemcide `mainFarms[id].animals` yazan biri sessizce nil okur (D-P4: opsiyonel yapmak 24 tip bulgusu açtı, geri alındı) | Ayrı `ClientPlayerState` tipi |
@@ -153,34 +166,68 @@ Irk geri dönüşü en kötü 1,67 sa; ilk 3 hayvan yetişkin doğuyor (ilk yeti
 
 **Yorum.** Analizin ekonomi yarası kapandı ve 3. turla hedef bantlara oturdu: ideal tempolar hedefin %5'i içinde, casual çevrimdışı payı hedef 70-80 bandında, sipariş payı 10-20 bandında, depo tasması yok. Kalan belirsizlik gerçek oyuncu davranışı: çevrimdışı + park edilmiş çiftlik hâlâ casual gelirinin %81'i ve aktif oyun (hayvan+üretim) %6; sipariş ödülü artık gelire bağlı olduğu için hardcore persona gelirinin %35'i siparişten geliyor (aktif oyun ödüllensin diye bilinçli ama telemetriyle teyit edilmeli). Süt fabrikasının geri ödemesi (57 dk) bandın dışında; Ç3+ çiftliklerdeki 100'lerce dakikalık fabrika ölçümü büyük olasılıkla küçük sürü artefaktı. Telemetri gelmeden başka denge değişikliği yapılmamalı.
 
+### Çiftlik süreleri (kademe = tema; `python scripts/simulate-tiers.py --personas ideal,casual,idle --assert-monotonic`)
+
+Çiftlik tamamlama = satın almadan tüm yükseltmelere. Ideal: çok çiftlikli, çiftliği bitirip sıradakini alır. Casual: 3 oturum x 20 dk/gün; idle: 2 x 10 dk/gün.
+
+| Tema | Hedef (dk, ideal) | Ideal önce → sonra | Casual önce → sonra | Idle önce → sonra |
+|---|---|---|---|---|
+| 1 Klasik Çayır | 276 | 4,7 sa → 4,6 sa | 24 sa → 16 sa | 3,0 gün → 2,0 gün |
+| 2 Göl ve Yün | 414 | 6,9 sa → 7,0 sa | 24 sa → 24,3 sa | 2,0 gün → 3,5 gün |
+| 3 Güneşli Tarla | 621 | 10,5 sa → 10,5 sa | 40 sa → 47,7 sa | 3,5 gün → 4,0 gün |
+| 4 Gül Vadisi | 932 | 15,7 sa → 15,4 sa | 3,0 gün → 2,7 gün | 5,5 gün → 5,5 gün |
+| 5 Dağ ve Orman | 1397 | 23,6 sa → 22,6 sa | 4,3 gün → 4,0 gün | 8,5 gün → 7,5 gün |
+| 6 Meyve Bahçesi | 2096 | 35,1 sa → 33,8 sa | 6,3 gün → 6,0 gün | 11,5 gün → 10,5 gün |
+
+Süre(n+1) > süre(n) üç personanın hepsinde kesin sağlanıyor (`--assert-monotonic` temiz). Çiftlik 1 ideal tempo 12 / 45 / 114 / 276 dk (eski: 12,4 / 46,1 / 117,8 / 283; ürün gereksinimi
+Çiftlik 1'de artık yok, `DIFFICULTY.goods.tutorialSteps = 3`: Çiftlik 1 öğreticidir; ürün Çiftlik 2'de başlar).
+
+Ada ritmi (ideal, satın almadan sonra; hedef = Çiftlik 1'in %4 / %16 / %42 oranı, `docs/ZORLUK_VE_FIYAT.md`):
+
+| Tema | İlk ada (hedef) | Orta ada (hedef) | Geç ada (hedef) |
+|---|---|---|---|
+| 1 | 12 dk (12) | 45 dk (46) | 114 dk (118) |
+| 2 | 19 dk (18) | 54 dk (67) | 145 dk (173) |
+| 3 | 25 dk (26) | 101 dk (101) | 240 dk (259) |
+| 4 | 38 dk (39) | 165 dk (152) | 336 dk (389) |
+| 5 | 48 dk (57) | 240 dk (227) | 570 dk (583) |
+| 6 | 80 dk (83) | 396 dk (341) | 996 dk (874) |
+
+Önce (ada altyapısı turu sonu): çiftlik 2-6'da ilk ada 3-5 dk, orta 23-49 dk, geç 73-372 dk (ritim yoktu; ilk ada alınır alınmaz açılıyordu).
+
+En kötü alım sırası (önce en zor tema; `--order 1,6,5,4,3,2`, ideal): Çiftlik 6 ikinci alınır (9,0 sa; Çiftlik 1 geliriyle ~6,1 gün), sonra 5 (42,6 sa), 4 (14,9 sa), 3 (5,4 sa), 2 (95 dk): hepsi ~9,2 günde biter
+(artan sırada 3,9 gün). Casual aynı sırada ~24,7 gün (artan sırada 16,3 gün). Karışık sıra `1,3,2,6,5,4` ideal ~4,9 gün. Hiçbir sıralama artan sıradan hızlı değil: tema başına zorluk korunur, erken zor tema cezalıdır
+(az gelirle oynanır) ve doğal olarak kolay temaya yönlendirir. Çiftlik alım bedeli temanın sırasına göredir (kolay temalar ucuz).
+
 ## 5. Ölçümler
 - `verify.ps1 -RequireTypes` son satırı: `All automated checks passed. Studio multiplayer, DataStore fault and device tests remain separate.` (tip analizi dahil çalıştı; yerel Studio eklentisi `plugin/`'den eski olabilir uyarısı sürüyor).
 - Tip bulgusu: `scripts/types-baseline.json` **214** (analizde 774; `check-types.py`: yeni bulgu yok). `luau-lsp` bu makinede kuruldu (`scripts/setup-types.ps1`).
 - Test spec dosyası: **38** (`tests/*.spec.luau`; analizde 25).
-- Çeviri anahtarı: **987** (en/de/ru/es/pt eşit; analizde 932).
-- `MAP_VERSION`: **52** (`src/server/World/MapBuilder.luau:28`; ana ada tavuk/ördek yuvaları ve Süt Adası bina yerleri için artırıldı).
+- Çeviri anahtarı: **1151** (en/de/ru/es/pt eşit; analizde 932); Config metinleri (600) her dilde tam çevrili (`scripts/check-config-locales.py`).
+- `MAP_VERSION`: **53** (`src/server/World/MapBuilder.luau:28`; 24 benzersiz hayvanlı çiftlikler: yeni ada türleri, ana ada hayvan yuvaları, Süt/Ördek adası kalktı).
 - Büyük dosyalar: `SaveCodec/` 8 modül (en büyüğü `Farm` 222 satır), `PlayerDataService` 638, `SaveStore` 284 satır.
 
 ## 6. Birleşik Studio test listesi (öncelik sırasıyla)
 
-Birleştirilen kaynaklar: eski ara raporlar ve ikinci tur. `DIFFICULTY.tiers` çarpanları 1/6,6/17,6/34,8/62,7/107,5, ırk `maxLevel` 10, Pasif Gelir %30 / 5 sa.
+Birleştirilen kaynaklar: eski ara raporlar ve ikinci tur. `DIFFICULTY.tiers` çarpanları 1/5,9/16,8/34,8/62,7/125, ırk `maxLevel` 10, Pasif Gelir %30 / 5 sa.
 
 **A. Harita ve eklenti (önce bunlar; gerisi haritaya bağlı)**
 1. Eklentiyi yeniden derle: `rojo build plugin.project.json --plugin IslandFarmTycoonHarita.rbxm`, Studio'da yeniden aç.
-2. Edit modunda "Haritayı Kur" (MAP_VERSION 52: ana adada süt/yumurta/ördek yuvaları aynı yerde, Süt Adası fabrika yerleri yeni), place'i kaydet. Eklenti yolunda `World` dosyaları `Shared`'ı (SharedRef) buluyor mu.
-3. Edit modunda `tests/map-structure.spec`: yeşil, sonunda `ServerStorage.ThemeTemplates` temizlenmiş. 3. temanın (Güneşli Tarla) uydu adaları Süt/At/Keçi: yapı noktaları ve köprüler doğru.
+2. Edit modunda "Haritayı Kur" (MAP_VERSION 53: 13 yeni ada türü, ana adada 6 ana hayvanın fabrika/ürün merkezi yuvaları aynı yerde), place'i kaydet; 6 temanın ada süsleri (`World/IslandLooks`) ve zemin dokuları. Eklenti yolunda `World` dosyaları `Shared`'ı (SharedRef) buluyor mu.
+3. Edit modunda `tests/map-structure.spec`: yeşil, sonunda `ServerStorage.ThemeTemplates` temizlenmiş. Her temanın 3 uydu adası: yapı noktaları (fabrika sağda, ürün merkezi solda) ve köprüler doğru; 13 yeni ada türü ve 4 yeni ana hayvan yuvası çakışmıyor.
 4. Play: 6 `Theme<n>` şablonu, `[Map] Tema şablonları hazırlanamadı` uyarısı yok; **açılış süresini ölç** (Play → ilk giriş; risk 3.1).
 5. Tema döngüsü 1→6→1, Plot1 ve döndürülmüş ada (3/5): yapı noktaları, uzman ada `AreaCFrame`/`PathStart/End`, ada adı/ikonu, takılma azaldı mı.
 6. İki istemci: A farklı temayla çıkar, B girer; B'nin giriş sonrası tema değişiminde BuyPads yeni yuvalarda, `RevealGate` süsleri doğru, boşalan ada temiz (HiddenDecor artığı yok); düşme/ışınlanma yok.
 7. Gece lambaları/pencereleri, çarpışma ve ışın sorguları şablon kopyasında korunmuş. Çiftlik toplayıcı görseli açılışta hatasız (tembel require).
 
 **B. Kayıt göçleri ve çok çiftlikli oyuncu**
-8. Eski çok çiftlikli hesap: tüm çiftliklerin fiyatı eskisi gibi (×1), yeni alınan çiftlik `#çiftlik + 1` tier alır; çökme/sürüm uyuşmazlığı yok.
-9. Eski 3. çiftlik (tavuk/domuz adalı) kaydı: `BarnVisualService` hatasız, iade kasaya yansır, haritada hayalet ada yok, At adası satın alınabilir.
+8. Eski sürüm (4 ve öncesi) kayıt: çökmeden temiz yeni oyuna dönüyor (Çiftlik 1, başlangıç parası); gelecek sürümlü kayıt yazılmıyor.
+9. Her temanın ilk girişi: `BarnVisualService` ve ThemeTemplates hatasız; 6 temada da ana adada hayvan alınabiliyor (ana hayvan başlangıç bölgesinde), ada/bölge tabelaları doğru dilde.
 10. 2+ çiftlikli hesapta Envanter/Üretim depo kapasitesi sunucuyla aynı; Sipariş Panosu teklifleri ve GoalCard önerileri doğru.
-11. Çiftlik 2 alınca yükseltme/hayvan/alan genişletme/BuyPad fiyatları ×6,6 (`DIFFICULTY.tiers[tier].costMultiplier`, 6. çiftlik ×107,5); istemci ve sunucu aynı (para yetmezse ret). Tesis başlatma masrafı (`recipe.cost`) çarpılmaz; tesis geliştirme (`getExpansionCost`) artık çarpılır.
-11b. **Ana ada fabrikası ana hayvana göre**: ana hayvanı tavuk/ördek olan çiftlikte ana adada süt fabrikası/merkezi çıkmıyor (Yükseltmeler, Yol Haritası, Üretim kartlarında yok); tavukta Yumurta Paketleme/Toplama, ördekte Ördek Paketleme/Tüy Toplama kurulur (yuvalar süt yuvalarıyla aynı yerde, mevcut binaların görünümüyle). Süt Adası'nda (Lale/Ayçiçeği/Yonca/Kiraz) inek fabrikaları (`dairy_factory`, `dairy_center`) kurulabiliyor, binaları adada çakışmadan duruyor.
-11c. **Ürünle açılış**: Çiftlik 2+ ve Çiftlik 1'in orta/geç açılışlarında (At/Koyun/Keçi/Domuz adası, fabrikalar, Otomatik Toplayıcı, yardımcılar) kartta "Gereken ürün: Süt 2/4 · ..." satırı; yetmeyen kalem kırmızı, düğme sarı (warning); ada tabelası/kaide/yapım alanı "para · ürün" yazıyor; ürün eksikse alım "Yeterli ürün yok (...)" ile reddediliyor, para düşmüyor; yeterliyse para + ürün birlikte düşüyor.
+11. Çiftlik 2 alınca yükseltme/hayvan/alan genişletme/BuyPad fiyatları ×5,9 (`DIFFICULTY.tiers[tema].costMultiplier`, 6. çiftlik ×125); fiyat TEMAYA bağlı (alım sırasına değil), Adalar menüsünde her temanın kartında kendi satın alma bedeli; istemci ve sunucu aynı (para yetmezse ret). Tesis başlatma masrafı (`recipe.cost`) çarpılmaz; tesis geliştirme (`getExpansionCost`) artık çarpılır.
+11b. **Ana ada fabrikası ana hayvana göre**: her ana hayvanın (inek, ördek, hindi, manda, yak, sincap) kendi fabrikası ve ürün merkezi ana adada çıkıyor (Yükseltmeler, Yol Haritası, Üretim kartlarında yalnızca o temanın ana hayvanınınki); diğer ana hayvanların binaları görünmüyor. Yuvalar aynı yerde, çakışma yok.
+11b2. **Yeni hayvanlar ve görseller (her çiftlik için)**: 17 yeni hayvanın modeli tanınır silüette (yavru/genç/yetişkin ölçekleri, hareket), yeni binalar (fabrika + ürün merkezi), ağıllar ve ada süsleri çiftlik başına farklı; Süt Adası/Ördek Adası hiçbir temada yok; hayvan sesleri (kimlikler boş), mevsim/hava okları yeni hayvanlarda doğru; 2-6. temalarda ada tabelası/özellik metni ve ada özelliği etkileri (ör. +%15 depo, -%7 geliştirme) çalışıyor.
+11c. **Ürünle açılış**: Çiftlik 2+ açılışlarında (Çiftlik 1 öğreticidir: ürün istemez; ada, fabrikalar, Otomatik Toplayıcı, yardımcılar) kartta "Gereken ürün: Süt 2/4 · ..." satırı; yetmeyen kalem kırmızı, düğme sarı (warning); ada tabelası/kaide/yapım alanı "para · ürün" yazıyor; ürün eksikse alım "Yeterli ürün yok (...)" ile reddediliyor, para düşmüyor; yeterliyse para + ürün birlikte düşüyor.
 12. Park edilmiş çiftlik: büyüme ada görselinde güncelleniyor, etkin çiftlikte takılma yok; toplayıcısız çiftlik bakiyesi 5 sn'de kasaya akıyor (toplayıcılı %100), dönünce deposu eski haliyle. Çıkıp 1 saat sonra girince tüm çiftliklerin çevrimdışı kazancı toplanıyor.
 13. Hızlı satın alma/üretim sırasında istemci fazladan `RequestPlayerState` atıyor mu; `pushState` paket boyutu önce/sonra (MicroProfiler); satın alma yanıtında 0,25 sn gecikme hissi.
 14. Uzak adalar 448 stud'da görünüyor, adalar arası pop-in yok; yeni hayvanın yuvası çakışmıyor.
@@ -211,7 +258,7 @@ Birleştirilen kaynaklar: eski ara raporlar ve ikinci tur. `DIFFICULTY.tiers` ç
 29. Hayvan hareketi (BulkMoveTo), düşük kalitede 20 hayvan / 50 stud sınırı, parça sonradan eklenince hareket (P5-1); gece ışıkları kaliteye göre (düşükte ışıksız Neon), kalite değişince tazelenir; SeabedLife yüksek kamerada 15 Hz; Localizer: tabelalar çevrilir, Workspace'e sonradan gelen tabela çift izlenmez; pet uzakta bekler, köprü geç gelince yol grafiği güncellenir.
 
 **H. İkinci tur eklemeleri**
-30. Kayıt akışı (`SaveStore`): normal giriş/çıkış (çıkışta `DataStatus` `Closed`); aynı hesapla iki sunucu (kilit bekleme `LoadLockWait`); eski kayıt açma (tek çiftlikli, 3. tema, `goods`/`contracts` çiftlik içinde duran eski kayıt); bozuk kayıttan yedekle açılış ve karantina (`ProfileRecovered`, `player_<id>_quarantine`); oyuncular varken sunucu kapatma (`BindToClose`, son kayıt + kilit bırakma); `StudioNonPersistentData`; `tests/run.server.luau` ile `data.spec` (klasör modülü `SaveCodec`).
+30. Kayıt akışı (`SaveStore`): normal giriş/çıkış (çıkışta `DataStatus` `Closed`); aynı hesapla iki sunucu (kilit bekleme `LoadLockWait`); eski sürüm kayıt açma (temiz yeni oyuna döner, göç yok); bozuk kayıttan yedekle açılış ve karantina (`ProfileRecovered`, `player_<id>_quarantine`); oyuncular varken sunucu kapatma (`BindToClose`, son kayıt + kilit bırakma); `StudioNonPersistentData`; `tests/run.server.luau` ile `data.spec` (klasör modülü `SaveCodec`).
 31. Açılış: yeni hesapta ilk 3 hayvan yetişkin görünümünde doğuyor, 4. hayvan yavru; ilk dakikada gelir hissi.
 32. Altın hayvan: kendi adandan (uydu adalar dahil) alınıyor, çok uzaktayken "yeterince yakın değilsin" (`Config.GOLDEN.claimRadius` 320 stud; uzak uydu adadan alınabiliyor mu kontrol et).
 33. Gamepass: geçici sorguda geçit düşmüyor (Studio'da `UserOwnsGamePassAsync` hatası taklit edilirse 30 sn'de yeniden dener, en çok 3).
@@ -233,8 +280,6 @@ Birleştirilen kaynaklar: eski ara raporlar ve ikinci tur. `DIFFICULTY.tiers` ç
 | K1 | Canlıda admin komutları kullanılacak mı? (`AdminPolicy.luau:5`, para sahibin gerçek kaydına yazılıyor) | Yalnızca `RunService:IsStudio()` ya da özel sunucuda; ya da `adminTainted` işaretle ve panodan çıkar |
 | K2 | Robux açılışı ve ürün kimlikleri (`Config/Shop.luau` kimlikler 0) | Kimlikleri girmeden önce anında üretim fiyatlamasını kapat; 30 dk 2× güçlendirme ve kozmetikle başla |
 | K3 | Lobi / rezerve sunucu / ziyaret | 2-4 hafta telemetri biriktikten sonra karar |
-| Q1 | 3. tema göçü sonrası iade bildirimi (şu an sessiz) gösterilsin mi? | Yayında 3. çiftlikli oyuncu yoksa gereksiz; varsa tek seferlik bildirim |
-| Q3 | Alan genişletme seviyeleri 3. tema göçünde iade edilmiyor | Kabul et (zararsız) |
 | Q4 | Irk `maxLevel` 10 kalsın mı? Geç oyunda geri dönüş çöküşü (risk 3.6) | 10 kalsın; eski kayıt profilini sim'de ölç |
 | Q6 | `QUALITY` eşikleri Config'e mi? | Dosyada kalsın |
 | Q8 | Destek karosu için sağ sütunda yer var mı (mobil düzenle) | Studio'da E-25'te bak |
@@ -254,11 +299,16 @@ Birleştirilen kaynaklar: eski ara raporlar ve ikinci tur. `DIFFICULTY.tiers` ç
 | Q23 | Kuluçka dolu kümeste teslim bekler; alternatif: dolu kümeste paraya çevir | Bekleme kalsın; şikâyet gelirse paraya çevir |
 | Q24 | Tüccar: dolu bölgeli oyuncuya teklif yok; `MERCHANT.chance` 0.75 ile sıklık arttı | Telemetriden ziyaret/alım oranına bak |
 | Q25 | Mevsim oku görevdeki (üretim/eklenti) hayvanda da görünür | Kabul et; istenmezse görevdekileri ele |
-| Q26 | Zorluk kademesi = çiftliğin **alım sırası** (`save.tier`), tema numarası değil (oyuncu temayı seçer; fiyat çarpanı o zamana kadar alınan çiftlik sayısına bağlı) | Kalsın: fiyat sırayı izler, içerik temayı. Tema numarasına bağlamak istersen `Pricing.getTier` tek yer |
+| Q26 | **Kapandı:** kademe = TEMA numarası (`Pricing.getTier`); alım sırası serbest, fiyat/zorluk ve çiftlik satın alma bedeli temaya bağlı; en kötü sıra ölçüldü (§4) | — |
 | Q27 | Gelir ölçeği bilinçli yok (hayvan geliri çiftlikten çiftliğe aynı; zorluk yalnızca maliyet) | Kalsın; park edilmiş çiftlik gelirinin değeri ve ödül formülleri kendi başına tutarlı |
 | Q28 | "Hayvan türü açılışı" ayrı ürün istemiyor: tür ada/bölge açılışıyla gelir ve o açılış ürün ister; hayvan alımı (takas, tüccar, balık değişimi) ürün istemez | Kalsın; ürün + takas çakışmasın |
-| Q29 | Casual/idle oyuncuda Çiftlik 2 süresi Çiftlik 1'den uzun değil (birikmiş kasa); Çiftlik 3'ten sonra artıyor. Casual Çiftlik 1 eskiden 16 sa, şimdi 24 sa (bir ek oturum: üretim zinciri). 6. çiftlik casual'da ~4,7 günden ~11 güne çıktı (eski hedef "Ç6 7 gün içinde") | Kabul et ya da `goods.stepBase` / Çiftlik 1 ürün istemeyen adımı artır; ya da süre kapısı (büyüme) ekle |
-| Q30 | Çok çiftlikli ideal oyuncuda 2.-6. çiftliklerde ilk ada alımda hemen açılıyor (park edilmiş gelir); adalar arası ritim Çiftlik 1'deki gibi 12/46/118 dk değil | `DIFFICULTY.slotSpread`'i artır (şimdi 0,1) |
+| Q29 | **Kapandı:** Çiftlik 1'de ürün istenmedi (`tutorialSteps = 3`), süre tema 1 -> 6 üç personada kesin artıyor (§4); 6. çiftlik casual ~6 gün | — |
+| Q30 | **Kapandı:** ada açılış primi (`DIFFICULTY.islandPremium`) ile ilk ada 19-80 dk, orta ve geç ada Çiftlik 1'in oranında kademeyle ölçekli (§4) | — |
+| Q31 | Yeni 17 hayvanın eklentisi (süreli kalış alanı) yok; yalnızca para fabrikası + ürün merkezi + ada özelliği | Kabul et; istenirse `EXTENSIONS` satırı + `IslandLayout.EXTENSIONS` + görsel |
+| Q32 | Çiftlik 1 ada sırası istek listesindeki "At, Keçi, Tavuk" yerine mevcut tempoyu korumak için tavuk (erken), at (orta), keçi (geç) kaldı | Kabul et; sırayı değiştirmek `THEMES[1].satellites` + yeniden sim |
+| Q33 | Telemetri SKU sayısı 100 sınırını aşmasın diye yükseltme SKU'su yalnızca ada/ahır/bölge için kimlikle, diğerleri türle gider (`Config.getUpgradeSku`) | Kabul et |
+| Q34 | En kötü alım sırası (önce 6. tema) artan sıradan ~2,4x uzun; sert kilit (önceki tema bitmeden yok) eklenmedi, fiyat/gelir doğal olarak sıraya yönlendirir | Telemetriyle bak; gerekirse önceki temayı bitirme şartı |
+| Q35 | Ürün birim değerleri ve açılış payları yeni hayvanlarda sıra profilinden (`Species.PROFILES`) geliyor; tema başına özel denge ayarı yok | Telemetri sonrası profil/çarpan ayarla |
 
 ## 8. Sıradaki adımlar
 
@@ -274,7 +324,7 @@ Birleştirilen kaynaklar: eski ara raporlar ve ikinci tur. `DIFFICULTY.tiers` ç
 | 8 | P9 CI (şimdilik yapılmıyor; `verify.ps1 -RequireTypes` yerelde yeterli) | Sonnet | S |
 
 ## 9. Koddan çürütülmüş belge bilgileri (dokunulmadı)
-- `docs/URETIM_VE_UZMAN_ADALAR.md`: "Harita sürümü 13" (gerçek 51) ve tesis tablosu (örn. Süt fabrikası 60 sn, 2 yetişkin inek, masraf 160/teslim 650); `src/shared/Config/Production.luau:120-130` süt fabrikası 35 sn, 1 yetişkin, masraf 0. Tablo güncellenmeli.
+- `docs/URETIM_VE_UZMAN_ADALAR.md`: ada çeşitliliği turunda güncellendi (fabrika tablosu `ADA_TASARIMI.md`'ye bağlandı, "kayıtlar korunur" cümlesi kaldırıldı); eski tesis rakam tablosu artık belgede yok (rakamlar koda bak).
 - `docs/ANA_CIFTLIKLER.md`: "Haritada 6 fiziksel ada hepsi aynı (1. tema) kurulur" ve "çalışma anında yeniden giydirilir" ifadesi artık yalnızca kısmen doğru (şablon Clone, `MapBuilder.luau:48-51,170`); çiftlik fiyat cümlesi (~590 bin ... 100 milyon) kademe çarpanları (`Config/Difficulty.luau`) sonrası doğrulanmadı.
 
 ## 10. Temizlik
