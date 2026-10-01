@@ -135,7 +135,7 @@ function Controls.menuButton(parent: Instance, icon: string, text: string, tint:
 	label.TextScaled = true
 	local fit = Instance.new("UITextSizeConstraint")
 	fit.MaxTextSize = Tokens.TextSize.Caption
-	fit.MinTextSize = 8
+	fit.MinTextSize = Tokens.MinTextSize
 	fit.Parent = label
 
 	if shortcut then
@@ -164,7 +164,7 @@ function Controls.slider(
 ): (Frame, (value: number) -> ())
 	local root = Instance.new("Frame")
 	root.BackgroundTransparency = 1
-	root.Size = UDim2.new(1, 0, 0, 34)
+	root.Size = UDim2.new(1, 0, 0, Tokens.TouchTarget)
 	root.Parent = parent
 
 	local track = Instance.new("Frame")
@@ -250,17 +250,27 @@ function Controls.slider(
 	return root, set
 end
 
--- Çizilmiş X ile yuvarlak kapat düğmesi
+-- Çizilmiş X ile yuvarlak kapat düğmesi. Görünen daire 30 px, dokunma alanı TouchTarget (44 px).
 function Controls.closeButton(parent: Instance, onClose: () -> ()): TextButton
 	local b = Instance.new("TextButton")
 	b.Name = "Close"
 	b.Text = ""
-	b.Size = UDim2.fromOffset(30, 30)
-	b.BackgroundColor3 = Tokens.Color.SurfaceRaised
-	b.AutoButtonColor = true
+	b.Size = UDim2.fromOffset(Tokens.TouchTarget, Tokens.TouchTarget)
+	b.BackgroundTransparency = 1
+	b.AutoButtonColor = false
+	b.Selectable = true
 	b.Parent = parent
-	Base.corner(b, 15)
 	addPressFeedback(b)
+
+	local disc = Instance.new("Frame")
+	disc.Name = "Disc"
+	disc.AnchorPoint = Vector2.new(0.5, 0.5)
+	disc.Position = UDim2.fromScale(0.5, 0.5)
+	disc.Size = UDim2.fromOffset(30, 30)
+	disc.BackgroundColor3 = Tokens.Color.SurfaceRaised
+	disc.Active = false
+	disc.Parent = b
+	Base.corner(disc, 15)
 
 	for _, angle in { 45, -45 } do
 		local line = Instance.new("Frame")
@@ -270,15 +280,15 @@ function Controls.closeButton(parent: Instance, onClose: () -> ()): TextButton
 		line.Rotation = angle
 		line.BackgroundColor3 = Tokens.Color.Text
 		line.BorderSizePixel = 0
-		line.Parent = b
+		line.Parent = disc
 		Base.corner(line, 1)
 	end
 
 	b.MouseEnter:Connect(function()
-		b.BackgroundColor3 = Tokens.Color.Red
+		disc.BackgroundColor3 = Tokens.Color.Red
 	end)
 	b.MouseLeave:Connect(function()
-		b.BackgroundColor3 = Tokens.Color.SurfaceRaised
+		disc.BackgroundColor3 = Tokens.Color.SurfaceRaised
 	end)
 	b.Activated:Connect(onClose)
 	return b
@@ -290,7 +300,8 @@ function Controls.badge(target: GuiObject): (count: number) -> ()
 	badge.Name = "Badge"
 	badge.AnchorPoint = Vector2.new(0.5, 0.5)
 	badge.Position = UDim2.fromScale(0, 0)
-	badge.Size = UDim2.fromOffset(20, 20)
+	badge.Size = UDim2.fromOffset(22, 22)
+	badge.Active = false -- dokunuş altındaki karoya geçer (karo zaten >= TouchTarget)
 	badge.BackgroundColor3 = Tokens.Color.Red
 	badge.TextColor3 = Tokens.Color.Text
 	badge.FontFace = Tokens.Font.Bold
@@ -298,7 +309,7 @@ function Controls.badge(target: GuiObject): (count: number) -> ()
 	badge.Visible = false
 	badge.ZIndex = 3
 	badge.Parent = target
-	Base.corner(badge, 10)
+	Base.corner(badge, 11)
 
 	local highlight = Instance.new("UIStroke")
 	highlight.Color = Tokens.Color.Gold

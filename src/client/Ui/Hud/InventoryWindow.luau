@@ -129,7 +129,7 @@ function InventoryWindow.create(screenGui: Instance): Panel
 		button.TextScaled = true
 		local fit = Instance.new("UITextSizeConstraint")
 		fit.MaxTextSize = 13
-		fit.MinTextSize = 8
+		fit.MinTextSize = UiKit.MinTextSize
 		fit.Parent = button
 		powerButtons[index] = button
 		button.Activated:Connect(function()

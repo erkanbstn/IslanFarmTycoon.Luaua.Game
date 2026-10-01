@@ -164,7 +164,7 @@ function Windows.window(parent: Instance, options: WindowOptions): Window
 	local closeButton = Controls.closeButton(frame, window.close)
 	close = closeButton
 	closeButton.AnchorPoint = Vector2.new(1, 0)
-	closeButton.Position = UDim2.new(1, -14, 0, 14)
+	closeButton.Position = UDim2.new(1, -7, 0, 7) -- 44 px dokunma alanı, görünen 30 px daire eskisiyle aynı yerde
 	table.insert(openWindows, window)
 	local inputConnection = UserInputService.InputBegan:Connect(function(input, processed)
 		if
