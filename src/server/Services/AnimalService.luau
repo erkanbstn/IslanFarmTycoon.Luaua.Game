@@ -201,9 +201,10 @@ function AnimalService.trySell(player: Player, animalId: unknown): (boolean, str
 	return true, nil
 end
 
--- Evresi değişen hayvan varsa adayı yeniden çizer
-local function updateGrowth(player: Player, farm: any?)
-	local data = farm or PlayerDataService.tryGet(player)
+-- Evresi değişen hayvan varsa o çiftliğin adasını yeniden çizer. Etkin çiftlikte istemci durumu da gider;
+-- park edilmiş çiftlikte yalnızca kendi adası yenilenir (istemci park edilmiş çiftliğin hayvan evrelerini okumaz).
+local function updateGrowth(player: Player, farmId: string)
+	local data = PlayerDataService.getFarmView(player, farmId)
 	if not data then
 		return
 	end
@@ -223,9 +224,15 @@ local function updateGrowth(player: Player, farm: any?)
 			changed = true
 		end
 	end
-	if changed then
+	if not changed then
+		return
+	end
+	local active = PlayerDataService.tryGet(player)
+	if active and active.activeMainFarmId == farmId then
 		PlayerDataService.pushState(player)
 		PlotService.refreshPlayerWorld(player)
+	else
+		PlotService.refreshFarmWorld(player, farmId)
 	end
 end
 
@@ -297,7 +304,7 @@ function AnimalService.init()
 			for _, player in Players:GetPlayers() do
 				local ok, err = pcall(function()
 					for _, farmId in PlayerDataService.getFarmIds(player) do
-						updateGrowth(player, PlayerDataService.getFarmView(player, farmId))
+						updateGrowth(player, farmId)
 					end
 				end)
 				if not ok then

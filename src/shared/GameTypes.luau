@@ -70,7 +70,7 @@ export type PlayerSave = {
 	graphics: string?, -- Grafik tercihi (Config.GRAPHICS_MODES); nil = otomatik
 	language: string?, -- Seçilen arayüz dili (Config.LANGUAGES kodu); nil = Roblox dilinden algıla
 	mainFarmOffers: { { id: string, name: string, icon: string, ownerUserId: number? } }?,
-	mainFarms: { [string]: any },
+	mainFarms: { [string]: any }, -- sunucuda tam kayıt; istemci yükünde yalnızca hafif görünüm (barnLevel/purchased/unlockedIslands)
 	mainFarmSummaries: { MainFarmSummary }?,
 	production: { [string]: ProductionJob },
 	autoRepeat: { [string]: string }, -- yardımcı ile otomatik tekrar: tarif kimliği -> parti kimliği ("default" = seçeneksiz)

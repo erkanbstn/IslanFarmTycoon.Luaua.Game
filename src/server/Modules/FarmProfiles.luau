@@ -102,4 +102,33 @@ function FarmProfiles.summaries(data: any, plotId: ((string) -> string?)?): { an
 	return result
 end
 
+-- İstemciye giden kayıt: etkin çiftlik üst düzey alanlarda zaten var; park edilmiş çiftlikler yalnızca `summaries` ile gider.
+-- Tam `mainFarms` taşınmaz; yalnızca ortak FarmMath hesaplarının (ahır kapasitesi, ürün teklifleri) okuduğu hafif görünüm gider:
+-- park edilmiş çiftlik için `barnLevel`, `purchased`, `unlockedIslands`; etkin çiftlik için yalnızca `barnLevel` (gerisi kökten okunur).
+-- Sunucudaki `data` değiştirilmez; yüzeysel kopya döner (alt tablolar paylaşılır, gönderimde serileşir).
+function FarmProfiles.clientState(data: any, summaries: { any }, offers: { any }): any
+	local payload = {}
+	for key, value in data do
+		if key ~= "mainFarms" then
+			payload[key] = value
+		end
+	end
+	local light = {}
+	local farms = data.mainFarms
+	if farms then
+		for id, farm in farms do
+			if id == data.activeMainFarmId then
+				light[id] = { barnLevel = data.barnLevel }
+			else
+				light[id] =
+					{ barnLevel = farm.barnLevel, purchased = farm.purchased, unlockedIslands = farm.unlockedIslands }
+			end
+		end
+	end
+	payload.mainFarms = light
+	payload.mainFarmSummaries = summaries
+	payload.mainFarmOffers = offers
+	return payload
+end
+
 return FarmProfiles

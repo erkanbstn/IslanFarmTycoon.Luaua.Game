@@ -135,6 +135,19 @@ function AnimalVisualService.refresh(plot: Model, data: PlayerSave)
 			continue
 		end
 
+		-- Yuva sırası bölgedeki (ya da eklenti alanındaki) tüm görünür hayvanlara göre verilir; yerinde kalanlar da sayılır,
+		-- böylece yeni eklenen hayvan onların yuvasına düşmez.
+		local isExtension = animal.extensionId ~= nil and animal.extensionId ~= ""
+		local slot: number
+		local extensionId = animal.extensionId or ""
+		if isExtension then
+			slot = (perExtensionCount[extensionId] or 0) + 1
+			perExtensionCount[extensionId] = slot
+		else
+			slot = (perZoneCount[animal.zoneId] or 0) + 1
+			perZoneCount[animal.zoneId] = slot
+		end
+
 		local existing = existingByUid[animal.uid]
 		local existingExt = if existing then existing:GetAttribute("ExtensionId") else nil
 		local lineageLevel = FarmMath.getLineageLevel(data, animal.animalId)
@@ -154,19 +167,18 @@ function AnimalVisualService.refresh(plot: Model, data: PlayerSave)
 		end
 
 		local visual: Model
-		if animal.extensionId and animal.extensionId ~= "" then
-			local areaCf, areaSize, movement = ExtensionAreas.find(plot, animal.extensionId)
-			local extension = Config.getExtension(animal.extensionId)
+		if isExtension then
+			local areaCf, areaSize, movement = ExtensionAreas.find(plot, extensionId)
+			local extension = Config.getExtension(extensionId)
 			if not areaCf or not areaSize or not extension then
 				continue
 			end
-			perExtensionCount[animal.extensionId] = (perExtensionCount[animal.extensionId] or 0) + 1
 			visual = buildAnimalInArea(
 				animal,
 				areaCf,
 				areaSize,
-				perExtensionCount[animal.extensionId],
-				FarmMath.getExtensionCapacity(data, animal.extensionId),
+				slot,
+				FarmMath.getExtensionCapacity(data, extensionId),
 				movement,
 				lineageLevel
 			)
@@ -176,15 +188,7 @@ function AnimalVisualService.refresh(plot: Model, data: PlayerSave)
 			if not ground or not zoneConfig then
 				continue
 			end
-			perZoneCount[animal.zoneId] = (perZoneCount[animal.zoneId] or 0) + 1
-			visual = buildAnimal(
-				animal,
-				ground,
-				perZoneCount[animal.zoneId],
-				FarmMath.getZoneCapacity(data, animal.zoneId),
-				nil,
-				lineageLevel
-			)
+			visual = buildAnimal(animal, ground, slot, FarmMath.getZoneCapacity(data, animal.zoneId), nil, lineageLevel)
 		end
 		if existing then
 			existing:Destroy()
