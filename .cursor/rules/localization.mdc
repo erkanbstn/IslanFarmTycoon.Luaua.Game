@@ -21,8 +21,10 @@ Yeni/değişen metin → aynı Türkçe anahtarı **tüm sözlük dosyalarına**
   böler: ortak parçayı ("Gündüz", "Gece") tek başına sözlüğe eklemek yeterli.
 - Bulunamayan metin Türkçe kalır (hata vermez) — bu yüzden kontrol et:
   `python scripts/check-locales.py --strict-literals` (anahtar eşitliği + UI metin kapsamı).
-- Yönetici paneli (`AdminPanel.luau`) yalnızca sahibe görünür; çeviri zorunlu değil.
-- Bayrak emoji değil, `UiKit.flag`. Dil listesi `Config.LANGUAGES`.
+- Yönetici paneli (`AdminPanel.luau`) yalnızca sahibe görünür; çeviri zorunlu değil (`check-locales.py` yok sayar).
+- Bayrak emoji değil, `UiKit.flag` (şekillerle çizilir). Dil listesi `Config.LANGUAGES` / `Config.LANGUAGE_ORDER`.
+- Sık güncellenen metni `UiKit.setText(label, kaynak)` ile yaz: Localizer çeviriyi `Text`'e geri yazar, ham `label.Text = kaynak` her turda çift yazım üretir.
+- Başlangıç dili Roblox sistem dilinden (`LocaleId`) seçilir, desteklenmiyorsa İngilizce; Ayarlar'dan seçilen dil hesapta saklanır. Dil mantığını burada çoğaltma: `shared/Localization`.
 - Dünyadaki tabelalar (`WorldUi`, NPC tabelaları `HubNpcs` blurb/title, yön tabelaları) da aynı sözlükle çevrilir; harita yeniden kurulmadan çeviri güncellenir.
 - Dinamik metin (`Sv.{level}`, `+{} kapasite`...) için şablon anahtar ekle; parçalı metinleri (" · ", satır sonu) ayrı ayrı çevir.
 - Toplu ekleme betiği yazarken Python `r'...'` ve Write aracı kullan; bash heredoc ters eğik çizgiyi bozar.
