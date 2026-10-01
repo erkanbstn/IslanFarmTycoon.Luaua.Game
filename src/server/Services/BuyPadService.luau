@@ -169,7 +169,8 @@ local function buildPad(
 		tint = UiTheme.Color.Green,
 		widthStuds = 11,
 		heightStuds = 1.9,
-		offset = Vector3.new(0, 4.6, 0),
+		-- Yan yana (5 stud arayla) duran kaidelerin 11 stud genişliğindeki etiketleri üst üste binmesin: dıştaki kaide yukarıdan okunur
+		offset = Vector3.new(0, if math.abs(slot.X) > 12 then 7.2 else 4.6, 0),
 		maxDistance = 70,
 	})
 
@@ -179,7 +180,7 @@ local function buildPad(
 	prompt.ObjectText = upgrade.displayName
 	prompt.KeyboardKeyCode = Enum.KeyCode.E
 	prompt.HoldDuration = 0.5 -- yanlışlıkla satın alma olmasın: basılı tut
-	prompt.MaxActivationDistance = 9
+	prompt.MaxActivationDistance = 6.5
 	prompt.RequiresLineOfSight = false
 	prompt:SetAttribute("Locked", true) -- IslandPrompts: yalnızca sahibine görünür
 	prompt:SetAttribute("UpgradeId", upgrade.id)

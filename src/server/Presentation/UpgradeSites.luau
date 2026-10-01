@@ -99,7 +99,7 @@ local function buildSite(upgrade: Config.UpgradeConfig, spot: BasePart, parent: 
 	prompt.ObjectText = upgrade.displayName
 	prompt.KeyboardKeyCode = Enum.KeyCode.E
 	prompt.HoldDuration = 0.5 -- yanlışlıkla satın alma olmasın: basılı tut
-	prompt.MaxActivationDistance = 12
+	prompt.MaxActivationDistance = 7
 	prompt.RequiresLineOfSight = false
 	prompt:SetAttribute("Locked", true) -- IslandPrompts: yalnızca sahibine görünür
 	prompt:SetAttribute("UpgradeId", upgrade.id)

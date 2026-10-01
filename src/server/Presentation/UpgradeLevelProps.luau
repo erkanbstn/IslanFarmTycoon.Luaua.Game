@@ -259,7 +259,8 @@ local function lineageMonument(model: Model, cf: CFrame, levels: { { id: string,
 	for index, entry in levels do
 		local level = entry.level
 		local height = 0.8 + level * 0.3
-		local at = cf * CFrame.new((index - 1) * PEDESTAL_SPACING, 0, 0)
+		-- 8 kaideden sonra ikinci sıra (ada kenarına taşmasın; 24 hayvan türünde tek sıra x>56 olur)
+		local at = cf * CFrame.new(((index - 1) % 8) * PEDESTAL_SPACING, 0, -math.floor((index - 1) / 8) * 2.6)
 		piece(
 			model,
 			"Pedestal",
@@ -596,7 +597,7 @@ local function applyProps(plot: Model, save: PlayerSave?)
 		local base = CFrame.new(collector.Position.X, collector.Position.Y - 0.75, collector.Position.Z)
 			* collector.CFrame.Rotation
 		-- Toplayıcı 180° döner: yerel -X dünyada kuleye (+X) düşüyordu; yığın kulenin ve yardımcıların dışında, ada kuzeyinde durur.
-		storageYard(model, base * CFrame.new(0, 0, 8), storage)
+		storageYard(model, base * CFrame.new(-1, 0, 9) * CFrame.Angles(0, math.pi, 0), storage)
 	end
 	local plotBase = plot:FindFirstChild("PlotBase")
 	if #monument > 0 and plotBase and plotBase:IsA("BasePart") then
@@ -639,13 +640,12 @@ local function applyPets(plot: Model, save: PlayerSave?)
 			if collector and collector:IsA("BasePart") then
 				local base = CFrame.new(collector.Position.X, collector.Position.Y - 0.75, collector.Position.Z)
 					* collector.CFrame.Rotation
-				-- Deniz yardımcısı platformun aynı yanında ama daha uzakta durur (süt/yumurta yardımcılarıyla karışmasın);
-				-- sol yanda Depo Genişletme istifi (-9) olduğundan oraya konmaz, yoksa istifin içine girer.
-				local side = 6
-				local far = if slot.island == "sea" then 6 else 0
-				home = if slot.kind == "cash"
-					then base * CFrame.new(side, 0, 3 + far) * CFrame.Angles(0, math.rad(-150), 0)
-					else base * CFrame.new(side, 0, -3 - far) * CFrame.Angles(0, math.rad(-30), 0)
+				-- Yardımcılar platformun güney-doğu şeridinde (dünya z -33) yan yana durur: para yığını (batı), Depo istifi (kuzey),
+				-- yol ve alım kaideleri bu şeride girmez. Deniz yardımcısı ev yardımcılarının da yanında, daha doğuda durur.
+				local lx = -6 - (if slot.island == "sea" then 7 else 0) - (if slot.kind == "cash" then 0 else 3.5)
+				home = base
+					* CFrame.new(lx, 0, -7)
+					* CFrame.Angles(0, math.rad(if slot.kind == "cash" then -150 else -30), 0)
 			end
 		elseif islands then
 			for _, island in islands:GetChildren() do
