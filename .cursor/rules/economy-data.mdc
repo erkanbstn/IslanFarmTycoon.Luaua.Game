@@ -1,6 +1,6 @@
 ---
 description: Oyun dengesi (Config), paylaşılan hesaplar (FarmMath) ve kayıt şeması
-globs: src/shared/Config/**,src/shared/GameTypes.luau,src/shared/Modules/FarmMath/**,src/server/Services/AnimalService.luau,src/server/Services/UpgradeService.luau,src/server/Modules/SaveCodec/**,src/server/Modules/SessionLock.luau,src/server/Modules/FarmProfiles.luau,src/server/Services/PlayerDataService.luau,src/server/Services/EconomyService.luau
+globs: src/shared/Config/**,src/shared/GameTypes.luau,src/shared/Modules/FarmMath/**,src/server/Services/AnimalService.luau,src/server/Services/UpgradeService.luau,src/server/Modules/SaveCodec/**,src/server/Modules/SessionLock.luau,src/server/Modules/FarmProfiles.luau,src/server/Services/PlayerDataService.luau,src/server/Services/SaveStore.luau,src/server/Services/EconomyService.luau
 alwaysApply: false
 ---
 
@@ -20,8 +20,8 @@ alwaysApply: false
   alana varsayılan, sonlu sayı/üst sınır) → `SaveCodec.encode` → `tests/data.spec.luau`.
 - Şema sürümünü (`version`) artırıyorsan eski sürümden göç yolunu yaz; gelecekteki bilinmeyen
   sürüm reddedilir, bilinmeyen veri varsayılanla ezilmez.
-- DataStore çağrıları yalnızca `PlayerDataService` (oturum kilidi `SessionLock`). Başka servis
-  doğrudan DataStore kullanmaz.
+- DataStore çağrıları yalnızca `Services/SaveStore` (oturum kilidi `SessionLock`); `PlayerDataService` oturum/facade'dır
+  ve SaveStore'u çağırır. Başka servis doğrudan DataStore kullanmaz (`check-architecture.py` denetler).
 
 Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/production specleri).
 

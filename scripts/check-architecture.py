@@ -13,6 +13,8 @@ World katmanı yalnızca World kardeşlerini ve Shared'ı require eder (Studio e
 başka katmana giden require kopyada sessizce canlı koda düşer ya da WaitForChild'da asılır). Shared'a ulaşan arama
 yalnızca `World/SharedRef.luau`'da durur; diğer World dosyaları `require(script.Parent:WaitForChild("SharedRef"))` kullanır.
 
+DataStoreService yalnızca `Services/SaveStore.luau`'da kullanılır (oturum/facade `PlayerDataService` onu çağırır).
+
 Kullanım: python scripts/check-architecture.py
 """
 
@@ -47,6 +49,7 @@ REQUIRE = re.compile(r"require\(([^()]*(?:\([^()]*\)[^()]*)*)\)")
 # stylua uzun `local x = require(...)` satırını `local x =` + girintili `require(...)` olarak böler
 CONTINUED_LOCAL = re.compile(r"^local [\w, ]+(?::[^=]+)? =\s*$")
 SHARED_REF = "src/server/World/SharedRef.luau"
+SAVE_STORE = "src/server/Services/SaveStore.luau"
 SHARED_SEARCH = re.compile(r'FindFirstChild\("Shared"\)|WaitForChild\("Shared"\)')
 WORLD_SIBLING = re.compile(r'^script\.Parent:WaitForChild\("(\w+)"\)$')
 
@@ -126,6 +129,8 @@ def check_text(rel: str, text: str, siblings: set[str]) -> list[str]:
         problems.append(
             f'{rel}: Shared araması yalnızca World/SharedRef.luau\'da olmalı; `require(script.Parent:WaitForChild("SharedRef"))` kullan'
         )
+    if side == "server" and rel != SAVE_STORE and re.search(r'GetService\("DataStoreService"\)', text):
+        problems.append(f"{rel}: DataStore çağrıları yalnızca {SAVE_STORE}'da yapılır")
     if side == "client" and re.search(r"ServerScriptService|ServerStorage", text):
         problems.append(f"{rel}: istemci kodu sunucu servislerine erişemez")
     if side == "shared" and re.search(r'GetService\("(ServerScriptService|ServerStorage|StarterPlayer)"\)', text):

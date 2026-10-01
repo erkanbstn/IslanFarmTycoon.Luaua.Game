@@ -156,9 +156,17 @@ def main() -> int:
         module("TelemetryServiceFactory", "src/server/Services/TelemetryService.luau", {"TelemetryLogic", "Metrics"},
                "game, task, os, Enum, Metrics, warn, print"),
         module("telemetrySpec", "tests/telemetry.spec.luau"),
-        module("PlayerDataFactory", "src/server/Services/PlayerDataService.luau",
-               {"Config", "GameTypes", "Remotes", "FarmMath", "SessionLock", "SaveCodec", "FarmProfiles", "Metrics", "SaveBackup", "Preferences", "TelemetryService"},
-               "game, task, Instance, os, Remotes, DateTime, Metrics, warn"),
+        # DataStore katmanı (SaveStore) her fixture'da sahte game/task/os ile kurulur; PlayerDataService onu kullanır.
+        module("SaveStoreFactory", "src/server/Services/SaveStore.luau",
+               {"Config", "SessionLock", "Metrics", "SaveBackup"},
+               "game, task, os, Metrics, warn"),
+        module("PlayerDataFactoryBody", "src/server/Services/PlayerDataService.luau",
+               {"Config", "GameTypes", "Remotes", "FarmMath", "SessionLock", "SaveCodec", "FarmProfiles", "Metrics", "SaveBackup", "Preferences", "TelemetryService", "SaveStore"},
+               "game, task, Instance, os, Remotes, DateTime, Metrics, warn, SaveStore"),
+        "local function PlayerDataFactory(game, task, Instance, os, Remotes, DateTime, Metrics, warn)\n"
+        "\treturn PlayerDataFactoryBody(game, task, Instance, os, Remotes, DateTime, Metrics, warn,\n"
+        "\t\tSaveStoreFactory(game, task, os, Metrics, warn))\n"
+        "end\n",
         module("playerDataSpec", "tests/player-data-service.spec.luau"),
         module("RateLimiterFactory", "src/server/Modules/RateLimiter.luau", factory_args="game, os"),
         module("rateLimiterSpec", "tests/rate-limiter.spec.luau"),
