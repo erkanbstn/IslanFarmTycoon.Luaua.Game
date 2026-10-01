@@ -12,6 +12,7 @@ Her mekanik açılıp kapanabilir (bayraklar persona ön ayarını ezer):
   --session DK / --offline SAAT / --sessions-per-day N   oturum düzeni (--session 0 = hiç çıkma)
   --prod-interval SN   en iyi parti her SN'de yeniden başlar (yardımcı alınmışsa anında); 0 = üretim yok
   --ext-interval SN    eklentiler her SN'de yeniden doldurulur; 0 = eklenti yok
+  --sell-above ORAN    ürün kapasitenin bu oranına ulaşınca yarısı satılır ("Yarısını sat"; persona ön ayarı; 0 = satma)
   --orders / --no-orders, --rewards / --no-rewards, --golden-chance 0..1, --farms N, --react SN
   --days N (= --hours N*24), --json (makine okunur çıktı)
 
@@ -51,11 +52,11 @@ PERSONAS: dict[str, dict[str, float | int | bool]] = {
     },
     "casual": {
         "react": 20, "collect": 180, "session": 20, "sessions_per_day": 3, "prod_interval": 120, "ext_interval": 300,
-        "orders": True, "rewards": True, "golden": 0.6, "farms": 6,
+        "orders": True, "rewards": True, "golden": 0.6, "farms": 6, "sell_above": 0.8,
     },
     "hardcore": {
         "react": 5, "collect": 60, "session": 60, "sessions_per_day": 4, "prod_interval": 45, "ext_interval": 125,
-        "orders": True, "rewards": True, "golden": 0.95, "farms": 6,
+        "orders": True, "rewards": True, "golden": 0.95, "farms": 6, "sell_above": 0.7,
     },
 }
 
@@ -68,7 +69,7 @@ local COST_BASE, COST_EXP, PRICE_GROWTH = __COST_BASE__, __COST_EXP__, __PRICE_G
 -- CAP_MULT: ahır depo kapasitelerini çarpar (deneme).
 local COLLECT, CAP_MULT = __COLLECT__, __CAP_MULT__
 -- Oyuncu tipi ve mekanik ayarları (Python'dan): react, session, period, prodInterval, extInterval, orders, rewards,
--- goldenChance, farms, persona, json
+-- goldenChance, farms, sellAbove, persona, json
 local S = __SETTINGS__
 if CAP_MULT ~= 1 then
 	for _, barn in Config.BARN_LEVELS do
@@ -475,6 +476,24 @@ local function ordersTick()
 	end
 end
 
+-- Toplu satış: kapasitenin sellAbove oranına ulaşan ürünün yarısı "Yarısını sat" ile paraya çevrilir (FarmMath.sellGoods; sunucu ile aynı hesap)
+local function sellTick()
+	if S.sellAbove <= 0 then
+		return
+	end
+	local cap = FarmMath.getGoodsCap(save)
+	for _, goodsId in FarmMath.getContractGoods(save) do
+		if FarmMath.getGoodsAmount(save, goodsId) >= cap * S.sellAbove then
+			local cash, amount = FarmMath.sellGoods(save, goodsId, "half")
+			if cash and amount then
+				gstat(goodsId).sold += amount
+				earn(cash, "ürün satışı")
+				actions += 1
+			end
+		end
+	end
+end
+
 ---------------------------------------------------------------------------
 -- Ödül akışları: mevsim hedefi, günlük ödül, altın hayvan (EngagementService mantığı)
 ---------------------------------------------------------------------------
@@ -702,6 +721,7 @@ local function onlineStep()
 		if S.orders then
 			ordersTick()
 		end
+		sellTick()
 	end
 	if S.extInterval > 0 and t >= nextExt then
 		nextExt = t + S.extInterval
@@ -945,7 +965,7 @@ else
 		settings = {
 			persona = S.persona, hours = HOURS, farm = FARM, collect = COLLECT, react = S.react,
 			session = S.session / 60, period = S.period / 3600, prodInterval = S.prodInterval, extInterval = S.extInterval,
-			orders = S.orders, rewards = S.rewards, goldenChance = S.goldenChance, farms = S.farms,
+			orders = S.orders, rewards = S.rewards, goldenChance = S.goldenChance, farms = S.farms, sellAbove = S.sellAbove,
 		},
 		milestones = milestoneRows,
 		hourly = hourly,
@@ -1009,6 +1029,7 @@ def main() -> int:
     parser.add_argument("--orders", action=argparse.BooleanOptionalAction, default=None, help="Ahır siparişlerini teslim et")
     parser.add_argument("--rewards", action=argparse.BooleanOptionalAction, default=None, help="Günlük, mevsim ve altın hayvan ödüllerini al")
     parser.add_argument("--golden-chance", type=float, default=None, help="Altın hayvanı yakalama olasılığı (0-1)")
+    parser.add_argument("--sell-above", type=float, default=None, help="Bir ürün depo kapasitesinin bu oranına ulaşınca yarısını sat (Yarısını sat; 0 = hiç satma)")
     parser.add_argument("--farms", type=int, default=None, help="Sahip olunacak en çok ana çiftlik sayısı (1 = çoklu çiftlik yok)")
     parser.add_argument("--json", action="store_true", help="Makine okunur JSON çıktısı")
     args = parser.parse_args()
@@ -1046,6 +1067,7 @@ def main() -> int:
         "rewards": bool(pick("rewards", args.rewards, False)),
         "goldenChance": float(pick("golden", args.golden_chance, 1.0)),
         "farms": int(pick("farms", args.farms, 1)),
+        "sellAbove": float(pick("sell_above", args.sell_above, 0)),
         "json": args.json,
     }
 

@@ -124,14 +124,17 @@ return function(codec: any, config: any, farmMath: any, profiles: any)
 	-- Ödül tabanı siparişin boyutuyla büyür; ödül hiçbir zaman ürün değerinin altına düşmez
 	local oneLine = { { goodsId = "down", amount = 3 } }
 	local twoLine = { { goodsId = "down", amount = 6 } }
+	local oneFloor, twoFloor =
+		farmMath.getContractIncomeFloor(10, oneLine), farmMath.getContractIncomeFloor(10, twoLine)
+	assert(twoFloor > oneFloor, "a bigger order has a bigger income floor")
+	assert(twoFloor < 2 * oneFloor, "but pays less per unit (the exponent is below 1)")
 	assert(
-		farmMath.getContractIncomeFloor(10, twoLine) == 2 * farmMath.getContractIncomeFloor(10, oneLine),
-		"the income floor is proportional to the order size"
+		math.abs(twoFloor / oneFloor - 2 ^ settings.floorExponent) < 1e-9,
+		"the floor follows the configured exponent"
 	)
 	assert(
-		farmMath.getContractIncomeFloor(10, oneLine)
-			== 10 * settings.incomeSeconds * 3 * settings.unitRefValue / settings.floorWeight,
-		"the reference order keeps the income x seconds floor"
+		math.abs(oneFloor - 10 * settings.incomeSeconds) < 1e-6,
+		"the reference order (3 units of the reference value) keeps the income x seconds floor"
 	)
 	for _, windowOffset in { 0, 5, 31 } do
 		for _, bonus in { 0, 0.5 } do

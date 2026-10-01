@@ -30,11 +30,12 @@ return {
 		-- ± variation oranında değişir.
 		slots = 12,
 		variation = 0.34,
-		-- Ödül tabanı: etkin çiftliğin geliri x bu süre (sn) x (siparişin ağırlığı / floorWeight). Ağırlık = Σ birim x min(ürün değeri, unitRefValue);
-		-- floorWeight = referans siparişin (3 birim x unitRefValue) ağırlığı: o boyutta taban eski "gelir x süre" ile aynıdır, büyük sipariş orantılı artar.
+		-- Ödül tabanı: etkin çiftliğin geliri x bu süre (sn) x (siparişin ağırlığı / floorWeight) ^ floorExponent. Ağırlık = Σ birim x min(ürün değeri, unitRefValue);
+		-- floorWeight = referans siparişin (3 birim x unitRefValue) ağırlığı: o boyutta taban "gelir x süre"dir; büyük sipariş daha çok, ama birim başına daha az öder (üs < 1).
 		-- Ödül = max(ürün değeri, taban) x kademe çarpanı x bonus.
-		incomeSeconds = 110,
+		incomeSeconds = 300,
 		floorWeight = 2400,
+		floorExponent = 0.2,
 		unitRefValue = 800,
 		-- Bir satırdaki en çok birim (okunabilirlik; "20-30 adetlik toptan" tavanı)
 		maxLineUnits = 30,

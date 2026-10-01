@@ -92,10 +92,13 @@ function Contracts.reward(worth: number, rewardFactor: number, bonus: number?, i
 	return math.floor(math.max(worth, incomeFloor or 0) * rewardFactor * (1 + (bonus or 0)))
 end
 
--- Gelir tabanı: etkin çiftliğin geliri x incomeSeconds x (siparişin ağırlığı / floorWeight)
+-- Gelir tabanı: etkin çiftliğin geliri x incomeSeconds x (siparişin ağırlığı / floorWeight) ^ floorExponent (üs < 1: büyük sipariş küçüğünden
+-- çok öder ama birim başına daha az; 20-30 adetlik toptanlar geç oyun gelirini şişirmez)
 function Contracts.incomeFloor(incomePerSecond: number, lines: { Line }): number
 	local settings = Config.GOODS_CONTRACTS
-	return incomePerSecond * settings.incomeSeconds * ordersWeight(lines) / settings.floorWeight
+	return incomePerSecond
+		* settings.incomeSeconds
+		* (ordersWeight(lines) / settings.floorWeight) ^ settings.floorExponent
 end
 
 -- Park-Miller üreteci: pencere ve sıraya bağlı, sunucu ile client'ta aynı sonucu verir (Roblox Random gerekmez).
