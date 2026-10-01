@@ -6,175 +6,115 @@ alwaysApply: false
 
 # Ekonomi ve veri
 
-- Denge değerleri (fiyat, gelir, kapasite, süre, yol haritası) **yalnızca** `Config/` klasöründe.
-  Tablolar: ANIMALS/ANIMAL_ORDER, ZONES, UPGRADES, ROADMAP_STAGES, FARM_ISLANDS/FARM_ISLAND_ORDER,
-  EXTENSIONS, PRODUCTION_RECIPES, BARN_LEVELS, SEASONS, WEATHER.
-- `FarmMath` saf ve paylaşılan: sunucu da client da aynı sonucu hesaplar. Roblox örneğine
-  dokunmaz (Environment dışında). Açık ada/bölge `FarmMath.applyDerived` ile `purchased`'dan türer;
-  türetilmiş alanı kayda elle yazma.
-- Döngü içinde tür başına sabit değerleri önbelleğe al (`computeIncomePerSecond` kalıbı).
-- Gelir değişmeden önce `EconomyService.settlePlayer` ile geçen süre eski çarpanla kapatılır.
+Rakamlar (süre, fiyat, oran, sayı) bu dosyaya kopyalanmaz: ilgili `Config` anahtarına ve ölçüm komutuna işaret edilir.
+
+## Denge ve hesap
+- Denge değerleri (fiyat, gelir, kapasite, süre, yol haritası) **yalnızca** `src/shared/Config/` altındadır (`init.luau` birleştirir; veri dosyaları:
+  `Upgrades`, `Animals` = hayvan/bölge, `Islands` = ada/tema/ahır/büyüme, `Production`, `Goods`, `Shop` = ürün/ırk/olaylar/mevsim hedefi, `Items`, `Weather`, `Economy`, `Core`).
+- `FarmMath` (`src/shared/Modules/FarmMath/`, cephe `init.luau`) saf ve paylaşılan: sunucu da client da aynı sonucu hesaplar, Roblox örneğine dokunmaz
+  (`Environment` dışında). Her zaman `FarmMath.<ad>` ile çağır. Açık ada/bölge `FarmMath.applyDerived` ile `purchased`'dan türer; türetilmiş alanı kayda yazma.
+- Para/süre/kapasite/ödül gösteren her ekran `FarmMath` yardımcısını kullanır (`getUpgradeCost`, `getExpansionCost`, `getFacilityCost/Duration`,
+  `getZoneCapacity`, `getSellPrice`); elle çarpma yazma.
+- Döngüde tür başına sabitleri önbelleğe al (`computeIncomePerSecond` kalıbı). Gelir değişmeden önce `EconomyService.settlePlayer` ile geçen süre eski çarpanla kapatılır.
+- Test: `tests/economy.spec.luau`, `tests/config.spec.luau`.
 
 ## Kayıt şeması
-- Kalıcı alan eklemek/değiştirmek: `GameTypes` tipi → `SaveCodec.decode` normalleştirme (eksik
-  alana varsayılan, sonlu sayı/üst sınır) → `SaveCodec.encode` → `tests/data.spec.luau`.
-- Şema sürümünü (`version`) artırıyorsan eski sürümden göç yolunu yaz; gelecekteki bilinmeyen
-  sürüm reddedilir, bilinmeyen veri varsayılanla ezilmez.
-- DataStore çağrıları yalnızca `Services/SaveStore` (oturum kilidi `SessionLock`); `PlayerDataService` oturum/facade'dır
-  ve SaveStore'u çağırır. Başka servis doğrudan DataStore kullanmaz (`check-architecture.py` denetler).
+- Kalıcı alan: `GameTypes` tipi → `SaveCodec` (`src/server/Modules/SaveCodec/`: `init` giriş, `Farm`, `Animals`, `Production`, `Tasks`, `Goods`, `Inventory`, `Account`, `Common`)
+  decode normalleştirme (eksik alana varsayılan, sonlu sayı/üst sınır) → encode → `tests/data.spec.luau`.
+- Şema sürümünün tek kaynağı `SessionLock.VERSION`. Biçim değişirse artır ve eski sürümden göç yaz; gelecekteki bilinmeyen sürüm reddedilir, bilinmeyen veri varsayılanla ezilmez.
+- DataStore çağrıları yalnızca `Services/SaveStore` (oturum kilidi `SessionLock`, yedek `Modules/SaveBackup`); `PlayerDataService` oturum/facade'dır ve SaveStore'u çağırır.
+  Başka servis DataStore kullanmaz (`check-architecture.py` denetler). Ayrıntılı iş akışı: `roblox-save-schema` skill'i.
+- Çiftlik düzeyi mi hesap düzeyi mi: çiftlik başına alanlar `FarmProfiles`'taki `FIELDS` listesindedir (`tier`, `stored`, `purchased`, `lineage`, `expansions`, `animals`,
+  `production`, `autoRepeat`, `barnLevel`, `unlockedIslands`, `unlockedZones`). Hesap düzeyi alanlar kökte durur ve `SaveCodec/Account` (+ `Goods`, `Inventory`) normalleştirir:
+  `cash`, `lifetimeEarned`, `daily`, `achievements`, `seasonal`, `merchant`, `golden`, `inventory`, `goods`, `contracts`, `receipts`, `language`, `graphics`, `audio`, `reducedMotion`.
+  Çalışma anı alanlar (`passes`, `envOverride`, `adminForce`) kaydedilmez; `FarmProfiles.view` gerekenleri etkin olmayan çiftliğe taşır. Hepsi opsiyoneldir:
+  eksik alan varsayılanla yüklenir, geçersizi atılır.
+- `lifetimeEarned` yalnızca `addCash` ve otomatik toplama ile artar. İade (`PlayerDataService.addRefund`) kazanç/başarım sayacına girmez.
+- Ürün kimlikleri `Config.PRODUCTS` (`id = 0` satışta değil). `MonetizationService.processReceipt` makbuzu `ReceiptLog` ile bir kez işler; `PurchaseGranted` yalnızca kayıt başarılıysa döner.
 
-Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/production specleri).
+Değişiklikten sonra: `python scripts/run-tests.py`.
 
-## Sonradan eklenen sistemler
-- **Seviyeli geliştirme**: `Config` sonundaki `LEVEL_CHAINS` her seviyeyi `<id>_lv<N>` yükseltmesi (`kind = "level"`,
-  `leveled = true`) olarak üretir; kayıt şeması değişmez. `kind = "boost"` verme: `MapBuilder.validate` her boost için
-  harita yapı noktası ister. "Tüm yol haritası" sayımı `leveled` olanları saymaz.
-- **Hesap düzeyi alanlar** (`SaveCodec` kökü): `lifetimeEarned` (yalnızca `addCash` ve otomatik toplama artırır),
-  `daily {day, streak}`, `achievements`, `receipts` (en fazla 200), `language`, `graphics` (auto/low/medium/high; `RequestSetGraphics`, `SavedGraphics` özniteliği). `passes` yalnızca çalışma anında
-  (`MonetizationService`, MarketplaceService'ten) yazılır, **kaydedilmez**; `FarmProfiles.view` etkin olmayan
-  çiftliğe de aktarır. Hepsi opsiyoneldir: eksik alan varsayılanla yüklenir, geçersizi atılır.
-- **Ürün kimlikleri** `Config.PRODUCTS`: `id = 0` = satışta değil. `ProcessReceipt` makbuzu `ReceiptLog` ile bir kez işler;
-  `PurchaseGranted` yalnızca `PlayerDataService.save` başarılıysa döner.
-- **Sipariş panosu** yalnızca ahır siparişlerinden oluşur (aşağıda); eski zaman tabanlı sipariş (`save.order`) kaldırıldı. Mevsim bonusu `SEASONS[x].orderBonus` ahır
-  siparişi ödülüne uygulanır.
-- **Denge ölçümü**: `python scripts/simulate-economy.py --hours 8 --farm 1..6` (ideal oyuncu, gerçek Config/FarmMath; her temayı dene).
-  Tempo hedefleri aşağıdaki "Depo ve toplama dengesi" ve "Yapı geliştirme" maddelerindedir. `UPGRADES[].cost` taban fiyattır:
-  `UPGRADE_COST_BASE/EXPONENT` eğrisi yükleme sırasında uygulanır (Config sonunda; ek ana çiftlik fiyatları `MAIN_FARM_PRICES` da aynı eğriden geçer, simülasyon tek çiftliği modeller); `--cost-exp/--cost-base/--price-growth` ile deneme yapılır.
-- **Ada temaları**: `Config.THEMES[n]` = ana çiftlik numarası n'nin (tema) 3 küçük adası. Ada türleri
-  `FARM_ISLANDS` + `ZONES` + `ANIMALS` + `UPGRADES` (island + boost) içinde tanımlıdır; ada yükseltmesi yalnızca
-  `barn_N`'e bağlanır; her tema Ahır 2, 3 ve 4 için birer ada içerir ve hiçbir tema diğeriyle aynı değildir (test doğrular). Mantık `Config.getTheme/themeHasIsland` ve
-  `FarmMath.themeIslands` ile temaya bakar; `UpgradeService.tryBuy` tema dışı adayı reddeder. Harita yuvaları
-  `MapBuilder.SATELLITE_SLOTS` + `SATELLITE_TYPES`; oyuncunun etkin çiftliği kendi fiziksel adasına `MapBuilder.applyTheme` ile giydirilir (`PlotService.bindFarm`).
-- **Ana ada hayvanı**: `theme.homeAnimal` (inek/tavuk/ördek) `starter` ve `pasture` bölgelerinin (`themed = true`) hayvanını
-  belirler; bölge izni her yerde `Config.zoneAllows`/`FarmMath.zoneAllows` ile sorulur (`allowedAnimals`'a doğrudan bakma).
-  `incomeBoost.home` çiftliğin ana ada hayvanına uygulanır. Ana hayvanın kendi küçük adası temada olmaz; inek yoksa `dairy`
-  (Süt Adası) küçük adası temada bulunur (test doğrular). `ROADMAP_STAGES` sırası `upgrade.stage` indeksidir: yeni aşamayı sona ekle.
+## Ölçüm
+- `python scripts/simulate-economy.py` (ideal oyuncu, gerçek Config/FarmMath; `--farm 1..6` her temayı dene; `--days/--persona` ile gündelik oyuncu; `--farms` çoklu çiftlik;
+  `--collect` platforma uğrama sıklığı; `--cost-exp/--cost-base/--price-growth/--cap-mult` deneme). Tempo hedefleri çıktının "ADIM ZAMANLARI" satırlarında (`goals` tablosu
+  scriptte) ve `TÜM YÜKSELTMELER` kilometre taşındadır; tempoyu etkileyen her değişiklikten sonra çalıştır, hedefler sapmasın.
+- `UPGRADES[].cost` taban fiyattır: `UPGRADE_COST_BASE/EXPONENT` eğrisi Config yüklenirken uygulanır (`MAIN_FARM_PRICES` da aynı eğriden geçer).
+- Depo (`BARN_LEVELS[].storageCap`) platformdan uzak duran oyuncunun gelirini silmeyecek büyüklükte olmalı: değişince `--collect 120` ve `--collect 300` ile geç oyun gelirinin
+  `--collect 0`a yakın kaldığını doğrula.
+- Irk geri dönüşü: sim "Irk geri dönüş" satırı en kötü seviyede bile ~2 saati geçmemeli (her `--farm`'da); `LINEAGE.costGrowth/maxLevel` değişince yeniden ölç.
+  Tesis geri ödemesi: "Tesis geri ödeme" satırı; `PRODUCTION_MAX_RETURN` parti çarpanını sınırlar.
+- Başlangıç: yeni çiftlik hayvansız başlar (`STARTING_COW_COUNT`); `Config.getStartingCash(farmId)` ana hayvanı tam bir tane almaya yeter (`STARTING_CASH` yedek). Çiftliğin
+  ilk `STARTER_ADULT_ANIMALS` hayvanı yetişkin doğar (`FarmMath.getNewAnimalBornAt`; şema değişmez). Hayvansız profil geçerlidir.
+- Büyüme süresi `Config.GROWTH_SECONDS`'tan okunur (testler de); rakamı elle yazma. Değişince simülasyonla kilit zamanlarını kontrol et.
 
-- **Irk geliştirme** (oyun sonu para harcama yolu): `Config.LINEAGE` (maxLevel, incomePerLevel, costMultiplier, costGrowth). Seviye
-  çiftlik başına ve türe göredir: kayıt alanı `lineage { [animalId] = 1..maxLevel }` (opsiyonel; `FarmProfiles.FIELDS`'te, `SaveCodec`
-  tanınmayan türü atar, seviyeyi sıkıştırır, bozuk tabloyu reddeder). Mantık paylaşılan `FarmMath.getLineageLevel/getLineageCost/getLineageStatus`;
-  gelir etkisi `getAnimalMultiplier` içinde **ayrı çarpan** `(1 + seviye x incomePerLevel)` (diğer bonuslar toplamına eklenmez; aynı şekilde takılı eşyanın `incomeBonus`'u ayrı `(1 + eşya)` çarpanıdır: gelir = taban x (1 + diğer bonuslar) x (1 + ırk) x (1 + eşya)), maliyet yavaş üstel (`costGrowth`). Her seviyenin geri dönüşü ~2 saati geçmemeli: `simulate-economy.py` "Irk geri dönüş" satırını kontrol et (her `--farm`'da); `costGrowth`/`maxLevel` değişince yeniden ölç. Sunucu `UpgradeService.tryUpgradeLineage`
-  (`RequestUpgradeLineage`, en az bir yetişkin şart, `settlePlayer` sonra `trySpend`). Arayüz: Hayvan Pazarı kartlarında ikinci düğme.
-  Görünürlük: `AnimalVisualService.applyLineage` hayvanın üstüne kademe renkli yıldız + "Sv.N" rozeti (`LineageTag`) koyar; seviye değişince hayvan
-  yeniden kurulmaz, rozet yerinde yenilenir (`Lineage` özniteliği).
-  Denge: `simulate-economy.py` tüm yükseltmelerden sonra ırk satın alır (`IRK toplam Sv.N` adımları); sonraki içerik bunu beslemeli.
-- **Yapı geliştirme** (bölgeler ve üretim tesisleri): `Config.BUILD_UPGRADES` (maxLevel 5, costMultiplier/costGrowth bölge, facilityCost* tesis, `profiles` = seviye başına fayda
-  demeti). Bölge profilleri (`ZONES[x].upgradeProfile`, varsayılan barn): `capacity` (adım sayısı; adım = `max(2, kapasite/4)`), `growthSpeed`, `incomeBonus`, `seasonAffinity`
-  (olumlu mevsim/hava etkisi büyür, olumsuzlar küçülür). Tesis profilleri (`PRODUCTION_RECIPES[x].upgradeProfile`, varsayılan factory): `speed` (süre çarpanı), `yield`
-  (satış ödülü), `thrift` (başlatma maliyeti). Her yerde yardımcıları kullan: `getZoneCapacity`, `getGrowthSpeed(save, animalId, zoneId)`, `getAnimalMultiplier(.., zoneId)`,
-  `getFacilityDuration/getFacilityCost`, `getProductionReward`; büyüme hızı anlık görüntüsü için `snapshotGrowthSpeeds` + `preserveGrowthProgress` (anahtar `animalId|zoneId`).
-  Kayıt alanı `expansions { [bölgeVeyaTarifId] = 1..maxLevel }` (opsiyonel, `FarmProfiles.FIELDS`'te; SaveCodec tanınmayan hedefi atar). Kapasite veren seviye için bölge dolu,
-  tesis için kurulu olmalı (`getExpansionStatus`). Sunucu `UpgradeService.tryExpandZone` (`RequestExpandZone`); arayüz Yükseltmeler penceresindeki "Geliştirmeler" kartları (alınabilirlik sırasıyla, tamamlananlar listeden çıkar, rozet sayar, hedef kartında "Hızlı kazanç")
-  (`Config.BUILD_ORDER/BUILD_TARGETS`). Yeni profil/seviye eklersen `tests/economy.spec.luau` (seviye sayısı = maxLevel, her bölge büyüyebilmeli) ve sim kalibrasyonu
-  (`scripts/simulate-economy.py`: `ALAN toplam Sv.N`; hedef ada süreleri ve "TÜM YÜKSELTMELER" korunmalı).
-  Tempo (ideal oyuncu, `simulate-economy.py`): 1. çiftlikte ilk ada ~13 dk, at adası ~47 dk, keçi adası ~116 dk, tüm yükseltmeler ~4,6 saat; 3. temada (Güneşli Tarla: süt, at, keçi) süt ~15, at ~35, keçi ~95 dk (`--farm 3`); sayıları değiştirirsen yeniden koştur ve bu satırı güncelle.
-  Casual (`--days 7 --persona casual`): çevrimdışı ~%72, sipariş ~%12, park ~%10 (çevrimdışı+park ~%81), 6. çiftlik ~5,3 gün; sim "Tesis geri ödeme" satırı fabrikaların geri ödemesini gösterir (1. çiftlikte ~25 dk bandı; `PRODUCTION_MAX_RETURN` parti çarpanını 2,0'da tutar).
-  Açılış: çiftliğin ilk `STARTER_ADULT_ANIMALS` (3) hayvanı yetişkin doğar (`FarmMath.getNewAnimalBornAt`, bornAt = 0; kayıt şeması değişmez).
-- **Mevsim hedefi**: `Config.SEASONAL_GOALS` (mevsim id -> `earned` veya `invest`), `SEASONAL_REWARD_SECONDS/MIN_REWARD`. Hesap düzeyi opsiyonel kayıt
-  alanı `seasonal {key, progress, target, base, claimed}` (key = `Rewards.seasonNumber`; bozuk kayıt sessizce atılır). Mantık saf `Rewards.seasonal*`
-  (kazanç = `lifetimeEarned - base` canlı; yatırım sayacı sunucu kancalarıyla `Rewards.recordInvest`: hayvan alma, yükseltme, ırk, alan genişletme, ahır siparişi teslimi).
-  Sunucu: `EngagementService` her 5 sn hedefi hazırlar ve ilerleme değişince durum iter; ödül `RequestClaimSeasonal` (işaret önce yazılır).
-  Yeni bir yatırım türü eklersen `Rewards.recordInvest` çağır; yeni metrik eklersen `Rewards.seasonalProgress` ve istemci metnini güncelle.
-- **Gezgin tüccar** (rastgele olay): `Config.MERCHANT` (cycleSeconds, visitSeconds, chance, discount, stock). Saf `Merchant.visit/offer` (paylaşılan):
-  ziyaret zamanı ve teklif **oyuncu kimliği + döngü numarasından** türer, kayıt gerekmez; yalnızca alınan teklifin döngüsü hesap alanı
-  `merchant {key, bought}` ile tutulur (aynı ziyarette tekrar alınamasın, yeniden girişle aşılmasın). Teklif: satın alınabilen hayvanların pahalı
-  yarısından biri, en fazla `stock` adet, `discount` indirimli. Sunucu `AnimalService.tryBuyMerchantOffer` teklifi yeniden hesaplar
-  (`RequestBuyMerchantOffer`; fiyat/adet client'tan gelmez). Arayüz: Pazar penceresinin üstünde teklif kartı + geldiğinde bildirim (FarmHud).
-  Yeni bir olay türü eklersen aynı kalıbı kullan: saf zaman/teklif mantığı + yalnızca gerekli işareti kaydet.
-- **Altın hayvan** (rastgele olay): `Config.GOLDEN` (cycleSeconds, windowSeconds, chance, rewardSeconds, minReward). Saf `Golden.window/current` (paylaşılan;
-  `Merchant.rand` ile oyuncu kimliği + döngüden türer). Pencere açıkken etkin çiftlikteki yetişkin bir hayvan (kimliğe göre sıralı listeden seçilir) parlar;
-  ödül çiftliğin TOPLAM `rewardSeconds` saniyelik geliridir (`computeIncomePerSecond`) (en az `minReward`). Hesap alanı `golden {key}` yalnızca alınan pencereyi işaretler. Sunucu
-  `EngagementService.tryClaimGolden` (`RequestClaimGolden`) olayı yeniden hesaplar, işareti önce yazar. Görsel tamamen client'ta: `GoldenAnimal.client`
-  (Highlight + hayvanın üstünde "Topla" düğmesi, fare/dokunma ile çalışır); bildirim FarmHud'da. Yeni rastgele olay eklerken aynı kalıbı izle.
-- **Tema tutarlılığı**: bir çiftlik yalnızca kendi temasındaki adaların yükseltmelerini alabilir. `FarmMath.isUpgradeInTheme` ve `getUpgradeStatus` temada olmayanı
-  `"locked"` döner; "bütün yol haritası" sayan her kural, başarım ve hedef hesabı temaya göre süzülür. Yeni başarım/hedef
-  eklerken her temada ulaşılabilir olduğunu `tests/rewards.spec.luau` (başarım ulaşılabilirliği) ve `tests/economy.spec.luau` (ön koşul zinciri aynı temada) denetler.
-- **Yönetici olay araçları**: `forceMerchant/forceGolden/completeSeason/resetEvents` (AdminPolicy listesi + AdminService + AdminPanel). Zorlama yalnızca çalışma anı
-  alanı `save.adminForce` ile yapılır (`Merchant.offer` ve `Golden.current` okur, SaveCodec yazmaz); mevsim hedefini `EngagementService.refreshSeasonal` tamamlar.
-  Yeni bir rastgele olay eklersen aynı kalıpla bir test aracı da ekle (oynayarak görebilmek için).
-- **Envanter ve eşyalar**: `Config.ITEM_SLOTS/ITEM_SLOT_ORDER/ITEMS/ITEM_ORDER` (slot başına bir eşya; `effects` = takılıyken kalıcı fayda, `power` = asa gücü, `look` = karakterde
-  görünen parçalar; Vector3 yerine `{x, y, z}` tabloları). Hesap düzeyinde opsiyonel kayıt alanı `inventory { items, equipped, uses }` (`SaveCodec` tanınmayan eşyayı atar, takılı
-  eşya sahipli ve kendi slotunda olmalı, hak kayıtları sınırlanır; yeni/eski hesap boş envanterle açılır; `FarmProfiles.view` envanteri etkin olmayan çiftliğe de taşır). Saf
-  mantık `Inventory` (sahiplik, takma, günlük haklar: hak **güç türüne** göredir, eşyaya değil; UTC gün). Ekonomik etkiler **yalnızca** `FarmMath`'te: `getUpgradeCost(save, upgrade)`
-  (çekiç indirimi; her gösterim ve tahsilat bunu kullanır, `upgrade.cost` doğrudan okunmaz), `getStorageCap`, `getGrowthSpeed`, `getAnimalMultiplier`. Yeni etki eklersen `effects`
-  anahtarını `FarmMath.getEquippedBonus/getEquippedMultiplier` ile oku. Sunucu `InventoryService` (`RequestBuyItem/EquipItem/UseItem`): fiyat ve haklar sunucuda doğrulanır;
-  takma/çıkarma `changeEquipment` ile geçen süreyi eski etkiyle kapatır, büyüme ilerlemesini korur, dünyayı ve karakteri yeniler. Asa gücü oyuncuya özeldir: `InventoryService.tryUse` kayıtta çalışma anı
-  `envOverride { seasonId, seasonEndsAt, weatherId, weatherEndsAt }` tutar (kaydedilmez; `FarmProfiles.view` inaktif çiftliğe de taşır). `Environment.getSeason/getWeather/
-  getIncomeMultiplier/getSeasonEndsAt/getNextSeason(override?)` katmanı uygular: sunucu `save.envOverride` verir (`FarmMath` ve `ContractService` bunu yapar), client argümansız
-  çağrılarda `Environment.setClientOverride` ile kurulan kendi katmanını kullanır (FarmHud her durumda kurar). Yeni bir mevsim/hava tüketicisi dünya attribute'unu doğrudan okumamalı,
-  `Environment` üzerinden geçmeli. Dünya mevsimini/havasını yalnızca `SeasonService` (ve yönetici araçları) değiştirir. Test araçları `grantItems/clearItems`. Yeni eşya ailesi eklerken `tests/inventory.spec.luau` (pahalı kademe daha güçlü olmalı)
-  ve çeviri anahtarları (ad + şablon açıklama) gerekir.
-- **Ahır deposu ve ürün merkezleri**: `Config.GOODS/GOODS_ORDER` (süt, yumurta, tüy, peynir, yün, et, nal, balık; `value` = birim para değeri) ve çiftlik
-  başına `save.goods { [ürün] = miktar }` (`FarmProfiles.FIELDS`'te; `SaveCodec` bilinmeyen/sonsuz/negatif girdiyi atar, miktarı ahırın `goodsCap` değerine
-  sıkıştırır). Kapasite ahır seviyesine göre (`BARN_LEVELS[n].goodsCap`, ürün türü başına). Depo işlemleri **yalnızca** `FarmMath.getGoodsAmount/getGoodsSpace/
-  addGoods/removeGoods/getGoodsWorth/getGoodsCap` ile yapılır (eşya etkileri `contractBonus` (sipariş ödülü) ve `goodsYield` (ürün merkezi verimi) ahır muskalarıdır; ahır siparişleri depoyu buradan tüketir: `removeGoods` yetmiyorsa hiçbir şey değiştirmez).
-  Ürün merkezleri `PRODUCTION_RECIPES` içinde `output = "goods"`, `goodsId`, `goodsAmount` taşır (`reward` = ürünlerin para karşılığı; yalnızca gösterim ve
-  tesis geliştirme maliyeti tabanı). Her hayvan türü için bir **para** (mevcut fabrika) ve bir **ürün** merkezi vardır; ürün merkezleri de aynı hayvan kuralını
-  izler (`requiredAdults`, iş boyunca gelirsiz, sonra döner, bkz. Hayvan görevleri). Başlatma: `ProductionRules.canStart` depoda en az `goodsAmount` yer ister.
-  Teslim: `FarmMath.getGoodsYield` (temel x yetişkin bonusu x tesis verimi; kaçırılan gelirin `PRODUCTION_MIN_RETURN` katının ürün değeri tabanı) miktarını
-  `ProductionService` depoya ekler (sığmayan kısım eklenmez), para vermez. Arayüz: Envanter penceresinde üstte "Ahır Deposu" bölümü, ahırdaki sandık
-  (`BarnVisualService.addStorageChest`, `BarnChestPrompt`, "E") aynı pencereyi açar; yeni ürün merkezi binaları `Presentation/UpgradeBuildersGoods` ve
-  `MapLayout` yapı noktaları (`HOME_BUILD_SPOTS`, `SATELLITE_TYPES[...].itemSpot`); `MapBuilder.validate` her "boost" yükseltmesi için yapı noktası ister.
-  Yeni ürün/merkez eklerken: `Goods.luau` + tarif + yükseltme + bina görseli + yapı noktası + `UpgradeParts.PRODUCTION_RECIPES` + çeviri + `tests/goods.spec.luau`.
-- **Para tesisleri ve parti seçenekleri**: `output = "cash"` tesisler **ücretsiz** başlar (`cost = 0`; `FarmMath.getFacilityCost` 0 döner, `ProductionService`
-  ücret almaz) ve `options` listesi taşır: her `ProductionOptionConfig { id, displayName, requiredAdults, duration, reward, returnMultiplier }` ayrı bir parti
-  (ör. 1 / 2 / 4 hayvan). Daha çok hayvan isteyen seçenek hayvan başına daha çok öder (`reward / requiredAdults` ve `returnMultiplier` seçenek sırasıyla artar;
-  `tests/config.spec.luau` bunu denetler). Seçenekli tarifte üst alanlar (`requiredAdults`, `duration`) ilk seçeneği yansıtır; `reward` yalnızca tesis
-  geliştirme maliyeti ölçeğidir (parti ödülü seçenektedir). Seçimi `FarmMath.resolveRecipe(recipe, optionId)` tarifin alanları seçenekle değişmiş kopyasına
-  çevirir (`Recipes.luau`, önbellekli, değiştirme); `pickProductionAnimals/getFacilityDuration/canStart` seçenek kimliği alır. Başlatma isteğinin 4. alanı
-  (`detail`) para tesisinde parti kimliğidir (seçeneksiz tarife verilemez, bilinmeyen kimlik reddedilir; `ProductionRules.validOption`); iş kaydına
-  `job.optionId` yazılır (`SaveCodec` yalnızca tarifin tanıdığı kimliği tutar). Teslim ödülü `max(seçenek ödülü x tesis verimi, ceil(forgone x returnMultiplier))`;
-  seçenekli tariflerde fazla yetişkin bonusu yoktur (hayvan sayısını seçenek belirler). Para tesisleri `upgradeProfile = "cashFactory"` kullanır (indirim yerine
-  verim: ücretsiz tesiste `thrift` anlamsız). Ürün merkezleri (`output = "goods"`) seçeneksizdir ve başlatma ücreti alır. Bölge ve tesis kimlikleri **aynı
-  yapı geliştirme tablosunu** (`BUILD_TARGETS`, `save.expansions`) paylaşır: çakışan kimlik (`dairy` bölgesi ile tarif) Config yüklenirken `assert` ile reddedilir.
-- **Ahır siparişleri (depo sözleşmeleri)**: `Config.GOODS_CONTRACTS { seconds, tiers[{id, displayName, lines, units, rewardFactor}] }`; saf mantık
-  `FarmMath/Contracts.luau` (`getContractOffers/fulfillContract/isContractDone/canFulfillContract/getReadyContractCount`). Teklifler kayıttan ve sunucu saatinden
-  türetilir (pencere = `now / seconds`, anahtar `"<pencere>:<sıra>"`, satır sayısı kademeye göre 1/2/3 farklı ürün; yalnızca ürün merkezi kurulu ürünler istenir,
-  miktar ahır kapasitesini aşmaz). Ödül = max(ürün değerleri, etkin çiftliğin geliri x `GOODS_CONTRACTS.incomeSeconds`) x `rewardFactor` x (1 + mevsim `orderBonus`). Teslim `fulfillContract` ile tek adımda: yeterlilik doğrulanır, ürünler
-  düşer, anahtar `save.contracts.done`'a yazılır (`save.contracts { window, done, completed }`, çiftlik başına, `FarmProfiles.FIELDS`'te; `SaveCodec` pencere/sayaç/anahtar
-  sayısını sıkıştırır, bozuk kaydı reddeder); para ekleme `Services/ContractService` (`RequestFulfillContract(key, requestId, expectedFarmId)`, yanıt PurchaseResult) işidir. Yeni pencerede
-  teslimler sıfırlanır. Arayüz: Sipariş Panosu penceresinin üstünde "Ahır siparişleri" bölümü (`Ui/Hud/BoardSection`), hedef kartında "Ahır siparişi teslime hazır".
-  Ahır siparişleri yol haritasından bağımsız açılır (ilk ürün merkezi yeter); "Sipariş teslim" başarımı `save.contracts.completed` sayar. Sayaçlar arayüz ve `Rewards` içindir.
-- **Hayvan görevleri (üretim tesisi ve eklenti)**: `AnimalRecord.task { kind = "production"|"extension", id, startedAt, endsAt }` kaydedilir
-  (`SaveCodec/Tasks.decodeTask`: bozuk görev atılır, hayvan korunur; çevrimdışıyken biten görev yüklemede temizlenir; eski kalıcı `extensionId` eve döner).
-  Görev süresince: **üretim** → hayvan tesiste çalışır, gelir getirmez, görünmez, satılamaz; **eklenti** → `Config.EXTENSIONS[id].incomeBonus` kadar
-  bonus, `stayDuration` (360 sn; toplam bonus = `incomeBonus` x `stayDuration` sabit kalsın: 1/3 x 360 = 1 x 120) sonra ana bölgesine döner. Gelir `FarmMath.computeIncomeOverInterval` içinde yalnızca görev penceresiyle kesişen
-  kısma uygulanır (`taskMultiplier`: üretim 0, eklenti 1+bonus); anlık gelir `computeIncomePerSecond(save, now)`. Ana bölgedeki yer ayrılı kalır
-  (`countInZone` görevdeki hayvanı da sayar). **Bir görevi başlatmadan/bitirmeden önce her zaman `EconomyService.settlePlayer`** çağır (yoksa pencere
-  geriye dönük değişir). Üretim: `ProductionService` `FarmMath.pickProductionAnimals` ile boşta yetişkinleri verir, `job.forgone` = kaçırılan gelir
-  (`estimateForgoneIncome`); teslim ödülü `max(reward, ceil((forgone + başlatma maliyeti) * Config.PRODUCTION_MIN_RETURN))` (`getProductionReward(…, job)`):
-  tesis her zaman hayvanları yerinde bırakmaktan kârlıdır. Eklenti: `ExtensionService` (en fazla `FarmMath.getExtensionCapacity` hayvan: taban 2,
-  `Config.EXTENSION_CAPACITY_UPGRADES` iki `kind="level"` yükseltmesiyle 3 ve 4; `extensionCapacity`). Süre dolumunu `AnimalTaskService` (1 sn'de bir;
-  önce gelir kesilir, sonra görev temizlenir, dünya yenilenir) yapar. Bina üstü ilerleme: sunucu `Presentation/JobMarks` ile Model'e `JobKind/JobStartedAt/
-  JobEndsAt/JobCount/JobCapacity` yazar ve `JobSite` etiketi koyar; çubuk + yeşil tik `Interaction/JobProgress.client` çizer (üretim bitince tik,
-  teslim alınana kadar). Yeni görev türü eklersen `taskMultiplier`, `SaveCodec/Tasks.decodeTask`, `AnimalTaskService` ve `tests/tasks.spec.luau`'yu güncelle.
-- **Hayvan satışı**: `Config.ANIMAL_SELL_FRACTION`; fiyat `FarmMath.getSellPrice`, satılacak hayvan `FarmMath.findSellableAnimal` (en genç, görevdekiler (tesiste/eklentide) sona, çiftlikte son hayvan satılmaz). Sunucu `AnimalService.trySell` (`RequestSellAnimal`); iade `PlayerDataService.addRefund` (kazanç/başarım sayacına girmez). Pazar kartında "Sat" düğmesi.
-- **Bölge bayrakları**: bölge geliştirme seviyesi başına ön kenarda flama (`ZoneVisualService.applyLevelFlags`, renk = `FarmMath.getBuildLevelKind`).
-- **Hesap düzeyi mi çiftlik düzeyi mi?** Çiftlik başına kalıcı alanlar `FarmProfiles.FIELDS`'tedir (stored, purchased, lineage, expansions, animals, production, ...). Hesap düzeyi alanlar
-  (cash, lifetimeEarned, daily, achievements, seasonal, merchant, golden, inventory, language, graphics, receipts) kökte durur ve `SaveCodec`'te ayrı normalleştirilir. Çalışma anı alanlar (`passes`, `envOverride`, `adminForce`) kaydedilmez.
-- **Arayüz ve hesaplar aynı kaynaktan**: para/süre/kapasite/ödül gösteren her ekran `FarmMath` yardımcısını kullanır (`getUpgradeCost`, `getExpansionCost`, `getFacilityCost/Duration`, `getZoneCapacity`, `getSellPrice`); elle çarpma yazma.
-- **Büyüme süresi**: `GROWTH_SECONDS` yavru 120 sn + genç 240 sn (taban 6 dk; silo 2x, ada 2x, bölge/muska/"Hızlı Büyüme" çarpanları üstüne biner). Hızlı Büyüme her seviye x1.14.
-  Testler süreyi `Config.GROWTH_SECONDS`'tan okur; rakamı elle yazma. Değiştirince `python scripts/simulate-economy.py` ile tempoyu (kilit zamanları) kontrol et.
-- **Başarımlar**: metrikler `Rewards.progress` içindedir (cows/animals/islands/purchases/earned/orders + fish/species/zones/barn/expansions/facilities/centers/goods/items). Her başarım her temada
-  ulaşılabilir olmalı: `tests/rewards.spec` tema sınırlarını denetler; yeni metrik eklersen oraya sınır ekle. Arayüz alınabilirleri pencerenin en üstünde gösterir, ilerleme sırası yakınlığa göredir.
-- **Başlangıç**: yeni çiftlik hayvansız başlar (`STARTING_COW_COUNT = 0`); başlangıç parası çiftliğin ana hayvanını (inek 75, tavuk 350, ördek 400) tam bir tane alacak kadardır
-  (`Config.getStartingCash(farmId)`; `STARTING_CASH` yalnızca yedek). Hayvansız profil geçerlidir (boş `animals` tablosu yeniden başlangıç hayvanı vermez). Tempo: `simulate-economy.py` ile
-  (yavru/genç gelir çarpanı 0.4/0.75 bu yüzden) ilk yükseltme ~5-7 dk, tüm yükseltmeler ~4-5 sa, ırk dahil her şey ~11-13 sa (ideal oyuncu).
-- **Para platformu**: aynı ziyarette tek toplama/bildirim (`EconomyService` `collectedOnPad`; oyuncu platformdan ~7 stud uzaklaşınca sıfırlanır).
-- **Ortak envanter (hesap düzeyi)**: ahır deposu (`save.goods`) ve ahır siparişleri (`save.contracts`) artık çiftlik alanı değil **hesap** alanıdır (`FarmProfiles.FIELDS`'te yok; kök kayıtta durur,
-  `SaveCodec.encode` hesap düzeyinde yazar). Bir ürün türünün limiti, sahip olunan **bütün çiftliklerin ahır `goodsCap` toplamıdır** (`FarmMath.getGoodsCap(kökKayıt)`; etkin çiftlik `save.barnLevel`,
-  diğerleri `mainFarms[id].barnLevel`). Depo/sipariş işlemleri her zaman KÖK kayıtla yapılır (park edilmiş çiftlik görünümüyle değil). Siparişte istenebilen ürün, herhangi bir çiftlikte ürün merkezi
-  kuruluysa geçerlidir (`Goods.forEachFarm`). Eski kayıtlarda çiftlik içindeki depo/sipariş decode'da toplanıp hesaba taşınır.
-- **Yardımcılar (pet)**: çiftlik başına iki yükseltme (`pet_cash_lv1` Para Yardımcısı, `pet_goods_lv1` Ürün Yardımcısı; `FarmMath.hasPet(save, "cash"|"goods")`). Yardımcı, o türden hazır partiyi **ürün merkezinde depoda yer varsa**
-  kendisi teslim alır (nakit ödül cüzdana, ürün ortak depoya); çiftlikte `autoRepeat[tarifId] = partiId|"default"` varsa aynı partiyi yeniden başlatır. Çekirdek: `Modules/ProductionLogic` (`start`, `claim`,
-  `runPets`; elle işlem `ProductionService` ve yardımcı `PetService` aynı kuralı kullanır). `PetService` 2 sn'de bir TÜM çiftliklerde (park edilmiş dahil) çalışır; yalnızca çevrimiçi oyuncu için.
-  Eylem: `RequestProductionAction("auto", tarifId, partiId|"off")`; yardımcısı olmayan çiftlikte reddedilir. Kayıtta `autoRepeat` çiftlik alanıdır; decode yardımcısı olmayan/bilinmeyen girdiyi atar.
-  Elle başlatma sırasında tekrar açıksa tekrar edilen parti son elle seçilene güncellenir. Şişirilmiş çıkış yok: parti ödülü her zaman kaçırılan gelirin üstündedir (`returnMultiplier` tabanı).
-
-- **Çevrimdışı kazanç**: sen yokken kazanç her zaman doğrudan kasaya yatar (`SaveCodec/Farm.decode` → `FarmMath.computeOfflineEarnings`); depo (`stored`) çevrimdışıyken dolmaz. Oran ve süre `Config.OFFLINE_EARNING_RATE/OFFLINE_MAX_HOURS`; Pasif Gelir (`offline_income_lv1`, `FarmMath.hasOfflineIncome`) `Config.OFFLINE_UPGRADED_*` değerlerine geçirir (`FarmMath.getOfflineTerms`; eşya/yükseltme `offlineBonus`'u dahil toplam oran `Config.OFFLINE_MAX_TOTAL_RATE` ile sınırlıdır). Sınır depoya değil "saat x gelir"e bağlıdır; `decode` beşinci dönüş değeri sen yokken yetişkin olan hayvan sayısıdır.
-
-- **Depo ve toplama dengesi**: Ahır depoları (`BARN_LEVELS[].storageCap`) platformdan uzak duran oyuncunun gelirini silmeyecek büyüklükte olmalı; depo küçükse "AFK platformda dur" en iyi strateji olur. Denge değiştirirken `python scripts/simulate-economy.py --collect 120` (varsayılan) ve `--collect 300` ile 6. saat gelirinin anında toplamaya (`--collect 0`) yakın kaldığını doğrula. Otomatik Toplayıcı fiyatı `UPGRADES` içindeki `auto_collector.cost`; hedefler: ada 15/45/110 dk, ilk çiftlik 4–5 saat, ikinci çiftlik ~600K.
-
-- **Ürün (goods) dengesi**: Ürün merkezi miktarı `max(taban, (kaçırılan gelir + maliyet) x 1.4 / ürün değeri)` olduğundan ürün sayısı değere ters orantılıdır: ürün değerleri yüksek tutulur (süt 250 ... et 9.000) ki parti başına yaklaşık 5-15 birim, dakikada 2-9 birim çıksın (5 dakikada 100 yumurta olmasın). Yeni ürün/değer eklerken `tests/goods.spec` ve `scratchpad` benzeri ölçümle (tüm yükseltmeler, 6 hayvan) dakika başına birimi kontrol et. Ahır ürün kapasitesi 12/24/48/96; sipariş panosu 9 karolu ızgaradır (`GOODS_CONTRACTS.slots`), kademe ve ürünler pencere+sıra tohumuyla ağırlıklı rastgele seçilir. Sığmayacak parti başlatılmaz (`FarmMath.previewGoodsYield`, `ProductionRules.canStart`; mesaj gerekli ve boş miktarı söyler).
-- **Çiftlik fiyat çarpanı**: çiftlik kaydında `tier` (alım sırası; `FarmProfiles.FIELDS`, eski kayıtta eksik tier = 1, yalnızca sonradan alınan çiftlik `#çiftlik + 1` alır; bozuk değer 1). `FarmMath.getFarmCostMultiplier` = `1 + Config.FARM_COST_STEP x (tier - 1)`; yükseltme (`getUpgradeCost`), hayvan alım/satım/toplu fiyatı, balık değişimi ve alan genişletme maliyeti çarpılır. Irk geliştirme çarpılmaz. Ayar: `simulate-economy.py --hours 24 --farms 2` ile "Ç2 island_*" süreleri.
-- **Park edilmiş çiftlik geliri**: `FarmMath.settleFarmIncome(farm, kazanç, parked)` (sunucu `EconomyService.settlePlayer` ve simülasyon ortak): Otomatik Toplayıcılı çiftlik her şeyi kasaya yatırır; toplayıcısız park edilmiş çiftlik `Config.PARKED_FARM_PAY_RATE` kadarını doğrudan kasaya yatırır (depoya yazmaz, kalanı yok olur); etkin çiftlik depoyu doldurur. Çevrimdışı kazanç etkilenmez (her çiftlik zaten kasaya yatar).
+## Sistemler (kural, dosya, test)
+- **Ada temaları**: `Config.THEMES[n]` ana çiftlik n'nin küçük adalarını tanımlar; ada türleri `FARM_ISLANDS` + `ZONES` + `ANIMALS` + `UPGRADES` (island + boost) içindedir; ada
+  yükseltmesi yalnızca `barn_N`'e bağlanır; temalar birbirinin kopyası olmaz (`tests/config.spec.luau` doğrular). Mantık `Config.getTheme/themeHasIsland`, `FarmMath.themeIslands`;
+  `UpgradeService.tryBuy` tema dışı adayı reddeder. Harita yuvaları `MapLayout.SATELLITE_TYPES`/`SATELLITE_SLOTS`; etkin çiftlik kendi adasına `MapBuilder.applyTheme` ile giydirilir
+  (`PlotService.bindFarm`). `ROADMAP_STAGES` sırası `upgrade.stage` indeksidir: yeni aşamayı **sona** ekle.
+- **Tema tutarlılığı**: çiftlik yalnızca kendi temasındaki adaların yükseltmesini alır (`FarmMath.isUpgradeInTheme`, `getUpgradeStatus` temada olmayanı `"locked"` döner);
+  "tüm yol haritası" sayan her kural, başarım ve hedef temaya göre süzülür. Yeni başarım/hedef her temada ulaşılabilir olmalı (`tests/rewards.spec.luau`, `tests/economy.spec.luau`).
+- **Ana ada hayvanı**: `theme.homeAnimal` `themed = true` bölgelerin hayvanını belirler. Bölge izni `Config.zoneAllows` ile sorulur (`allowedAnimals`'a doğrudan bakma). `incomeBoost.home`
+  ana hayvana uygulanır. Ana hayvanın kendi küçük adası temada olmaz; inek ana hayvan değilse `dairy` temada bulunur (test doğrular).
+- **Seviyeli geliştirme**: `LEVEL_CHAINS` (`Config/init.luau`) her seviyeyi `<id>_lv<N>` yükseltmesi (`kind = "level"`, `leveled = true`) olarak üretir; şema değişmez.
+  `kind = "boost"` verme: `MapBuilder.validate` her boost için yapı noktası ister. "Tüm yol haritası" sayımı `leveled` olanları saymaz.
+- **Irk geliştirme**: `Config.LINEAGE`; kayıt `lineage { [animalId] = seviye }` (çiftlik alanı; `SaveCodec` tanınmayan türü atar, seviyeyi sıkıştırır). Mantık
+  `FarmMath.getLineageLevel/getLineageCost/getLineageStatus`; gelir etkisi `getAnimalMultiplier` içinde **ayrı çarpan** (diğer bonuslar toplamına eklenmez; takılı eşyanın `incomeBonus`'u da
+  ayrı çarpandır). Sunucu `UpgradeService.tryUpgradeLineage` (`RequestUpgradeLineage`, en az bir yetişkin şart, `settlePlayer` sonra `trySpend`). Görünürlük:
+  `Presentation/AnimalLabels.applyLineage` rozeti yerinde yeniler (hayvan yeniden kurulmaz).
+- **Yapı geliştirme** (bölge ve üretim tesisi): `Config.BUILD_UPGRADES` (`profiles` = seviye başına fayda), `BUILD_ORDER/BUILD_TARGETS`. Bölge profili `ZONES[x].upgradeProfile`
+  (`capacity`, `growthSpeed`, `incomeBonus`, `seasonAffinity`), tesis profili `PRODUCTION_RECIPES[x].upgradeProfile` (`speed`, `yield`, `thrift`; para tesisi `cashFactory`).
+  Yardımcıları kullan: `getZoneCapacity`, `getGrowthSpeed(save, animalId, zoneId)`, `getAnimalMultiplier(.., zoneId)`, `getFacilityDuration/getFacilityCost`, `getProductionReward`;
+  büyüme anlık görüntüsü `snapshotGrowthSpeeds` + `preserveGrowthProgress`. Kayıt `expansions { [bölgeVeyaTarifId] = seviye }`; kapasite veren seviye için bölge dolu, tesis kurulu olmalı
+  (`getExpansionStatus`). Sunucu `UpgradeService.tryExpandZone` (`RequestExpandZone`); bölge ve tarif kimlikleri aynı tabloyu paylaşır, çakışma Config yüklenirken `assert` ile reddedilir.
+  Yeni profil/seviye: `tests/economy.spec.luau` + sim kalibrasyonu ("ALAN toplam Sv.N"). Bölge bayrakları: `ZoneVisualService.applyLevelFlags`.
+- **Hayvan satışı**: `Config.ANIMAL_SELL_FRACTION`, `FarmMath.getSellPrice/findSellableAnimal` (görevdekiler sona, çiftlikte son hayvan satılmaz), `AnimalService.trySell`.
+- **Çiftlik fiyat çarpanı**: çiftlik kaydında `tier` (alım sırası; eksik/bozuk = 1); `FarmMath.getFarmCostMultiplier` (`Config.FARM_COST_STEP`) yükseltme, hayvan alım/satım, balık değişimi ve
+  alan genişletme maliyetini çarpar; ırk geliştirme çarpılmaz.
+- **Hayvan görevleri**: `AnimalRecord.task { kind = "production"|"extension", id, startedAt, endsAt }` (`SaveCodec/Tasks.decodeTask`: bozuk görev atılır, hayvan korunur; çevrimdışıyken
+  biten görev yüklemede temizlenir). Üretimde hayvan gelirsiz, görünmez, satılamaz; eklentide `EXTENSIONS[id].incomeBonus` bonusu `stayDuration` boyunca sürer (toplam bonus = incomeBonus x
+  stayDuration sabit kalsın). Gelir `FarmMath.computeIncomeOverInterval` içinde yalnızca görev penceresiyle kesişen kısma uygulanır (`taskMultiplier`); anlık gelir `computeIncomePerSecond(save, now)`.
+  Ana bölgedeki yer ayrılı kalır (`countInZone`). **Görev başlatmadan/bitirmeden önce `EconomyService.settlePlayer`** çağır. Süre dolumunu `AnimalTaskService` yapar (önce gelir kesilir, sonra
+  görev temizlenir). Eklenti: `ExtensionService`, kapasite `FarmMath.getExtensionCapacity` (`Config.EXTENSION_CAPACITY_UPGRADES`). Bina üstü ilerleme: `Presentation/JobMarks` +
+  `Interaction/JobProgress.client`. Yeni görev türü: `taskMultiplier`, `SaveCodec/Tasks`, `AnimalTaskService`, `tests/tasks.spec.luau`.
+- **Üretim tesisleri**: para tesisi (`output = "cash"`) ücretsiz başlar (`getFacilityCost` 0) ve `options` (parti) taşır; çok hayvan isteyen seçenek hayvan başına daha çok öder
+  (`tests/config.spec.luau` denetler). Seçim `FarmMath.resolveRecipe(recipe, optionId)` ile (önbellekli, tarifi değiştirmez); `RequestProductionAction` dördüncü alanı (`detail`) parti kimliğidir
+  (`ProductionRules.validOption`), iş kaydına `job.optionId` yazılır. Teslim ödülü `max(seçenek ödülü x tesis verimi, ceil(forgone x returnMultiplier))`; `PRODUCTION_MIN_RETURN` / `PRODUCTION_MAX_RETURN` tabanı
+  ve tavanı belirler (tesis hayvanları yerinde bırakmaktan her zaman kârlı olmalı). `ProductionService` boşta yetişkinleri `FarmMath.pickProductionAnimals` ile verir, `job.forgone` kaçırılan gelirdir
+  (`estimateForgoneIncome`). Çekirdek `Modules/ProductionLogic` (`start`, `claim`, `runPets`).
+- **Ahır deposu ve ürün merkezleri**: `Config.GOODS/GOODS_ORDER`; ürün miktarı **hesap** alanıdır (`save.goods`, kökte). Limit türe göre, sahip olunan bütün çiftliklerin ahır
+  `BARN_LEVELS[].goodsCap` toplamıdır (`FarmMath.getGoodsCap(kökKayıt)`); depo/sipariş işlemleri park edilmiş görünümle değil KÖK kayıtla yapılır. Depo işlemleri **yalnızca**
+  `FarmMath.getGoodsAmount/getGoodsSpace/addGoods/removeGoods/getGoodsWorth/getGoodsCap` ile (`removeGoods` yetmiyorsa hiçbir şey değiştirmez). Ürün merkezi `PRODUCTION_RECIPES` içinde
+  `output = "goods"`, `goodsId`, `goodsAmount` taşır, seçeneksizdir ve başlatma ücreti alır; depoda yer yoksa başlamaz (`ProductionRules.canStart`, `FarmMath.previewGoodsYield`). Teslim:
+  `FarmMath.getGoodsYield` miktarı `ProductionService` depoya ekler, para vermez. Ürün değerleri, parti başına birim sayısı makul (az sayıda) kalacak biçimde ters orantılı seçilir: yeni ürün/değer
+  eklerken `tests/goods.spec.luau` ve sim ölçümü. Yeni ürün/merkez: `Config/Goods` + tarif + yükseltme + bina görseli (`Presentation/UpgradeBuildersGoods`) + yapı noktası (`MapLayout`
+  `HOME_BUILD_SPOTS` / `SATELLITE_TYPES[...].itemSpot`) + `UpgradeParts.PRODUCTION_RECIPES` + çeviri. Arayüz: Envanter penceresinde "Ahır Deposu"; ahırdaki sandık (`BarnChestPrompt`) aynı pencereyi açar.
+- **Ahır siparişleri**: `Config.GOODS_CONTRACTS` (`seconds`, `slots`, `tiers`, `incomeSeconds`); saf mantık `FarmMath/Contracts.luau`. Teklifler kayıttan ve sunucu saatinden (pencere = `now / seconds`,
+  anahtar `"<pencere>:<sıra>"`) türer; yalnızca ürün merkezi kurulu ürünler istenir. Ödül `max(ürün değerleri, gelir x incomeSeconds) x rewardFactor x (1 + mevsim orderBonus)`. Teslim `fulfillContract`
+  ile tek adımda; anahtar `save.contracts` (hesap alanı) içine yazılır. Para ekleme `Services/ContractService` (`RequestFulfillContract`). Yol haritasından bağımsız açılır (ilk ürün merkezi yeter).
+  Test: `tests/contracts.spec.luau`, `tests/contract-service.spec.luau`.
+- **Mevsim hedefi**: `Config.SEASONAL_GOALS`, `SEASONAL_REWARD_SECONDS/SEASONAL_MIN_REWARD`; hesap alanı `seasonal {key, progress, target, base, claimed}` (bozuk kayıt atılır). Saf `Rewards.seasonal*`
+  (kazanç `lifetimeEarned - base`; yatırım sayacı `Rewards.recordInvest`). Ödül `RequestClaimSeasonal` (işaret önce yazılır), hazırlık `EngagementService`. Yeni yatırım türü `Rewards.recordInvest`
+  çağırır; yeni metrik `Rewards.seasonalProgress` + istemci metnini günceller.
+- **Rastgele olaylar (kalıp)**: saf zaman/teklif mantığı oyuncu kimliği + döngü numarasından türer (kayıt gerekmez); yalnızca alınan olayın işareti kaydedilir ve sunucu olayı yeniden
+  hesaplar (fiyat/ödül client'tan gelmez; işaret önce yazılır). **Gezgin tüccar**: `Config.MERCHANT`, `Merchant.visit/offer`, `AnimalService.tryBuyMerchantOffer`, hesap alanı `merchant`.
+  **Altın hayvan**: `Config.GOLDEN`, `Golden.window/current`, `EngagementService.tryClaimGolden` (`PlotService.isNearPlot` + `GOLDEN.claimRadius`), alan `golden`; ödül çiftliğin TOPLAM gelirinin
+  `rewardSeconds` karşılığıdır; görsel client'ta `Interaction/GoldenAnimal.client`. Yeni olay aynı kalıbı ve bir yönetici test aracını (`forceMerchant/forceGolden/completeSeason/resetEvents`:
+  `AdminPolicy` + `AdminService` + AdminPanel; zorlama yalnızca çalışma anı `save.adminForce` ile) ekler. Testler: `tests/merchant.spec.luau`, `tests/golden.spec.luau`, `tests/engagement-service.spec.luau`.
+- **Envanter ve eşyalar**: `Config.ITEM_SLOTS/ITEMS/ITEM_ORDER` (`effects` = kalıcı fayda, `power` = asa gücü, `look` = karakterde görünen parça; Vector3 yerine `{x, y, z}`). Hesap alanı
+  `inventory { items, equipped, uses }` (`SaveCodec/Inventory`: tanınmayan eşya atılır, takılı eşya sahipli ve kendi slotunda olmalı). Saf mantık `Modules/Inventory` (haklar **güç türüne** göre, UTC gün).
+  Ekonomik etkiler **yalnızca** `FarmMath`'te: `getUpgradeCost(save, upgrade)` (`upgrade.cost` doğrudan okunmaz), `getStorageCap`, `getGrowthSpeed`, `getAnimalMultiplier`; yeni etki
+  `FarmMath.getEquippedBonus/getEquippedMultiplier` ile okunur. Sunucu `InventoryService` (`RequestBuyItem/EquipItem/UseItem`): fiyat ve haklar sunucuda doğrulanır; takma/çıkarma
+  `changeEquipment` ile geçen süreyi eski etkiyle kapatır. Asa gücü oyuncuya özel çalışma anı `envOverride { seasonId, seasonEndsAt, weatherId, weatherEndsAt }` tutar; `Environment.getSeason/getWeather/
+  getIncomeMultiplier/getSeasonEndsAt/getNextSeason(override?)` katmanı uygular (sunucu `save.envOverride` verir; client `Environment.setClientOverride` ile kurar). Mevsim/hava tüketicisi dünya
+  özniteliğini doğrudan okumaz, `Environment` üzerinden geçer; dünya mevsimini yalnızca `SeasonService` (ve yönetici araçları) değiştirir. Yeni eşya ailesi: `tests/inventory.spec.luau` (pahalı kademe daha
+  güçlü) + çeviri (ad + şablon açıklama).
+- **Yardımcılar (pet)**: `pet_cash_lv1`, `pet_goods_lv1` yükseltmeleri (`FarmMath.hasPet(save, "cash"|"goods")`); hazır partiyi ürün merkezinde depoda yer varsa kendisi teslim alır ve
+  `autoRepeat[tarifId]` varsa yeniden başlatır (`RequestProductionAction("auto", ...)`; yardımcısı olmayan çiftlikte reddedilir, decode bilinmeyen girdiyi atar). `PetService` park edilmiş dahil TÜM
+  çiftliklerde, yalnızca çevrimiçi oyuncu için çalışır; elle işlem ve yardımcı aynı `ProductionLogic` kuralını kullanır. Test: `tests/pets.spec.luau`.
+- **Çevrimdışı kazanç**: kazanç doğrudan kasaya yatar (`SaveCodec/Farm.decode` → `FarmMath.computeOfflineEarnings`); depo çevrimdışıyken dolmaz. Oran/süre `Config.OFFLINE_EARNING_RATE/OFFLINE_MAX_HOURS`;
+  Pasif Gelir (`offline_income_lv1`, `FarmMath.hasOfflineIncome`) `Config.OFFLINE_UPGRADED_*`'a geçirir (`FarmMath.getOfflineTerms`; toplam oran `Config.OFFLINE_MAX_TOTAL_RATE` ile sınırlı, eşya/yükseltme
+  `offlineBonus` dahil). `decode` beşinci dönüş değeri sen yokken yetişkin olan hayvan sayısıdır.
+- **Park edilmiş çiftlik geliri**: `FarmMath.settleFarmIncome(farm, kazanç, parked)` (sunucu `EconomyService.settlePlayer` ve sim ortak): Otomatik Toplayıcılı çiftlik her şeyi kasaya yatırır; toplayıcısız
+  park edilmiş çiftlik `Config.PARKED_FARM_PAY_RATE` kadarını kasaya yatırır (kalanı yok olur, telemetri `parkedPay`); etkin çiftlik depoyu doldurur.
+- **Başarımlar**: metrikler `Rewards.progress` içindedir; her başarım her temada ulaşılabilir olmalı (`tests/rewards.spec.luau` tema sınırlarını denetler; yeni metrik oraya sınır ekler).

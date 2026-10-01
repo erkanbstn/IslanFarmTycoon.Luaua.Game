@@ -5,21 +5,21 @@ description: Adds or rebalances game content through the Config/ folder in this 
 
 # İçerik ekleme / denge
 
-Tek kaynak `src/shared/Config/` (`Upgrades`, `Animals` = bölge/hayvan, `Islands` = ada/tema/yol haritası, `Production`, `Shop`/`Items`, `Weather`, `Core`). Önce benzer mevcut kaydı bul ve aynı alanları doldur
-(tipler `Config/Types.luau`; `Config.ZoneConfig` gibi yeniden dışa aktarılır).
+Tek kaynak `src/shared/Config/` (`init.luau` birleştirir; veri: `Upgrades`, `Animals` = hayvan/bölge, `Islands` = ada/tema/yol haritası/ahır, `Production`, `Goods`, `Shop`, `Items`, `Weather`, `Economy`, `Core`).
+Önce benzer mevcut kaydı bul ve aynı alanları doldur (tipler `Config/Types.luau`; `Config.ZoneConfig` gibi yeniden dışa aktarılır).
 
 ## Nereye ne eklenir
 | İçerik | Config | Ek dokunuş |
 |---|---|---|
-| Hayvan | `ANIMALS` + `ANIMAL_ORDER` | model `assets/Animals`, `server/Presentation/AnimalVisualService`; bir `ZONES[x].allowedAnimals` (ana ada hayvanıysa `THEMES[n].homeAnimal`) |
-| Bölge | `ZONES` (`island` alanı zorunlu) + açan `UPGRADES` (kind zone) | `server/World/MapBuilder` bölge yerleşimi → `MAP_VERSION` +1; geliştirme profili: `ZONES[x].upgradeProfile` |
-| Yükseltme | `UPGRADES` (`stage`, `requires`, `cost`) | görseli `server/Presentation/UpgradeBuilders*` (bina id → kurucu; ortak parçalar `UpgradeParts`, birleştirme `UpgradeVisualService`); yapı noktası gerekiyorsa `World/MapBuilder` `BuildSpots` |
-| Uzman ada | `FARM_ISLANDS` + `FARM_ISLAND_ORDER` + island upgrade + `THEMES[n].satellites` + `ROADMAP_STAGES` (**sona ekle**: `upgrade.stage` indeksidir) | MapBuilder `SATELLITE_TYPES`, `IslandSpecialization.SITES`; ana hayvanın kendi adası temada olmaz, inek yoksa `dairy` bulunur |
-| Eklenti | `EXTENSIONS` + kind extension upgrade | `Presentation/ExtensionVisualService` |
-| Üretim | `PRODUCTION_RECIPES` (+ `upgradeProfile`; para tesisi: `cost = 0` + `options` 2-3 parti, çok hayvan = hayvan başına daha çok ödül; kimlik bölge kimliğiyle çakışmamalı) | `ProductionRules`, `World/IslandSpecialization`; tesis geliştirmesi `BUILD_UPGRADES.profiles` |
+| Hayvan | `ANIMALS` + `ANIMAL_ORDER` | model `assets/Animals` (`Presentation/AnimalModels`), `Presentation/AnimalVisualService`; bir `ZONES[x].allowedAnimals` (ana ada hayvanıysa `THEMES[n].homeAnimal`) |
+| Bölge | `ZONES` (`island` alanı zorunlu) + açan `UPGRADES` (kind zone) | `World/MapLayout` bölge yerleşimi (+ görsel `Presentation/ZoneBuilders*`) → `MAP_VERSION` +1; geliştirme profili: `ZONES[x].upgradeProfile` |
+| Yükseltme | `UPGRADES` (`stage`, `requires`, `cost`) | görseli `server/Presentation/UpgradeBuilders*` (bina id → kurucu; ortak parçalar `UpgradeParts`, birleştirme `UpgradeVisualService`); yapı noktası gerekiyorsa `World/MapLayout` (`HOME_BUILD_SPOTS`, uydu adalarda `SATELLITE_TYPES`) |
+| Uzman ada | `FARM_ISLANDS` + `FARM_ISLAND_ORDER` + island upgrade + `THEMES[n].satellites` + `ROADMAP_STAGES` (**sona ekle**: `upgrade.stage` indeksidir) | `MapLayout.SATELLITE_TYPES`, `IslandSpecialization.SITES`; ana hayvanın kendi adası temada olmaz, inek yoksa `dairy` bulunur |
+| Üretim | `PRODUCTION_RECIPES` (+ `upgradeProfile`; para tesisi: `cost = 0` + `options` partileri, çok hayvan = hayvan başına daha çok ödül; kimlik bölge kimliğiyle çakışmamalı) | `ProductionRules`, `World/IslandSpecialization`; tesis geliştirmesi `BUILD_UPGRADES.profiles` |
+| Ürün / ürün merkezi | `GOODS` + `GOODS_ORDER` + `PRODUCTION_RECIPES` (`output = "goods"`) + açan `UPGRADES` | bina `Presentation/UpgradeBuildersGoods` + yapı noktası; ayrıntı `economy-data.mdc` "Ahır deposu"; `tests/goods.spec.luau` |
 | Yapı geliştirme | `BUILD_UPGRADES` (`profiles`, `costMultiplier/costGrowth`) | etki `FarmMath`'te; `tests/economy.spec.luau`; `simulate-economy.py` kalibrasyonu |
 | Mevsim/hava | `SEASONS`, `WEATHER` (incomeModifiers) | `client/Effects/WeatherEffects` WEATHER_LOOK, `SEASON_TINT` |
-| Eklenti (süreli kalış: 6 dk, +%33 bonus, kapasite 2-4) | `Config.EXTENSIONS` (+ `UPGRADES` kind "extension"; kapasite yükseltmeleri otomatik üretilir) | `IslandLayout.EXTENSIONS` (yer) + `IslandSiteBuilders` (görsel) + `IslandSpecialization.buildExtensionVisual`; `MAP_VERSION` +1; çeviri; `tests/tasks.spec.luau` |
+| Eklenti (süreli kalış) | `Config.EXTENSIONS` (`stayDuration`, `incomeBonus`) + `UPGRADES` kind "extension" (kapasite yükseltmeleri `EXTENSION_CAPACITY_UPGRADES` ile otomatik üretilir) | `IslandLayout.EXTENSIONS` (yer) + `IslandSiteBuilders` (görsel) + `IslandSpecialization.buildExtensionVisual` (+ `Presentation/ExtensionVisualService`); `MAP_VERSION` +1; çeviri; `tests/tasks.spec.luau` |
 | Eşya (çekiç, asa, muska, kozmetik) | `Config.ITEMS` (+ `ITEM_SLOTS`) — `effects`/`power`/`look` | etki `FarmMath`'te okunur; çeviri (ad + şablon); `tests/inventory.spec.luau` |
 
 ## Adımlar
@@ -29,13 +29,13 @@ Tek kaynak `src/shared/Config/` (`Upgrades`, `Animals` = bölge/hayvan, `Islands
 - [ ] 3. Görsel servis / harita (harita değiştiyse MAP_VERSION +1, "Haritayı Kur" hatırlat)
 - [ ] 4. displayName, description, trait, product metinlerinin çevirisi (en/de/ru/es/pt)
 - [ ] 5. Kayıt etkisi: yeni kalıcı alan varsa roblox-save-schema skill'i
-- [ ] 6. Test: tests/economy.spec.luau (fiyat/gelir), orders/production gerekiyorsa
-- [ ] 7. Fiyat/gelir değiştiyse `python scripts/simulate-economy.py` (ada süreleri ve TÜM YÜKSELTMELER hedefi, `economy-data.mdc` tempo satırı)
+- [ ] 6. Test: tests/economy.spec.luau (fiyat/gelir), goods/production/contracts gerekiyorsa
+- [ ] 7. Fiyat/gelir değiştiyse `python scripts/simulate-economy.py` (çıktıdaki ada süreleri ve `TÜM YÜKSELTMELER` hedefleri korunmalı; ölçüm kuralları `economy-data.mdc` "Ölçüm")
 - [ ] 8. roblox-verify
 ```
 
 ## Denge ipuçları
-- Gelir = `baseIncomePerSecond` × ahır çarpanı × (1 + güçlendirmeler) × mevsim/hava × evre çarpanı.
+- Gelir (`FarmMath/Income.luau`) = `baseIncomePerSecond` × ahır çarpanı × (1 + güçlendirmeler) × (1 + ırk) × (1 + eşya) × mevsim/hava × oyun geçidi × evre çarpanı (`STAGE_INCOME_MULTIPLIER`); ırk ve eşya ayrı çarpandır, toplanmaz.
 - Ana ada hayvanı temaya göre değişir: bölge iznini `Config.zoneAllows`, `incomeBoost.home` ile ana hayvan güçlendirmesi.
 - Yol haritası sırası `ROADMAP_STAGES` ve `requires` ile; kilitli kart "Önce: ..." gösterir.
-- Sayısal değişikliği README'deki tablolarla (mevsim, fiyat) tutarlı tut.
+- Tema ve mevsim değiştiyse README'deki tema/mevsim tablolarını da güncelle.
