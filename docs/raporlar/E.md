@@ -115,3 +115,6 @@ Not (P3 için): casual oyuncuda 7 günde gelirin %91'i çevrimdışı ve 6 çift
 3. P5-1 (`AnimalAnimator` parça listesi bayatlaması) ve P5 Localization testi isteğe bağlı olarak yapılmadı.
 4. O11-2 açılış süresi ölçümü bekliyor (A3).
 5. K1-K3 kararların hâlâ senin.
+
+## Kapanış
+`main` = `entegrasyon` (ff). Birleşen 9 dal ve `entegrasyon` silindi; 9 worktree (hepsi temizdi) kaldırıldı. Kalan dallar: `feat/onboarding`, `fix/analiz-hafta1`. Stash `yarim-mobil-artiklari` duruyor.
