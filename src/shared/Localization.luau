@@ -144,7 +144,7 @@ function translateCore(text: string, dictionary: Dictionary, depth: number): str
 		return text
 	end
 	local lead, body, trail = string.match(text, "^(%s*)(.-)(%s*)$")
-	if not body or body == "" then
+	if not lead or not body or not trail or body == "" then
 		return text
 	end
 	-- Harf içermeyen metinler (sayı, para, süre) çevrilmez.

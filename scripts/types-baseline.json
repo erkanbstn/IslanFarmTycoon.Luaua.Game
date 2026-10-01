@@ -14,14 +14,9 @@
  "src/client/Ui/AdminPanel.luau|Value of type 'Window?' could be nil": 2,
  "src/client/Ui/Hud/IslandTabs.luau|Function only returns 1 value, but 2 are required here": 6,
  "src/client/Ui/IncomeBubbles.client.luau|Expected this to be 'Instance', but got 'nil'": 1,
- "src/client/Ui/SettingsMenu.luau|Value of type 'Window?' could be nil": 3,
- "src/server/Presentation/AnimalModels.luau|Cannot call a value of the union type:": 18,
  "src/server/Presentation/CollectorVisualService.luau|Cannot call a value of type {number} in union:": 2,
  "src/server/Presentation/CollectorVisualService.luau|Function only returns 1 value, but 2 are required here": 2,
  "src/server/Presentation/ExtensionVisualService.luau|Cyclic dependencies are only supported if all modules in the cycle use 'export' syntax. The following modules do not use 'export': <yol> [game/ServerScriptServi": 48,
- "src/server/Presentation/UpgradeVisualService.luau|Cannot cast 'nil' into 'Model' because the types are unrelated": 17,
- "src/server/Services/AdminService.luau|Expected type table, got '{ [string]: any } | {|  |}' instead": 6,
- "src/server/Services/AdminService.luau|Value of type '(InventoryData | {| equipped: {|  |}, items: {| [string]: 'a |}, uses: {|  |} |})?' could be nil": 2,
  "src/server/Services/AnimalTaskService.luau|Function only returns 1 value, but 2 are required here": 2,
  "src/server/Services/BuyPadService.luau|Function only returns 1 value, but 2 are required here": 2,
  "src/server/Services/EconomyService.luau|Cyclic dependencies are only supported if all modules in the cycle use 'export' syntax. The following modules do not use 'export': <yol> [game/ServerScriptServi": 16,
@@ -31,9 +26,7 @@
  "src/server/Services/MonetizationService.luau|Value of type '{ [string]: boolean }?' could be nil": 2,
  "src/server/Services/PetService.luau|Function only returns 1 value, but 2 are required here": 2,
  "src/server/Services/PlotService.luau|Cyclic dependencies are only supported if all modules in the cycle use 'export' syntax. The following modules do not use 'export': <yol> [game/ServerScriptServi": 16,
- "src/server/Services/PlotService.luau|Expected this to be 'SpawnLocation', but got 'nil'": 16,
  "src/server/Services/ProductionService.luau|Function only returns 1 value, but 2 are required here": 2,
  "src/server/Services/UpgradeService.luau|Cyclic dependencies are only supported if all modules in the cycle use 'export' syntax. The following modules do not use 'export': <yol> [game/ServerScriptServi": 32,
- "src/server/init.server.luau|Function only returns 1 value, but 2 are required here": 2,
- "src/shared/Localization.luau|Expected this to be 'number | string', but got 'string?'": 8
+ "src/server/init.server.luau|Function only returns 1 value, but 2 are required here": 2
 }
