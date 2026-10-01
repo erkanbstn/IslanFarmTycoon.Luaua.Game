@@ -26,7 +26,7 @@ function ContractService.tryFulfill(player: Player, key: unknown): (boolean, str
 		return false, problem
 	end
 	Metrics.increment("ContractsCompleted")
-	PlayerDataService.addCash(player, reward)
+	PlayerDataService.addCash(player, reward, "order")
 	PlayerDataService.pushState(player)
 	PlayerDataService.requestSave(player)
 	return true, `Ahır siparişi teslim edildi: +{FarmMath.formatMoney(reward)}`

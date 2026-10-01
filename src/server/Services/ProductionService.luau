@@ -27,10 +27,10 @@ local function hooksFor(player: Player): ProductionLogic.Hooks
 			EconomyService.settlePlayer(player)
 		end,
 		trySpend = function(amount: number): boolean
-			return PlayerDataService.trySpend(player, amount)
+			return PlayerDataService.trySpend(player, amount, "facility")
 		end,
 		addCash = function(amount: number)
-			PlayerDataService.addCash(player, amount)
+			PlayerDataService.addCash(player, amount, "production")
 		end,
 		newUid = function(): string
 			return HttpService:GenerateGUID(false)

@@ -173,7 +173,7 @@ function InventoryService.tryBuy(player: Player, itemId: unknown): (boolean, str
 		return false, "Bu eşyaya zaten sahipsin"
 	end
 	EconomyService.settlePlayer(player)
-	if not PlayerDataService.trySpend(player, item.price) then
+	if not PlayerDataService.trySpend(player, item.price, "item") then
 		return false, `Yeterli para yok ({FarmMath.formatMoney(item.price)})`
 	end
 	-- Satın alınca slot boşsa otomatik takılır (etkisi hemen başlasın)

@@ -16,6 +16,7 @@ local SaveCodec = require(script.Parent.Parent.Modules.SaveCodec)
 local FarmProfiles = require(script.Parent.Parent.Modules.FarmProfiles)
 local Metrics = require(script.Parent.Parent.Modules.Metrics)
 local SaveBackup = require(script.Parent.Parent.Modules.SaveBackup)
+local TelemetryService = require(script.Parent.TelemetryService)
 
 type PlayerSave = GameTypes.PlayerSave
 type Session = {
@@ -116,7 +117,8 @@ end
 
 local function fail(player: Player, session: Session, problem: string)
 	status(player, session, "Failed", problem)
-	warn(`[Data] ProfileFailed user={player.UserId}: {problem}`)
+	-- Veri kaybı riski: Creator Hub'da görünsün diye warn değil hata olarak (ayrı iş parçacığında) loglanır.
+	TelemetryService.critical(`[Data] ProfileFailed user={player.UserId}: {problem}`)
 	-- Erişim kapalı kalır; client kalıcı hata ekranını DataStatus üzerinden gösterir.
 end
 
@@ -271,6 +273,7 @@ local function write(player: Player, session: Session, release: boolean, deadlin
 	end
 	if not success then
 		Metrics.increment("SaveFailed")
+		TelemetryService.custom(player, "SaveFailed")
 		player:SetAttribute("DataError", lastError)
 		-- Kira dolsa bile yalnızca sahiplik gerçekten kaybedildiyse düş: sahip + revizyon bizse sonraki yazım güvenle geçer.
 		if ownershipLost then
@@ -333,6 +336,31 @@ local function recoverFromBackup(player: Player, key: string, corrupt: unknown, 
 		end
 	end
 	return nil
+end
+
+-- Telemetri: hunide kayıttan geçilmiş adımlar ve çevrimdışı dönüş (süre ham kayıttaki lastSeen'den; sınır Pasif Gelir'e göre).
+local function reportLoaded(player: Player, session: Session, raw: unknown)
+	local data = session.data
+	if not data then
+		return
+	end
+	local views = {}
+	for _, farmId in FarmProfiles.ids(data) do
+		table.insert(views, FarmProfiles.view(data, farmId))
+	end
+	local now = DateTime.now().UnixTimestampMillis / 1000
+	local lastSeen = if typeof(raw) == "table" then (raw :: any).lastSeen else nil
+	local offline = nil
+	if session.offlineEarned > 0 and typeof(lastSeen) == "number" and lastSeen >= 0 and lastSeen <= now then
+		local _, hours = FarmMath.getOfflineTerms(data)
+		offline = {
+			earned = session.offlineEarned,
+			awaySeconds = now - lastSeen,
+			capped = now - lastSeen > hours * 3600,
+			balance = data.cash,
+		}
+	end
+	TelemetryService.onLoaded(player, views, offline)
 end
 
 function PlayerDataService.load(player: Player): PlayerSave?
@@ -419,6 +447,7 @@ function PlayerDataService.load(player: Player): PlayerSave?
 					break
 				end
 				Metrics.increment("LoadLockWait")
+				TelemetryService.custom(player, "LoadLockWait")
 				retryWait(lockWaitUntil, pause)
 				pause = math.min(pause * 2, 15)
 			end
@@ -453,9 +482,10 @@ function PlayerDataService.load(player: Player): PlayerSave?
 				if backupOk and backupData then
 					adopt(backupData, backupEarned, backupRepairs, backupGrown)
 					session.recovered = true
-					warn(`[Data] ProfileRecovered user={player.UserId}: {problem}`)
+					TelemetryService.critical(`[Data] ProfileRecovered user={player.UserId}: {problem}`)
 					problem = nil
 					Metrics.increment("ProfileRecovered")
+					TelemetryService.custom(player, "ProfileRecovered")
 				end
 			end
 		end
@@ -464,6 +494,7 @@ function PlayerDataService.load(player: Player): PlayerSave?
 	Metrics.duration("ProfileLoad", os.clock() - loadStarted)
 	if not acquired or not session.data then
 		Metrics.increment("ProfileLoadFailed")
+		TelemetryService.custom(player, "ProfileLoadFailed")
 		fail(player, session, problem or "Kayıt yüklenemedi. Lütfen yeniden bağlan.")
 		if not player.Parent then
 			cleanup(player, session)
@@ -487,6 +518,10 @@ function PlayerDataService.load(player: Player): PlayerSave?
 	updateLeaderstat(session, session.data)
 	status(player, session, "Active", nil)
 	Metrics.increment("ProfileLoaded")
+	-- Telemetri hatası girişi bozmasın.
+	if not pcall(reportLoaded, player, session, raw) then
+		Metrics.increment("TelemetryError")
+	end
 	player:SetAttribute("DataDirty", true)
 	player:SetAttribute("DataRecovered", session.recovered)
 	if session.recovered then
@@ -585,11 +620,13 @@ function PlayerDataService.release(player: Player): boolean
 		status(player, session, "Closing", player:GetAttribute("DataError"))
 		warn(`[Data] FinalSaveFailed user={player.UserId}; snapshot retained`)
 		Metrics.increment("FinalSaveFailed")
+		TelemetryService.custom(player, "FinalSaveFailed")
 	end
 	return success
 end
 
-function PlayerDataService.addCash(player: Player, amount: number)
+-- reason/sku: telemetri kategorisi (TelemetryLogic.ECONOMY anahtarı) ve sınırlı kümeden ürün kimliği; yoksa olay gönderilmez.
+function PlayerDataService.addCash(player: Player, amount: number, reason: string?, sku: string?)
 	if not SessionLock.isFinite(amount) or amount <= 0 then
 		return
 	end
@@ -601,10 +638,13 @@ function PlayerDataService.addCash(player: Player, amount: number)
 	-- Ömür boyu kazanç (başarımlar): yalnızca kazanç kalemleri addCash'ten geçer, harcama düşmez.
 	data.lifetimeEarned = math.min(1e18, (data.lifetimeEarned or 0) + amount)
 	PlayerDataService.pushEconomy(player)
+	if reason then
+		TelemetryService.economy(player, reason, amount, data.cash, sku)
+	end
 end
 
 -- Kazanç sayılmayan nakit girişi (hayvan satışı iadesi): başarım ve mevsim hedefi sayaçlarını şişirmez.
-function PlayerDataService.addRefund(player: Player, amount: number)
+function PlayerDataService.addRefund(player: Player, amount: number, reason: string?, sku: string?)
 	if not SessionLock.isFinite(amount) or amount <= 0 then
 		return
 	end
@@ -614,9 +654,12 @@ function PlayerDataService.addRefund(player: Player, amount: number)
 	end
 	data.cash = math.min(1e15, data.cash + amount)
 	PlayerDataService.pushEconomy(player)
+	if reason then
+		TelemetryService.economy(player, reason, amount, data.cash, sku)
+	end
 end
 
-function PlayerDataService.trySpend(player: Player, amount: number): boolean
+function PlayerDataService.trySpend(player: Player, amount: number, reason: string?, sku: string?): boolean
 	if not SessionLock.isFinite(amount) or amount < 0 then
 		return false
 	end
@@ -626,6 +669,9 @@ function PlayerDataService.trySpend(player: Player, amount: number): boolean
 	end
 	data.cash -= amount
 	PlayerDataService.pushEconomy(player)
+	if reason then
+		TelemetryService.economy(player, reason, amount, data.cash, sku)
+	end
 	return true
 end
 
@@ -694,7 +740,8 @@ function PlayerDataService.init()
 					if os.time() < session.leaseExpires + FINAL_SAVE_GRACE_SECONDS then
 						task.spawn(PlayerDataService.release, player)
 					else
-						warn(`[Data] FinalSaveAbandoned user={player.UserId}; lease expired`)
+						TelemetryService.critical(`[Data] FinalSaveAbandoned user={player.UserId}; lease expired`)
+						TelemetryService.custom(player, "FinalSaveAbandoned")
 						cleanup(player, session)
 					end
 				end

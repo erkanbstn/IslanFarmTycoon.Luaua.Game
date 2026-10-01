@@ -15,6 +15,7 @@ local PlotService = require(script.Parent:WaitForChild("PlotService"))
 local EconomyService = require(script.Parent:WaitForChild("EconomyService"))
 local RateLimiter = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("RateLimiter"))
 local Metrics = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("Metrics"))
+local TelemetryService = require(script.Parent:WaitForChild("TelemetryService"))
 
 local UpgradeService = {}
 
@@ -47,13 +48,23 @@ function UpgradeService.tryBuy(player: Player, upgradeId: unknown): (boolean, st
 
 	EconomyService.settlePlayer(player)
 	local price = FarmMath.getUpgradeCost(data, upgrade)
-	if not PlayerDataService.trySpend(player, price) then
+	if not PlayerDataService.trySpend(player, price, "upgrade", upgrade.id) then
 		return false, `Yeterli para yok ({FarmMath.formatMoney(price)})`
 	end
 
 	local previousSpeeds = FarmMath.snapshotGrowthSpeeds(data)
 	data.purchased[upgrade.id] = true
 	FarmMath.applyDerived(data)
+	TelemetryService.funnel(player, "first_upgrade")
+	if upgrade.kind == "island" and upgrade.islandId then
+		TelemetryService.funnel(player, "first_island")
+		TelemetryService.progression(player, "island", (FarmMath.countIslands(data)), upgrade.islandId)
+	elseif upgrade.kind == "barn" and upgrade.barnLevel then
+		if upgrade.barnLevel >= 2 then
+			TelemetryService.funnel(player, "barn_2")
+		end
+		TelemetryService.progression(player, "barn", upgrade.barnLevel, `Barn {upgrade.barnLevel}`)
+	end
 	FarmMath.preserveGrowthProgress(data, previousSpeeds, DateTime.now().UnixTimestampMillis / 1000)
 	Rewards.recordInvest(data, DateTime.now().UnixTimestamp)
 	PlayerDataService.pushState(player)
@@ -82,7 +93,7 @@ function UpgradeService.tryUpgradeLineage(player: Player, animalId: unknown): (b
 		return false, reason
 	end
 	EconomyService.settlePlayer(player)
-	if not PlayerDataService.trySpend(player, cost) then
+	if not PlayerDataService.trySpend(player, cost, "lineage", animalId) then
 		return false, `Yeterli para yok ({FarmMath.formatMoney(cost)})`
 	end
 	local lineage = data.lineage or {}
@@ -155,7 +166,7 @@ function UpgradeService.tryExpandZone(player: Player, targetId: unknown): (boole
 		return false, reason
 	end
 	EconomyService.settlePlayer(player)
-	if not PlayerDataService.trySpend(player, cost) then
+	if not PlayerDataService.trySpend(player, cost, "expansion") then
 		return false, `Yeterli para yok ({FarmMath.formatMoney(cost)})`
 	end
 	-- Büyüme hızı ve gelir bu seviyeden itibaren değişir; ilerleme korunur

@@ -83,7 +83,7 @@ local productEffects: { [string]: (player: Player, data: any, product: Config.Pr
 	incomePack = function(player, data, product)
 		local income = FarmMath.computeIncomePerSecond(data)
 		local amount = math.max(income * 3600 * (product.incomeHours or 1), Config.PRODUCT_MIN_INCOME_PACK)
-		PlayerDataService.addCash(player, math.floor(amount))
+		PlayerDataService.addCash(player, math.floor(amount), "iap")
 		PlayerDataService.pushState(player)
 		return true
 	end,
