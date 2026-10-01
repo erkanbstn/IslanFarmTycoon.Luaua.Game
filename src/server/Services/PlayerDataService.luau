@@ -518,7 +518,10 @@ function PlayerDataService.load(player: Player): PlayerSave?
 	updateLeaderstat(session, session.data)
 	status(player, session, "Active", nil)
 	Metrics.increment("ProfileLoaded")
-	reportLoaded(player, session, raw)
+	-- Telemetri hatası girişi bozmasın.
+	if not pcall(reportLoaded, player, session, raw) then
+		Metrics.increment("TelemetryError")
+	end
 	player:SetAttribute("DataDirty", true)
 	player:SetAttribute("DataRecovered", session.recovered)
 	if session.recovered then
