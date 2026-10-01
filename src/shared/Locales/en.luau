@@ -1044,4 +1044,9 @@ return {
 	["Süt Paketleme Fabrikası"] = "Milk Packing Factory",
 	["İnek geliri +%60"] = "Cow income +60%",
 	["Süt paketleme"] = "Milk packing",
+	["Gereken ürün:"] = "Goods needed:",
+	["Yeterli ürün yok ({})"] = "Not enough goods ({1})",
+	["Ürün gerekli: {}"] = "Goods needed: {1}",
+	["{} {}/{}"] = "{1} {2}/{3}",
+	["{} ×{}"] = "{1} ×{2}",
 }

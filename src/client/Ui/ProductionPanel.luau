@@ -15,6 +15,7 @@ local UiKit = require(script.Parent:WaitForChild("UiKit"))
 local IslandContext = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("IslandContext"))
 local IslandManager = require(script.Parent:WaitForChild("IslandManager"))
 local IslandTabs = require(script.Parent:WaitForChild("Hud"):WaitForChild("IslandTabs"))
+local HudCommon = require(script.Parent:WaitForChild("Hud"):WaitForChild("HudCommon"))
 local player = Players.LocalPlayer
 local ProductionPanel = {}
 local window: UiKit.Window? = nil
@@ -295,19 +296,18 @@ local function create(parent: Instance): UiKit.Window
 			elseif not state.purchased[recipe.upgradeId] then
 				local upgrade = Config.getUpgrade(recipe.upgradeId)
 				local status, missing = FarmMath.getUpgradeStatus(state, recipe.upgradeId)
+				local needs = if upgrade and status ~= "locked" then HudCommon.goodsNeedText(state, upgrade) else nil
 				card.detail.Text = `{recipe.description}\n`
-					.. (
-						if status == "locked"
-							then `Önce: {table.concat(missing, ", ")}`
-							else "Önce üretim tesisini kur."
-					)
+					.. (if status == "locked"
+						then `Önce: {table.concat(missing, ", ")}`
+						else "Önce üretim tesisini kur.")
+					.. (if needs then `\n{needs}` else "")
 				card.action.Text = if upgrade
 					then `Tesisi kur · {FarmMath.formatMoney(FarmMath.getUpgradeCost(state, upgrade))}`
 					else "Kilitli"
 				variant = if not upgrade or status == "locked"
 					then "disabled"
-					elseif state.cash >= FarmMath.getUpgradeCost(state, upgrade) then "primary"
-					else "warning"
+					else HudCommon.upgradeVariant(state, upgrade)
 			elseif recipe.options then
 				-- Para tesisi: başlatma ücretsiz; her parti seçeneği kendi hayvan sayısını ister ve farklı kazandırır
 				local adults = FarmMath.countProductionAdults(state, recipe, now)

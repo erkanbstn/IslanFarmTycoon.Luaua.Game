@@ -121,6 +121,14 @@ export type DifficultyConfig = {
 	tiers: { DifficultyTier },
 	slotSpread: number, -- Ada sırası çarpanı: 1 + slotSpread x (tier - 1) x (sıra - 1)
 	animalGrowthPerTier: number, -- Hayvan n. alım eğrisine çiftlik başına eklenen pay
+	goods: DifficultyGoods,
+}
+-- Açılış gereksinimi (ürün) miktarı: değer payı x stepBase[adım] x (1 + tierGrowth x (tier - 1)) / ürün birim değeri, kapasiteye sığar.
+export type DifficultyGoods = {
+	stepBase: { number }, -- adım (1 erken, 2 orta, 3 geç) çarpanı
+	tierGrowth: number, -- kademe başına artış
+	tutorialFree: boolean, -- true: Çiftlik 1'in erken adımı ürün istemez (öğretici)
+	capShare: number, -- bir ürün kalemi, açılışın gerektirdiği ahır seviyesinin ürün kapasitesinin en çok bu payı olur (deadlock olmasın)
 }
 
 -- Eşyalar (envanter): slotlara takılır, satın alma kalıcıdır. effects = takılıyken geçerli kalıcı faydalar (FarmMath),
@@ -193,6 +201,15 @@ export type RoadmapStage = {
 	description: string?, -- Adası olmayan aşamanın açıklaması
 }
 
+-- Açılış gereksinimi (ürün): para fiyatının yanında ahır deposundan ürün düşer. `shares[kaynak]` = temel para fiyatının bu payı kadar DEĞERDE
+-- (ürün birim değeri `Config.GOODS[x].value`) ürün; kaynak ürünü temaya göre çözülür (`Config.resolveGoodsSource`): "home" (çiftliğin ana hayvanının
+-- ürünü), "sea" (balık), "slot1".."slot3" (temanın o sıradaki küçük adasının ürünü), "previous" (bu öğenin adasından bir önceki ada; ilk adada ve
+-- ana adada ana hayvanın ürünü). `step`: adım (1 erken, 2 orta, 3 geç ada/aşama); miktar kademe ve adıma göre `FarmMath.getGoodsCost`.
+export type GoodsCostConfig = {
+	step: number,
+	shares: { [string]: number },
+}
+
 -- Yol haritasındaki satın alınabilir her şey. Oyuncu sırayı kendisi seçer;
 -- sadece "requires" içindekilere önce sahip olmak gerekir.
 export type UpgradeConfig = {
@@ -222,6 +239,7 @@ export type UpgradeConfig = {
 	autoCollect: boolean?, -- Depo yerine para doğrudan kasaya
 	extensionId: string?, -- kind == "extension" → Config.EXTENSIONS; kind == "level" ile eklenti kapasite yükseltmesi
 	extensionCapacity: number?, -- Eklenti kapasite yükseltmesi: +1 hayvan (kind == "level", extensionId ile)
+	goodsCost: GoodsCostConfig?, -- Açılış gereksinimi: para + ürün (Config/Difficulty.luau, FarmMath.getGoodsCost)
 	homeAnimal: string?, -- Ana ada fabrikası: yalnızca ana hayvanı (THEMES.homeAnimal) bu olan çiftliklerde vardır (Config.upgradeInTheme)
 }
 

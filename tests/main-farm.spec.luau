@@ -311,6 +311,31 @@ return function(
 	)
 	local serverGoods, clientGoods = farmMath.getContractGoods(later), farmMath.getContractGoods(clientView)
 	assert(table.concat(clientGoods, ",") == table.concat(serverGoods, ","), "client sees the same producible goods")
+	-- Gösterilen = alınan: istemci özeti para fiyatını ve ürün gereksinimini sunucuyla aynı hesaplar (özette eksik alan yok)
+	later.goods = { milk = 7, egg = 3 }
+	local displayState = profiles.clientState(later, {}, {})
+	for _, upgrade in config.UPGRADES do
+		assert(
+			farmMath.getUpgradeCost(displayState, upgrade) == farmMath.getUpgradeCost(later, upgrade),
+			`client price of {upgrade.id} matches the server`
+		)
+		local serverCost, clientCost =
+			farmMath.getGoodsCost(later, upgrade), farmMath.getGoodsCost(displayState, upgrade)
+		assert(
+			farmMath.formatGoodsCost(clientCost) == farmMath.formatGoodsCost(serverCost),
+			`client goods cost of {upgrade.id} matches the server`
+		)
+		assert(
+			#farmMath.getGoodsShortfall(displayState, clientCost) == #farmMath.getGoodsShortfall(later, serverCost),
+			`client shortfall of {upgrade.id} matches the server`
+		)
+	end
+	for animalId in config.ANIMALS do
+		assert(
+			farmMath.getAnimalPrice(displayState, animalId) == farmMath.getAnimalPrice(later, animalId),
+			`client price of {animalId} matches the server`
+		)
+	end
 	local malformed = table.clone(encoded)
 	malformed.activeMainFarmId = "6"
 	assert(codec.decode(malformed, config, farmMath, now, uid) == nil, "missing active farm fails closed")

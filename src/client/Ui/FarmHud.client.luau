@@ -13,6 +13,7 @@ local ProximityPromptService = game:GetService("ProximityPromptService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Config = require(Shared:WaitForChild("Config"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local GameTypes = require(Shared:WaitForChild("GameTypes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
@@ -387,6 +388,16 @@ end)
 
 local shopDirty, roadmapDirty, upgradesDirty = true, true, true
 local lastCash: number? = nil
+local lastGoods = ""
+
+-- Ahır deposundaki ürün miktarları: açılışların ürün gereksinimi satırları (Yükseltmeler, Yol Haritası, rozetler) bunlarla değişir
+local function goodsSignature(state: PlayerSave): string
+	local amounts: { number } = {}
+	for _, goodsId in Config.GOODS_ORDER do
+		table.insert(amounts, FarmMath.getGoodsAmount(state, goodsId))
+	end
+	return table.concat(amounts, ",")
+end
 
 local function onState(state: PlayerSave, structural: boolean)
 	-- Asa geçersiz kılması yalnızca bu oyuncunun ekranını ve gelirini etkiler (Environment kendi katmanını uygular)
@@ -406,11 +417,14 @@ local function onState(state: PlayerSave, structural: boolean)
 	if inventoryPanel.window.isOpen() then
 		inventoryPanel.update(state)
 	end
+	local signature = goodsSignature(state)
+	local goodsChanged = signature ~= lastGoods
+	lastGoods = signature
 	shopDirty = shopDirty or structural
-	roadmapDirty = roadmapDirty or structural
-	upgradesDirty = upgradesDirty or structural
+	roadmapDirty = roadmapDirty or structural or goodsChanged
+	upgradesDirty = upgradesDirty or structural or goodsChanged
 	local cashChanged = lastCash ~= state.cash
-	if structural or cashChanged then
+	if structural or cashChanged or goodsChanged then
 		menu.updateBadges(state)
 	end
 	if shopWindow.isOpen() and (shopDirty or cashChanged) then

@@ -168,8 +168,12 @@ return function(createLimiter: any, codec: any, config: any, farmMath: any, crea
 			tryGet = function(target: any): any
 				return if h.active and target == h.player then data else nil
 			end,
-			trySpend = function(target: any, amount: number): boolean
+			-- Gerçek PlayerDataService.trySpend gibi: goodsCost verilirse para ve ürün tek adımda düşer
+			trySpend = function(target: any, amount: number, _reason: any, _sku: any, goodsCost: any): boolean
 				if target ~= h.player or data.cash < amount then
+					return false
+				end
+				if goodsCost ~= nil and next(goodsCost) ~= nil and not farmMath.removeGoodsBundle(data, goodsCost) then
 					return false
 				end
 				data.cash -= amount

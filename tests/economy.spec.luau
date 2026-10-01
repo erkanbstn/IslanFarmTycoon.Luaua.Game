@@ -728,11 +728,27 @@ return function(FarmMath: any, Config: any, Environment: any)
 		-- Simülasyon: temadaki her şeyi ön koşul sırasıyla satın alabiliyor muyuz?
 		local probe = saveAt(start)
 		probe.activeMainFarmId = farmId
+		probe.tier = #Config.DIFFICULTY.tiers -- en ağır kademe: ürün gereksinimi de karşılanabilmeli (deadlock yok)
+		probe.goods = {}
 		local progressed = true
 		while progressed do
 			progressed = false
+			-- Kurulu ürün merkezleri depoyu (ahır seviyesinin kapasitesine kadar) doldurur
+			for _, recipe in Config.PRODUCTION_RECIPES do
+				if
+					recipe.output == "goods"
+					and probe.purchased[recipe.upgradeId]
+					and probe.unlockedIslands[recipe.island]
+					and recipe.goodsId
+				then
+					probe.goods[recipe.goodsId] = FarmMath.getGoodsCap(probe)
+				end
+			end
 			for _, upgrade in Config.UPGRADES do
-				if FarmMath.getUpgradeStatus(probe, upgrade.id) == "available" then
+				if
+					FarmMath.getUpgradeStatus(probe, upgrade.id) == "available"
+					and #FarmMath.getGoodsShortfall(probe, FarmMath.getGoodsCost(probe, upgrade)) == 0
+				then
 					probe.purchased[upgrade.id] = true
 					FarmMath.applyDerived(probe)
 					progressed = true

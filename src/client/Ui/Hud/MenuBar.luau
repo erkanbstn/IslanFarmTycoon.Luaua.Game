@@ -20,6 +20,7 @@ local SettingsMenu = require(script.Parent.Parent:WaitForChild("SettingsMenu"))
 local AdminPanel = require(script.Parent.Parent:WaitForChild("AdminPanel"))
 local ProductionPanel = require(script.Parent.Parent:WaitForChild("ProductionPanel"))
 local IslandManager = require(script.Parent.Parent:WaitForChild("IslandManager"))
+local HudCommon = require(script.Parent:WaitForChild("HudCommon"))
 local Onboarding = require(script.Parent:WaitForChild("Onboarding"))
 local StoreSection = require(script.Parent:WaitForChild("StoreSection"))
 
@@ -202,7 +203,7 @@ function MenuBar.create(screenGui: Instance, onUnlocked: ((message: string) -> (
 				upgrade.kind ~= "island"
 				and IslandContext.upgradeIsland(upgrade) == IslandContext.get()
 				and FarmMath.getUpgradeStatus(state, upgrade.id) == "available"
-				and state.cash >= FarmMath.getUpgradeCost(state, upgrade)
+				and HudCommon.upgradeAffordable(state, upgrade)
 			then
 				upgrades += 1
 			end

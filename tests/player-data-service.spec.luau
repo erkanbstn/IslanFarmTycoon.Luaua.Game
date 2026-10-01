@@ -233,6 +233,29 @@ return function(createService: any, Config: any)
 		"successful release unlocks and closes"
 	)
 
+	-- Para + ürün tek adımda harcanır: biri yetmezse ya da değer geçersizse hiçbir şey düşmez
+	t = loaded()
+	t.service.addCash(t.player, 500)
+	local account = assert(t.service.tryGet(t.player), "active account")
+	account.goods = { milk = 5 }
+	local cashBefore = account.cash
+	assert(not t.service.trySpend(t.player, 100, "upgrade", "x", { milk = 6 }), "one goods unit short")
+	assert(account.cash == cashBefore and account.goods.milk == 5, "missing goods take no money")
+	assert(not t.service.trySpend(t.player, cashBefore + 1, "upgrade", "x", { milk = 1 }), "missing cash")
+	assert(account.cash == cashBefore and account.goods.milk == 5, "missing cash takes no goods")
+	for _, bad in { -1, 1.5, 0 / 0, math.huge } do
+		assert(not t.service.trySpend(t.player, 10, "upgrade", "x", { milk = bad }), "invalid goods amount is refused")
+		assert(account.cash == cashBefore and account.goods.milk == 5, "an invalid amount changes nothing")
+	end
+	assert(not t.service.trySpend(t.player, 10, "upgrade", "x", { no_such_goods = 1 }), "unknown goods are refused")
+	assert(not t.service.trySpend(t.player, -5, "upgrade", "x", { milk = 1 }), "negative money is refused")
+	assert(t.service.trySpend(t.player, 100, "upgrade", "x", { milk = 2 }), "money and goods together")
+	assert(account.cash == cashBefore - 100 and account.goods.milk == 3, "exactly both are taken")
+	assert(
+		t.service.trySpend(t.player, 10, "upgrade", "x", {}) and account.goods.milk == 3,
+		"no goods cost: money only"
+	)
+
 	-- Sunucu cevabı kaybolan yazma 3 kere yinelenir; sonra yeni para + çıkış.
 	t = loaded()
 	t.service.addCash(t.player, 200)

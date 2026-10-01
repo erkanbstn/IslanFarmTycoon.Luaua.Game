@@ -170,6 +170,76 @@ return function(createService: any, createHarness: any, createLimiter: any, code
 		assert(farmMath.getExpansionLevel(growth.data, "starter") == 1, "expansion level rises")
 	end
 
+	-- Ürünle açılış: para ve ürün tek adımda düşer; biri yetmezse hiçbir şey düşmez; yanlış çiftlik ve tekrar istek ödeme almaz
+	local gated = setup()
+	local gate = assert(config.getUpgrade("island_poultry"), "an island that asks goods in later farms")
+	local gd = gated.data
+	gd.tier = 2
+	gd.purchased.barn_2 = true
+	farmMath.applyDerived(gd)
+	local goodsId, need = next(farmMath.getGoodsCost(gd, gate))
+	assert(goodsId ~= nil and need ~= nil and need >= 1, "a tier 2 farm asks goods for its first island")
+	local gatePrice = farmMath.getUpgradeCost(gd, gate)
+	gd.cash = gatePrice * 3
+	local noGoods = buy(gated, gate.id)
+	assert(
+		noGoods and noGoods.ok == false and string.find(noGoods.message, "Yeterli ürün yok", 1, true) ~= nil,
+		"cash alone is not enough"
+	)
+	assert(
+		gd.cash == gatePrice * 3 and gd.purchased[gate.id] == nil and next(gd.goods or {}) == nil,
+		"a refusal for missing goods takes nothing"
+	)
+	gd.goods = { [goodsId] = need - 1 }
+	local partial = buy(gated, gate.id)
+	assert(partial and partial.ok == false, "one unit short is refused")
+	assert(gd.cash == gatePrice * 3 and gd.goods[goodsId] == need - 1, "a partial stock is not consumed")
+	gd.goods = { [goodsId] = need + 3 }
+	gd.cash = gatePrice - 1
+	local poorButStocked = buy(gated, gate.id)
+	assert(poorButStocked and poorButStocked.ok == false, "enough goods do not replace missing cash")
+	assert(gd.cash == gatePrice - 1 and gd.goods[goodsId] == need + 3, "goods stay when cash is short")
+	gd.cash = gatePrice + 7
+	local staleGoods = buy(gated, gate.id, "bogus-farm")
+	assert(staleGoods and staleGoods.ok == false, "the wrong farm is refused")
+	assert(
+		gd.cash == gatePrice + 7 and gd.goods[goodsId] == need + 3,
+		"a wrong farm id charges neither money nor goods"
+	)
+	local requestId = gated.nextId()
+	local paid = buy(gated, gate.id, nil, requestId)
+	assert(paid and paid.ok == true and gd.purchased[gate.id] == true, "cash and goods together buy the unlock")
+	assert(gd.cash == 7 and gd.goods[goodsId] == 3, "exactly the price and the required goods are taken")
+	assert(buy(gated, gate.id, nil, requestId) == nil, "a replayed request id is ignored")
+	assert(gd.cash == 7 and gd.goods[goodsId] == 3, "a replay never charges twice")
+	local again = buy(gated, gate.id)
+	assert(again and again.ok == false and gd.goods[goodsId] == 3, "an owned unlock takes no goods")
+	-- İstemci fiyat ya da ürün gönderemez: fazladan alanlar yok sayılır, tür dışı kimlik reddedilir
+	local forged = setup()
+	forged.data.tier = 2
+	forged.data.purchased.barn_2 = true
+	farmMath.applyDerived(forged.data)
+	forged.data.cash = gatePrice * 2
+	local forgedReply =
+		forged.fire("RequestBuyUpgrade", gate.id, forged.nextId(), forged.data.activeMainFarmId, { [goodsId] = 0 }, -5)
+	assert(forgedReply and forgedReply.ok == false, "a client cannot waive or reduce the goods cost")
+	assert(
+		forged.data.cash == gatePrice * 2 and forged.data.purchased[gate.id] == nil,
+		"forged arguments change nothing"
+	)
+	local rapid = setup()
+	rapid.data.tier = 2
+	rapid.data.purchased.barn_2 = true
+	farmMath.applyDerived(rapid.data)
+	rapid.data.cash = gatePrice * 2
+	rapid.data.goods = { [goodsId] = need * 2 }
+	assert(buy(rapid, gate.id).ok == true, "the first goods purchase passes")
+	local goodsAfter = rapid.data.goods[goodsId]
+	local rapidAgain =
+		rapid.fireRaw(rapid.player, "RequestBuyUpgrade", gate.id, rapid.nextId(), rapid.data.activeMainFarmId)
+	assert(rapidAgain and rapidAgain.ok == false, "an immediate second request is throttled")
+	assert(rapid.data.goods[goodsId] == goodsAfter, "the throttled request takes no goods")
+
 	-- Kilitli adanın tabelasındaki prompt: başka çiftliğin adasını alamaz
 	local prompt: any = {
 		Name = "BuyIslandPrompt",

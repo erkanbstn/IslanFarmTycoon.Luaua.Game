@@ -154,8 +154,10 @@ function RoadmapWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Road
 					local cap = if extension then FarmMath.getExtensionCapacity(state, upgrade.extensionId) else 0
 					card.detail.Text = `{upgrade.description} · Dolu: {inExt}/{cap}`
 				else
+					local needs = if status == "available" then HudCommon.goodsNeedText(state, upgrade) else nil
 					card.detail.Text = if status == "locked"
 						then `Önce: {table.concat(missing, ", ")}`
+						elseif needs then `{upgrade.description}\n{needs}`
 						else upgrade.description
 				end
 				card.frame.BackgroundTransparency = if status == "owned" then 0.5 else 0
@@ -168,8 +170,7 @@ function RoadmapWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Road
 			local variant: UiKit.Variant = if status == "owned"
 				then "owned"
 				elseif status == "locked" then "disabled"
-				elseif state.cash >= FarmMath.getUpgradeCost(state, upgrade) then "primary"
-				else "warning"
+				else HudCommon.upgradeVariant(state, upgrade)
 			setPurchaseButton(
 				card.action,
 				if status == "owned" then "Alındı" else FarmMath.formatMoney(FarmMath.getUpgradeCost(state, upgrade)),

@@ -209,7 +209,7 @@ function UpgradeVisualService.apply(plot: Model, save: PlayerSave?)
 			and BUILDERS[upgrade.id] ~= nil
 			and FarmMath.getUpgradeStatus(save, upgrade.id) == "available"
 		if wantSite and not site then
-			buildSite(upgrade, spot :: BasePart, sitesFolder :: Instance, FarmMath.getUpgradeCost(save, upgrade))
+			buildSite(upgrade, spot :: BasePart, sitesFolder :: Instance, FarmMath.formatUpgradePrice(save, upgrade))
 		elseif not wantSite and site then
 			site:Destroy()
 		end

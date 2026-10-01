@@ -259,6 +259,7 @@ local function recordFacilityPayback(farm: any, recipe: any, optionId: string?)
 	end
 end
 
+local unlockGoods: { [string]: number } = {} -- açılışlara harcanan ürünler (toplam)
 local function buyUpgrade(upgrade: any)
 	local speeds = FarmMath.snapshotGrowthSpeeds(save)
 	local upgradeCost = FarmMath.getUpgradeCost(save, upgrade)
@@ -266,6 +267,11 @@ local function buyUpgrade(upgrade: any)
 		if recipe.upgradeId == upgrade.id and recipe.options then
 			facilityCosts[farmPrefix() .. recipe.id] = upgradeCost
 		end
+	end
+	local goodsCost = FarmMath.getGoodsCost(save, upgrade)
+	assert(FarmMath.removeGoodsBundle(save, goodsCost), `{upgrade.id}: ürün gereksinimi karşılanmadan alındı`)
+	for goodsId, amount in goodsCost do
+		unlockGoods[goodsId] = (unlockGoods[goodsId] or 0) + amount
 	end
 	save.cash -= upgradeCost
 	save.purchased[upgrade.id] = true
@@ -418,6 +424,39 @@ local function productionTick()
 	end
 end
 
+-- Ürün gereksinimi: parası yetse de ürünü eksik açılışların ihtiyaç duyduğu ürünler. Ideal oyuncu yalnızca bunları üretir (talebe göre üretim).
+local function neededGoods(): { [string]: boolean }
+	local needed: { [string]: boolean } = {}
+	for _, upgrade in Config.UPGRADES do
+		if inTheme(upgrade) and upgrade.goodsCost and FarmMath.getUpgradeStatus(save, upgrade.id) == "available" then
+			for _, missing in FarmMath.getGoodsShortfall(save, FarmMath.getGoodsCost(save, upgrade)) do
+				needed[missing.goodsId] = true
+			end
+		end
+	end
+	return needed
+end
+
+local function goodsTick()
+	local needed = neededGoods()
+	for _, recipeId in Config.PRODUCTION_ORDER do
+		local recipe = Config.PRODUCTION_RECIPES[recipeId]
+		if recipe.output ~= "goods" or not recipeBuilt(save, recipe) then
+			continue
+		end
+		local job = save.production[recipeId]
+		if job and job.readyAt <= now then
+			ProductionLogic.claim(save, save, recipe, job, now, FarmMath, Config, productionHooks)
+			actions += 1
+		end
+		if save.production[recipeId] == nil and needed[recipe.goodsId] then
+			if ProductionLogic.start(save, save, recipe, nil, now, FarmMath, productionHooks) then
+				actions += 1
+			end
+		end
+	end
+end
+
 local function runPets()
 	local ids: { string } = FarmProfiles.ids(save)
 	ProductionLogic.runPets(save, ids, function(farmId: string): any
@@ -561,7 +600,8 @@ local function invest()
 			if inTheme(upgrade) and FarmMath.getUpgradeStatus(save, upgrade.id) == "available" then
 				local upgradeCost = FarmMath.getUpgradeCost(save, upgrade)
 				nextCost = math.min(nextCost, upgradeCost)
-				if upgradeCost <= save.cash and (not cheapest or upgradeCost < cheapestCost) then
+				local goodsOk = #FarmMath.getGoodsShortfall(save, FarmMath.getGoodsCost(save, upgrade)) == 0
+				if goodsOk and upgradeCost <= save.cash and (not cheapest or upgradeCost < cheapestCost) then
 					cheapest, cheapestCost = upgrade, upgradeCost
 				end
 			end
@@ -720,6 +760,9 @@ local function onlineStep()
 			ordersTick()
 		end
 		invest()
+		if S.prodInterval <= 0 then
+			goodsTick()
+		end
 	end
 	if S.prodInterval > 0 and t >= nextProd then
 		nextProd = t + S.prodInterval
@@ -899,6 +942,12 @@ do
 		local minutes = math.max(onlineMinutes, 1e-9)
 		emit(string.format("  TOPLAM     üretim %6.2f/dk · pano %6.2f/dk · toptan %6.2f/dk · takas %6.2f/dk · ort. doluluk %%%5.1f", totalProduced / minutes, totalOrdered / minutes, totalSold / minutes, totalBartered / minutes, fillWeighted / fillSeconds * 100))
 	end
+	local unlockUnits, unlockWorth = 0, 0
+	for goodsId, amount in unlockGoods do
+		unlockUnits += amount
+		unlockWorth += amount * Config.GOODS[goodsId].value
+	end
+	emit(string.format("  AÇILIŞ ÜRÜNÜ harcanan %d birim (değer %s) · üretilenin %%%.1f'i", unlockUnits, FarmMath.formatMoney(unlockWorth), if totalProduced > 0 then unlockUnits / totalProduced * 100 else 0))
 end
 emit(string.format("GELİR KAYNAKLARI (toplam %s)", FarmMath.formatMoney(sourceTotal)))
 for _, row in sourceRows do
@@ -986,6 +1035,7 @@ else
 			actionsPerMinute = actionsPerMinute,
 			storageFullPercent = fullPercent,
 			goods = goodsRows,
+			unlockGoods = unlockGoods,
 			expansionLevels = expansionTotal,
 			expansionSpent = expansionSpent,
 			lineageLevels = lineageTotal,

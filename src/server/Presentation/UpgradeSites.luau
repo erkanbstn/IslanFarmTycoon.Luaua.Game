@@ -22,7 +22,7 @@ local makePart = UpgradeParts.makePart
 -- küçük bir tabela; alınınca kaldırılır ve yerine bina kurulur (oyuncu neyin nereye geleceğini görür).
 local SITE_HALF = 4.4
 
-local function buildSite(upgrade: Config.UpgradeConfig, spot: BasePart, parent: Instance, price: number)
+local function buildSite(upgrade: Config.UpgradeConfig, spot: BasePart, parent: Instance, priceText: string)
 	local site = Instance.new("Model")
 	site.Name = upgrade.id
 	site:SetAttribute("UpgradeId", upgrade.id)
@@ -87,7 +87,7 @@ local function buildSite(upgrade: Config.UpgradeConfig, spot: BasePart, parent: 
 	WorldUi.sign(board, Enum.NormalId.Front, {
 		icon = upgrade.icon,
 		title = upgrade.displayName,
-		text = `Yapım alanı · {FarmMath.formatMoney(price)}`,
+		text = `Yapım alanı · {priceText}`,
 	})
 	-- Tabelaya yaklaşınca "Satın al": satın almayı BuyPadService sunucuda doğrular (UpgradeService.tryBuy).
 	local promptAnchor =

@@ -42,5 +42,13 @@ return {
 		slotSpread = 0,
 		-- n. alım eğrisi: hayvan fiyat artışına çiftlik başına eklenen pay
 		animalGrowthPerTier = 0,
+		-- Açılışlar para yanında ürün de ister (`Upgrades.luau` goodsCost; miktar: FarmMath.getGoodsCost): değer payı x adım x kademe / ürün değeri.
+		-- Çiftlik 1'in erken adımı ürün istemez (öğretici); ürün her zaman önceki adaların/ana hayvanın ürünlerinden seçilir ve ahır kapasitesine sığar.
+		goods = {
+			stepBase = { 1, 1.5, 2 },
+			tierGrowth = 0.5,
+			tutorialFree = true,
+			capShare = 0.5,
+		},
 	} :: Types.DifficultyConfig,
 }

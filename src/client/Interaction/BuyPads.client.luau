@@ -1,13 +1,18 @@
 --!strict
 -- Dünyadaki satın alma butonlarının görünümü (yalnızca bu ekranda):
---  * Halka: kasa yetiyorsa altın rengi parlar, yetmiyorsa sönük gri.
---  * Altın para: havada döner ve hafifçe süzülür; kasa yetmiyorsa yarı saydamdır.
+--  * Halka: kasa ve gereken ürün yetiyorsa altın rengi parlar, yetmiyorsa sönük gri.
+--  * Altın para: havada döner ve hafifçe süzülür; kasa ya da ürün yetmiyorsa yarı saydamdır.
 -- Satın alma sunucudaki ProximityPrompt ile yapılır; burası yalnızca görünüm.
 
 local CollectionService = game:GetService("CollectionService")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Config = require(Shared:WaitForChild("Config"))
+local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 local ClientState = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("ClientState"))
 local EffectSettings = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("EffectSettings"))
 local UiKit = require(script.Parent.Parent:WaitForChild("Ui"):WaitForChild("UiKit"))
@@ -17,16 +22,30 @@ local SPIN_DISTANCE = 90
 local rings: { [BasePart]: number } = {}
 local coins: { [BasePart]: number } = {}
 local cash = 0
+local latest: any = nil
+
+-- Kasa yetiyor ve açılışın ürün gereksinimi (varsa) ahır deposunda karşılanıyor mu
+local function affordable(instance: BasePart, cost: number): boolean
+	if cash < cost then
+		return false
+	end
+	local upgradeId = instance:GetAttribute("UpgradeId")
+	local upgrade = if typeof(upgradeId) == "string" then Config.getUpgrade(upgradeId) else nil
+	if upgrade and latest then
+		return #FarmMath.getGoodsShortfall(latest, FarmMath.getGoodsCost(latest, upgrade)) == 0
+	end
+	return true
+end
 
 local function paint()
 	for ring, cost in rings do
-		local color = if cash >= cost then UiKit.Color.Gold else UiKit.Color.Disabled
+		local color = if affordable(ring, cost) then UiKit.Color.Gold else UiKit.Color.Disabled
 		if ring.Color ~= color then
 			ring.Color = color
 		end
 	end
 	for coin, cost in coins do
-		local transparency = if cash >= cost then 0 else 0.55
+		local transparency = if affordable(coin, cost) then 0 else 0.55
 		if coin.Transparency ~= transparency then
 			coin.Transparency = transparency
 		end
@@ -68,10 +87,9 @@ for _, instance in CollectionService:GetTagged("BuyPadSpin") do
 end
 
 ClientState.onChanged(function(state)
-	if state.cash ~= cash then
-		cash = state.cash
-		paint()
-	end
+	cash = state.cash
+	latest = state
+	paint()
 end)
 
 local elapsed = 0

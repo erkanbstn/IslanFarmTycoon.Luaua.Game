@@ -120,7 +120,8 @@ local function buildPad(
 	frame: CFrame,
 	upgrade: Config.UpgradeConfig,
 	slot: Vector2,
-	cost: number
+	cost: number,
+	priceText: string
 )
 	local origin = frame * CFrame.new(slot.X, 0, slot.Y)
 	local pad = disc(
@@ -157,12 +158,13 @@ local function buildPad(
 	coin.Anchored = true
 	coin.CanCollide, coin.CanTouch, coin.CanQuery, coin.CastShadow = false, false, false, false
 	coin:SetAttribute("Cost", cost)
+	coin:SetAttribute("UpgradeId", upgrade.id)
 	coin:SetAttribute("BasePos", coinPosition)
 	coin.Parent = container
 	CollectionService:AddTag(coin, "BuyPadSpin")
 
 	WorldUi.tag(pad, "PadTag", {
-		text = `{upgrade.displayName} · {FarmMath.formatMoney(cost)}`,
+		text = `{upgrade.displayName} · {priceText}`,
 		icon = upgrade.icon,
 		tint = UiTheme.Color.Gold,
 		widthStuds = 11,
@@ -222,7 +224,8 @@ function BuyPadService.clear(plot: Model)
 end
 
 function BuyPadService.apply(plot: Model, save: any)
-	local wanted: { { island: string, upgrade: Config.UpgradeConfig, slot: Vector2, cost: number } } = {}
+	local wanted: { { island: string, upgrade: Config.UpgradeConfig, slot: Vector2, cost: number, priceText: string } } =
+		{}
 	local ids: { string } = {}
 	for _, islandId in Config.FARM_ISLAND_ORDER do
 		local slots = SLOTS[islandId] or SATELLITE_SLOTS
@@ -235,8 +238,12 @@ function BuyPadService.apply(plot: Model, save: any)
 		for index, upgrade in BuyPadService.pickUpgrades(save, islandId, #slots, hasSite) do
 			-- Fiyat takılı alet indirimine göre değişir: imzaya girer ki düğmeler eski fiyatla kalmasın
 			local cost = FarmMath.getUpgradeCost(save, upgrade)
-			table.insert(wanted, { island = islandId, upgrade = upgrade, slot = slots[index], cost = cost })
-			table.insert(ids, `{islandId}:{upgrade.id}:{cost}`)
+			local priceText = FarmMath.formatUpgradePrice(save, upgrade)
+			table.insert(
+				wanted,
+				{ island = islandId, upgrade = upgrade, slot = slots[index], cost = cost, priceText = priceText }
+			)
+			table.insert(ids, `{islandId}:{upgrade.id}:{priceText}`)
 		end
 	end
 	local signature = table.concat(ids, ",")
@@ -256,7 +263,7 @@ function BuyPadService.apply(plot: Model, save: any)
 	for _, entry in wanted do
 		local frame = surfaceFrame(plot, entry.island)
 		if frame then
-			buildPad(container, plot, frame, entry.upgrade, entry.slot, entry.cost)
+			buildPad(container, plot, frame, entry.upgrade, entry.slot, entry.cost, entry.priceText)
 		end
 	end
 	container.Parent = plot

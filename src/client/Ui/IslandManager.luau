@@ -9,6 +9,7 @@ local Config = require(Shared:WaitForChild("Config"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 local UiKit = require(script.Parent:WaitForChild("UiKit"))
+local HudCommon = require(script.Parent:WaitForChild("Hud"):WaitForChild("HudCommon"))
 local ClientState = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("ClientState"))
 local Sfx = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("Sfx"))
 local PurchaseController = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("PurchaseController"))
@@ -326,6 +327,15 @@ local function create(): UiKit.Window
 					end
 					return
 				end
+				if upgrade then
+					local shortfall = FarmMath.getGoodsShortfall(state, FarmMath.getGoodsCost(state, upgrade))
+					if #shortfall > 0 then
+						if notifyHook then
+							notifyHook(`Yeterli ürün yok ({FarmMath.formatGoodsShortfall(shortfall)})`, "error")
+						end
+						return
+					end
+				end
 				PurchaseController.submit("RequestBuyUpgrade", island.upgradeId)
 			end
 		end)
@@ -503,15 +513,16 @@ local function create(): UiKit.Window
 			else
 				local upgrade = island.upgradeId and Config.getUpgrade(island.upgradeId)
 				local status, missing = FarmMath.getUpgradeStatus(state, island.upgradeId or "")
+				local needs = if upgrade and status ~= "locked" then HudCommon.goodsNeedText(state, upgrade) else nil
 				card.detail.Text = island.trait
 					.. (if status == "locked" then `\nÖnce: {table.concat(missing, ", ")}` else "")
+					.. (if needs then `\n{needs}` else "")
 				card.action.Text = if upgrade
 					then `Küçük adayı aç · {FarmMath.formatMoney(FarmMath.getUpgradeCost(state, upgrade))}`
 					else "Kilitli"
 				variant = if not upgrade or status == "locked"
 					then "disabled"
-					elseif state.cash >= FarmMath.getUpgradeCost(state, upgrade) then "primary"
-					else "warning"
+					else HudCommon.upgradeVariant(state, upgrade)
 			end
 			UiKit.setVariant(card.action, if unavailable then "disabled" else variant)
 		end

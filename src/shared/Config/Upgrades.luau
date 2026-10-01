@@ -60,6 +60,7 @@ return {
 			cost = 1000,
 			requires = { "barn_2" },
 			kind = "zone",
+			goodsCost = { step = 1, shares = { home = 0.05 } },
 			zoneId = "fishpen",
 		},
 		{
@@ -71,6 +72,7 @@ return {
 			cost = 5000,
 			requires = { "fish_farm" },
 			kind = "boost",
+			goodsCost = { step = 2, shares = { home = 0.04 } },
 			incomeBoost = { anchovy = 0.5, seabass = 0.5 },
 		},
 		-- Aşama 3: Tavuk Adası
@@ -83,6 +85,7 @@ return {
 			cost = 900,
 			requires = { "barn_2" },
 			kind = "island",
+			goodsCost = { step = 1, shares = { home = 0.05 } },
 			islandId = "dairy",
 			storageBonus = 0.2,
 		},
@@ -95,6 +98,7 @@ return {
 			cost = 900,
 			requires = { "barn_2" },
 			kind = "island",
+			goodsCost = { step = 1, shares = { home = 0.05 } },
 			islandId = "poultry",
 			facilitySpeed = 0.12,
 		},
@@ -107,6 +111,7 @@ return {
 			cost = 1800,
 			requires = { "barn_2" },
 			kind = "barn",
+			goodsCost = { step = 2, shares = { home = 0.06 } },
 			barnLevel = 3,
 		},
 		{
@@ -118,6 +123,7 @@ return {
 			cost = 2500,
 			requires = { "island_poultry" },
 			kind = "boost",
+			goodsCost = { step = 1, shares = { previous = 0.04 } },
 			incomeBoost = { chicken = 0.6 },
 		},
 		-- Aşama 4: At Adası
@@ -130,6 +136,7 @@ return {
 			cost = 2600,
 			requires = { "barn_3" },
 			kind = "island",
+			goodsCost = { step = 2, shares = { home = 0.04, previous = 0.04 } },
 			islandId = "horse",
 			contractBonus = 0.08,
 		},
@@ -142,6 +149,7 @@ return {
 			cost = 5000,
 			requires = { "barn_3" },
 			kind = "boost",
+			goodsCost = { step = 2, shares = { home = 0.03, slot1 = 0.03 } },
 			autoCollect = true,
 		},
 		{
@@ -153,6 +161,7 @@ return {
 			cost = 8000,
 			requires = { "island_horse" },
 			kind = "boost",
+			goodsCost = { step = 2, shares = { home = 0.03, previous = 0.03 } },
 			incomeBoost = { horse = 0.75 },
 		},
 		-- Aşama 5: Keçi Adası
@@ -165,6 +174,7 @@ return {
 			cost = 4600,
 			requires = { "barn_3" },
 			kind = "barn",
+			goodsCost = { step = 3, shares = { home = 0.03, slot1 = 0.03, slot2 = 0.03 } },
 			barnLevel = 4,
 		},
 		{
@@ -176,6 +186,7 @@ return {
 			cost = 6000,
 			requires = { "barn_4" },
 			kind = "island",
+			goodsCost = { step = 3, shares = { home = 0.03, previous = 0.03, slot1 = 0.03 } },
 			islandId = "goat",
 			offlineBonus = 0.25,
 		},
@@ -189,6 +200,7 @@ return {
 			cost = 950,
 			requires = { "barn_2" },
 			kind = "island",
+			goodsCost = { step = 1, shares = { home = 0.05 } },
 			islandId = "duck",
 			sellBonus = 0.15,
 		},
@@ -201,6 +213,7 @@ return {
 			cost = 2600,
 			requires = { "island_duck" },
 			kind = "boost",
+			goodsCost = { step = 1, shares = { previous = 0.04 } },
 			incomeBoost = { duck = 0.6 },
 		},
 		-- Aşama 7: Koyun Adası (orta ada: Ahır Sv.3)
@@ -213,6 +226,7 @@ return {
 			cost = 3600,
 			requires = { "barn_3" },
 			kind = "island",
+			goodsCost = { step = 2, shares = { home = 0.04, previous = 0.04 } },
 			islandId = "sheep",
 			goodsYield = 0.1,
 		},
@@ -225,6 +239,7 @@ return {
 			cost = 8500,
 			requires = { "island_sheep" },
 			kind = "boost",
+			goodsCost = { step = 2, shares = { home = 0.03, previous = 0.03 } },
 			incomeBoost = { sheep = 0.75 },
 		},
 		-- Aşama 8: Domuz Adası (geç ada: Ahır Sv.4)
@@ -237,6 +252,7 @@ return {
 			cost = 6400,
 			requires = { "barn_4" },
 			kind = "island",
+			goodsCost = { step = 3, shares = { home = 0.03, previous = 0.03, slot1 = 0.03 } },
 			islandId = "pig",
 			expansionDiscount = 0.08,
 		},
@@ -249,6 +265,7 @@ return {
 			cost = 12500,
 			requires = { "island_pig" },
 			kind = "boost",
+			goodsCost = { step = 3, shares = { previous = 0.02, slot1 = 0.02 } },
 			incomeBoost = { pig = 1 },
 		},
 		{
@@ -260,6 +277,7 @@ return {
 			cost = 12000,
 			requires = { "island_goat" },
 			kind = "boost",
+			goodsCost = { step = 3, shares = { previous = 0.02, slot1 = 0.02 } },
 			incomeBoost = { goat = 1 },
 		},
 
@@ -272,6 +290,7 @@ return {
 			cost = 6000,
 			requires = { "milk_machine", "barn_3" },
 			kind = "boost",
+			goodsCost = { step = 2, shares = { home = 0.03, slot1 = 0.03 } },
 			incomeBoost = { home = 1.5 },
 			homeAnimal = "cow",
 		},
@@ -285,6 +304,7 @@ return {
 			cost = 6000,
 			requires = { "milk_machine", "barn_3" },
 			kind = "boost",
+			goodsCost = { step = 2, shares = { home = 0.03, slot1 = 0.03 } },
 			incomeBoost = { home = 1.5 },
 			homeAnimal = "chicken",
 		},
@@ -297,6 +317,7 @@ return {
 			cost = 6000,
 			requires = { "milk_machine", "barn_3" },
 			kind = "boost",
+			goodsCost = { step = 2, shares = { home = 0.03, slot1 = 0.03 } },
 			incomeBoost = { home = 1.5 },
 			homeAnimal = "duck",
 		},
@@ -310,6 +331,7 @@ return {
 			cost = 2600,
 			requires = { "island_dairy" },
 			kind = "boost",
+			goodsCost = { step = 1, shares = { previous = 0.04 } },
 			incomeBoost = { cow = 0.6 },
 		},
 		{
@@ -321,6 +343,7 @@ return {
 			cost = 2800,
 			requires = { "island_poultry" },
 			kind = "boost",
+			goodsCost = { step = 1, shares = { previous = 0.04 } },
 		},
 		{
 			id = "horse_training",
@@ -331,6 +354,7 @@ return {
 			cost = 5500,
 			requires = { "island_horse" },
 			kind = "boost",
+			goodsCost = { step = 2, shares = { home = 0.03, previous = 0.03 } },
 		},
 		{
 			id = "milk_center",

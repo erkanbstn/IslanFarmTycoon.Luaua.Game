@@ -214,7 +214,18 @@ end
 -- Seviyeli geliştirmeler: her zaman alınacak bir şey olsun. Her seviye ayrı bir yükseltmedir
 -- ("<id>_lv<N>"); önceki seviye olmadan alınamaz. Kayıt şeması değişmez: purchased[id] yeterlidir.
 -- kind = "level" (harita yapı noktası istemez); "tüm yol haritası" sayımı bunları saymaz.
-local LEVEL_CHAINS = {
+type LevelChain = {
+	id: string,
+	displayName: string,
+	description: string,
+	icon: string,
+	requires: string,
+	costs: { number },
+	effect: string,
+	amount: number,
+	goodsCost: Types.GoodsCostConfig?,
+}
+local LEVEL_CHAINS: { LevelChain } = {
 	{
 		id = "feed_quality",
 		displayName = "Yem Kalitesi",
@@ -248,6 +259,7 @@ local LEVEL_CHAINS = {
 		costs = { 6000 },
 		effect = "offline",
 		amount = 0,
+		goodsCost = { step = 3, shares = { home = 0.02, slot1 = 0.02 } },
 	},
 	-- Yardımcılar (pet): çiftlik başına. Para yardımcısı para fabrikalarını, ürün yardımcısı ürün merkezlerini
 	-- "otomatik tekrarla" işaretli olduğunda kendisi teslim alır ve yeniden başlatır (PetService).
@@ -260,6 +272,7 @@ local LEVEL_CHAINS = {
 		costs = { 12000 },
 		effect = "pet",
 		amount = 0,
+		goodsCost = { step = 3, shares = { home = 0.02, slot1 = 0.02 } },
 	},
 	{
 		id = "pet_goods",
@@ -270,6 +283,7 @@ local LEVEL_CHAINS = {
 		costs = { 15000 },
 		effect = "pet",
 		amount = 0,
+		goodsCost = { step = 3, shares = { home = 0.02, slot2 = 0.02 } },
 	},
 	{
 		id = "fast_growth",
@@ -295,6 +309,9 @@ for _, chain in LEVEL_CHAINS do
 			kind = "level",
 			leveled = true,
 		}
+		if level == 1 and chain.goodsCost then
+			upgrade.goodsCost = chain.goodsCost -- yalnızca zincirin ilk seviyesi (yetenek) ürün ister
+		end
 		if chain.effect == "income" then
 			local boost: { [string]: number } = {}
 			for animalId in Config.ANIMALS do
@@ -513,6 +530,75 @@ function Config.upgradeInTheme(upgrade: UpgradeConfig, farmId: string?): boolean
 		return false
 	end
 	return Config.themeHasIsland(farmId, Config.getUpgradeIsland(upgrade))
+end
+
+-- Hayvan türünün ürünü (GOODS.animalId); ürünü olmayan tür (hamsi) için nil
+function Config.getAnimalGoods(animalId: string): string?
+	for goodsId, good in Config.GOODS do
+		if good.animalId == animalId then
+			return goodsId
+		end
+	end
+	return nil
+end
+
+-- Çiftlikte bir adanın ürünü: adadaki ilk uygun bölgenin hayvanının ürünü (ana adada çiftliğin ana hayvanı; balık kafesi ayrıdır: "sea")
+function Config.getIslandGoods(farmId: string?, islandId: string): string?
+	for _, zoneId in Config.ZONE_ORDER do
+		local zone = Config.ZONES[zoneId]
+		if zone.island == islandId and zoneId ~= "fishpen" then
+			for _, animalId in Config.getZoneAnimals(zone, farmId) do
+				local goodsId = Config.getAnimalGoods(animalId)
+				if goodsId then
+					return goodsId
+				end
+			end
+		end
+	end
+	return nil
+end
+
+-- Açılış gereksinimi kaynağını (goodsCost.shares anahtarı) çiftlikteki ürüne çevirir; çözülemezse nil.
+-- islandId: gereksinimin ait olduğu ada ("previous" için).
+function Config.resolveGoodsSource(farmId: string?, source: string, islandId: string?): string?
+	local satellites = Config.getTheme(farmId).satellites
+	if source == "home" then
+		return Config.getIslandGoods(farmId, "home")
+	elseif source == "sea" then
+		return Config.getAnimalGoods("seabass")
+	elseif source == "previous" then
+		local slot = if islandId then table.find(satellites, islandId) else nil
+		if slot and slot > 1 then
+			return Config.getIslandGoods(farmId, satellites[slot - 1])
+		end
+		return Config.getIslandGoods(farmId, "home")
+	end
+	local slotNumber = tonumber(string.match(source, "^slot(%d)$"))
+	local island = if slotNumber then satellites[slotNumber] else nil
+	return if island then Config.getIslandGoods(farmId, island) else nil
+end
+
+-- Bir yükseltmeye ulaşmak için gereken en düşük ahır seviyesi (ön koşul zincirindeki ahır yükseltmeleri; kendisi hariç). Ürün gereksinimi
+-- bu seviyedeki ürün kapasitesine sığmak zorundadır (FarmMath.getGoodsCost).
+local minBarnCache: { [string]: number } = {}
+function Config.getMinBarnLevel(upgradeId: string): number
+	local cached = minBarnCache[upgradeId]
+	if cached then
+		return cached
+	end
+	minBarnCache[upgradeId] = 1 -- döngüye karşı
+	local level = 1
+	local upgrade = Config.getUpgrade(upgradeId)
+	if upgrade then
+		for _, requiredId in upgrade.requires do
+			local required = Config.getUpgrade(requiredId)
+			if required then
+				level = math.max(level, required.barnLevel or 1, Config.getMinBarnLevel(requiredId))
+			end
+		end
+	end
+	minBarnCache[upgradeId] = level
+	return level
 end
 
 function Config.getExtension(extensionId: string): ExtensionConfig?

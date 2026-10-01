@@ -82,6 +82,24 @@ function Goods.removeGoods(save: PlayerSave, goodId: string, amount: number): bo
 	return true
 end
 
+-- Birden çok ürünü tek adımda düşer ({ [ürün] = adet }); herhangi biri yetmiyorsa hiçbir şey değişmez ve false döner.
+function Goods.removeGoodsBundle(save: PlayerSave, bundle: { [string]: number }): boolean
+	for goodId, amount in bundle do
+		if not Config.GOODS[goodId] or amount ~= amount or amount < 0 or amount % 1 ~= 0 then
+			return false
+		end
+		if Goods.getGoodsAmount(save, goodId) < amount then
+			return false
+		end
+	end
+	for goodId, amount in bundle do
+		if amount > 0 then
+			Goods.removeGoods(save, goodId, amount)
+		end
+	end
+	return true
+end
+
 -- Depodaki bütün ürünlerin para değeri (gösterim ve sipariş ödülü tabanı)
 function Goods.getGoodsWorth(save: PlayerSave): number
 	local total = 0

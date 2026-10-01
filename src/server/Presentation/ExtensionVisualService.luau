@@ -289,6 +289,7 @@ function ExtensionVisualService.apply(plot: Model, save: PlayerSave?)
 		-- Durum değişmediyse yapıyı yeniden kurma: her yenilemede tabela ve balonlar silinip yeniden
 		-- oluşunca ekranda yanıp sönüyordu. Duran hayvan sayısı, kapasite ve ilk dönüş zamanı imzadadır.
 		local price = FarmMath.getUpgradeCost(save, upgrade)
+		local priceText = FarmMath.formatUpgradePrice(save, upgrade)
 		local signature = `{islandUnlocked}|{owned}|{capacity}|{price}`
 		-- Aynı adadaki eklentiler (ör. keçi adası) imzayı ve klasörü paylaşmasın: her birinin kendi alt klasörü var.
 		local root = InstanceUtil.getOrCreateFolder(island, "ExtensionVisuals")
@@ -331,7 +332,7 @@ function ExtensionVisualService.apply(plot: Model, save: PlayerSave?)
 				addCapacityProps(target, surfaceCf, layout, capacity)
 			end
 		else
-			model = IslandSpecialization.buildForSaleSign(target, surfaceCf, extensionId, FarmMath.formatMoney(price))
+			model = IslandSpecialization.buildForSaleSign(target, surfaceCf, extensionId, priceText)
 		end
 		attachPrompts(plot, model, extensionId, upgrade.id, owned, save)
 	end

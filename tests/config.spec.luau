@@ -221,6 +221,113 @@ return function(Config: any, FarmMath: any)
 		end
 		assert(zones >= 1 and goods >= 1 and cash >= 1, `island {islandId} needs a zone, a goods and a cash factory`)
 	end
+
+	-- Ürünle açılış (goodsCost): her temada ve kademede çözülebilir, ahır kapasitesine sığar, karşılanamaz gereksinim (deadlock) yok,
+	-- ürünü satıp açılış almak kâr bırakmaz (ürün yalnızca paranın üstüne gelen küçük bir ek maliyettir).
+	do
+		local settings = Config.DIFFICULTY.goods
+		local function dependsOn(upgradeId: string, ancestorId: string, seen: { [string]: boolean }?): boolean
+			local visited = seen or {}
+			if visited[upgradeId] then
+				return false
+			end
+			visited[upgradeId] = true
+			local upgrade = Config.getUpgrade(upgradeId)
+			for _, requiredId in if upgrade then upgrade.requires else {} do
+				if requiredId == ancestorId or dependsOn(requiredId, ancestorId, visited) then
+					return true
+				end
+			end
+			return false
+		end
+		local withGoods = 0
+		for _, upgrade in Config.UPGRADES do
+			local spec = upgrade.goodsCost
+			if not spec then
+				continue
+			end
+			withGoods += 1
+			assert(spec.step >= 1 and spec.step <= #settings.stepBase, `{upgrade.id}: goodsCost step`)
+			local totalShare = 0
+			for source, share in spec.shares do
+				assert(share > 0, `{upgrade.id}: positive share for {source}`)
+				totalShare += share
+			end
+			assert(totalShare > 0 and totalShare <= 0.25, `{upgrade.id}: goods are a small addition to the money price`)
+			assert(
+				upgrade.kind ~= "level" or upgrade.id:find("_lv1$") ~= nil,
+				`{upgrade.id}: only the first level of a chain asks goods`
+			)
+			local isCenter = false
+			for _, recipe in Config.PRODUCTION_RECIPES do
+				isCenter = isCenter or (recipe.upgradeId == upgrade.id and recipe.output == "goods")
+			end
+			assert(not isCenter, `{upgrade.id}: goods centers must not ask goods (production could never start)`)
+			for themeIndex, theme in Config.THEMES do
+				local farmId = tostring(themeIndex)
+				if not Config.upgradeInTheme(upgrade, farmId) then
+					continue
+				end
+				for source in spec.shares do
+					local goodsId = Config.resolveGoodsSource(farmId, source, Config.getUpgradeIsland(upgrade))
+					assert(goodsId, `theme {theme.id}: {upgrade.id} source {source} resolves to no goods`)
+					-- Üretilebilir olmalı: temada kurulabilen, bu yükseltmenin önünde alınabilen bir ürün merkezi
+					local producible = false
+					for _, recipe in Config.PRODUCTION_RECIPES do
+						local producer = Config.getUpgrade(recipe.upgradeId) :: any
+						if
+							recipe.output == "goods"
+							and recipe.goodsId == goodsId
+							and Config.upgradeInTheme(producer, farmId)
+							and producer.id ~= upgrade.id
+							and not dependsOn(producer.id, upgrade.id)
+							and producer.goodsCost == nil
+						then
+							producible = true
+						end
+					end
+					assert(
+						producible,
+						`theme {theme.id}: {upgrade.id} needs {goodsId}, which nothing can produce before it`
+					)
+				end
+				-- Her kademede miktar tam sayı, en az 1 (Çiftlik 1'in erken adımı hariç) ve ahır kapasitesine sığar
+				local barn = Config.getBarnLevelConfig(Config.getMinBarnLevel(upgrade.id)) or Config.BARN_LEVELS[1]
+				for tier = 1, #Config.DIFFICULTY.tiers do
+					local cost =
+						FarmMath.getGoodsCost({ tier = tier, farmId = farmId, activeMainFarmId = farmId }, upgrade)
+					local free = settings.tutorialFree and tier == 1 and spec.step <= 1
+					assert(
+						(next(cost) == nil) == free,
+						`{upgrade.id} theme {theme.id} tier {tier}: free only in the tutorial step`
+					)
+					local worth = 0
+					for goodsId, amount in cost do
+						assert(amount >= 1 and amount % 1 == 0, `{upgrade.id}: whole positive amount`)
+						assert(
+							amount <= math.floor(barn.goodsCap * settings.capShare),
+							`{upgrade.id} theme {theme.id} tier {tier}: {goodsId} x{amount} exceeds the barn capacity at level {barn.level}`
+						)
+						worth += amount * Config.GOODS[goodsId].value
+					end
+					-- Ürünü satıp açılış almak kâr bırakmaz: gereken ürünün satış değeri paranın yanında küçük kalır
+					assert(
+						worth * Config.GOODS_SELL.rate
+							< FarmMath.getUpgradeCost(
+								{ tier = tier, farmId = farmId, activeMainFarmId = farmId, purchased = {} },
+								upgrade
+							),
+						`{upgrade.id} theme {theme.id} tier {tier}: goods sell worth stays below the money price`
+					)
+				end
+			end
+		end
+		assert(withGoods >= 8, "several unlocks ask goods")
+		assert(
+			Config.GOODS_BARTER.rate <= Config.GOODS_SELL.rate,
+			"bartering never beats selling the goods (no sell-then-buy arbitrage)"
+		)
+	end
 	for extensionId, extension in Config.EXTENSIONS do
 		assert(Config.ANIMALS[extension.animalId], `extension {extensionId} uses unknown animal`)
 		assert(Config.ZONES[extension.sourceZoneId], `extension {extensionId} uses unknown source zone`)

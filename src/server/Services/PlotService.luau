@@ -310,7 +310,7 @@ local function applyZoneState(plot: Model, data: PlayerSave?)
 			setZoneLabel(zone, zoneName, "🔒", true)
 		else
 			local upgrade = Config.getZoneUpgrade(zoneId)
-			local price = if upgrade then ` · {FarmMath.formatMoney(FarmMath.getUpgradeCost(data, upgrade))}` else ""
+			local price = if upgrade then ` · {FarmMath.formatUpgradePrice(data, upgrade)}` else ""
 			setZoneLabel(zone, `{zoneName}{price}`, "🔒", true)
 		end
 	end
@@ -371,7 +371,7 @@ local function applyIslandState(plot: Model, data: PlayerSave?)
 		if unlocked then
 			WorldUi.setTag(label, islandConfig.displayName, islandConfig.icon, UiTheme.Color.Gold)
 		else
-			local price = if upgrade then ` · {FarmMath.formatMoney(FarmMath.getUpgradeCost(data, upgrade))}` else ""
+			local price = if upgrade then ` · {FarmMath.formatUpgradePrice(data, upgrade)}` else ""
 			WorldUi.setTag(label, `{islandConfig.displayName}{price}`, "🔒", UiTheme.Color.Red)
 		end
 
@@ -392,8 +392,7 @@ local function applyIslandState(plot: Model, data: PlayerSave?)
 				-- Görünürlüğü client (IslandPrompts) belirler: sadece sahibine ve kilitliyse
 				prompt:SetAttribute("Locked", not unlocked)
 				if upgrade then
-					prompt.ObjectText =
-						`{islandConfig.displayName} · {FarmMath.formatMoney(FarmMath.getUpgradeCost(data, upgrade))}`
+					prompt.ObjectText = `{islandConfig.displayName} · {FarmMath.formatUpgradePrice(data, upgrade)}`
 				end
 			end
 		end

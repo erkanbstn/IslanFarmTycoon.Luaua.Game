@@ -499,12 +499,22 @@ function PlayerDataService.addRefund(player: Player, amount: number, reason: str
 	end
 end
 
-function PlayerDataService.trySpend(player: Player, amount: number, reason: string?, sku: string?): boolean
+-- Para (ve isteğe bağlı ürün) harcar. goodsCost verilirse para ve ürün TEK adımda düşer: biri yetmiyorsa hiçbiri düşmez.
+function PlayerDataService.trySpend(
+	player: Player,
+	amount: number,
+	reason: string?,
+	sku: string?,
+	goodsCost: { [string]: number }?
+): boolean
 	if not SessionLock.isFinite(amount) or amount < 0 then
 		return false
 	end
 	local data = PlayerDataService.tryGet(player)
 	if not data or data.cash < amount then
+		return false
+	end
+	if goodsCost ~= nil and next(goodsCost) ~= nil and not FarmMath.removeGoodsBundle(data, goodsCost) then
 		return false
 	end
 	data.cash -= amount

@@ -48,8 +48,17 @@ function UpgradeService.tryBuy(player: Player, upgradeId: unknown): (boolean, st
 	end
 
 	EconomyService.settlePlayer(player)
+	-- Para + ürün tek hesaptan (gösterilen = tahsil edilen); ikisi birlikte düşer, biri yetmezse hiçbiri düşmez.
 	local price = FarmMath.getUpgradeCost(data, upgrade)
-	if not PlayerDataService.trySpend(player, price, "upgrade", upgrade.id) then
+	local goodsCost = FarmMath.getGoodsCost(data, upgrade)
+	if data.cash < price then
+		return false, `Yeterli para yok ({FarmMath.formatMoney(price)})`
+	end
+	local shortfall = FarmMath.getGoodsShortfall(data, goodsCost)
+	if #shortfall > 0 then
+		return false, `Yeterli ürün yok ({FarmMath.formatGoodsShortfall(shortfall)})`
+	end
+	if not PlayerDataService.trySpend(player, price, "upgrade", upgrade.id, goodsCost) then
 		return false, `Yeterli para yok ({FarmMath.formatMoney(price)})`
 	end
 

@@ -5,8 +5,10 @@
 
 local Config = require(script.Parent.Parent.Parent:WaitForChild("Config"))
 local GameTypes = require(script.Parent.Parent.Parent:WaitForChild("GameTypes"))
+local Format = require(script.Parent:WaitForChild("Format"))
 local Core = require(script.Parent:WaitForChild("Core"))
 local Counts = require(script.Parent:WaitForChild("Counts"))
+local Goods = require(script.Parent:WaitForChild("Goods"))
 
 type PlayerSave = GameTypes.PlayerSave
 
@@ -167,6 +169,92 @@ end
 -- Yükseltmenin bu oyuncu için maliyeti (çiftlik çarpanı, ada sırası ve takılı alet indirimi uygulanır; en az 1).
 function Pricing.getUpgradeCost(save: PlayerSave?, upgrade: Config.UpgradeConfig): number
 	return Pricing.getPrice(save, "upgrade", upgrade.id)
+end
+
+export type GoodsCost = { [string]: number }
+export type GoodsShortfall = { goodsId: string, have: number, need: number }
+
+-- Açılışın ürün gereksinimi ({ [ürün] = adet }; yoksa boş tablo). Miktar = temel para fiyatı x pay x adım x kademe çarpanı / ürün birim değeri
+-- (yukarı yuvarlanır, en az 1), ahır kapasitesine sığar (gereken ahır seviyesinin ürün kapasitesinin `goods.capShare` payı). Çiftlik 1'in erken adımı ürün istemez.
+-- Kaynak ürün temaya göre çözülür (Config.resolveGoodsSource); çözülemeyen kaynak atlanır. Gösterim ve tahsilat bu işlevi kullanır.
+function Pricing.getGoodsCost(save: PlayerSave?, upgrade: Config.UpgradeConfig): GoodsCost
+	local result: GoodsCost = {}
+	local spec = upgrade.goodsCost
+	if not spec or not save then
+		return result
+	end
+	local tier = Pricing.getTier(save)
+	local settings = Config.DIFFICULTY.goods
+	if settings.tutorialFree and tier == 1 and spec.step <= 1 then
+		return result
+	end
+	local stepBase = settings.stepBase[math.clamp(spec.step, 1, #settings.stepBase)]
+	local factor = stepBase * (1 + settings.tierGrowth * (tier - 1))
+	local farmId = save.farmId or save.activeMainFarmId
+	local island = Config.getUpgradeIsland(upgrade)
+	local barn = Config.getBarnLevelConfig(Config.getMinBarnLevel(upgrade.id)) or Config.BARN_LEVELS[1]
+	local cap = math.max(1, math.floor(barn.goodsCap * settings.capShare))
+	for source, share in spec.shares do
+		local goodsId = Config.resolveGoodsSource(farmId, source, island)
+		local good = if goodsId then Config.GOODS[goodsId] else nil
+		if goodsId and good then
+			local units = math.max(1, math.ceil(share * upgrade.cost * factor / good.value - 0.000001))
+			result[goodsId] = (result[goodsId] or 0) + units
+		end
+	end
+	for goodsId, amount in result do
+		result[goodsId] = math.min(amount, cap)
+	end
+	return result
+end
+
+-- Ürün gereksiniminin GOODS_ORDER sırasındaki listesi (gösterim)
+function Pricing.listGoodsCost(cost: GoodsCost): { { goodsId: string, amount: number } }
+	local list: { { goodsId: string, amount: number } } = {}
+	for _, goodsId in Config.GOODS_ORDER do
+		local amount = cost[goodsId]
+		if amount and amount > 0 then
+			table.insert(list, { goodsId = goodsId, amount = amount })
+		end
+	end
+	return list
+end
+
+-- Depoda yetmeyen kalemler (boşsa ürün gereksinimi karşılanıyor); save: ahır deposu kök kayıttadır
+function Pricing.getGoodsShortfall(save: PlayerSave, cost: GoodsCost): { GoodsShortfall }
+	local missing: { GoodsShortfall } = {}
+	for _, entry in Pricing.listGoodsCost(cost) do
+		local have = Goods.getGoodsAmount(save, entry.goodsId)
+		if have < entry.amount then
+			table.insert(missing, { goodsId = entry.goodsId, have = have, need = entry.amount })
+		end
+	end
+	return missing
+end
+
+-- "Süt ×2 · Yumurta ×1" (çeviri parçaları " · " ile ayrılır; emoji yok)
+function Pricing.formatGoodsCost(cost: GoodsCost): string
+	local parts: { string } = {}
+	for _, entry in Pricing.listGoodsCost(cost) do
+		table.insert(parts, `{Config.GOODS[entry.goodsId].displayName} ×{entry.amount}`)
+	end
+	return table.concat(parts, " · ")
+end
+
+-- "Süt 2/4 · Yumurta 0/3" (yetmeyen kalemler: eldeki/gereken)
+function Pricing.formatGoodsShortfall(missing: { GoodsShortfall }): string
+	local parts: { string } = {}
+	for _, entry in missing do
+		table.insert(parts, `{Config.GOODS[entry.goodsId].displayName} {entry.have}/{entry.need}`)
+	end
+	return table.concat(parts, " · ")
+end
+
+-- Yükseltmenin gösterilen fiyatı: "$12.4K" ya da ürün de gerekiyorsa "$12.4K · Süt ×2 · Yumurta ×1" (tabela ve buton metni)
+function Pricing.formatUpgradePrice(save: PlayerSave?, upgrade: Config.UpgradeConfig): string
+	local money = Format.formatMoney(Pricing.getUpgradeCost(save, upgrade))
+	local goods = Pricing.formatGoodsCost(Pricing.getGoodsCost(save, upgrade))
+	return if goods == "" then money else `{money} · {goods}`
 end
 
 return Pricing

@@ -91,7 +91,7 @@ function GoalCard.create(stats: Frame, onboarding: Onboarding.Hud): Hud
 		end
 		local step = onboarding.apply(
 			state,
-			cheapest ~= nil and state.cash >= FarmMath.getUpgradeCost(state, cheapest),
+			cheapest ~= nil and HudCommon.upgradeAffordable(state, cheapest),
 			if cheapest then cheapest.id else nil
 		)
 		if step == 2 then
@@ -104,7 +104,7 @@ function GoalCard.create(stats: Frame, onboarding: Onboarding.Hud): Hud
 			goalLabel.Text = `İlk yükseltme: {cheapest.displayName} · {FarmMath.formatMoney(
 				FarmMath.getUpgradeCost(state, cheapest)
 			)}`
-			goalDetail.Text = purchaseHint(state, FarmMath.getUpgradeCost(state, cheapest), income)
+			goalDetail.Text = purchaseHint(state, FarmMath.getUpgradeCost(state, cheapest), income, cheapest)
 			return
 		elseif step == 4 then
 			goalTitle.Text = "İLK ADIMLAR 4/6"
@@ -170,7 +170,7 @@ function GoalCard.create(stats: Frame, onboarding: Onboarding.Hud): Hud
 		if best then
 			goalLabel.Text = `{best.displayName} · {FarmMath.formatMoney(FarmMath.getUpgradeCost(state, best))}`
 			local bestCost = FarmMath.getUpgradeCost(state, best)
-			goalDetail.Text = purchaseHint(state, bestCost, income)
+			goalDetail.Text = purchaseHint(state, bestCost, income, best)
 			-- Büyük hedef için biriktirirken parası yetenin küçük bir geliştirme (hedefin yarısından ucuz) varsa önerilir
 			if state.cash < bestCost then
 				local quickLabel: string? = nil
@@ -266,7 +266,7 @@ function GoalCard.create(stats: Frame, onboarding: Onboarding.Hud): Hud
 		local status, missing = FarmMath.getUpgradeStatus(state, upgrade.id)
 		islandEta.Text = if status == "locked"
 			then `Önce: {table.concat(missing, ", ")}`
-			else purchaseHint(state, FarmMath.getUpgradeCost(state, upgrade), income)
+			else purchaseHint(state, FarmMath.getUpgradeCost(state, upgrade), income, upgrade)
 	end
 
 	-- Bekleyen işler: hedef kartının altında, o an yapılabilecek kısa işler (durumdan türetilir; iş bitince satır kaybolur)
