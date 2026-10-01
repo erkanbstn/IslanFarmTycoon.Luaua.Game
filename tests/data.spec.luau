@@ -75,7 +75,7 @@ return function(lock: any, codec: any, config: any, farmMath: any)
 	local second = assert(codec.decode(encoded, config, farmMath, now, uid))
 	assert(second.cash == normalized.cash and #second.animals == #normalized.animals, "migration must be idempotent")
 	assert(normalized.tier == 1 and second.tier == 1, "single-farm saves are tier 1")
-	-- Çiftlik alım sırası (tier): kayıtla gidip gelir; eski çok çiftlikli kayıtta numara sırasına göre atanır; bozuk değer 1'e iner
+	-- Çiftlik alım sırası (tier): kayıtla gidip gelir; eski çok çiftlikli kayıtta eksik tier 1 olur; bozuk değer 1'e iner
 	do
 		local farms = codec.encode(save, now)
 		farms.mainFarms["3"] = table.clone(farms.mainFarms["1"])
@@ -84,11 +84,27 @@ return function(lock: any, codec: any, config: any, farmMath: any)
 		farms.mainFarms["5"].tier = nil
 		local loaded = assert(codec.decode(farms, config, farmMath, now, uid))
 		assert(loaded.mainFarms["3"].tier == 2, "saved tier must load")
-		assert(loaded.mainFarms["5"].tier == 3, "missing tier is assigned by farm number order")
+		assert(loaded.mainFarms["5"].tier == 1, "a legacy farm without tier stays x1 (no retroactive price increase)")
 		assert(codec.encode(loaded, now).mainFarms["3"].tier == 2, "tier must survive saves")
 		farms.mainFarms["3"].tier = 0 / 0
 		local broken = assert(codec.decode(farms, config, farmMath, now, uid))
 		assert(broken.mainFarms["3"].tier == 1, "non-finite tier falls back to 1")
+		-- Eski çok çiftlikli kayıt (hiç tier yok): hepsi 1; bozuk tier 1. çiftlikte ve çiftlik sayısının üstünde sınırlanır
+		local legacy = codec.encode(save, now)
+		legacy.mainFarms["2"] = table.clone(legacy.mainFarms["1"])
+		legacy.mainFarms["3"] = table.clone(legacy.mainFarms["1"])
+		for _, farm in legacy.mainFarms do
+			farm.tier = nil
+		end
+		local migrated = assert(codec.decode(legacy, config, farmMath, now, uid))
+		for id, farm in migrated.mainFarms do
+			assert(farm.tier == 1, `legacy farm {id} must stay tier 1`)
+		end
+		legacy.mainFarms["1"].tier = 6
+		legacy.mainFarms["2"].tier = 6
+		local clamped = assert(codec.decode(legacy, config, farmMath, now, uid))
+		assert(clamped.mainFarms["1"].tier == 1, "farm 1 is always tier 1")
+		assert(clamped.mainFarms["2"].tier <= 3, "tier cannot exceed the farm count")
 	end
 	assert(codec.decode({ version = 999 }, config, farmMath, now, uid) == nil, "future save schema must fail closed")
 	assert(

@@ -726,6 +726,22 @@ return function(FarmMath: any, Config: any, Environment: any)
 		)
 		second.tier = 3
 		assert(FarmMath.getFarmCostMultiplier(second) == 1 + 2 * Config.FARM_COST_STEP, "multiplier grows per farm")
+		-- Al-sat hiçbir çiftlikte kâr bırakmaz: satış, aynı çiftliğin tier'ıyla aynı çarpanı kullanır
+		for tier = 1, Config.MAIN_FARM_LIMIT do
+			local farm = saveAt(start)
+			farm.tier = tier
+			for _, animalId in { "cow", "chicken" } do
+				for n = 1, 4 do
+					local paid = FarmMath.getAnimalPrice(farm, animalId)
+					table.insert(
+						farm.animals,
+						{ uid = `s-{animalId}-{tier}-{n}`, animalId = animalId, zoneId = "starter", bornAt = 0 }
+					)
+					local refund = FarmMath.getSellPrice(farm, animalId)
+					assert(refund < paid, `buy-then-sell must lose money (tier {tier} {animalId} #{n})`)
+				end
+			end
+		end
 	end
 	-- Gelir dağılımı: toplayıcılı çiftlik her şeyi kasaya yatırır; toplayıcısız park edilmiş çiftlik PARKED_FARM_PAY_RATE kadar
 	do

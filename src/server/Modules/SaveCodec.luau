@@ -518,19 +518,11 @@ function SaveCodec.decode(
 	-- Eski kayıtlarda depo ve sipariş çiftlik içindeydi: hepsi toplanıp hesap düzeyine taşınır
 	local legacyGoods: { [string]: number } = {}
 	local legacyContracts: any = nil
-	-- Eski kayıtlarda alım sırası yoktu: numara sırasına göre atanır (1, 2, 3...)
-	local legacyTier: { [string]: number } = {}
-	do
-		local legacyIds = {}
-		for id in source.mainFarms do
-			table.insert(legacyIds, id)
-		end
-		table.sort(legacyIds, function(a: any, b: any): boolean
-			return (tonumber(a) or 0) < (tonumber(b) or 0)
-		end)
-		for rank, id in legacyIds do
-			legacyTier[id] = rank
-		end
+	-- Eski kayıtlarda alım sırası yoktu: eksik tier = 1 (var olan çiftliklerin fiyatı geriye dönük artmaz).
+	-- Yalnızca bundan sonra satın alınan çiftlik sıradaki tier'ı alır (MainFarmService). tier çiftlik sayısını aşamaz.
+	local farmTotal = 0
+	for _ in source.mainFarms do
+		farmTotal += 1
 	end
 	for id, rawFarm in source.mainFarms do
 		count += 1
@@ -548,8 +540,10 @@ function SaveCodec.decode(
 		end
 		local farmInput = table.clone(rawFarm)
 		farmInput.farmId = id
-		if farmInput.tier == nil then
-			farmInput.tier = legacyTier[id]
+		if id == "1" then
+			farmInput.tier = 1 -- ilk çiftlik her zaman x1
+		elseif SessionLock.isFinite(farmInput.tier) then
+			farmInput.tier = math.min(farmInput.tier, math.max(farmTotal, 1))
 		end
 		farmInput.cash = 0 -- Cüzdan sadece kök kayıttan gelir; taşıma iadeleri ayrıca eklenir.
 		local farm, earned, err, repairs, grown = decodeFarm(farmInput, config, farmMath, now, newUid)
