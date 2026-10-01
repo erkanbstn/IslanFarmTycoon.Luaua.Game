@@ -142,16 +142,28 @@ end)
 ---------------------------------------------------------------------------
 
 local updateStore = StoreSection.create(storeWindow.list)
-local updateRewardsSection = RewardsSection.create(rewardsWindow.list, menu.setRewardsBadge)
+local updateRewardsSection, updateRewardsBadge = RewardsSection.create(rewardsWindow.list, menu.setRewardsBadge)
+-- Kapalı pencerenin içeriği çizilmez (açılınca `redraw` tazeler); yalnızca Ödüller rozet sayısı güncel tutulur.
 local function updateRewards(state: PlayerSave?)
 	if not state then
 		return
 	end
-	updateStore(state)
-	updateRewardsSection(state)
+	if storeWindow.isOpen() then
+		updateStore(state)
+	end
+	if rewardsWindow.isOpen() then
+		updateRewardsSection(state)
+	else
+		updateRewardsBadge(state)
+	end
 end
 
-local updateBoard = BoardSection.create(boardWindow.list)
+local updateBoardSection = BoardSection.create(boardWindow.list)
+local function updateBoard(state: PlayerSave?)
+	if boardWindow.isOpen() then
+		updateBoardSection(state)
+	end
+end
 
 menu.homeButton.Activated:Connect(function()
 	Remotes.get("RequestGoHome"):FireServer()
@@ -294,6 +306,7 @@ task.spawn(function()
 		seasonBar.update()
 		merchantNotice(ClientState.get())
 		menu.updateProductionBadge(ClientState.get())
+		-- Geri sayımlar ve zamanla açılan ödüller için; kapalı pencerede yalnızca rozet
 		updateRewards(ClientState.get())
 		updateBoard(ClientState.get())
 		task.wait(1)
@@ -316,8 +329,8 @@ local function onState(state: PlayerSave, structural: boolean)
 	goal.updateGoal(state, income)
 	menu.updateVisibility(state)
 	celebrate(state)
-	updateRewards(state)
-	updateBoard(state)
+	updateRewards(state) -- pencere kapalıyken yalnızca rozet sayısı
+	updateBoard(state) -- yalnızca açıkken
 	if itemShop.window.isOpen() then
 		itemShop.update(state)
 	end
@@ -351,6 +364,13 @@ local function redraw()
 	if state then
 		onState(state, true)
 	end
+end
+for _, window in { rewardsWindow, boardWindow, storeWindow } do
+	window.frame:GetPropertyChangedSignal("Visible"):Connect(function()
+		if window.isOpen() then
+			redraw()
+		end
+	end)
 end
 itemShop.window.frame:GetPropertyChangedSignal("Visible"):Connect(function()
 	if itemShop.window.isOpen() then

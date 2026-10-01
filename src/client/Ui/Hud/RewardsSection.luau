@@ -17,7 +17,11 @@ type PlayerSave = GameTypes.PlayerSave
 local RewardsSection = {}
 
 -- setRewardsBadge: Ödüller düğmesindeki "alınabilir ödül" rozeti
-function RewardsSection.create(list: Instance, setRewardsBadge: (number) -> ()): (PlayerSave) -> ()
+-- Döner: (tam güncelleme, yalnızca rozet). Pencere kapalıyken yalnızca ikincisi çağrılır.
+function RewardsSection.create(
+	list: Instance,
+	setRewardsBadge: (number) -> ()
+): ((PlayerSave) -> (), (PlayerSave) -> ())
 	local dailyCard = UiKit.card(list, 20, "🎁")
 	UiKit.setText(dailyCard.title, "Günlük ödül")
 	dailyCard.action.Activated:Connect(function()
@@ -107,6 +111,11 @@ function RewardsSection.create(list: Instance, setRewardsBadge: (number) -> ()):
 	end
 
 	local rewardSignature = ""
+	local function updateBadge(state: PlayerSave)
+		local now = Workspace:GetServerTimeNow()
+		local status = Rewards.dailyStatus(state.daily, now)
+		setRewardsBadge(Rewards.claimableCount(state, now) + (if status.canClaim then 1 else 0))
+	end
 	local function updateRewards(state: PlayerSave)
 		local now = Workspace:GetServerTimeNow()
 		updateSeasonal(state, now)
@@ -191,7 +200,7 @@ function RewardsSection.create(list: Instance, setRewardsBadge: (number) -> ()):
 			end
 		end
 	end
-	return updateRewards
+	return updateRewards, updateBadge
 end
 
 return RewardsSection
