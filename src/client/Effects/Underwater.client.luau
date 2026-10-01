@@ -65,6 +65,23 @@ volume.Transparency = 1
 volume.Size = Vector3.new(30, 1, 30)
 volume.Parent = folder
 
+-- Baloncuğun yaşam süresi su yüzeyine kalan mesafeye sığdırılır (s = v*t + a*t^2/2 denkleminden): baloncuk suyun dışına çıkmaz.
+local function lifetimeToSurface(depth: number, speed: number, acceleration: number): number
+	if depth <= 0.1 then
+		return 0.05
+	end
+	local half = acceleration / 2
+	local seconds = if half > 0
+		then (-speed + math.sqrt(speed * speed + 4 * half * depth)) / (2 * half)
+		else depth / speed
+	return math.max(seconds, 0.05)
+end
+
+local function fitLifetime(emitter: ParticleEmitter, depth: number, speed: number, acceleration: number)
+	local seconds = lifetimeToSurface(depth, speed, acceleration)
+	emitter.Lifetime = NumberRange.new(seconds * 0.6, seconds)
+end
+
 local function newBubbleEmitter(parent: Instance): ParticleEmitter
 	local emitter = Instance.new("ParticleEmitter")
 	emitter.Name = "Bubbles"
@@ -128,18 +145,20 @@ local function splash(position: Vector3)
 	Debris:AddItem(anchor, 2)
 end
 
-local function bubbleBurst(root: BasePart)
-	local found = root:FindFirstChild("EntryBubbles")
+local function bubbleBurst(head: BasePart, depth: number)
+	local found = head:FindFirstChild("EntryBubbles")
 	local emitter: ParticleEmitter
 	if found and found:IsA("ParticleEmitter") then
 		emitter = found
 	else
-		emitter = newBubbleEmitter(root)
+		emitter = newBubbleEmitter(head)
 		emitter.Name = "EntryBubbles"
-		emitter.Speed = NumberRange.new(2, 5)
-		emitter.SpreadAngle = Vector2.new(40, 40)
+		emitter.Speed = NumberRange.new(1.5, 2.5)
+		emitter.SpreadAngle = Vector2.new(25, 25)
+		emitter.Acceleration = Vector3.zero
 		emitter.Enabled = true -- Enabled true, Rate 0: yalnızca Emit ile salınır
 	end
+	fitLifetime(emitter, depth - 0.2, 2, 0)
 	emitter:Emit(budget().burst)
 end
 
@@ -154,8 +173,8 @@ local function swimEmitter(character: Model): ParticleEmitter?
 	end
 	local emitter = newBubbleEmitter(head)
 	emitter.Name = "SwimBubbles"
-	emitter.Speed = NumberRange.new(1, 2)
-	emitter.Lifetime = NumberRange.new(1.5, 2.5)
+	emitter.Speed = NumberRange.new(1.2, 1.8)
+	emitter.Acceleration = Vector3.zero
 	emitter.Enabled = true
 	return emitter
 end
@@ -233,6 +252,7 @@ local function refreshVents(cameraPosition: Vector3)
 				used += 1
 				ventAnchors[used].Position = hit.Position + Vector3.new(0, 0.3, 0)
 				ventEmitters[used].Rate = 5
+				fitLifetime(ventEmitters[used], WATER_LEVEL - hit.Position.Y - 0.3, 4, 0.8)
 			end
 		end
 	end
@@ -273,6 +293,7 @@ end
 local strength = 0 -- 0 = su üstü, 1 = tam su altı (yumuşak geçiş)
 local submerged = false
 local wasInWater = false
+local wasHeadUnder = false
 local elapsed = 0
 local ventElapsed = 0
 local savedReverb: Enum.ReverbType = SoundService.AmbientReverb
@@ -324,7 +345,12 @@ RunService.RenderStepped:Connect(function(dt: number)
 	end
 	if submerged then
 		volume.CFrame = CFrame.new(position.X, position.Y - 2, position.Z)
-		ambient.Rate = budget().ambient
+		local depth = WATER_LEVEL - (position.Y - 2)
+		-- Kamera yüzeye çok yakınken baloncuk çıkmaz; aksi halde yüzeyde biter
+		ambient.Rate = if depth > 0.6 then budget().ambient else 0
+		if depth > 0.6 then
+			fitLifetime(ambient, depth, 2.25, 1.2)
+		end
 	end
 end)
 
@@ -363,13 +389,23 @@ RunService.Heartbeat:Connect(function(dt: number)
 		if inWater ~= wasInWater then
 			wasInWater = inWater
 			splash(root.Position)
-			if inWater then
-				bubbleBurst(root)
+		end
+		-- Baloncuklar yalnızca baş su yüzeyinin altındayken çıkar ve yüzeye varınca biter
+		local head = character:FindFirstChild("Head")
+		local headDepth = if head and head:IsA("BasePart") then WATER_LEVEL - head.Position.Y else -1
+		local headUnder = headDepth > 0.4
+		if headUnder ~= wasHeadUnder then
+			wasHeadUnder = headUnder
+			if headUnder and head and head:IsA("BasePart") then
+				bubbleBurst(head, headDepth)
 			end
 		end
 		local emitter = swimEmitter(character)
 		if emitter then
-			emitter.Rate = if inWater then budget().swim else 0
+			if headUnder then
+				fitLifetime(emitter, headDepth - 0.2, 1.5, 0)
+			end
+			emitter.Rate = if headUnder then budget().swim else 0
 		end
 		if
 			inWater
@@ -383,6 +419,7 @@ RunService.Heartbeat:Connect(function(dt: number)
 		end
 	else
 		wasInWater = false
+		wasHeadUnder = false
 	end
 end)
 

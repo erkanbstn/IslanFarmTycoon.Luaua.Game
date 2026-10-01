@@ -31,10 +31,11 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 
 	local function hammerLook(headColor: Color3, material: string): Types.ItemLook
 		return {
+			-- Belde: sap sırtın alt kısmında yatay durur (kolun içinden geçmez), baş sağ ucunda
 			attach = "hip",
 			parts = {
-				block({ 0.22, 1.8, 0.22 }, { -1.25, -0.6, 0.55 }, WOOD, "Wood", { 0, 0, 25 }),
-				block({ 1, 0.6, 0.6 }, { -0.9, 0.35, 0.55 }, headColor, material, { 0, 0, 25 }),
+				block({ 1.9, 0.22, 0.22 }, { 0, -0.85, 0.62 }, WOOD, "Wood"),
+				block({ 0.5, 0.75, 0.55 }, { 0.95, -0.85, 0.62 }, headColor, material),
 			},
 		}
 	end
@@ -42,14 +43,15 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		return {
 			attach = "hand",
 			parts = {
-				block({ 0.25, 5, 0.25 }, { 0, 1.8, 0 }, rodColor, "Wood"),
-				ball(1, { 0, 4.6, 0 }, orbColor, "Neon"),
-				block({ 0.7, 0.18, 0.7 }, { 0, 4, 0 }, GOLD, "Metal"),
+				-- Yumruğun içinden geçer: elin altında kısa bir kısım, üstünde sap ve küre
+				block({ 0.25, 5, 0.25 }, { 0, 1.3, 0 }, rodColor, "Wood"),
+				ball(1, { 0, 4.1, 0 }, orbColor, "Neon"),
+				block({ 0.7, 0.18, 0.7 }, { 0, 3.5, 0 }, GOLD, "Metal"),
 			},
 		}
 	end
 	local function charmLook(color: Color3, diameter: number): Types.ItemLook
-		return { attach = "chest", parts = { ball(diameter, { 0, 0.6, -0.95 }, color, "Neon") } }
+		return { attach = "chest", parts = { ball(diameter, { 0, 0.6, -(0.45 + diameter * 0.2) }, color, "Neon") } }
 	end
 
 	local function add(item: Types.ItemConfig)
@@ -63,7 +65,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		displayName = "Bakır Çekiç",
 		icon = "🔨",
 		slot = "tool",
-		price = 60000,
+		price = 150000,
 		effects = { upgradeDiscount = 0.05, expansionDiscount = 0.03 },
 		look = hammerLook(Color3.fromRGB(184, 115, 51), "Metal"),
 	})
@@ -72,7 +74,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		displayName = "Demir Çekiç",
 		icon = "🔨",
 		slot = "tool",
-		price = 250000,
+		price = 600000,
 		effects = { upgradeDiscount = 0.1, expansionDiscount = 0.06, sellBonus = 0.05 },
 		look = hammerLook(Color3.fromRGB(150, 155, 165), "Metal"),
 	})
@@ -81,7 +83,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		displayName = "Altın Çekiç",
 		icon = "🔨",
 		slot = "tool",
-		price = 800000,
+		price = 2000000,
 		effects = { upgradeDiscount = 0.15, expansionDiscount = 0.09, sellBonus = 0.08, facilitySpeed = 0.05 },
 		look = hammerLook(GOLD, "Neon"),
 	})
@@ -90,7 +92,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		displayName = "Elmas Çekiç",
 		icon = "🔨",
 		slot = "tool",
-		price = 2000000,
+		price = 5000000,
 		effects = { upgradeDiscount = 0.2, expansionDiscount = 0.12, sellBonus = 0.12, facilitySpeed = 0.08 },
 		look = hammerLook(Color3.fromRGB(110, 220, 255), "Neon"),
 	})
@@ -333,8 +335,8 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		look = {
 			attach = "back",
 			parts = {
-				block({ 1.6, 2, 0.8 }, { 0, 0.2, 0.9 }, Color3.fromRGB(130, 90, 55), "Fabric"),
-				block({ 1.2, 0.5, 0.9 }, { 0, 1.2, 0.95 }, Color3.fromRGB(100, 70, 45), "Fabric"),
+				block({ 1.6, 2, 0.8 }, { 0, 0.45, 0.9 }, Color3.fromRGB(130, 90, 55), "Fabric"),
+				block({ 1.2, 0.5, 0.9 }, { 0, 1.4, 0.95 }, Color3.fromRGB(100, 70, 45), "Fabric"),
 			},
 		},
 	})
@@ -346,7 +348,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		price = 50000,
 		look = {
 			attach = "back",
-			parts = { block({ 2.2, 3, 0.15 }, { 0, -0.1, 0.85 }, Color3.fromRGB(190, 40, 50), "Fabric", { 8, 0, 0 }) },
+			parts = { block({ 2.2, 3, 0.15 }, { 0, -0.1, 0.62 }, Color3.fromRGB(190, 40, 50), "Fabric", { 6, 0, 0 }) },
 		},
 	})
 	add({
@@ -358,8 +360,8 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		look = {
 			attach = "back",
 			parts = {
-				block({ 0.2, 2.6, 1.6 }, { -1.2, 0.6, 0.95 }, Color3.fromRGB(250, 250, 255), "Neon", { 0, 25, -15 }),
-				block({ 0.2, 2.6, 1.6 }, { 1.2, 0.6, 0.95 }, Color3.fromRGB(250, 250, 255), "Neon", { 0, -25, 15 }),
+				block({ 0.2, 2.6, 1.6 }, { -0.95, 0.6, 0.75 }, Color3.fromRGB(250, 250, 255), "Neon", { 0, 25, -15 }),
+				block({ 0.2, 2.6, 1.6 }, { 0.95, 0.6, 0.75 }, Color3.fromRGB(250, 250, 255), "Neon", { 0, -25, 15 }),
 			},
 		},
 	})
@@ -372,10 +374,10 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		look = {
 			attach = "back",
 			parts = {
-				block({ 0.25, 3.4, 2.2 }, { -1.4, 0.7, 1 }, GOLD, "Neon", { 0, 25, -15 }),
-				block({ 0.25, 3.4, 2.2 }, { 1.4, 0.7, 1 }, GOLD, "Neon", { 0, -25, 15 }),
-				block({ 0.2, 2.2, 1.4 }, { -1.1, 0.2, 0.9 }, Color3.fromRGB(255, 235, 150), "Neon", { 0, 25, -15 }),
-				block({ 0.2, 2.2, 1.4 }, { 1.1, 0.2, 0.9 }, Color3.fromRGB(255, 235, 150), "Neon", { 0, -25, 15 }),
+				block({ 0.25, 3.4, 2.2 }, { -1.15, 0.7, 0.8 }, GOLD, "Neon", { 0, 25, -15 }),
+				block({ 0.25, 3.4, 2.2 }, { 1.15, 0.7, 0.8 }, GOLD, "Neon", { 0, -25, 15 }),
+				block({ 0.2, 2.2, 1.4 }, { -0.95, 0.2, 0.75 }, Color3.fromRGB(255, 235, 150), "Neon", { 0, 25, -15 }),
+				block({ 0.2, 2.2, 1.4 }, { 0.95, 0.2, 0.75 }, Color3.fromRGB(255, 235, 150), "Neon", { 0, -25, 15 }),
 			},
 		},
 	})
@@ -492,9 +494,9 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		look = {
 			attach = "back",
 			parts = {
-				block({ 2.2, 3, 0.12 }, { 0, -0.1, 0.85 }, Color3.fromRGB(80, 150, 70), "Grass", { 8, 0, 0 }),
-				block({ 0.8, 1.1, 0.14 }, { -0.6, 0.9, 0.92 }, Color3.fromRGB(120, 190, 100), "Grass", { 8, 0, 20 }),
-				block({ 0.8, 1.1, 0.14 }, { 0.6, 0.5, 0.92 }, Color3.fromRGB(120, 190, 100), "Grass", { 8, 0, -20 }),
+				block({ 2.2, 3, 0.12 }, { 0, -0.1, 0.62 }, Color3.fromRGB(80, 150, 70), "Grass", { 8, 0, 0 }),
+				block({ 0.8, 1.1, 0.14 }, { -0.6, 0.9, 0.64 }, Color3.fromRGB(120, 190, 100), "Grass", { 8, 0, 20 }),
+				block({ 0.8, 1.1, 0.14 }, { 0.6, 0.5, 0.64 }, Color3.fromRGB(120, 190, 100), "Grass", { 8, 0, -20 }),
 			},
 		},
 	})
@@ -507,11 +509,11 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		look = {
 			attach = "back",
 			parts = {
-				block({ 0.25, 3, 0.12 }, { -1.3, 1, 0.95 }, Color3.fromRGB(40, 170, 160), "Neon", { 0, 0, 35 }),
-				block({ 0.25, 3.4, 0.12 }, { -0.65, 1.3, 0.95 }, Color3.fromRGB(50, 130, 200), "Neon", { 0, 0, 18 }),
-				block({ 0.25, 3.6, 0.12 }, { 0, 1.4, 0.95 }, Color3.fromRGB(60, 200, 130), "Neon"),
-				block({ 0.25, 3.4, 0.12 }, { 0.65, 1.3, 0.95 }, Color3.fromRGB(50, 130, 200), "Neon", { 0, 0, -18 }),
-				block({ 0.25, 3, 0.12 }, { 1.3, 1, 0.95 }, Color3.fromRGB(40, 170, 160), "Neon", { 0, 0, -35 }),
+				block({ 0.25, 3, 0.12 }, { -1.3, 1, 0.66 }, Color3.fromRGB(40, 170, 160), "Neon", { 0, 0, 35 }),
+				block({ 0.25, 3.4, 0.12 }, { -0.65, 1.3, 0.66 }, Color3.fromRGB(50, 130, 200), "Neon", { 0, 0, 18 }),
+				block({ 0.25, 3.6, 0.12 }, { 0, 1.4, 0.66 }, Color3.fromRGB(60, 200, 130), "Neon"),
+				block({ 0.25, 3.4, 0.12 }, { 0.65, 1.3, 0.66 }, Color3.fromRGB(50, 130, 200), "Neon", { 0, 0, -18 }),
+				block({ 0.25, 3, 0.12 }, { 1.3, 1, 0.66 }, Color3.fromRGB(40, 170, 160), "Neon", { 0, 0, -35 }),
 			},
 		},
 	})

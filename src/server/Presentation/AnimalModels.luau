@@ -29,6 +29,22 @@ local function block(model: Model, name: string, size: Vector3, cframe: CFrame, 
 	return p
 end
 
+-- Parlak top göz + küçük ışık yansıması: her hayvanda aynı biçimde okunur (düz, görünmeyen göz kutusu yerine).
+local function eye(model: Model, cframe: CFrame, diameter: number, color: Color3?)
+	local ball = block(model, "Eye", Vector3.one * diameter, cframe, color or Color3.fromRGB(20, 20, 25))
+	ball.Shape = Enum.PartType.Ball
+	ball.Material = Enum.Material.SmoothPlastic
+	local glint = block(
+		model,
+		"EyeGlint",
+		Vector3.one * diameter * 0.32,
+		cframe * CFrame.new(diameter * 0.18, diameter * 0.22, -diameter * 0.36),
+		Color3.fromRGB(255, 255, 255)
+	)
+	glint.Shape = Enum.PartType.Ball
+	glint.Material = Enum.Material.SmoothPlastic
+end
+
 -- Tüm ölçüler s (evre ölçeği) ile çarpılır. Model -Z yönüne (başı) bakar.
 local function buildCow(model: Model, s: number)
 	local white = Color3.fromRGB(222, 221, 214)
@@ -49,13 +65,7 @@ local function buildCow(model: Model, s: number)
 			head.CFrame * CFrame.new(x * 0.7 * s, 1.2 * s, 0.2 * s),
 			Color3.fromRGB(230, 220, 190)
 		)
-		block(
-			model,
-			"Eye",
-			Vector3.new(0.3, 0.3, 0.1) * s,
-			head.CFrame * CFrame.new(x * 0.5 * s, 0.3 * s, -0.91 * s),
-			black
-		)
+		eye(model, head.CFrame * CFrame.new(x * 0.5 * s, 0.3 * s, -0.86 * s), 0.42 * s, black)
 		for _, z in { -1, 1 } do
 			block(
 				model,
@@ -87,13 +97,7 @@ local function buildHorse(model: Model, s: number)
 		block(model, "Head", Vector3.new(1.3, 1.3, 2.6) * s, neck.CFrame * CFrame.new(0, 1.4 * s, -0.8 * s), brown)
 	block(model, "Mane", Vector3.new(0.4, 2.8, 1.5) * s, neck.CFrame * CFrame.new(0, 0.2 * s, 0.5 * s), dark)
 	for _, x in { -1, 1 } do
-		block(
-			model,
-			"Eye",
-			Vector3.new(0.1, 0.3, 0.3) * s,
-			head.CFrame * CFrame.new(x * 0.66 * s, 0.2 * s, -0.4 * s),
-			dark
-		)
+		eye(model, head.CFrame * CFrame.new(x * 0.62 * s, 0.2 * s, -0.4 * s), 0.4 * s, dark)
 		block(
 			model,
 			"Ear",
@@ -135,6 +139,7 @@ local function buildChicken(model: Model, s: number)
 	block(model, "Wattle", Vector3.new(0.2, 0.35, 0.15) * s, head.CFrame * CFrame.new(0, -0.45 * s, -0.45 * s), red)
 	block(model, "TailFeathers", Vector3.new(1, 0.9, 0.5) * s, body.CFrame * CFrame.new(0, 0.4 * s, 1 * s), white)
 	for _, x in { -1, 1 } do
+		eye(model, head.CFrame * CFrame.new(x * 0.38 * s, 0.12 * s, -0.22 * s), 0.26 * s, Color3.fromRGB(20, 20, 25))
 		block(model, "Leg", Vector3.new(0.2 * s, legH, 0.2 * s), CFrame.new(x * 0.35 * s, legH / 2, 0), orange)
 		block(
 			model,
@@ -178,13 +183,7 @@ local function buildGoat(model: Model, s: number)
 			head.CFrame * CFrame.new(x * 0.7 * s, 0.25 * s, 0.1 * s) * CFrame.Angles(0, 0, x * math.rad(-20)),
 			coat
 		)
-		block(
-			model,
-			"Eye",
-			Vector3.new(0.1, 0.2, 0.2) * s,
-			head.CFrame * CFrame.new(x * 0.51 * s, 0.15 * s, -0.35 * s),
-			dark
-		)
+		eye(model, head.CFrame * CFrame.new(x * 0.47 * s, 0.15 * s, -0.35 * s), 0.3 * s, dark)
 		for _, z in { -1, 1 } do
 			block(
 				model,
@@ -224,13 +223,7 @@ local function buildFishModel(model: Model, s: number, back: Color3, belly: Colo
 	bellyMesh.MeshType = Enum.MeshType.Sphere
 	bellyMesh.Parent = bellyPart
 	for _, x in { -1, 1 } do
-		block(
-			model,
-			"Eye",
-			Vector3.new(0.08, 0.14, 0.14) * s,
-			CFrame.new(x * 0.3 * s, 0.1 * s, -length * 0.36 * s),
-			Color3.fromRGB(20, 20, 25)
-		)
+		eye(model, CFrame.new(x * 0.28 * s, 0.1 * s, -length * 0.36 * s), 0.22 * s, Color3.fromRGB(20, 20, 25))
 		block(
 			model,
 			"Fin",
@@ -280,13 +273,7 @@ local function buildDuck(model: Model, s: number)
 		white
 	)
 	for _, x in { -1, 1 } do
-		block(
-			model,
-			"Eye",
-			Vector3.new(0.1, 0.16, 0.16) * s,
-			head.CFrame * CFrame.new(x * 0.44 * s, 0.12 * s, -0.25 * s),
-			dark
-		)
+		eye(model, head.CFrame * CFrame.new(x * 0.4 * s, 0.12 * s, -0.25 * s), 0.26 * s, dark)
 		block(
 			model,
 			"Wing",
@@ -330,13 +317,15 @@ local function buildSheep(model: Model, s: number)
 			head.CFrame * CFrame.new(x * 0.75 * s, 0.25 * s, 0.1 * s) * CFrame.Angles(0, 0, x * math.rad(-25)),
 			face
 		)
-		block(
+		eye(model, head.CFrame * CFrame.new(x * 0.47 * s, 0.15 * s, -0.4 * s), 0.34 * s, Color3.fromRGB(240, 240, 235))
+		local pupil = block(
 			model,
-			"Eye",
-			Vector3.new(0.1, 0.2, 0.2) * s,
-			head.CFrame * CFrame.new(x * 0.51 * s, 0.15 * s, -0.4 * s),
-			Color3.fromRGB(240, 240, 235)
+			"EyePupil",
+			Vector3.one * 0.16 * s,
+			head.CFrame * CFrame.new(x * 0.5 * s, 0.14 * s, -0.5 * s),
+			Color3.fromRGB(20, 20, 25)
 		)
+		pupil.Shape = Enum.PartType.Ball
 		for _, z in { -1, 1 } do
 			block(
 				model,
@@ -375,13 +364,7 @@ local function buildPig(model: Model, s: number)
 			head.CFrame * CFrame.new(x * 0.6 * s, 0.85 * s, 0.1 * s) * CFrame.Angles(math.rad(-25), 0, x * math.rad(20)),
 			darkPink
 		)
-		block(
-			model,
-			"Eye",
-			Vector3.new(0.1, 0.2, 0.2) * s,
-			head.CFrame * CFrame.new(x * 0.76 * s, 0.25 * s, -0.4 * s),
-			dark
-		)
+		eye(model, head.CFrame * CFrame.new(x * 0.72 * s, 0.25 * s, -0.4 * s), 0.34 * s, dark)
 		block(
 			model,
 			"Nostril",

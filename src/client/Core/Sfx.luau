@@ -12,8 +12,8 @@ local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Co
 local player = Players.LocalPlayer
 local DEFAULT_VOLUME = 0.5
 local MIN_GAP = 0.12
--- Bazı sesler daha seyrek çalar: kutlama sesi (yapı belirmesi) art arda çok sayıda yapı kurulsa da 15 saniyede bir çalar
-local NAME_GAPS: { [string]: number } = { build = 15 } -- Aynı ses bu kadar sıklıktan fazla üst üste çalmaz
+-- Bazı sesler daha seyrek çalar: kutlama sesi (yapı belirmesi) art arda çok sayıda yapı kurulsa da 30 saniyede bir çalar
+local NAME_GAPS: { [string]: number } = { build = 30 } -- Aynı ses bu kadar sıklıktan fazla üst üste çalmaz
 
 local Sfx = {}
 
