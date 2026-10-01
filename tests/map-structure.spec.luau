@@ -129,6 +129,142 @@ return function(context: any?)
 	mapBuilder.validate()
 	assert(distinct >= 5, "Ana ada yerleşimleri çok benzer; temaya göre en az 5 farklı düzen olmalı.")
 
+	-- Tema şablonu kopyası (Clone + PivotTo) eski yordamsal kurulumla aynı olmalı: aynı adada her tema için ikisini kur, karşılaştır.
+	-- Plot1 şablonla aynı çerçevede olduğundan birebir (konumlar dahil); diğer ada döndürülmüş çerçeveyi (PivotTo + öznitelik taşıma) sınar.
+	assert(mapBuilder.applyThemeProcedural ~= nil, "MapBuilder.applyThemeProcedural referans kurulumu eksik.")
+	local POSITION_TOLERANCE = 0.05
+	local function isThemeZone(zone: Instance): boolean
+		local zoneConfig = Config.ZONES[zone:GetAttribute("ZoneId") :: string]
+		return zoneConfig ~= nil and zoneConfig.island ~= "home"
+	end
+	-- Tema içeriğinin özeti: sınıf:ad sayıları, parça sayısı ve yolu tekil olan örneklerin sınıf/öznitelik/konumu (adaya göre yerel)
+	local function snapshot(plot: Model)
+		local frame = plot:GetAttribute("HomeFrame") :: CFrame
+		local roots: { Instance } = {}
+		for _, name in { "BuildSpots", "Decor", "Islands" } do
+			table.insert(roots, plot:FindFirstChild(name) :: Instance)
+		end
+		for _, zone in (plot:FindFirstChild("Zones") :: Folder):GetChildren() do
+			if isThemeZone(zone) then
+				table.insert(roots, zone)
+			end
+		end
+		local counts: { [string]: number } = {}
+		local byPath: { [string]: any } = {}
+		local paths: { [string]: number } = {}
+		local parts = 0
+		local function visit(instance: Instance)
+			local path = string.sub(instance:GetFullName(), #plot:GetFullName() + 2)
+			local key = `{instance.ClassName}:{instance.Name}`
+			counts[key] = (counts[key] or 0) + 1
+			paths[path] = (paths[path] or 0) + 1
+			local entry: any = { class = instance.ClassName, attributes = instance:GetAttributes() }
+			if instance:IsA("BasePart") then
+				parts += 1
+				entry.position = frame:PointToObjectSpace(instance.Position)
+				entry.size = instance.Size
+				entry.canQuery = instance.CanQuery
+				entry.castShadow = instance.CastShadow
+			end
+			byPath[path] = entry
+		end
+		for _, root in roots do
+			visit(root)
+			for _, descendant in root:GetDescendants() do
+				visit(descendant)
+			end
+		end
+		return { counts = counts, byPath = byPath, paths = paths, parts = parts, frame = frame }
+	end
+	local function sameAttribute(name: string, a: any, b: any, snapA: any, snapB: any): boolean
+		if typeof(a) == "CFrame" and typeof(b) == "CFrame" then
+			local localA, localB = snapA.frame:ToObjectSpace(a), snapB.frame:ToObjectSpace(b)
+			return (localA.Position - localB.Position).Magnitude <= POSITION_TOLERANCE
+		elseif typeof(a) == "Vector3" and typeof(b) == "Vector3" then
+			if name == "PathStart" or name == "PathEnd" then
+				return (snapA.frame:PointToObjectSpace(a) - snapB.frame:PointToObjectSpace(b)).Magnitude
+					<= POSITION_TOLERANCE
+			end
+			return (a - b).Magnitude <= POSITION_TOLERANCE
+		end
+		return a == b
+	end
+	local function compareThemes(plot: Model, themeIndex: number, exact: boolean)
+		local label = `{plot.Name} tema {themeIndex}`
+		local stamped = snapshot(plot) -- şablon kopyası (çağıran applyTheme'i çalıştırdı)
+		mapBuilder.applyThemeProcedural(plot, themeIndex)
+		local reference = snapshot(plot)
+		assert(
+			math.abs(stamped.parts - reference.parts) <= (if exact then 0 else math.ceil(reference.parts * 0.03)),
+			`{label}: parça sayısı farklı ({stamped.parts} / {reference.parts}).`
+		)
+		for key, count in reference.counts do
+			local other = stamped.counts[key] or 0
+			assert(
+				if exact then other == count else math.abs(other - count) <= math.max(2, math.ceil(count * 0.1)),
+				`{label}: {key} sayısı farklı ({other} / {count}).`
+			)
+		end
+		for key in stamped.counts do
+			assert(reference.counts[key] ~= nil, `{label}: şablonda fazladan {key}.`)
+		end
+		for path, count in reference.paths do
+			if count ~= 1 then
+				continue
+			end
+			local entryA, entryB = stamped.byPath[path], reference.byPath[path]
+			assert(stamped.paths[path] == 1 and entryA, `{label}: {path} şablon kopyasında yok ya da tekrarlı.`)
+			assert(entryA.class == entryB.class, `{label}: {path} sınıfı farklı.`)
+			for name, value in entryB.attributes do
+				assert(
+					sameAttribute(name, entryA.attributes[name], value, stamped, reference),
+					`{label}: {path} özniteliği '{name}' farklı.`
+				)
+			end
+			for name in entryA.attributes do
+				assert(entryB.attributes[name] ~= nil, `{label}: {path} fazladan öznitelik '{name}'.`)
+			end
+			if entryB.position then
+				assert(
+					(entryA.position - entryB.position).Magnitude <= POSITION_TOLERANCE,
+					`{label}: {path} konumu farklı.`
+				)
+				assert(
+					entryA.size == entryB.size
+						and entryA.canQuery == entryB.canQuery
+						and entryA.castShadow == entryB.castShadow,
+					`{label}: {path} boyut/optimize özellikleri farklı.`
+				)
+			end
+		end
+		for _, name in { "ThemeIndex", "IslandName", "IslandIcon" } do
+			assert(plot:GetAttribute(name) ~= nil, `{label}: plot özniteliği {name} eksik.`)
+		end
+	end
+	for _, plotIndex in { 1, 3 } do
+		local plot = plots:FindFirstChild(`Plot{plotIndex}`) :: Model
+		assert(plot, `Plot{plotIndex} bulunamadı.`)
+		-- 2..N sonra 1: her adım bir öncekinden farklı tema, böylece applyTheme gerçekten şablon basar
+		local order: { number } = {}
+		for themeIndex = 2, Config.MAIN_FARM_LIMIT do
+			table.insert(order, themeIndex)
+		end
+		table.insert(order, 1)
+		for _, themeIndex in order do
+			assert(
+				mapBuilder.applyTheme(plot, themeIndex),
+				`Plot{plotIndex} tema {themeIndex}: applyTheme değişiklik bildirmeli.`
+			)
+			compareThemes(plot, themeIndex, plotIndex == 1)
+			assert(mapBuilder.applyTheme(plot, themeIndex) == false, "Aynı temaya geçiş bir şey kurmamalı.")
+		end
+		mapBuilder.validate()
+	end
+	-- Şablonlar yalnızca bellekteki test içindi; place'e kaydedilmesin
+	if mapBuilder.clearTemplates then
+		mapBuilder.clearTemplates()
+	end
+
 	-- Harita çevresi: görünmez halka duvar (haritadan ötesine yüzülemez); dağlar Terrain'dedir
 	local rim = (Workspace:FindFirstChild("World") :: Folder):FindFirstChild("MapRim")
 	assert(rim and #rim:GetChildren() >= 48, "MapRim (halka duvar) eksik; Haritayı Kur'u yeniden çalıştır.")

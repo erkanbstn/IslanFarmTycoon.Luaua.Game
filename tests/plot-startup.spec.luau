@@ -9,6 +9,8 @@ return function(createPlotService: any, Config: any)
 		local pushes: { [any]: number } = {}
 		local plots: { any } = {}
 		local themes: { [any]: number } = {}
+		local themeCalls = 0
+		local clears: { [any]: number } = {}
 		for index = 1, Config.MAP_PLOT_COUNT do
 			local plot: any = { Name = `Plot{index}`, attributes = { PlotId = tostring(index) } }
 			function plot:IsA(class: string): boolean
@@ -57,7 +59,9 @@ return function(createPlotService: any, Config: any)
 				assert(not invalidMap, "Injected malformed map")
 			end,
 			applyTheme = function(target: any, themeIndex: number): boolean
+				themeCalls += 1
 				themes[target] = themeIndex
+				target:SetAttribute("ThemeIndex", themeIndex)
 				return true
 			end,
 		}
@@ -91,7 +95,13 @@ return function(createPlotService: any, Config: any)
 				end,
 			},
 			{ applyForPlayer = noop },
-			{ apply = noop },
+			{
+				apply = function(target: any, view: any)
+					if view == nil then
+						clears[target] = (clears[target] or 0) + 1
+					end
+				end,
+			},
 			{ apply = noop },
 			{ apply = noop },
 			{ syncProductionSites = noop, syncMilkLoadingDecor = noop },
@@ -105,6 +115,10 @@ return function(createPlotService: any, Config: any)
 			rendered = rendered,
 			pushes = pushes,
 			themes = themes,
+			clears = clears,
+			themeSwaps = function(): number
+				return themeCalls
+			end,
 			calls = function(): (number, number)
 				return ensureCalls, validateCalls
 			end,
@@ -166,6 +180,7 @@ return function(createPlotService: any, Config: any)
 	local mine, theirs = service.getPlot(alice), service.getPlot(bob)
 	assert(mine ~= nil and theirs ~= nil and mine ~= theirs, "each player gets a different random free plot")
 	assert(service.getFarmId(mine) == "1", "every player starts on farm 1")
+	assert(multi.themeSwaps() == 0, "assigning a plot before the profile loads must not rebuild any theme")
 	local records: any = {}
 	for index = 1, 4 do
 		records[tostring(index)] = {
@@ -226,8 +241,23 @@ return function(createPlotService: any, Config: any)
 	assert(not service.selectMainFarm(alice, "unknown"), "unowned logical farm cannot activate")
 	assert(records["1"].stored == 123 and records["4"].stored == 492, "switching never mutates saved farm contents")
 
+	local swapsBefore = multi.themeSwaps()
 	service.release(alice)
-	assert(service.getOwner(mine) == nil and multi.themes[mine] == 1, "a released plot returns to the base theme")
+	assert(multi.themeSwaps() == swapsBefore, "releasing a plot must not rebuild its theme")
+	assert(service.getOwner(mine) == nil and multi.themes[mine] == 5, "a released plot keeps its theme (no reset)")
+	-- Aynı sahip/çiftlik, yalnızca tema değişiyorsa da sahip görselleri temizlenir (BuyPads/DecorReveal eski temada kalmasın).
+	local carol = player(109)
+	assert(service.assign(carol), "a free plot is available for the theme-change check")
+	local carolPlot = service.getPlot(carol)
+	carolPlot:SetAttribute("ThemeIndex", 3) -- önceki sahibin teması
+	multi.profiles[carol] = { activeMainFarmId = "1", mainFarms = { ["1"] = records["1"] } }
+	local clearsBefore = multi.clears[carolPlot] or 0
+	assert(service.restoreMainFarms(carol, { "1" }, "1"), "restore on the assigned plot")
+	assert(multi.themes[carolPlot] == 1, "restore re-themes a plot left in another owner's theme")
+	assert(multi.clears[carolPlot] == clearsBefore + 1, "a theme change must clear the owner visuals")
+	local clearsAfter = multi.clears[carolPlot]
+	assert(service.restoreMainFarms(carol, { "1" }, "1"), "repeat restore")
+	assert(multi.clears[carolPlot] == clearsAfter, "an unchanged theme must not clear again")
 	local newcomer = player(108)
 	assert(service.assign(newcomer), "a free plot is available again")
 	local received = service.getPlot(newcomer)
