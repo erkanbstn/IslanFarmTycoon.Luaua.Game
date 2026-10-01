@@ -47,15 +47,15 @@ local data = {
 	} :: { [string]: Types.SoundConfig },
 
 	-- Ayarlar'daki üç sürgünün varsayılan düzeyi (0..1): oyuncu hiç değiştirmediyse bunlar geçerlidir.
-	AUDIO_DEFAULTS = { sfx = 0.4, ambience = 0.45, music = 0.4 } :: { [string]: number },
+	AUDIO_DEFAULTS = { sfx = 0.4, ambience = 0.35, music = 0.4 } :: { [string]: number },
 
 	-- Ortam döngüleri (mevsim, hava ve gece): boş kimlik = o katman yok.
 	AMBIENCE = {
-		birds = { id = "rbxassetid://127027242520219", volume = 0.175 }, -- ilkbahar/yaz gündüz
-		wind = { id = "rbxassetid://125057374855022", volume = 0.15 }, -- sonbahar/kış
-		rain = { id = "rbxassetid://132547988358124", volume = 0.225 }, -- yağmur
-		storm = { id = "rbxassetid://92368104922736", volume = 0.25 }, -- fırtına
-		night = { id = "rbxassetid://133269110109074", volume = 0.15 }, -- gece (cırcır böceği)
+		birds = { id = "rbxassetid://127027242520219", volume = 0.1 }, -- ilkbahar/yaz gündüz
+		wind = { id = "rbxassetid://125057374855022", volume = 0.08 }, -- sonbahar/kış
+		rain = { id = "rbxassetid://132547988358124", volume = 0.1 }, -- yağmur
+		storm = { id = "rbxassetid://92368104922736", volume = 0.12 }, -- fırtına
+		night = { id = "rbxassetid://133269110109074", volume = 0.08 }, -- gece (cırcır böceği)
 	} :: { [string]: Types.SoundConfig },
 
 	-- Hayvan sesleri: animalId -> ses. Yakındaki yetişkin hayvan arada bir ses çıkarır.
