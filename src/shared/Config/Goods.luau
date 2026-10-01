@@ -43,6 +43,10 @@ local data = {
 		-- Pahalı üründe satır birimi `unitRefValue / değer` ile küçülür (en az 1): tek satırın değeri ürünler arasında benzer kalır.
 		unitRefValue = 60000,
 		-- Bir satırdaki en çok birim (okunabilirlik)
+		-- Her satırın en az bu kadar adede kadar çıkabilmesi (pahalı üründe de 1-3 arası rastgele); ödül gelir tavanını (aşağıdaki) aşarsa adet düşer
+		minHighUnits = 3,
+		-- Bir siparişin ödülü gelirin en çok bu kadar dakikasıdır (ECONOMY_LIMITS.maxRewardMinutes'tan küçük: test sınırı aşılmaz)
+		rewardCapMinutes = 12,
 		maxLineUnits = 12,
 		tiers = {
 			{

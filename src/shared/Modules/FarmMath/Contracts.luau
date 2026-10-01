@@ -7,6 +7,7 @@ local Config = require(script.Parent.Parent.Parent:WaitForChild("Config"))
 local GameTypes = require(script.Parent.Parent.Parent:WaitForChild("GameTypes"))
 local Core = require(script.Parent:WaitForChild("Core"))
 local Goods = require(script.Parent:WaitForChild("Goods"))
+local Income = require(script.Parent:WaitForChild("Income"))
 
 type PlayerSave = GameTypes.PlayerSave
 
@@ -88,6 +89,28 @@ local function newGenerator(seed: number): () -> number
 	end
 end
 
+-- En çok adet istenen satırdan bir birim düşer; düşecek (adedi 1'den büyük) satır yoksa false.
+local function shrinkLargest(lines: { Line }): boolean
+	local target: Line? = nil
+	for _, line in lines do
+		if
+			line.amount > 1
+			and (
+				target == nil
+				or line.amount * Config.GOODS[line.goodsId].value
+					> target.amount * Config.GOODS[target.goodsId].value
+			)
+		then
+			target = line
+		end
+	end
+	if not target then
+		return false
+	end
+	target.amount -= 1
+	return true
+end
+
 -- O anki pencerenin teklifleri: `slots` kadar (ızgara). Her sıra ağırlıklı rastgele bir kademe seçer, kademenin satır sayısı kadar
 -- farklı ürünü rastgele sıralar ve birim sayısını ± variation oranında oynatır. Hiç ürün merkezi yoksa boş.
 function Contracts.offers(save: PlayerSave, now: number, bonus: number?): { Offer }
@@ -99,6 +122,12 @@ function Contracts.offers(save: PlayerSave, now: number, bonus: number?): { Offe
 	local settings = Config.GOODS_CONTRACTS
 	local window = Contracts.window(now)
 	local cap = Goods.getGoodsCap(save)
+	-- Tek siparişin ödül tavanı (gelirin birkaç dakikası); sınır Config/Economy.luau ECONOMY_LIMITS.maxRewardMinutes ile aynı ölçüdür
+	local rewardCap = Income.computeIncomePerSecond(save, now) * 60 * Config.GOODS_CONTRACTS.rewardCapMinutes
+	-- Gelir her saniye oynar; tavan %25'lik basamaklara yuvarlanır ki panodaki adetler (ve sunucunun teslimde yeniden hesapladığı adetler) titremesin.
+	if rewardCap >= 1 then
+		rewardCap = 1.25 ^ math.floor(math.log(rewardCap, 1.25))
+	end
 	local totalWeight = 0
 	for _, tier in settings.tiers do
 		totalWeight += tier.weight
@@ -123,12 +152,23 @@ function Contracts.offers(save: PlayerSave, now: number, bonus: number?): { Offe
 		end
 		local lines: { Line } = {}
 		for step = 1, math.min(tier.lines, #pool) do
+			-- Miktar [alt, üst] aralığında rastgele bir tam sayıdır (1'den kademe tabanının üst sınırına; üst sınır eskisiyle aynı, ödül/gelir değişmezleri korunur. Pahalı üründe taban zaten 1'dir: değer, gelire göre ölçülü).
+			-- Ödül ürün değeriyle orantılı kaldığından birim başına getiri değişmez; yalnızca istenen adet çeşitlenir.
 			local base = Contracts.baseUnits(tier, pool[step])
-			local amount = math.floor(base * (1 + (random() * 2 - 1) * settings.variation) + 0.5)
+			local low = math.max(1, math.floor(base * (1 - settings.variation)))
+			local high = math.max(low, math.floor(base * (1 + settings.variation) + 0.5), settings.minHighUnits)
+			local amount = low + math.floor(random() * (high - low + 1))
 			table.insert(lines, {
 				goodsId = pool[step],
 				amount = math.clamp(amount, 1, math.min(math.max(cap, 1), settings.maxLineUnits)),
 			})
+		end
+		-- Ödül, o anki gelirin `maxRewardMinutes` dakikasını aşmasın: aşıyorsa en çok istenen satırdan birim düşülür (en az 1).
+		-- Pahalı ürün bu yüzden erken oyunda 1 adet, gelir büyüdükçe 2-3 adet istenir.
+		local rewardBonus = (bonus or 0) + Core.getBonus(save, "contractBonus")
+		local shrinking = true
+		while shrinking and Contracts.reward(totalWorth(lines), tier.rewardFactor, rewardBonus) > rewardCap do
+			shrinking = shrinkLargest(lines)
 		end
 		local worth = totalWorth(lines)
 		table.insert(offers, {
@@ -138,7 +178,7 @@ function Contracts.offers(save: PlayerSave, now: number, bonus: number?): { Offe
 			lines = lines,
 			worth = worth,
 			rewardFactor = tier.rewardFactor,
-			reward = Contracts.reward(worth, tier.rewardFactor, (bonus or 0) + Core.getBonus(save, "contractBonus")),
+			reward = Contracts.reward(worth, tier.rewardFactor, rewardBonus),
 		})
 	end
 	return offers
