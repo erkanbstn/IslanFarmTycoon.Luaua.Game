@@ -81,6 +81,7 @@ Yeni dosya eklerken `docs/MIMARI.md`'deki "Yeni şey nereye?" tablosuna bak.
 ## Harita
 - Harita `src/server/World/MapBuilder.luau` (+ `MapLayout`, `MapParts`, `MapMountains`, `IslandBuilder`, `SatelliteBuilder`, `HubBuilder`) ile üretilir; Studio'da `plugin/` eklentisinin
   "Haritayı Kur" butonuyla düzenleme modunda kurulup place'e kaydedilir.
+- Bina/hayvan modellerini Studio'da (MCP ajanıyla) yapma: `docs/MODEL_SOZLESMESI.md` (kurallar) ve `docs/MODEL_IS_PLANI.md` (iş akışı, pilot). Modeller `ServerStorage.Assets` altına doğrudan değil, repodaki `assets/` dosyasından gelir.
 - Meydandaki satıcı NPC'ler `HubNpcs.luau`, genel ada yapıları `HomeBuildings.luau`. Tabelalar uzun direklere asılır, tahtası çarpışmaz
   (yol kapanmasın); dekor kurulumunun sonunda `WorldDecor.optimize` çağrılır.
 - Place'e kaydedilen düzen değişince `MapBuilder.luau`'daki `MAP_VERSION`'ı artır (çalışma anı `Presentation/` için gerekmez). Temaya bağlı ada içeriği sunucu açılışında `ServerStorage.ThemeTemplates` şablonlarına kurulur,
