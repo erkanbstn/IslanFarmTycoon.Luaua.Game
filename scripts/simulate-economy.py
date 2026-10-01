@@ -23,6 +23,7 @@ from __future__ import annotations
 import argparse
 import importlib.util
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -934,12 +935,15 @@ def main() -> int:
         .replace("__CAP_MULT__", str(args.cap_mult))
         .replace("__SETTINGS__", lua_literal(settings)),
     ]
-    output = ROOT / ".test-build" / "simulate.luau"
+    output = ROOT / ".test-build" / f"simulate-{os.getpid()}.luau"  # paralel koşular birbirinin dosyasını ezmesin
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text("\n".join(pieces), encoding="utf-8")
-    if not args.json:
-        return subprocess.run([executable, str(output)], cwd=ROOT, check=False).returncode
-    result = subprocess.run([executable, str(output)], cwd=ROOT, check=False, capture_output=True)
+    try:
+        if not args.json:
+            return subprocess.run([executable, str(output)], cwd=ROOT, check=False).returncode
+        result = subprocess.run([executable, str(output)], cwd=ROOT, check=False, capture_output=True)
+    finally:
+        output.unlink(missing_ok=True)
     if result.returncode != 0:
         sys.stderr.write(result.stderr.decode("utf-8", errors="replace"))
         sys.stdout.write(result.stdout.decode("utf-8", errors="replace"))
