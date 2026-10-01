@@ -256,7 +256,7 @@ return function(codec: any, config: any, farmMath: any, rules: any, logic: any)
 	local hugeSave = newSave()
 	addAnimal(hugeSave, "cow", "starter")
 	addAnimal(hugeSave, "cow", "starter")
-	local cap = farmMath.getGoodsCap(hugeSave)
+	local hugeCap = farmMath.getGoodsCap(hugeSave)
 	assert(
 		rules.canStart(hugeSave, recipe, hugeMath, now),
 		"an empty barn starts a batch larger than the whole capacity"
@@ -273,12 +273,12 @@ return function(codec: any, config: any, farmMath: any, rules: any, logic: any)
 	}
 	local job: any = { uid = "j", readyAt = now, startedAt = now - 10, forgone = 1e9 }
 	local expectedYield = farmMath.getGoodsYield(hugeSave, recipe, now, job)
-	assert(expectedYield > cap, "the fixture batch exceeds the capacity")
+	assert(expectedYield > hugeCap, "the fixture batch exceeds the capacity")
 	hugeSave.production[recipe.id] = job
 	local reward = logic.claim(hugeSave, hugeSave, recipe, job, now, farmMath, config, hooks)
-	assert(farmMath.getGoodsAmount(hugeSave, "milk") == cap, "the fitting part is stored")
+	assert(farmMath.getGoodsAmount(hugeSave, "milk") == hugeCap, "the fitting part is stored")
 	assert(
-		reward == (expectedYield - cap) * config.GOODS.milk.value and cashed == reward,
+		reward == (expectedYield - hugeCap) * config.GOODS.milk.value and cashed == reward,
 		"the overflow pays goods value x1.0 in cash"
 	)
 	local other = config.PRODUCTION_RECIPES.packed_milk
