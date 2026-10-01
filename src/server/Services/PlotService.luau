@@ -409,6 +409,15 @@ function PlotService.refreshPlayerWorld(player: Player)
 	end
 end
 
+-- Yalnızca tek çiftliğin adasını yeniden çizer (park edilmiş çiftlikte hayvan evresi değişince).
+function PlotService.refreshFarmWorld(player: Player, farmId: string)
+	local plot = ownedOf(player)[farmId]
+	local view = if plot then PlayerDataService.getFarmView(player, farmId) else nil
+	if plot and view then
+		renderFarm(plot, view)
+	end
+end
+
 local function themeOf(farmId: string): number
 	return tonumber(farmId) or 1
 end
