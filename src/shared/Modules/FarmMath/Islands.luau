@@ -22,7 +22,7 @@ end
 -- Yol haritası öğesinin durumu; kilitliyse eksik ön koşulların adları
 -- Yükseltme bu çiftliğin temasında var mı? (Temada olmayan adaların yükseltmeleri hiçbir zaman alınamaz.)
 function Islands.isUpgradeInTheme(save: PlayerSave, upgrade: Config.UpgradeConfig): boolean
-	return Config.themeHasIsland(save.farmId or save.activeMainFarmId, Config.getUpgradeIsland(upgrade))
+	return Config.upgradeInTheme(upgrade, save.farmId or save.activeMainFarmId)
 end
 
 function Islands.getUpgradeStatus(save: PlayerSave, upgradeId: string): (UpgradeStatus, { string })

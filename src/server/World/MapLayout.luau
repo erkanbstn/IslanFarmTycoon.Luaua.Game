@@ -81,6 +81,12 @@ local HOME_BUILD_SPOTS: { [string]: Vector3 } = {
 	-- Ürün merkezleri (depoya ürün üretir): süt merkezi ahırın arkasında; balık merkezi iskelenin yanında (kapısı iskeleye bakar)
 	milk_center = Vector3.new(-20, 0, 56),
 	fish_cannery = Vector3.new(-34, 0, -46),
+	-- Ana ada fabrikaları ana hayvana göre değişir (Config.upgradeInTheme): tavuk/ördek çiftliğinin yuvaları süt yuvalarıyla aynı yerdedir;
+	-- bir çiftlikte yalnızca ana hayvanın fabrikası alınabildiği için üst üste binmezler.
+	egg_packer = Vector3.new(43, 0, -21),
+	duck_packer = Vector3.new(43, 0, -21),
+	egg_home_center = Vector3.new(-20, 0, 56),
+	down_home_center = Vector3.new(-20, 0, 56),
 }
 
 -- Denizdeki bina yerleri (su seviyesinde): Balıkçı Teknesi kafesin dış kenarına bağlanır
@@ -124,6 +130,8 @@ local SATELLITE_TYPES: { [string]: SatelliteType } = {
 	dairy = {
 		groundColor = Color3.fromRGB(104, 168, 84),
 		zone = satelliteZone("dairy", Color3.fromRGB(112, 176, 88), 8),
+		buildSpot = { upgradeId = "dairy_factory", offset = Vector3.new(18, 0, 37) },
+		itemSpot = { upgradeId = "dairy_center", offset = Vector3.new(-18, 0, 37) },
 	},
 	poultry = {
 		groundColor = Color3.fromRGB(150, 165, 80),

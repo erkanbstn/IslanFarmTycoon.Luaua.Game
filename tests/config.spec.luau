@@ -120,6 +120,107 @@ return function(Config: any, FarmMath: any)
 		assert(Config.ANIMALS[recipe.animalId], `recipe {recipeId} uses unknown animal`)
 		assert(Config.FARM_ISLANDS[recipe.island], `recipe {recipeId} uses unknown island`)
 	end
+
+	-- Fabrika x ada x hayvan uyumu (değişmez; yeni hayvan/tema eklenince de koşar, sabit liste yok).
+	-- (i) Çiftliğin temasında bulunan her fabrika yalnızca kendi adasında ve o adada yaşayan hayvanla kurulur.
+	local function islandAnimals(islandId: string, farmId: string): { [string]: boolean }
+		local set: { [string]: boolean } = {}
+		for _, zone in Config.ZONES do
+			if zone.island == islandId then
+				for _, animalId in Config.getZoneAnimals(zone, farmId) do
+					set[animalId] = true
+				end
+			end
+		end
+		return set
+	end
+	local recipeByUpgrade: { [string]: any } = {}
+	for _, recipe in Config.PRODUCTION_RECIPES do
+		assert(not recipeByUpgrade[recipe.upgradeId], `upgrade {recipe.upgradeId} hosts two recipes`)
+		recipeByUpgrade[recipe.upgradeId] = recipe
+	end
+	local recipeLives: { [string]: boolean } = {}
+	for themeIndex, theme in Config.THEMES do
+		local farmId = tostring(themeIndex)
+		local homeGoods, homeCash = 0, 0
+		for _, recipe in Config.PRODUCTION_RECIPES do
+			local upgrade = Config.getUpgrade(recipe.upgradeId)
+			assert(upgrade, `recipe {recipe.id} has no upgrade`)
+			if not Config.upgradeInTheme(upgrade, farmId) then
+				continue
+			end
+			recipeLives[recipe.id] = true
+			assert(
+				Config.getUpgradeIsland(upgrade) == recipe.island,
+				`recipe {recipe.id}: upgrade island differs from recipe island`
+			)
+			local allowed = islandAnimals(recipe.island, farmId)
+			for _, animalId in recipe.animalIds do
+				assert(
+					allowed[animalId],
+					`theme {theme.id}: recipe {recipe.id} uses {animalId}, which does not live on {recipe.island}`
+				)
+			end
+			-- (iv) ana adada ana hayvanın fabrikaları (balık kafesi ayrı); başka kara hayvanının fabrikası kurulamaz
+			if recipe.island == "home" and recipe.animalId ~= "anchovy" and recipe.animalId ~= "seabass" then
+				assert(
+					recipe.animalId == theme.homeAnimal,
+					`theme {theme.id}: home factory {recipe.id} serves {recipe.animalId}, not the home animal {theme.homeAnimal}`
+				)
+				if recipe.output == "goods" then
+					homeGoods += 1
+				elseif FarmMath.petKindFor(recipe) == "cash" then
+					homeCash += 1
+				end
+			end
+		end
+		assert(homeGoods >= 1 and homeCash >= 1, `theme {theme.id}: the home animal needs a goods and a cash factory`)
+		-- Başka temanın ana ada fabrikası bu çiftlikte alınamaz (ör. ördek ana adada süt fabrikası)
+		for _, other in Config.THEMES do
+			if other.homeAnimal ~= theme.homeAnimal then
+				for _, recipe in Config.PRODUCTION_RECIPES do
+					local upgrade = Config.getUpgrade(recipe.upgradeId) :: any
+					if upgrade.homeAnimal == other.homeAnimal then
+						assert(not Config.upgradeInTheme(upgrade, farmId), `{recipe.id} leaks into theme {theme.id}`)
+					end
+				end
+			end
+		end
+	end
+	for recipeId in Config.PRODUCTION_RECIPES do
+		assert(recipeLives[recipeId], `recipe {recipeId} is available in no theme`)
+	end
+	-- (ii) her hayvan türünün en az bir ürün (goods) ve bir para (cash) fabrikası var
+	for _, animalId in Config.ANIMAL_ORDER do
+		local goods, cash = 0, 0
+		for _, recipe in Config.PRODUCTION_RECIPES do
+			if table.find(recipe.animalIds, animalId) then
+				if recipe.output == "goods" then
+					goods += 1
+				elseif FarmMath.petKindFor(recipe) == "cash" then
+					cash += 1
+				end
+			end
+		end
+		assert(goods >= 1 and cash >= 1, `animal {animalId} needs a goods factory and a cash factory`)
+	end
+	-- (iii) her ada türünün (ana ada dahil) bölgesi, ürün merkezi ve para fabrikası var
+	for _, islandId in Config.FARM_ISLAND_ORDER do
+		local zones, goods, cash = 0, 0, 0
+		for _, zone in Config.ZONES do
+			zones += if zone.island == islandId then 1 else 0
+		end
+		for _, recipe in Config.PRODUCTION_RECIPES do
+			if recipe.island == islandId then
+				if recipe.output == "goods" then
+					goods += 1
+				elseif FarmMath.petKindFor(recipe) == "cash" then
+					cash += 1
+				end
+			end
+		end
+		assert(zones >= 1 and goods >= 1 and cash >= 1, `island {islandId} needs a zone, a goods and a cash factory`)
+	end
 	for extensionId, extension in Config.EXTENSIONS do
 		assert(Config.ANIMALS[extension.animalId], `extension {extensionId} uses unknown animal`)
 		assert(Config.ZONES[extension.sourceZoneId], `extension {extensionId} uses unknown source zone`)

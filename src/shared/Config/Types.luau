@@ -208,6 +208,7 @@ export type UpgradeConfig = {
 	autoCollect: boolean?, -- Depo yerine para doğrudan kasaya
 	extensionId: string?, -- kind == "extension" → Config.EXTENSIONS; kind == "level" ile eklenti kapasite yükseltmesi
 	extensionCapacity: number?, -- Eklenti kapasite yükseltmesi: +1 hayvan (kind == "level", extensionId ile)
+	homeAnimal: string?, -- Ana ada fabrikası: yalnızca ana hayvanı (THEMES.homeAnimal) bu olan çiftliklerde vardır (Config.upgradeInTheme)
 }
 
 export type AchievementConfig = {

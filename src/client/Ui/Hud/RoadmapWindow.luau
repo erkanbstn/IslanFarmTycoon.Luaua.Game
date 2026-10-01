@@ -136,6 +136,7 @@ function RoadmapWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Road
 		for _, upgrade in Config.UPGRADES do
 			local card = upgradeCards[upgrade.id]
 			local relevant = IslandContext.upgradeIsland(upgrade) == selectedIsland
+				and FarmMath.isUpgradeInTheme(state, upgrade)
 			card.frame.Visible = relevant
 			if not relevant then
 				continue

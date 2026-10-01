@@ -183,6 +183,7 @@ function UpgradesWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Upg
 		for index, upgrade in Config.UPGRADES do
 			local card = directUpgradeCards[upgrade.id]
 			local relevant = IslandContext.upgradeIsland(upgrade) == selectedIsland
+				and FarmMath.isUpgradeInTheme(state, upgrade)
 			if not relevant then
 				card.frame.Visible = false
 				continue

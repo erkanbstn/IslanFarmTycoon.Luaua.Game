@@ -43,15 +43,23 @@ return function(codec: any, config: any, farmMath: any, rules: any, logic: any)
 				table.find(recipe.animalIds, good.animalId) or table.find(recipe.animalIds, recipe.animalId),
 				`recipe {id} uses the good's animal`
 			)
+			-- Bir hayvan türünün her adada (ana ada dahil) en çok bir ürün merkezi olur; tür ana ada ve kendi adasında ayrı kurulabilir
+			local key = `{recipe.animalId}:{recipe.island}`
+			goodsSpecies[key] = (goodsSpecies[key] or 0) + 1
 			goodsSpecies[recipe.animalId] = (goodsSpecies[recipe.animalId] or 0) + 1
 		else
 			cashSpecies[recipe.animalId] = true
 		end
 	end
 	-- Her hayvan türü için bir para, bir ürün merkezi
-	for _, animalId in { "cow", "chicken", "duck", "horse", "goat", "sheep", "pig", "anchovy" } do
-		assert(cashSpecies[animalId], `{animalId} has a cash center`)
-		assert(goodsSpecies[animalId] == 1, `{animalId} has exactly one goods center`)
+	for _, animalId in config.ANIMAL_ORDER do
+		if animalId ~= "seabass" then -- balık tesisleri hamsi kimliğiyle tanımlıdır (animalIds: hamsi + levrek)
+			assert(cashSpecies[animalId], `{animalId} has a cash center`)
+			assert((goodsSpecies[animalId] or 0) >= 1, `{animalId} has a goods center`)
+		end
+	end
+	for key, count in goodsSpecies do
+		assert(count == 1 or not key:find(":"), `{key} has exactly one goods center on its island`)
 	end
 	for id, good in config.GOODS do
 		assert(

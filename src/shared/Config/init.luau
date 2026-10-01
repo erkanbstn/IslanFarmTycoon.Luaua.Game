@@ -481,6 +481,9 @@ function Config.getUpgradeIsland(upgrade: UpgradeConfig): string
 		silo = "home",
 		milk_machine = "home",
 		milk_factory = "home",
+		egg_packer = "home",
+		duck_packer = "home",
+		dairy_factory = "dairy",
 		fish_farm = "home",
 		fishing_boat = "home",
 		auto_collector = "home",
@@ -499,6 +502,15 @@ function Config.getUpgradeIsland(upgrade: UpgradeConfig): string
 	end
 	local stage = Config.ROADMAP_STAGES[upgrade.stage]
 	return if stage and stage.island then stage.island else "home"
+end
+
+-- Yükseltme bu çiftliğin temasında var mı? Adası temada olmalı; ana ada fabrikalarında (`homeAnimal`) çiftliğin ana hayvanı da eşleşmeli:
+-- ana adada yalnızca ana hayvanın fabrikası kurulur (inek: süt, tavuk: yumurta, ördek: ördek yumurtası).
+function Config.upgradeInTheme(upgrade: UpgradeConfig, farmId: string?): boolean
+	if upgrade.homeAnimal ~= nil and upgrade.homeAnimal ~= Config.getHomeAnimal(farmId) then
+		return false
+	end
+	return Config.themeHasIsland(farmId, Config.getUpgradeIsland(upgrade))
 end
 
 function Config.getExtension(extensionId: string): ExtensionConfig?

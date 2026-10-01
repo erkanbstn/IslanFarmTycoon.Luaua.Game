@@ -228,7 +228,9 @@ local function create(parent: Instance): UiKit.Window
 			local recipe = Config.PRODUCTION_RECIPES[id]
 			local entry = entries[id]
 			local card = entry.card
+			local recipeUpgrade = Config.getUpgrade(recipe.upgradeId)
 			card.frame.Visible = recipe.island == IslandContext.get()
+				and (recipeUpgrade == nil or FarmMath.isUpgradeInTheme(state, recipeUpgrade))
 				and (focusedUpgrade == nil or recipe.upgradeId == focusedUpgrade)
 			card.frame.LayoutOrder = if focused == id then 2 else index + 3
 			entry.keep.Visible = false

@@ -713,7 +713,7 @@ return function(FarmMath: any, Config: any, Environment: any)
 		local farmId = tostring(index)
 		local function inTheme(id: string): boolean
 			local upgrade = Config.getUpgrade(id)
-			return upgrade ~= nil and Config.themeHasIsland(farmId, Config.getUpgradeIsland(upgrade))
+			return upgrade ~= nil and Config.upgradeInTheme(upgrade, farmId)
 		end
 		for _, upgrade in Config.UPGRADES do
 			if inTheme(upgrade.id) then

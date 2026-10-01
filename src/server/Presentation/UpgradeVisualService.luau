@@ -47,6 +47,20 @@ for _, group in { BuildersHome, BuildersBarnyard, BuildersWorkshops, BuildersGoo
 	end
 end
 
+-- Ana hayvana göre değişen ana ada fabrikaları ve Süt Adası fabrikaları mevcut binaların görünümünü paylaşır (yeni görsel: ilgili Builders dosyasına
+-- kendi kurucusunu yazıp buradaki eşlemeyi sil).
+local BUILDER_ALIASES: { [string]: string } = {
+	egg_packer = "egg_factory",
+	duck_packer = "duck_house",
+	egg_home_center = "egg_center",
+	down_home_center = "down_workshop",
+	dairy_factory = "milk_factory",
+	dairy_center = "milk_center",
+}
+for aliasId, sourceId in BUILDER_ALIASES do
+	BUILDERS[aliasId] = BUILDERS[sourceId]
+end
+
 local function cloneAsset(upgradeId: string): Model?
 	local assets = ServerStorage:FindFirstChild("Assets") or ReplicatedStorage:FindFirstChild("Assets")
 	local folder = assets and assets:FindFirstChild("Buildings")
