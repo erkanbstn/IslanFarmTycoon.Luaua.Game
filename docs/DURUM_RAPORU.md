@@ -57,7 +57,7 @@ Durum: Çözüldü / Kısmen / Açık / Bilerek ertelendi. Kanıt: commit ya da 
 | 4.8a Büyük parti çarpanı | Çözüldü | `82566fc` (2,4 → 2,0, `PRODUCTION_MAX_RETURN`, sim "Tesis geri ödeme") | Süt fabrikası 57 dk (bant dışı) |
 | 4.8b Eklenti süresi | Çözüldü | `4e6a335` (360 sn, +%33) | |
 | 4.8c Ürün taşması | Çözüldü | `c409862`, `a1752f1` | |
-| 4.8d Siparişler | Çözüldü | `f04298c`, `b587974`, `9fbeebf` (taban 300 sn, pano 7 dk); sim sipariş payı %12,3 | |
+| 4.8d Siparişler | Çözüldü | `f04298c`, `b587974`, `9fbeebf` (eski gelir tabanı kaldırıldı: ürün değerine bağlı, pano 7 dk); sim sipariş payı %12,3 | |
 | 4.8e Altın hayvan | Çözüldü | `87e0f79` | |
 | 4.8f Elmas çekiç | Çözüldü | `460d08d` | |
 | 4.8g Mevsim "6 yatırım" hedefi | Çözüldü | `779d986` (sipariş teslimi de sayılır; genişletme zaten sayılıyordu) | |
@@ -125,6 +125,25 @@ Durum: Çözüldü / Kısmen / Açık / Bilerek ertelendi. Kanıt: commit ya da 
 | H5 | Görseller: 17 hayvan modeli, 34 bina, 13 ağıl, 13 ada süsü (`IslandLooks`), MAP_VERSION 53 | Yapıldı (Studio'da görülmedi) | `f5a4ea1` | `AnimalModelsSpecies`, `UpgradeBuildersSpecies`, `ZoneBuildersSpecies` |
 | H6 | Çeviriler (en/de/ru/es/pt) ve Config çeviri denetimi | Yapıldı | `838eae9`; `scripts/check-config-locales.py` | Şablonla çevrilen birleşik metinler; `verify.ps1` çalıştırır |
 | H7 | Casual/idle monotonluğu (Q29) ve ada ritmi (Q30) | Yapıldı | `Config/Difficulty.luau` (`tutorialSteps`, `islandPremium`, çarpanlar); `simulate-tiers.py --assert-monotonic` | Sim tabloları §4 |
+
+### Ekonomi denetimi (dal `fix/ekonomi-denetimi`; sipariş ödülü ve parti miktarı)
+Kullanıcı raporu: ahır siparişi 9 süt için $274K, panoda "Süt 41/9". Kök neden: ürün değeri sabit, ama parti miktarı (`getGoodsYield` kaçırılan gelir tabanı) ve sipariş ödülü (`incomeFloor`) oyuncunun anlık gelirine bağlıydı; hiçbir değişmez "bu sayı makul mü"yu denetlemiyordu.
+
+| Ölçüm (tam yükseltilmiş çiftlik, `scripts/audit-economy.py`) | Önce | Sonra |
+|---|---|---|
+| Ürün merkezi parti miktarı (en çok) | 21 birim | 4-6 birim (tavan `PRODUCTION_MAX_BATCH_UNITS`) |
+| Sipariş ödül / ürün değeri (ortanca / en çok) | 240-390 / 830-1070 | 1,25-1,38 / 2,0-2,2 |
+| Sipariş ödülü, gelir dakikası (ortanca / en çok) | 8-9 / 15-17 dk | 0,7-0,9 / 1,7-6,7 dk (orta evre fixture'ında en çok ~14) |
+| Sipariş satırı (en çok) | 30 birim | 6 birim |
+| Süt / Peynir / Et birim değeri | 250 / 5,5K / 9K | 36K / 490K / 750K (değer = asgari parti getirisi x ~13) |
+| Açılış ürünü (Çiftlik 2, toplam birim) | 244 | 23 (değer/para fiyatı %0,8 -> %18; en az 1 birim kuralı) |
+| En pahalı tek kalem (Ç1 / Ç6) | 3,3M / 900M | değişmedi; tavan `DIFFICULTY.tiers[n].maxPrice` |
+
+Sim (7 gün): casual sipariş payı %9,3 -> %8,9, toplam gelir aynı ($1,2 mlr); hardcore payı %19,7 -> ~%12; Çiftlik süreleri `simulate-tiers.py`: ideal birebir (12 / 45 / 114 dk, tüm yükseltmeler 4,6 sa Çiftlik 1; tema 2-6 +-1 dk), casual ve idle üç persona monoton, ~1,4-1,5x/kademe
+(casual Çiftlik 2+ %20-30 uzadı, idle Çiftlik 1 aynı; oturum basamaklı olduğundan +-%5 tutmak mümkün değil).
+Düzeltme: `FarmMath/Contracts.reward` ürün değerine bağlı (gelir tabanı yok), `getGoodsYield` artıları toplar ve sınırlar, ürün değerleri `Config/Goods`+`Species` "DEĞER KURALI"ndan türetildi, hızlı satış/takas oranı küçüldü,
+`Config.ECONOMY_LIMITS` + `tests/goods.spec` "ekonomi değişmezleri" + `audit-economy.py --check` (verify.ps1) korur. Kayıt şeması değişmedi (`SessionLock.VERSION` aynı).
+**Studio'da denenecek:** sipariş panosu (ürün x adet, ödül), üretim kartı "+N" miktarı, Envanter "hızlı satış %2" notu, Pazar takas notu; HUD görünümü değişmedi.
 
 ## 3. Yeni riskler
 
@@ -290,9 +309,9 @@ Birleştirilen kaynaklar: eski ara raporlar ve ikinci tur. `DIFFICULTY.tiers` ç
 | Q14 | Süt fabrikası geri ödemesi 57 dk (bant 25-40) | Küçük nominal artış; telemetri sonrası |
 | Q15 | `data.spec` Pasif Gelir beklentisi sabit ×3 yerine Config'ten türetildi (oran × saat = ×3,0) | Kabul; sıkılaştı |
 | Q16 | `SaveStore` yedek zaman damgası artık arka plan görevi çalışınca basılıyor (aynı saniye) | Kabul |
-| Q17 | Büyük parti çarpanı, sipariş ödül tabanı (`GOODS_CONTRACTS.incomeSeconds`, `floorWeight`, `floorExponent`), satır adedi payı (`capShare`, `maxLineUnits`) ve pano süresi (7 dk) telemetri verisine göre yeniden bakılacak | Gelir verisi gelince |
+| Q17 | Büyük parti çarpanı, sipariş ödül tabanı (ürün değer çarpanı, `unitRefValue`, `maxLineUnits`) ve pano süresi (7 dk) telemetri verisine göre yeniden bakılacak | Gelir verisi gelince |
 | Q18 | Sabah eğrisi saatleri (`Environment.NIGHT_CURVE`: 03:30 şafak, 07:00 tam gündüz) ve halo görünümü (`DayNight` `HALO_*`) uygun mu | Studio'da gör, beğenilmezse eğri noktalarını/halo ölçeğini ayarla |
-| Q19 | Casual ilk gün gelir -%17 kabul mü? Hardcore sipariş +%22 mi | `GOODS_CONTRACTS.incomeSeconds` ile oyna; sim'de kontrol |
+| Q19 | Sipariş ödülü artık ürün değerine bağlı (gelir tabanı yok): casual payı ~%8,9, hardcore ~%12 (eskiden %35). Daha yüksek pay için ürün değer çarpanını (`audit-economy.py` D) büyütmek tek tek siparişi gelirin dakikalarına yaklaştırır | Ürün değer çarpanı ile oyna; sim'de kontrol |
 | Q20 | Takas oranı satışla aynı (0.5) kalsın mı; ürün talep ağırlığı eklensin mi | Aynı kalsın; talep ağırlığı telemetri sonrası |
 | Q21 | Mevcut kayıtlarda yeni uzun büyüme süresi yüzünden yakın alınmış hayvan gençleşebilir; süre arayüzde gösterilsin mi (`getGrowthSeconds` hazır) | Kabul et; göstermek istersen küçük bir iş |
 | Q22 | Tek `PreRender`/`BulkMoveTo` pet döngüsü yapılmadı; düşükte ışınlanma tamamen kalktı | Studio'da kare süresine bak, gerekirse birleştir |

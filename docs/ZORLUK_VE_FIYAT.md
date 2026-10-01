@@ -67,6 +67,24 @@ Amaç: oyuncu önceki adalara/hayvanlara dönüp üretsin, ama uğraşmasın.
   çiftlik doğrulaması, hız sınırı) değişmedi. Arayüz `HudCommon.upgradeVariant/goodsNeedText`: yetmeyen kalem kırmızı, buton `warning`.
 - Hayvan türü açılışı ada/bölge açılışıyla birlikte gelir (her ada kendi türünü açar); hayvan alımı ayrıca ürün istemez (takas `GOODS_BARTER` ile çakışmasın).
 
+## Ürün değeri, parti ve sipariş (uçuk sayı koruması)
+
+Para/ürün akışlarının büyüklüğü tek bir kuralla bağlıdır; "bu sayı makul mü" sorusunu `python scripts/audit-economy.py` (verify: `--check`) ve `tests/goods.spec.luau`
+"ekonomi değişmezleri" yanıtlar (sınırlar `Config.ECONOMY_LIMITS`, kademe fiyat tavanı `DIFFICULTY.tiers[n].maxPrice`).
+
+- **Kök neden (eski)**: ürünün para değeri sabitti, onu üreten ve ödeyen formüller oyuncunun ANLIK gelirine bağlıydı. Parti miktarı `(kaçırılan gelir + başlatma) x MIN_RETURN / değer`
+  tabanıyla gelirle şişiyor (21 birime kadar), sipariş ödülü `max(değer, gelir x 300 sn x ...)` tabanıyla değerin yüzlerce katına çıkıyordu (ödül/değer 240-1000x, satır 30 birim).
+- **Ürün değeri hesapla bulunur** (`Config/Goods.luau` "DEĞER KURALI"): tam yükseltilmiş çiftlikte merkezin asgari parti getirisi x ~9 (`audit-economy.py` bölüm D; testte 6-14 bandı).
+  Böylece taban miktar (2 birim) bile asgari getiriyi aşar; asgari getiri miktarı şişirerek değil değerle sağlanır.
+- **Parti küçüktür**: `FarmMath.getGoodsYield` yetişkin bonusu + tesis verimi + muskayı TOPLAR (çarpmaz), toplam `PRODUCTION_YIELD_MAX_MULT`i, miktar `PRODUCTION_MAX_BATCH_UNITS`i aşamaz.
+  Kaçırılan gelir tabanı kalır ama artık yalnızca bu sınıra kadar yükseltir.
+- **Sipariş ödülü = ürün değeri x kademe çarpanı (1,05-2) x sipariş bonusu**; gelir tabanı kaldırıldı. Satır birimi kademe değeridir (pahalı üründe `unitRefValue / değer` ile küçülür),
+  depo büyüklüğüne ya da gelire bağlı değildir. Sonuç: ödül/değer 1-2,2; ödül ortanca ~0,5-4 dk gelir (en çok ~14 dk, yalnızca orta evre fixture'ında).
+- **Hızlı satış/takas oranı** (`GOODS_SELL/BARTER.rate`) ürün değerinin ölçeğini yansıtır (değer ~13x asgari getiri): bir partiyi satmak `PRODUCTION_MAX_RETURN`ı aşmaz, takas satışı aşmaz.
+- **Ürün merkezi tarifinin `reward` alanı tesis ölçeğidir** (geliştirme fiyatı tabanı); değerden bağımsız olduğundan değer ayarı fiyat temposunu (Çiftlik 1 referansı) bozmaz.
+- **Bilinen denge bedeli**: sipariş payı (casual, 7 gün) ~%9,3'ten ~%8,9'a (değer çarpanı ~13 ile) oturtuldu; hardcore payı ~%20'den düşer. Gelir tabanı kalktığı için pay artık yalnızca değer çarpanıyla ayarlanır; çarpan büyüdükçe
+  tek tek sipariş gelirin dakikalarına yaklaşır (orta evrede en çok ~14 dk): ödün "Açık sorular"dadır (`docs/DURUM_RAPORU.md`).
+
 ## Yeni içerik eklerken
 
 1. Yeni hayvan: `Config/Species.luau` satırı (sıra profilini seç; rakamlar profilden gelir) + `THEMES` + görsel satırları (`docs/ADA_TASARIMI.md`).
