@@ -584,7 +584,7 @@ function PlotService.release(player: Player)
 		connection:Disconnect()
 		characterConnections[player] = nil
 	end
-	player.RespawnLocation = nil
+	(player :: any).RespawnLocation = nil -- Roblox tipi nil kabul etmez; çalışma anında temizlemek geçerlidir
 	local active = activePlots[player]
 	local activeTheme = active and active:GetAttribute("ThemeIndex")
 	if typeof(activeTheme) == "number" then

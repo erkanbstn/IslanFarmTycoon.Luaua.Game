@@ -59,18 +59,20 @@ end
 
 local function buildUpgrade(upgradeId: string, spot: BasePart, parent: Instance)
 	local base = spot.CFrame
-	local model = cloneAsset(upgradeId)
-	if model then
-		model:PivotTo(base)
+	local cloned = cloneAsset(upgradeId)
+	local built: Model
+	if cloned then
+		cloned:PivotTo(base)
+		built = cloned
 	else
 		local builder = BUILDERS[upgradeId]
 		if not builder then
 			return
 		end
-		model = Instance.new("Model")
-		builder(model :: Model, base)
+		local fresh = Instance.new("Model")
+		builder(fresh, base)
+		built = fresh
 	end
-	local built = model :: Model
 	built.Name = upgradeId
 	built:SetAttribute("UpgradeVisualVersion", VISUAL_VERSION)
 	for _, descendant in built:GetDescendants() do

@@ -201,11 +201,9 @@ function SettingsMenu.open(parent: Instance)
 		current.frame:Destroy()
 		current = nil
 	end
-	if not current then
-		current = create(parent)
-		window = current
-	end
-	current.open()
+	local opened = current or create(parent)
+	window = opened
+	opened.open()
 end
 
 return SettingsMenu

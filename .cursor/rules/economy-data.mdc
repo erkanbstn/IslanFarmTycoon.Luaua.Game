@@ -1,6 +1,6 @@
 ---
 description: Oyun dengesi (Config), paylaşılan hesaplar (FarmMath) ve kayıt şeması
-globs: src/shared/Config/**,src/shared/GameTypes.luau,src/shared/Modules/FarmMath/**,src/server/Services/AnimalService.luau,src/server/Services/UpgradeService.luau,src/server/Modules/SaveCodec.luau,src/server/Modules/SessionLock.luau,src/server/Modules/FarmProfiles.luau,src/server/Services/PlayerDataService.luau,src/server/Services/EconomyService.luau
+globs: src/shared/Config/**,src/shared/GameTypes.luau,src/shared/Modules/FarmMath/**,src/server/Services/AnimalService.luau,src/server/Services/UpgradeService.luau,src/server/Modules/SaveCodec/**,src/server/Modules/SessionLock.luau,src/server/Modules/FarmProfiles.luau,src/server/Services/PlayerDataService.luau,src/server/Services/SaveStore.luau,src/server/Services/EconomyService.luau
 alwaysApply: false
 ---
 
@@ -20,8 +20,8 @@ alwaysApply: false
   alana varsayılan, sonlu sayı/üst sınır) → `SaveCodec.encode` → `tests/data.spec.luau`.
 - Şema sürümünü (`version`) artırıyorsan eski sürümden göç yolunu yaz; gelecekteki bilinmeyen
   sürüm reddedilir, bilinmeyen veri varsayılanla ezilmez.
-- DataStore çağrıları yalnızca `PlayerDataService` (oturum kilidi `SessionLock`). Başka servis
-  doğrudan DataStore kullanmaz.
+- DataStore çağrıları yalnızca `Services/SaveStore` (oturum kilidi `SessionLock`); `PlayerDataService` oturum/facade'dır
+  ve SaveStore'u çağırır. Başka servis doğrudan DataStore kullanmaz (`check-architecture.py` denetler).
 
 Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/production specleri).
 
@@ -136,7 +136,7 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
   teslimler sıfırlanır. Arayüz: Sipariş Panosu penceresinin üstünde "Ahır siparişleri" bölümü (`Ui/Hud/BoardSection`), hedef kartında "Ahır siparişi teslime hazır".
   Ahır siparişleri yol haritasından bağımsız açılır (ilk ürün merkezi yeter); "Sipariş teslim" başarımı `save.contracts.completed` sayar. Sayaçlar arayüz ve `Rewards` içindir.
 - **Hayvan görevleri (üretim tesisi ve eklenti)**: `AnimalRecord.task { kind = "production"|"extension", id, startedAt, endsAt }` kaydedilir
-  (`SaveCodec.decodeTask`: bozuk görev atılır, hayvan korunur; çevrimdışıyken biten görev yüklemede temizlenir; eski kalıcı `extensionId` eve döner).
+  (`SaveCodec/Tasks.decodeTask`: bozuk görev atılır, hayvan korunur; çevrimdışıyken biten görev yüklemede temizlenir; eski kalıcı `extensionId` eve döner).
   Görev süresince: **üretim** → hayvan tesiste çalışır, gelir getirmez, görünmez, satılamaz; **eklenti** → `Config.EXTENSIONS[id].incomeBonus` kadar
   bonus, `stayDuration` (360 sn; toplam bonus = `incomeBonus` x `stayDuration` sabit kalsın: 1/3 x 360 = 1 x 120) sonra ana bölgesine döner. Gelir `FarmMath.computeIncomeOverInterval` içinde yalnızca görev penceresiyle kesişen
   kısma uygulanır (`taskMultiplier`: üretim 0, eklenti 1+bonus); anlık gelir `computeIncomePerSecond(save, now)`. Ana bölgedeki yer ayrılı kalır
@@ -147,7 +147,7 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
   `Config.EXTENSION_CAPACITY_UPGRADES` iki `kind="level"` yükseltmesiyle 3 ve 4; `extensionCapacity`). Süre dolumunu `AnimalTaskService` (1 sn'de bir;
   önce gelir kesilir, sonra görev temizlenir, dünya yenilenir) yapar. Bina üstü ilerleme: sunucu `Presentation/JobMarks` ile Model'e `JobKind/JobStartedAt/
   JobEndsAt/JobCount/JobCapacity` yazar ve `JobSite` etiketi koyar; çubuk + yeşil tik `Interaction/JobProgress.client` çizer (üretim bitince tik,
-  teslim alınana kadar). Yeni görev türü eklersen `taskMultiplier`, `SaveCodec.decodeTask`, `AnimalTaskService` ve `tests/tasks.spec.luau`'yu güncelle.
+  teslim alınana kadar). Yeni görev türü eklersen `taskMultiplier`, `SaveCodec/Tasks.decodeTask`, `AnimalTaskService` ve `tests/tasks.spec.luau`'yu güncelle.
 - **Hayvan satışı**: `Config.ANIMAL_SELL_FRACTION`; fiyat `FarmMath.getSellPrice`, satılacak hayvan `FarmMath.findSellableAnimal` (en genç, görevdekiler (tesiste/eklentide) sona, çiftlikte son hayvan satılmaz). Sunucu `AnimalService.trySell` (`RequestSellAnimal`); iade `PlayerDataService.addRefund` (kazanç/başarım sayacına girmez). Pazar kartında "Sat" düğmesi.
 - **Bölge bayrakları**: bölge geliştirme seviyesi başına ön kenarda flama (`ZoneVisualService.applyLevelFlags`, renk = `FarmMath.getBuildLevelKind`).
 - **Hesap düzeyi mi çiftlik düzeyi mi?** Çiftlik başına kalıcı alanlar `FarmProfiles.FIELDS`'tedir (stored, purchased, lineage, expansions, animals, production, ...). Hesap düzeyi alanlar
@@ -171,7 +171,7 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
   Eylem: `RequestProductionAction("auto", tarifId, partiId|"off")`; yardımcısı olmayan çiftlikte reddedilir. Kayıtta `autoRepeat` çiftlik alanıdır; decode yardımcısı olmayan/bilinmeyen girdiyi atar.
   Elle başlatma sırasında tekrar açıksa tekrar edilen parti son elle seçilene güncellenir. Şişirilmiş çıkış yok: parti ödülü her zaman kaçırılan gelirin üstündedir (`returnMultiplier` tabanı).
 
-- **Çevrimdışı kazanç**: sen yokken kazanç her zaman doğrudan kasaya yatar (`SaveCodec.decodeFarm` → `FarmMath.computeOfflineEarnings`); depo (`stored`) çevrimdışıyken dolmaz. Oran ve süre `Config.OFFLINE_EARNING_RATE/OFFLINE_MAX_HOURS`; Pasif Gelir (`offline_income_lv1`, `FarmMath.hasOfflineIncome`) `Config.OFFLINE_UPGRADED_*` değerlerine geçirir (`FarmMath.getOfflineTerms`; eşya/yükseltme `offlineBonus`'u dahil toplam oran `Config.OFFLINE_MAX_TOTAL_RATE` ile sınırlıdır). Sınır depoya değil "saat x gelir"e bağlıdır; `decode` beşinci dönüş değeri sen yokken yetişkin olan hayvan sayısıdır.
+- **Çevrimdışı kazanç**: sen yokken kazanç her zaman doğrudan kasaya yatar (`SaveCodec/Farm.decode` → `FarmMath.computeOfflineEarnings`); depo (`stored`) çevrimdışıyken dolmaz. Oran ve süre `Config.OFFLINE_EARNING_RATE/OFFLINE_MAX_HOURS`; Pasif Gelir (`offline_income_lv1`, `FarmMath.hasOfflineIncome`) `Config.OFFLINE_UPGRADED_*` değerlerine geçirir (`FarmMath.getOfflineTerms`; eşya/yükseltme `offlineBonus`'u dahil toplam oran `Config.OFFLINE_MAX_TOTAL_RATE` ile sınırlıdır). Sınır depoya değil "saat x gelir"e bağlıdır; `decode` beşinci dönüş değeri sen yokken yetişkin olan hayvan sayısıdır.
 
 - **Depo ve toplama dengesi**: Ahır depoları (`BARN_LEVELS[].storageCap`) platformdan uzak duran oyuncunun gelirini silmeyecek büyüklükte olmalı; depo küçükse "AFK platformda dur" en iyi strateji olur. Denge değiştirirken `python scripts/simulate-economy.py --collect 120` (varsayılan) ve `--collect 300` ile 6. saat gelirinin anında toplamaya (`--collect 0`) yakın kaldığını doğrula. Otomatik Toplayıcı fiyatı `UPGRADES` içindeki `auto_collector.cost`; hedefler: ada 15/45/110 dk, ilk çiftlik 4–5 saat, ikinci çiftlik ~600K.
 

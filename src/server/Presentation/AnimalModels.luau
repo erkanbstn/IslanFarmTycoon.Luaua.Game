@@ -419,7 +419,7 @@ local function createAnimalVisual(animalId: string, stage: string): Model
 		return asset
 	end
 	local model = Instance.new("Model")
-	local builder = BUILDERS[animalId] or buildCow
+	local builder: (Model, number) -> () = BUILDERS[animalId] or buildCow
 	builder(model, scale)
 	return model
 end

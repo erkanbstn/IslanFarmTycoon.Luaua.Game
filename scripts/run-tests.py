@@ -89,6 +89,26 @@ def farm_math_bundle() -> str:
     return "".join(["local FarmMath = (function()\n", parts, init, "\nreturn FarmMathInit\nend)()\n"])
 
 
+SAVE_CODEC_PARTS = ["Common", "Goods", "Tasks", "Inventory", "Production", "Animals", "Account", "Farm"]
+
+
+def save_codec_bundle() -> str:
+    """`src/server/Modules/SaveCodec/` klasörünü tek `SaveCodec` yerel değişkeni olarak birleştirir.
+
+    Parçalar SessionLock/Preferences'ı dışarıdan, kendilerinden önceki parçaları sırayla alır; init FarmProfiles'ı dışarıdan alır.
+    """
+    parts = ""
+    for name in SAVE_CODEC_PARTS:
+        path = f"src/server/Modules/SaveCodec/{name}.luau"
+        parts += module(name, path, _declared_dependencies(path))
+    init = module(
+        "SaveCodecInit",
+        "src/server/Modules/SaveCodec/init.luau",
+        _declared_dependencies("src/server/Modules/SaveCodec/init.luau"),
+    )
+    return "".join(["local SaveCodec = (function()\n", parts, init, "\nreturn SaveCodecInit\nend)()\n"])
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--luau", help="Path to the standalone Luau interpreter (not Lua)")
@@ -114,7 +134,7 @@ def main() -> int:
         module("SaveBackup", "src/server/Modules/SaveBackup.luau"),
         module("FarmProfiles", "src/server/Modules/FarmProfiles.luau"),
         module("Preferences", "src/server/Modules/Preferences.luau"),
-        module("SaveCodec", "src/server/Modules/SaveCodec.luau", {"SessionLock", "FarmProfiles", "Preferences"}),
+        save_codec_bundle(),
         module("Rewards", "src/shared/Modules/Rewards.luau", {"Config", "FarmMath"}),
         module("Merchant", "src/shared/Modules/Merchant.luau", {"Config", "FarmMath"}),
         module("merchantSpec", "tests/merchant.spec.luau"),
@@ -136,9 +156,17 @@ def main() -> int:
         module("TelemetryServiceFactory", "src/server/Services/TelemetryService.luau", {"TelemetryLogic", "Metrics"},
                "game, task, os, Enum, Metrics, warn, print"),
         module("telemetrySpec", "tests/telemetry.spec.luau"),
-        module("PlayerDataFactory", "src/server/Services/PlayerDataService.luau",
-               {"Config", "GameTypes", "Remotes", "FarmMath", "SessionLock", "SaveCodec", "FarmProfiles", "Metrics", "SaveBackup", "Preferences", "TelemetryService"},
-               "game, task, Instance, os, Remotes, DateTime, Metrics, warn"),
+        # DataStore katmanı (SaveStore) her fixture'da sahte game/task/os ile kurulur; PlayerDataService onu kullanır.
+        module("SaveStoreFactory", "src/server/Services/SaveStore.luau",
+               {"Config", "SessionLock", "Metrics", "SaveBackup"},
+               "game, task, os, Metrics, warn"),
+        module("PlayerDataFactoryBody", "src/server/Services/PlayerDataService.luau",
+               {"Config", "GameTypes", "Remotes", "FarmMath", "SessionLock", "SaveCodec", "FarmProfiles", "Metrics", "SaveBackup", "Preferences", "TelemetryService", "SaveStore"},
+               "game, task, Instance, os, Remotes, DateTime, Metrics, warn, SaveStore"),
+        "local function PlayerDataFactory(game, task, Instance, os, Remotes, DateTime, Metrics, warn)\n"
+        "\treturn PlayerDataFactoryBody(game, task, Instance, os, Remotes, DateTime, Metrics, warn,\n"
+        "\t\tSaveStoreFactory(game, task, os, Metrics, warn))\n"
+        "end\n",
         module("playerDataSpec", "tests/player-data-service.spec.luau"),
         module("RateLimiterFactory", "src/server/Modules/RateLimiter.luau", factory_args="game, os"),
         module("rateLimiterSpec", "tests/rate-limiter.spec.luau"),
@@ -154,7 +182,7 @@ def main() -> int:
         module("islandTravelSpec", "tests/island-travel.spec.luau"),
         module("AdminPolicy", "src/server/Modules/AdminPolicy.luau"),
         module("AdminServiceFactory", "src/server/Services/AdminService.luau",
-               {"Config", "Remotes", "FarmMath", "PlayerDataService", "EconomyService", "PlotService", "SeasonService", "AdminPolicy", "RateLimiter"},
+               {"Config", "GameTypes", "Remotes", "FarmMath", "PlayerDataService", "EconomyService", "PlotService", "SeasonService", "AdminPolicy", "RateLimiter"},
                "game, Remotes, PlayerDataService, EconomyService, PlotService, FarmMath, SeasonService, RateLimiter"),
         module("adminSpec", "tests/admin.spec.luau"),
         module("SeasonServiceFactory", "src/server/Services/SeasonService.luau",

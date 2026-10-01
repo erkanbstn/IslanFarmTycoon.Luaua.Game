@@ -4,6 +4,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
+local GameTypes = require(Shared:WaitForChild("GameTypes"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 local PlayerDataService = require(script.Parent:WaitForChild("PlayerDataService"))
@@ -62,8 +63,8 @@ local function execute(player: Player, action: string, value: unknown): (boolean
 			return false, "Kayıt oturumu artık etkin değil"
 		end
 		EconomyService.settlePlayer(player) -- takılı eşyaların etkisi değişebilir: geçen süre eski etkiyle kapanır
-		local inventory = if action == "clearItems" then { items = {}, equipped = {}, uses = {} } else data.inventory
-		inventory = inventory or { items = {}, equipped = {}, uses = {} }
+		local inventory: GameTypes.InventoryData = (if action == "clearItems" then nil else data.inventory)
+			or { items = {}, equipped = {}, uses = {} }
 		data.inventory = inventory
 		if action == "grantItems" then
 			for itemId in Config.ITEMS do
@@ -91,7 +92,7 @@ local function execute(player: Player, action: string, value: unknown): (boolean
 		if not data then
 			return false, "Kayıt oturumu artık etkin değil"
 		end
-		local force = data.adminForce or {}
+		local force: { [string]: any } = data.adminForce or {}
 		data.adminForce = force
 		local message = ""
 		if action == "forceMerchant" then

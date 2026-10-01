@@ -994,7 +994,7 @@ def main() -> int:
         module("SessionLock", "src/server/Modules/SessionLock.luau"),
         module("FarmProfiles", "src/server/Modules/FarmProfiles.luau"),
         module("Preferences", "src/server/Modules/Preferences.luau"),
-        module("SaveCodec", "src/server/Modules/SaveCodec.luau", {"SessionLock", "FarmProfiles", "Preferences"}),
+        run_tests.save_codec_bundle(),
         module("ProductionRules", "src/server/Modules/ProductionRules.luau"),
         module("ProductionLogic", "src/server/Modules/ProductionLogic.luau", {"ProductionRules"}),
         module("Rewards", "src/shared/Modules/Rewards.luau", {"Config", "FarmMath"}),

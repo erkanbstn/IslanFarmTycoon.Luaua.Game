@@ -1,10 +1,8 @@
 --!strict
--- Sunucu profili: atomik oturum kilidi, anahtar başına sıralı kayıt ve kontrollü kapanış.
-local DataStoreService = game:GetService("DataStoreService")
+-- Sunucu profili (oturum/facade): oyuncu başına durum, para/durum itme ve kayıt döngüleri. DataStore erişimi
+-- (oturum kilidi, sıralı yazım, yedek, kurtarma) `SaveStore`'dadır.
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local RunService = game:GetService("RunService")
-local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
@@ -16,6 +14,7 @@ local SaveCodec = require(script.Parent.Parent.Modules.SaveCodec)
 local FarmProfiles = require(script.Parent.Parent.Modules.FarmProfiles)
 local Metrics = require(script.Parent.Parent.Modules.Metrics)
 local SaveBackup = require(script.Parent.Parent.Modules.SaveBackup)
+local SaveStore = require(script.Parent.SaveStore)
 local TelemetryService = require(script.Parent.TelemetryService)
 local Preferences = require(script.Parent.Parent.Modules.Preferences)
 
@@ -52,64 +51,17 @@ type Session = {
 }
 
 local PlayerDataService = {}
-local LEASE_SECONDS = 180
-local SAVE_RETRIES = 3
+local LEASE_SECONDS = SaveStore.LEASE_SECONDS
+local SAVE_BUDGET = SaveStore.SAVE_BUDGET
 local QUICK_SAVE_DELAY = 10
-local SAVE_BUDGET = 15
 local CLOSE_BUDGET = 25
-local LOCK_WAIT_SECONDS = 60 -- kilit başka sunucudayken girişte en çok bu kadar beklenir
 local STATE_PUSH_INTERVAL = 0.25 -- oyuncu başına PlayerState en çok bu aralıkla gider
 local FINAL_SAVE_GRACE_SECONDS = 600 -- bırakma yazımı, kira dolduktan sonra da (kilit hâlâ bizse) bu süre denenir
 local sessions: { [Player]: Session } = {}
-local busyKeys: { [string]: boolean } = {}
-local shutdownDeadline: number? = nil
 local initialized = false
-local studio = RunService:IsStudio()
--- API hatası kayıtsız oyuna geçirmez. Bu seçenek yalnızca açıkça seçilmiş Studio testidir.
-local nonpersistent = studio and Workspace:GetAttribute("StudioNonPersistentData") == true
-local store: DataStore? = nil
-if not nonpersistent then
-	local ok, result = pcall(function()
-		return DataStoreService:GetDataStore(Config.DATASTORE_NAME .. (if studio then "_Studio" else ""))
-	end)
-	if ok then
-		store = result
-	else
-		warn(`[Data] StoreInitFailed: {result}`)
-	end
-end
 
 local function keyFor(player: Player): string
-	return `player_{player.UserId}`
-end
-
-local function deadlineAfter(seconds: number): number
-	return math.min(os.clock() + seconds, shutdownDeadline or math.huge)
-end
-
-local function withinDeadline(deadline: number): boolean
-	return os.clock() < math.min(deadline, shutdownDeadline or math.huge)
-end
-
-local function retryWait(deadline: number, seconds: number)
-	local remaining = math.min(deadline, shutdownDeadline or math.huge) - os.clock()
-	if remaining > 0 then
-		task.wait(math.min(seconds, remaining))
-	end
-end
-
-local function lockKey(key: string, deadline: number): boolean
-	while busyKeys[key] do
-		if not withinDeadline(deadline) then
-			return false
-		end
-		task.wait(0.05)
-	end
-	if not withinDeadline(deadline) then
-		return false
-	end
-	busyKeys[key] = true
-	return true
+	return SaveStore.keyFor(player.UserId)
 end
 
 local function status(player: Player, session: Session, state: string, problem: string?)
@@ -148,21 +100,21 @@ end
 local function write(player: Player, session: Session, release: boolean, deadline: number): boolean
 	local key = keyFor(player)
 	local startedAt = os.clock()
-	if not lockKey(key, deadline) then
+	if not SaveStore.lockKey(key, deadline) then
 		return false
 	end
-	if sessions[player] ~= session or not session.data or not store then
-		busyKeys[key] = nil
+	if sessions[player] ~= session or not session.data or not SaveStore.available() then
+		SaveStore.unlockKey(key)
 		return false
 	end
 	if not release and session.status ~= "Active" then
-		busyKeys[key] = nil
+		SaveStore.unlockKey(key)
 		return false
 	end
 	if not session.pending then
 		local encodeOk, payload = pcall(SaveCodec.encode, session.data, DateTime.now().UnixTimestampMillis / 1000)
 		if not encodeOk then
-			busyKeys[key] = nil
+			SaveStore.unlockKey(key)
 			fail(player, session, `Kayıt hazırlanamadı: {payload}`)
 			return false
 		end
@@ -192,101 +144,48 @@ local function write(player: Player, session: Session, release: boolean, deadlin
 		}
 	end
 	local operation = assert(session.pending, "Serialized write operation missing")
-	local token = operation.token
 	local snapshotRevision = operation.packetRevision
-	local success = false
-	local ownershipLost = false
-	local lastError = "Kayıt zaman bütçesi doldu"
-	for attempt = 1, SAVE_RETRIES do
-		if not withinDeadline(deadline) then
-			break
-		end
-		local rejection: string? = nil
-		local ok, result = pcall(function()
-			return (store :: DataStore):UpdateAsync(key, function(current)
-				if not withinDeadline(deadline) then
-					rejection = "Kayıt zaman bütçesi doldu"
-					return nil
+	local outcome = SaveStore.commit(key, player.UserId, session.owner, operation, deadline)
+	if outcome.ok then
+		session.revision = outcome.revision
+		session.savedPacketRevision = snapshotRevision
+		session.leaseExpires = outcome.expiresAt
+		session.pending = nil
+		session.saveFailing = false
+		player:SetAttribute("DataLastSavedAt", os.time())
+		player:SetAttribute("DataDirty", session.packetRevision ~= snapshotRevision)
+		player:SetAttribute("DataError", "")
+		Metrics.increment("SaveSucceeded")
+		Metrics.duration("SaveWrite", os.clock() - startedAt)
+		if SaveBackup.due(os.time(), session.lastBackupAt) then
+			session.lastBackupAt = os.time()
+			session.backupSlot = SaveBackup.nextSlot(session.backupSlot)
+			local slot = session.backupSlot
+			task.spawn(function()
+				local written, stampedAt = SaveStore.writeBackup(key, player.UserId, slot, operation.payload)
+				if written then
+					player:SetAttribute("DataBackupAt", stampedAt)
 				end
-				local nextValue, problem = SessionLock.commit(
-					current,
-					session.owner,
-					operation.revision,
-					token,
-					operation.payload,
-					os.time(),
-					LEASE_SECONDS,
-					operation.release
-				)
-				rejection = problem
-				return nextValue
 			end)
-		end)
-		if ok and typeof(result) == "table" and result._lastWrite == token then
-			if not operation.release and not SessionLock.owns(result, session.owner, os.time()) then
-				ownershipLost = true
-				lastError = "Kayıt oturumunun sahipliği kaybedildi"
-				break
-			end
-			session.revision = result._revision
-			session.savedPacketRevision = snapshotRevision
-			session.leaseExpires = if operation.release then 0 else result._session.expiresAt
-			session.pending = nil
-			session.saveFailing = false
-			player:SetAttribute("DataLastSavedAt", os.time())
-			player:SetAttribute("DataDirty", session.packetRevision ~= snapshotRevision)
-			player:SetAttribute("DataError", "")
-			success = true
-			Metrics.increment("SaveSucceeded")
-			Metrics.duration("SaveWrite", os.clock() - startedAt)
-			if SaveBackup.due(os.time(), session.lastBackupAt) then
-				session.lastBackupAt = os.time()
-				session.backupSlot = SaveBackup.nextSlot(session.backupSlot)
-				local slotKey = SaveBackup.slotKey(key, session.backupSlot)
-				local stamped = SaveBackup.stamp(operation.payload, os.time())
-				task.spawn(function()
-					local written, backupError = pcall(function()
-						(store :: DataStore):SetAsync(slotKey, stamped)
-					end)
-					if written then
-						Metrics.increment("BackupWritten")
-						player:SetAttribute("DataBackupAt", stamped._backupAt)
-					else
-						Metrics.increment("BackupFailed")
-						warn(`[Data] BackupFailed user={player.UserId}: {backupError}`)
-					end
-				end)
-			end
-			break
-		end
-		lastError = rejection or tostring(result)
-		if rejection and rejection ~= "Kayıt zaman bütçesi doldu" then
-			ownershipLost = true
-			break
-		end
-		warn(`[Data] SaveRetry user={player.UserId} attempt={attempt}: {lastError}`)
-		Metrics.increment("SaveRetry")
-		if attempt < SAVE_RETRIES and withinDeadline(deadline) then
-			retryWait(deadline, attempt)
 		end
 	end
-	busyKeys[key] = nil
-	if success and release and not operation.release then
+	SaveStore.unlockKey(key)
+	if outcome.ok and release and not operation.release then
 		-- Önce cevabı kaybolmuş eski yazmayı uzlaştır; sonra EN SON snapshot ile kilidi bırak.
 		return write(player, session, true, deadline)
 	end
-	if not success then
+	if not outcome.ok then
 		Metrics.increment("SaveFailed")
 		TelemetryService.custom(player, "SaveFailed")
-		player:SetAttribute("DataError", lastError)
+		player:SetAttribute("DataError", outcome.lastError)
 		-- Kira dolsa bile yalnızca sahiplik gerçekten kaybedildiyse düş: sahip + revizyon bizse sonraki yazım güvenle geçer.
-		if ownershipLost then
-			fail(player, session, lastError)
+		if outcome.ownershipLost then
+			fail(player, session, outcome.lastError)
 		else
 			session.saveFailing = true
 		end
 	end
-	return success
+	return outcome.ok
 end
 
 function PlayerDataService.tryGet(player: Player): PlayerSave?
@@ -305,41 +204,6 @@ function PlayerDataService.get(player: Player): PlayerSave
 	local data = PlayerDataService.tryGet(player)
 	assert(data, `Etkin PlayerData yok: {player.Name}`)
 	return data
-end
-
--- Asıl kayıt çözülemiyorsa (bozuk): önce olduğu gibi karantina anahtarına kopyalanır, sonra en yeni çözülebilir yedek döner.
--- Karantina yazılamazsa kurtarma yapılmaz (asıl kayıt ezilmez).
-local function recoverFromBackup(player: Player, key: string, corrupt: unknown, now: number): { [string]: any }?
-	local activeStore = store
-	if not activeStore then
-		return nil
-	end
-	local candidates: { unknown } = {}
-	for slot = 1, SaveBackup.SLOTS do
-		local ok, value = pcall(function()
-			return (activeStore :: DataStore):GetAsync(SaveBackup.slotKey(key, slot))
-		end)
-		if ok and value ~= nil then
-			table.insert(candidates, value)
-		end
-	end
-	for _, candidate in SaveBackup.newestFirst(candidates) do
-		local decoded = pcall(function()
-			local data = SaveCodec.decode(candidate, Config, FarmMath, now, newUid)
-			assert(data, "backup does not decode")
-		end)
-		if decoded then
-			local quarantined = pcall(function()
-				(activeStore :: DataStore):SetAsync(SaveBackup.quarantineKey(key), corrupt)
-			end)
-			if not quarantined then
-				warn(`[Data] RecoveryAborted user={player.UserId}: karantina yazılamadı`)
-				return nil
-			end
-			return candidate
-		end
-	end
-	return nil
 end
 
 -- Telemetri: hunide kayıttan geçilmiş adımlar ve çevrimdışı dönüş (süre ham kayıttaki lastSeen'den; sınır Pasif Gelir'e göre).
@@ -368,14 +232,14 @@ local function reportLoaded(player: Player, session: Session, raw: unknown)
 end
 
 function PlayerDataService.load(player: Player): PlayerSave?
-	if sessions[player] or shutdownDeadline then
+	if sessions[player] or SaveStore.shutdownDeadline() then
 		return nil
 	end
 	local loadStarted = os.clock()
 	local session: Session = {
 		owner = newUid(),
 		data = nil,
-		persistent = not nonpersistent,
+		persistent = SaveStore.persistent,
 		status = "Loading",
 		loaded = false,
 		releasing = false,
@@ -400,63 +264,22 @@ function PlayerDataService.load(player: Player): PlayerSave?
 	status(player, session, "Loading", nil)
 	local raw: unknown = nil
 	local problem: string? = nil
-	local acquired = nonpersistent
+	local acquired = not SaveStore.persistent
 	local key = keyFor(player)
 	if session.persistent then
-		if not store then
-			problem = "Kayıt hizmetine bağlanılamadı. Lütfen yeniden bağlan."
+		local lockedRecord, reason = SaveStore.acquire(key, session.owner, function(): boolean
+			return player.Parent ~= nil
+		end, function()
+			Metrics.increment("LoadLockWait")
+			TelemetryService.custom(player, "LoadLockWait")
+		end)
+		if lockedRecord then
+			raw = lockedRecord
+			session.revision = lockedRecord._revision
+			session.leaseExpires = lockedRecord._session.expiresAt
+			acquired = true
 		else
-			-- Hızlı sunucu değiştiren oyuncunun eski kilidi birkaç saniye içinde bırakılır: kilit başka sunucudaysa
-			-- hemen vazgeçme, artan beklemeyle LOCK_WAIT_SECONDS boyunca tekrar dene.
-			local lockWaitUntil = deadlineAfter(LOCK_WAIT_SECONDS)
-			local pause = 2
-			while true do
-				local deadline = deadlineAfter(SAVE_BUDGET)
-				local heldElsewhere = false
-				if lockKey(key, deadline) then
-					for attempt = 1, SAVE_RETRIES do
-						if not withinDeadline(deadline) then
-							break
-						end
-						local rejection: string? = nil
-						local ok, result = pcall(function()
-							return (store :: DataStore):UpdateAsync(key, function(current)
-								if not withinDeadline(deadline) then
-									rejection = "Yükleme zaman bütçesi doldu"
-									return nil
-								end
-								local nextValue, reason =
-									SessionLock.acquire(current, session.owner, os.time(), LEASE_SECONDS)
-								rejection = reason
-								return nextValue
-							end)
-						end)
-						if ok and SessionLock.owns(result, session.owner, os.time()) then
-							raw = result
-							session.revision = result._revision
-							session.leaseExpires = result._session.expiresAt
-							acquired = true
-							break
-						end
-						problem = rejection or tostring(result)
-						if rejection then
-							heldElsewhere = rejection == SessionLock.HELD
-							break
-						end
-						if attempt < SAVE_RETRIES and withinDeadline(deadline) then
-							retryWait(deadline, attempt)
-						end
-					end
-					busyKeys[key] = nil
-				end
-				if acquired or not heldElsewhere or not player.Parent or not withinDeadline(lockWaitUntil) then
-					break
-				end
-				Metrics.increment("LoadLockWait")
-				TelemetryService.custom(player, "LoadLockWait")
-				retryWait(lockWaitUntil, pause)
-				pause = math.min(pause * 2, 15)
-			end
+			problem = reason
 		end
 	end
 	if acquired then
@@ -483,7 +306,14 @@ function PlayerDataService.load(player: Player): PlayerSave?
 			problem = if decodeOk then decodeProblem else tostring(data)
 			-- Bozuk asıl kayıt: en yeni çözülebilir yedekten aç (asıl kayıt karantinaya alınır, sonraki kayıtla düzelir)
 			local backup = if session.persistent and raw ~= nil
-				then recoverFromBackup(player, key, raw, decodeNow)
+				then SaveStore.recoverFromBackup(key, player.UserId, raw, function(candidate: unknown): boolean
+					return (
+						pcall(function()
+							local decoded = SaveCodec.decode(candidate, Config, FarmMath, decodeNow, newUid)
+							assert(decoded, "backup does not decode")
+						end)
+					)
+				end)
 				else nil
 			if backup then
 				local backupOk, backupData, backupEarned, _, backupRepairs, backupGrown =
@@ -510,7 +340,7 @@ function PlayerDataService.load(player: Player): PlayerSave?
 		end
 		return nil
 	end
-	if not player.Parent or session.status == "Closing" or shutdownDeadline then
+	if not player.Parent or session.status == "Closing" or SaveStore.shutdownDeadline() then
 		-- PlayerRemoving/BindToClose çağrısı yükleme tamamlanmasını bekliyor olabilir.
 		if not session.releasing then
 			PlayerDataService.release(player)
@@ -568,7 +398,7 @@ function PlayerDataService.save(player: Player): boolean
 	if not session.persistent then
 		return true
 	end
-	local deadline = deadlineAfter(SAVE_BUDGET)
+	local deadline = SaveStore.deadlineAfter(SAVE_BUDGET)
 	-- Önceki başarısız yazımdan kalan eski anlık görüntü (pending) yeniden gönderilir; bu, sonradan olan değişiklikleri
 	-- içermez. Başarılı sayılması için güncel veriyi taşıyan bir yazım daha gerekir (bırakma yolundaki gibi).
 	local stale = session.pending
@@ -600,16 +430,16 @@ function PlayerDataService.release(player: Player): boolean
 	if not session then
 		return true
 	end
-	local deadline = deadlineAfter(CLOSE_BUDGET)
+	local deadline = SaveStore.deadlineAfter(CLOSE_BUDGET)
 	if session.releasing then
-		while sessions[player] == session and session.releasing and withinDeadline(deadline) do
+		while sessions[player] == session and session.releasing and SaveStore.withinDeadline(deadline) do
 			task.wait(0.05)
 		end
 		return sessions[player] ~= session
 	end
 	session.releasing = true
 	status(player, session, "Closing", nil)
-	while not session.loaded and withinDeadline(deadline) do
+	while not session.loaded and SaveStore.withinDeadline(deadline) do
 		task.wait(0.05)
 	end
 	if not session.loaded then
@@ -768,7 +598,7 @@ function PlayerDataService.init()
 	end
 	initialized = true
 	task.spawn(function()
-		while not shutdownDeadline do
+		while not SaveStore.shutdownDeadline() do
 			task.wait(math.min(Config.AUTOSAVE_SECONDS, LEASE_SECONDS / 3))
 			for player, session in sessions do
 				if session.status == "Active" then
@@ -786,7 +616,8 @@ function PlayerDataService.init()
 		end
 	end)
 	game:BindToClose(function()
-		shutdownDeadline = os.clock() + CLOSE_BUDGET
+		SaveStore.beginShutdown(CLOSE_BUDGET)
+		local closeDeadline = SaveStore.shutdownDeadline() :: number
 		local pending = 0
 		for player in sessions do
 			pending += 1
@@ -795,7 +626,7 @@ function PlayerDataService.init()
 				pending -= 1
 			end)
 		end
-		while pending > 0 and os.clock() < (shutdownDeadline :: number) do
+		while pending > 0 and os.clock() < closeDeadline do
 			task.wait(0.05)
 		end
 		if pending > 0 then
