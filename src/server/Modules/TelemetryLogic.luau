@@ -22,6 +22,7 @@ TelemetryLogic.ECONOMY = {
 	-- Kaynaklar
 	collect = { flow = "Source", transaction = "Collect", batched = true },
 	autoCollect = { flow = "Source", transaction = "AutoCollect", batched = true },
+	parkedPay = { flow = "Source", transaction = "ParkedPay", batched = true },
 	offline = { flow = "Source", transaction = "Offline", batched = false },
 	daily = { flow = "Source", transaction = "Daily", batched = false },
 	season = { flow = "Source", transaction = "Season", batched = false },

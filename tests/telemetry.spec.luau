@@ -26,12 +26,25 @@ return function(createService: any, Logic: any, Config: any)
 		transactions[category.transaction] = true
 		transactionCount += 1
 		assert(
-			category.batched == (key == "collect" or key == "autoCollect" or key == "production"),
+			category.batched == (key == "collect" or key == "autoCollect" or key == "parkedPay" or key == "production"),
 			`{key}: yalnızca toplama ve üretim toplu gider`
 		)
 	end
 	assert(transactionCount <= 20, "AnalyticsService işlem türü sınırı 20")
-	for _, key in { "collect", "autoCollect", "offline", "daily", "season", "golden", "order", "production", "refund" } do
+	for _, key in
+		{
+			"collect",
+			"autoCollect",
+			"parkedPay",
+			"offline",
+			"daily",
+			"season",
+			"golden",
+			"order",
+			"production",
+			"refund",
+		}
+	do
 		assert(Logic.ECONOMY[key].flow == "Source", `{key} kaynak olmalı`)
 	end
 	for _, key in { "animal", "upgrade", "item", "farm", "lineage" } do

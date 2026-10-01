@@ -138,8 +138,12 @@ function EconomyService.settlePlayer(player: Player)
 		if collected > 0 then
 			data.cash = math.min(1e15, data.cash + collected)
 			data.lifetimeEarned = math.min(1e18, (data.lifetimeEarned or 0) + collected)
-			TelemetryService.economy(player, "autoCollect", collected, data.cash)
-			TelemetryService.funnel(player, "first_collect")
+			-- Toplayıcısız park edilmiş çiftliğin %50 ödemesi gerçek toplama değildir: ayrı kaynak, huniyi tetiklemez.
+			local parkedPay = farmId ~= data.activeMainFarmId and not FarmMath.hasAutoCollect(farm)
+			TelemetryService.economy(player, if parkedPay then "parkedPay" else "autoCollect", collected, data.cash)
+			if not parkedPay then
+				TelemetryService.funnel(player, "first_collect")
+			end
 		end
 	end
 	PlayerDataService.pushEconomy(player)

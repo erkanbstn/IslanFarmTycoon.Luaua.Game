@@ -32,7 +32,7 @@ oyuncular bu yüzden hunide görünmez; yalnızca sonradan geçtikleri adımlar 
 ### Ekonomi (`LogEconomyEvent`, para birimi `Cash`)
 | Yön | İşlem türü (`transactionType`) | Kaynak kodu |
 |---|---|---|
-| Kaynak | Collect, AutoCollect (toplu, 60 sn) | `EconomyService` |
+| Kaynak | Collect, AutoCollect, ParkedPay (toplayıcısız park edilmiş çiftlik; toplu, 60 sn) | `EconomyService` |
 | Kaynak | Offline | `PlayerDataService.load` (çevrimdışı dönüş) |
 | Kaynak | Daily, Season, Achievement, GoldenAnimal | `EngagementService` |
 | Kaynak | Order | `ContractService` |
