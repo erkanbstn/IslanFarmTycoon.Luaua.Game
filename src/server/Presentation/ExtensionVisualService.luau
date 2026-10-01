@@ -290,7 +290,13 @@ function ExtensionVisualService.apply(plot: Model, save: PlayerSave?)
 		-- oluşunca ekranda yanıp sönüyordu. Duran hayvan sayısı, kapasite ve ilk dönüş zamanı imzadadır.
 		local price = FarmMath.getUpgradeCost(save, upgrade)
 		local signature = `{islandUnlocked}|{owned}|{capacity}|{price}`
-		local folder = island:FindFirstChild("ExtensionVisuals")
+		-- Aynı adadaki eklentiler (ör. keçi adası) imzayı ve klasörü paylaşmasın: her birinin kendi alt klasörü var.
+		local root = InstanceUtil.getOrCreateFolder(island, "ExtensionVisuals")
+		if root:GetAttribute("Signature") ~= nil then
+			root:ClearAllChildren()
+			root:SetAttribute("Signature", nil)
+		end
+		local folder = root:FindFirstChild(extensionId)
 		if folder and folder:GetAttribute("Signature") == signature then
 			-- Yapı aynı: yalnızca duran hayvan sayısı ve süre güncellenir (tabela ve etkileşim balonları yeniden kurulmaz)
 			local existing = folder:FindFirstChild(extensionId)
@@ -303,7 +309,7 @@ function ExtensionVisualService.apply(plot: Model, save: PlayerSave?)
 			end
 			continue
 		end
-		local target = InstanceUtil.getOrCreateFolder(island, "ExtensionVisuals")
+		local target = InstanceUtil.getOrCreateFolder(root, extensionId)
 		if folder then
 			target:ClearAllChildren()
 		end
