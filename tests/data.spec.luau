@@ -106,6 +106,55 @@ return function(lock: any, codec: any, config: any, farmMath: any)
 		assert(clamped.mainFarms["1"].tier == 1, "farm 1 is always tier 1")
 		assert(clamped.mainFarms["2"].tier <= 3, "tier cannot exceed the farm count")
 	end
+	-- 3. tema göçü: eski Güneşli Tarla kaydındaki tavuk/domuz adaları ve hayvanları temadan kalktı; bedeller iade edilir, kalıntı temizlenir
+	do
+		local ghost = codec.encode(save, now)
+		local farm3 = table.clone(ghost.mainFarms["1"])
+		farm3.tier = 1
+		farm3.cash = 0
+		farm3.purchased = { "barn_2", "barn_3", "island_poultry", "island_pig", "island_horse" }
+		farm3.animals = {
+			{ uid = "g-1", animalId = "chicken", zoneId = "poultry", bornAt = 0 },
+			{ uid = "g-2", animalId = "pig", zoneId = "pigpen", bornAt = 0 },
+			{ uid = "g-3", animalId = "duck", zoneId = "starter", bornAt = 0 },
+		}
+		farm3.production = {}
+		farm3.autoRepeat = {}
+		ghost.mainFarms["3"] = farm3
+		local loaded = assert(codec.decode(ghost, config, farmMath, now, uid))
+		local migrated = loaded.mainFarms["3"]
+		local refundExpected = config.getUpgrade("island_poultry").cost
+			+ config.getUpgrade("island_pig").cost
+			+ config.ANIMALS.chicken.price
+			+ config.ANIMALS.pig.price
+		local function purchasedSet(farm: any): { [string]: boolean }
+			return farm.purchased
+		end
+		local owned = purchasedSet(migrated)
+		assert(not owned.island_poultry and not owned.island_pig, "ghost island purchases are cleared")
+		assert(owned.island_horse and owned.barn_3, "the current theme's islands are kept")
+		assert(not migrated.unlockedIslands.poultry and not migrated.unlockedIslands.pig, "no ghost island stays open")
+		for _, animal in migrated.animals do
+			assert(animal.animalId == "duck", "animals on removed islands are refunded, not kept")
+		end
+		local baseline = table.clone(ghost)
+		baseline.mainFarms = table.clone(ghost.mainFarms)
+		local cleanFarm = table.clone(farm3)
+		cleanFarm.purchased = { "barn_2", "barn_3", "island_horse" }
+		cleanFarm.animals = { farm3.animals[3] }
+		baseline.mainFarms["3"] = cleanFarm
+		local clean = assert(codec.decode(baseline, config, farmMath, now, uid))
+		assert(loaded.cash - clean.cash == refundExpected, "the island and animal prices are refunded in full")
+		-- Idempotent: göçmüş kaydı yeniden yüklemek tekrar iade etmez
+		local resaved = codec.encode(loaded, now)
+		local again = assert(codec.decode(resaved, config, farmMath, now, uid))
+		assert(again.cash == loaded.cash, "migration must not refund twice")
+		assert(not purchasedSet(again.mainFarms["3"]).island_poultry, "the cleared purchases stay cleared")
+		-- Diğer temalar etkilenmez
+		ghost.mainFarms["2"] = table.clone(farm3)
+		local other = assert(codec.decode(ghost, config, farmMath, now, uid))
+		assert(purchasedSet(other.mainFarms["2"]).island_poultry == true, "other farms are not migrated")
+	end
 	assert(codec.decode({ version = 999 }, config, farmMath, now, uid) == nil, "future save schema must fail closed")
 	assert(
 		codec.decode({ version = 2, animals = { { animalId = "removed-species" } } }, config, farmMath, now, uid) == nil,
