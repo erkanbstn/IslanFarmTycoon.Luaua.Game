@@ -174,7 +174,7 @@ return {
 	-- Настройки и экран загрузки
 	---------------------------------------------------------------------------
 	["Görsel Ayarlar"] = "Настройки графики",
-	["Görsel tercihler yalnızca bu oturumda geçerlidir. Gelirini ve oyun hızını değiştirmez. Dil tercihin kaydedilir."] = "Настройки графики действуют только в текущей сессии и не меняют доход и скорость игры. Выбранный язык сохраняется.",
+	["Tercihlerin hesabına kaydedilir. Gelirini ve oyun hızını değiştirmez."] = "Настройки сохраняются в твоём аккаунте. Они не меняют доход и скорость игры.",
 	["Efekt kalitesi"] = "Качество эффектов",
 	["Düşük"] = "Низкое",
 	["Orta"] = "Среднее",
@@ -391,8 +391,9 @@ return {
 	["Kuluçka alanı"] = "Зона инкубации",
 	["Antrenman merkezi"] = "Тренировочный центр",
 	["Ses"] = "Звук",
-	["Ses düzeyi yalnızca bu oturumda geçerlidir."] = "Громкость действует только в этой сессии.",
-	["Ses düzeyi: %{}"] = "Громкость: {1}%",
+	["Efekt sesleri: %{}"] = "Звуковые эффекты: {1}%",
+	["Ortam sesleri: %{}"] = "Звуки окружения: {1}%",
+	["Müzik: %{}"] = "Музыка: {1}%",
 	["Yem Kalitesi Sv.{}"] = "Качество корма ур.{1}",
 	["Depo Genişletme Sv.{}"] = "Расширение склада ур.{1}",
 	["Hızlı Büyüme Sv.{}"] = "Быстрый рост ур.{1}",

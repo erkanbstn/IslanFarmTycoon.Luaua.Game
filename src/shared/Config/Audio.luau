@@ -1,5 +1,5 @@
 --!strict
--- Ses, ortam sesi ve hayvan sesleri.
+-- Ses, ortam sesi, müzik ve hayvan sesleri.
 -- Gizli bilgi koyma: ReplicatedStorage client'a da gider.
 
 local Types = require(script.Parent:WaitForChild("Types"))
@@ -36,6 +36,16 @@ return {
 		golden_spawn = { id = "", volume = 0.5 }, -- altın hayvan belirdi
 		merchant_arrive = { id = "", volume = 0.45 }, -- gezgin tüccar geldi
 	} :: { [string]: Types.SoundConfig },
+
+	-- Müzik: tek döngü yuvası, kendi SoundGroup'unda ("Müzik" sürgüsü). Boş kimlik = müzik yok; kimliği sen yaz
+	-- (`rbxassetid://NUMARA`), kod aynen çalar. Birden fazla parça gerekirse buraya anahtar ekle; hepsi sırayla değil birlikte çalar,
+	-- bu yüzden şimdilik tek parça önerilir.
+	MUSIC = {
+		main = { id = "", volume = 0.35 },
+	} :: { [string]: Types.SoundConfig },
+
+	-- Ayarlar'daki üç sürgünün varsayılan düzeyi (0..1): oyuncu hiç değiştirmediyse bunlar geçerlidir.
+	AUDIO_DEFAULTS = { sfx = 0.5, ambience = 0.7, music = 0.5 } :: { [string]: number },
 
 	-- Ortam döngüleri (mevsim, hava ve gece): boş kimlik = o katman yok.
 	AMBIENCE = {

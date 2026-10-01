@@ -174,7 +174,7 @@ return {
 	-- Einstellungen und Ladebildschirm
 	---------------------------------------------------------------------------
 	["Görsel Ayarlar"] = "Grafikeinstellungen",
-	["Görsel tercihler yalnızca bu oturumda geçerlidir. Gelirini ve oyun hızını değiştirmez. Dil tercihin kaydedilir."] = "Grafikeinstellungen gelten nur für diese Sitzung und ändern weder dein Einkommen noch das Spieltempo. Deine Sprachauswahl wird gespeichert.",
+	["Tercihlerin hesabına kaydedilir. Gelirini ve oyun hızını değiştirmez."] = "Deine Einstellungen werden in deinem Konto gespeichert. Sie ändern weder dein Einkommen noch das Spieltempo.",
 	["Efekt kalitesi"] = "Effektqualität",
 	["Düşük"] = "Niedrig",
 	["Orta"] = "Mittel",
@@ -391,8 +391,9 @@ return {
 	["Kuluçka alanı"] = "Brutbereich",
 	["Antrenman merkezi"] = "Trainingszentrum",
 	["Ses"] = "Ton",
-	["Ses düzeyi yalnızca bu oturumda geçerlidir."] = "Die Lautstärke gilt nur für diese Sitzung.",
-	["Ses düzeyi: %{}"] = "Lautstärke: {1}%",
+	["Efekt sesleri: %{}"] = "Soundeffekte: {1}%",
+	["Ortam sesleri: %{}"] = "Umgebungsgeräusche: {1}%",
+	["Müzik: %{}"] = "Musik: {1}%",
 	["Yem Kalitesi Sv.{}"] = "Futterqualität St.{1}",
 	["Depo Genişletme Sv.{}"] = "Lagererweiterung St.{1}",
 	["Hızlı Büyüme Sv.{}"] = "Schnelles Wachstum St.{1}",

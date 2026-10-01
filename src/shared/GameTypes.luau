@@ -68,6 +68,8 @@ export type PlayerSave = {
 	merchant: { key: number, bought: boolean }?, -- Gezgin tüccar: son teklifin döngü numarası ve alınıp alınmadığı
 	seasonal: SeasonalGoal?, -- Şu anki mevsim hedefi (hesap düzeyi; key = mevsim numarası)
 	graphics: string?, -- Grafik tercihi (Config.GRAPHICS_MODES); nil = otomatik
+	audio: { sfx: number?, ambience: number?, music: number? }?, -- Ses düzeyleri 0..1 (SFX / Ortam / Müzik); nil = varsayılan (Config.AUDIO_DEFAULTS)
+	reducedMotion: boolean?, -- Hareketi azalt tercihi; nil = kapalı
 	language: string?, -- Seçilen arayüz dili (Config.LANGUAGES kodu); nil = Roblox dilinden algıla
 	mainFarmOffers: { { id: string, name: string, icon: string, ownerUserId: number? } }?,
 	mainFarms: { [string]: any },

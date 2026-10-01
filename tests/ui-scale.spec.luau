@@ -8,4 +8,5 @@ return function(UiScale: any)
 	assert(UiScale.forViewport(2560, 1440) > 1, "1440p grows")
 	assert(UiScale.forViewport(3840, 2160) > UiScale.forViewport(2560, 1440), "4K grows further")
 	assert(UiScale.forViewport(0, 0) == 1 and UiScale.forViewport(0 / 0, 100) == 1, "bad sizes fall back to 1")
+	print("PASS ui scale: phone shrinks, 1440p+ grows, bad sizes fall back")
 end

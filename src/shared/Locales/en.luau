@@ -174,7 +174,7 @@ return {
 	-- Ayarlar ve yükleme ekranı
 	---------------------------------------------------------------------------
 	["Görsel Ayarlar"] = "Visual Settings",
-	["Görsel tercihler yalnızca bu oturumda geçerlidir. Gelirini ve oyun hızını değiştirmez. Dil tercihin kaydedilir."] = "Visual preferences apply to this session only and do not change your income or game speed. Your language choice is saved.",
+	["Tercihlerin hesabına kaydedilir. Gelirini ve oyun hızını değiştirmez."] = "Your preferences are saved to your account. They do not change your income or game speed.",
 	["Efekt kalitesi"] = "Effects quality",
 	["Düşük"] = "Low",
 	["Orta"] = "Medium",
@@ -391,8 +391,9 @@ return {
 	["Kuluçka alanı"] = "Hatchery area",
 	["Antrenman merkezi"] = "Training center",
 	["Ses"] = "Sound",
-	["Ses düzeyi yalnızca bu oturumda geçerlidir."] = "Sound volume applies to this session only.",
-	["Ses düzeyi: %{}"] = "Sound volume: {1}%",
+	["Efekt sesleri: %{}"] = "Sound effects: {1}%",
+	["Ortam sesleri: %{}"] = "Ambient sounds: {1}%",
+	["Müzik: %{}"] = "Music: {1}%",
 	["Yem Kalitesi Sv.{}"] = "Feed Quality Lv.{1}",
 	["Depo Genişletme Sv.{}"] = "Storage Expansion Lv.{1}",
 	["Hızlı Büyüme Sv.{}"] = "Fast Growth Lv.{1}",

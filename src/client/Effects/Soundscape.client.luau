@@ -1,6 +1,7 @@
 --!strict
 -- Ortam sesleri: mevsime, havaya ve geceye göre kuş, rüzgâr, yağmur ve gece döngüleri; yakındaki
--- hayvanların ara sıra çıkardığı sesler. Kimlikler Config.AMBIENCE / Config.ANIMAL_SOUNDS içindedir;
+-- hayvanların ara sıra çıkardığı sesler (ortam grubu) ve müzik döngüsü (müzik grubu).
+-- Kimlikler Config.AMBIENCE / Config.ANIMAL_SOUNDS / Config.MUSIC içindedir;
 -- boş kimlikli katman hiç kurulmaz, dolayısıyla kimlik girilmemişken bu script neredeyse hiçbir şey yapmaz.
 
 local CollectionService = game:GetService("CollectionService")
@@ -31,10 +32,26 @@ for name, config in Config.AMBIENCE do
 		sound.SoundId = config.id
 		sound.Looped = true
 		sound.Volume = 0
-		sound.SoundGroup = Sfx.group()
+		sound.SoundGroup = Sfx.ambienceGroup()
 		sound.Parent = SoundService
 		sound:Play()
 		layers[name] = { sound = sound, base = config.volume }
+	end
+end
+
+-- Müzik: Config.MUSIC yuvaları kendi grubunda döngüyle çalar (boş kimlik = müzik yok); düzeyi "Müzik" sürgüsü belirler.
+local musicSounds: { Sound } = {}
+for name, config in Config.MUSIC do
+	if config.id ~= "" then
+		local sound = Instance.new("Sound")
+		sound.Name = `Music_{name}`
+		sound.SoundId = config.id
+		sound.Looped = true
+		sound.Volume = config.volume
+		sound.SoundGroup = Sfx.musicGroup()
+		sound.Parent = SoundService
+		sound:Play()
+		table.insert(musicSounds, sound)
 	end
 end
 
@@ -117,7 +134,7 @@ local function updateAnimals()
 	local config = if id then Config.ANIMAL_SOUNDS[id] else nil
 	local anchor = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
 	if config and anchor then
-		Sfx.playAt(anchor, config, 0.1)
+		Sfx.playAt(anchor, config, 0.1, Sfx.ambienceGroup())
 	end
 end
 
@@ -135,5 +152,8 @@ script.Destroying:Connect(function()
 	connection:Disconnect()
 	for _, layer in layers do
 		layer.sound:Destroy()
+	end
+	for _, sound in musicSounds do
+		sound:Destroy()
 	end
 end)
