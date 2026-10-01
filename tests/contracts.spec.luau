@@ -1,6 +1,6 @@
 --!strict
 -- Ahır siparişleri: teklif üretimi, atomik teslim, pencere yenilenmesi ve kayıt.
-return function(codec: any, config: any, farmMath: any)
+return function(codec: any, config: any, farmMath: any, profiles: any)
 	local now = 600000 * 7 + 30
 	local serial = 0
 	local function uid(): string
@@ -54,20 +54,112 @@ return function(codec: any, config: any, farmMath: any)
 			assert(line.amount >= 1 and line.amount <= cap, "amounts always fit in the barn")
 			worth += line.amount * config.GOODS[line.goodsId].value
 		end
-		local incomeFloor = farmMath.computeIncomePerSecond(save, now) * config.GOODS_CONTRACTS.incomeSeconds
+		local incomeFloor = farmMath.getContractIncomeFloor(farmMath.computeIncomePerSecond(save, now), offer.lines)
 		assert(
 			offer.worth == worth
 				and offer.reward == math.floor(math.max(worth, incomeFloor) * tier.rewardFactor * (1 + islandBonus)),
-			"reward follows max(worth, income floor)"
+			"reward follows max(worth, income floor scaled by the order size)"
 		)
 		assert(offer.reward > worth, "delivering beats the raw goods value")
 		assert(offer.rewardFactor == tier.rewardFactor, "the tier sets the reward rate")
 		for _, line in offer.lines do
-			local low = math.max(1, math.floor(tier.units * (1 - config.GOODS_CONTRACTS.variation)))
-			local high = math.ceil(tier.units * (1 + config.GOODS_CONTRACTS.variation))
-			assert(line.amount >= low and line.amount <= math.min(high, cap), "units vary only inside the tier band")
+			local base = farmMath.getContractBaseUnits(tier, line.goodsId, cap)
+			local low = math.max(1, math.floor(base * (1 - config.GOODS_CONTRACTS.variation)))
+			local high = math.ceil(base * (1 + config.GOODS_CONTRACTS.variation))
+			local limit = math.min(cap, config.GOODS_CONTRACTS.maxLineUnits)
+			assert(line.amount >= low and line.amount <= math.min(high, limit), "units vary only inside the tier band")
 		end
 	end
+	-- Depo büyüdükçe siparişler de büyür: tek ahırda eski ölçek, büyük depoda 20-30 adetlik toptan siparişler (ürün yığılmaz)
+	local settings = config.GOODS_CONTRACTS
+	assert(#settings.tiers >= 8 and settings.slots >= 12, "the board offers many tiers and slots")
+	local function maxAmountSeen(target: any, goodsId: string, tierId: string): number
+		local best = 0
+		for window = 0, 60 do
+			for _, offer in farmMath.getContractOffers(target, now + window * settings.seconds, 0) do
+				if offer.tier == tierId then
+					for _, line in offer.lines do
+						if line.goodsId == goodsId then
+							best = math.max(best, line.amount)
+						end
+					end
+				end
+			end
+		end
+		return best
+	end
+	local small = newSave(true)
+	small.barnLevel = 1
+	small.mainFarms = nil
+	local smallCap = farmMath.getGoodsCap(small)
+	for _, tier in settings.tiers do
+		for _, goodsId in config.GOODS_ORDER do
+			local base = farmMath.getContractBaseUnits(tier, goodsId, smallCap)
+			assert(base >= tier.units and base <= settings.maxLineUnits, "base units never fall under the tier floor")
+		end
+	end
+	local large = newSave(true)
+	large.barnLevel = #config.BARN_LEVELS
+	large.mainFarms = { [large.activeMainFarmId] = {} }
+	for id = 2, 4 do
+		large.mainFarms[tostring(id)] =
+			{ barnLevel = #config.BARN_LEVELS, purchased = large.purchased, unlockedIslands = large.unlockedIslands }
+	end
+	local bigCap = farmMath.getGoodsCap(large)
+	assert(bigCap >= 4 * config.BARN_LEVELS[#config.BARN_LEVELS].goodsCap, "four max barns make a big shared cap")
+	assert(
+		farmMath.getContractBaseUnits(settings.tiers[#settings.tiers - 1], "egg", bigCap)
+			> farmMath.getContractBaseUnits(settings.tiers[#settings.tiers - 1], "egg", smallCap),
+		"a bigger barn asks for more units"
+	)
+	local wholesale = maxAmountSeen(large, "egg", "wholesale")
+	assert(
+		wholesale >= 20 and wholesale <= settings.maxLineUnits,
+		`a big barn gets 20-{settings.maxLineUnits} unit wholesale orders (saw {wholesale})`
+	)
+	assert(maxAmountSeen(small, "egg", "wholesale") <= smallCap, "a small barn never asks for more than it can hold")
+	local expensive = maxAmountSeen(large, "meat", "wholesale")
+	assert(expensive < wholesale and expensive >= 1, "expensive goods scale down with their value")
+
+	-- Ödül tabanı siparişin boyutuyla büyür; ödül hiçbir zaman ürün değerinin altına düşmez
+	local oneLine = { { goodsId = "down", amount = 3 } }
+	local twoLine = { { goodsId = "down", amount = 6 } }
+	assert(
+		farmMath.getContractIncomeFloor(10, twoLine) == 2 * farmMath.getContractIncomeFloor(10, oneLine),
+		"the income floor is proportional to the order size"
+	)
+	assert(
+		farmMath.getContractIncomeFloor(10, oneLine)
+			== 10 * settings.incomeSeconds * 3 * settings.unitRefValue / settings.floorWeight,
+		"the reference order keeps the income x seconds floor"
+	)
+	for _, windowOffset in { 0, 5, 31 } do
+		for _, bonus in { 0, 0.5 } do
+			for _, offer in farmMath.getContractOffers(large, now + windowOffset * settings.seconds, bonus) do
+				assert(offer.reward >= offer.worth * offer.rewardFactor, "a delivery never pays under the goods' value")
+			end
+		end
+	end
+
+	-- İstemci eşitliği: hafifletilmiş mainFarms özetiyle istemcinin gördüğü teklifler sunucununkiyle birebir aynıdır
+	local clientView = profiles.clientState(large, {}, {})
+	local serverOffers = farmMath.getContractOffers(large, now, 0.25)
+	local clientOffers = farmMath.getContractOffers(clientView, now, 0.25)
+	assert(#serverOffers == #clientOffers and #serverOffers == settings.slots, "the client sees every slot")
+	for index, offer in serverOffers do
+		local mirror = clientOffers[index]
+		assert(
+			mirror.key == offer.key and mirror.reward == offer.reward and #mirror.lines == #offer.lines,
+			"displayed offers equal the server's"
+		)
+		for lineIndex, line in offer.lines do
+			assert(
+				mirror.lines[lineIndex].goodsId == line.goodsId and mirror.lines[lineIndex].amount == line.amount,
+				"displayed amounts equal the server's"
+			)
+		end
+	end
+
 	-- Rastgelelik: aynı pencere her seferinde aynı teklifleri verir; pencereler farklıdır; kademeler ve ürünler çeşitlenir
 	local replay = farmMath.getContractOffers(save, now, 0)
 	for index, offer in offers do
@@ -96,7 +188,7 @@ return function(codec: any, config: any, farmMath: any)
 		goodsCount += 1
 	end
 	assert(differentWindows, "windows differ from each other")
-	assert(tierCount >= 5, "most tiers show up across windows")
+	assert(tierCount >= 7, "most tiers show up across windows")
 	assert(goodsCount >= 6, "most goods show up across windows")
 	local seasonal = farmMath.getContractOffers(save, now, 0.5)
 	assert(

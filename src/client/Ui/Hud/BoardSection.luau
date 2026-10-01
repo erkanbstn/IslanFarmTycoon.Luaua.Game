@@ -26,10 +26,11 @@ function BoardSection.create(list: Instance): (PlayerSave?) -> ()
 	contractNote.LayoutOrder = CONTRACT_ORDER + 1
 	local contractCards: { UiKit.Card } = {}
 	local contractOffers: { FarmMath.ContractOffer } = {}
-	-- Siparişler ızgara karolarıdır: aşağı uzayan liste yerine yan yana, daha çok teklif görünür
-	local contractGrid = UiKit.grid(list, CONTRACT_ORDER + 2)
+	-- Siparişler ızgara karolarıdır: aşağı uzayan liste yerine yan yana, daha çok teklif görünür. Esnek karo: altı çeşitlik "Dev Karma"
+	-- siparişin satırları da sığar (karo yüksekliği satır sayısına göre uzar).
+	local contractGrid = UiKit.autoGrid(list, CONTRACT_ORDER + 2, 2)
 	for index = 1, Config.GOODS_CONTRACTS.slots do
-		local card = UiKit.tile(contractGrid, index, "📦")
+		local card = UiKit.autoTile(contractGrid, index, "📦")
 		contractCards[index] = card
 		card.action.Activated:Connect(function()
 			local offer = contractOffers[index]

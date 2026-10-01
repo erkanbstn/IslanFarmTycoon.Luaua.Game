@@ -1012,4 +1012,6 @@ return {
 	["Yeni menü açıldı: Adalar"] = "Menú nuevo desbloqueado: Islas",
 	["Yeni menü açıldı: Envanter"] = "Menú nuevo desbloqueado: Inventario",
 	["Destek"] = "Apoyo",
+	["Tüccar Toptan"] = "Mayorista",
+	["Dev Karma"] = "Gran surtido",
 }

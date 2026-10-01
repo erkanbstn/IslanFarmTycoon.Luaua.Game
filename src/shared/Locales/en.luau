@@ -1012,4 +1012,6 @@ return {
 	["Yeni menü açıldı: Adalar"] = "New menu unlocked: Islands",
 	["Yeni menü açıldı: Envanter"] = "New menu unlocked: Inventory",
 	["Destek"] = "Support",
+	["Tüccar Toptan"] = "Merchant Bulk",
+	["Dev Karma"] = "Giant Mix",
 }

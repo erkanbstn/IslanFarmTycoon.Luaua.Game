@@ -65,10 +65,37 @@ local function totalWorth(lines: { Line }): number
 	return worth
 end
 
--- Teklifin ödülü: max(ürünlerin para değeri, gelir x incomeSeconds) x kademe çarpanı x (1 + mevsim bonusu).
--- Gelir tabanı siparişleri geç oyunda da anlamlı tutar (sabit ürün değeri gelirin yanında önemsizleşirdi).
+-- Siparişin ağırlığı: ödül tabanının boyutunu belirler (ucuz ürün tabanı küçültür, pahalı ürün en çok unitRefValue sayılır).
+local function totalWeight(lines: { Line }): number
+	local weight = 0
+	for _, line in lines do
+		weight += line.amount * math.min(Config.GOODS[line.goodsId].value, Config.GOODS_CONTRACTS.unitRefValue)
+	end
+	return weight
+end
+
+-- Bir satırın birim sayısı (rastgelelik dışı taban): kademe tabanı ile depo kapasitesi payının büyüğü. Ucuz üründe pay tam,
+-- pahalı üründe değerle ters orantılı küçülür; satır başına maxLineUnits ve depo kapasitesiyle sınırlıdır.
+function Contracts.baseUnits(tier: any, goodsId: string, cap: number): number
+	local settings = Config.GOODS_CONTRACTS
+	local base: number = tier.units
+	local share: number = tier.capShare
+	local scale = math.min(1, settings.unitRefValue / Config.GOODS[goodsId].value)
+	local grown = math.floor(cap * share * scale + 0.5)
+	return math.min(math.max(base, grown), settings.maxLineUnits)
+end
+
+-- Teklifin ödülü: max(ürünlerin para değeri, gelir tabanı) x kademe çarpanı x (1 + mevsim bonusu). Gelir tabanı (`incomeFloor`)
+-- siparişleri geç oyunda da anlamlı tutar (sabit ürün değeri gelirin yanında önemsizleşirdi); çağıran onu siparişin boyutuyla ölçekler
+-- (`Contracts.incomeFloor`), böylece büyük sipariş küçüğünden çok öder.
 function Contracts.reward(worth: number, rewardFactor: number, bonus: number?, incomeFloor: number?): number
 	return math.floor(math.max(worth, incomeFloor or 0) * rewardFactor * (1 + (bonus or 0)))
+end
+
+-- Gelir tabanı: etkin çiftliğin geliri x incomeSeconds x (siparişin ağırlığı / floorWeight)
+function Contracts.incomeFloor(incomePerSecond: number, lines: { Line }): number
+	local settings = Config.GOODS_CONTRACTS
+	return incomePerSecond * settings.incomeSeconds * totalWeight(lines) / settings.floorWeight
 end
 
 -- Park-Miller üreteci: pencere ve sıraya bağlı, sunucu ile client'ta aynı sonucu verir (Roblox Random gerekmez).
@@ -92,7 +119,7 @@ function Contracts.offers(save: PlayerSave, now: number, bonus: number?): { Offe
 	local window = Contracts.window(now)
 	local cap = Goods.getGoodsCap(save)
 	-- Etkin çiftliğin geliri (istemci park edilmiş çiftliklerin hayvanlarını görmez; sunucu ile aynı sonuç için yalnızca kök kayıt)
-	local incomeFloor = Income.computeIncomePerSecond(save, now) * settings.incomeSeconds
+	local income = Income.computeIncomePerSecond(save, now)
 	local totalWeight = 0
 	for _, tier in settings.tiers do
 		totalWeight += tier.weight
@@ -117,8 +144,12 @@ function Contracts.offers(save: PlayerSave, now: number, bonus: number?): { Offe
 		end
 		local lines: { Line } = {}
 		for step = 1, math.min(tier.lines, #pool) do
-			local amount = math.floor(tier.units * (1 + (random() * 2 - 1) * settings.variation) + 0.5)
-			table.insert(lines, { goodsId = pool[step], amount = math.clamp(amount, 1, math.max(cap, 1)) })
+			local base = Contracts.baseUnits(tier, pool[step], cap)
+			local amount = math.floor(base * (1 + (random() * 2 - 1) * settings.variation) + 0.5)
+			table.insert(lines, {
+				goodsId = pool[step],
+				amount = math.clamp(amount, 1, math.min(math.max(cap, 1), settings.maxLineUnits)),
+			})
 		end
 		local worth = totalWorth(lines)
 		table.insert(offers, {
@@ -132,7 +163,7 @@ function Contracts.offers(save: PlayerSave, now: number, bonus: number?): { Offe
 				worth,
 				tier.rewardFactor,
 				(bonus or 0) + Core.getBonus(save, "contractBonus"),
-				incomeFloor
+				Contracts.incomeFloor(income, lines)
 			),
 		})
 	end

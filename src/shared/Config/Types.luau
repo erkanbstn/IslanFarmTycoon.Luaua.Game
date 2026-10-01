@@ -67,12 +67,15 @@ export type AnimalConfig = {
 	baseIncomePerSecond: number,
 }
 
--- Ahır siparişi kademesi: kaç farklı ürün (lines) ve her üründen kaç birim (units) ister; ödül = max(ürün değerleri, gelir x GOODS_CONTRACTS.incomeSeconds) x rewardFactor
+-- Ahır siparişi kademesi: kaç farklı ürün (lines) ve her üründen en az kaç birim (units) ister; birim sayısı ahır deposu kapasitesiyle
+-- büyür (capShare: kapasitenin oranı, ucuz üründe tam, pahalı üründe değerle ters orantılı küçülür). Ödül FarmMath/Contracts.reward ile
+-- (ürün değeri ya da gelir tabanı) x rewardFactor.
 export type GoodsContractTierConfig = {
 	id: string,
 	displayName: string,
 	lines: number,
 	units: number,
+	capShare: number,
 	rewardFactor: number,
 	weight: number, -- Panoda çıkma ağırlığı (büyüğü seyrek)
 }
