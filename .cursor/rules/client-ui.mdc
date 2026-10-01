@@ -40,6 +40,11 @@ Katman: `src/client/Ui/` (UiKit, FarmHud, `Hud/*`, paneller, `IslandManager`, `I
 - Pencere açılınca `redraw`; kapalı pencere içeriği `*Dirty` bayraklarıyla ertelenir.
 - Her yeni ekran metni için çeviri gerekir (localization rule). Kısa etiket seç; karo yazısı 76 px.
 
+## Mobil, güvenli alan ve gamepad
+- Tam ekran her `ScreenGui` `UiKit.screenRoot(gui)` ile kurulur (`ScreenInsets = DeviceSafeInsets` + ekran boyutuna bağlı kök `UIScale`; kademeler `shared/Modules/UiScale`); pencere/paneller dönen kökün altına konur, doğrudan ScreenGui'ye değil. Ekrana sığdırma için `camera.ViewportSize` değil `UiKit.viewport()` (ölçek uygulanmış) kullan.
+- Dokunma hedefi >= `UiKit.TouchTarget` (44 px; görünen şekil küçük olsa da tıklama alanı büyük olur), yazı alt sınırı `UiKit.MinTextSize` (11).
+- Gamepad: DPad menü kısayolları `FarmHud.client` içinde (`HudGamepadMenu`; yukarı Pazar, sağ Yükseltmeler, sol Adalar, aşağı Envanter) ve yalnızca arayüz seçimi boşken çalışır; menü karolarında `NextSelection*` zinciri `MenuBar.linkSelection` ile görünür karolara göre kurulur — yeni karo eklersen `topOrder`/`sideOrder` listesine koy.
+
 ## Ses ve para biçimi
 - Sesler `src/client/Core/Sfx.luau` üzerinden çalınır (`Sfx.play("coin")`, `Sfx.playAt`); kimlikler
   `Config.SOUNDS / AMBIENCE / ANIMAL_SOUNDS / MUSIC`. Boş `id` = ses yok. Üç SoundGroup: efekt (`SoundVolume`), ortam + hayvan (`AmbienceVolume`),

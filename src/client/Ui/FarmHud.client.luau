@@ -4,6 +4,8 @@
 -- Bölümler `Hud/` altındadır: StatsPanel (sol panel), GoalCard (hedef kartları), MenuBar (alt menü, rozetler),
 -- Celebration (kilometre taşı panosu) ve pencere modülleri.
 
+local ContextActionService = game:GetService("ContextActionService")
+local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
@@ -255,6 +257,42 @@ UserInputService.InputBegan:Connect(function(input: InputObject, gameProcessed: 
 		end
 	end
 end)
+-- Gamepad: DPad Yukarı = Pazar, Sağ = Yükseltmeler, Sol = Adalar, Aşağı = Envanter (klavye kısayollarının karşılığı).
+-- Arayüz gezintisi açıkken (bir pencere açık ya da bir karo seçili) DPad gezinti için bırakılır; menüyü yalnızca boştayken açar.
+-- Açık pencereyi B kapatır (Ui/Kit/Windows), seçimi geri verir.
+local gamepadMenu: { [Enum.KeyCode]: () -> () } = {
+	[Enum.KeyCode.DPadUp] = function()
+		toggleWindow(shopWindow)
+	end,
+	[Enum.KeyCode.DPadRight] = function()
+		toggleWindow(upgradesWindow)
+	end,
+	[Enum.KeyCode.DPadLeft] = IslandManager.toggle,
+	[Enum.KeyCode.DPadDown] = function()
+		if inventoryPanel.window.isOpen() then
+			inventoryPanel.window.close()
+		else
+			openCenter(inventoryPanel.window)
+		end
+	end,
+}
+ContextActionService:BindActionAtPriority(
+	"HudGamepadMenu",
+	function(_name: string, state: Enum.UserInputState, input: InputObject): Enum.ContextActionResult
+		local open = gamepadMenu[input.KeyCode]
+		if state ~= Enum.UserInputState.Begin or open == nil or GuiService.SelectedObject ~= nil then
+			return Enum.ContextActionResult.Pass
+		end
+		open()
+		return Enum.ContextActionResult.Sink
+	end,
+	false,
+	Enum.ContextActionPriority.High.Value,
+	Enum.KeyCode.DPadUp,
+	Enum.KeyCode.DPadRight,
+	Enum.KeyCode.DPadLeft,
+	Enum.KeyCode.DPadDown
+)
 local showToast = UiKit.toastHost(hudRoot)
 local toastHolder = hudRoot:FindFirstChild("Toasts") :: Frame
 -- Bildirimler üst menü çubuğunun (60 px) altında, sağ menü sütununa ve sol panele taşmadan durur.
