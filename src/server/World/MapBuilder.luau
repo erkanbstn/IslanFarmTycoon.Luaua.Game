@@ -55,6 +55,8 @@ local TEMPLATE_CONTENT = { "BuildSpots", "Decor", "Islands" }
 local TEMPLATE_ATTRIBUTES = { "ThemeIndex", "IslandName", "IslandIcon" }
 -- Dünya konumu taşıyan Vector3 öznitelikleri (AreaSize gibi boyut öznitelikleri taşınmaz)
 local POSITION_VECTOR_ATTRIBUTES: { [string]: boolean } = { PathStart = true, PathEnd = true }
+-- Dünya çerçevesinde CFrame öznitelikleri (yerel ofset tutan bir CFrame özniteliği buraya konmaz)
+local POSITION_CFRAME_ATTRIBUTES: { [string]: boolean } = { AreaCFrame = true, IslandFrame = true }
 
 local function templateFolder(): Folder
 	local existing = ServerStorage:FindFirstChild(TEMPLATE_FOLDER)
@@ -113,7 +115,10 @@ end
 local function remapPositions(root: Instance, delta: CFrame)
 	local function remap(instance: Instance)
 		for name, value in instance:GetAttributes() do
-			if typeof(value) == "CFrame" or (typeof(value) == "Vector3" and POSITION_VECTOR_ATTRIBUTES[name]) then
+			if
+				(typeof(value) == "CFrame" and POSITION_CFRAME_ATTRIBUTES[name])
+				or (typeof(value) == "Vector3" and POSITION_VECTOR_ATTRIBUTES[name])
+			then
 				instance:SetAttribute(name, delta * value)
 			end
 		end
