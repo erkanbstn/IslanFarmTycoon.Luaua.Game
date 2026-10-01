@@ -148,7 +148,10 @@ local function execute(player: Player, action: string, value: unknown): (boolean
 				data.purchased[upgradeId] = true
 			end
 			for _, upgrade in Config.UPGRADES do
-				if Config.getUpgradeIsland(upgrade) == islandId then
+				if
+					Config.getUpgradeIsland(upgrade) == islandId
+					and Config.upgradeInTheme(upgrade, data.activeMainFarmId)
+				then
 					unlock(upgrade.id)
 				end
 			end

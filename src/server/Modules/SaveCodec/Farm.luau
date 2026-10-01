@@ -68,9 +68,12 @@ function Farm.decode(
 	if typeof(source.purchased) == "table" then
 		for _, id in source.purchased do
 			if typeof(id) == "string" then
-				if config.getUpgrade(id) then
+				local upgrade = config.getUpgrade(id)
+				if upgrade and config.upgradeInTheme(upgrade, save.farmId) then
 					save.purchased[id] = true
 				else
+					-- Bilinmeyen ya da bu çiftliğin temasında olmayan yükseltme (yönetici aracı/eski kayıt) atılır:
+					-- yoksa ördek çiftliğinde süt fabrikası gibi ikinci bir bina ve yanlış üretim tarifi çıkar.
 					repairs += 1
 				end
 			else
