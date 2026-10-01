@@ -221,7 +221,7 @@ def main() -> int:
         module("engagementServiceSpec", "tests/engagement-service.spec.luau"),
         module("MonetizationServiceFactory", "src/server/Services/MonetizationService.luau",
                {"Config", "Remotes", "FarmMath", "PlayerDataService", "RateLimiter", "ReceiptLog", "Metrics"},
-               "game, Remotes, PlayerDataService, RateLimiter, Metrics, Enum, warn"),
+               "game, Remotes, PlayerDataService, RateLimiter, Metrics, Enum, warn, task"),
         module("monetizationServiceSpec", "tests/monetization-service.spec.luau"),
         module("BuyPadServiceFactory", "src/server/Services/BuyPadService.luau",
                {"Config", "Remotes", "FarmMath", "RateLimiter", "UiTheme", "WorldUi", "PlayerDataService", "PlotService", "UpgradeService", "UpgradeVisualService"},

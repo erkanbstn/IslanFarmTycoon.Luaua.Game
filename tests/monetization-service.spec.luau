@@ -48,7 +48,7 @@ return function(createService: any, createHarness: any, createLimiter: any, code
 				callback(player, passId, purchased)
 			end
 		end
-		h.service = createService(h.game, h.remotes, h.dataService, h.limiter, h.metrics, fakeEnum, h.warn)
+		h.service = createService(h.game, h.remotes, h.dataService, h.limiter, h.metrics, fakeEnum, h.warn, h.task)
 		h.service.init()
 		h.receipt = function(purchaseId: any, productId: number, playerId: number?): any
 			return { PurchaseId = purchaseId, ProductId = productId, PlayerId = playerId or h.player.UserId }
@@ -194,6 +194,26 @@ return function(createService: any, createHarness: any, createLimiter: any, code
 		"ownership is read from the marketplace"
 	)
 	assert(refreshed.data.passes.auto_collector == nil, "unreleased passes are skipped")
+	assert(#refreshed.delays == 0, "no retry when every query succeeds")
+
+	-- Sorgu hatası: önceki sahiplik korunur, geçit düşmez; sınırlı sayıda yeniden denenir
+	local realQuery = refreshed.market.UserOwnsGamePassAsync
+	refreshed.market.UserOwnsGamePassAsync = function(): boolean
+		error("Roblox service unavailable")
+	end
+	refreshed.service.refreshPasses(refreshed.player)
+	assert(refreshed.data.passes.double_income == true, "a failed query keeps the previously owned pass")
+	assert(#refreshed.delays == 1, "a failed query schedules one retry")
+	for _ = 1, 5 do
+		local retry = table.remove(refreshed.delays)
+		if not retry then
+			break
+		end
+		retry.callback(table.unpack(retry.args))
+	end
+	assert(refreshed.data.passes.double_income == true, "retries keep the pass while the service is down")
+	assert(#refreshed.delays == 0, "retries are bounded")
+	refreshed.market.UserOwnsGamePassAsync = realQuery
 
 	products.income_pack.id, products.instant_production.id, passes.double_income.id =
 		saved.income, saved.instant, saved.pass

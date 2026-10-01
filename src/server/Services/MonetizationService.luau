@@ -45,11 +45,18 @@ local function findPassKey(passId: number): string?
 end
 
 -- Sahip olunan geçitleri MarketplaceService'ten okuyup kayda (kaydedilmeyen `passes`) yazar.
-function MonetizationService.refreshPasses(player: Player)
+-- Sorgu hata verirse o geçidin önceki değeri korunur (geçici bir Roblox hatası sahip olunan geçidi düşürmesin) ve
+-- PASS_RETRY_SECONDS sonra en çok PASS_RETRY_LIMIT kez yeniden denenir.
+local PASS_RETRY_SECONDS = 30
+local PASS_RETRY_LIMIT = 3
+
+function MonetizationService.refreshPasses(player: Player, attempt: number?)
 	local data = PlayerDataService.tryGet(player)
 	if not data then
 		return
 	end
+	local previous = data.passes or {}
+	local failed = false
 	local passes: { [string]: boolean } = {}
 	for key, pass in Config.PRODUCTS.passes do
 		if pass.id == 0 then
@@ -59,6 +66,10 @@ function MonetizationService.refreshPasses(player: Player)
 		if ok and owned == true then
 			passes[key] = true
 		elseif not ok then
+			failed = true
+			if previous[key] then
+				passes[key] = true
+			end
 			warn(`[Monetization] Geçit sahipliği okunamadı user={player.UserId} pass={key}: {owned}`)
 		end
 	end
@@ -69,6 +80,10 @@ function MonetizationService.refreshPasses(player: Player)
 	end
 	current.passes = passes
 	PlayerDataService.pushState(player)
+	local tries = attempt or 0
+	if failed and tries < PASS_RETRY_LIMIT then
+		task.delay(PASS_RETRY_SECONDS, MonetizationService.refreshPasses, player, tries + 1)
+	end
 end
 
 -- Desteklenen ürün etkileri tek kaynaktır: processReceipt yalnızca burada olanları işler.

@@ -110,6 +110,7 @@ return function(createLimiter: any, codec: any, config: any, farmMath: any, crea
 			end,
 		}
 		-- task.spawn çalıştırılmaz, saklanır: runSpawned bir döngüyü tek tur çalıştırıp wait'te durdurur.
+		h.delays = {}
 		h.task = {
 			spawn = function(callback: any, ...: any)
 				local args = { ... }
@@ -123,7 +124,9 @@ return function(createLimiter: any, codec: any, config: any, farmMath: any, crea
 				end
 				h.waitBudget -= 1
 			end,
-			delay = function() end,
+			delay = function(seconds: number, callback: any, ...: any)
+				table.insert(h.delays, { seconds = seconds, callback = callback, args = { ... } })
+			end,
 		}
 		function h.runSpawned(index: number, budget: number?)
 			h.waitBudget = budget or 1
