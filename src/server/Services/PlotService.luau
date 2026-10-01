@@ -464,7 +464,7 @@ local function resetPlot(plot: Model)
 	end
 	local collector = plot:FindFirstChild("Collector")
 	if collector then
-		WorldUi.setTag(collector:FindFirstChild("CollectorBillboard"), "Depo", "💰", UiTheme.Color.Gold)
+		WorldUi.setTag(collector:FindFirstChild("CollectorBillboard"), "Depo", "💰", UiTheme.Color.Green)
 	end
 end
 

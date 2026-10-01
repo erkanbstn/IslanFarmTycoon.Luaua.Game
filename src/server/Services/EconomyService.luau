@@ -46,7 +46,7 @@ local function updateCollector(player: Player)
 				plot,
 				`{FarmMath.formatMoney(data.stored)} / {FarmMath.formatMoney(cap)}`,
 				"💰",
-				UiTheme.Color.Gold
+				UiTheme.Color.Green
 			)
 		end
 	end

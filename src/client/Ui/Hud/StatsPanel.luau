@@ -64,8 +64,8 @@ function StatsPanel.create(screenGui: Instance): Hud
 		return texts
 	end
 
-	local cashTexts = statRow(stats, 1, "💰", Color.Gold)
-	local cashLabel = UiKit.text(cashTexts, "$0", "Display", Color.Gold)
+	local cashTexts = statRow(stats, 1, "💰", Color.Green)
+	local cashLabel = UiKit.text(cashTexts, "$0", "Display", Color.Green)
 	cashLabel.LayoutOrder = 1
 	-- Para toplayınca kasadaki sayı hafifçe zıplar
 	local cashScale = Instance.new("UIScale")
@@ -225,7 +225,7 @@ function StatsPanel.create(screenGui: Instance): Hud
 	end
 
 	-- Panel kapalıyken sekmenin yanında kasa görünür (panel açılınca gizlenir)
-	local tabCash = UiKit.text(tab, "$0", "Caption", Color.Gold)
+	local tabCash = UiKit.text(tab, "$0", "Heading", Color.Green) -- kapalıyken de rahat okunsun: para yeşil, büyük
 	tabCash.AutomaticSize = Enum.AutomaticSize.None
 	tabCash.AnchorPoint = Vector2.new(0, 0.5)
 	tabCash.Position = UDim2.new(0, TAB_WIDTH + 2, 0.5, 0)

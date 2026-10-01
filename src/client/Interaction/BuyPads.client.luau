@@ -39,7 +39,7 @@ end
 
 local function paint()
 	for ring, cost in rings do
-		local color = if affordable(ring, cost) then UiKit.Color.Gold else UiKit.Color.Disabled
+		local color = if affordable(ring, cost) then UiKit.Color.Green else UiKit.Color.Disabled
 		if ring.Color ~= color then
 			ring.Color = color
 		end

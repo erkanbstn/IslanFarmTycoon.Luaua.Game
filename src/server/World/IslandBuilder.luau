@@ -377,7 +377,7 @@ local function buildIsland(plotIndex: number, islandCf: CFrame, theme: number?):
 	WorldUi.tag(collector, "CollectorBillboard", {
 		text = "Depo",
 		icon = "💰",
-		tint = UiTheme.Color.Gold,
+		tint = UiTheme.Color.Green,
 		widthStuds = 7,
 		heightStuds = 1.6,
 		offset = Vector3.new(0, 3.5, 0),

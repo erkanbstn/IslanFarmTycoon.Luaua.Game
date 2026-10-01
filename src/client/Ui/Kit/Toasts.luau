@@ -17,7 +17,7 @@ export type ToastKind = "success" | "error" | "money" | "info"
 local TOAST_COLORS: { [string]: Color3 } = {
 	success = Tokens.Color.Green,
 	error = Tokens.Color.Red,
-	money = Tokens.Color.Gold,
+	money = Tokens.Color.Green,
 	info = Tokens.Color.Blue,
 }
 

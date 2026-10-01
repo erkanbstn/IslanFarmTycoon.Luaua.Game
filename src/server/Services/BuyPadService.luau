@@ -166,7 +166,7 @@ local function buildPad(
 	WorldUi.tag(pad, "PadTag", {
 		text = `{upgrade.displayName} · {priceText}`,
 		icon = upgrade.icon,
-		tint = UiTheme.Color.Gold,
+		tint = UiTheme.Color.Green,
 		widthStuds = 11,
 		heightStuds = 1.9,
 		offset = Vector3.new(0, 4.6, 0),
