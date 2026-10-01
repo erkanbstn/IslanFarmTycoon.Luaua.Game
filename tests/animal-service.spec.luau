@@ -255,8 +255,8 @@ return function(
 	local stock = farmMath.getGoodsAmount(gdata, "cheese")
 	assert(stock > 0, "the fixture holds goods")
 	for _, bad in { "dragon", 5, "", {} } do
-		local reply = barterBuy(guardBarter, bad)
-		assert(reply and reply.ok == false, "an unknown animal is refused")
+		local refusedReply = barterBuy(guardBarter, bad)
+		assert(refusedReply and refusedReply.ok == false, "an unknown animal is refused")
 	end
 	local staleFarm = barterBuy(guardBarter, "cow", "bogus-farm")
 	assert(
@@ -278,8 +278,8 @@ return function(
 	)
 	local before2 = #gdata.animals
 	local fixedId = guardBarter.nextId()
-	local first = barterBuy(guardBarter, "cow", nil, fixedId)
-	assert(first and first.ok == true and #gdata.animals == before2 + 1, "cheese pays for a cow")
+	local firstBarter = barterBuy(guardBarter, "cow", nil, fixedId)
+	assert(firstBarter and firstBarter.ok == true and #gdata.animals == before2 + 1, "cheese pays for a cow")
 	local stockAfter = farmMath.getGoodsAmount(gdata, "cheese")
 	assert(
 		guardBarter.fireRaw(guardBarter.player, "RequestBarterAnimal", "cow", fixedId, gdata.activeMainFarmId) == nil,
@@ -289,7 +289,7 @@ return function(
 		#gdata.animals == before2 + 1 and farmMath.getGoodsAmount(gdata, "cheese") == stockAfter,
 		"a replay trades nothing"
 	)
-	local spam = guardBarter.fireRaw(
+	local barterSpam = guardBarter.fireRaw(
 		guardBarter.player,
 		"RequestBarterAnimal",
 		"cow",
