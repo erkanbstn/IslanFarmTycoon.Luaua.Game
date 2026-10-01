@@ -204,6 +204,7 @@ return {
 	["Bu ada henüz açık değil veya seyahat için hazır değil."] = "This island is not unlocked yet or is not ready for travel.",
 	["Böyle bir ada yok."] = "There is no such island.",
 	["Çok hızlı işlem yapıyorsun; biraz bekle."] = "You are acting too fast; wait a moment.",
+	["Çiftlik değiştirmek için birkaç saniye bekle."] = "Wait a few seconds before switching farms.",
 	["Etkin çiftlik değişti; işlemi yeni çiftlikte tekrar seç."] = "The active farm changed; pick the action again on the new farm.",
 	["Etkin çiftlik değişti; siparişi tekrar seç."] = "The active farm changed; pick the order again.",
 	["Etkin çiftlik değişti; üretimi tekrar seç."] = "The active farm changed; pick the production again.",

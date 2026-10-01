@@ -177,7 +177,7 @@ return function(
 	assert(resolver ~= nil, "live physical summary resolver must be registered")
 	local sequence = 0
 	local function fire(action: any, target: any): any
-		now += 0.7
+		now += if action == "select" then config.MAIN_FARM_SWITCH_COOLDOWN_SECONDS + 0.1 else 0.7
 		sequence += 1
 		request.OnServerEvent.fire(player, action, target, sequence)
 		return results[#results]
@@ -228,6 +228,20 @@ return function(
 		"activation teleports the player home on the re-themed island"
 	)
 	assert(fire("select", "1").ok and data.activeMainFarmId == "1", "the first farm can be reactivated")
+	local switchesBefore = teleports
+	now += 1
+	sequence += 1
+	request.OnServerEvent.fire(player, "select", "2", sequence)
+	local tooSoon = results[#results]
+	assert(
+		not tooSoon.ok and tooSoon.message ~= "" and data.activeMainFarmId == "1" and teleports == switchesBefore,
+		"a second farm switch inside the cooldown is rejected with a message"
+	)
+	now += config.MAIN_FARM_SWITCH_COOLDOWN_SECONDS
+	sequence += 1
+	request.OnServerEvent.fire(player, "select", "2", sequence)
+	assert(results[#results].ok and data.activeMainFarmId == "2", "the switch works again after the cooldown")
+	assert(fire("select", "1").ok and data.activeMainFarmId == "1", "restore the first farm for the income checks")
 	economy.settlePlayer(player)
 	local oldStored = data.stored
 	local second = profiles.view(data, "2")

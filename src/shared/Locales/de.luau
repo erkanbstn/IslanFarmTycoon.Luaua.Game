@@ -204,6 +204,7 @@ return {
 	["Bu ada henüz açık değil veya seyahat için hazır değil."] = "Diese Insel ist noch nicht freigeschaltet oder nicht reisebereit.",
 	["Böyle bir ada yok."] = "Diese Insel gibt es nicht.",
 	["Çok hızlı işlem yapıyorsun; biraz bekle."] = "Du handelst zu schnell; warte einen Moment.",
+	["Çiftlik değiştirmek için birkaç saniye bekle."] = "Warte ein paar Sekunden, bevor du die Farm wechselst.",
 	["Etkin çiftlik değişti; işlemi yeni çiftlikte tekrar seç."] = "Die aktive Farm hat gewechselt; wähle die Aktion auf der neuen Farm erneut.",
 	["Etkin çiftlik değişti; siparişi tekrar seç."] = "Die aktive Farm hat gewechselt; wähle den Auftrag erneut.",
 	["Etkin çiftlik değişti; üretimi tekrar seç."] = "Die aktive Farm hat gewechselt; wähle die Produktion erneut.",

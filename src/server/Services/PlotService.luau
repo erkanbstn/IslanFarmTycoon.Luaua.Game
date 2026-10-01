@@ -435,15 +435,10 @@ local function resetPlot(plot: Model)
 	BarnVisualService.applyForPlayer(plot, 1)
 	applyIslandState(plot, nil)
 	applyZoneState(plot, nil)
-	UpgradeVisualService.apply(plot, nil)
-	ExtensionVisualService.apply(plot, nil)
-	AnimalVisualService.clear(plot)
-	-- Toplama platformunun yanındaki para yığını eski sahibinden kalmasın
-	for _, name in { "CollectorPile", "BuyPads" } do
-		local leftover = plot:FindFirstChild(name)
-		if leftover then
-			leftover:Destroy()
-		end
+	-- Yapı/eklenti/hayvan/BuyPads temizliği retheme içinde yapıldı; burada yalnızca para yığını kalır.
+	local pile = plot:FindFirstChild("CollectorPile")
+	if pile then
+		pile:Destroy()
 	end
 	local collector = plot:FindFirstChild("Collector")
 	if collector then

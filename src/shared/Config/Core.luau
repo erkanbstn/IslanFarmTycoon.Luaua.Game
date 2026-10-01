@@ -7,6 +7,7 @@ return {
 	VERSION = "0.8.0",
 
 	MAIN_FARM_LIMIT = 6,
+	MAIN_FARM_SWITCH_COOLDOWN_SECONDS = 6, -- tema yeniden kurulumu pahalı; çiftlik seçimi bu aralıkta bir
 
 	-- Arayüz dilleri. Kaynak dil Türkçe; diğerleri src/shared/Locales/<kod>.luau içinde.
 	-- countries: kullanılmıyor (başlangıç dili yalnızca Roblox sistem dilinden; desteklenmiyorsa İngilizce).

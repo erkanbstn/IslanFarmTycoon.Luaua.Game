@@ -226,7 +226,6 @@ local function onPlayerAdded(player: Player)
 			PlotService.restoreMainFarms(player, PlayerDataService.getFarmIds(player), data.activeMainFarmId),
 			"Owned farm allocation failed"
 		)
-		PlotService.refreshPlayerWorld(player)
 		if not player.Character then
 			player:LoadCharacter()
 		end

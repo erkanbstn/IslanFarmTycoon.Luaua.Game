@@ -204,6 +204,7 @@ return {
 	["Bu ada henüz açık değil veya seyahat için hazır değil."] = "Этот остров ещё не открыт или не готов к путешествию.",
 	["Böyle bir ada yok."] = "Такого острова нет.",
 	["Çok hızlı işlem yapıyorsun; biraz bekle."] = "Ты действуешь слишком быстро; немного подожди.",
+	["Çiftlik değiştirmek için birkaç saniye bekle."] = "Подожди несколько секунд, прежде чем сменить ферму.",
 	["Etkin çiftlik değişti; işlemi yeni çiftlikte tekrar seç."] = "Активная ферма сменилась; выбери действие на новой ферме заново.",
 	["Etkin çiftlik değişti; siparişi tekrar seç."] = "Активная ферма сменилась; выбери заказ заново.",
 	["Etkin çiftlik değişti; üretimi tekrar seç."] = "Активная ферма сменилась; выбери производство заново.",

@@ -58,6 +58,12 @@ local function apply(player: Player, action: unknown, target: unknown): (boolean
 		if not data.mainFarms[farmId] then
 			return false, "Bu ana çiftlik sana ait değil."
 		end
+		if
+			farmId ~= previousFarmId
+			and not RateLimiter.allow(player, "mainFarmSwitch", Config.MAIN_FARM_SWITCH_COOLDOWN_SECONDS)
+		then
+			return false, "Çiftlik değiştirmek için birkaç saniye bekle."
+		end
 		EconomyService.settlePlayer(player)
 	end
 	if not PlotService.selectMainFarm(player, farmId) or not PlayerDataService.setActiveMainFarm(player, farmId) then
