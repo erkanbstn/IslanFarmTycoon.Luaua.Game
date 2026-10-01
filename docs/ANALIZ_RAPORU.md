@@ -1,3 +1,5 @@
+Güncel durum için docs/DURUM_RAPORU.md
+
 # Island Farm Tycoon — Proje Analiz Raporu (2026-10-01)
 
 `docs/AI_ANALIZ_PROMPTU.md` istemine göre hazırlandı. Kod okunarak yazıldı; iddiaların hepsi dosya/satıra dayanır.
