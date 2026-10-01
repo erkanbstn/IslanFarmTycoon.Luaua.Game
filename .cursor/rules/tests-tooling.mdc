@@ -6,26 +6,30 @@ alwaysApply: false
 
 # Testler ve araçlar
 
-- Saf Luau testleri: `python scripts/run-tests.py` gerçek kaynağı birleştirip `.tools/luau` ile koşar.
-  Yeni spec: `tests/<ad>.spec.luau` bir fonksiyon döndürür → `run-tests.py` içinde `module(...)`
-  ile ekle ve en alttaki çağrı listesine yaz. Roblox servisleri gerekiyorsa `factory_args` ile
-  sahte (`game`, `task`, `os`...) enjekte edilir; bağımlılık kümesi tam eşleşmeli.
-- Servis testleri (Animal/Upgrade/Inventory/Engagement/Monetization/BuyPad...): `tests/service-harness.luau` ortak sahte dünyayı kurar
-  (oyuncu + kayıt, Remote'lar, saat, `task.spawn` döngüsünü tek tur çalıştırma, sayaçlar, gerçek `RequestGuard`); yeni servis spec'i
-  sahip / parası yok / tekrar istek / yanlış çiftlik / hız sınırı durumlarını bununla yazar.
-- Tip analizi tabanı (`scripts/types-baseline.json`) yalnızca küçülür: bulgu düzeldiyse `python scripts/check-types.py --update`; yeni bulguyu tabana ekleme, düzelt.
-  `verify.ps1` araçlar (`.tools/luau-lsp`) yoksa tip denetimini atlar ama görünür uyarı basar (`-RequireTypes` ile hata sayılır).
-- Harita yapı testi: `tests/map-structure.spec.luau` ve `tests/world.spec.luau` Studio eklentisine gömülüdür (`plugin.project.json`); panelde **Haritayı Doğrula**
-  çalıştırır. Spec `return function(context)` kalıbında kalmalı (`context.mapBuilder/Config` eklentiden taze gelir). Yeni tabela/satıcı/tema kuralı bunu genişletir.
-- Yapay zeka rehber dosyaları: `python scripts/check-ai-docs.py` (kural/skill/yönlendirme tutarlılığı; verify.ps1 içinde).
-- Studio (dünya) testleri: `test.project.json` ayrı place; `tests/run.server.luau`. Harita sürümünü
-  sabit sayıyla değil `validate()` ile kontrol et.
-- Tam doğrulama: `powershell -ExecutionPolicy Bypass -File scripts/verify.ps1`
-  (StyLua, Selene, Luau derleme, regresyon, yerelleştirme, rehber tutarlılığı, saf modül tip analizi, mimari kuralları, tip analizi tabanı, üç Rojo derlemesi).
-- Test koşucusu `local X = require(...)` deyimlerini (çok satırlı olsa da) değiştirir; klasör yeniden düzenlersen `run-tests.py`'deki kaynak yollarını güncelle.
-- Hızlı döngü: `stylua src tests plugin` → `selene src` → `python scripts/run-tests.py`.
-- Testi geçirmek için beklentiyi gevşetme; davranış bilinçli değiştiyse testi güncelle ve nedenini
-  commit mesajında yaz.
+## Saf Luau testleri (`python scripts/run-tests.py`)
+- Gerçek kaynağı birleştirip `.tools/luau` ile koşar (Luau sürümü `scripts/verify.ps1`'de sabittir). Yalnızca `local X = require(...)` deyimlerini (çok satırlı olsa da) değiştirir;
+  başka biçimde `require` hata verir. Her modülün `dependencies` kümesi koddaki require'larla **tam eşleşmeli**, yoksa "Unexpected dependency / Dependency mismatch".
+- Klasör olan modüller parça listeleriyle birleştirilir: `CONFIG_PARTS`, `FARM_MATH_PARTS`, `SAVE_CODEC_PARTS` (`run-tests.py`). Bu klasörlere dosya ekler/çıkarır/yeniden adlandırırsan
+  ilgili listeyi (sıra bağımlılığı izler) güncelle.
+- Yeni spec: `tests/<ad>.spec.luau` bir fonksiyon döndürür → `run-tests.py` içinde `module(...)` ile ekle ve `main()` sonundaki çağrı listesine yaz. Roblox servisleri gerekiyorsa
+  `factory_args` ile sahte (`game`, `task`, `os`...) enjekte edilir.
+- Servis testleri (Animal/Upgrade/Inventory/Engagement/Monetization/BuyPad/Contract...): `tests/service-harness.luau` ortak sahte dünyayı kurar (oyuncu + kayıt, Remote'lar, saat,
+  `task.spawn` döngüsünü tek tur çalıştırma, sayaçlar, gerçek `RequestGuard`). Yeni servis spec'i sahip / parası yok / tekrar istek / yanlış çiftlik / hız sınırı durumlarını bununla yazar.
+- Testi geçirmek için beklentiyi gevşetme; davranış bilinçli değiştiyse testi güncelle ve nedenini commit mesajında yaz.
 
-- **Tip analizi**: `python scripts/check-types.py` (luau-lsp analyze + Roblox tip tanımları + rojo sourcemap). Roblox kodunda çok gürültü çıktığı için bulgular `scripts/types-baseline.json` tabanına kaydedilir; yalnızca **yeni ya da artan** bulgu hata sayılır. Araçlar `.tools/luau-lsp` altındadır (git'e girmez; `powershell scripts/setup-types.ps1` indirir; yoksa adım atlanır). Yeni bulguyu önce gerçek hata diye incele (ör. `local T = { f = function() T.x() end }` içinde `T` yerel değildir → çalışma anında nil); gürültüyse bilinçli `--update`.
-- **Mimari kuralları**: `python scripts/check-architecture.py` katmanların yalnızca izinli katmanlara `require` ile bağlandığını denetler (docs/MIMARI.md). Bilinçli istisna gerekçesiyle `ALLOW` listesine eklenir.
+## Studio (dünya) testleri
+- `tests/map-structure.spec.luau` ve `tests/world.spec.luau` Studio eklentisine gömülüdür (`plugin.project.json`); panelde **Haritayı Doğrula** çalıştırır (`MapBuilder.validate` + iki spec).
+  Spec `return function(context)` kalıbında kalmalı (`context.mapBuilder/Config` eklentiden taze gelir). Yeni tabela/satıcı/tema kuralı bunu genişletir. Harita sürümünü sabit sayıyla değil `validate()` ile kontrol et.
+- `test.project.json` ayrı test place'idir; `tests/run.server.luau` çalıştırır.
+
+## Doğrulama komutları
+- Hızlı döngü: `stylua src tests plugin` → `selene src` → `python scripts/run-tests.py`.
+- Tam doğrulama: `powershell -ExecutionPolicy Bypass -File scripts/verify.ps1` (adımların listesi ve çıktısı `scripts/verify.ps1`'dedir; `-RequireTypes` tip analizi araçları yoksa hata sayar).
+- `python scripts/check-ai-docs.py`: kural/skill/yönlendirme tutarlılığı (AGENTS.md tablosu, glob eşleşmesi, metindeki repo yolları gerçekten var mı).
+- `python scripts/check-architecture.py`: katmanlar yalnızca izinli katmanlara `require` eder (`docs/MIMARI.md`); bilinçli istisna gerekçesiyle `ALLOW` listesine girer.
+- `python scripts/check-locales.py --strict-literals`: çeviri anahtarı eşitliği ve arayüz metni kapsamı.
+
+## Tip analizi (`python scripts/check-types.py`)
+- luau-lsp analyze + Roblox tip tanımları + rojo sourcemap. Araçlar `.tools/luau-lsp` altındadır (git'e girmez; `powershell scripts/setup-types.ps1` indirir). Yoksa komut atlar, `verify.ps1` görünür uyarı basar.
+- Bilinen bulgular `scripts/types-baseline.json` tabanındadır; yalnızca **yeni ya da artan** bulgu hatadır. Taban yalnızca küçülür: bulgu düzeldiyse `python scripts/check-types.py --update`;
+  yeni bulguyu tabana ekleme, düzelt. Yeni bulguyu önce gerçek hata diye incele (ör. `local T = { f = function() T.x() end }` içinde `T` yerel değildir → çalışma anında nil).

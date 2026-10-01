@@ -7,30 +7,34 @@ description: Changes persisted player save data safely in this Roblox project (G
 
 Kayıt kaybı geri alınamaz; her adımı test et.
 
-Önce karar: alan **çiftlik başına** mı (`FarmProfiles.FIELDS`'e eklenir; her ana çiftlikte ayrı) yoksa **hesap düzeyi** mi (kökte; cüzdan, envanter, dil, grafik gibi)? Çalışma anı alan mı (`passes`, `envOverride`, `adminForce`: kaydedilmez, `FarmProfiles.view` gerekiyorsa taşır)?
+Önce karar: alan **çiftlik başına** mı (`FarmProfiles`'taki `FIELDS` listesine eklenir; her ana çiftlikte ayrı) yoksa **hesap düzeyi** mi (kökte; cüzdan, envanter, ahır deposu, dil, grafik gibi)?
+Çalışma anı alan mı (`passes`, `envOverride`, `adminForce`: kaydedilmez, `FarmProfiles.view` gerekiyorsa etkin olmayan çiftliğe taşır)?
 
 ```
 - [ ] 1. GameTypes: PlayerSave / farm tipine alan ekle
-- [ ] 2. SaveCodec.decode: eksik/bozuk değere varsayılan, sayılarda sonlu + clamp, id doğrulama
-- [ ] 3. SaveCodec.encode: alanı yaz
-- [ ] 4. Yeni hesap için varsayılan: SaveCodec.newFarm(config, farmMath, now, newUid, farmId) / FarmProfiles
+- [ ] 2. SaveCodec parçasında decode: eksik/bozuk değere varsayılan, sayılarda sonlu + clamp, id doğrulama
+      (alan başına parça: src/server/Modules/SaveCodec/ içinde Farm, Animals, Production, Tasks, Goods, Inventory, Account, Common)
+- [ ] 3. Aynı parçada encode (hesap alanları SaveCodec/init.luau encode'unda kökte listelenir)
+- [ ] 4. Yeni hesap için varsayılan: SaveCodec.newFarm(config, farmMath, now, newUid, farmId, tier) / FarmProfiles
       (SaveCodec/Farm.decode çiftlik numarasını `farmId` ile alır: başlangıç hayvanı temaya göre)
-- [ ] 5. Şema biçimi değiştiyse version +1 ve eski sürümden göç
+- [ ] 5. Şema biçimi değiştiyse SessionLock.VERSION +1 (tek kaynak) ve eski sürümden göç
 - [ ] 6. tests/data.spec.luau: eski kayıt → yeni, bozuk değer, gelecekteki sürüm reddi
-- [ ] 7. python scripts/run-tests.py
+- [ ] 7. python scripts/run-tests.py (SaveCodec klasörüne dosya eklediysen scripts/run-tests.py SAVE_CODEC_PARTS)
 ```
 
 ## Kurallar
-- Bilinmeyen gelecekteki sürüm reddedilir; bilinmeyen hayvan/alan varsa orijinal korunur,
-  varsayılanla **ezilmez**.
+- Bilinmeyen gelecekteki sürüm reddedilir (`SessionLock.validate`); bilinmeyen hayvan/alan varsa orijinal korunur, varsayılanla **ezilmez**.
 - Türetilmiş alanlar (açık adalar/bölgeler) kaydedilmez; `FarmMath.applyDerived` üretir.
-- DataStore yalnızca `Services/SaveStore` (`PlayerDataService` oturumu yönetir, SaveStore'u çağırır); oturum sahipliği `SessionLock` (UpdateAsync, süreli kilit).
+- DataStore çağrıları yalnızca `Services/SaveStore`'dadır (anahtar kilidi, UpdateAsync + yeniden deneme, yedek); `PlayerDataService` oturum/facade'dır ve SaveStore'u çağırır.
+  Oturum sahipliği `SessionLock` (süreli kilit). Başka servis DataStore kullanmaz.
 - Studio'da store adı `_Studio` eki alır; canlı veriyle test etme.
-- Hesap düzeyi tercih alanlarında (dil, grafik) doğrulama listesi `Config`'tedir; tanınmayan değer yok sayılır, yanlış tür reddedilmez ama atılır.
-- Para/sayı sınırı: `SaveCodec` MAX_MONEY ve `SessionLock.isFinite`.
+- Tercih alanları: dil ve grafik için doğrulama listesi `Config`'tedir (`LANGUAGES`, `GRAPHICS_MODES`); ses ve hareket azaltma için `Modules/Preferences`. Tanınmayan değer atılır.
+- Para/sayı sınırı: `SaveCodec/Common` `MAX_MONEY` ve `SessionLock.isFinite`.
 
-## Yedek ve ölçüm (`Modules/SaveBackup`, `Services/SaveStore`)
-- Her başarılı kayıtta (en fazla 10 dakikada bir) asıl anahtarın yanına dönüşümlü iki yedek yazılır: `player_<id>_backup1/2` (oturum kilidi ve revizyon içermez, `_backupAt` taşır).
-- Asıl kayıt çözülemezse (bozuk) yükleme en yeni çözülebilir yedekle açılır; bozuk kayıt önce `player_<id>_quarantine` anahtarına kopyalanır (yazılamazsa kurtarma yapılmaz). Gelecek sürüm kayıt yedekle ezilmez (kilit kaydı reddeder).
-- Ölçüm: `ServerStorage.Diagnostics` özniteliklerinde `SaveBytesLast/Max`, `SaveSizeWarning`, `SaveWriteMaxSeconds`, `SaveFailed`, `BackupWritten/Failed`, `ProfileRecovered`; oyuncu özniteliği `DataBytes`, `DataBackupAt`, `DataRecovered`. Boyut uyarı eşikleri 3,0 MB / 3,8 MB (sınır 4 MB).
-- Yeni bir kayıt alanı eklerken boyutu düşün; yedek yalnızca ham yükü kopyaladığından şema değişikliği ek iş gerektirmez.
+## Yedek ve ölçüm (`Modules/SaveBackup`, `Services/SaveStore`, `PlayerDataService`)
+- Başarılı kayıtta, `SaveBackup.INTERVAL_SECONDS` aralığıyla asıl anahtarın yanına dönüşümlü `SaveBackup.SLOTS` yedek yazılır (`SaveBackup.slotKey`; oturum kilidi ve revizyon içermez, `_backupAt` taşır).
+- Asıl kayıt çözülemezse (bozuk) yükleme en yeni çözülebilir yedekle açılır (`SaveStore.recoverFromBackup`); bozuk kayıt önce `SaveBackup.quarantineKey` anahtarına kopyalanır (yazılamazsa kurtarma yapılmaz).
+  Gelecek sürüm kayıt kilit aşamasında reddedilir, yedekle ezilmez.
+- Ölçüm: `ServerStorage.Diagnostics` öznitelikleri (`Metrics`; ör. `SaveBytesLast/Max`, `SaveSizeWarning`, `SaveFailed`, `BackupWritten/Failed`, `ProfileRecovered`, `SaveWrite*`); oyuncu öznitelikleri
+  `DataBytes`, `DataBackupAt`, `DataRecovered`. Boyut eşikleri `SaveBackup.SIZE_WARN_BYTES/SIZE_CRITICAL_BYTES` (DataStore değer sınırına göre).
+- Yeni bir kayıt alanı eklerken boyutu düşün; yedek ham yükü kopyaladığından şema değişikliği ek yedek işi gerektirmez.
