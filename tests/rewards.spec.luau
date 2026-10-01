@@ -70,14 +70,14 @@ return function(Rewards: any, Config: any, FarmMath: any)
 		end
 		error(`achievement {id} missing`)
 	end
-	assert(Rewards.progress(player, achievement("cows_10")) == 0, "no cows yet")
+	assert(Rewards.progress(player, achievement("home_10")) == 0, "no cows yet")
 	for index = 1, 10 do
 		table.insert(
 			player.animals,
 			{ uid = `x{index}`, animalId = "cow", zoneId = "starter", bornAt = 0, stage = "adult" }
 		)
 	end
-	assert(Rewards.isComplete(player, achievement("cows_10")), "ten cows complete the cow achievement")
+	assert(Rewards.isComplete(player, achievement("home_10")), "ten cows complete the cow achievement")
 	assert(Rewards.progress(player, achievement("animals_25")) == 10, "animals metric counts every animal")
 	assert(Rewards.progress(player, achievement("first_island")) == 1, "only the home island is open at the start")
 	player.unlockedIslands.poultry = true
@@ -90,7 +90,7 @@ return function(Rewards: any, Config: any, FarmMath: any)
 
 	local claimable = Rewards.claimableCount(player)
 	assert(claimable >= 3, "several achievements are claimable")
-	player.achievements.cows_10 = true
+	player.achievements.home_10 = true
 	assert(Rewards.claimableCount(player) == claimable - 1, "claimed achievements are no longer claimable")
 	for _, entry in Config.ACHIEVEMENTS do
 		assert(entry.reward > 0 and entry.target > 0 and entry.id ~= "", "achievement config must be sane")
@@ -193,7 +193,7 @@ return function(Rewards: any, Config: any, FarmMath: any)
 	-- Her başarım her temada ulaşılabilir olmalı (çiftlik yalnızca kendi adalarını alabilir)
 	for index, theme in Config.THEMES do
 		local farmId = tostring(index)
-		local purchasable, capacity, cowCapacity = 0, 0, 0
+		local purchasable, capacity, homeCapacity = 0, 0, 0
 		for _, upgrade in Config.UPGRADES do
 			if Config.themeHasIsland(farmId, Config.getUpgradeIsland(upgrade)) then
 				purchasable += 1
@@ -204,8 +204,8 @@ return function(Rewards: any, Config: any, FarmMath: any)
 				-- Alan genişletmesiyle ulaşılabilecek en büyük kapasite
 				local maxCapacity = FarmMath.getMaxZoneCapacity(zone.id)
 				capacity += maxCapacity
-				if Config.zoneAllows(zone, "cow", farmId) then
-					cowCapacity += maxCapacity
+				if Config.zoneAllows(zone, Config.getHomeAnimal(farmId), farmId) then
+					homeCapacity += maxCapacity
 				end
 			end
 		end
@@ -239,7 +239,7 @@ return function(Rewards: any, Config: any, FarmMath: any)
 			local reachable = if entry.metric == "purchases"
 				then purchasable
 				elseif entry.metric == "animals" then capacity
-				elseif entry.metric == "cows" then cowCapacity
+				elseif entry.metric == "home" then homeCapacity
 				elseif entry.metric == "islands" then #Config.getThemeIslands(farmId)
 				elseif entry.metric == "zones" then zoneCount
 				elseif entry.metric == "species" then speciesCount

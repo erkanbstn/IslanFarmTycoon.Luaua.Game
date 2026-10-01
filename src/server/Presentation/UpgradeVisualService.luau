@@ -26,6 +26,7 @@ local BuildersGoods = require(script.Parent:WaitForChild("UpgradeBuildersGoods")
 local BuildersHome = require(script.Parent:WaitForChild("UpgradeBuildersHome"))
 local BuildersBarnyard = require(script.Parent:WaitForChild("UpgradeBuildersBarnyard"))
 local BuildersWorkshops = require(script.Parent:WaitForChild("UpgradeBuildersWorkshops"))
+local BuildersSpecies = require(script.Parent:WaitForChild("UpgradeBuildersSpecies"))
 
 type PlayerSave = GameTypes.PlayerSave
 type Builder = UpgradeParts.Builder
@@ -41,21 +42,17 @@ local applyLevelMarks = UpgradeSites.applyLevelMarks
 
 -- Bina id -> görsel kurucu (gruplar ayrı dosyalarda)
 local BUILDERS: { [string]: Builder } = {}
-for _, group in { BuildersHome, BuildersBarnyard, BuildersWorkshops, BuildersGoods } do
+for _, group in { BuildersHome, BuildersBarnyard, BuildersWorkshops, BuildersGoods, BuildersSpecies } do
 	for id, builder in group do
 		BUILDERS[id] = builder
 	end
 end
 
--- Ana hayvana göre değişen ana ada fabrikaları ve Süt Adası fabrikaları mevcut binaların görünümünü paylaşır (yeni görsel: ilgili Builders dosyasına
--- kendi kurucusunu yazıp buradaki eşlemeyi sil).
+-- Ana adadaki ördek fabrikası ve ürün merkezi, ördek adası binalarının görünümünü paylaşır (yeni görsel: ilgili Builders dosyasına kendi kurucusunu yazıp
+-- buradaki eşlemeyi sil). Diğer ana hayvanların ve bütün hayvan türlerinin fabrika/ürün merkezi görünümleri UpgradeBuildersSpecies'tedir.
 local BUILDER_ALIASES: { [string]: string } = {
-	egg_packer = "egg_factory",
 	duck_packer = "duck_house",
-	egg_home_center = "egg_center",
 	down_home_center = "down_workshop",
-	dairy_factory = "milk_factory",
-	dairy_center = "milk_center",
 }
 for aliasId, sourceId in BUILDER_ALIASES do
 	BUILDERS[aliasId] = BUILDERS[sourceId]

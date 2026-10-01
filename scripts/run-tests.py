@@ -46,7 +46,7 @@ def module(name: str, path: str, dependencies: set[str] | None = None, factory_a
 
 
 CONFIG_PARTS = [
-    "Types", "Core", "Weather", "Economy", "Difficulty", "Shop", "Achievements", "Audio", "Goods", "Islands", "Upgrades", "Production",
+    "Types", "Species", "Core", "Weather", "Economy", "Difficulty", "Shop", "Achievements", "Audio", "Goods", "Islands", "Upgrades", "Production",
     "Animals", "Items",
 ]
 
@@ -60,8 +60,9 @@ def config_bundle(freeze: bool = True) -> str:
     for name in CONFIG_PARTS:
         path = f"src/shared/Config/{name}.luau"
         # Tip kullanan parçalar `Types`'ı dışarıdan enjekte edilmiş sayar.
-        uses_types = "local Types = require(" in (ROOT / path).read_text(encoding="utf-8-sig")
-        parts += module(name, path, {"Types"} if uses_types else None)
+        text = (ROOT / path).read_text(encoding="utf-8-sig")
+        deps = {dep for dep in ("Types", "Species") if f"local {dep} = require(" in text}
+        parts += module(name, path, deps or None)
     init = module("ConfigInit", "src/shared/Config/init.luau", set(CONFIG_PARTS))
     if not freeze:
         init = init.replace("return table.freeze(Config)", "return Config")

@@ -485,5 +485,80 @@ return function(Config: any, FarmMath: any)
 		Config.GOODS_CONTRACTS.floorWeight == 3 * Config.GOODS_CONTRACTS.unitRefValue,
 		"the reference order is 3 units"
 	)
+	-- Çiftlik çeşitliliği (docs/ADA_TASARIMI.md): 6 çiftlik x (1 ana + 3 küçük ada) x tek hayvan = 24 benzersiz hayvan; Süt Adası yok
+	do
+		local seenAnimals: { [string]: number } = {}
+		for index, theme in Config.THEMES do
+			local farmId = tostring(index)
+			local themeAnimals = { theme.homeAnimal }
+			assert(#theme.satellites == 3, `theme {index} has exactly 3 small islands`)
+			for _, islandId in theme.satellites do
+				local animalId = Config.getIslandAnimal(farmId, islandId)
+				assert(animalId and Config.ANIMALS[animalId], `island {islandId} must name its single animal`)
+				table.insert(themeAnimals, animalId)
+				-- Adadaki bölgelerde yalnızca o hayvan yaşar
+				for _, zone in Config.ZONES do
+					if zone.island == islandId then
+						assert(
+							#zone.allowedAnimals == 1 and zone.allowedAnimals[1] == animalId,
+							`zone {zone.id} must host only {animalId}`
+						)
+					end
+				end
+			end
+			assert(#themeAnimals == 4, `theme {index} has 4 animals`)
+			for _, animalId in themeAnimals do
+				assert(not seenAnimals[animalId], `{animalId} lives in two farms ({seenAnimals[animalId]} and {index})`)
+				seenAnimals[animalId] = index
+				assert(Config.getAnimalTheme(animalId) == index, `{animalId} maps back to its farm`)
+			end
+		end
+		local animalCount = 0
+		for _ in seenAnimals do
+			animalCount += 1
+		end
+		assert(animalCount == 24, `24 unique animals across the farms, got {animalCount}`)
+		for _, fishId in { "anchovy", "seabass" } do
+			assert(Config.getAnimalTheme(fishId) == nil, "the sea branch belongs to every farm, not to one theme")
+		end
+		-- Süt Adası kalktı: inek yalnızca Çiftlik 1'in ana adasında yaşar
+		assert(Config.FARM_ISLANDS.dairy == nil and Config.ZONES.dairy == nil, "no dairy island or zone")
+		assert(
+			Config.getUpgrade("island_dairy") == nil
+				and Config.getUpgrade("dairy_factory") == nil
+				and Config.getUpgrade("dairy_center") == nil
+				and Config.PRODUCTION_RECIPES.dairy_packing == nil
+				and Config.PRODUCTION_RECIPES.dairy_goods == nil,
+			"no dairy upgrades or recipes"
+		)
+		assert(
+			Config.getAnimalTheme("cow") == 1 and Config.getHomeAnimal("1") == "cow",
+			"the cow lives on farm 1's home island"
+		)
+		for _, island in Config.FARM_ISLANDS do
+			assert(
+				island.id == "home" or (island.animalId and island.buildUpgradeId and island.itemUpgradeId),
+				`island {island.id} is fully described`
+			)
+		end
+		-- Her hayvanın en az bir ürün (ürün merkezi) ve bir para fabrikası var; fabrika yalnızca kendi adasında/ana hayvanıyla kurulur ve ürünler benzersizdir
+		local goodsOwner: { [string]: string } = {}
+		for goodsId, good in Config.GOODS do
+			assert(not goodsOwner[good.animalId], `{good.animalId} has more than one good`)
+			goodsOwner[good.animalId] = goodsId
+		end
+		for index in Config.THEMES do
+			local farmId = tostring(index)
+			for _, recipe in Config.PRODUCTION_RECIPES do
+				local upgrade = Config.getUpgrade(recipe.upgradeId) :: any
+				if recipe.animalId ~= "anchovy" and Config.upgradeInTheme(upgrade, farmId) then
+					assert(
+						Config.getIslandAnimal(farmId, recipe.island) == recipe.animalId,
+						`theme {index}: recipe {recipe.id} can only be built where {recipe.animalId} lives`
+					)
+				end
+			end
+		end
+	end
 	print("PASS config: cross-references, prerequisite graph, seasonal goals and start state")
 end

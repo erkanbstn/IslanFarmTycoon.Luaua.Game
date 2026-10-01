@@ -3,7 +3,9 @@
 -- Gizli bilgi koyma: ReplicatedStorage client'a da gider.
 
 local Types = require(script.Parent:WaitForChild("Types"))
-return {
+local Species = require(script.Parent:WaitForChild("Species"))
+
+local data = {
 	-- Bir hayvanın her evrede kaldığı süre (saniye). Yetişkin olunca tam gelir verir.
 	GROWTH_SECONDS = {
 		calf = 800,
@@ -52,7 +54,7 @@ return {
 	} :: { Types.BarnLevelConfig },
 
 	-- Bütün ada türleri; hangi çiftlikte hangilerinin olduğunu THEMES belirler.
-	FARM_ISLAND_ORDER = { "home", "dairy", "poultry", "duck", "horse", "sheep", "goat", "pig" },
+	FARM_ISLAND_ORDER = { "home", "poultry", "horse", "goat", "sheep", "pig" },
 
 	FARM_ISLANDS = {
 		home = {
@@ -61,19 +63,15 @@ return {
 			icon = "🐄",
 			trait = "İnek çiftliğin ve ahırın burada",
 		},
-		dairy = {
-			id = "dairy",
-			displayName = "Süt Adası",
-			icon = "🐄",
-			trait = "Serin mahzen: depo kapasitesi +%20",
-			upgradeId = "island_dairy",
-		},
 		poultry = {
 			id = "poultry",
 			displayName = "Tavuk Adası",
 			icon = "🐔",
 			trait = "Yumurta hattı: üretim tesisleri %12 daha hızlı",
 			upgradeId = "island_poultry",
+			animalId = "chicken",
+			buildUpgradeId = "egg_factory",
+			itemUpgradeId = "egg_center",
 		},
 		horse = {
 			id = "horse",
@@ -81,6 +79,9 @@ return {
 			icon = "🐎",
 			trait = "Tüccar yolu: ahır siparişi ödülü +%8",
 			upgradeId = "island_horse",
+			animalId = "horse",
+			buildUpgradeId = "golden_horseshoe",
+			itemUpgradeId = "horseshoe_forge",
 		},
 		goat = {
 			id = "goat",
@@ -88,13 +89,9 @@ return {
 			icon = "🐐",
 			trait = "Dağ havası: çevrimdışı kazanç +%25",
 			upgradeId = "island_goat",
-		},
-		duck = {
-			id = "duck",
-			displayName = "Ördek Adası",
-			icon = "🦆",
-			trait = "Göl pazarı: hayvan satış geliri +%15",
-			upgradeId = "island_duck",
+			animalId = "goat",
+			buildUpgradeId = "cheese_dairy",
+			itemUpgradeId = "cheese_cellar",
 		},
 		sheep = {
 			id = "sheep",
@@ -102,6 +99,9 @@ return {
 			icon = "🐑",
 			trait = "Yün ticareti: ürün merkezi verimi +%10",
 			upgradeId = "island_sheep",
+			animalId = "sheep",
+			buildUpgradeId = "wool_mill",
+			itemUpgradeId = "wool_loom",
 		},
 		pig = {
 			id = "pig",
@@ -109,11 +109,16 @@ return {
 			icon = "🐖",
 			trait = "Trüf ormanı: geliştirme maliyetleri -%8",
 			upgradeId = "island_pig",
+			animalId = "pig",
+			buildUpgradeId = "truffle_kitchen",
+			itemUpgradeId = "meat_smokehouse",
 		},
 	} :: { [string]: Types.FarmIslandConfig },
 
-	-- Temalar: dizi sırası = ana çiftlik numarası = fiziksel ada numarası (Çiftlik 1 her zaman Papatya).
-	-- Her tema erken (Ahır Sv.2), orta (Sv.3) ve geç (Sv.4) birer ada türü içerir; hiçbir tema diğeriyle aynı değildir.
+	-- Temalar: dizi sırası = ana çiftlik numarası = fiziksel ada numarası = zorluk kademesi (Çiftlik 1 her zaman Papatya).
+	-- Her çiftlik = ana ada + 3 küçük ada; HER ADADA TEK HAYVAN yaşar ve hiçbir hayvan iki çiftlikte yoktur (24 benzersiz tür; test: config.spec).
+	-- satellites sırası = erken (Ahır Sv.2) / orta (Sv.3) / geç (Sv.4) ada = harita yuvası sırası. Hayvan -> ada -> çiftlik eşlemesi tek yerde: burası
+	-- (homeAnimal + satellites) ve FARM_ISLANDS[ada].animalId. Tasarım ve ürün zinciri: docs/ADA_TASARIMI.md.
 	THEMES = {
 		{
 			id = "papatya",
@@ -125,39 +130,37 @@ return {
 		{
 			id = "lale",
 			landmark = "tulip",
-			displayName = "Yün ve Süt",
-			homeAnimal = "chicken",
-			satellites = { "dairy", "sheep", "goat" },
+			displayName = "Göl ve Yün",
+			homeAnimal = "duck",
+			satellites = { "rabbit", "sheep", "pig" },
 		},
 		{
 			id = "aycicegi",
 			landmark = "sunflower",
 			displayName = "Güneşli Tarla",
-			homeAnimal = "duck",
-			-- Süt (Ahır 2, ördek çiftliğinin ineği) + At (Ahır 3) + Keçi (Ahır 4): erken/orta/geç. Eskiden iki Ahır 2 adası (süt, tavuk)
-			-- vardı ve 86 dk yeni ada çıkmıyordu; domuz alternatifi kiraz temasıyla aynı olacağından geç ada keçi seçildi.
-			satellites = { "dairy", "horse", "goat" },
+			homeAnimal = "turkey",
+			satellites = { "bee", "camel", "peacock" },
 		},
 		{
 			id = "gul",
 			landmark = "rose",
-			displayName = "Göl ve Hara",
-			homeAnimal = "cow",
-			satellites = { "duck", "horse", "pig" },
+			displayName = "Gül Vadisi",
+			homeAnimal = "buffalo",
+			satellites = { "quail", "pigeon", "snail" },
 		},
 		{
 			id = "yonca",
 			landmark = "pine",
 			displayName = "Dağ ve Orman",
-			homeAnimal = "chicken",
-			satellites = { "dairy", "horse", "pig" },
+			homeAnimal = "yak",
+			satellites = { "llama", "deer", "falcon" },
 		},
 		{
 			id = "kiraz",
 			landmark = "cherry",
-			displayName = "Meyve ve Süt",
-			homeAnimal = "duck",
-			satellites = { "dairy", "sheep", "pig" },
+			displayName = "Meyve Bahçesi",
+			homeAnimal = "squirrel",
+			satellites = { "silkworm", "parrot", "tortoise" },
 		},
 	} :: { Types.ThemeConfig },
 
@@ -168,9 +171,25 @@ return {
 		{ name = "Tavuk Adası", island = "poultry" },
 		{ name = "At Adası", island = "horse" },
 		{ name = "Keçi Adası", island = "goat" },
-		{ name = "Ördek Adası", island = "duck" },
 		{ name = "Koyun Adası", island = "sheep" },
 		{ name = "Domuz Adası", island = "pig" },
-		{ name = "Süt Adası", island = "dairy" },
 	} :: { Types.RoadmapStage },
 }
+
+-- Hayvan türü tablosundan gelen adalar ve yol haritası aşamaları (Config/Species.luau)
+assert(
+	#data.ROADMAP_STAGES == Species.BASE_STAGES,
+	"Species.BASE_STAGES elle yazılan yol haritası aşamalarıyla uyuşmuyor"
+)
+local species = Species.get()
+for id, island in species.islands do
+	data.FARM_ISLANDS[id] = island
+end
+for _, id in species.islandOrder do
+	table.insert(data.FARM_ISLAND_ORDER, id)
+end
+for _, stage in species.stages do
+	table.insert(data.ROADMAP_STAGES, stage)
+end
+
+return data

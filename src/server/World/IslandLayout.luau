@@ -59,16 +59,6 @@ IslandLayout.EXTENSIONS = {
 		icon = "🐐",
 		movement = "wander",
 	},
-	duck_cove = {
-		id = "duck_cove",
-		island = "duck",
-		areaOffset = Vector3.new(-26, 0, 0),
-		areaSize = Vector3.new(16, 0, 26),
-		signOffset = Vector3.new(-24, 0, -20),
-		title = "Ördek koyu",
-		icon = "🦆",
-		movement = "wander",
-	},
 	hillside_pasture = {
 		id = "hillside_pasture",
 		island = "sheep",

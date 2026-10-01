@@ -396,7 +396,7 @@ return function(FarmMath: any, Config: any, Environment: any)
 		"unknown farm ids use the first theme"
 	)
 	assert(
-		Config.themeHasIsland("2", "dairy") and not Config.themeHasIsland("2", "poultry"),
+		Config.themeHasIsland("2", Config.THEMES[2].satellites[1]) and not Config.themeHasIsland("2", "poultry"),
 		"themes limit the available islands"
 	)
 	assert(Config.themeHasIsland("1", "home"), "the main island is always present")
@@ -405,13 +405,17 @@ return function(FarmMath: any, Config: any, Environment: any)
 	local owned, total = FarmMath.countIslands(themed)
 	assert(owned == 1 and total == 4, "every farm has the main island plus three small islands")
 	local nextIsland = FarmMath.getNextIsland(themed)
-	assert(nextIsland and nextIsland.id == "dairy", "the cheapest island of the farm's theme comes next")
+	assert(
+		nextIsland and nextIsland.id == Config.THEMES[2].satellites[1],
+		"the cheapest island of the farm's theme comes next"
+	)
 	themed.activeMainFarmId = "1"
 	assert(FarmMath.getNextIsland(themed).id == "poultry", "farm 1 starts with the poultry island")
 	local view = saveAt(start)
 	view.farmId = "3"
 	assert(
-		table.find(FarmMath.themeIslands(view), "dairy") and not table.find(FarmMath.themeIslands(view), "poultry"),
+		table.find(FarmMath.themeIslands(view), Config.THEMES[3].satellites[1])
+			and not table.find(FarmMath.themeIslands(view), "poultry"),
 		"inactive farm views use their own farm id"
 	)
 	for _, upgrade in Config.UPGRADES do
@@ -461,7 +465,6 @@ return function(FarmMath: any, Config: any, Environment: any)
 		local farmId = tostring(index)
 		assert(Config.ANIMALS[theme.homeAnimal], `theme {index} home animal must exist`)
 		homeAnimals[theme.homeAnimal] = true
-		local hasCow = theme.homeAnimal == "cow"
 		for _, islandId in theme.satellites do
 			for _, zone in Config.ZONES do
 				if zone.island == islandId then
@@ -469,11 +472,9 @@ return function(FarmMath: any, Config: any, Environment: any)
 						not table.find(zone.allowedAnimals, theme.homeAnimal),
 						`theme {index} repeats its home animal on {islandId}`
 					)
-					hasCow = hasCow or table.find(zone.allowedAnimals, "cow") ~= nil
 				end
 			end
 		end
-		assert(hasCow, `theme {index} must offer cows on the home or a small island`)
 		local themeFarm = saveAt(start)
 		themeFarm.activeMainFarmId = farmId
 		assert(
@@ -487,7 +488,11 @@ return function(FarmMath: any, Config: any, Environment: any)
 			`theme {index} home zones reject other animals`
 		)
 	end
-	assert(homeAnimals.cow and homeAnimals.chicken and homeAnimals.duck, "home animals differ between farms")
+	local homeCount = 0
+	for _ in homeAnimals do
+		homeCount += 1
+	end
+	assert(homeCount == #Config.THEMES, "every farm starts with its own home animal")
 	-- Irk geliştirme: seviye, maliyet eğrisi, yetişkin koşulu ve gelir etkisi
 	local lineageFarm = saveAt(start)
 	assert(FarmMath.getLineageLevel(lineageFarm, "cow") == 0, "lineage starts at level 0")
@@ -778,8 +783,8 @@ return function(FarmMath: any, Config: any, Environment: any)
 	local baseOffline = FarmMath.getOfflineTerms(perks)
 	perks.purchased.island_poultry = true
 	assert(FarmMath.getFacilityDuration(perks, milkRecipe) < baseDuration, "the poultry island speeds production up")
-	perks.purchased.island_duck = true
-	assert(FarmMath.getSellPrice(perks, "cow") > baseSell, "the duck island raises sale prices")
+	perks.purchased.island_peacock = true
+	assert(FarmMath.getSellPrice(perks, "cow") > baseSell, "the peacock island raises sale prices")
 	perks.purchased.island_pig = true
 	assert(FarmMath.getExpansionCost(perks, "starter") < baseExpand, "the pig island cuts upgrade costs")
 	perks.purchased.island_goat = true

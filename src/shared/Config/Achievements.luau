@@ -7,11 +7,11 @@ return {
 	-- Başarımlar: her birinin tek seferlik para ödülü var. metric hesabı Rewards.progress içindedir.
 	ACHIEVEMENTS = {
 		{
-			id = "cows_10",
-			displayName = "İlk 10 inek",
-			description = "10 inek sahibi ol",
-			icon = "🐄",
-			metric = "cows",
+			id = "home_10",
+			displayName = "İlk 10 ana hayvan",
+			description = "Ana adada 10 hayvana sahip ol",
+			icon = "🐾",
+			metric = "home",
 			target = 10,
 			reward = 500,
 		},

@@ -3,7 +3,9 @@
 -- Gizli bilgi koyma: ReplicatedStorage client'a da gider.
 
 local Types = require(script.Parent:WaitForChild("Types"))
-return {
+local Species = require(script.Parent:WaitForChild("Species"))
+
+local data = {
 	-- Ses. `id` boşsa o ses çalınmaz. Arayüz sesleri motorun kendi dosyalarını kullanır (yer tutucu);
 	-- gerçek "cha-ching", ortam ve hayvan sesleri için Creator Store'dan (Roblox'un ücretsiz sesleri)
 	-- aldığın `rbxassetid://NUMARA` kimliklerini aşağıya yaz. Kimlik doğrulaması Studio'da yapılır.
@@ -67,3 +69,10 @@ return {
 		pig = { id = "", volume = 0.5 },
 	} :: { [string]: Types.SoundConfig },
 }
+
+-- Hayvan türü tablosundaki her hayvan için ses satırı (kimlik boş: ses asset'i eklenince doldurulur)
+for _, row in Species.SPECIES do
+	data.ANIMAL_SOUNDS[row.id] = { id = "", volume = 0.45 }
+end
+
+return data

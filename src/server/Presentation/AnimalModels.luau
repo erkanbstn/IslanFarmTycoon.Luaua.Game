@@ -5,6 +5,7 @@
 local ServerStorage = game:GetService("ServerStorage")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local AssetSanitizer = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("AssetSanitizer"))
+local AnimalModelsSpecies = require(script.Parent:WaitForChild("AnimalModelsSpecies"))
 
 local STAGE_SCALE: { [string]: number } = {
 	calf = 0.55,
@@ -396,6 +397,11 @@ local BUILDERS: { [string]: (Model, number) -> () } = {
 	anchovy = buildAnchovy,
 	seabass = buildSeabass,
 }
+
+-- Hayvan türü tablosundaki yeni hayvanlar (AnimalModelsSpecies)
+for animalId, builder in AnimalModelsSpecies do
+	BUILDERS[animalId] = builder
+end
 
 local function cloneAssetAnimal(animalId: string, scale: number): Model?
 	local assets = ServerStorage:FindFirstChild("Assets") or ReplicatedStorage:FindFirstChild("Assets")

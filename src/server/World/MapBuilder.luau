@@ -25,7 +25,7 @@ local MapBuilder = {}
 
 -- Harita düzenini (adalar, bölgeler, yapı yerleri) değiştirince bunu 1 artır:
 -- oyun, place'e kaydedilmiş eski haritayı fark edip uyarır.
-local MAP_VERSION = 52
+local MAP_VERSION = 53 -- 53: 24 benzersiz hayvanlı çiftlikler (yeni ada türleri, ana ada yuvaları, Süt/Ördek adası kalktı)
 
 local WATER_SIZE = MapLayout.WATER_SIZE
 local WATER_DEPTH = MapLayout.WATER_DEPTH

@@ -56,12 +56,17 @@ return function(createService: any, Logic: any, Config: any)
 		customCount += 1
 	end
 	assert(customCount <= 100, "özel olay adı sınırı 100")
-	-- Yalnızca hayvan ve yükseltme kimlikleri SKU olarak gider (eşya, genişletme, tesis SKU'suz); deneyim başına 100 sınırı.
+	-- Hayvan kimlikleri ve yükseltmeler (ada/ahır/bölge kimliğiyle, diğerleri türüyle: Config.getUpgradeSku) SKU olarak gider (eşya, genişletme, tesis SKU'suz); deneyim başına 100 sınırı.
+	local skus: { [string]: boolean } = {}
+	for animalId in Config.ANIMALS do
+		skus[animalId] = true
+	end
+	for _, upgrade in Config.UPGRADES do
+		skus[Config.getUpgradeSku(upgrade)] = true -- ada/ahır/bölge kimliğiyle, diğerleri türüyle
+	end
 	local skuCount = 0
-	for _, table_ in { Config.ANIMALS, Config.UPGRADES } do
-		for _ in table_ do
-			skuCount += 1
-		end
+	for _ in skus do
+		skuCount += 1
 	end
 	assert(skuCount <= 100, `SKU adayı sayısı {skuCount} > 100: içerik büyüdü, telemetri SKU listesini daralt`)
 	local seen: { [number]: boolean } = {}
@@ -111,7 +116,7 @@ return function(createService: any, Logic: any, Config: any)
 			unlockedIslands = { home = true },
 			barnLevel = 1,
 		},
-		{ animals = {}, purchased = {}, unlockedIslands = { home = true, dairy = true }, barnLevel = 2 },
+		{ animals = {}, purchased = {}, unlockedIslands = { home = true, poultry = true }, barnLevel = 2 },
 	})
 	local reached = Logic.funnelReached(facts)
 	assert(
@@ -291,7 +296,7 @@ return function(createService: any, Logic: any, Config: any)
 	assert(ofKind(live, "economy")[5].args[6] == "Offline", "çevrimdışı kazanç kaynak olarak")
 
 	-- İlerleme: progression + özel olay birlikte.
-	live.service.progression(player, "island", 2, "dairy")
+	live.service.progression(player, "island", 2, "poultry")
 	assert(
 		ofKind(live, "progression")[1].args[2] == "Islands" and ofKind(live, "progression")[1].args[3] == 2,
 		"ilerleme yolu"

@@ -58,7 +58,7 @@ function UpgradeService.tryBuy(player: Player, upgradeId: unknown): (boolean, st
 	if #shortfall > 0 then
 		return false, `Yeterli ürün yok ({FarmMath.formatGoodsShortfall(shortfall)})`
 	end
-	if not PlayerDataService.trySpend(player, price, "upgrade", upgrade.id, goodsCost) then
+	if not PlayerDataService.trySpend(player, price, "upgrade", Config.getUpgradeSku(upgrade), goodsCost) then
 		return false, `Yeterli para yok ({FarmMath.formatMoney(price)})`
 	end
 

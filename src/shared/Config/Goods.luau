@@ -4,7 +4,9 @@
 -- Gizli bilgi koyma: ReplicatedStorage client'a da gider.
 
 local Types = require(script.Parent:WaitForChild("Types"))
-return {
+local Species = require(script.Parent:WaitForChild("Species"))
+
+local data = {
 	GOODS = {
 		milk = { id = "milk", displayName = "Süt", icon = "🥛", animalId = "cow", value = 250 },
 		egg = { id = "egg", displayName = "Yumurta", icon = "🥚", animalId = "chicken", value = 480 },
@@ -131,3 +133,14 @@ return {
 		rate = 0.5,
 	},
 }
+
+-- Hayvan türü tablosundan gelen ürünler (Config/Species.luau)
+local species = Species.get()
+for id, good in species.goods do
+	data.GOODS[id] = good
+end
+for _, id in species.goodsOrder do
+	table.insert(data.GOODS_ORDER, id)
+end
+
+return data

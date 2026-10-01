@@ -424,10 +424,22 @@ local PET_SPECIES: { [string]: string } = {
 	poultry = "fox",
 	horse = "bunny",
 	goat = "raccoon",
-	dairy = "panda",
-	duck = "frog",
 	sheep = "lamb",
 	pig = "hedgehog",
+	-- Hayvan türü tablosundaki adalar (Config/Species.luau); yardımcı türleri çiftlikler arası paylaşılır
+	rabbit = "bunny",
+	bee = "hedgehog",
+	camel = "fox",
+	peacock = "frog",
+	quail = "lamb",
+	pigeon = "raccoon",
+	snail = "frog",
+	llama = "lamb",
+	deer = "fox",
+	falcon = "raccoon",
+	silkworm = "panda",
+	parrot = "bunny",
+	tortoise = "hedgehog",
 }
 
 local function petSpecies(island: string, kind: string): string

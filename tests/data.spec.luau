@@ -257,17 +257,17 @@ return function(lock: any, codec: any, config: any, farmMath: any)
 	)
 	accountRaw.lifetimeEarned = 12345
 	accountRaw.daily = { day = 100, streak = 3 }
-	accountRaw.achievements = { cows_10 = true, not_an_achievement = true }
+	accountRaw.achievements = { home_10 = true, not_an_achievement = true }
 	local account = assert(codec.decode(accountRaw, config, farmMath, now, uid))
 	assert(account.lifetimeEarned == 12345, "lifetime earnings must load")
 	assert(account.daily and account.daily.day == 100 and account.daily.streak == 3, "daily streak must load")
 	assert(
-		account.achievements.cows_10 == true and account.achievements.not_an_achievement == nil,
+		account.achievements.home_10 == true and account.achievements.not_an_achievement == nil,
 		"only known achievements load"
 	)
 	local reEncoded = codec.encode(account, now)
 	assert(
-		reEncoded.lifetimeEarned == 12345 and reEncoded.daily.streak == 3 and reEncoded.achievements.cows_10,
+		reEncoded.lifetimeEarned == 12345 and reEncoded.daily.streak == 3 and reEncoded.achievements.home_10,
 		"account progress must survive saves"
 	)
 	for _, badDaily in

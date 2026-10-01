@@ -106,7 +106,7 @@ export type ThemeConfig = {
 	displayName: string,
 	homeAnimal: string, -- Ana adanın ağıl ve otlağında yaşayan hayvan
 	landmark: string, -- Ana adada doğu kıyıdaki tema işaret yapısı (HomeBuildings.landmark türü)
-	satellites: { string },
+	satellites: { string }, -- Çiftliğin 3 küçük adası (FARM_ISLANDS id); her adada tek hayvan yaşar (FARM_ISLANDS[ada].animalId)
 }
 
 -- Çiftlik zorluğu (Config/Difficulty.luau): tier = çiftliğin alım sırası (1..MAIN_FARM_LIMIT).
@@ -173,6 +173,9 @@ export type FarmIslandConfig = {
 	icon: string,
 	trait: string, -- Adanın özelliği (tabelada ve arayüzde yazar)
 	upgradeId: string?, -- Adayı açan yol haritası öğesi (home için nil)
+	animalId: string?, -- Adada yaşayan tek hayvan türü (home için nil: ana adada çiftliğin ana hayvanı yaşar); hayvan -> ada eşlemesi buradan türer
+	buildUpgradeId: string?, -- Haritada adanın yapı noktasına (SATELLITE_TYPES.buildSpot) kurulan para fabrikası/güçlendirme yükseltmesi
+	itemUpgradeId: string?, -- Adanın ürün merkezi yükseltmesi (SATELLITE_TYPES.itemSpot)
 }
 
 -- Mevsim ve hava: hayvan türlerine göre gelir değişimi (0.2 = +%20, -0.1 = -%10)
@@ -240,6 +243,7 @@ export type UpgradeConfig = {
 	extensionId: string?, -- kind == "extension" → Config.EXTENSIONS; kind == "level" ile eklenti kapasite yükseltmesi
 	extensionCapacity: number?, -- Eklenti kapasite yükseltmesi: +1 hayvan (kind == "level", extensionId ile)
 	goodsCost: GoodsCostConfig?, -- Açılış gereksinimi: para + ürün (Config/Difficulty.luau, FarmMath.getGoodsCost)
+	island: string?, -- Yükseltmenin adası (verilmezse Config.getUpgradeIsland ada/bölge/aşamadan bulur)
 	homeAnimal: string?, -- Ana ada fabrikası: yalnızca ana hayvanı (THEMES.homeAnimal) bu olan çiftliklerde vardır (Config.upgradeInTheme)
 }
 
@@ -248,7 +252,7 @@ export type AchievementConfig = {
 	displayName: string,
 	description: string,
 	icon: string,
-	metric: string, -- "cows" | "animals" | "islands" | "purchases" | "earned" | "orders" | "animal:<id>" | "fish" | "species" | "zones" | "barn" | "expansions" | "facilities" | "centers" | "goods" | "items"
+	metric: string, -- "home" (çiftliğin ana ada hayvanı) | "animals" | "islands" | "purchases" | "earned" | "orders" | "animal:<id>" | "fish" | "species" | "zones" | "barn" | "expansions" | "facilities" | "centers" | "goods" | "items"
 	target: number,
 	reward: number,
 }

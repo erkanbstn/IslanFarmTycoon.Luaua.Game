@@ -10,6 +10,7 @@ local ZoneLevelDecor = require(script.Parent:WaitForChild("ZoneLevelDecor"))
 local BuildersHome = require(script.Parent:WaitForChild("ZoneBuildersHome"))
 local BuildersPens = require(script.Parent:WaitForChild("ZoneBuildersPens"))
 local BuildersWater = require(script.Parent:WaitForChild("ZoneBuildersWater"))
+local BuildersSpecies = require(script.Parent:WaitForChild("ZoneBuildersSpecies"))
 
 local ZoneVisualService = {}
 
@@ -22,15 +23,10 @@ local LOCKED_GROUND = Color3.fromRGB(150, 120, 90)
 
 -- Bölge id -> görsel kurucu (gruplar ayrı dosyalarda)
 local BUILDERS: { [string]: Builder } = {}
-for _, group in { BuildersHome, BuildersPens, BuildersWater } do
+for _, group in { BuildersHome, BuildersPens, BuildersWater, BuildersSpecies } do
 	for id, builder in group do
 		BUILDERS[id] = builder
 	end
-end
-
--- Süt Adası çayırı: ağıl yapısı, çevresi açık. (Tablonun kendi başlatıcısında BUILDERS henüz yerel değildir; bu yüzden sonradan atanır.)
-BUILDERS.dairy = function(decor, o, size)
-	BUILDERS.starter(decor, o, size)
 end
 
 local function getGround(zone: Instance): BasePart?

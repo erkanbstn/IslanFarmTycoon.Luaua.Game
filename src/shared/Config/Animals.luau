@@ -1,18 +1,18 @@
 --!strict
--- Bölgeler, hayvanlar ve eski kayıt eşlemeleri.
+-- Bölgeler ve hayvanlar (elle yazılan türler); yeni türler Config/Species.luau'dan eklenir.
 -- Gizli bilgi koyma: ReplicatedStorage client'a da gider.
 
 local Types = require(script.Parent:WaitForChild("Types"))
-return {
+local Species = require(script.Parent:WaitForChild("Species"))
+
+local data = {
 	-- Bölgeler. Sıra önemli: hayvan alınınca ilk açık & boş alana konur.
 	-- Bir bölge, adası açıksa ve (varsa) kendi yol haritası öğesi alınmışsa açıktır.
 	ZONE_ORDER = {
 		"starter",
 		"pasture",
 		"fishpen",
-		"dairy",
 		"poultry",
-		"pond",
 		"stable",
 		"sheepfold",
 		"goatpen",
@@ -37,14 +37,6 @@ return {
 			capacity = 8,
 			allowedAnimals = { "cow" },
 			themed = true,
-		},
-		dairy = {
-			id = "dairy",
-			displayName = "İnek Çayırı",
-			icon = "🐄",
-			island = "dairy",
-			capacity = 10,
-			allowedAnimals = { "cow" },
 		},
 		fishpen = {
 			id = "fishpen",
@@ -77,14 +69,6 @@ return {
 			island = "goat",
 			capacity = 8,
 			allowedAnimals = { "goat" },
-		},
-		pond = {
-			id = "pond",
-			displayName = "Ördek Gölü",
-			icon = "🦆",
-			island = "duck",
-			capacity = 12,
-			allowedAnimals = { "duck" },
 		},
 		sheepfold = {
 			id = "sheepfold",
@@ -193,3 +177,20 @@ return {
 		adult = "Yetişkin",
 	} :: { [string]: string },
 }
+
+-- Hayvan türü tablosundan gelen bölgeler ve hayvanlar
+local species = Species.get()
+for id, zone in species.zones do
+	data.ZONES[id] = zone
+end
+for _, id in species.zoneOrder do
+	table.insert(data.ZONE_ORDER, id)
+end
+for id, animal in species.animals do
+	data.ANIMALS[id] = animal
+end
+for _, id in species.animalOrder do
+	table.insert(data.ANIMAL_ORDER, id)
+end
+
+return data

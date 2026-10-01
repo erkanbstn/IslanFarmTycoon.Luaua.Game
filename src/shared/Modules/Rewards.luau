@@ -58,8 +58,8 @@ end
 -- Başarım metriğinin şu anki değeri
 function Rewards.progress(save: any, achievement: Config.AchievementConfig): number
 	local metric = achievement.metric
-	if metric == "cows" then
-		return FarmMath.countAnimals(save, "cow")
+	if metric == "home" then
+		return FarmMath.countAnimals(save, Config.getHomeAnimal(save.farmId or save.activeMainFarmId))
 	elseif metric == "animals" then
 		return #save.animals
 	elseif metric == "islands" then

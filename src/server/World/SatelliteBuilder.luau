@@ -9,6 +9,7 @@ local WorldUi = require(Shared:WaitForChild("WorldUi"))
 local WorldDecor = require(script.Parent:WaitForChild("WorldDecor"))
 local IslandSpecialization = require(script.Parent:WaitForChild("IslandSpecialization"))
 local MapLayout = require(script.Parent:WaitForChild("MapLayout"))
+local IslandLooks = require(script.Parent:WaitForChild("IslandLooks"))
 local MapParts = require(script.Parent:WaitForChild("MapParts"))
 
 local SURFACE_Y = MapLayout.SURFACE_Y
@@ -38,7 +39,35 @@ local function buildSatelliteDecor(islandId: string, parent: Instance, cf: CFram
 	for _, corner in { Vector2.new(-19, -13), Vector2.new(19, -13), Vector2.new(-19, 17), Vector2.new(19, 17) } do
 		WorldDecor.lamp(parent, at(corner.X, corner.Y) * CFrame.Angles(0, if corner.X > 0 then math.pi else 0, 0))
 	end
-	if islandId == "pig" then
+	local look = IslandLooks[islandId]
+	if look and look.props then
+		-- Veri odaklı süsler (Çiftlik 2'den sonraki adalar): IslandLooks[ada].props
+		for index, item in look.props do
+			local seed = item.seed or (seedFrom(cf) + index * 7)
+			local spot = at(item.x, item.z)
+			if item.kind == "oak" then
+				WorldDecor.oakTree(parent, spot, seed)
+			elseif item.kind == "pine" then
+				WorldDecor.pineTree(parent, spot, seed)
+			elseif item.kind == "bush" then
+				WorldDecor.bush(parent, spot, seed)
+			elseif item.kind == "flowers" then
+				WorldDecor.flowerPatch(parent, spot, seed)
+			elseif item.kind == "hay" then
+				WorldDecor.hayBale(parent, spot * CFrame.Angles(0, math.rad(index * 37), 0), false)
+			elseif item.kind == "scarecrow" then
+				WorldDecor.scarecrow(parent, spot)
+			elseif item.kind == "barrel" then
+				WorldDecor.barrel(parent, spot)
+			elseif item.kind == "crate" then
+				WorldDecor.crate(parent, spot, item.size or 2)
+			elseif item.kind == "wheelbarrow" then
+				WorldDecor.wheelbarrow(parent, spot * CFrame.Angles(0, math.rad(index * 53), 0))
+			elseif item.kind == "mailbox" then
+				WorldDecor.mailbox(parent, spot)
+			end
+		end
+	elseif islandId == "pig" then
 		-- Trüf ormanı: yoğun çam ve çalı, bölgenin çevresinde
 		for index, spot in
 			{

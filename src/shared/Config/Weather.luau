@@ -3,7 +3,9 @@
 -- Gizli bilgi koyma: ReplicatedStorage client'a da gider.
 
 local Types = require(script.Parent:WaitForChild("Types"))
-return {
+local Species = require(script.Parent:WaitForChild("Species"))
+
+local data = {
 	-- Mevsimler sırayla döner; tüm sunucularda aynı anda değişir (saat os.time'a bağlı).
 	-- Hava her sunucuda rastgele, mevsime uygun olarak birkaç dakikada bir değişir.
 	SEASON_SECONDS = 900, -- 15 dakika; dört mevsimlik döngü bir saat sürer.
@@ -102,3 +104,17 @@ return {
 		},
 	} :: { [string]: Types.WeatherConfig },
 }
+
+-- Hayvan türü tablosundan gelen mevsim/hava etkileri (Config/Species.luau); mevcut tablolara eklenir
+for _, season in data.SEASONS do
+	for animalId, modifier in Species.seasonModifiers(season.id) do
+		season.incomeModifiers[animalId] = modifier
+	end
+end
+for weatherId, weather in data.WEATHER do
+	for animalId, modifier in Species.weatherModifiers(weatherId) do
+		weather.incomeModifiers[animalId] = modifier
+	end
+end
+
+return data

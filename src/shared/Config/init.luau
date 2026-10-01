@@ -5,6 +5,7 @@
 -- Upgrades, Production, Animals, Items); burada birleştirilir, seviye zincirleri/maliyet eğrisi uygulanır ve getter'lar durur.
 
 local Types = require(script:WaitForChild("Types"))
+local Species = require(script:WaitForChild("Species"))
 local Core = require(script:WaitForChild("Core"))
 local Weather = require(script:WaitForChild("Weather"))
 local Economy = require(script:WaitForChild("Economy"))
@@ -147,6 +148,8 @@ local Config = {
 	EXTENSIONS = Production.EXTENSIONS,
 	PRODUCTION_ORDER = Production.PRODUCTION_ORDER,
 	PRODUCTION_RECIPES = Production.PRODUCTION_RECIPES,
+	-- Hayvan türü tablosu (Species.luau): yeni hayvanların kaynağı
+	SPECIES = Species.SPECIES,
 	-- Animals
 	ZONE_ORDER = Animals.ZONE_ORDER,
 	ZONES = Animals.ZONES,
@@ -199,6 +202,30 @@ function Config.getZoneName(zone: ZoneConfig, farmId: string?): string
 		return if animal then `{animal.displayName} Ağılı` else zone.displayName
 	end
 	return zone.displayName
+end
+
+-- Adada yaşayan hayvan: ana adada çiftliğin ana hayvanı, küçük adalarda FARM_ISLANDS[ada].animalId (balık kafesi ayrı bir bölgedir)
+function Config.getIslandAnimal(farmId: string?, islandId: string): string?
+	if islandId == "home" then
+		return Config.getHomeAnimal(farmId)
+	end
+	local island = Config.FARM_ISLANDS[islandId]
+	return if island then island.animalId else nil
+end
+
+-- Hayvanın yaşadığı çiftlik (tema numarası); hiçbir temada yaşamayan hayvan (hamsi, levrek) için nil. Hayvan -> ada -> çiftlik eşlemesi THEMES'ten türer.
+function Config.getAnimalTheme(animalId: string): number?
+	for index, theme in Config.THEMES do
+		if theme.homeAnimal == animalId then
+			return index
+		end
+		for _, islandId in theme.satellites do
+			if Config.getIslandAnimal(tostring(index), islandId) == animalId then
+				return index
+			end
+		end
+	end
+	return nil
 end
 
 function Config.getBarnLevelConfig(level: number): BarnLevelConfig?
@@ -366,7 +393,6 @@ end
 -- Yapı geliştirme profilleri: bölgenin/tesisin işlevine göre (varsayılan: bölge "barn", tesis "factory")
 local upgradeProfiles: { [string]: string } = {
 	poultry = "coop",
-	pond = "coop",
 	stable = "stable",
 	goatpen = "fold",
 	sheepfold = "fold",
@@ -464,6 +490,13 @@ function Config.getUpgrade(id: string): UpgradeConfig?
 	return nil
 end
 
+-- Telemetri SKU'su (Roblox: deneyim başına en çok 100): önemli açılışlar (ada, ahır, bölge) kimliğiyle, diğer yükseltmeler türüyle ("boost", "level",
+-- "extension") raporlanır; içerik büyüse de SKU sayısı sınırlı kalır (tests/telemetry.spec.luau denetler).
+local SKU_BY_ID_KINDS: { [string]: boolean } = { island = true, barn = true, zone = true }
+function Config.getUpgradeSku(upgrade: UpgradeConfig): string
+	return if SKU_BY_ID_KINDS[upgrade.kind] then upgrade.id else upgrade.kind
+end
+
 -- Bir bölgeyi açan yol haritası öğesi (adası açılınca kendiliğinden açılan bölgeler için nil)
 function Config.getZoneUpgrade(zoneId: string): UpgradeConfig?
 	for _, upgrade in Config.UPGRADES do
@@ -479,6 +512,9 @@ end
 function Config.getUpgradeIsland(upgrade: UpgradeConfig): string
 	if upgrade.kind == "barn" then
 		return "home"
+	end
+	if upgrade.island then
+		return upgrade.island
 	end
 	if upgrade.kind == "island" and upgrade.islandId then
 		return upgrade.islandId
@@ -499,9 +535,7 @@ function Config.getUpgradeIsland(upgrade: UpgradeConfig): string
 		silo = "home",
 		milk_machine = "home",
 		milk_factory = "home",
-		egg_packer = "home",
 		duck_packer = "home",
-		dairy_factory = "dairy",
 		fish_farm = "home",
 		fishing_boat = "home",
 		auto_collector = "home",
@@ -510,7 +544,6 @@ function Config.getUpgradeIsland(upgrade: UpgradeConfig): string
 		golden_horseshoe = "horse",
 		horse_training = "horse",
 		cheese_dairy = "goat",
-		duck_house = "duck",
 		wool_mill = "sheep",
 		truffle_kitchen = "pig",
 	}

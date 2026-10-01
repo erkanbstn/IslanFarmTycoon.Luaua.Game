@@ -3,7 +3,9 @@
 -- Gizli bilgi koyma: ReplicatedStorage client'a da gider.
 
 local Types = require(script.Parent:WaitForChild("Types"))
-return {
+local Species = require(script.Parent:WaitForChild("Species"))
+
+local data = {
 	EXTENSIONS = {
 		folluk_garden = {
 			id = "folluk_garden",
@@ -53,18 +55,6 @@ return {
 			incomeBonus = 1 / 3,
 			stayDuration = 360,
 		},
-		duck_cove = {
-			id = "duck_cove",
-			displayName = "Ördek Koyu",
-			description = "Koyda yüzen ördekler",
-			icon = "🦆",
-			island = "duck",
-			sourceZoneId = "pond",
-			animalId = "duck",
-			capacity = 2,
-			incomeBonus = 1 / 3,
-			stayDuration = 360,
-		},
 		hillside_pasture = {
 			id = "hillside_pasture",
 			displayName = "Yün Yamacı",
@@ -95,27 +85,21 @@ return {
 	PRODUCTION_ORDER = {
 		"packed_milk",
 		"hatchery",
-		"duck_eggs",
 		"horse_training",
 		"wool",
 		"cheese",
 		"truffle",
 		"fish_dispatch",
-		-- Ana ada ve Süt Adası fabrikaları (ana hayvana göre: bkz. Upgrades.luau homeAnimal)
-		"dairy_packing",
-		"egg_packing",
+		-- Ana ada fabrikası (ana hayvana göre: bkz. Upgrades.luau homeAnimal); diğer ana hayvanların tarifleri Species.luau'dan gelir
 		"duck_packing",
 		-- Ürün merkezleri: depoya ürün üretir (para fabrikalarıyla birlikte her hayvan türü için bir para, bir ürün merkezi)
 		"milk_goods",
 		"egg_goods",
-		"down_goods",
 		"cheese_goods",
 		"wool_goods",
 		"meat_goods",
 		"horseshoe_goods",
 		"fish_goods",
-		"dairy_goods",
-		"egg_home_goods",
 		"down_home_goods",
 	},
 
@@ -261,48 +245,6 @@ return {
 				},
 			},
 		},
-		duck_eggs = {
-			id = "duck_eggs",
-			displayName = "Ördek Yumurtası Sevkiyatı",
-			description = "Göl kenarında toplanan yumurtaları paketle ve pazara gönder.",
-			icon = "🥚",
-			island = "duck",
-			upgradeId = "duck_house",
-			animalId = "duck",
-			animalIds = { "duck" },
-			requiredAdults = 1,
-			duration = 40,
-			cost = 0,
-			reward = 900, -- tesis ölçeği (yükseltme maliyeti tabanı); parti ödülü seçeneklerde
-			output = "cash",
-			upgradeProfile = "cashFactory",
-			options = {
-				{
-					id = "small",
-					displayName = "Küçük parti",
-					requiredAdults = 1,
-					duration = 40,
-					reward = 330,
-					returnMultiplier = 1.5,
-				},
-				{
-					id = "medium",
-					displayName = "Standart parti",
-					requiredAdults = 2,
-					duration = 70,
-					reward = 1390,
-					returnMultiplier = 1.8,
-				},
-				{
-					id = "large",
-					displayName = "Büyük parti",
-					requiredAdults = 4,
-					duration = 100,
-					reward = 4400,
-					returnMultiplier = 2,
-				},
-			},
-		},
 		wool = {
 			id = "wool",
 			displayName = "Yün İpliği",
@@ -432,90 +374,6 @@ return {
 		-- Ana ada fabrikaları ana hayvana bağlıdır: ana hayvanı inek olan çiftlikte Paketli Süt (yukarıda), tavuk olanda Yumurta Paketleme,
 		-- ördek olanda Ördek Paketleme kurulur (`Config/Upgrades.luau` `homeAnimal`; `Config.upgradeInTheme`). Süt Adası'nda (ana hayvanı inek olmayan çiftlikler) inek fabrikaları ayrıdır.
 		-- Parti ödülü = hayvan x süre x hayvanın saniyelik geliri x returnMultiplier (2-3 anlamlı basamak).
-		dairy_packing = {
-			id = "dairy_packing",
-			displayName = "Süt Paketleme",
-			description = "Süt Adası'nın sütünü paketle ve kasaları sat.",
-			icon = "🥛",
-			island = "dairy",
-			upgradeId = "dairy_factory",
-			animalId = "cow",
-			animalIds = { "cow" },
-			requiredAdults = 1,
-			duration = 35,
-			cost = 0,
-			reward = 650,
-			output = "cash",
-			upgradeProfile = "cashFactory",
-			options = {
-				{
-					id = "small",
-					displayName = "Küçük parti",
-					requiredAdults = 1,
-					duration = 35,
-					reward = 100,
-					returnMultiplier = 1.5,
-				},
-				{
-					id = "medium",
-					displayName = "Standart parti",
-					requiredAdults = 2,
-					duration = 60,
-					reward = 430,
-					returnMultiplier = 1.8,
-				},
-				{
-					id = "large",
-					displayName = "Büyük parti",
-					requiredAdults = 4,
-					duration = 85,
-					reward = 1360,
-					returnMultiplier = 2,
-				},
-			},
-		},
-		egg_packing = {
-			id = "egg_packing",
-			displayName = "Yumurta Paketleme",
-			description = "Kümesten gelen yumurtaları paketle ve pazara gönder.",
-			icon = "🥚",
-			island = "home",
-			upgradeId = "egg_packer",
-			animalId = "chicken",
-			animalIds = { "chicken" },
-			requiredAdults = 1,
-			duration = 40,
-			cost = 0,
-			reward = 850,
-			output = "cash",
-			upgradeProfile = "cashFactory",
-			options = {
-				{
-					id = "small",
-					displayName = "Küçük parti",
-					requiredAdults = 1,
-					duration = 40,
-					reward = 300,
-					returnMultiplier = 1.5,
-				},
-				{
-					id = "medium",
-					displayName = "Standart parti",
-					requiredAdults = 2,
-					duration = 70,
-					reward = 1260,
-					returnMultiplier = 1.8,
-				},
-				{
-					id = "large",
-					displayName = "Büyük parti",
-					requiredAdults = 4,
-					duration = 100,
-					reward = 4000,
-					returnMultiplier = 2,
-				},
-			},
-		},
 		duck_packing = {
 			id = "duck_packing",
 			displayName = "Ördek Yumurtası Paketleme",
@@ -590,23 +448,6 @@ return {
 			reward = 960, -- ürünlerin para karşılığı (yalnızca gösterim/dengeleme)
 			output = "goods",
 			goodsId = "egg",
-			goodsAmount = 2,
-		},
-		down_goods = {
-			id = "down_goods",
-			displayName = "Tüy Toplama",
-			description = "Ördek tüylerini ayıkla ve ahır deposuna koy.",
-			icon = "🪶",
-			island = "duck",
-			upgradeId = "down_workshop",
-			animalId = "duck",
-			animalIds = { "duck" },
-			requiredAdults = 3,
-			duration = 105,
-			cost = 130,
-			reward = 1600, -- ürünlerin para karşılığı (yalnızca gösterim/dengeleme)
-			output = "goods",
-			goodsId = "down",
 			goodsAmount = 2,
 		},
 		cheese_goods = {
@@ -694,40 +535,6 @@ return {
 			goodsId = "fish",
 			goodsAmount = 2,
 		},
-		dairy_goods = {
-			id = "dairy_goods",
-			displayName = "Süt Toplama",
-			description = "Sütü sağ, bidonlara doldur ve ahır deposuna koy.",
-			icon = "🥛",
-			island = "dairy",
-			upgradeId = "dairy_center",
-			animalId = "cow",
-			animalIds = { "cow" },
-			requiredAdults = 2,
-			duration = 90,
-			cost = 80,
-			reward = 750, -- ürünlerin para karşılığı (yalnızca gösterim/dengeleme)
-			output = "goods",
-			goodsId = "milk",
-			goodsAmount = 3,
-		},
-		egg_home_goods = {
-			id = "egg_home_goods",
-			displayName = "Yumurta Toplama",
-			description = "Kümesteki yumurtaları topla ve ahır deposuna koy.",
-			icon = "🥚",
-			island = "home",
-			upgradeId = "egg_home_center",
-			animalId = "chicken",
-			animalIds = { "chicken" },
-			requiredAdults = 2,
-			duration = 135,
-			cost = 60,
-			reward = 960, -- ürünlerin para karşılığı (yalnızca gösterim/dengeleme)
-			output = "goods",
-			goodsId = "egg",
-			goodsAmount = 2,
-		},
 		down_home_goods = {
 			id = "down_home_goods",
 			displayName = "Tüy Toplama",
@@ -747,3 +554,14 @@ return {
 		},
 	} :: { [string]: Types.ProductionRecipeConfig },
 }
+
+-- Hayvan türü tablosundan gelen tarifler (para fabrikası + ürün merkezi; Config/Species.luau)
+local species = Species.get()
+for id, recipe in species.recipes do
+	data.PRODUCTION_RECIPES[id] = recipe
+end
+for _, id in species.recipeOrder do
+	table.insert(data.PRODUCTION_ORDER, id)
+end
+
+return data

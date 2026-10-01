@@ -225,81 +225,6 @@ local function goatCliffs(parent: Instance, cf: CFrame)
 		false
 end
 
--- Ördek koyu: kıyısı kumlu, kamışlı küçük bir göl ve iskele (ördekler suyun üstünde gezinir)
-local function duckCove(parent: Instance, cf: CFrame)
-	local water = part(
-		parent,
-		"CoveWater",
-		Vector3.new(16, 0.2, 24),
-		cf * CFrame.new(-26, 0.14, 0),
-		Color3.fromRGB(80, 160, 205),
-		Enum.Material.Glass
-	)
-	water.Transparency = 0.25
-	water.CanCollide = false
-	local sand = Color3.fromRGB(214, 198, 150)
-	for _, z in { -12.6, 12.6 } do
-		part(parent, "CoveBank", Vector3.new(18.4, 0.4, 1.6), cf * CFrame.new(-26, 0.2, z), sand, Enum.Material.Sand).CanCollide =
-			false
-	end
-	for _, x in { -35, -17 } do
-		part(parent, "CoveBank", Vector3.new(1.6, 0.4, 24), cf * CFrame.new(x, 0.2, 0), sand, Enum.Material.Sand).CanCollide =
-			false
-	end
-	for index = 1, 6 do
-		local z = -10 + (index - 1) * 4
-		for _, x in { -34.4, -17.6 } do
-			for blade = 1, 3 do
-				local height = 2.6 + blade * 0.5
-				local reed = part(
-					parent,
-					"Reed",
-					Vector3.new(0.18, height, 0.18),
-					cf * CFrame.new(x + (blade - 2) * 0.35, height / 2, z + (blade - 2) * 0.3),
-					Color3.fromRGB(96, 150, 64),
-					Enum.Material.Grass
-				)
-				reed.CanCollide = false
-			end
-		end
-	end
-	for index, spot in { Vector2.new(-30, -6), Vector2.new(-22, 4), Vector2.new(-28, 8), Vector2.new(-24, -9) } do
-		local pad = part(
-			parent,
-			"LilyPad",
-			Vector3.new(0.1, 2, 2),
-			cf * CFrame.new(spot.X, 0.28, spot.Y) * CFrame.Angles(0, 0, math.rad(90)),
-			Color3.fromRGB(70, 150, 70),
-			Enum.Material.LeafyGrass
-		)
-		pad.Shape = Enum.PartType.Cylinder
-		pad.CanCollide = false
-		if index % 2 == 1 then
-			local lotus = part(
-				parent,
-				"Lotus",
-				Vector3.new(0.6, 0.6, 0.6),
-				cf * CFrame.new(spot.X, 0.6, spot.Y),
-				Color3.fromRGB(245, 150, 190),
-				Enum.Material.SmoothPlastic
-			)
-			lotus.Shape = Enum.PartType.Ball
-			lotus.CanCollide = false
-		end
-	end
-	part(parent, "CovePier", Vector3.new(6, 0.35, 3), cf * CFrame.new(-19, 0.32, -5), WOOD, Enum.Material.WoodPlanks)
-	for _, z in { -6.2, -3.8 } do
-		part(
-			parent,
-			"CovePierPost",
-			Vector3.new(0.4, 1.4, 0.4),
-			cf * CFrame.new(-16.4, 0.7, z),
-			WOOD,
-			Enum.Material.Wood
-		)
-	end
-end
-
 -- Yün yamacı: taş duvarlı, çiçekli yamaç otlağı ve çoban kulübesi
 local function sheepHill(parent: Instance, cf: CFrame)
 	local meadow = part(
@@ -456,7 +381,6 @@ return {
 	horse = horse,
 	poultry = poultry,
 	goat = goat,
-	duckCove = duckCove,
 	sheepHill = sheepHill,
 	goatCliffs = goatCliffs,
 	truffleGrove = truffleGrove,

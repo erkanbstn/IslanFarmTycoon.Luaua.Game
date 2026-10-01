@@ -24,7 +24,6 @@ local horse = IslandSiteBuilders.horse
 local poultry = IslandSiteBuilders.poultry
 local goat = IslandSiteBuilders.goat
 local goatCliffs = IslandSiteBuilders.goatCliffs
-local duckCove = IslandSiteBuilders.duckCove
 local sheepHill = IslandSiteBuilders.sheepHill
 local truffleGrove = IslandSiteBuilders.truffleGrove
 local home = IslandSiteBuilders.home
@@ -73,8 +72,6 @@ function IslandSpecialization.buildExtensionVisual(parent: Instance, surfaceCf: 
 		goat(wrapper, surfaceCf)
 	elseif extensionId == "goat_cliffs" then
 		goatCliffs(wrapper, surfaceCf)
-	elseif extensionId == "duck_cove" then
-		duckCove(wrapper, surfaceCf)
 	elseif extensionId == "hillside_pasture" then
 		sheepHill(wrapper, surfaceCf)
 	elseif extensionId == "truffle_grove" then

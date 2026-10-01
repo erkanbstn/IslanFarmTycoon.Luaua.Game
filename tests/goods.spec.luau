@@ -69,7 +69,10 @@ return function(codec: any, config: any, farmMath: any, rules: any, logic: any)
 		assert(table.find(config.GOODS_ORDER, id), `good {id} is ordered`)
 		assert(config.ANIMALS[good.animalId], `good {id} comes from a known animal`)
 	end
-	assert(#config.GOODS_ORDER == 8, "eight goods")
+	assert(
+		#config.GOODS_ORDER == #config.ANIMAL_ORDER - 1,
+		"one good per animal (the anchovy shares the fish good of the sea bass)"
+	)
 	local previousCap = 0
 	for _, barn in config.BARN_LEVELS do
 		assert(barn.goodsCap > previousCap, "barn levels raise the goods capacity")

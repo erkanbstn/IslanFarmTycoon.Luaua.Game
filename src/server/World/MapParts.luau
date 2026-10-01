@@ -156,11 +156,7 @@ local function buildZone(plotModel: Model, islandCf: CFrame, layout: ZoneLayout)
 	local surfaceY = if isWater then WATER_Y else SURFACE_Y
 	local center = islandCf * CFrame.new(layout.offset.X, surfaceY + layout.size.Y / 2, layout.offset.Z)
 	local ground = makePart("Ground", layout.size, center, layout.color, zoneModel)
-	ground.Material = if layout.id == "poultry" or layout.id == "stable"
-		then Enum.Material.Sand
-		elseif layout.id == "pond" then Enum.Material.Glass
-		elseif layout.id == "pigpen" then Enum.Material.Ground
-		else Enum.Material.Grass
+	ground.Material = layout.material or Enum.Material.Grass
 	ground:SetAttribute("OpenColor", layout.color)
 	ground:SetAttribute("BackReserve", layout.backReserve)
 	zoneModel.PrimaryPart = ground

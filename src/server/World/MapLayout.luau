@@ -5,6 +5,7 @@
 -- Studio plugin'i modülleri kopyalayıp taze Config ile çalıştırır; Shared araması SharedRef'te (kopyadaki Shared'ı bulur).
 local Shared = require(script.Parent:WaitForChild("SharedRef")) :: typeof(game.ReplicatedStorage.Shared)
 local Config = require(Shared:WaitForChild("Config"))
+local IslandLooks = require(script.Parent:WaitForChild("IslandLooks"))
 
 local SURFACE_Y = 4 -- Ada ve meydan yüzeyinin yüksekliği
 
@@ -27,6 +28,7 @@ export type ZoneLayout = {
 	color: Color3,
 	backReserve: number, -- Arkada hayvan konmayacak şerit (barınak, kümes...)
 	water: boolean?, -- Denizdeki bölge (balık kafesi): zemin görünmez, çit yerine yüzen iskele
+	material: Enum.Material?, -- Zemin dokusu; yoksa çim
 }
 
 local FISH_PEN_CENTER = Vector3.new(-40, 0, -95)
@@ -81,13 +83,19 @@ local HOME_BUILD_SPOTS: { [string]: Vector3 } = {
 	-- Ürün merkezleri (depoya ürün üretir): süt merkezi ahırın arkasında; balık merkezi iskelenin yanında (kapısı iskeleye bakar)
 	milk_center = Vector3.new(-20, 0, 56),
 	fish_cannery = Vector3.new(-34, 0, -46),
-	-- Ana ada fabrikaları ana hayvana göre değişir (Config.upgradeInTheme): tavuk/ördek çiftliğinin yuvaları süt yuvalarıyla aynı yerdedir;
-	-- bir çiftlikte yalnızca ana hayvanın fabrikası alınabildiği için üst üste binmezler.
-	egg_packer = Vector3.new(43, 0, -21),
+	-- Ana ada fabrikaları ve ürün merkezleri ana hayvana göre değişir (Config.upgradeInTheme): her ana hayvanın yuvası süt yuvalarıyla aynı yerdedir;
+	-- bir çiftlikte yalnızca ana hayvanın yükseltmesi alınabildiği için üst üste binmezler (aşağıda Config.SPECIES'ten eklenir).
 	duck_packer = Vector3.new(43, 0, -21),
-	egg_home_center = Vector3.new(-20, 0, 56),
 	down_home_center = Vector3.new(-20, 0, 56),
 }
+
+-- Hayvan türü tablosundaki ana ada hayvanlarının fabrika ve ürün merkezi yuvaları (ana hayvan başına tek yuva çifti)
+for _, species in Config.SPECIES do
+	if species.slot == "home" then
+		HOME_BUILD_SPOTS[species.cash.factory] = Vector3.new(43, 0, -21)
+		HOME_BUILD_SPOTS[species.center.building] = Vector3.new(-20, 0, 56)
+	end
+end
 
 -- Denizdeki bina yerleri (su seviyesinde): Balıkçı Teknesi kafesin dış kenarına bağlanır
 local HOME_WATER_SPOTS: { [string]: { offset: Vector3, yaw: number } } = {
@@ -126,50 +134,31 @@ local function satelliteZone(id: string, color: Color3, backReserve: number): Zo
 	}
 end
 
-local SATELLITE_TYPES: { [string]: SatelliteType } = {
-	dairy = {
-		groundColor = Color3.fromRGB(104, 168, 84),
-		zone = satelliteZone("dairy", Color3.fromRGB(112, 176, 88), 8),
-		buildSpot = { upgradeId = "dairy_factory", offset = Vector3.new(18, 0, 37) },
-		itemSpot = { upgradeId = "dairy_center", offset = Vector3.new(-18, 0, 37) },
-	},
-	poultry = {
-		groundColor = Color3.fromRGB(150, 165, 80),
-		zone = satelliteZone("poultry", Color3.fromRGB(205, 185, 125), 8),
-		buildSpot = { upgradeId = "egg_factory", offset = Vector3.new(18, 0, 37) },
-		itemSpot = { upgradeId = "egg_center", offset = Vector3.new(-18, 0, 37) },
-	},
-	horse = {
-		groundColor = Color3.fromRGB(90, 150, 70),
-		zone = satelliteZone("stable", Color3.fromRGB(145, 110, 80), 8),
-		buildSpot = { upgradeId = "golden_horseshoe", offset = Vector3.new(18, 0, 37) },
-		itemSpot = { upgradeId = "horseshoe_forge", offset = Vector3.new(-18, 0, 37) },
-	},
-	goat = {
-		groundColor = Color3.fromRGB(120, 140, 95),
-		zone = satelliteZone("goatpen", Color3.fromRGB(130, 150, 90), 5),
-		buildSpot = { upgradeId = "cheese_dairy", offset = Vector3.new(18, 0, 37) },
-		itemSpot = { upgradeId = "cheese_cellar", offset = Vector3.new(-18, 0, 37) },
-	},
-	duck = {
-		groundColor = Color3.fromRGB(105, 165, 100),
-		zone = satelliteZone("pond", Color3.fromRGB(88, 160, 200), 8),
-		buildSpot = { upgradeId = "duck_house", offset = Vector3.new(18, 0, 37) },
-		itemSpot = { upgradeId = "down_workshop", offset = Vector3.new(-18, 0, 37) },
-	},
-	sheep = {
-		groundColor = Color3.fromRGB(118, 172, 88),
-		zone = satelliteZone("sheepfold", Color3.fromRGB(122, 168, 88), 6),
-		buildSpot = { upgradeId = "wool_mill", offset = Vector3.new(18, 0, 37) },
-		itemSpot = { upgradeId = "wool_loom", offset = Vector3.new(-18, 0, 37) },
-	},
-	pig = {
-		groundColor = Color3.fromRGB(112, 128, 82),
-		zone = satelliteZone("pigpen", Color3.fromRGB(118, 92, 64), 6),
-		buildSpot = { upgradeId = "truffle_kitchen", offset = Vector3.new(18, 0, 37) },
-		itemSpot = { upgradeId = "meat_smokehouse", offset = Vector3.new(-18, 0, 37) },
-	},
-}
+-- Küçük ada türleri: Config.FARM_ISLANDS (zemin/bölge/yapı noktası yükseltmeleri) + IslandLooks (renk ve doku). Yeni ada = bir Config satırı + bir IslandLooks satırı.
+local SATELLITE_TYPES: { [string]: SatelliteType } = {}
+for islandId, island in Config.FARM_ISLANDS do
+	if not island.upgradeId then
+		continue -- ana ada
+	end
+	local look = IslandLooks[islandId]
+	assert(look, `IslandLooks[{islandId}] eksik`)
+	local zoneId: string? = nil
+	for _, candidate in Config.ZONE_ORDER do
+		if Config.ZONES[candidate].island == islandId then
+			zoneId = candidate
+			break
+		end
+	end
+	assert(zoneId, `{islandId} adasının bölgesi yok`)
+	local zone = satelliteZone(zoneId, look.zone, look.backReserve)
+	zone.material = look.material
+	SATELLITE_TYPES[islandId] = {
+		groundColor = look.ground,
+		zone = zone,
+		buildSpot = { upgradeId = island.buildUpgradeId :: string, offset = Vector3.new(18, 0, 37) },
+		itemSpot = { upgradeId = island.itemUpgradeId :: string, offset = Vector3.new(-18, 0, 37) },
+	}
+end
 
 -- Bir ana adanın (fiziksel ada numarası = çiftlik numarası) küçük ada yerleşimleri
 local function satelliteLayouts(plotIndex: number): { SatelliteLayout }
