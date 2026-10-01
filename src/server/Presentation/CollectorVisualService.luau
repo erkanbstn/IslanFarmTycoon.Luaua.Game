@@ -9,8 +9,14 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 
-local PlayerDataService = require(script.Parent.Parent:WaitForChild("Services"):WaitForChild("PlayerDataService"))
-local PlotService = require(script.Parent.Parent:WaitForChild("Services"):WaitForChild("PlotService"))
+-- Services katmanı bu dosyaya bağlanır; döngü olmasın diye tembel require (ALLOW'da gerekçe)
+local function playerDataService()
+	return require(script.Parent.Parent:WaitForChild("Services"):WaitForChild("PlayerDataService"))
+end
+
+local function plotService()
+	return require(script.Parent.Parent:WaitForChild("Services"):WaitForChild("PlotService"))
+end
 
 local CollectorVisualService = {}
 
@@ -154,9 +160,10 @@ function CollectorVisualService.apply(plot: Model, level: number)
 end
 
 local function refreshAll()
+	local plots, playerData = plotService(), playerDataService()
 	for _, player in Players:GetPlayers() do
-		for farmId, plot in PlotService.getAllOwned(player) do
-			local data = PlayerDataService.getFarmView(player, farmId)
+		for farmId, plot in plots.getAllOwned(player) do
+			local data = playerData.getFarmView(player, farmId)
 			if not data then
 				continue
 			end

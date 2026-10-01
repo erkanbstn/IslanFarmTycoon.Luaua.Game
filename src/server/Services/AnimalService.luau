@@ -13,6 +13,7 @@ local Rewards = require(Shared:WaitForChild("Modules"):WaitForChild("Rewards"))
 local Merchant = require(Shared:WaitForChild("Modules"):WaitForChild("Merchant"))
 
 local PlayerDataService = require(script.Parent:WaitForChild("PlayerDataService"))
+local RequestGuard = require(script.Parent:WaitForChild("RequestGuard"))
 local PlotService = require(script.Parent:WaitForChild("PlotService"))
 local EconomyService = require(script.Parent:WaitForChild("EconomyService"))
 local RateLimiter = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("RateLimiter"))
@@ -20,6 +21,13 @@ local Metrics = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChil
 local TelemetryService = require(script.Parent:WaitForChild("TelemetryService"))
 
 local AnimalService = {}
+
+-- Hayvan taleplerinde etkin çiftlik uyuşmazlığı kimliksiz istekte de bildirilir ve reddedilen alım olarak sayılır.
+local FARM_GUARD: RequestGuard.FarmOptions = { notifyWithoutId = true, countRejected = true }
+
+local function reply(player: Player, requestId: unknown, ok: boolean, message: string?)
+	RequestGuard.reply(player, requestId, ok, message, true)
+end
 
 -- Yavru hayvanları ilk uygun bölgelere ekler (normal alım ve gezgin tüccar ortak kullanır)
 local function addAnimals(data: any, animalId: string, amount: number)
@@ -193,24 +201,6 @@ function AnimalService.trySell(player: Player, animalId: unknown): (boolean, str
 	return true, nil
 end
 
-local function respond(player: Player, requestId: unknown, ok: boolean, message: string?)
-	-- Spam kontrolü nil mesaj döner; cevap trafiğini de sınırla.
-	if not ok and message == nil then
-		if typeof(requestId) ~= "number" or not RateLimiter.allow(player, "purchaseThrottleReply", 0.5) then
-			return
-		end
-		message = "Çok hızlı işlem yapıyorsun; biraz bekle."
-	end
-	if not ok then
-		Metrics.increment("PurchaseRejected")
-	end
-	if typeof(requestId) == "number" then
-		Remotes.get("PurchaseResult"):FireClient(player, requestId, ok, message)
-	else
-		Remotes.get("Notify"):FireClient(player, message, if ok then "success" else "error")
-	end
-end
-
 -- Evresi değişen hayvan varsa adayı yeniden çizer
 local function updateGrowth(player: Player, farm: any?)
 	local data = farm or PlayerDataService.tryGet(player)
@@ -245,15 +235,12 @@ function AnimalService.init()
 			if not RateLimiter.acceptRequest(player, requestId) then
 				return
 			end
-			local data = PlayerDataService.tryGet(player)
-			if not data or expectedFarmId ~= data.activeMainFarmId then
-				if RateLimiter.allow(player, "farmContextReply", 0.5) then
-					respond(player, requestId, false, "Etkin çiftlik değişti; işlemi yeni çiftlikte tekrar seç.")
-				end
+			local data = RequestGuard.activeFarm(player, requestId, expectedFarmId, FARM_GUARD)
+			if not data then
 				return
 			end
 			local ok, err = AnimalService.tryBuyMerchantOffer(player)
-			respond(player, requestId, ok, if ok then "Gezgin tüccardan indirimli hayvanlar geldi!" else err)
+			reply(player, requestId, ok, if ok then "Gezgin tüccardan indirimli hayvanlar geldi!" else err)
 		end)
 	Remotes.get("RequestBuyAnimal").OnServerEvent
 		:Connect(
@@ -261,16 +248,7 @@ function AnimalService.init()
 				if not RateLimiter.acceptRequest(player, requestId) then
 					return
 				end
-				local data = PlayerDataService.tryGet(player)
-				if not data or expectedFarmId ~= data.activeMainFarmId then
-					if RateLimiter.allow(player, "farmContextReply", 0.5) then
-						respond(
-							player,
-							requestId,
-							false,
-							"Etkin çiftlik değişti; işlemi yeni çiftlikte tekrar seç."
-						)
-					end
+				if not RequestGuard.activeFarm(player, requestId, expectedFarmId, FARM_GUARD) then
 					return
 				end
 				local ok, err = AnimalService.tryBuy(player, animalId, count)
@@ -280,7 +258,7 @@ function AnimalService.init()
 						then `{count} {animalConfig.displayName} geldi!`
 						else `Yeni {animalConfig.displayName} geldi!`
 				end
-				respond(player, requestId, ok, err)
+				reply(player, requestId, ok, err)
 			end
 		)
 
@@ -289,18 +267,15 @@ function AnimalService.init()
 			if not RateLimiter.acceptRequest(player, requestId) then
 				return
 			end
-			local data = PlayerDataService.tryGet(player)
-			if not data or expectedFarmId ~= data.activeMainFarmId then
-				if RateLimiter.allow(player, "farmContextReply", 0.5) then
-					respond(player, requestId, false, "Etkin çiftlik değişti; işlemi yeni çiftlikte tekrar seç.")
-				end
+			local data = RequestGuard.activeFarm(player, requestId, expectedFarmId, FARM_GUARD)
+			if not data then
 				return
 			end
 			local refund = if typeof(animalId) == "string" and Config.ANIMALS[animalId]
 				then FarmMath.getSellPrice(data, animalId)
 				else 0
 			local ok, err = AnimalService.trySell(player, animalId)
-			respond(player, requestId, ok, if ok then `Hayvan satıldı: +{FarmMath.formatMoney(refund)}` else err)
+			reply(player, requestId, ok, if ok then `Hayvan satıldı: +{FarmMath.formatMoney(refund)}` else err)
 		end)
 
 	Remotes.get("RequestReplaceFish").OnServerEvent
@@ -308,15 +283,12 @@ function AnimalService.init()
 			if not RateLimiter.acceptRequest(player, requestId) then
 				return
 			end
-			local data = PlayerDataService.tryGet(player)
-			if not data or expectedFarmId ~= data.activeMainFarmId then
-				if RateLimiter.allow(player, "farmContextReply", 0.5) then
-					respond(player, requestId, false, "Etkin çiftlik değişti; işlemi yeni çiftlikte tekrar seç.")
-				end
+			local data = RequestGuard.activeFarm(player, requestId, expectedFarmId, FARM_GUARD)
+			if not data then
 				return
 			end
 			local ok, err = AnimalService.tryReplaceFish(player, uid)
-			respond(player, requestId, ok, if ok then "Hamsi yavru levrekle değiştirildi!" else err)
+			reply(player, requestId, ok, if ok then "Hamsi yavru levrekle değiştirildi!" else err)
 		end)
 
 	task.spawn(function()

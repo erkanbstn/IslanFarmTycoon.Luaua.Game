@@ -14,6 +14,7 @@ local Environment = require(Shared:WaitForChild("Modules"):WaitForChild("Environ
 local Inventory = require(Shared:WaitForChild("Modules"):WaitForChild("Inventory"))
 
 local PlayerDataService = require(script.Parent:WaitForChild("PlayerDataService"))
+local RequestGuard = require(script.Parent:WaitForChild("RequestGuard"))
 local PlotService = require(script.Parent:WaitForChild("PlotService"))
 local EconomyService = require(script.Parent:WaitForChild("EconomyService"))
 local RateLimiter = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("RateLimiter"))
@@ -287,29 +288,13 @@ function InventoryService.tryUse(player: Player, itemId: unknown, argument: unkn
 	return true, message
 end
 
-local function respond(player: Player, requestId: unknown, ok: boolean, message: string?)
-	if not ok and message == nil then
-		if typeof(requestId) ~= "number" or not RateLimiter.allow(player, "purchaseThrottleReply", 0.5) then
-			return
-		end
-		message = "Çok hızlı işlem yapıyorsun; biraz bekle."
-	end
-	if message then
-		if typeof(requestId) == "number" then
-			Remotes.get("PurchaseResult"):FireClient(player, requestId, ok, message)
-		else
-			Remotes.get("Notify"):FireClient(player, message, if ok then "success" else "error")
-		end
-	end
-end
-
 function InventoryService.init()
 	Remotes.get("RequestBuyItem").OnServerEvent:Connect(function(player: Player, itemId: unknown, requestId: unknown)
 		if not RateLimiter.acceptRequest(player, requestId) then
 			return
 		end
 		local ok, err = InventoryService.tryBuy(player, itemId)
-		respond(
+		RequestGuard.reply(
 			player,
 			requestId,
 			ok,
@@ -326,7 +311,7 @@ function InventoryService.init()
 			local name = Config.ITEMS[itemId :: string].displayName
 			message = if equipped then `{name} takıldı` else `{name} çıkarıldı`
 		end
-		respond(player, requestId, ok, message)
+		RequestGuard.reply(player, requestId, ok, message)
 	end)
 	Remotes.get("RequestUseItem").OnServerEvent
 		:Connect(
@@ -335,7 +320,7 @@ function InventoryService.init()
 					return
 				end
 				local ok, message = InventoryService.tryUse(player, itemId, argument)
-				respond(player, requestId, ok, message)
+				RequestGuard.reply(player, requestId, ok, message)
 			end
 		)
 

@@ -1,10 +1,8 @@
 --!strict
 -- Uzman ada yapıları için ortak renkler ve yapı taşları (parça, tabela, yüzey).
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
--- Studio harita eklentisi modülleri kopyalayıp çalıştırır; o durumda yanımızdaki "Shared" kullanılır.
-local Shared = script.Parent.Parent:FindFirstChild("Shared") or ReplicatedStorage:WaitForChild("Shared")
+-- Studio harita eklentisi modülleri kopyalayıp çalıştırır; Shared araması SharedRef'te (kopyadaki Shared'ı bulur).
+local Shared = require(script.Parent:WaitForChild("SharedRef")) :: typeof(game.ReplicatedStorage.Shared)
 local WorldUi = require(Shared:WaitForChild("WorldUi"))
 
 local WOOD = Color3.fromRGB(131, 93, 58)

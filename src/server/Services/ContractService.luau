@@ -7,10 +7,13 @@ local Remotes = require(Shared:WaitForChild("Remotes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 local Environment = require(Shared:WaitForChild("Modules"):WaitForChild("Environment"))
 local PlayerDataService = require(script.Parent:WaitForChild("PlayerDataService"))
+local RequestGuard = require(script.Parent:WaitForChild("RequestGuard"))
 local RateLimiter = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("RateLimiter"))
 local Metrics = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("Metrics"))
 
 local ContractService = {}
+
+local FARM_GUARD: RequestGuard.FarmOptions = { message = "Etkin çiftlik değişti; siparişi tekrar seç." }
 
 function ContractService.tryFulfill(player: Player, key: unknown): (boolean, string?)
 	if not RateLimiter.allow(player, "fulfillContract", 0.5) then
@@ -38,12 +41,7 @@ function ContractService.init()
 			if not RateLimiter.acceptRequest(player, requestId) then
 				return
 			end
-			local data = PlayerDataService.tryGet(player)
-			if not data or expectedFarmId ~= data.activeMainFarmId then
-				if typeof(requestId) == "number" and RateLimiter.allow(player, "farmContextReply", 0.5) then
-					Remotes.get("PurchaseResult")
-						:FireClient(player, requestId, false, "Etkin çiftlik değişti; siparişi tekrar seç.")
-				end
+			if not RequestGuard.activeFarm(player, requestId, expectedFarmId, FARM_GUARD) then
 				return
 			end
 			local ok, message = ContractService.tryFulfill(player, key)

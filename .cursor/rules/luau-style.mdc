@@ -33,7 +33,9 @@ task.delay(1, refresh)
 - Aynı klasördeki modül `script.Parent:WaitForChild("X")`; başka katman `script.Parent.Parent:WaitForChild("<Katman>"):WaitForChild("X")`
   (sunucu: `Modules`/`World`/`Presentation`/`Services`; istemci: `Core`/`Effects`/`Ui`/`Interaction`). Tembel döngü kırma için `require` fonksiyon içinde çağrılır.
 - `src/server/World/` modülleri (MapBuilder ve parçaları, WorldDecor, HomeBuildings ve parçaları, HubNpcs, IslandSpecialization, BarnVisualService) `Shared`'ı
-  `script.Parent.Parent` üzerinden de arar (harita eklentisi `World` klasörünü kopyalayıp çalıştırır) — bu yedek aramayı silme; `World` oyun servislerine bağlanmaz.
+  `World/SharedRef.luau` üzerinden alır: `local Shared = require(script.Parent:WaitForChild("SharedRef")) :: typeof(game.ReplicatedStorage.Shared)`
+  (harita eklentisi `World` klasörünü kopyalayıp çalıştırır; SharedRef kopyadaki `Shared`'ı bulur, dönüşüm tip analizi içindir) — yeni World dosyasında aynı kalıbı kullan,
+  `FindFirstChild("Shared")` yazma; `World` yalnızca `World`/`Shared` require eder.
 
 ## Temizlik
 - Uzun ömürlü `Connect` sonuçlarını sakla; `Destroying`/`PlayerRemoving`'de kopar.

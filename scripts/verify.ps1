@@ -1,12 +1,15 @@
 param(
 	[string]$LuauDirectory = "",
-	[string]$Python = "python"
+	[string]$Python = "python",
+	# CI/temiz klon: luau-lsp yoksa tip denetimini atlamak yerine hata ver
+	[switch]$RequireTypes
 )
 
 $ErrorActionPreference = "Stop"
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $toolManifest = Get-Content -LiteralPath (Join-Path $projectRoot "rokit.toml") -Raw
 $failures = [System.Collections.Generic.List[string]]::new()
+$skipped = [System.Collections.Generic.List[string]]::new()
 
 function Resolve-ProjectTool([string]$Name) {
 	# Read the pinned version instead of accidentally taking another project's tool.
@@ -66,15 +69,39 @@ try {
 		& $analyzer src/server/Modules/SessionLock.luau src/shared/Modules/SeasonVisuals.luau
 	}
 	Invoke-Check "Architecture dependency rules" { & $Python scripts/check-architecture.py }
-	Invoke-Check "Type analysis (baseline; skipped when .tools/luau-lsp is missing)" { & $Python scripts/check-types.py }
+	# check-types.py araçlar yoksa sessizce 0 döner; burada atlama görünür olsun (temiz klonda yanlış güven vermesin).
+	$lspExecutable = Join-Path $projectRoot (".tools/luau-lsp/luau-lsp" + $extension)
+	$lspDefinitions = Join-Path $projectRoot ".tools/luau-lsp/globalTypes.d.luau"
+	if ((Test-Path -LiteralPath $lspExecutable) -and (Test-Path -LiteralPath $lspDefinitions)) {
+		Invoke-Check "Type analysis (baseline)" { & $Python scripts/check-types.py }
+	} elseif ($RequireTypes) {
+		$failures.Add("Type analysis (luau-lsp missing, -RequireTypes)")
+		Write-Warning "Type analysis FAILED: .tools/luau-lsp is missing and -RequireTypes was given. Install: powershell scripts/setup-types.ps1"
+	} else {
+		$skipped.Add("Type analysis")
+		Write-Warning "Type analysis SKIPPED: .tools/luau-lsp is missing, so new type findings can slip through. Install: powershell scripts/setup-types.ps1"
+	}
 	Invoke-Check "Game Rojo build" { & $rojo build default.project.json -o .test-build/game.rbxlx }
 	Invoke-Check "Plugin Rojo build" { & $rojo build plugin.project.json -o .test-build/plugin.rbxmx }
 	Invoke-Check "Studio test Rojo build" { & $rojo build test.project.json -o .test-build/tests.rbxlx }
+	# Harita eklentisi Rojo ile güncellenmez: plugin/ eklenti dosyasından yeniyse derlenmemiş demektir.
+	$installedPlugin = if ($env:LOCALAPPDATA) { Join-Path $env:LOCALAPPDATA "Roblox/Plugins/IslandFarmTycoonHarita.rbxm" } else { "" }
+	if ($installedPlugin -and (Test-Path -LiteralPath $installedPlugin)) {
+		$pluginSources = @(Get-ChildItem -LiteralPath plugin -Recurse -File) + @(Get-Item -LiteralPath plugin.project.json)
+		$newestSource = $pluginSources | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+		if ($newestSource.LastWriteTime -gt (Get-Item -LiteralPath $installedPlugin).LastWriteTime) {
+			$skipped.Add("Installed Studio plugin is older than plugin/")
+			Write-Warning "Studio map plugin may be stale ($($newestSource.Name) is newer than the installed .rbxm). Rebuild: rojo build plugin.project.json --plugin IslandFarmTycoonHarita.rbxm"
+		}
+	}
 } finally {
 	Pop-Location
 }
 
 if ($failures.Count -gt 0) {
 	throw ("Verification failed: " + ($failures -join ", "))
+}
+if ($skipped.Count -gt 0) {
+	Write-Warning ("Automated checks passed, but NOT everything ran: " + ($skipped -join "; "))
 }
 Write-Host "All automated checks passed. Studio multiplayer, DataStore fault and device tests remain separate."

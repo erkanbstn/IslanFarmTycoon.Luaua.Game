@@ -4,10 +4,9 @@
 -- BarnSpot yoksa başlangıç bölgesinin zemini kullanılır.
 
 local CollectionService = game:GetService("CollectionService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
--- Studio plugin'i modülleri kopyalayıp taze Config ile çalıştırır; o durumda yanımızdaki "Shared" kullanılır.
-local Shared = script.Parent.Parent:FindFirstChild("Shared") or ReplicatedStorage:WaitForChild("Shared")
+-- Studio plugin'i modülleri kopyalayıp taze Config ile çalıştırır; Shared araması SharedRef'te (kopyadaki Shared'ı bulur).
+local Shared = require(script.Parent:WaitForChild("SharedRef")) :: typeof(game.ReplicatedStorage.Shared)
 local Config = require(Shared:WaitForChild("Config"))
 local WorldUi = require(Shared:WaitForChild("WorldUi"))
 local UiTheme = require(Shared:WaitForChild("UiTheme"))

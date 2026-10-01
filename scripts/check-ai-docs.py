@@ -161,6 +161,43 @@ else:
         if not any(ch in reference.group(1) for ch in "*<>") and not (ROOT / reference.group(1)).exists():
             fail(f"docs/MIMARI.md: var olmayan yol: {reference.group(1)}")
 
+# ---------------------------------------------------------------- MIMARI.md dosya listeleri ↔ klasörler
+# Katman satırları ("| 2 | `World/` | ... |") o klasördeki her .luau dosyasını adıyla anmalı ve var olmayan dosya adı anmamalı.
+# Kısaltma: `UpgradeBuildersHome`/`Barnyard` = UpgradeBuildersHome + UpgradeBuildersBarnyard (ilk adın son sözcüğü atılır).
+if architecture.exists():
+    layer_rows: dict[str, str] = {}
+    for line in architecture_text.splitlines():
+        row = re.match(r"\|\s*(?:\d+|—)\s*\|\s*`([A-Za-z]+)/`\s*\|", line)
+        if row:
+            layer_rows[row.group(1)] = line
+
+    def module_name(file: Path) -> str:
+        return re.sub(r"(\.client|\.server)?\.luau$", "", file.name)
+
+    def listed_names(line: str) -> set[str]:
+        names = set(re.findall(r"`([A-Za-z][A-Za-z0-9]*)`", line))
+        for group in re.finditer(r"`(\w+)`((?:/`\w+`)+)", line):
+            prefix = re.sub(r"[A-Z][a-z0-9]*$", "", group.group(1))
+            rests = re.findall(r"`(\w+)`", group.group(2))
+            names.difference_update(rests)
+            names.update(prefix + rest for rest in rests)
+        return names
+
+    existing_everywhere = {module_name(p).lower() for p in (ROOT / "src").rglob("*.luau")}
+    existing_everywhere |= {p.name.lower() for p in (ROOT / "src").rglob("*") if p.is_dir()}
+    for side in ("server", "client"):
+        for directory in sorted((ROOT / "src" / side).iterdir()):
+            row_text = layer_rows.get(directory.name)
+            if not directory.is_dir() or row_text is None:
+                continue
+            listed = listed_names(row_text)
+            for file in sorted(directory.glob("*.luau")):
+                if module_name(file) != "init" and module_name(file) not in listed:
+                    fail(f"docs/MIMARI.md: {directory.name}/ satırı {side}/{directory.name}/{file.name} dosyasını anmıyor")
+            for name in sorted(listed):
+                if name[:1].isupper() and name.lower() not in existing_everywhere:
+                    fail(f"docs/MIMARI.md: {directory.name}/ satırındaki `{name}` src altında yok (silinmiş ya da yeniden adlandırılmış)")
+
 if errors:
     print("Yapay zeka rehber dosyaları tutarsız:")
     for message in errors:
