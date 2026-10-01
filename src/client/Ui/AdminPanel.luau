@@ -106,7 +106,33 @@ local function create(parent: Instance): UiKit.Window
 	status.LayoutOrder = 3
 	local controls: { Control } = {}
 
-	local cashHeading = UiKit.text(created.list, "Kendi kasam", "Heading")
+	-- Sekmeler: her sekme kendi bölümlerini ayrı bir çerçevede tutar (liste uzayıp gitmesin); sonuç satırı sekmelerin üstünde kalır.
+	local pages: { [string]: Frame } = {}
+	for _, id in { "cash", "players", "world", "test" } do
+		local frame = Instance.new("Frame")
+		frame.Name = `Page_{id}`
+		frame.BackgroundTransparency = 1
+		frame.Size = UDim2.new(1, 0, 0, 0)
+		frame.AutomaticSize = Enum.AutomaticSize.Y
+		frame.LayoutOrder = 5
+		frame.Visible = id == "cash"
+		frame.Parent = created.list
+		UiKit.list(frame, 8)
+		pages[id] = frame
+	end
+	UiKit.tabs(created.list, 4, {
+		{ id = "cash", label = "Kasa" },
+		{ id = "players", label = "Oyuncular" },
+		{ id = "world", label = "Dünya" },
+		{ id = "test", label = "Test" },
+	}, function(id: string)
+		for pageId, frame in pages do
+			frame.Visible = pageId == id
+		end
+	end)
+	local page: Instance = pages.cash
+
+	local cashHeading = UiKit.text(page, "Kendi kasam", "Heading")
 	cashHeading.LayoutOrder = 4
 	local function updateBalance()
 		local state = ClientState.get()
@@ -114,7 +140,7 @@ local function create(parent: Instance): UiKit.Window
 			then `Kendi kasam: {FarmMath.formatMoney(state.cash)}`
 			else "Kendi kasam: yükleniyor"
 	end
-	local amount = UiKit.textInput(created.list, "Tutar (örnek: 1000)")
+	local amount = UiKit.textInput(page, "Tutar (örnek: 1000)")
 	amount.Name = "CashAmount"
 	amount.LayoutOrder = 5
 
@@ -123,7 +149,7 @@ local function create(parent: Instance): UiKit.Window
 		frame.BackgroundTransparency = 1
 		frame.Size = UDim2.new(1, 0, 0, 44)
 		frame.LayoutOrder = order
-		frame.Parent = created.list
+		frame.Parent = page
 		UiKit.list(frame, 6, true)
 		return frame
 	end
@@ -160,15 +186,12 @@ local function create(parent: Instance): UiKit.Window
 			submit(option.id, number)
 		end)
 	end
-	UiKit.text(
-		created.list,
-		"Bakiyeyi ayarla, mevcut tutarın üzerine yazdığı için parayı azaltabilir.",
-		"Caption"
-	).LayoutOrder =
+	UiKit.text(page, "Bakiyeyi ayarla, mevcut tutarın üzerine yazdığı için parayı azaltabilir.", "Caption").LayoutOrder =
 		7
 
-	UiKit.text(created.list, "Sunucu havası", "Heading").LayoutOrder = 8
-	local weatherStatus = UiKit.text(created.list, "", "Caption")
+	page = pages.world
+	UiKit.text(page, "Sunucu havası", "Heading").LayoutOrder = 8
+	local weatherStatus = UiKit.text(page, "", "Caption")
 	weatherStatus.LayoutOrder = 9
 	local weather = {
 		{ id = "sunny", label = "Güneşli" },
@@ -212,12 +235,12 @@ local function create(parent: Instance): UiKit.Window
 		end
 	end
 	choices("setWeather", weather, 10)
-	UiKit.text(created.list, "Sunucu mevsimi", "Heading").LayoutOrder = 13
-	local seasonStatus = UiKit.text(created.list, "", "Caption")
+	UiKit.text(page, "Sunucu mevsimi", "Heading").LayoutOrder = 13
+	local seasonStatus = UiKit.text(page, "", "Caption")
 	seasonStatus.LayoutOrder = 14
 	choices("setSeason", seasons, 15)
 	UiKit.text(
-		created.list,
+		page,
 		"Otomatik seçeneği ilgili yönetici seçimini kaldırıp normal döngüyü sürdürür.",
 		"Caption"
 	).LayoutOrder =
@@ -242,21 +265,22 @@ local function create(parent: Instance): UiKit.Window
 		{ id = "normal", label = "Normal" },
 		{ id = "strong", label = "Güçlü" },
 	}
-	UiKit.text(created.list, "Gün ve gece", "Heading").LayoutOrder = 19
-	local timeStatus = UiKit.text(created.list, "", "Caption")
+	UiKit.text(page, "Gün ve gece", "Heading").LayoutOrder = 19
+	local timeStatus = UiKit.text(page, "", "Caption")
 	timeStatus.LayoutOrder = 20
 	choices("setTime", times, 21)
-	UiKit.text(created.list, "Gece ışıkları", "Heading").LayoutOrder = 24
-	local lightStatus = UiKit.text(created.list, "", "Caption")
+	UiKit.text(page, "Gece ışıkları", "Heading").LayoutOrder = 24
+	local lightStatus = UiKit.text(page, "", "Caption")
 	lightStatus.LayoutOrder = 25
 	choices("setLights", lightModes, 26)
-	UiKit.text(created.list, "Işık parlaklığı", "Heading").LayoutOrder = 28
-	local levelStatus = UiKit.text(created.list, "", "Caption")
+	UiKit.text(page, "Işık parlaklığı", "Heading").LayoutOrder = 28
+	local levelStatus = UiKit.text(page, "", "Caption")
 	levelStatus.LayoutOrder = 29
 	choices("setLightLevel", lightLevels, 30)
-	UiKit.text(created.list, "Test araçları (yalnızca kendi çiftliğin)", "Heading").LayoutOrder = 33
+	page = pages.test
+	UiKit.text(page, "Test araçları (yalnızca kendi çiftliğin)", "Heading").LayoutOrder = 33
 	UiKit.text(
-		created.list,
+		page,
 		"Açma ve doldurma, seçili (bulunduğun) ada içindir. Hayvanları yetişkin yapmak büyüme animasyonunu, açmak tabela ve eklentileri, doldurmak yoğunluğu denemek içindir. Para harcamaz.",
 		"Caption"
 	).LayoutOrder =
@@ -264,9 +288,9 @@ local function create(parent: Instance): UiKit.Window
 	choices("growAll", { { id = "now", label = "Bütün hayvanları büyüt" } }, 35)
 	choices("unlockIslands", { { id = "now", label = "Bu adadaki her şeyi aç (eklentiler dahil)" } }, 36)
 	choices("fillSlots", { { id = "now", label = "Bu adadaki bütün slotları hayvanla doldur" } }, 37)
-	UiKit.text(created.list, "Rastgele olaylar (test)", "Heading").LayoutOrder = 38
+	UiKit.text(page, "Rastgele olaylar (test)", "Heading").LayoutOrder = 38
 	UiKit.text(
-		created.list,
+		page,
 		"Olaylar normalde rastgele gelir; bunlar hemen görmek içindir. Altın hayvan ve tüccar yalnızca senin profilinde çıkar, kaydedilmez.",
 		"Caption"
 	).LayoutOrder =
@@ -275,21 +299,22 @@ local function create(parent: Instance): UiKit.Window
 	choices("forceGolden", { { id = "now", label = "Altın hayvanı çağır" } }, 41)
 	choices("completeSeason", { { id = "now", label = "Mevsim hedefini tamamla" } }, 42)
 	choices("resetEvents", { { id = "now", label = "Olayları ve mevsim hedefini sıfırla" } }, 43)
-	UiKit.text(created.list, "Envanter (test)", "Heading").LayoutOrder = 44
+	UiKit.text(page, "Envanter (test)", "Heading").LayoutOrder = 44
 	choices("fillBarn", { { id = "now", label = "Ahır deposunu doldur" } }, 47)
 	choices("grantItems", { { id = "now", label = "Bütün eşyaları ver (takmaz)" } }, 45)
 	choices("clearItems", { { id = "now", label = "Envanteri boşalt" } }, 46)
 
 	-- Oyuncu işlemleri: seçilen oyuncuya para ver/al/ayarla, kayıt özeti, sunucudan at. Hedef ve tutar sunucuda yeniden doğrulanır.
-	UiKit.text(created.list, "Oyuncu işlemleri", "Heading").LayoutOrder = 48
-	local targetStatus = UiKit.text(created.list, "Önce bir oyuncu seç.", "Caption")
+	page = pages.players
+	UiKit.text(page, "Oyuncu işlemleri", "Heading").LayoutOrder = 48
+	local targetStatus = UiKit.text(page, "Önce bir oyuncu seç.", "Caption")
 	targetStatus.LayoutOrder = 49
 	local playerList = Instance.new("Frame")
 	playerList.BackgroundTransparency = 1
 	playerList.Size = UDim2.new(1, 0, 0, 0)
 	playerList.AutomaticSize = Enum.AutomaticSize.Y
 	playerList.LayoutOrder = 50
-	playerList.Parent = created.list
+	playerList.Parent = page
 	UiKit.list(playerList, 4)
 	local selectedTarget: Player? = nil
 	local function rebuildPlayers()
@@ -324,7 +349,7 @@ local function create(parent: Instance): UiKit.Window
 		end)
 	)
 	rebuildPlayers()
-	local targetAmount = UiKit.textInput(created.list, "Tutar (para işlemleri için)")
+	local targetAmount = UiKit.textInput(page, "Tutar (para işlemleri için)")
 	targetAmount.Name = "TargetAmount"
 	targetAmount.LayoutOrder = 51
 	local function targetRow(order: number, options: { { id: string, label: string, needsAmount: boolean } })
