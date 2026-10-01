@@ -81,7 +81,7 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
   Yeni bir olay türü eklersen aynı kalıbı kullan: saf zaman/teklif mantığı + yalnızca gerekli işareti kaydet.
 - **Altın hayvan** (rastgele olay): `Config.GOLDEN` (cycleSeconds, windowSeconds, chance, rewardSeconds, minReward). Saf `Golden.window/current` (paylaşılan;
   `Merchant.rand` ile oyuncu kimliği + döngüden türer). Pencere açıkken etkin çiftlikteki yetişkin bir hayvan (kimliğe göre sıralı listeden seçilir) parlar;
-  ödül o hayvanın `rewardSeconds` saniyelik geliridir (en az `minReward`). Hesap alanı `golden {key}` yalnızca alınan pencereyi işaretler. Sunucu
+  ödül çiftliğin TOPLAM `rewardSeconds` saniyelik geliridir (`computeIncomePerSecond`) (en az `minReward`). Hesap alanı `golden {key}` yalnızca alınan pencereyi işaretler. Sunucu
   `EngagementService.tryClaimGolden` (`RequestClaimGolden`) olayı yeniden hesaplar, işareti önce yazar. Görsel tamamen client'ta: `GoldenAnimal.client`
   (Highlight + hayvanın üstünde "Topla" düğmesi, fare/dokunma ile çalışır); bildirim FarmHud'da. Yeni rastgele olay eklerken aynı kalıbı izle.
 - **Tema tutarlılığı**: bir çiftlik yalnızca kendi temasındaki adaların yükseltmelerini alabilir. `FarmMath.isUpgradeInTheme` ve `getUpgradeStatus` temada olmayanı

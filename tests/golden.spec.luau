@@ -59,6 +59,14 @@ return function(Golden: any, Config: any, FarmMath: any)
 		"the glowing animal is one of the player's adults"
 	)
 	assert(event.reward >= settings.minReward, "reward has a floor")
+	assert(
+		event.reward
+			== math.max(
+				settings.minReward,
+				math.floor(FarmMath.computeIncomePerSecond(farm, now) * settings.rewardSeconds)
+			),
+		"reward is the whole farm's income over rewardSeconds, not a single animal's"
+	)
 	assert(Golden.current(farm, userId, now + 1).uid == event.uid, "the same animal glows for the whole window")
 	assert(Golden.current(farm, userId, now + settings.windowSeconds + 1) == nil, "no event after the window")
 
