@@ -451,7 +451,9 @@ end
 -- keepTheme: kayıt henüz yüklenmedi (assign); ada mevcut temasında kalır, tema restoreMainFarms'ta bir kez giydirilir.
 local function bindFarm(player: Player, farmId: string, plot: Model, keepTheme: boolean?)
 	local plotId = plot:GetAttribute("PlotId") :: string
-	if farmIdByPlotId[plotId] ~= farmId or ownerByPlotId[plotId] ~= player then
+	-- Tema değişecekse de temizle: BuyPads/DecorReveal eski temanın yuvalarına ve nesnelerine bağlı kalmasın.
+	local themeChanges = not keepTheme and plot:GetAttribute("ThemeIndex") ~= themeOf(farmId)
+	if farmIdByPlotId[plotId] ~= farmId or ownerByPlotId[plotId] ~= player or themeChanges then
 		clearOwnerVisuals(plot)
 	end
 	if not keepTheme then

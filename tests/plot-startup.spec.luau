@@ -10,6 +10,7 @@ return function(createPlotService: any, Config: any)
 		local plots: { any } = {}
 		local themes: { [any]: number } = {}
 		local themeCalls = 0
+		local clears: { [any]: number } = {}
 		for index = 1, Config.MAP_PLOT_COUNT do
 			local plot: any = { Name = `Plot{index}`, attributes = { PlotId = tostring(index) } }
 			function plot:IsA(class: string): boolean
@@ -60,6 +61,7 @@ return function(createPlotService: any, Config: any)
 			applyTheme = function(target: any, themeIndex: number): boolean
 				themeCalls += 1
 				themes[target] = themeIndex
+				target:SetAttribute("ThemeIndex", themeIndex)
 				return true
 			end,
 		}
@@ -93,7 +95,13 @@ return function(createPlotService: any, Config: any)
 				end,
 			},
 			{ applyForPlayer = noop },
-			{ apply = noop },
+			{
+				apply = function(target: any, view: any)
+					if view == nil then
+						clears[target] = (clears[target] or 0) + 1
+					end
+				end,
+			},
 			{ apply = noop },
 			{ apply = noop },
 			{ syncProductionSites = noop, syncMilkLoadingDecor = noop },
@@ -107,6 +115,7 @@ return function(createPlotService: any, Config: any)
 			rendered = rendered,
 			pushes = pushes,
 			themes = themes,
+			clears = clears,
 			themeSwaps = function(): number
 				return themeCalls
 			end,
@@ -236,6 +245,19 @@ return function(createPlotService: any, Config: any)
 	service.release(alice)
 	assert(multi.themeSwaps() == swapsBefore, "releasing a plot must not rebuild its theme")
 	assert(service.getOwner(mine) == nil and multi.themes[mine] == 5, "a released plot keeps its theme (no reset)")
+	-- Aynı sahip/çiftlik, yalnızca tema değişiyorsa da sahip görselleri temizlenir (BuyPads/DecorReveal eski temada kalmasın).
+	local carol = player(109)
+	assert(service.assign(carol), "a free plot is available for the theme-change check")
+	local carolPlot = service.getPlot(carol)
+	carolPlot:SetAttribute("ThemeIndex", 3) -- önceki sahibin teması
+	multi.profiles[carol] = { activeMainFarmId = "1", mainFarms = { ["1"] = records["1"] } }
+	local clearsBefore = multi.clears[carolPlot] or 0
+	assert(service.restoreMainFarms(carol, { "1" }, "1"), "restore on the assigned plot")
+	assert(multi.themes[carolPlot] == 1, "restore re-themes a plot left in another owner's theme")
+	assert(multi.clears[carolPlot] == clearsBefore + 1, "a theme change must clear the owner visuals")
+	local clearsAfter = multi.clears[carolPlot]
+	assert(service.restoreMainFarms(carol, { "1" }, "1"), "repeat restore")
+	assert(multi.clears[carolPlot] == clearsAfter, "an unchanged theme must not clear again")
 	local newcomer = player(108)
 	assert(service.assign(newcomer), "a free plot is available again")
 	local received = service.getPlot(newcomer)
