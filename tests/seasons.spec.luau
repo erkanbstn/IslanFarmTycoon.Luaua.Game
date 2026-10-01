@@ -110,9 +110,43 @@ return function(visuals: any, createEnvironment: any, config: any)
 		"Dusk must be a gradual transition"
 	)
 	assert(math.abs(environment.getNightFactor(24) - environment.getNightFactor(0)) < 0.000001, "Midnight seam")
+	-- Şafak erken başlar: 04:25'te gökyüzü artık tam gece değildir ve eğri sabaha kadar tek yönde aydınlanır.
+	assert(environment.getNightFactor(4.4) < 1 and environment.getNightFactor(3.4) == 1, "Dawn begins after 03:30")
+	assert(environment.getNightFactor(4.4) > 0.6, "04:25 is still dim, not bright")
+	assert(environment.getNightFactor(7) == 0 and environment.getNightFactor(17) == 0, "Full day 07:00-17:00")
+	assert(environment.getNightFactor(20.5) == 1, "Full night from 20:30")
+	local previousNight = environment.getNightFactor(3.5)
+	for step = 1, 140 do
+		local value = environment.getNightFactor(3.5 + step * 0.025)
+		assert(value <= previousNight + 1e-9, "Night factor must fall monotonically through dawn")
+		previousNight = value
+	end
+	previousNight = environment.getNightFactor(17)
+	for step = 1, 140 do
+		local value = environment.getNightFactor(17 + step * 0.025)
+		assert(value >= previousNight - 1e-9, "Night factor must rise monotonically through dusk")
+		previousNight = value
+	end
+	for _, key in environment.NIGHT_CURVE do
+		assert(math.abs(environment.getNightFactor(key[1]) - key[2]) < 1e-9, "Curve passes through its keys")
+	end
+	assert(environment.getNightFactor(28) == environment.getNightFactor(4), "Clock wraps past 24")
+	-- Işık rampası gökyüzüyle senkron: parlak gökyüzünde 0, derin gecede 1, sabah/akşam yalnızca bir kez geçiş.
+	local flips = 0
+	local lastLit = environment.getLightFactor(0) > 0
+	for step = 1, 480 do
+		local lit = environment.getLightFactor(step * 0.05) > 0
+		if lit ~= lastLit then
+			flips += 1
+			lastLit = lit
+		end
+	end
+	assert(flips == 2, "Lights switch on once at dusk and off once at dawn")
+	assert(environment.getLightFactor(17.5) == 0 and environment.getLightFactor(18.7) > 0.95, "Dusk light ramp")
+	assert(environment.getLightFactor(4.9) > 0.9 and environment.getLightFactor(6.1) == 0, "Dawn light ramp")
 	-- Işıklar gökyüzü karardıkça yanar; aydınlık gökyüzünde asla yanmaz.
 	assert(environment.getLightFactor(12) == 0 and environment.getLightFactor(19) == 1, "Lights: day off, evening on")
-	assert(environment.getLightFactor(3) == 1 and environment.getLightFactor(5) == 1, "Lights stay on before dawn")
+	assert(environment.getLightFactor(3) == 1 and environment.getLightFactor(4.5) > 0.9, "Lights stay on before dawn")
 	assert(environment.getLightFactor(6.5) == 0 and environment.getLightFactor(17.5) == 0, "No lights in daylight")
 	for step = 0, 480 do
 		local clock = step * 0.05

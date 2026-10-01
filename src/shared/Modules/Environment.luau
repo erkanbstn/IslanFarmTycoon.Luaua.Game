@@ -176,16 +176,37 @@ local function smoothstep(from: number, to: number, x: number): number
 	return t * t * (3 - 2 * t)
 end
 
--- 0 = tam gündüz, 1 = tam gece; akşam 17.5-19.5 arası kararır, sabah 4.5-6.5 arası aydınlanır.
+-- Gece payı eğrisi: (saat, pay) anahtarları arasında yumuşak (smoothstep) geçiş. 0 = tam gündüz, 1 = tam gece.
+-- Şafak erken başlar (03:30'dan itibaren hafif aydınlanır, 07:00'de tam gündüz); akşam 17:00'de kararmaya başlar, 20:30'da tam gece.
+-- Yeni nokta eklerken saatler artan sırada kalmalı; 0 ve 24 uçları aynı değerde (gün sınırında sıçrama olmaz).
+Environment.NIGHT_CURVE = {
+	{ 0, 1 },
+	{ 3.5, 1 },
+	{ 5, 0.6 },
+	{ 6, 0.2 },
+	{ 7, 0 },
+	{ 17, 0 },
+	{ 18, 0.25 },
+	{ 19, 0.7 },
+	{ 20.5, 1 },
+	{ 24, 1 },
+} :: { { number } }
+
 function Environment.getNightFactor(clock: number): number
-	if clock >= 12 then
-		return smoothstep(17.5, 19.5, clock)
+	local curve = Environment.NIGHT_CURVE
+	local hour = clock % 24
+	for index = 2, #curve do
+		local to = curve[index]
+		if hour <= to[1] then
+			local from = curve[index - 1]
+			return from[2] + (to[2] - from[2]) * smoothstep(from[1], to[1], hour)
+		end
 	end
-	return 1 - smoothstep(4.5, 6.5, clock)
+	return curve[#curve][2]
 end
 
--- Işık kaynakları gökyüzünün kararmasına bağlıdır: hava belirgin kararınca (≈18:05) yanar, ≈18:40'ta
--- tam açılır; sabah ≈05:20'de sönmeye başlar, gökyüzü aydınlanmadan (≈05:55) tamamen söner.
+-- Işık kaynakları gökyüzünün kararmasına bağlıdır: hava belirgin kararınca (≈17:45) yanar, ≈18:40'ta
+-- tam açılır; sabah ≈05:00'te sönmeye başlar, gökyüzü aydınlanmadan (≈06:00) tamamen söner.
 -- Ayrı saat aralığı kullanma: ikisi ayrışınca güpegündüz ışık yanar.
 function Environment.getLightFactor(clock: number): number
 	return smoothstep(0.2, 0.6, Environment.getNightFactor(clock))

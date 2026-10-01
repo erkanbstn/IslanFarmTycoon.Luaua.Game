@@ -20,7 +20,8 @@ local TICK = 0.1
 -- Hava pozlamasına geçiş hızı (saniye); WeatherEffects'in 6 sn'lik geçişiyle aynı hissi verir.
 local EXPOSURE_SMOOTHING = 2
 
--- Gece gerçekten kararmalı; yoksa fenerler ve pencereler ortam ışığında kaybolur.
+-- Gece kararır ama en karanlık anda bile zemin ve hayvanlar seçilebilmeli: ay ışığı mavisi bir taban vardır.
+-- Gün içi eğri `Environment.getNightFactor`ta (anahtar saat -> pay); bu tablolar yalnızca iki uç değerdir.
 local DAY = {
 	brightness = 2.4,
 	outdoor = Color3.fromRGB(135, 135, 150),
@@ -29,12 +30,12 @@ local DAY = {
 	decay = Color3.fromRGB(106, 135, 165),
 }
 local NIGHT = {
-	brightness = 0.85,
-	exposure = -0.32,
-	outdoor = Color3.fromRGB(62, 72, 112),
-	ambient = Color3.fromRGB(40, 47, 74),
-	atmosphere = Color3.fromRGB(40, 52, 86),
-	decay = Color3.fromRGB(18, 24, 46),
+	brightness = 1.5,
+	exposure = -0.15,
+	outdoor = Color3.fromRGB(84, 98, 148),
+	ambient = Color3.fromRGB(60, 70, 108),
+	atmosphere = Color3.fromRGB(50, 64, 102),
+	decay = Color3.fromRGB(24, 32, 58),
 	tint = Color3.fromRGB(190, 204, 246),
 }
 local MAX_LIGHT_RANGE = 60 -- Roblox PointLight.Range üst sınırı
@@ -43,9 +44,18 @@ local MAX_LIGHT_RANGE = 60 -- Roblox PointLight.Range üst sınırı
 local LIGHT_BRIGHTNESS_SCALE = 0.5
 local LIGHT_RANGE_SCALE = 0.8
 local LIGHT_FADE_SECONDS = 1
--- Gerçek ışık kaynakları (PointLight/SpotLight) pahalıdır: düşükte hiç yanmaz (parçalar yine Neon/renk
--- değiştirir), ortada kameraya en yakın bu kadar parçada yanar, yüksekte hepsi yanar.
-local MEDIUM_LIGHT_PARTS = 24
+-- Gerçek ışık kaynakları (PointLight/SpotLight) pahalıdır: düşükte hiç yanmaz, ortada kameraya en yakın
+-- bu kadar parçada yanar, yüksekte hepsi yanar. Gerçek ışığı olmayan fenerler yine de "yanar":
+-- Neon/renk değişir ve ucuz bir hale küresi (HALO_*) görünür.
+local MEDIUM_LIGHT_PARTS = 40
+-- Histerezis: ışık seçimindeki bir parça, sıralamada düşse bile uzaklığı bütçedeki son parçanın
+-- (KEEP_FACTOR * mesafe + KEEP_SLACK) değerini geçmedikçe seçili kalır; sınırdaki ışıklar yanıp sönmez.
+local KEEP_FACTOR = 1.25
+local KEEP_SLACK = 4
+local HALO_SCALE = 2.4
+local HALO_MIN_SIZE = 2
+local HALO_MAX_SIZE = 9
+local HALO_TRANSPARENCY = 0.82
 local NEAREST_REFRESH_SECONDS = 1
 local TWILIGHT_SHIFT = Color3.fromRGB(255, 150, 90)
 
@@ -65,6 +75,7 @@ type Glow = {
 	nightColor: Color3,
 	glowMaterial: Enum.Material,
 	lit: boolean,
+	halo: BasePart?, -- Gerçek ışığı olmayan fener için ucuz parıltı küresi (tembel oluşturulur)
 	-- Son uygulanan durum: değişmediyse (3 sn'lik eşitleme dahil) hiçbir özelliğe yazılmaz
 	appliedRamp: number?,
 	appliedMultiplier: number?,
@@ -111,6 +122,40 @@ local function lightsAllowed(part: BasePart): boolean
 	return true
 end
 
+-- Gerçek ışık yokken fenerin "yandığı" hissi: yarı saydam Neon küre (çarpışmaz, gölge atmaz).
+-- Pencereler (NightWindow) zaten parlak renkli yüzeydir, hale almaz.
+local function updateHalo(glow: Glow, show: boolean)
+	local halo = glow.halo
+	if not show then
+		if halo then
+			halo.Parent = nil
+		end
+		return
+	end
+	local part = glow.part
+	if not halo then
+		local size =
+			math.clamp(math.max(part.Size.X, part.Size.Y, part.Size.Z) * HALO_SCALE, HALO_MIN_SIZE, HALO_MAX_SIZE)
+		halo = Instance.new("Part")
+		halo.Name = "NightHalo"
+		halo.Shape = Enum.PartType.Ball
+		halo.Size = Vector3.new(size, size, size)
+		halo.Material = Enum.Material.Neon
+		halo.Color = glow.nightColor
+		halo.Anchored = true
+		halo.CanCollide = false
+		halo.CanQuery = false
+		halo.CanTouch = false
+		halo.CastShadow = false
+		glow.halo = halo
+	end
+	local fade = math.clamp(ramp * multiplier, 0, 1)
+	local node = halo :: BasePart
+	node.CFrame = part.CFrame
+	node.Transparency = 1 - (1 - HALO_TRANSPARENCY) * fade
+	node.Parent = part
+end
+
 local function applyGlow(glow: Glow)
 	local part = glow.part
 	local allowed = lightsAllowed(part)
@@ -123,6 +168,9 @@ local function applyGlow(glow: Glow)
 		glow.lit = on
 		part.Material = if on then glow.glowMaterial else glow.material
 		part.Color = if on then glow.nightColor else glow.color
+	end
+	if glow.glowMaterial == Enum.Material.Neon then
+		updateHalo(glow, on and not allowed)
 	end
 	for _, child in part:GetChildren() do
 		if child:IsA("Light") then
@@ -166,7 +214,11 @@ local function track(instance: Instance)
 end
 
 local function untrack(instance: Instance)
-	if instance:IsA("BasePart") and glows[instance] then
+	local glow = glows[instance]
+	if instance:IsA("BasePart") and glow then
+		if glow.halo then
+			glow.halo:Destroy()
+		end
 		glows[instance] = nil
 		publishCount()
 	end
@@ -258,14 +310,18 @@ local function updateSky(dt: number)
 	end
 end
 
--- Orta kalite: kameraya en yakın MEDIUM_LIGHT_PARTS ışıklı parça (1 sn'de bir yenilenir)
+-- Orta kalite: kameraya en yakın MEDIUM_LIGHT_PARTS ışıklı parça (1 sn'de bir yenilenir).
+-- Mevcut seçim, bütçedeki son parçaya yakın olduğu sürece korunur (histerezis); kamera sınırda
+-- dolaşırken ışıklar yanıp sönmez.
 local function refreshNearest()
-	table.clear(nearestParts)
+	local previous = nearestParts
+	nearestParts = {}
 	if EffectSettings.quality() ~= "medium" then
 		return
 	end
 	local camera = Workspace.CurrentCamera
 	if not camera then
+		nearestParts = previous
 		return
 	end
 	local cameraPos = camera.CFrame.Position
@@ -276,8 +332,29 @@ local function refreshNearest()
 	table.sort(ranked, function(a, b)
 		return a.distance < b.distance
 	end)
-	for index = 1, math.min(#ranked, MEDIUM_LIGHT_PARTS) do
-		nearestParts[ranked[index].part] = true
+	local budget = math.min(#ranked, MEDIUM_LIGHT_PARTS)
+	if budget == 0 then
+		return
+	end
+	local keepLimit = ranked[budget].distance * KEEP_FACTOR + KEEP_SLACK
+	local chosen = 0
+	for _, entry in ranked do
+		if chosen >= budget then
+			break
+		end
+		if previous[entry.part] and entry.distance <= keepLimit then
+			nearestParts[entry.part] = true
+			chosen += 1
+		end
+	end
+	for _, entry in ranked do
+		if chosen >= budget then
+			break
+		end
+		if not nearestParts[entry.part] then
+			nearestParts[entry.part] = true
+			chosen += 1
+		end
 	end
 end
 
