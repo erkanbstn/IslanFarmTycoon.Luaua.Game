@@ -198,10 +198,25 @@ return function(context: any?)
 			math.abs(stamped.parts - reference.parts) <= (if exact then 0 else math.ceil(reference.parts * 0.03)),
 			`{label}: parça sayısı farklı ({stamped.parts} / {reference.parts}).`
 		)
+		-- Ağaç/çalı türü ve sayısı konuma bağlı tohumdan gelir (MapParts.seedFrom: çam mı meşe mi); şablon başka konumda kurulduğu için bu parçalar
+		-- birkaç ağaç kadar oynar. Diğer her şey sıkı tolerans kullanır.
+		local TREE_PARTS = {
+			["Part:Needles"] = true,
+			["Part:Trunk"] = true,
+			["Part:Leaves"] = true,
+			["Part:Branch"] = true,
+			["Part:Berry"] = true,
+			["Model:PineTree"] = true,
+			["Model:OakTree"] = true,
+			["Model:Bush"] = true,
+		}
 		for key, count in reference.counts do
 			local other = stamped.counts[key] or 0
+			local allowed = if TREE_PARTS[key]
+				then math.max(12, math.ceil(count * 0.4))
+				else math.max(2, math.ceil(count * 0.1))
 			assert(
-				if exact then other == count else math.abs(other - count) <= math.max(2, math.ceil(count * 0.1)),
+				if exact then other == count else math.abs(other - count) <= allowed,
 				`{label}: {key} sayısı farklı ({other} / {count}).`
 			)
 		end
