@@ -68,6 +68,42 @@ return function(visuals: any, createEnvironment: any, config: any)
 			end
 		end
 	end
+	-- Hayvan başına sinyal: işaret etkiyle uyumlu; bölge uyumu olumsuzu küçültür, olumluyu büyütür
+	do
+		local threshold = config.SEASON_SIGNAL_THRESHOLD
+		assert(threshold > 0 and threshold < 0.2, "signal threshold must be a small positive fraction")
+		local sawUp, sawDown, sawNeutral = false, false, false
+		for _, season in config.SEASONS do
+			for weatherId in config.WEATHER do
+				local override = {
+					seasonId = season.id,
+					seasonEndsAt = math.huge,
+					weatherId = weatherId,
+					weatherEndsAt = math.huge,
+				}
+				for _, animalId in config.ANIMAL_ORDER do
+					local base = environment.getSeasonEffect(animalId, override)
+					assert(
+						math.abs(base.percent - (environment.getIncomeMultiplier(animalId, override) - 1)) < 1e-9,
+						"effect percent matches the income multiplier"
+					)
+					local expected = if base.percent >= threshold then 1 elseif base.percent <= -threshold then -1 else 0
+					assert(base.signal == expected, `signal sign mismatch {season.id}/{weatherId}/{animalId}`)
+					sawUp = sawUp or base.signal == 1
+					sawDown = sawDown or base.signal == -1
+					sawNeutral = sawNeutral or base.signal == 0
+					local tuned = environment.getSeasonEffect(animalId, override, 0.65)
+					if base.percent > 0 then
+						assert(tuned.percent > base.percent, "affinity must enlarge a positive effect")
+					elseif base.percent < 0 then
+						assert(tuned.percent > base.percent, "affinity must shrink a negative effect")
+					end
+					assert(tuned.signal >= base.signal, "affinity never turns a signal worse")
+				end
+			end
+		end
+		assert(sawUp and sawDown and sawNeutral, "config must contain rising, falling and neutral animals")
+	end
 	assert(environment.getNextSeason(summer).id == "autumn", "the next season follows the overridden one")
 	assert(
 		environment.getSeason({ seasonId = "summer", seasonEndsAt = now - 1 }).id == "winter",

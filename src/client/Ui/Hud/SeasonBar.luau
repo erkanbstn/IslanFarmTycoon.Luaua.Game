@@ -142,15 +142,16 @@ function SeasonBar.create(stats: Instance): Bar
 			if state then
 				for _, animal in state.animals do
 					if animal.animalId == animalId then
-						local affinity = if animal.zoneId
-							then FarmMath.getBuildBonus(state, animal.zoneId, "seasonAffinity")
-							else 0
-						sum += Environment.getIncomeMultiplier(animalId, nil, affinity) - 1
+						sum += FarmMath.getSeasonEffect(state, animalId, animal.zoneId).percent
 						count += 1
 					end
 				end
 			end
-			totals[animalId] = if count > 0 then sum / count else Environment.getIncomeMultiplier(animalId) - 1
+			totals[animalId] = if count > 0
+				then sum / count
+				else (if state
+					then FarmMath.getSeasonEffect(state, animalId, nil).percent
+					else Environment.getIncomeMultiplier(animalId) - 1)
 			table.insert(parts, string.format("%.3f", totals[animalId]))
 		end
 		return totals, table.concat(parts, ",")
@@ -192,6 +193,10 @@ function SeasonBar.create(stats: Instance): Bar
 		if totalRows == 0 then
 			local none = UiKit.text(details, "Etki yok", "Caption")
 			none.LayoutOrder = order + 1
+		else
+			local hint =
+				UiKit.text(details, "Hayvanın yanında yeşil ok: gelir artıyor, kırmızı ok: azalıyor", "Caption")
+			hint.LayoutOrder = order + totalRows + 2
 		end
 	end
 

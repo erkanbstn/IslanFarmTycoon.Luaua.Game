@@ -62,6 +62,13 @@ function Income.getAnimalMultiplier(
 		* passFactor
 end
 
+-- Bir hayvanın şu anki mevsim + hava etkisi (bölge mevsim uyumu dahil): yüzde (0.1 = +%10) ve işaret (-1/0/+1).
+-- Mevsim çubuğu ve hayvan üstü ok aynı hesabı kullanır (Environment.getSeasonEffect; eşik `Config.SEASON_SIGNAL_THRESHOLD`).
+function Income.getSeasonEffect(save: PlayerSave, animalId: string, zoneId: string?): Environment.SeasonEffect
+	local affinity = if zoneId then Expansion.getBuildBonus(save, zoneId, "seasonAffinity") else 0
+	return Environment.getSeasonEffect(animalId, save.envOverride, affinity)
+end
+
 -- Hayvanın görevinin gelir çarpanı: tesise verilmişse 0 (iş boyunca gelir getirmez), satın alınmış eklentide
 -- duruyorsa 1 + bonus, görevi yoksa 1. Görevin süresi (task.startedAt..endsAt) dışında uygulanmaz.
 local function taskMultiplier(save: PlayerSave, task: GameTypes.AnimalTask): number

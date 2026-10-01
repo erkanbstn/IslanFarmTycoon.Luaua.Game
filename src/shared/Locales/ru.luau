@@ -989,6 +989,7 @@ return {
 	["Sipariş ödülü"] = "Награда за заказ",
 	["Etki yok"] = "Нет эффекта",
 	["Toplam etki (bölge uyumu dahil)"] = "Общий эффект (с учётом сезонного соответствия зоны)",
+	["Hayvanın yanında yeşil ok: gelir artıyor, kırmızı ok: azalıyor"] = "Зелёная стрелка у животного: доход растёт, красная: падает",
 
 	-- Üretim penceresi: bütün adalar
 	["Tüm adaların tesislerini göster"] = "Показать объекты всех островов",

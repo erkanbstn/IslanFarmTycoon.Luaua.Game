@@ -116,6 +116,7 @@ FarmMath.snapshotGrowthSpeeds = Production.snapshotGrowthSpeeds
 FarmMath.preserveGrowthProgress = Production.preserveGrowthProgress
 -- Income
 FarmMath.getAnimalMultiplier = Income.getAnimalMultiplier
+FarmMath.getSeasonEffect = Income.getSeasonEffect
 FarmMath.getAnimalIncome = Income.getAnimalIncome
 FarmMath.estimateForgoneIncome = Income.estimateForgoneIncome
 FarmMath.previewGoodsYield = Income.previewGoodsYield

@@ -991,6 +991,7 @@ return {
 	["Sipariş ödülü"] = "Auftragsbelohnung",
 	["Etki yok"] = "Kein Effekt",
 	["Toplam etki (bölge uyumu dahil)"] = "Gesamteffekt (inkl. Zonen-Jahreszeitenbonus)",
+	["Hayvanın yanında yeşil ok: gelir artıyor, kırmızı ok: azalıyor"] = "Grüner Pfeil neben dem Tier: Einkommen steigt, roter Pfeil: sinkt",
 
 	-- Üretim penceresi: bütün adalar
 	["Tüm adaların tesislerini göster"] = "Anlagen aller Inseln anzeigen",

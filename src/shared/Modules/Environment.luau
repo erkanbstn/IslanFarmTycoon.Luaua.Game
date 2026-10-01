@@ -224,6 +224,15 @@ function Environment.getIncomeMultiplier(animalId: string, override: Override?, 
 	return math.max(1 + mods, 0.2)
 end
 
+-- Net etki: yüzde (0.1 = +%10) ve işaret (-1/0/+1; eşik `Config.SEASON_SIGNAL_THRESHOLD` altı nötr).
+export type SeasonEffect = { percent: number, signal: number }
+function Environment.getSeasonEffect(animalId: string, override: Override?, affinity: number?): SeasonEffect
+	local percent = Environment.getIncomeMultiplier(animalId, override, affinity) - 1
+	local threshold = Config.SEASON_SIGNAL_THRESHOLD
+	local signal = if percent >= threshold then 1 elseif percent <= -threshold then -1 else 0
+	return { percent = percent, signal = signal }
+end
+
 -- "At +%25 · Tavuk -%10" gibi özet (sıralı, sabit)
 function Environment.describeModifiers(modifiers: { [string]: number }): string
 	local parts = {}

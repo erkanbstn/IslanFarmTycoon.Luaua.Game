@@ -16,6 +16,9 @@ return {
 
 	WEATHER_SECONDS_MAX = 270,
 
+	-- Hayvan başına net mevsim/hava etkisi bu eşiğin altındaysa nötr sayılır (hayvan üstünde ok çıkmaz): 0.03 = %3.
+	SEASON_SIGNAL_THRESHOLD = 0.03,
+
 	SEASONS = {
 		{
 			id = "spring",

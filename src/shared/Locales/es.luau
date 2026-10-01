@@ -991,6 +991,7 @@ return {
 	["Sipariş ödülü"] = "Premio de pedido",
 	["Etki yok"] = "Sin efecto",
 	["Toplam etki (bölge uyumu dahil)"] = "Efecto total (incl. afinidad de estación de la zona)",
+	["Hayvanın yanında yeşil ok: gelir artıyor, kırmızı ok: azalıyor"] = "Flecha verde junto al animal: los ingresos suben, flecha roja: bajan",
 
 	-- Üretim penceresi: bütün adalar
 	["Tüm adaların tesislerini göster"] = "Mostrar instalaciones de todas las islas",

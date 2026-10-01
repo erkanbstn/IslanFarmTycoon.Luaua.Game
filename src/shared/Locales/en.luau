@@ -991,6 +991,7 @@ return {
 	["Sipariş ödülü"] = "Order reward",
 	["Etki yok"] = "No effect",
 	["Toplam etki (bölge uyumu dahil)"] = "Total effect (incl. zone season affinity)",
+	["Hayvanın yanında yeşil ok: gelir artıyor, kırmızı ok: azalıyor"] = "Green arrow next to an animal: income is rising, red arrow: falling",
 
 	-- Üretim penceresi: bütün adalar
 	["Tüm adaların tesislerini göster"] = "Show facilities on all islands",
