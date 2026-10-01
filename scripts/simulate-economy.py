@@ -152,6 +152,39 @@ local function earn(amount: number, source: string, lifetime: boolean?)
 	sources[source] += amount
 end
 
+-- Ürün (ahır deposu) ölçümü: üretim/tüketim/doluluk. FarmMath.addGoods sarılır; ProductionLogic aynı tabloyu kullanır.
+local goodsStat: { [string]: any } = {}
+local function gstat(goodsId: string): any
+	local row = goodsStat[goodsId]
+	if not row then
+		row = { produced = 0, overflow = 0, ordered = 0, sold = 0, bartered = 0, fillSeconds = 0, fillSum = 0, fullSeconds = 0 }
+		goodsStat[goodsId] = row
+	end
+	return row
+end
+do
+	local baseAddGoods = FarmMath.addGoods
+	FarmMath.addGoods = function(target: any, goodId: string, amount: number): number
+		local added = baseAddGoods(target, goodId, amount)
+		local row = gstat(goodId)
+		row.produced += added
+		row.overflow += math.max(0, math.floor(amount) - added)
+		return added
+	end
+end
+local function sampleGoods(seconds: number)
+	local cap = FarmMath.getGoodsCap(save)
+	for _, goodsId in FarmMath.getContractGoods(save) do
+		local row = gstat(goodsId)
+		local amount = FarmMath.getGoodsAmount(save, goodsId)
+		row.fillSeconds += seconds
+		row.fillSum += seconds * amount / math.max(cap, 1)
+		if amount >= cap then
+			row.fullSeconds += seconds
+		end
+	end
+end
+
 local function levelSum(levels: any): number
 	local total = 0
 	for _, level in levels or {} do
@@ -431,6 +464,9 @@ local function ordersTick()
 		if not FarmMath.isContractDone(save, offer) and FarmMath.canFulfillContract(save, offer) then
 			local reward = FarmMath.fulfillContract(save, offer.key, now, 0)
 			if reward then
+				for _, line in offer.lines do
+					gstat(line.goodsId).ordered += line.amount
+				end
 				earn(reward, "sipariş")
 				actions += 1
 				invested()
@@ -643,6 +679,7 @@ local function onlineStep()
 	end
 	onlineSeconds += STEP
 	fullSeconds += STEP * fullFraction
+	sampleGoods(STEP)
 	earn(rate * STEP, "hayvan geliri")
 	accrueParked()
 	if S.prodInterval > 0 then
@@ -809,6 +846,34 @@ end)
 emit(`EYLEM VE DEPO (oyuncu: {S.persona}, oturum: {if S.session > 0 then `{S.session // 60} dk x {math.floor(86400 / S.period * 10 + 0.5) / 10}/gün` else "kesintisiz"})`)
 emit(string.format("  çevrimiçi %.0f dk · %d eylem · dakikada %.2f eylem", onlineMinutes, math.floor(actions + 0.5), actionsPerMinute))
 emit(string.format("  depo dolu geçen süre: %%%.1f (çevrimiçi sürenin)", fullPercent))
+local goodsRows: { any } = {}
+do
+	emit("ÜRÜN DENGESİ (ahır deposu; birim/dk = çevrimiçi dakika başına)")
+	local totalProduced, totalOrdered, totalSold, totalBartered, fillWeighted, fillSeconds = 0, 0, 0, 0, 0, 0
+	for _, goodsId in Config.GOODS_ORDER do
+		local row = goodsStat[goodsId]
+		if row and row.fillSeconds > 0 then
+			local minutes = math.max(onlineMinutes, 1e-9)
+			local fill = row.fillSum / row.fillSeconds * 100
+			local full = row.fullSeconds / row.fillSeconds * 100
+			table.insert(goodsRows, {
+				id = goodsId, produced = row.produced, ordered = row.ordered, sold = row.sold, bartered = row.bartered,
+				overflow = row.overflow, fillPercent = fill, fullPercent = full,
+			})
+			emit(string.format("  %-10s üretim %6.2f/dk · pano %6.2f/dk · toptan %6.2f/dk · takas %6.2f/dk · taşan %5d · ort. doluluk %%%5.1f · dolu %%%5.1f", goodsId, row.produced / minutes, row.ordered / minutes, row.sold / minutes, row.bartered / minutes, row.overflow, fill, full))
+			totalProduced += row.produced
+			totalOrdered += row.ordered
+			totalSold += row.sold
+			totalBartered += row.bartered
+			fillWeighted += row.fillSum
+			fillSeconds += row.fillSeconds
+		end
+	end
+	if fillSeconds > 0 then
+		local minutes = math.max(onlineMinutes, 1e-9)
+		emit(string.format("  TOPLAM     üretim %6.2f/dk · pano %6.2f/dk · toptan %6.2f/dk · takas %6.2f/dk · ort. doluluk %%%5.1f", totalProduced / minutes, totalOrdered / minutes, totalSold / minutes, totalBartered / minutes, fillWeighted / fillSeconds * 100))
+	end
+end
 emit(string.format("GELİR KAYNAKLARI (toplam %s)", FarmMath.formatMoney(sourceTotal)))
 for _, row in sourceRows do
 	emit(string.format("  %%%5.1f  %-22s %s", row.share, row.name, FarmMath.formatMoney(row.amount)))
@@ -894,6 +959,7 @@ else
 			actions = math.floor(actions + 0.5),
 			actionsPerMinute = actionsPerMinute,
 			storageFullPercent = fullPercent,
+			goods = goodsRows,
 			expansionLevels = expansionTotal,
 			expansionSpent = expansionSpent,
 			lineageLevels = lineageTotal,
