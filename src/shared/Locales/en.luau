@@ -74,7 +74,7 @@ return {
 	---------------------------------------------------------------------------
 	["Hayvan Pazarı"] = "Animal Market",
 	["Hayvanlar yavru doğar, büyüdükçe daha çok kazandırır."] = "Animals are born young and earn more as they grow.",
-	["Açık bölgelerdeki hayvanlar listelenir (ada seçimi shop'u gizlemez). Yavru doğar, büyüdükçe kazanç artar."] = "Animals from unlocked areas are listed (choosing an island does not hide the shop). Young animals earn more as they grow.",
+	["Açık bölgelerdeki hayvanlar listelenir (ada seçimi dükkânı gizlemez). Yavru doğar, büyüdükçe kazanç artar."] = "Animals from unlocked areas are listed (choosing an island does not hide the shop). Young animals earn more as they grow.",
 	["Hamsiyi levrekle değiştir"] = "Replace anchovy with sea bass",
 	["Bir hamsi çıkar, yerine yavru levrek gelir. Hamsinin temel fiyatının yarısı bedelden düşülür."] = "Remove one anchovy and a young sea bass takes its place. Half of the anchovy's base price is deducted from the cost.",
 	["Sırayı sen seç: ucuz olanı hemen al ya da biriktirip büyüğünü al. Kilitli olanlar için önce gerekeni aç."] = "You choose the order: buy the cheap one now or save up for a bigger one. For locked items, unlock the requirement first.",
