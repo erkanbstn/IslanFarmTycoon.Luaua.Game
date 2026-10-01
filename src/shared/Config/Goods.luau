@@ -29,7 +29,7 @@ return {
 		slots = 9,
 		variation = 0.34,
 		-- Ödül tabanı: etkin çiftliğin geliri x bu süre (sn). Ödül = max(ürün değeri, taban) x kademe çarpanı x bonus.
-		incomeSeconds = 120,
+		incomeSeconds = 60,
 		tiers = {
 			{ id = "quick", displayName = "Hızlı", lines = 1, units = 2, rewardFactor = 1.05, weight = 3 },
 			{ id = "small", displayName = "Küçük", lines = 1, units = 3, rewardFactor = 1.1, weight = 3 },

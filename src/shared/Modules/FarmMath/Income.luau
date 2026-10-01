@@ -220,7 +220,7 @@ function Income.getOfflineTerms(save: PlayerSave): (number, number)
 	local upgraded = Core.hasOfflineIncome(save)
 	local baseRate = if upgraded then Config.OFFLINE_UPGRADED_EARNING_RATE else Config.OFFLINE_EARNING_RATE
 	local hours = if upgraded then Config.OFFLINE_UPGRADED_MAX_HOURS else Config.OFFLINE_MAX_HOURS
-	return baseRate * (1 + Core.getBonus(save, "offlineBonus")), hours
+	return math.min(Config.OFFLINE_MAX_TOTAL_RATE, baseRate * (1 + Core.getBonus(save, "offlineBonus"))), hours
 end
 
 -- Sınır depoya değil süreye bağlıdır: en çok `hours` saatlik gelirin `rate` oranı kasaya yatar.

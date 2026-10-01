@@ -86,6 +86,25 @@ return function(FarmMath: any, Config: any, Environment: any)
 		"upgraded offline terms"
 	)
 	assert(upgradedRate > baseRate and upgradedHours > baseHours, "the upgrade improves both rate and duration")
+	-- Bonuslar dahil toplam çevrimdışı oran OFFLINE_MAX_TOTAL_RATE'i aşamaz (her bonus açıkken bile)
+	do
+		local maxed = saveAt(start)
+		for _, upgrade in Config.UPGRADES do
+			maxed.purchased[upgrade.id] = true
+		end
+		maxed.inventory = { items = {}, equipped = {} }
+		for itemId, item in Config.ITEMS do
+			if item.effects and (item.effects :: any).offlineBonus then
+				maxed.inventory.items[itemId] = true
+				maxed.inventory.equipped[item.slot] = itemId
+			end
+		end
+		assert(FarmMath.getBonus(maxed, "offlineBonus") > 0, "the fixture has offline bonuses")
+		assert(
+			FarmMath.getOfflineTerms(maxed) <= Config.OFFLINE_MAX_TOTAL_RATE,
+			"offline rate including bonuses is capped"
+		)
+	end
 	local upgradedLimit = FarmMath.computeOfflineEarnings(crowded, start, start + upgradedHours * 3600)
 	near(
 		upgradedLimit,
