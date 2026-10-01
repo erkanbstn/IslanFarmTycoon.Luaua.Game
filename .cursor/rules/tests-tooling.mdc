@@ -10,6 +10,11 @@ alwaysApply: false
   Yeni spec: `tests/<ad>.spec.luau` bir fonksiyon döndürür → `run-tests.py` içinde `module(...)`
   ile ekle ve en alttaki çağrı listesine yaz. Roblox servisleri gerekiyorsa `factory_args` ile
   sahte (`game`, `task`, `os`...) enjekte edilir; bağımlılık kümesi tam eşleşmeli.
+- Servis testleri (Animal/Upgrade/Inventory/Engagement/Monetization/BuyPad...): `tests/service-harness.luau` ortak sahte dünyayı kurar
+  (oyuncu + kayıt, Remote'lar, saat, `task.spawn` döngüsünü tek tur çalıştırma, sayaçlar, gerçek `RequestGuard`); yeni servis spec'i
+  sahip / parası yok / tekrar istek / yanlış çiftlik / hız sınırı durumlarını bununla yazar.
+- Tip analizi tabanı (`scripts/types-baseline.json`) yalnızca küçülür: bulgu düzeldiyse `python scripts/check-types.py --update`; yeni bulguyu tabana ekleme, düzelt.
+  `verify.ps1` araçlar (`.tools/luau-lsp`) yoksa tip denetimini atlar ama görünür uyarı basar (`-RequireTypes` ile hata sayılır).
 - Harita yapı testi: `tests/map-structure.spec.luau` ve `tests/world.spec.luau` Studio eklentisine gömülüdür (`plugin.project.json`); panelde **Haritayı Doğrula**
   çalıştırır. Spec `return function(context)` kalıbında kalmalı (`context.mapBuilder/Config` eklentiden taze gelir). Yeni tabela/satıcı/tema kuralı bunu genişletir.
 - Yapay zeka rehber dosyaları: `python scripts/check-ai-docs.py` (kural/skill/yönlendirme tutarlılığı; verify.ps1 içinde).
