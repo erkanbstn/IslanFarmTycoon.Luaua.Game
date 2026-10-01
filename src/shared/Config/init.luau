@@ -225,7 +225,9 @@ local LEVEL_CHAINS = {
 	{
 		id = "offline_income",
 		displayName = "Pasif Gelir",
-		description = "Çevrimdışı kazanç %25'ten %50'ye, süre 2 saatten 8 saate çıkar",
+		description = `Çevrimdışı kazanç %{math.floor(Economy.OFFLINE_EARNING_RATE * 100 + 0.5)}'ten %{math.floor(
+			Economy.OFFLINE_UPGRADED_EARNING_RATE * 100 + 0.5
+		)}'ye, süre {Economy.OFFLINE_MAX_HOURS} saatten {Economy.OFFLINE_UPGRADED_MAX_HOURS} saate çıkar`,
 		icon = "💤",
 		requires = "barn_2",
 		costs = { 6000 },

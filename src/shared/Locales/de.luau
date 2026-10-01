@@ -973,7 +973,7 @@ return {
 	-- Pasif Gelir (çevrimdışı kazanç)
 	["Pasif Gelir"] = "Passives Einkommen",
 	["Pasif Gelir Sv.1"] = "Passives Einkommen St.1",
-	["Çevrimdışı kazanç %25'ten %50'ye, süre 2 saatten 8 saate çıkar"] = "Offline-Ertrag steigt von 25 % auf 50 %, die Dauer von 2 auf 8 Stunden",
+	["Çevrimdışı kazanç %{}'ten %{}'ye, süre {} saatten {} saate çıkar"] = "Offline-Ertrag steigt von {1} % auf {2} %, die Dauer von {3} auf {4} Stunden",
 
 	-- Meydan sıralama panosu
 	["Sunucu Sıralaması"] = "Server-Rangliste",

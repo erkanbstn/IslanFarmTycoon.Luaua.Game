@@ -971,7 +971,7 @@ return {
 	-- Pasif Gelir (çevrimdışı kazanç)
 	["Pasif Gelir"] = "Пассивный доход",
 	["Pasif Gelir Sv.1"] = "Пассивный доход ур.1",
-	["Çevrimdışı kazanç %25'ten %50'ye, süre 2 saatten 8 saate çıkar"] = "Доход в офлайне растёт с 25% до 50%, а время — с 2 до 8 часов",
+	["Çevrimdışı kazanç %{}'ten %{}'ye, süre {} saatten {} saate çıkar"] = "Доход в офлайне растёт с {1}% до {2}%, а время — с {3} до {4} часов",
 
 	-- Meydan sıralama panosu
 	["Sunucu Sıralaması"] = "Рейтинг сервера",
