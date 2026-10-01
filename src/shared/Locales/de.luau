@@ -988,4 +988,9 @@ return {
 	["Sipariş ödülü"] = "Auftragsbelohnung",
 	["Etki yok"] = "Kein Effekt",
 	["Toplam etki (bölge uyumu dahil)"] = "Gesamteffekt (inkl. Zonen-Jahreszeitenbonus)",
+
+	-- Üretim penceresi: bütün adalar
+	["Tüm adaların tesislerini göster"] = "Anlagen aller Inseln anzeigen",
+	["Tüm adaların üretimi"] = "Produktion auf allen Inseln",
+	["Ada henüz açık değil."] = "Diese Insel ist noch nicht freigeschaltet.",
 }

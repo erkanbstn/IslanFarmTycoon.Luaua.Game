@@ -986,4 +986,9 @@ return {
 	["Sipariş ödülü"] = "Награда за заказ",
 	["Etki yok"] = "Нет эффекта",
 	["Toplam etki (bölge uyumu dahil)"] = "Общий эффект (с учётом сезонного соответствия зоны)",
+
+	-- Üretim penceresi: bütün adalar
+	["Tüm adaların tesislerini göster"] = "Показать объекты всех островов",
+	["Tüm adaların üretimi"] = "Производство на всех островах",
+	["Ada henüz açık değil."] = "Этот остров ещё не открыт.",
 }

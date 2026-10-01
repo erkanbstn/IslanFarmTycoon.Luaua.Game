@@ -988,4 +988,9 @@ return {
 	["Sipariş ödülü"] = "Order reward",
 	["Etki yok"] = "No effect",
 	["Toplam etki (bölge uyumu dahil)"] = "Total effect (incl. zone season affinity)",
+
+	-- Üretim penceresi: bütün adalar
+	["Tüm adaların tesislerini göster"] = "Show facilities on all islands",
+	["Tüm adaların üretimi"] = "Production on all islands",
+	["Ada henüz açık değil."] = "This island is not open yet.",
 }

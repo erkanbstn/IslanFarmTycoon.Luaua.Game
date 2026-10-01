@@ -132,7 +132,7 @@ function MenuBar.create(screenGui: ScreenGui): Hud
 		if state and state.production then
 			for recipeId, job in state.production do
 				local recipe = Config.PRODUCTION_RECIPES[recipeId]
-				if recipe and recipe.island == IslandContext.get() and job.readyAt <= Workspace:GetServerTimeNow() then
+				if recipe and job.readyAt <= Workspace:GetServerTimeNow() then -- bütün adaların hazır partileri sayılır
 					ready += 1
 				end
 			end
