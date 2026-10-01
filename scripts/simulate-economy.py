@@ -88,13 +88,16 @@ end
 if PRICE_GROWTH > 0 then
 	Config.ANIMAL_PRICE_GROWTH = PRICE_GROWTH
 end
+for index, mult in S.mults do
+	Config.DIFFICULTY.tiers[index].costMultiplier = mult -- ayar denemesi: kademe çiftlik çarpanları
+end
 local STEP = 5 -- saniye
 local START = 1036800 -- UTC gün başı: günlük ödül günleri sim gününe oturur
 local TOTAL = HOURS * 3600
 local USER_ID = 424242 -- altın hayvan pencereleri bu kimlikten türer (deterministik)
 
 local save: any = {
-	cash = Config.getStartingCash(FARM),
+	cash = Config.getStartingCash(FARM) * Config.DIFFICULTY.tiers[S.tier].costMultiplier,
 	stored = 0,
 	purchased = {},
 	animals = {},
@@ -106,6 +109,7 @@ local save: any = {
 	goods = {},
 	lifetimeEarned = 0,
 	activeMainFarmId = FARM,
+	tier = S.tier,
 }
 local homeAnimal = Config.getHomeAnimal(FARM)
 for index = 1, Config.STARTING_COW_COUNT do
@@ -116,7 +120,7 @@ save.mainFarms = { [FARM] = FarmProfiles.extract(save) }
 
 local themeIslands = FarmMath.themeIslands(save)
 local function inTheme(upgrade: any): boolean
-	return table.find(themeIslands, Config.getUpgradeIsland(upgrade)) ~= nil
+	return Config.upgradeInTheme(upgrade, save.activeMainFarmId)
 end
 
 local now = START
@@ -578,8 +582,10 @@ local function invest()
 		end
 		-- Yeni çiftlik: fiyatı, bu çiftlikte alınabilecek en ucuz yatırımdan düşükse (ya da yatırım kalmadıysa) alınır
 		local farmId = nextFarmId()
-		local farmPrice = Config.MAIN_FARM_PRICES[ownedFarmCount() + 1]
-		if S.farms > ownedFarmCount() and farmId and farmPrice and farmPrice <= save.cash and farmPrice <= nextCost then
+		local farmPrice = FarmMath.getPrice(save, "farm", nil, ownedFarmCount() + 1)
+		-- finishFirst: bir sonraki çiftlik yalnızca etkin çiftliğin tüm yükseltmeleri bitince alınır (çiftlik tamamlama süresi ölçümü)
+		local farmDue = if S.finishFirst then milestones[farmPrefix() .. "TÜM YÜKSELTMELER"] ~= nil else farmPrice ~= nil and farmPrice <= nextCost
+		if S.farms > ownedFarmCount() and farmId and farmPrice and farmPrice <= save.cash and farmDue then
 			buyFarm(farmId, farmPrice)
 			bought = true
 			continue
@@ -1003,6 +1009,8 @@ def lua_literal(value: object) -> str:
         return repr(value)
     if isinstance(value, str):
         return json.dumps(value)
+    if isinstance(value, list):
+        return "{ " + ", ".join(lua_literal(item) for item in value) + " }"
     if isinstance(value, dict):
         return "{ " + ", ".join(f"{key} = {lua_literal(item)}" for key, item in value.items()) + " }"
     raise TypeError(f"Luau değerine çevrilemedi: {value!r}")
@@ -1014,6 +1022,8 @@ def main() -> int:
     parser.add_argument("--hours", type=float, default=6.0, help="Simüle edilecek süre (saat)")
     parser.add_argument("--days", type=float, help="Simüle edilecek süre (gün); --hours'u ezer")
     parser.add_argument("--farm", default="1", help="Başlangıç çiftliği numarası (tema): 1-6")
+    parser.add_argument("--tier", type=int, default=1, help="Başlangıç çiftliğinin zorluk kademesi (alım sırası, save.tier): 1-6")
+    parser.add_argument("--mults", default="", help="Deneme: kademe çiftlik çarpanları (virgülle: 1,2,3...); boşsa Config.DIFFICULTY")
     parser.add_argument("--cost-base", type=float, default=600, help="Deneme: bu değerin üstündeki yükseltme maliyetleri büyütülür")
     parser.add_argument("--cost-exp", type=float, default=0, help="Deneme: maliyet üssü (0 = kapalı)")
     parser.add_argument("--collect", type=float, default=None, help="Oyuncu platforma kaç saniyede bir uğrar (varsayılan 120 ya da persona; 0 = anında topla)")
@@ -1030,6 +1040,7 @@ def main() -> int:
     parser.add_argument("--rewards", action=argparse.BooleanOptionalAction, default=None, help="Günlük, mevsim ve altın hayvan ödüllerini al")
     parser.add_argument("--golden-chance", type=float, default=None, help="Altın hayvanı yakalama olasılığı (0-1)")
     parser.add_argument("--sell-above", type=float, default=None, help="Bir ürün depo kapasitesinin bu oranına ulaşınca yarısını sat (Yarısını sat; 0 = hiç satma)")
+    parser.add_argument("--finish-first", action="store_true", help="Sonraki çiftlik yalnızca etkin çiftliğin tüm yükseltmeleri bitince alınır (çiftlik tamamlama süresi)")
     parser.add_argument("--farms", type=int, default=None, help="Sahip olunacak en çok ana çiftlik sayısı (1 = çoklu çiftlik yok)")
     parser.add_argument("--json", action="store_true", help="Makine okunur JSON çıktısı")
     args = parser.parse_args()
@@ -1067,6 +1078,9 @@ def main() -> int:
         "rewards": bool(pick("rewards", args.rewards, False)),
         "goldenChance": float(pick("golden", args.golden_chance, 1.0)),
         "farms": int(pick("farms", args.farms, 1)),
+        "tier": max(1, args.tier),
+        "finishFirst": args.finish_first,
+        "mults": [float(item) for item in args.mults.split(",") if item.strip()],
         "sellAbove": float(pick("sell_above", args.sell_above, 0)),
         "json": args.json,
     }

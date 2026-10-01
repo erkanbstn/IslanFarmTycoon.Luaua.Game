@@ -1,7 +1,7 @@
 --!strict
 -- Sunucu ve client'ın aynı sonucu hesaplaması için ortak oyun hesapları.
 -- Sunucu bunları KARAR için, client sadece GÖSTERİM için kullanır.
--- Parçalar (Modules/FarmMath/): Format, Core, Contracts, Recipes, Counts, Islands, Lineage, Expansion, Production, Income, Animals.
+-- Parçalar (Modules/FarmMath/): Format, Core, Pricing, Contracts, Recipes, Counts, Islands, Lineage, Expansion, Production, Income, Animals.
 
 local Format = require(script:WaitForChild("Format"))
 local Core = require(script:WaitForChild("Core"))
@@ -9,6 +9,7 @@ local Goods = require(script:WaitForChild("Goods"))
 local Contracts = require(script:WaitForChild("Contracts"))
 local Recipes = require(script:WaitForChild("Recipes"))
 local Counts = require(script:WaitForChild("Counts"))
+local Pricing = require(script:WaitForChild("Pricing"))
 local Islands = require(script:WaitForChild("Islands"))
 local Lineage = require(script:WaitForChild("Lineage"))
 local Expansion = require(script:WaitForChild("Expansion"))
@@ -35,14 +36,18 @@ FarmMath.hasPet = Core.hasPet
 FarmMath.hasOfflineIncome = Core.hasOfflineIncome
 FarmMath.getUpgradeBonus = Core.getUpgradeBonus
 FarmMath.getEquippedMultiplier = Core.getEquippedMultiplier
-FarmMath.getUpgradeCost = Core.getUpgradeCost
-FarmMath.getFarmCostMultiplier = Core.getFarmCostMultiplier
 FarmMath.settleFarmIncome = Core.settleFarmIncome
 FarmMath.hasAutoCollect = Core.hasAutoCollect
 FarmMath.getStage = Core.getStage
 FarmMath.getBarnConfig = Core.getBarnConfig
 FarmMath.getStorageCap = Core.getStorageCap
 FarmMath.getStorageLevel = Core.getStorageLevel
+-- Pricing (tek fiyat hesabı: Config/Difficulty.luau)
+FarmMath.getPrice = Pricing.getPrice
+FarmMath.getUpgradeCost = Pricing.getUpgradeCost
+FarmMath.getFarmCostMultiplier = Pricing.getFarmCostMultiplier
+FarmMath.getTier = Pricing.getTier
+FarmMath.getSlotFactor = Pricing.getSlotFactor
 -- Goods
 FarmMath.getGoodsCap = Goods.getGoodsCap
 FarmMath.getGoodsAmount = Goods.getGoodsAmount

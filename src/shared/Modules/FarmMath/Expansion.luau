@@ -7,6 +7,7 @@ local GameTypes = require(script.Parent.Parent.Parent:WaitForChild("GameTypes"))
 local Core = require(script.Parent:WaitForChild("Core"))
 local Counts = require(script.Parent:WaitForChild("Counts"))
 local Recipes = require(script.Parent:WaitForChild("Recipes"))
+local Pricing = require(script.Parent:WaitForChild("Pricing"))
 
 type PlayerSave = GameTypes.PlayerSave
 local isFinite = Core.isFinite
@@ -137,31 +138,9 @@ function Expansion.getMaxZoneCapacity(zoneId: string): number
 	return zone.capacity + steps * Expansion.getExpansionStep(zone)
 end
 
--- Sonraki seviyenin maliyeti; en üst seviyede veya bilinmeyen hedefte math.huge
+-- Sonraki seviyenin maliyeti; en üst seviyede veya bilinmeyen hedefte math.huge (hesap: Pricing.getPrice)
 function Expansion.getExpansionCost(save: PlayerSave, targetId: string): number
-	local config = Config.BUILD_UPGRADES
-	local level = Expansion.getExpansionLevel(save, targetId)
-	if level >= config.maxLevel then
-		return math.huge
-	end
-	local raw: number
-	local zone = Config.ZONES[targetId]
-	local recipe = Config.PRODUCTION_RECIPES[targetId]
-	if zone then
-		local animalId = Config.getZoneAnimals(zone, save.farmId or save.activeMainFarmId)[1]
-		local animalConfig = Config.ANIMALS[animalId]
-		if not animalConfig then
-			return math.huge
-		end
-		raw = animalConfig.price * config.costMultiplier * config.costGrowth ^ level * Core.getFarmCostMultiplier(save)
-	elseif recipe then
-		raw = recipe.reward * config.facilityCostMultiplier * config.facilityCostGrowth ^ level
-	else
-		return math.huge
-	end
-	raw *= 1 - math.clamp(Core.getBonus(save, "expansionDiscount"), 0, 0.5)
-	local step = 10 ^ (math.floor(math.log10(raw)) - 1)
-	return math.floor(raw / step + 0.5) * step
+	return Pricing.getPrice(save, "expansion", targetId)
 end
 
 -- Geliştirme durumu. Bölge açık olmalı; kapasite veren bir seviye için bölge dolu olmalı. Tesis kurulu olmalı.

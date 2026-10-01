@@ -249,9 +249,7 @@ local function create(): UiKit.Window
 		card.action.Activated:Connect(function()
 			if card.action.Active and isKnown(id) and not isOwned(id) then
 				local state = ClientState.get()
-				local price = if state and Config.MAIN_FARM_PRICES
-					then Config.MAIN_FARM_PRICES[#summaries(state) + 1]
-					else nil
+				local price = if state then FarmMath.getPrice(state, "farm", nil, #summaries(state) + 1) else nil
 				if state and typeof(price) == "number" and state.cash < price then
 					-- Sunucuya gitmeden hemen bildir
 					if notifyHook then
@@ -460,7 +458,7 @@ local function create(): UiKit.Window
 				else "Bu ana çiftliği yönet"
 			UiKit.setVariant(card.action, if unavailable then "disabled" else "primary")
 		end
-		local nextPrice = Config.MAIN_FARM_PRICES and Config.MAIN_FARM_PRICES[#farms + 1]
+		local nextPrice = FarmMath.getPrice(state, "farm", nil, #farms + 1)
 		local atLimit = #farms >= LIMIT
 		buyInfo.Text = if atLimit
 			then `En fazla {LIMIT} ana çiftliğin olabilir.`

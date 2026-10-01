@@ -37,7 +37,7 @@ local function apply(player: Player, action: unknown, target: unknown): (boolean
 		if #ids >= Config.MAIN_FARM_LIMIT then
 			return false, "Ana çiftlik sınırına ulaştın."
 		end
-		local price = Config.MAIN_FARM_PRICES[#ids + 1]
+		local price = FarmMath.getPrice(data, "farm", nil, #ids + 1)
 		local plotNumber = tonumber(target)
 		if not plotNumber or plotNumber % 1 ~= 0 or plotNumber < 1 or plotNumber > Config.MAIN_FARM_LIMIT then
 			return false, "Geçersiz ana alan."

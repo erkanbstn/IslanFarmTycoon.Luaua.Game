@@ -72,8 +72,10 @@ Değişiklikten sonra: `python scripts/run-tests.py`.
   (`getExpansionStatus`). Sunucu `UpgradeService.tryExpandZone` (`RequestExpandZone`); bölge ve tarif kimlikleri aynı tabloyu paylaşır, çakışma Config yüklenirken `assert` ile reddedilir.
   Yeni profil/seviye: `tests/economy.spec.luau` + sim kalibrasyonu ("ALAN toplam Sv.N"). Bölge bayrakları: `ZoneVisualService.applyLevelFlags`.
 - **Hayvan satışı**: `Config.ANIMAL_SELL_FRACTION`, `FarmMath.getSellPrice/findSellableAnimal` (görevdekiler sona, çiftlikte son hayvan satılmaz), `AnimalService.trySell`.
-- **Çiftlik fiyat çarpanı**: çiftlik kaydında `tier` (alım sırası; eksik/bozuk = 1); `FarmMath.getFarmCostMultiplier` (`Config.FARM_COST_STEP`) yükseltme, hayvan alım/satım, balık değişimi ve
-  alan genişletme maliyetini çarpar; ırk geliştirme çarpılmaz.
+- **Fiyat ve zorluk (tek hesap)**: yükseltme, hayvan, yapı geliştirme ve ana çiftlik fiyatı **yalnızca** `FarmMath.getPrice(save, kind, id, level)` ile (`FarmMath/Pricing.luau`; `getUpgradeCost/getAnimalPrice/getBulkPrice/getExpansionCost`
+  ince sarmalayıcıdır); gösterim (arayüz, tabela) ve tahsilat aynı işlevi çağırır, elle çarpan yazma. Fiyat = yazılı taban (Çiftlik 1) x `Config.DIFFICULTY.tiers[tier].costMultiplier` x ada sırası çarpanı
+  (`slotSpread`) x n. alım eğrisi. Kademe (`tier`) çiftliğin alım sırasıdır (eksik/bozuk = 1); ırk geliştirme çarpılmaz. Yeni çiftlik/kademe: `Config/Difficulty.luau` + `docs/ZORLUK_VE_FIYAT.md`,
+  `scripts/simulate-economy.py --tier-table` ile ayarla.
 - **Hayvan görevleri**: `AnimalRecord.task { kind = "production"|"extension", id, startedAt, endsAt }` (`SaveCodec/Tasks.decodeTask`: bozuk görev atılır, hayvan korunur; çevrimdışıyken
   biten görev yüklemede temizlenir). Üretimde hayvan gelirsiz, görünmez, satılamaz; eklentide `EXTENSIONS[id].incomeBonus` bonusu `stayDuration` boyunca sürer (toplam bonus = incomeBonus x
   stayDuration sabit kalsın). Gelir `FarmMath.computeIncomeOverInterval` içinde yalnızca görev penceresiyle kesişen kısma uygulanır (`taskMultiplier`); anlık gelir `computeIncomePerSecond(save, now)`.

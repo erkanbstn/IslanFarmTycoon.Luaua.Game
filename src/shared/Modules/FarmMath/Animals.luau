@@ -7,6 +7,7 @@ local GameTypes = require(script.Parent.Parent.Parent:WaitForChild("GameTypes"))
 local Core = require(script.Parent:WaitForChild("Core"))
 local Counts = require(script.Parent:WaitForChild("Counts"))
 local Expansion = require(script.Parent:WaitForChild("Expansion"))
+local Pricing = require(script.Parent:WaitForChild("Pricing"))
 
 type PlayerSave = GameTypes.PlayerSave
 
@@ -15,12 +16,7 @@ local Animals = {}
 export type ZoneBlock = "full" | "locked"
 
 function Animals.getAnimalPrice(save: PlayerSave, animalId: string): number
-	local animalConfig = Config.ANIMALS[animalId]
-	if not animalConfig then
-		return math.huge
-	end
-	local owned = Counts.countAnimals(save, animalId)
-	return math.floor(animalConfig.price * Core.getFarmCostMultiplier(save) * Config.ANIMAL_PRICE_GROWTH ^ owned)
+	return Pricing.getPrice(save, "animal", animalId)
 end
 
 -- Yeni alınan hayvanın doğum zamanı: çiftlikteki ilk STARTER_ADULT_ANIMALS hayvan yetişkin (bornAt = 0), sonrakiler yavru.
@@ -33,19 +29,12 @@ end
 
 -- Satış: son alınan hayvanın (sahip olunan - 1) fiyatının ANIMAL_SELL_FRACTION'ı geri gelir
 function Animals.getSellPrice(save: PlayerSave, animalId: string): number
-	local animalConfig = Config.ANIMALS[animalId]
 	local owned = Counts.countAnimals(save, animalId)
-	if not animalConfig or owned <= 0 then
+	if not Config.ANIMALS[animalId] or owned <= 0 then
 		return 0
 	end
 	local bonus = 1 + Core.getBonus(save, "sellBonus")
-	return math.floor(
-		animalConfig.price
-			* Core.getFarmCostMultiplier(save)
-			* Config.ANIMAL_PRICE_GROWTH ^ (owned - 1)
-			* Config.ANIMAL_SELL_FRACTION
-			* bonus
-	)
+	return math.floor(Pricing.getPrice(save, "animal", animalId, owned - 1) * Config.ANIMAL_SELL_FRACTION * bonus)
 end
 
 -- Satılacak hayvan: aynı türün en genci. Görevdeki (tesise verilmiş ya da eklentide duran) hayvan satılmaz.
@@ -80,17 +69,15 @@ function Animals.getFreeSlots(save: PlayerSave, animalId: string): number
 	return free
 end
 
--- Ardışık `count` hayvanın toplam fiyatı: her yeni hayvan bir öncekinden ANIMAL_PRICE_GROWTH kadar pahalıdır.
+-- Ardışık `count` hayvanın toplam fiyatı: her yeni hayvan bir öncekinden n. alım eğrisi kadar pahalıdır (Pricing.getAnimalGrowth).
 function Animals.getBulkPrice(save: PlayerSave, animalId: string, count: number): number
-	local animalConfig = Config.ANIMALS[animalId]
-	if not animalConfig or count < 1 then
+	if not Config.ANIMALS[animalId] or count < 1 then
 		return math.huge
 	end
 	local owned = Counts.countAnimals(save, animalId)
 	local total = 0
-	local multiplier = Core.getFarmCostMultiplier(save)
 	for index = 0, count - 1 do
-		total += math.floor(animalConfig.price * multiplier * Config.ANIMAL_PRICE_GROWTH ^ (owned + index))
+		total += Pricing.getPrice(save, "animal", animalId, owned + index)
 	end
 	return total
 end
@@ -113,9 +100,7 @@ end
 function Animals.getFishReplacementPrice(save: PlayerSave): number
 	local price = Animals.getAnimalPrice(save, "seabass")
 	-- Yükselen mevcut hamsi fiyatını iade etme: al-sat döngüsü kâr üretememeli.
-	local refund = math.floor(
-		Config.ANIMALS.anchovy.price * Core.getFarmCostMultiplier(save) * Config.FISH_REPLACEMENT_REFUND_RATE
-	)
+	local refund = math.floor(Pricing.getPrice(save, "animal", "anchovy", 0) * Config.FISH_REPLACEMENT_REFUND_RATE)
 	return math.max(0, price - math.min(price, refund))
 end
 

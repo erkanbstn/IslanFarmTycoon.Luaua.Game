@@ -109,6 +109,20 @@ export type ThemeConfig = {
 	satellites: { string },
 }
 
+-- Çiftlik zorluğu (Config/Difficulty.luau): tier = çiftliğin alım sırası (1..MAIN_FARM_LIMIT).
+export type DifficultyTier = {
+	tier: number,
+	targetMinutes: number, -- Çiftlik tek başına, ideal oyuncu tüm yükseltmeleri bu sürede (dk) bitirir
+	costMultiplier: number, -- Yükseltme, hayvan ve yapı geliştirme fiyatlarını çarpar
+}
+export type DifficultyConfig = {
+	referenceMinutes: number,
+	timeGrowth: number,
+	tiers: { DifficultyTier },
+	slotSpread: number, -- Ada sırası çarpanı: 1 + slotSpread x (tier - 1) x (sıra - 1)
+	animalGrowthPerTier: number, -- Hayvan n. alım eğrisine çiftlik başına eklenen pay
+}
+
 -- Eşyalar (envanter): slotlara takılır, satın alma kalıcıdır. effects = takılıyken geçerli kalıcı faydalar (FarmMath),
 -- power = asa gücü (Inventory), look = karakterde görünen parçalar (InventoryService). Vector3 yerine düz {x, y, z} tabloları.
 export type ItemSlotConfig = { id: string, displayName: string, icon: string }

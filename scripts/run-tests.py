@@ -46,7 +46,7 @@ def module(name: str, path: str, dependencies: set[str] | None = None, factory_a
 
 
 CONFIG_PARTS = [
-    "Types", "Core", "Weather", "Economy", "Shop", "Achievements", "Audio", "Goods", "Islands", "Upgrades", "Production",
+    "Types", "Core", "Weather", "Economy", "Difficulty", "Shop", "Achievements", "Audio", "Goods", "Islands", "Upgrades", "Production",
     "Animals", "Items",
 ]
 
@@ -68,7 +68,7 @@ def config_bundle(freeze: bool = True) -> str:
     return "".join(["local Config = (function()\n", parts, init, "\nreturn ConfigInit\nend)()\n"])
 
 
-FARM_MATH_PARTS = ["Format", "Core", "Goods", "Recipes", "Counts", "Islands", "Lineage", "Expansion", "Production", "Income", "Contracts", "Animals"]
+FARM_MATH_PARTS = ["Format", "Core", "Goods", "Recipes", "Counts", "Pricing", "Islands", "Lineage", "Expansion", "Production", "Income", "Contracts", "Animals"]
 
 
 def _declared_dependencies(path: str) -> set[str]:

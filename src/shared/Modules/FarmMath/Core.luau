@@ -117,28 +117,6 @@ function Core.getEquippedExcess(save: PlayerSave, key: string): number
 	return total
 end
 
--- Çiftlik numarasına (alım sırası) göre fiyat çarpanı: 1 + Config.FARM_COST_STEP x (tier - 1); 1. çiftlik ve bilinmeyen kayıt x1.
-function Core.getFarmCostMultiplier(save: PlayerSave?): number
-	local tier = if save then save.tier else nil
-	if not tier or tier <= 1 then
-		return 1
-	end
-	return 1 + Config.FARM_COST_STEP * (tier - 1)
-end
-
--- Yükseltmenin bu oyuncu için maliyeti: çiftlik çarpanı ve takılı alet indirimi uygulanır (en az 1). Gösterim ve tahsilat aynı işlevi kullanır.
-function Core.getUpgradeCost(save: PlayerSave?, upgrade: Config.UpgradeConfig): number
-	if not save then
-		return upgrade.cost
-	end
-	local base = upgrade.cost * Core.getFarmCostMultiplier(save)
-	local discount = math.clamp(Core.getEquippedBonus(save, "upgradeDiscount"), 0, 0.9)
-	if discount <= 0 then
-		return base
-	end
-	return math.max(1, math.floor(base * (1 - discount)))
-end
-
 function Core.hasAutoCollect(save: PlayerSave): boolean
 	for key, pass in Config.PRODUCTS.passes do
 		if pass.autoCollect and save.passes and save.passes[key] then

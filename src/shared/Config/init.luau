@@ -8,6 +8,7 @@ local Types = require(script:WaitForChild("Types"))
 local Core = require(script:WaitForChild("Core"))
 local Weather = require(script:WaitForChild("Weather"))
 local Economy = require(script:WaitForChild("Economy"))
+local Difficulty = require(script:WaitForChild("Difficulty"))
 local Shop = require(script:WaitForChild("Shop"))
 local Achievements = require(script:WaitForChild("Achievements"))
 local Audio = require(script:WaitForChild("Audio"))
@@ -87,7 +88,8 @@ local Config = {
 	PRODUCTION_BONUS_PER_ADULT = Economy.PRODUCTION_BONUS_PER_ADULT,
 	PRODUCTION_MAX_BONUS_ADULTS = Economy.PRODUCTION_MAX_BONUS_ADULTS,
 	ANIMAL_PRICE_GROWTH = Economy.ANIMAL_PRICE_GROWTH,
-	FARM_COST_STEP = Economy.FARM_COST_STEP,
+	-- Difficulty
+	DIFFICULTY = Difficulty.DIFFICULTY,
 	PARKED_FARM_PAY_RATE = Economy.PARKED_FARM_PAY_RATE,
 	ANIMAL_SELL_FRACTION = Economy.ANIMAL_SELL_FRACTION,
 	UPGRADE_COST_BASE = Economy.UPGRADE_COST_BASE,

@@ -775,12 +775,12 @@ return function(FarmMath: any, Config: any, Environment: any)
 		"items add to island perks"
 	)
 	assert(FarmMath.getBonus(perks, "sellBonus") > 0.15, "the diamond hammer adds sell bonus on top of the island")
-	-- Çiftlik numarası (alım sırası) fiyat çarpanı: tier 1 = x1, sonrası 1 + FARM_COST_STEP x (tier-1)
+	-- Çiftlik zorluğu (alım sırası = tier): tier 1 = x1, sonrası Config.DIFFICULTY.tiers[tier].costMultiplier
 	do
 		local first, second = saveAt(start), saveAt(start)
 		second.tier = 2
 		local upgrade = Config.getUpgrade("barn_2") or Config.UPGRADES[1]
-		local mult = 1 + Config.FARM_COST_STEP
+		local mult = Config.DIFFICULTY.tiers[2].costMultiplier
 		assert(FarmMath.getFarmCostMultiplier(first) == 1, "farms without tier cost x1")
 		assert(
 			FarmMath.getUpgradeCost(second, upgrade) == FarmMath.getUpgradeCost(first, upgrade) * mult,
@@ -797,7 +797,10 @@ return function(FarmMath: any, Config: any, Environment: any)
 			"tier 2 expansion costs more"
 		)
 		second.tier = 3
-		assert(FarmMath.getFarmCostMultiplier(second) == 1 + 2 * Config.FARM_COST_STEP, "multiplier grows per farm")
+		assert(
+			FarmMath.getFarmCostMultiplier(second) == Config.DIFFICULTY.tiers[3].costMultiplier,
+			"multiplier grows per farm"
+		)
 		-- Al-sat hiçbir çiftlikte kâr bırakmaz: satış, aynı çiftliğin tier'ıyla aynı çarpanı kullanır
 		for tier = 1, Config.MAIN_FARM_LIMIT do
 			local sellFarm = saveAt(start)
@@ -814,6 +817,92 @@ return function(FarmMath: any, Config: any, Environment: any)
 				end
 			end
 		end
+	end
+	-- Dinamik fiyat (FarmMath.getPrice): Çiftlik 1 yazılı tabanla birebir, kademe arttıkça her fiyat artar, gösterilen = tahsil edilen işlev
+	do
+		local tiers = Config.DIFFICULTY.tiers
+		assert(#tiers == Config.MAIN_FARM_LIMIT, "one difficulty row per farm")
+		for index = 2, #tiers do
+			assert(tiers[index].targetMinutes > tiers[index - 1].targetMinutes, "target time grows with the farm")
+			assert(tiers[index].costMultiplier > tiers[index - 1].costMultiplier, "cost multiplier grows with the farm")
+		end
+		assert(tiers[1].costMultiplier == 1, "the first farm is the reference")
+		assert(
+			tiers[2].targetMinutes >= tiers[1].targetMinutes * 1.4
+				and tiers[2].targetMinutes <= tiers[1].targetMinutes * 2.1,
+			"each farm takes ~1.5-2x longer"
+		)
+		-- Çiftlik 1 regresyonu: yükseltme = yazılı fiyat; hayvan = taban x artış; yapı geliştirme = taban formülü
+		local first = saveAt(start)
+		for _, upgrade in Config.UPGRADES do
+			assert(
+				FarmMath.getUpgradeCost(first, upgrade) == upgrade.cost,
+				`{upgrade.id}: farm 1 pays the written price`
+			)
+			assert(FarmMath.getPrice(first, "upgrade", upgrade.id) == upgrade.cost, `{upgrade.id}: getPrice matches`)
+		end
+		for animalId, animal in Config.ANIMALS do
+			assert(FarmMath.getPrice(first, "animal", animalId, 0) == animal.price, `{animalId}: base price`)
+			assert(
+				FarmMath.getPrice(first, "animal", animalId, 3)
+					== math.floor(animal.price * Config.ANIMAL_PRICE_GROWTH ^ 3),
+				`{animalId}: n-th purchase curve`
+			)
+		end
+		local zoneBase = Config.ANIMALS.cow.price * Config.BUILD_UPGRADES.costMultiplier
+		local expected = zoneBase * Config.BUILD_UPGRADES.costGrowth ^ 2
+		local step = 10 ^ (math.floor(math.log10(expected)) - 1)
+		assert(
+			FarmMath.getExpansionCost(first, "starter") == FarmMath.getPrice(first, "expansion", "starter", 0)
+				and FarmMath.getPrice(first, "expansion", "starter", 2) == math.floor(expected / step + 0.5) * step,
+			"zone expansion formula is unchanged for farm 1"
+		)
+		-- Kademe arttıkça aynı şeyin fiyatı artar; bozuk kademe 1 sayılır; bilinmeyen kimlik math.huge
+		local previous: { [string]: number } = {}
+		for tier = 1, #tiers do
+			local priced = saveAt(start)
+			priced.tier = tier
+			local row: { [string]: number } = {
+				upgrade = FarmMath.getPrice(priced, "upgrade", "barn_3"),
+				animal = FarmMath.getPrice(priced, "animal", "cow", 5),
+				zone = FarmMath.getPrice(priced, "expansion", "starter", 1),
+				facility = FarmMath.getPrice(priced, "expansion", "packed_milk", 1),
+			}
+			for key, value in row do
+				assert(value > 0 and value < math.huge, `tier {tier} {key}: finite price`)
+				if tier > 1 then
+					assert(value > previous[key], `tier {tier} {key}: costs more than tier {tier - 1}`)
+				end
+				previous[key] = value
+			end
+		end
+		for _, bad in { 0, -3, 99, 0 / 0, math.huge } do
+			local broken = saveAt(start)
+			broken.tier = bad
+			assert(FarmMath.getTier(broken) >= 1 and FarmMath.getTier(broken) <= #tiers, "bad tier is clamped")
+		end
+		assert(FarmMath.getPrice(first, "upgrade", "no-such-upgrade") == math.huge, "unknown upgrade")
+		assert(FarmMath.getPrice(first, "animal", "dragon") == math.huge, "unknown animal")
+		assert(FarmMath.getPrice(first, "expansion", "no-such-target") == math.huge, "unknown target")
+		assert(
+			FarmMath.getPrice(first, "expansion", "starter", Config.BUILD_UPGRADES.maxLevel) == math.huge,
+			"max level"
+		)
+		assert(FarmMath.getPrice(nil, "farm", nil, 2) == Config.MAIN_FARM_PRICES[2], "farm price")
+		assert(FarmMath.getPrice(nil, "farm", nil, 99) == math.huge, "no farm beyond the limit")
+		-- Ada sırası çarpanı: ilk ada ve ana ada x1; slotSpread > 0 ise orta/geç ada kademe arttıkça göreli pahalanır
+		local ordered = saveAt(start)
+		ordered.tier = #tiers
+		ordered.activeMainFarmId = "1" -- Papatya: tavuk, at, keçi
+		assert(
+			FarmMath.getSlotFactor(ordered, "home") == 1 and FarmMath.getSlotFactor(ordered, "poultry") == 1,
+			"early x1"
+		)
+		assert(
+			FarmMath.getSlotFactor(ordered, "horse") <= FarmMath.getSlotFactor(ordered, "goat"),
+			"later islands never cost less"
+		)
+		assert(FarmMath.getSlotFactor(first, "goat") == 1, "farm 1 pays no slot premium")
 	end
 	-- Gelir dağılımı: toplayıcılı çiftlik her şeyi kasaya yatırır; toplayıcısız park edilmiş çiftlik PARKED_FARM_PAY_RATE kadar
 	do
