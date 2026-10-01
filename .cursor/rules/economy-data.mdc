@@ -38,6 +38,8 @@ Değişiklikten sonra: `python scripts/run-tests.py`.
 - `python scripts/simulate-economy.py` (ideal oyuncu, gerçek Config/FarmMath; `--farm 1..6` her temayı dene; `--days/--persona` ile gündelik oyuncu; `--farms` çoklu çiftlik;
   `--collect` platforma uğrama sıklığı; `--cost-exp/--cost-base/--price-growth/--cap-mult` deneme). Tempo hedefleri çıktının "ADIM ZAMANLARI" satırlarında (`goals` tablosu
   scriptte) ve `TÜM YÜKSELTMELER` kilometre taşındadır; tempoyu etkileyen her değişiklikten sonra çalıştır, hedefler sapmasın.
+- `python scripts/simulate-tiers.py [--personas ideal,casual,idle]`: çok çiftlikli oyuncu her çiftliği bitirip sıradakini alır (`simulate-economy.py --finish-first`); çiftlik başına ada açılışları, tamamlama süresi ve
+  süre oranını yazar, çiftlik bitmezse (deadlock) ya da süre kademe arttıkça artmazsa hata verir. Çarpan ayarı: `--mults 1,6.6,...` (Config'e dokunmadan). Çiftlik 1 tempo referansı (ideal): ilk ada ~12 dk, at ~45, keçi ~114, tüm yükseltmeler ~276-282 dk.
 - `UPGRADES[].cost` taban fiyattır: `UPGRADE_COST_BASE/EXPONENT` eğrisi Config yüklenirken uygulanır (`MAIN_FARM_PRICES` da aynı eğriden geçer).
 - Depo (`BARN_LEVELS[].storageCap`) platformdan uzak duran oyuncunun gelirini silmeyecek büyüklükte olmalı: değişince `--collect 120` ve `--collect 300` ile geç oyun gelirinin
   `--collect 0`a yakın kaldığını doğrula.
@@ -75,7 +77,10 @@ Değişiklikten sonra: `python scripts/run-tests.py`.
 - **Fiyat ve zorluk (tek hesap)**: yükseltme, hayvan, yapı geliştirme ve ana çiftlik fiyatı **yalnızca** `FarmMath.getPrice(save, kind, id, level)` ile (`FarmMath/Pricing.luau`; `getUpgradeCost/getAnimalPrice/getBulkPrice/getExpansionCost`
   ince sarmalayıcıdır); gösterim (arayüz, tabela) ve tahsilat aynı işlevi çağırır, elle çarpan yazma. Fiyat = yazılı taban (Çiftlik 1) x `Config.DIFFICULTY.tiers[tier].costMultiplier` x ada sırası çarpanı
   (`slotSpread`) x n. alım eğrisi. Kademe (`tier`) çiftliğin alım sırasıdır (eksik/bozuk = 1); ırk geliştirme çarpılmaz. Yeni çiftlik/kademe: `Config/Difficulty.luau` + `docs/ZORLUK_VE_FIYAT.md`,
-  `scripts/simulate-economy.py --tier-table` ile ayarla.
+  `scripts/simulate-tiers.py` ile ayarla (`--mults` ile dene).
+- **Ürünle açılış**: `UpgradeConfig.goodsCost = { step, shares }` (`Config/Upgrades.luau`, seviye zincirinde yalnızca `_lv1`); miktar `FarmMath.getGoodsCost` (kademe, adım ve kapasite `Config.DIFFICULTY.goods`), kaynak ürün
+  `Config.resolveGoodsSource` (home/previous/slotN/sea). Para + ürün tahsilatı yalnızca `PlayerDataService.trySpend(player, price, reason, sku, goodsCost)` ile tek adımda; arayüz fiyatı
+  `FarmMath.formatUpgradePrice`, yetmeyen kalem `getGoodsShortfall`. Ürün merkezine `goodsCost` verme; değişmezler `tests/config.spec.luau` (çözülürlük, deadlock, kapasite, arbitraj). Yeni açılış eklerken `docs/ZORLUK_VE_FIYAT.md`.
 - **Hayvan görevleri**: `AnimalRecord.task { kind = "production"|"extension", id, startedAt, endsAt }` (`SaveCodec/Tasks.decodeTask`: bozuk görev atılır, hayvan korunur; çevrimdışıyken
   biten görev yüklemede temizlenir). Üretimde hayvan gelirsiz, görünmez, satılamaz; eklentide `EXTENSIONS[id].incomeBonus` bonusu `stayDuration` boyunca sürer (toplam bonus = incomeBonus x
   stayDuration sabit kalsın). Gelir `FarmMath.computeIncomeOverInterval` içinde yalnızca görev penceresiyle kesişen kısma uygulanır (`taskMultiplier`); anlık gelir `computeIncomePerSecond(save, now)`.

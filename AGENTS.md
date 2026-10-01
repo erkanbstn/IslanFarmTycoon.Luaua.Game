@@ -132,5 +132,6 @@ Yeni dosya eklerken `docs/MIMARI.md`'deki "Yeni şey nereye?" tablosuna bak.
 - Rokit (`rokit.toml`) ile: rojo, stylua, selene. Luau yorumlayıcı/derleyici/analizör `.tools/luau` altındadır (`verify.ps1 -LuauDirectory`); tip analizi için `.tools/luau-lsp`.
 - Lint: `selene src plugin tests` · Format: `stylua src tests plugin` · Senkronizasyon: `rojo serve`
 - Testler: `python scripts/run-tests.py` · Çeviri kapsamı: `python scripts/check-locales.py --strict-literals`
+- Çiftlik kademeleri/zorluk: `python scripts/simulate-tiers.py` (`docs/ZORLUK_VE_FIYAT.md`)
 - Mimari kuralları: `python scripts/check-architecture.py` · Tip analizi (yeni bulgu = hata): `python scripts/check-types.py` (araçları `powershell scripts/setup-types.ps1` `.tools/luau-lsp` altına kurar; yoksa `verify.ps1` adımı atlar, `-RequireTypes` ile hata sayar)
 - Tam doğrulama: `powershell -ExecutionPolicy Bypass -File scripts/verify.ps1`
