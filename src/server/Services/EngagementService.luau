@@ -180,9 +180,13 @@ local function refreshSeasonal(player: Player, lastSent: { [Player]: string })
 		lastSent[player] = nil -- ilerleme imzası değişti: durumu hemen it
 	end
 	local goal = data.seasonal
-	local signature = if goal
-		then `{goal.key}|{goal.claimed}|{math.floor(Rewards.seasonalProgress(data, goal))}`
-		else ""
+	-- İlerleme hedefin %1'lik adımlarına yuvarlanır: "earned" her saniye değişse de her seferinde tam pushState gitmez.
+	local signature = ""
+	if goal then
+		local percent =
+			math.floor(math.min(Rewards.seasonalProgress(data, goal), goal.target) * 100 / math.max(goal.target, 1))
+		signature = `{goal.key}|{goal.claimed}|{percent}`
+	end
 	if created or lastSent[player] ~= signature then
 		lastSent[player] = signature
 		PlayerDataService.pushState(player)
