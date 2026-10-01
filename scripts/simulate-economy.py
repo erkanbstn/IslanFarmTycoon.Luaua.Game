@@ -202,6 +202,8 @@ local function animalGain(animalId: string): number
 end
 
 local lineageTotal, lineageSpent = 0, 0
+local lineageWorstByAnimal: { [string]: number } = {}
+local lineageWorstPayback, lineageWorstLevel = 0, 0 -- saat; en kötü geri dönüş ve o satın almanın tür içi seviyesi
 local expansionTotal, expansionSpent = 0, 0
 local farmsBought = 0
 
@@ -522,6 +524,11 @@ local function invest()
 			if bestLineage then
 				save.cash -= bestCost
 				save.lineage = save.lineage or {}
+				lineageWorstByAnimal[bestLineage] = math.max(lineageWorstByAnimal[bestLineage] or 0, bestLineagePayback / 3600)
+				if bestLineagePayback / 3600 > lineageWorstPayback then
+					lineageWorstPayback = bestLineagePayback / 3600
+					lineageWorstLevel = FarmMath.getLineageLevel(save, bestLineage) + 1
+				end
 				save.lineage[bestLineage] = FarmMath.getLineageLevel(save, bestLineage) + 1
 				lineageTotal += 1
 				lineageSpent += bestCost
@@ -717,6 +724,16 @@ end
 emit(string.format("Sonuç: %d/%d yükseltme alındı, kasa %s", owned, total, FarmMath.formatMoney(save.cash)))
 emit(string.format("Alan genişletme: toplam Sv.%d, harcanan %s", expansionTotal, FarmMath.formatMoney(expansionSpent)))
 emit(string.format("Irk geliştirme: toplam Sv.%d, harcanan %s", lineageTotal, FarmMath.formatMoney(lineageSpent)))
+emit(string.format("Irk geri dönüş: en kötü %.2f sa (Sv.%d satın alımı)", lineageWorstPayback, lineageWorstLevel))
+do
+	local parts = {}
+	for _, animalId in Config.ANIMAL_ORDER do
+		if lineageWorstByAnimal[animalId] then
+			table.insert(parts, string.format("%s %.2f", animalId, lineageWorstByAnimal[animalId]))
+		end
+	end
+	emit("  tür başına en kötü (sa): " .. table.concat(parts, " · "))
+end
 
 -- Eylem, depo ve gelir kaynakları
 local onlineMinutes = onlineSeconds / 60
@@ -825,6 +842,7 @@ else
 			expansionSpent = expansionSpent,
 			lineageLevels = lineageTotal,
 			lineageSpent = lineageSpent,
+			lineageWorstPaybackHours = lineageWorstPayback,
 			farmsOwned = ownedFarmCount(),
 			lifetimeEarned = save.lifetimeEarned,
 			allUpgradesMinutes = milestones["TÜM YÜKSELTMELER"],
