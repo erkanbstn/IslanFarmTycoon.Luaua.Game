@@ -85,10 +85,15 @@ function Toasts.toastHost(parent: Instance): (message: string, kind: string?) ->
 		entry.token += 1
 		local mine = entry.token
 		task.delay(2.6, function()
-			if entry.token ~= mine or not entry.toast.Parent then
+			if entry.token ~= mine then
 				return
 			end
-			active[key] = nil
+			if active[key] == entry then
+				active[key] = nil
+			end
+			if not entry.toast.Parent then
+				return -- taşan kuyrukta silinmişti
+			end
 			TweenService:Create(entry.toast, TweenInfo.new(0.35), { GroupTransparency = 1 }):Play()
 			task.wait(0.35)
 			entry.toast:Destroy()
