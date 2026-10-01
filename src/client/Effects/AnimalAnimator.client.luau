@@ -186,7 +186,20 @@ local function track(instance: Instance)
 	end
 	pending[instance] = {
 		instance.AttributeChanged:Connect(retry),
-		instance.DescendantAdded:Connect(retry),
+		instance.DescendantAdded:Connect(function()
+			retry()
+			-- Sonradan gelen/giden parça: parça listesi bir sonraki harekette yeniden çıkarılır
+			local state = states[instance]
+			if state then
+				state.parts = nil
+			end
+		end),
+		instance.DescendantRemoving:Connect(function()
+			local state = states[instance]
+			if state then
+				state.parts = nil
+			end
+		end),
 	}
 	retry()
 end

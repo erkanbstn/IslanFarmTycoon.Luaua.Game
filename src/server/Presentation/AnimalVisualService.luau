@@ -47,6 +47,9 @@ local function buildAnimal(
 ): Model
 	local visual = createAnimalVisual(animal.animalId, animal.stage)
 	visual.Name = `{animal.animalId}_{animal.uid}`
+	-- Parçalar birlikte akar: istemcideki AnimalAnimator parça listesini bir kez çıkarıp topluca taşır; streaming parçaları ayrı
+	-- getirirse geç gelen parça (baş, kanat, bacak) hayvanın yerinde kalıp kopuk görünür.
+	visual.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
 	visual:SetAttribute("VisualCreatedAt", game:GetService("Workspace"):GetServerTimeNow())
 	local areaCf, areaSize = getAnimalArea(ground)
 	-- Denizdeki bölgede (balık kafesi) hayvan yüzeyin altında yüzer

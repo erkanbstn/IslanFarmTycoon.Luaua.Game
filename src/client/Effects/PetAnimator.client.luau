@@ -136,6 +136,32 @@ local function cameraDistance(actor: Actor): number?
 	return if camera then (camera.CFrame.Position - actor.cf.Position).Magnitude else nil
 end
 
+-- Çarpışma: yardımcı katı nesnelerin (çit, kütük, bina, ağaç) içinden geçmez. Her adımda yürüyüş yönüne kısa yatay ışın atılır;
+-- engel varsa 45/90/135 derece yan yönler denenir. Hiçbiri açık değilse yardımcı bekler; uzun süre ilerleyemezse (takılma)
+-- hedefe doğru yürümeye zorlanır, böylece teslim turu asla donmaz.
+local PET_RADIUS = 1.2
+local PROBE_HEIGHT = 1.4
+local STUCK_SECONDS = 2
+local rayParams = RaycastParams.new()
+rayParams.FilterType = Enum.RaycastFilterType.Exclude
+rayParams.RespectCanCollide = true
+local SIDE_ANGLES = { 0, 45, -45, 90, -90, 135, -135 }
+
+local function blockedAhead(actor: Actor, position: Vector3, direction: Vector3, distance: number): boolean
+	rayParams.FilterDescendantsInstances = { actor.model }
+	local origin = Vector3.new(position.X, actor.y + PROBE_HEIGHT, position.Z)
+	local hit = Workspace:Raycast(origin, direction * (distance + PET_RADIUS), rayParams)
+	if not hit then
+		return false
+	end
+	local instance = hit.Instance
+	-- Oyuncular ve yardımcılar engel sayılmaz; yalnızca sabit (Anchored) dünya parçaları
+	if instance.Parent and instance.Parent:FindFirstChildOfClass("Humanoid") then
+		return false
+	end
+	return instance.Anchored and instance.CanCollide
+end
+
 -- Hedefe yürür. Kalite yalnızca zıplamayı keser; konum her kalitede akıcı ilerler (PetMotion.walkInterval aralığıyla).
 -- Yalnızca çok uzaktaki yardımcı ışınlanır.
 local function walk(actor: Actor, target: Vector3): boolean
@@ -146,6 +172,7 @@ local function walk(actor: Actor, target: Vector3): boolean
 		return alive(actor)
 	end
 	local pending = 0
+	local stuck = 0
 	while true do
 		if not alive(actor) then
 			return false
@@ -160,6 +187,28 @@ local function walk(actor: Actor, target: Vector3): boolean
 		local nextX, nextZ, arrived = PetMotion.advance(position.X, position.Z, target.X, target.Z, SPEED, dt)
 		if arrived then
 			return true
+		end
+		if stuck < STUCK_SECONDS then
+			local want = Vector3.new(nextX - position.X, 0, nextZ - position.Z)
+			local stepLength = want.Magnitude
+			if stepLength > 1e-4 then
+				local unit = want / stepLength
+				local chosen: Vector3? = nil
+				for _, degrees in SIDE_ANGLES do
+					local candidate = (CFrame.Angles(0, math.rad(degrees), 0) * unit)
+					if not blockedAhead(actor, position, candidate, stepLength) then
+						chosen = candidate
+						break
+					end
+				end
+				if chosen then
+					nextX, nextZ = position.X + chosen.X * stepLength, position.Z + chosen.Z * stepLength
+					stuck = 0
+				else
+					stuck += dt
+					continue
+				end
+			end
 		end
 		actor.t += dt
 		local bob = if PetMotion.animates(EffectSettings.quality(), EffectSettings.reducedMotion())
@@ -363,8 +412,10 @@ local function run(actor: Actor)
 			continue
 		end
 
-		local facilityPoint = (spot.CFrame * FACILITY_OFFSET).Position
-		local pen = penPoint(plot, actor.island) or actor.home.Position
+		-- Denizdeki tesis (balıkçı teknesi) ve balık kafesi suyun üstündedir: yardımcı karada, evinde durup tekneye bakar
+		local onWater = spot:GetAttribute("BoatPatrolX") ~= nil or actor.island == "sea"
+		local facilityPoint = if onWater then actor.home.Position else (spot.CFrame * FACILITY_OFFSET).Position
+		local pen = if onWater then actor.home.Position else penPoint(plot, actor.island) or actor.home.Position
 		if not atFacility then
 			-- İş zaten sürüyor (elle ya da önceki turdan): doğrudan tesisin başına git
 			if not goTo(actor, facilityPoint) then
