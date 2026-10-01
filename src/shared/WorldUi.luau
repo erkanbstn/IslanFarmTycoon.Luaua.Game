@@ -345,6 +345,37 @@ function WorldUi.setSignText(part: Instance, text: string)
 	end
 end
 
+-- İkin kutusunu (Icon) bir görselle değiştirir (örn. oyuncunun avatar fotoğrafı); image nil ise emoji geri gelir.
+-- root: tabela parçası ya da BillboardGui; içindeki tüm "Icon" kutuları güncellenir.
+function WorldUi.setIconImage(root: Instance, image: string?, fallbackIcon: string)
+	for _, desc in root:GetDescendants() do
+		if desc:IsA("TextLabel") and desc.Name == "Icon" then
+			local avatar = desc:FindFirstChild("Avatar")
+			if image then
+				if not avatar then
+					local created = Instance.new("ImageLabel")
+					created.Name = "Avatar"
+					created.Size = UDim2.fromScale(1, 1)
+					created.BackgroundTransparency = 1
+					created.ScaleType = Enum.ScaleType.Crop
+					local corner = Instance.new("UICorner")
+					corner.CornerRadius = UDim.new(0.2, 0)
+					corner.Parent = created
+					created.Parent = desc
+					avatar = created
+				end
+				(avatar :: ImageLabel).Image = image
+				desc.Text = ""
+			else
+				if avatar then
+					avatar:Destroy()
+				end
+				desc.Text = fallbackIcon
+			end
+		end
+	end
+end
+
 -- Tabelanın başlık satırını değiştirir (WorldUi.sign `title` verilmişse)
 function WorldUi.setSignTitle(part: Instance, title: string)
 	for _, desc in part:GetDescendants() do

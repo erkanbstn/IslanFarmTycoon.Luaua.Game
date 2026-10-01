@@ -232,7 +232,7 @@ function PlotService.teleportToHub(player: Player)
 end
 
 -- Tabela ve uzaktan görünen ada etiketi: "<oyuncu> Adası" ve çiftliğin kaçıncı olduğu (nil = boş ada: temanın adı)
-local function setOwnerDisplay(plot: Model, ownerName: string?, farmId: string?)
+local function setOwnerDisplay(plot: Model, ownerName: string?, farmId: string?, ownerUserId: number?)
 	local themeName = (plot:GetAttribute("IslandName") or plot.Name) :: string
 	local sign = plot:FindFirstChild("PlotSign")
 	if sign then
@@ -241,10 +241,17 @@ local function setOwnerDisplay(plot: Model, ownerName: string?, farmId: string?)
 	end
 
 	local anchor = plot:FindFirstChild("IslandLabelAnchor")
-	WorldUi.setTag(
-		anchor and anchor:FindFirstChild("IslandLabel"),
-		if ownerName then `{ownerName} Adası · Çiftlik {farmId or "1"}` else `{themeName} · Boş`
-	)
+	local label = if anchor then anchor:FindFirstChild("IslandLabel") else nil
+	WorldUi.setTag(label, if ownerName then `{ownerName} Adası · Çiftlik {farmId or "1"}` else `{themeName} · Boş`)
+	-- Sahibi varsa çiçek yerine oyuncunun avatar fotoğrafı (herkese açık profil görseli); boş adada temanın simgesi
+	local avatar = if ownerUserId then `rbxthumb://type=AvatarHeadShot&id={ownerUserId}&w=150&h=150` else nil
+	local themeIcon = (plot:GetAttribute("IslandIcon") or "🏝️") :: string
+	if sign then
+		WorldUi.setIconImage(sign, avatar, themeIcon)
+	end
+	if label then
+		WorldUi.setIconImage(label, avatar, themeIcon)
+	end
 end
 
 local function setZoneLabel(zone: Instance, text: string, icon: string, locked: boolean)
@@ -488,7 +495,7 @@ local function bindFarm(player: Player, farmId: string, plot: Model, keepTheme: 
 	plot:SetAttribute("MainFarmId", farmId)
 	plot:SetAttribute("OwnerUserId", player.UserId)
 	plot:SetAttribute("FarmActive", true)
-	setOwnerDisplay(plot, player.DisplayName, farmId)
+	setOwnerDisplay(plot, player.DisplayName, farmId, player.UserId)
 	player:SetAttribute("ActiveMainFarmId", farmId)
 	player:SetAttribute("ActivePlotId", plotId)
 	player:SetAttribute("SelectedFarmIsland", "home")
