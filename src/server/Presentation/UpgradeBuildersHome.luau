@@ -97,14 +97,15 @@ local builders: { [string]: Builder } = {
 				Enum.Material.Glass
 			)
 		end
+		-- Tanklar çatı çıkıntısının (x 4.5) dışında durur; borular duvardan (x 4) tanka uzanır
 		for _, z in { -2.8, 2.8 } do
-			makeColumn(model, "PasteurizingTank", 3.2, 8, base * CFrame.new(6.6, 4, z), METAL, Enum.Material.Metal)
-			makeBall(model, "TankCap", 3.2, base * CFrame.new(6.6, 8, z), METAL, Enum.Material.Metal)
+			makeColumn(model, "PasteurizingTank", 3.2, 8, base * CFrame.new(8.8, 4, z), METAL, Enum.Material.Metal)
+			makeBall(model, "TankCap", 3.2, base * CFrame.new(8.8, 8, z), METAL, Enum.Material.Metal)
 			makePart(
 				model,
 				"TankPipe",
 				Vector3.new(3.6, 0.45, 0.45),
-				base * CFrame.new(5.1, 2, z),
+				base * CFrame.new(6.1, 2, z),
 				METAL,
 				Enum.Material.Metal
 			)
