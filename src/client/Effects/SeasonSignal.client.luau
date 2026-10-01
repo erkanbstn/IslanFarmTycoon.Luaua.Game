@@ -1,9 +1,9 @@
 --!strict
 -- Hayvan altı mevsim/hava göstergesi (sadece görsel, sadece bu oyuncunun ekranında): gelir çarpanı artıya geçen
--- hayvanın altında yumuşak yeşilimsi halka, eksiye düşenin altında hafif kırmızımsı halka; nötr hayvanda hiçbir şey.
+-- hayvanın altından yukarı süzülen, kuzey ışığı gibi çok soluk yeşilimsi parıltı (eksiye düşende kırmızımsı); nötr hayvanda hiçbir şey.
 -- Sinyal `FarmMath.getSeasonEffect` ile hesaplanır (Mevsim çubuğu ile aynı hesap) ve OLAY tabanlıdır:
 -- mevsim/hava/bölge uyumu/hayvan listesi değişince yeniden hesaplanır. Zamanlayıcı yalnızca mesafe seçer.
--- Yalnızca kameraya yakın, en yakın N hayvanda küçük bir havuzdaki halkalar gösterilir; ReducedMotion'da nabız yok.
+-- Yalnızca kameraya yakın, en yakın N hayvanda küçük bir havuzdaki ParticleEmitter'lar çalışır; ReducedMotion'da akış yok.
 
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -28,14 +28,15 @@ local QUALITY = {
 	high = { distance = 75, maxMarkers = 20 },
 }
 local SELECT_INTERVAL = 0.5 -- mesafe seçimi (olay tabanlı sinyalden ayrı, seyrek)
-local PULSE_INTERVAL = 1 / 20
+local FOLLOW_INTERVAL = 1 / 20 -- ışıltı hayvanı bu aralıkla izler
 local FACING_LIMIT = -0.3 -- kameranın tamamen arkasındaki hayvan seçilmez (bakış yönü ile nokta çarpımı)
-local PULSE_SPEED = 2.4
-local RING_TRANSPARENCY = 0.82 -- hafif, dikkat dağıtmayan halka
-local RING_MIN, RING_MAX = 3, 9 -- halka çapı (stud)
+local GLOW_MIN, GLOW_MAX = 2.5, 7 -- ışıltının yayıldığı taban çapı (stud)
+local AURORA_UP = Color3.fromRGB(150, 255, 205) -- kuzey ışığı: yeşilden açık turkuaza yükselir
+local AURORA_UP_BAD = Color3.fromRGB(255, 170, 150)
 
 type Marker = {
 	part: Part,
+	emitter: ParticleEmitter,
 	model: Model?,
 	anchor: BasePart?,
 	yOffset: number,
@@ -53,16 +54,41 @@ ringFolder.Name = "SeasonRings" -- yalnızca bu istemcide var
 ringFolder.Parent = Workspace
 
 local function createMarker(): Marker
+	-- Görünmez ince bir kutu: üstündeki ParticleEmitter hayvanın altından yukarı doğru yavaşça süzülen, kuzey ışığı gibi hafif parıltılar çıkarır
 	local part = Instance.new("Part")
-	part.Name = "SeasonRing"
-	part.Shape = Enum.PartType.Cylinder
-	part.Size = Vector3.new(0.12, RING_MIN, RING_MIN)
-	part.Material = Enum.Material.Neon
+	part.Name = "SeasonAurora"
+	part.Size = Vector3.new(GLOW_MIN, 0.2, GLOW_MIN)
+	part.Transparency = 1
 	part.Anchored = true
 	part.CanCollide, part.CanTouch, part.CanQuery, part.CastShadow = false, false, false, false
-	part.Transparency = 1
+	local emitter = Instance.new("ParticleEmitter")
+	emitter.Texture = "rbxasset://textures/particles/smoke_main.dds"
+	emitter.Orientation = Enum.ParticleOrientation.VelocityParallel
+	emitter.EmissionDirection = Enum.NormalId.Top
+	emitter.SpreadAngle = Vector2.new(6, 6)
+	emitter.Lifetime = NumberRange.new(2.2, 3.4)
+	emitter.Speed = NumberRange.new(0.8, 1.5)
+	emitter.LightEmission = 1
+	emitter.LightInfluence = 0
+	emitter.Rotation = NumberRange.new(0, 0)
+	emitter.RotSpeed = NumberRange.new(0, 0)
+	emitter.Size = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0.5),
+		NumberSequenceKeypoint.new(0.5, 1.3),
+		NumberSequenceKeypoint.new(1, 0.4),
+	})
+	-- Çok soluk: en yoğun anda bile belli belirsiz (belli etmeden fark edilsin)
+	emitter.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 1),
+		NumberSequenceKeypoint.new(0.25, 0.82),
+		NumberSequenceKeypoint.new(0.7, 0.9),
+		NumberSequenceKeypoint.new(1, 1),
+	})
+	emitter.Rate = 0
+	emitter.Enabled = false
+	emitter.Parent = part
 	part.Parent = ringFolder
-	return { part = part, model = nil, anchor = nil, yOffset = 0, phase = 0 }
+	return { part = part, emitter = emitter, model = nil, anchor = nil, yOffset = 0, phase = 0 }
 end
 
 local function anchorOf(model: Model): BasePart?
@@ -73,21 +99,28 @@ local function place(marker: Marker)
 	local anchor = marker.anchor
 	if anchor then
 		marker.part.CFrame = CFrame.new(anchor.Position.X, anchor.Position.Y + marker.yOffset, anchor.Position.Z)
-			* CFrame.Angles(0, 0, math.pi / 2)
 	end
 end
 
--- Hayvanın altında yumuşak bir halka: artıda yeşilimsi, eksiye düşende hafif kırmızımsı (ok/ikon yok)
+-- Hayvanın altından yukarı süzülen hafif parıltı: artıda yeşilimsi, eksiye düşende kırmızımsı (ok/ikon/halka yok)
 local function style(marker: Marker, signal: number, model: Model, anchor: BasePart)
-	marker.part.Color = if signal > 0 then Color.Green else Color.Red
-	marker.part.Transparency = RING_TRANSPARENCY
+	local good = signal > 0
+	local base = if good then Color.Green else Color.Red
+	marker.emitter.Color = ColorSequence.new(base, if good then AURORA_UP else AURORA_UP_BAD)
 	local boxCf, boxSize = model:GetBoundingBox()
-	local diameter = math.clamp(math.max(boxSize.X, boxSize.Z) * 1.3, RING_MIN, RING_MAX)
-	marker.part.Size = Vector3.new(0.12, diameter, diameter)
-	marker.yOffset = boxCf.Position.Y - boxSize.Y / 2 - anchor.Position.Y + 0.08
+	local diameter = math.clamp(math.max(boxSize.X, boxSize.Z) * 0.9, GLOW_MIN, GLOW_MAX)
+	marker.part.Size = Vector3.new(diameter, 0.2, diameter)
+	marker.emitter.Rate = 3 + diameter * 0.8
+	-- Hareketi azalt: akış yok, yalnızca zeminde çok soluk bir iz
+	local still = EffectSettings.reducedMotion()
+	marker.emitter.Enabled = not still
+	marker.part.Transparency = if still then 0.93 else 1
+	marker.part.Color = base
+	marker.part.Material = Enum.Material.Neon
+	marker.yOffset = boxCf.Position.Y - boxSize.Y / 2 - anchor.Position.Y + 0.1
 	marker.anchor = anchor
 	marker.model = model
-	marker.phase = (model:GetAttribute("Uid") and #tostring(model:GetAttribute("Uid")) or 0) * 0.7
+	marker.phase = 0
 	place(marker)
 end
 
@@ -98,6 +131,7 @@ local function release(model: Model)
 	end
 	assigned[model] = nil
 	marker.part.Transparency = 1
+	marker.emitter.Enabled = false
 	marker.anchor = nil
 	marker.model = nil
 	local index = table.find(active, marker)
@@ -229,7 +263,7 @@ task.spawn(function()
 		pickMarkers()
 	end)
 
-	local selectElapsed, pulseElapsed, clock = 0, 0, 0
+	local selectElapsed, pulseElapsed = 0, 0
 	RunService.Heartbeat:Connect(function(dt: number)
 		selectElapsed += dt
 		if selectElapsed >= SELECT_INTERVAL then
@@ -240,17 +274,12 @@ task.spawn(function()
 			return
 		end
 		pulseElapsed += dt
-		if pulseElapsed < PULSE_INTERVAL then
+		if pulseElapsed < FOLLOW_INTERVAL then
 			return
 		end
-		clock += pulseElapsed
 		pulseElapsed = 0
-		local still = EffectSettings.reducedMotion()
 		for _, marker in active do
-			place(marker) -- hayvan yürürken halka onu izler
-			if not still then
-				marker.part.Transparency = RING_TRANSPARENCY + math.sin(clock * PULSE_SPEED + marker.phase) * 0.04
-			end
+			place(marker) -- hayvan yürürken ışıltı onu izler
 		end
 	end)
 end)
