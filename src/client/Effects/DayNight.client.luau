@@ -23,8 +23,8 @@ local EXPOSURE_SMOOTHING = 2
 -- Gece kararır ama en karanlık anda bile zemin ve hayvanlar seçilebilmeli: ay ışığı mavisi bir taban vardır.
 -- Gün içi eğri `Environment.getNightFactor`ta (anahtar saat -> pay); bu tablolar yalnızca iki uç değerdir.
 local DAY = {
-	brightness = 2.4,
-	outdoor = Color3.fromRGB(135, 135, 150),
+	brightness = 1.9, -- göz yormasın (önceden 2.4)
+	outdoor = Color3.fromRGB(120, 122, 136),
 	ambient = Color3.fromRGB(70, 70, 80),
 	atmosphere = Color3.fromRGB(199, 220, 235),
 	decay = Color3.fromRGB(106, 135, 165),
@@ -269,7 +269,7 @@ local function updateSky(dt: number)
 	Lighting.Ambient = DAY.ambient:Lerp(NIGHT.ambient, night)
 	-- Gün doğumu ve batımında ufka sıcak bir ton
 	local twilight = math.sin(night * math.pi)
-	Lighting.ColorShift_Top = Color3.new(0, 0, 0):Lerp(TWILIGHT_SHIFT, twilight * 0.55)
+	Lighting.ColorShift_Top = Color3.new(0, 0, 0):Lerp(TWILIGHT_SHIFT, twilight * 0.3)
 
 	local atmosphere = Lighting:FindFirstChildOfClass("Atmosphere")
 	if atmosphere then
@@ -279,7 +279,7 @@ local function updateSky(dt: number)
 	local bloom = Lighting:FindFirstChildOfClass("BloomEffect")
 	if bloom then
 		-- Neon fenerler gece hafif bir hale alsın ama çevresi beyaza boğulmasın.
-		bloom.Intensity = 0.5 - 0.15 * night
+		bloom.Intensity = 0.28 - 0.08 * night
 		bloom.Threshold = 1.8 + 0.6 * night
 	end
 	nightGrade.TintColor = Color3.new(1, 1, 1):Lerp(NIGHT.tint, night)
