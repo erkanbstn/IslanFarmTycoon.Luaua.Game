@@ -502,7 +502,15 @@ function PlayerDataService.save(player: Player): boolean
 	if not session.persistent then
 		return true
 	end
-	return write(player, session, false, deadlineAfter(SAVE_BUDGET))
+	local deadline = deadlineAfter(SAVE_BUDGET)
+	-- Önceki başarısız yazımdan kalan eski anlık görüntü (pending) yeniden gönderilir; bu, sonradan olan değişiklikleri
+	-- içermez. Başarılı sayılması için güncel veriyi taşıyan bir yazım daha gerekir (bırakma yolundaki gibi).
+	local stale = session.pending
+	local written = write(player, session, false, deadline)
+	if written and stale and not stale.release then
+		return write(player, session, false, deadline)
+	end
+	return written
 end
 
 function PlayerDataService.requestSave(player: Player)

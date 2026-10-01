@@ -19,6 +19,29 @@ return function(ReceiptLog: any, FarmMath: any, Config: any, SaveCodec: any)
 		"oldest receipts are dropped first"
 	)
 
+	-- Ödül verilemezse makbuz günlükte kalmaz; başarıda kalır, tekrar "duplicate" döner
+	local grantSave: any = {}
+	local applied = 0
+	assert(ReceiptLog.grant(grantSave, "g1", function(): boolean
+		applied += 1
+		return false
+	end) == "failed", "a failed grant is reported")
+	assert(not ReceiptLog.has(grantSave, "g1"), "a failed grant leaves no receipt behind")
+	assert(ReceiptLog.grant(grantSave, "g1", function(): boolean
+		error("boom")
+	end) == "failed" and not ReceiptLog.has(grantSave, "g1"), "an erroring grant is rolled back too")
+	assert(ReceiptLog.grant(grantSave, "g1", function(): boolean
+		applied += 1
+		return true
+	end) == "granted" and ReceiptLog.has(grantSave, "g1"), "the retry after a failure grants the reward")
+	assert(ReceiptLog.grant(grantSave, "g1", function(): boolean
+		applied += 1
+		return true
+	end) == "duplicate" and applied == 2, "a granted receipt is never rewarded twice")
+	assert(ReceiptLog.grant(grantSave, "", function(): boolean
+		return true
+	end) == "failed", "an invalid receipt id is not granted")
+
 	-- Oyun geçidi etkileri (sunucu doğrular; FarmMath yalnızca uygular)
 	local function farm(): any
 		local data: any = {

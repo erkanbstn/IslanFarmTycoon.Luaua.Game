@@ -106,12 +106,19 @@ function MonetizationService.processReceipt(receiptInfo: any): Enum.ProductPurch
 		warn(`[Monetization] Bilinmeyen ürün {tostring(receiptInfo.ProductId)}; makbuz işlenmedi`)
 		return Enum.ProductPurchaseDecision.NotProcessedYet
 	end
+	if product.effect ~= "instantProduction" and product.effect ~= "incomePack" then
+		warn(`[Monetization] Ürün etkisi geçersiz {tostring(product.effect)}; makbuz işlenmedi`)
+		return Enum.ProductPurchaseDecision.NotProcessedYet
+	end
 	local id = receiptInfo.PurchaseId
-	if not ReceiptLog.has(data, id) then
-		-- Makbuz önce yazılır, sonra ödül verilir: çökme ya da tekrar aynı ödülü ikinci kez üretmez.
-		if not ReceiptLog.add(data, id) or not applyProduct(player, data, product) then
-			return Enum.ProductPurchaseDecision.NotProcessedYet
-		end
+	-- Makbuz önce yazılır, sonra ödül verilir: çökme ya da tekrar aynı ödülü ikinci kez üretmez.
+	-- Ödül verilemezse makbuz günlükten çıkar; Roblox yeniden denediğinde ödül gerçekten verilir.
+	local outcome = ReceiptLog.grant(data, id, function(): boolean
+		return applyProduct(player, data, product)
+	end)
+	if outcome == "failed" then
+		return Enum.ProductPurchaseDecision.NotProcessedYet
+	elseif outcome == "granted" then
 		Metrics.increment("ProductsGranted")
 		Remotes.get("Notify"):FireClient(player, `{product.displayName} etkinleştirildi!`, "success")
 	end

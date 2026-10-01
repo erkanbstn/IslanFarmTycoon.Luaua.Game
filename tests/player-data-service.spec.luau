@@ -236,6 +236,26 @@ return function(createService: any, Config: any)
 	assert(t.store.raw.cash == Config.STARTING_CASH + 275, "pending old payload must not erase later cash")
 	assert(t.store.raw._revision == 2 and t.store.raw._session == nil, "latest release commits once")
 
+	-- Eski (başarısız) anlık görüntü gönderilse bile save() ancak güncel veri yazılınca true döner.
+	t = loaded()
+	t.service.addCash(t.player, 200)
+	t.store.actions = { { failBefore = true }, { failBefore = true }, { failBefore = true } }
+	assert(not t.call(function()
+		return t.service.save(t.player)
+	end), "all attempts failed")
+	t.service.addCash(t.player, 75)
+	assert(
+		t.call(function()
+			return t.service.save(t.player)
+		end),
+		"save after recovery succeeds"
+	)
+	assert(
+		t.store.raw.cash == Config.STARTING_CASH + 275,
+		"stale pending payload is followed by a write of the current data"
+	)
+	assert(t.store.raw._revision == 2, "stale flush and current write are two commits")
+
 	-- DataStore yield sırasında para değişir ve ayrılma başlar; anahtar kuyruğu sıralar.
 	t = loaded()
 	t.store.actions = { { delay = 2 } }
