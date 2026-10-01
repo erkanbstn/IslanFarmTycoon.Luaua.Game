@@ -11,6 +11,7 @@ local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath")
 local Rewards = require(Shared:WaitForChild("Modules"):WaitForChild("Rewards"))
 
 local PlayerDataService = require(script.Parent:WaitForChild("PlayerDataService"))
+local RequestGuard = require(script.Parent:WaitForChild("RequestGuard"))
 local PlotService = require(script.Parent:WaitForChild("PlotService"))
 local EconomyService = require(script.Parent:WaitForChild("EconomyService"))
 local RateLimiter = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("RateLimiter"))
@@ -111,20 +112,7 @@ local function buyAndNotify(player: Player, upgradeId: unknown, requestId: unkno
 			err = `{upgrade.displayName} alındı!`
 		end
 	end
-	if not ok and err == nil then
-		if typeof(requestId) ~= "number" or not RateLimiter.allow(player, "purchaseThrottleReply", 0.5) then
-			return
-		end
-		err = "Çok hızlı işlem yapıyorsun; biraz bekle."
-	end
-	if not ok then
-		Metrics.increment("PurchaseRejected")
-	end
-	if typeof(requestId) == "number" then
-		Remotes.get("PurchaseResult"):FireClient(player, requestId, ok, err)
-	else
-		Remotes.get("Notify"):FireClient(player, err, if ok then "success" else "error")
-	end
+	RequestGuard.reply(player, requestId, ok, err, true)
 end
 
 -- Yapı geliştirme: bir bölgeyi ya da üretim tesisini bir seviye yükseltir (faydalar Config.BUILD_UPGRADES profilinden)
@@ -184,17 +172,8 @@ local function expandAndNotify(player: Player, zoneId: unknown, requestId: unkno
 			then Config.getZoneName(zone, data.activeMainFarmId)
 			else Config.PRODUCTION_RECIPES[zoneId :: string].displayName
 		err = `{name} geliştirildi! Seviye {FarmMath.getExpansionLevel(data, zoneId :: string)}`
-	elseif err == nil then
-		if typeof(requestId) ~= "number" or not RateLimiter.allow(player, "purchaseThrottleReply", 0.5) then
-			return
-		end
-		err = "Çok hızlı işlem yapıyorsun; biraz bekle."
 	end
-	if typeof(requestId) == "number" then
-		Remotes.get("PurchaseResult"):FireClient(player, requestId, ok, err)
-	else
-		Remotes.get("Notify"):FireClient(player, err, if ok then "success" else "error")
-	end
+	RequestGuard.reply(player, requestId, ok, err)
 end
 
 local function lineageAndNotify(player: Player, animalId: unknown, requestId: unknown)
@@ -206,48 +185,21 @@ local function lineageAndNotify(player: Player, animalId: unknown, requestId: un
 		local data = PlayerDataService.tryGet(player)
 		local animal = Config.ANIMALS[animalId :: string]
 		err = `{animal.displayName} ırkı Sv.{FarmMath.getLineageLevel(data :: any, animalId :: string)} oldu!`
-	elseif err == nil then
-		if typeof(requestId) ~= "number" or not RateLimiter.allow(player, "purchaseThrottleReply", 0.5) then
-			return
-		end
-		err = "Çok hızlı işlem yapıyorsun; biraz bekle."
 	end
-	if typeof(requestId) == "number" then
-		Remotes.get("PurchaseResult"):FireClient(player, requestId, ok, err)
-	else
-		Remotes.get("Notify"):FireClient(player, err, if ok then "success" else "error")
-	end
+	RequestGuard.reply(player, requestId, ok, err)
 end
 
 function UpgradeService.init()
 	Remotes.get("RequestExpandZone").OnServerEvent
 		:Connect(function(player: Player, zoneId: unknown, requestId: unknown, expectedFarmId: unknown)
-			local data = PlayerDataService.tryGet(player)
-			if not data or expectedFarmId ~= data.activeMainFarmId then
-				if typeof(requestId) == "number" and RateLimiter.allow(player, "farmContextReply", 0.5) then
-					Remotes.get("PurchaseResult"):FireClient(
-						player,
-						requestId,
-						false,
-						"Etkin çiftlik değişti; işlemi yeni çiftlikte tekrar seç."
-					)
-				end
+			if not RequestGuard.activeFarm(player, requestId, expectedFarmId) then
 				return
 			end
 			expandAndNotify(player, zoneId, requestId)
 		end)
 	Remotes.get("RequestUpgradeLineage").OnServerEvent
 		:Connect(function(player: Player, animalId: unknown, requestId: unknown, expectedFarmId: unknown)
-			local data = PlayerDataService.tryGet(player)
-			if not data or expectedFarmId ~= data.activeMainFarmId then
-				if typeof(requestId) == "number" and RateLimiter.allow(player, "farmContextReply", 0.5) then
-					Remotes.get("PurchaseResult"):FireClient(
-						player,
-						requestId,
-						false,
-						"Etkin çiftlik değişti; işlemi yeni çiftlikte tekrar seç."
-					)
-				end
+			if not RequestGuard.activeFarm(player, requestId, expectedFarmId) then
 				return
 			end
 			lineageAndNotify(player, animalId, requestId)
@@ -255,16 +207,7 @@ function UpgradeService.init()
 
 	Remotes.get("RequestBuyUpgrade").OnServerEvent
 		:Connect(function(player: Player, upgradeId: unknown, requestId: unknown, expectedFarmId: unknown)
-			local data = PlayerDataService.tryGet(player)
-			if not data or expectedFarmId ~= data.activeMainFarmId then
-				if typeof(requestId) == "number" and RateLimiter.allow(player, "farmContextReply", 0.5) then
-					Remotes.get("PurchaseResult"):FireClient(
-						player,
-						requestId,
-						false,
-						"Etkin çiftlik değişti; işlemi yeni çiftlikte tekrar seç."
-					)
-				end
+			if not RequestGuard.activeFarm(player, requestId, expectedFarmId) then
 				return
 			end
 			buyAndNotify(player, upgradeId, requestId)

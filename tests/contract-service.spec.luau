@@ -1,6 +1,6 @@
 --!strict
 -- Ahır siparişi servisi: gerçek servis kaynağı; sahiplik, tekrar oynatma, atomik teslim, ödül ve bildirim.
-return function(createService: any, createLimiter: any, codec: any, config: any, farmMath: any)
+return function(createService: any, createLimiter: any, codec: any, config: any, farmMath: any, createGuard: any)
 	local function signal(): any
 		local callbacks = {}
 		return {
@@ -84,6 +84,11 @@ return function(createService: any, createLimiter: any, codec: any, config: any,
 			saves += 1
 		end,
 	}
+	local metrics = {
+		increment = function()
+			increments += 1
+		end,
+	}
 	local service = createService(
 		fakeGame,
 		remotes,
@@ -95,16 +100,13 @@ return function(createService: any, createLimiter: any, codec: any, config: any,
 		},
 		dataService,
 		limiter,
-		{
-			increment = function()
-				increments += 1
-			end,
-		},
+		metrics,
 		{
 			now = function(): any
 				return { UnixTimestamp = now }
 			end,
-		}
+		},
+		createGuard(fakeGame, remotes, dataService, limiter, metrics)
 	)
 	service.init()
 	local sequence = 0

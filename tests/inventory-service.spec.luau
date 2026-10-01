@@ -25,7 +25,8 @@ return function(
 			h.dateTime,
 			h.task,
 			h.osFake,
-			environment
+			environment,
+			h.guard
 		).init()
 		h.environment = environment
 		return h

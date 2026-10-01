@@ -21,7 +21,8 @@ return function(
 			h.limiter,
 			h.metrics,
 			h.dateTime,
-			h.task
+			h.task,
+			h.guard
 		).init()
 		return h
 	end

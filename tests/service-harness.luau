@@ -1,7 +1,7 @@
 --!strict
 -- Servis spec'leri için ortak sahte dünya: oyuncu/kayıt, Remote'lar, hız sınırlayıcı, saat, döngü (task.spawn) ve sayaçlar.
 -- Gerçek servis kaynağı çalışır; yalnızca Roblox'a dokunan sınırlar (game, Remotes, PlayerDataService...) sahtedir.
-return function(createLimiter: any, codec: any, config: any, farmMath: any)
+return function(createLimiter: any, codec: any, config: any, farmMath: any, createGuard: any)
 	local function signal(): any
 		local callbacks: { any } = {}
 		return {
@@ -220,6 +220,9 @@ return function(createLimiter: any, codec: any, config: any, farmMath: any)
 				h.counters.settles += 1
 			end,
 		}
+
+		-- Gerçek RequestGuard, aynı sahte sınırlarla (Remotes, kayıt servisi, sınırlayıcı, sayaçlar)
+		h.guard = createGuard(h.game, h.remotes, h.dataService, h.limiter, h.metrics)
 
 		function h.nextId(): number
 			h.requestId += 1

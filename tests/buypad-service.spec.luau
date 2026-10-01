@@ -25,7 +25,8 @@ return function(
 			h.economyService,
 			h.limiter,
 			h.metrics,
-			h.dateTime
+			h.dateTime,
+			h.guard
 		)
 		-- Hiçbir yapım alanı yok: kaideler çizilmez, dünya yenileme yolu Instance gerektirmez
 		local visuals = {

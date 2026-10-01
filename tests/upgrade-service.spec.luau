@@ -12,7 +12,8 @@ return function(createService: any, createHarness: any, createLimiter: any, code
 			h.economyService,
 			h.limiter,
 			h.metrics,
-			h.dateTime
+			h.dateTime,
+			h.guard
 		).init()
 		return h
 	end

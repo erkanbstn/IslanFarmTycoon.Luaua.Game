@@ -13,6 +13,7 @@ local Rewards = require(Shared:WaitForChild("Modules"):WaitForChild("Rewards"))
 local Golden = require(Shared:WaitForChild("Modules"):WaitForChild("Golden"))
 
 local PlayerDataService = require(script.Parent:WaitForChild("PlayerDataService"))
+local RequestGuard = require(script.Parent:WaitForChild("RequestGuard"))
 local EconomyService = require(script.Parent:WaitForChild("EconomyService"))
 local RateLimiter = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("RateLimiter"))
 local Metrics = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("Metrics"))
@@ -147,22 +148,6 @@ function EngagementService.tryClaimGolden(player: Player): (boolean, string?)
 	return true, `Altın hayvan yakalandı: +{FarmMath.formatMoney(event.reward)}`
 end
 
-local function respond(player: Player, requestId: unknown, ok: boolean, message: string?)
-	if not ok and message == nil then
-		if typeof(requestId) ~= "number" or not RateLimiter.allow(player, "purchaseThrottleReply", 0.5) then
-			return
-		end
-		message = "Çok hızlı işlem yapıyorsun; biraz bekle."
-	end
-	if message then
-		if typeof(requestId) == "number" then
-			Remotes.get("PurchaseResult"):FireClient(player, requestId, ok, message)
-		else
-			Remotes.get("Notify"):FireClient(player, message, if ok then "success" else "error")
-		end
-	end
-end
-
 -- Mevsim hedefini her oyuncu için hazır tut ve ilerleme değiştikçe (en fazla birkaç sn'de bir) client'a bildir:
 -- kazanç ilerlemesi sunucuda birikir, client yalnızca yapısal durum paketlerinde yeni değeri görür.
 local SEASONAL_REFRESH_SECONDS = 5
@@ -219,7 +204,7 @@ function EngagementService.init()
 				return
 			end
 			local ok, message = EngagementService.tryClaimGolden(player)
-			respond(player, requestId, ok, message)
+			RequestGuard.reply(player, requestId, ok, message)
 		end)
 	Remotes.get("RequestClaimSeasonal").OnServerEvent
 		:Connect(function(player: Player, _value: unknown, requestId: unknown)
@@ -227,14 +212,14 @@ function EngagementService.init()
 				return
 			end
 			local ok, message = EngagementService.tryClaimSeasonal(player)
-			respond(player, requestId, ok, message)
+			RequestGuard.reply(player, requestId, ok, message)
 		end)
 	Remotes.get("RequestClaimDaily").OnServerEvent:Connect(function(player: Player, _value: unknown, requestId: unknown)
 		if not RateLimiter.acceptRequest(player, requestId) then
 			return
 		end
 		local ok, message = EngagementService.tryClaimDaily(player)
-		respond(player, requestId, ok, message)
+		RequestGuard.reply(player, requestId, ok, message)
 	end)
 	Remotes.get("RequestClaimAchievement").OnServerEvent
 		:Connect(function(player: Player, achievementId: unknown, requestId: unknown)
@@ -242,7 +227,7 @@ function EngagementService.init()
 				return
 			end
 			local ok, message = EngagementService.tryClaimAchievement(player, achievementId)
-			respond(player, requestId, ok, message)
+			RequestGuard.reply(player, requestId, ok, message)
 		end)
 end
 

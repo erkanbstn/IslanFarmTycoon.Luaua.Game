@@ -24,7 +24,8 @@ return function(
 			h.metrics,
 			h.dateTime,
 			h.task,
-			h.warn
+			h.warn,
+			h.guard
 		).init()
 		return h
 	end
