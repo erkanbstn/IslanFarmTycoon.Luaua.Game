@@ -26,6 +26,8 @@ local TelemetryService = {}
 local analytics: any = AnalyticsService
 local live = not RunService:IsStudio()
 local states: { [Player]: PlayerState } = {}
+-- PlayerRemoving sırasında Parent hâlâ Players'tır; çıkış başlayan oyuncu için durum yeniden açılmasın (zayıf anahtar: sızıntı yok).
+local leaving: { [Player]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 local budget = TelemetryLogic.newBudget(TelemetryLogic.EVENTS_PER_MINUTE, os.clock())
 local criticalBudget = TelemetryLogic.newBudget(20, os.clock())
 local initialized = false
@@ -42,7 +44,7 @@ local function stateFor(player: Player): PlayerState?
 	if state then
 		return state
 	end
-	if player.Parent == nil then
+	if player.Parent == nil or leaving[player] then
 		return nil -- çıkmış oyuncu için durum yeniden açılmaz (sızıntı olmasın)
 	end
 	state = {
@@ -216,6 +218,7 @@ function TelemetryService.onLeaving(player: Player)
 		return
 	end
 	states[player] = nil
+	leaving[player] = true
 	pcall(flush, player, state)
 	local session = TelemetryLogic.roundAmount(os.time() - state.joinedAt)
 	if session then

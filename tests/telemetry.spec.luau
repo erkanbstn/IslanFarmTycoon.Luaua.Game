@@ -307,6 +307,9 @@ return function(createService: any, Logic: any, Config: any)
 	assert(tail[3].args[2] == "StorageFullSeconds" and tail[3].args[3] == 12, "depo dolu süre")
 	live.service.onLeaving(leaving)
 	assert(#live.calls == before + 3, "ikinci çıkış bir şey göndermez")
+	live.service.economy(leaving, "collect", 1, 1) -- Parent hâlâ Players: yine de durum açılmaz
+	live.service.flushAll()
+	assert(#live.calls == before + 3, "çıkışı başlayan oyuncu için durum yeniden açılmaz")
 	leaving.Parent = nil
 	live.service.economy(leaving, "collect", 1, 1)
 	live.service.flushAll()
@@ -362,7 +365,7 @@ return function(createService: any, Logic: any, Config: any)
 		"Metrics sayaçları yazılır"
 	)
 	studio.setPrint(true)
-	studio.service.economy(dev, "daily", 5, 5)
+	studio.service.economy(newPlayer(), "daily", 5, 5)
 	assert(#studio.printed == 1 and #studio.calls == 0, "TelemetryPrint açıkken yalnızca print")
 
 	-- Kritik hata: ayrı iş parçacığında error; sel olursa warn.
