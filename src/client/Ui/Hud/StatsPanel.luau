@@ -232,9 +232,18 @@ function StatsPanel.create(screenGui: Instance): Hud
 	tabCash.Size = UDim2.new(1, -(TAB_WIDTH + 6), 1, 0)
 	tabCash.TextXAlignment = Enum.TextXAlignment.Left
 	tabCash.Visible = false
+	-- Kapalı sekme paraya göre büyür: sayı uzadıkça genişler (sabit kutu değil)
+	local collapsedTab = false
+	local function fitTab()
+		if collapsedTab then
+			tab.Size = UDim2.fromOffset(TAB_WIDTH + 14 + math.max(tabCash.TextBounds.X, 40), 60)
+		end
+	end
 	cashLabel:GetPropertyChangedSignal("Text"):Connect(function()
 		tabCash.Text = cashLabel.Text
+		fitTab()
 	end)
+	tabCash:GetPropertyChangedSignal("TextBounds"):Connect(fitTab)
 	tabCash.Text = cashLabel.Text
 
 	local function expandedPosition(): UDim2
@@ -261,7 +270,9 @@ function StatsPanel.create(screenGui: Instance): Hud
 		-- Kapalıyken "<" yerine ">" (joint sağda), açıkken "<" (joint solda)
 		arms[1].Rotation = if collapsed then 45 else -45
 		arms[2].Rotation = if collapsed then -45 else 45
-		tab.Size = if collapsed then UDim2.fromOffset(TAB_WIDTH + 70, 60) else UDim2.fromOffset(TAB_WIDTH, 60)
+		collapsedTab = collapsed
+		tab.Size = UDim2.fromOffset(TAB_WIDTH, 60)
+		fitTab()
 		tabCash.Visible = collapsed
 		if positionTween then
 			positionTween:Cancel()
