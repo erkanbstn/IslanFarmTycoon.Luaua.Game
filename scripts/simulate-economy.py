@@ -27,6 +27,14 @@ local HOURS = __HOURS__
 local FARM = "__FARM__"
 -- Ayar denemesi: yükseltme maliyetlerini (cost/BASE)^EXP ile büyüt, hayvan fiyat artışını değiştir (Config'e dokunmadan)
 local COST_BASE, COST_EXP, PRICE_GROWTH = __COST_BASE__, __COST_EXP__, __PRICE_GROWTH__
+-- Gerçekçi toplama: COLLECT sn'de bir platforma gidilir (0 = anında); depo dolunca kazanç durur (otomatik toplayıcı alınınca sınırsız).
+-- CAP_MULT: ahır depo kapasitelerini çarpar (deneme).
+local COLLECT, CAP_MULT = __COLLECT__, __CAP_MULT__
+if CAP_MULT ~= 1 then
+	for _, barn in Config.BARN_LEVELS do
+		barn.storageCap = barn.storageCap * CAP_MULT
+	end
+end
 if COST_EXP > 0 then
 	for _, upgrade in Config.UPGRADES do
 		if upgrade.cost > COST_BASE then
@@ -129,7 +137,11 @@ local steps = math.floor(HOURS * 3600 / STEP)
 for step = 1, steps do
 	now = START + step * STEP
 	refreshStages()
-	save.cash += income() * STEP
+	local rate = income()
+	if COLLECT > 0 and not save.purchased.auto_collector then
+		rate = math.min(rate * COLLECT, FarmMath.getStorageCap(save)) / COLLECT
+	end
+	save.cash += rate * STEP
 
 	-- Aç gözlü yatırım: hayvanlar önce (geri dönüşü en hızlı), sonra en ucuz yükseltme
 	local bought = true
@@ -239,7 +251,7 @@ for step = 1, steps do
 	local minute = (now - START) / 60
 	if minute - lastReport >= 60 then
 		lastReport += 60
-		table.insert(reports, string.format("  %2d. saat: gelir %s/sn · %d hayvan · %d yükseltme", math.floor(minute / 60), FarmMath.formatRate(income()), #save.animals, (function()
+		table.insert(reports, string.format("  %2d. saat: gelir %s/sn · depo %d sn · %d hayvan · %d yükseltme", math.floor(minute / 60), FarmMath.formatRate(income()), math.floor(FarmMath.getStorageCap(save) / math.max(income(), 1e-9)), #save.animals, (function()
 			local n = 0
 			for _ in save.purchased do n += 1 end
 			return n
@@ -283,6 +295,8 @@ def main() -> int:
     parser.add_argument("--farm", default="1", help="Çiftlik numarası (tema): 1-6")
     parser.add_argument("--cost-base", type=float, default=600, help="Deneme: bu değerin üstündeki yükseltme maliyetleri büyütülür")
     parser.add_argument("--cost-exp", type=float, default=0, help="Deneme: maliyet üssü (0 = kapalı)")
+    parser.add_argument("--collect", type=float, default=0, help="Oyuncu platforma kaç saniyede bir uğrar (0 = anında topla)")
+    parser.add_argument("--cap-mult", type=float, default=1, help="Deneme: ahır depo kapasitelerinin çarpanı")
     parser.add_argument("--price-growth", type=float, default=0, help="Deneme: ANIMAL_PRICE_GROWTH (0 = Config değeri)")
     args = parser.parse_args()
     executable = args.luau or shutil.which("luau")
@@ -304,7 +318,9 @@ def main() -> int:
         SIMULATION.replace("__HOURS__", str(args.hours)).replace("__FARM__", str(args.farm))
         .replace("__COST_BASE__", str(args.cost_base))
         .replace("__COST_EXP__", str(args.cost_exp))
-        .replace("__PRICE_GROWTH__", str(args.price_growth)),
+        .replace("__PRICE_GROWTH__", str(args.price_growth))
+        .replace("__COLLECT__", str(args.collect))
+        .replace("__CAP_MULT__", str(args.cap_mult)),
     ]
     output = ROOT / ".test-build" / "simulate.luau"
     output.parent.mkdir(parents=True, exist_ok=True)
