@@ -5,7 +5,7 @@
 local Types = require(script.Parent:WaitForChild("Types"))
 return {
 	-- Irk geliştirme (oyun sonu para harcama yolu): her hayvan türü için ayrı, çiftlik başına seviye.
-	-- Seviye n -> n+1 maliyeti = türün taban fiyatı x costMultiplier x costGrowth^n (2 anlamlı basamak).
+	-- Seviye n -> n+1 maliyeti = türün taban fiyatı x costMultiplier x costGrowth^n (3 anlamlı basamak).
 	-- Getiri doğrusal (her seviye incomePerLevel) ve diğer gelir bonuslarından ayrı çarpandır (bkz. FarmMath/Income); maliyet
 	-- üstel ama yavaş (costGrowth): her seviyenin geri dönüşü ~2 saati geçmesin (python scripts/simulate-economy.py, "Irk geri dönüş").
 	-- Eşyalar: hesap düzeyinde envanter. Slot başına bir eşya takılır; fiyatlar oyun parasıyladır (ITEMS aşağıda doldurulur).
@@ -26,10 +26,10 @@ return {
 	ITEM_ORDER = {} :: { string },
 
 	LINEAGE = {
-		maxLevel = 10,
+		maxLevel = 30,
 		incomePerLevel = 0.08,
-		costMultiplier = 50,
-		costGrowth = 1.15,
+		costMultiplier = 60,
+		costGrowth = 1.038,
 	},
 
 	-- Gelir modeli. Kimlikleri (id) Roblox Creator Hub'da ürünleri oluşturunca yaz; 0 = kapalı.

@@ -31,7 +31,7 @@ function Lineage.getLineageCost(animalId: string, level: number): number
 		return math.huge
 	end
 	local raw = animalConfig.price * lineage.costMultiplier * lineage.costGrowth ^ level
-	local step = 10 ^ (math.floor(math.log10(raw)) - 1)
+	local step = 10 ^ (math.floor(math.log10(raw)) - 2)
 	return math.floor(raw / step + 0.5) * step
 end
 
