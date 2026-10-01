@@ -42,10 +42,10 @@ return function(
 	assert(data.cash == 7, "exactly the server-computed price is spent")
 	assert(#data.animals == animalsBefore + 1, "one animal is added")
 	local starterCount = config.STARTER_ADULT_ANIMALS
-	local bought = data.animals[#data.animals]
+	local newest = data.animals[#data.animals]
 	assert(
-		bought.stage == (if animalsBefore < starterCount then "adult" else "calf")
-			and (bought.bornAt == 0) == (animalsBefore < starterCount),
+		newest.stage == (if animalsBefore < starterCount then "adult" else "calf")
+			and (newest.bornAt == 0) == (animalsBefore < starterCount),
 		"the farm's first animals are bought adult, later ones as calves"
 	)
 	assert(
