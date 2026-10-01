@@ -68,7 +68,7 @@ hatasından ayrıdır.
 
 1. Oyuncu meydanda doğar, boş bir adaya ışınlanır.
    Meydanda çeşme, bankler ve çiçeklikler vardır; satıcı NPC'ler yaklaşan oyuncuya bakar, el sallar ve kısa bir selam söyler. Tabelada adı yazar.
-2. **Ücretsiz başlangıç:** Küçük Ahır, Başlangıç Ağılı, 2 yetişkin ana ada hayvanı (temaya göre inek/tavuk/ördek), $100.
+2. **Ücretsiz başlangıç:** Küçük Ahır, Başlangıç Ağılı, hayvansız başlangıç (`Config.STARTING_COW_COUNT`); ilk hayvanı (temaya göre inek/tavuk/ördek) tam alacak başlangıç parası (`Config.getStartingCash`).
 2b. **İlk adımlar:** sol paneldeki hedef kartı yeni oyuncuyu üç adımda yönlendirir: ilk hayvanı al (Pazar düğmesi yanıp söner), parayı topla (yeşil platforma ışın çizgisi), ilk yükseltmeyi al. Durumdan türetilir; eski oyuncular atlar.
 2c. **Yapım alanları:** satın alabildiğin ama henüz almadığın binaların yeri adada kazıklı, sarı şeritli bir yapım alanı olarak görünür ve tabelasında adı ile fiyatı yazar.
    Satın alınca alan kalkar, yerine bina kurulur.
