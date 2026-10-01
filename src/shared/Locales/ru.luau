@@ -991,4 +991,5 @@ return {
 	["Tüm adaların tesislerini göster"] = "Показать объекты всех островов",
 	["Tüm adaların üretimi"] = "Производство на всех островах",
 	["Ada henüz açık değil."] = "Этот остров ещё не открыт.",
+	["Başka görevde: {}"] = "Заняты другим: {1}",
 }

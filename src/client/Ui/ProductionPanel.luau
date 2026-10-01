@@ -188,6 +188,21 @@ local function create(parent: ScreenGui): UiKit.Window
 			end
 		end)
 	end
+	-- Tarifin hayvan türünden, şu an başka bir görevde (eklenti ya da başka üretim) olan yetişkin sayısı: "boşta" sayımına girmez
+	local function busyAnimals(state: any, recipe: Config.ProductionRecipeConfig, now: number): number
+		local count = 0
+		for _, animal in state.animals do
+			local task = FarmMath.getActiveTask(animal, now)
+			if
+				task
+				and table.find(recipe.animalIds, animal.animalId)
+				and not (task.kind == "production" and task.id == recipe.id)
+			then
+				count += 1
+			end
+		end
+		return count
+	end
 	render = function()
 		if not created.isOpen() then
 			return
@@ -294,8 +309,10 @@ local function create(parent: ScreenGui): UiKit.Window
 			elseif recipe.options then
 				-- Para tesisi: başlatma ücretsiz; her parti seçeneği kendi hayvan sayısını ister ve farklı kazandırır
 				local adults = FarmMath.countProductionAdults(state, recipe, now)
+				local busy = busyAnimals(state, recipe, now)
+				local busyLine = if busy > 0 then `\nBaşka görevde: {busy}` else ""
 				card.detail.Text =
-					`{recipe.description}\nBoştaki yetişkin hayvan: {adults}\nBaşlatma ücretsiz; hayvanlar iş boyunca gelirsiz çalışır, bitince döner.`
+					`{recipe.description}\nBoştaki yetişkin hayvan: {adults}{busyLine}\nBaşlatma ücretsiz; hayvanlar iş boyunca gelirsiz çalışır, bitince döner.`
 				card.action.Visible = false
 				for optionIndex, option in recipe.options do
 					local button = entry.options[optionIndex]
@@ -320,6 +337,8 @@ local function create(parent: ScreenGui): UiKit.Window
 				end
 			else
 				local adults = FarmMath.countProductionAdults(state, recipe, now)
+				local busy = busyAnimals(state, recipe, now)
+				local busyLine = if busy > 0 then `\nBaşka görevde: {busy}` else ""
 				local bonusLine = if bonus > 0 then `\nYetişkin bonusu: +%{math.round(bonus * 100)}` else ""
 				local startCost = FarmMath.getFacilityCost(state, recipe)
 				-- Gösterilen satış, hayvanların kaçıracağı gelirin üstündeki garantili tabanı da içerir.
@@ -337,12 +356,12 @@ local function create(parent: ScreenGui): UiKit.Window
 						`{recipe.description}\n{duration} sn · {good.displayName} · +{amount}\nAhır deposu: {FarmMath.getGoodsAmount(
 							state,
 							good.id
-						)}/{FarmMath.getGoodsCap(state)}\nYetişkin hayvan: {adults}/{recipe.requiredAdults}{bonusLine}\nHayvanlar iş boyunca gelirsiz çalışır, bitince döner.`
+						)}/{FarmMath.getGoodsCap(state)}\nYetişkin hayvan: {adults}/{recipe.requiredAdults}{bonusLine}{busyLine}\nHayvanlar iş boyunca gelirsiz çalışır, bitince döner.`
 				else
 					local shownReward = FarmMath.getProductionReward(state, recipe, now, preview)
 					card.detail.Text = `{recipe.description}\n{duration} sn · Satış {FarmMath.formatMoney(
 						shownReward
-					)}\nYetişkin hayvan: {adults}/{recipe.requiredAdults}{bonusLine}\nHayvanlar iş boyunca gelirsiz çalışır, bitince döner.`
+					)}\nYetişkin hayvan: {adults}/{recipe.requiredAdults}{bonusLine}{busyLine}\nHayvanlar iş boyunca gelirsiz çalışır, bitince döner.`
 				end
 				card.action.Text = if hasSpace then `Başlat · {FarmMath.formatMoney(startCost)}` else "Depo dolu"
 				variant = if adults < recipe.requiredAdults or not hasSpace

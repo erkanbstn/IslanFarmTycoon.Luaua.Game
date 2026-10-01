@@ -289,9 +289,18 @@ function ExtensionVisualService.apply(plot: Model, save: PlayerSave?)
 		-- Durum değişmediyse yapıyı yeniden kurma: her yenilemede tabela ve balonlar silinip yeniden
 		-- oluşunca ekranda yanıp sönüyordu. Duran hayvan sayısı, kapasite ve ilk dönüş zamanı imzadadır.
 		local price = FarmMath.getUpgradeCost(save, upgrade)
-		local signature = `{islandUnlocked}|{owned}|{count}|{capacity}|{endsAt or 0}|{price}`
+		local signature = `{islandUnlocked}|{owned}|{capacity}|{price}`
 		local folder = island:FindFirstChild("ExtensionVisuals")
 		if folder and folder:GetAttribute("Signature") == signature then
+			-- Yapı aynı: yalnızca duran hayvan sayısı ve süre güncellenir (tabela ve etkileşim balonları yeniden kurulmaz)
+			local existing = folder:FindFirstChild(extensionId)
+			if existing and existing:IsA("Model") then
+				JobMarks.setExtension(existing, count, capacity, startedAt, endsAt)
+				local assign = existing:FindFirstChild("ExtensionAssignPrompt", true)
+				if assign and assign:IsA("ProximityPrompt") then
+					assign.ObjectText = `{layout.title} ({count}/{capacity})`
+				end
+			end
 			continue
 		end
 		local target = InstanceUtil.getOrCreateFolder(island, "ExtensionVisuals")

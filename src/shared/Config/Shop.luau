@@ -79,9 +79,9 @@ return {
 
 	-- Günlük giriş ödülü: 7 günlük seri; bozulursa baştan başlar. Ödül, oyuncunun o anki gelirinin
 	-- DAILY_MINUTES dakikalık karşılığı x seri çarpanıdır (en az DAILY_MIN_REWARD): geç oyunda da anlamlı kalır.
-	DAILY_REWARD_MULTIPLIERS = { 1, 1.5, 2, 3, 4, 6, 10 },
+	DAILY_REWARD_MULTIPLIERS = { 1, 1.2, 1.5, 2, 2.5, 3, 4 },
 
-	DAILY_MINUTES = 10,
+	DAILY_MINUTES = 3,
 
 	DAILY_MIN_REWARD = 250,
 
@@ -117,7 +117,7 @@ return {
 		winter = { metric = "invest", target = 6 },
 	} :: { [string]: { metric: string, factor: number?, minTarget: number?, target: number? } },
 
-	SEASONAL_REWARD_SECONDS = 120,
+	SEASONAL_REWARD_SECONDS = 90,
 
 	SEASONAL_MIN_REWARD = 150,
 }
