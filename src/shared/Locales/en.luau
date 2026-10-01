@@ -968,4 +968,10 @@ return {
 	["Hayvanları ve yatırımları ayrı gelişir; kasa ve depo ortaktır."] = "Animals and investments grow separately; cash and barn goods are shared.",
 	["Park halinde; seçince adanda açılır."] = "Parked; opens on your island when selected.",
 	["Bir çiftlik teması seç. Yeni çiftlik: {}. Satın alınca adan o çiftliğe dönüşür; önceki çiftliğin park edilir ve çalışmaya devam eder."] = "Pick a farm theme. New farm: {1}. Once bought, your island becomes that farm; your previous farm is parked and keeps working.",
+
+	-- Pasif Gelir (çevrimdışı kazanç)
+	["Pasif Gelir"] = "Passive Income",
+	["Pasif Gelir Sv.1"] = "Passive Income Lv.1",
+	["Sen yokken kazanç depoda kalmaz, doğrudan kasana yatar"] = "While you are away, earnings go straight to your cash instead of staying in storage",
+	["Sen yokken depoda {} birikti. Toplama platformundan al."] = "While you were away {1} built up in storage. Collect it at the collection pad.",
 }

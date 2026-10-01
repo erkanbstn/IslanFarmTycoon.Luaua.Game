@@ -32,6 +32,7 @@ FarmMath.applyDerived = Core.applyDerived
 FarmMath.getEquippedBonus = Core.getEquippedBonus
 FarmMath.getBonus = Core.getBonus
 FarmMath.hasPet = Core.hasPet
+FarmMath.hasOfflineIncome = Core.hasOfflineIncome
 FarmMath.getUpgradeBonus = Core.getUpgradeBonus
 FarmMath.getEquippedMultiplier = Core.getEquippedMultiplier
 FarmMath.getUpgradeCost = Core.getUpgradeCost

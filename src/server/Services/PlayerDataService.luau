@@ -31,6 +31,7 @@ type Session = {
 	leaseExpires: number,
 	offlineEarned: number,
 	offlineGrown: number, -- Çevrimdışıyken yetişkin olan hayvan sayısı (dönüş özeti)
+	offlineStored: number, -- Pasif Gelir yokken depoda biriken çevrimdışı kazanç (dönüş özeti)
 	cashStat: IntValue?,
 	saveScheduled: boolean,
 	lastBackupAt: number, -- son yedek yazma zamanı (os.time)
@@ -346,6 +347,7 @@ function PlayerDataService.load(player: Player): PlayerSave?
 		leaseExpires = 0,
 		offlineEarned = 0,
 		offlineGrown = 0,
+		offlineStored = 0,
 		cashStat = nil,
 		saveScheduled = false,
 		lastBackupAt = 0,
@@ -401,10 +403,11 @@ function PlayerDataService.load(player: Player): PlayerSave?
 	end
 	if acquired then
 		local decodeNow = DateTime.now().UnixTimestampMillis / 1000
-		local function adopt(data: any, offlineEarned: number, repairs: number?, grown: number?)
+		local function adopt(data: any, offlineEarned: number, repairs: number?, grown: number?, stored: number?)
 			session.data = data
 			session.offlineEarned = offlineEarned
 			session.offlineGrown = grown or 0
+			session.offlineStored = stored or 0
 			player:SetAttribute("SavedLanguage", data.language or "")
 			player:SetAttribute("SavedGraphics", data.graphics or "")
 			player:SetAttribute("DataRepairCount", repairs or 0)
@@ -412,10 +415,10 @@ function PlayerDataService.load(player: Player): PlayerSave?
 				warn(`[Data] ProfileNormalized user={player.UserId} repairs={repairs}`)
 			end
 		end
-		local decodeOk, data, offlineEarned, decodeProblem, repairs, grown =
+		local decodeOk, data, offlineEarned, decodeProblem, repairs, grown, offlineStored =
 			pcall(SaveCodec.decode, raw, Config, FarmMath, decodeNow, newUid)
 		if decodeOk and data then
-			adopt(data, offlineEarned, repairs, grown)
+			adopt(data, offlineEarned, repairs, grown, offlineStored)
 		else
 			problem = if decodeOk then decodeProblem else tostring(data)
 			-- Bozuk asıl kayıt: en yeni çözülebilir yedekten aç (asıl kayıt karantinaya alınır, sonraki kayıtla düzelir)
@@ -423,10 +426,10 @@ function PlayerDataService.load(player: Player): PlayerSave?
 				then recoverFromBackup(player, key, raw, decodeNow)
 				else nil
 			if backup then
-				local backupOk, backupData, backupEarned, _, backupRepairs, backupGrown =
+				local backupOk, backupData, backupEarned, _, backupRepairs, backupGrown, backupStored =
 					pcall(SaveCodec.decode, backup, Config, FarmMath, decodeNow, newUid)
 				if backupOk and backupData then
-					adopt(backupData, backupEarned, backupRepairs, backupGrown)
+					adopt(backupData, backupEarned, backupRepairs, backupGrown, backupStored)
 					session.recovered = true
 					warn(`[Data] ProfileRecovered user={player.UserId}: {problem}`)
 					problem = nil
@@ -471,14 +474,14 @@ function PlayerDataService.load(player: Player): PlayerSave?
 end
 
 -- Dönüş özeti için: çevrimdışıyken kazanılan para ve yetişkin olan hayvan sayısı (bir kez okunur)
-function PlayerDataService.takeOfflineSummary(player: Player): (number, number)
+function PlayerDataService.takeOfflineSummary(player: Player): (number, number, number)
 	local session = sessions[player]
 	if not session then
-		return 0, 0
+		return 0, 0, 0
 	end
-	local earned, grown = session.offlineEarned, session.offlineGrown
-	session.offlineEarned, session.offlineGrown = 0, 0
-	return earned, grown
+	local earned, grown, stored = session.offlineEarned, session.offlineGrown, session.offlineStored
+	session.offlineEarned, session.offlineGrown, session.offlineStored = 0, 0, 0
+	return earned, grown, stored
 end
 
 function PlayerDataService.takeOfflineEarnings(player: Player): number

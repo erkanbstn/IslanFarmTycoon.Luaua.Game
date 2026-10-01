@@ -968,4 +968,10 @@ return {
 	["Hayvanları ve yatırımları ayrı gelişir; kasa ve depo ortaktır."] = "Tiere und Investitionen entwickeln sich getrennt; Kasse und Lager sind gemeinsam.",
 	["Park halinde; seçince adanda açılır."] = "Geparkt; öffnet sich beim Auswählen auf deiner Insel.",
 	["Bir çiftlik teması seç. Yeni çiftlik: {}. Satın alınca adan o çiftliğe dönüşür; önceki çiftliğin park edilir ve çalışmaya devam eder."] = "Wähle ein Farmthema. Neue Farm: {1}. Nach dem Kauf wird deine Insel zu dieser Farm; die bisherige Farm wird geparkt und arbeitet weiter.",
+
+	-- Pasif Gelir (çevrimdışı kazanç)
+	["Pasif Gelir"] = "Passives Einkommen",
+	["Pasif Gelir Sv.1"] = "Passives Einkommen St.1",
+	["Sen yokken kazanç depoda kalmaz, doğrudan kasana yatar"] = "Solange du weg bist, fließt der Ertrag direkt in deine Kasse statt im Lager zu bleiben",
+	["Sen yokken depoda {} birikti. Toplama platformundan al."] = "Während du weg warst, sammelten sich {1} im Lager. Hol es an der Sammelplattform ab.",
 }

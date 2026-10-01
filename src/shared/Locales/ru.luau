@@ -966,4 +966,10 @@ return {
 	["Hayvanları ve yatırımları ayrı gelişir; kasa ve depo ortaktır."] = "Животные и вложения развиваются отдельно; касса и склад общие.",
 	["Park halinde; seçince adanda açılır."] = "На паузе; откроется на твоём острове при выборе.",
 	["Bir çiftlik teması seç. Yeni çiftlik: {}. Satın alınca adan o çiftliğe dönüşür; önceki çiftliğin park edilir ve çalışmaya devam eder."] = "Выбери тему фермы. Новая ферма: {1}. После покупки твой остров станет этой фермой; прежняя ферма встанет на паузу и продолжит работать.",
+
+	-- Pasif Gelir (çevrimdışı kazanç)
+	["Pasif Gelir"] = "Пассивный доход",
+	["Pasif Gelir Sv.1"] = "Пассивный доход ур.1",
+	["Sen yokken kazanç depoda kalmaz, doğrudan kasana yatar"] = "Пока тебя нет, доход идёт сразу в кассу, а не остаётся на складе",
+	["Sen yokken depoda {} birikti. Toplama platformundan al."] = "Пока тебя не было, на складе накопилось {1}. Забери на площадке сбора.",
 }

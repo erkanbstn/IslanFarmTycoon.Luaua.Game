@@ -168,3 +168,5 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
   `runPets`; elle işlem `ProductionService` ve yardımcı `PetService` aynı kuralı kullanır). `PetService` 2 sn'de bir TÜM çiftliklerde (park edilmiş dahil) çalışır; yalnızca çevrimiçi oyuncu için.
   Eylem: `RequestProductionAction("auto", tarifId, partiId|"off")`; yardımcısı olmayan çiftlikte reddedilir. Kayıtta `autoRepeat` çiftlik alanıdır; decode yardımcısı olmayan/bilinmeyen girdiyi atar.
   Elle başlatma sırasında tekrar açıksa tekrar edilen parti son elle seçilene güncellenir. Şişirilmiş çıkış yok: parti ödülü her zaman kaçırılan gelirin üstündedir (`returnMultiplier` tabanı).
+
+- **Pasif Gelir** (`offline_income_lv1`, `FarmMath.hasOfflineIncome`): alınmadıkça sen yokken yalnızca depo (`stored`) çevrimdışı oranla birikir, dolunca durur ve kasaya geçmez (`SaveCodec.decodeFarm`, dönüş özeti `Notify`). Alınınca çevrimdışı kazanç doğrudan kasaya yatar (önceki davranış). `decode` altıncı dönüş değeri depoda biriken tutardır.

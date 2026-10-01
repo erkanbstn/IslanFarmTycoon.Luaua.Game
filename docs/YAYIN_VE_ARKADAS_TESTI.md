@@ -27,3 +27,10 @@ panelinde elle yapılır; kod bunları değiştiremez.
 ## Sorun olursa
 - Çökme/kayıp şüphesi: Output'ta `[Data]` satırları (`SaveRetry`, `ProfileRecovered`, `SaveSize...`), `Diagnostics` sayaçları.
 - Bozuk kayıt yedekten açılır; bozulan kayıt `player_<id>_quarantine` anahtarında durur (silinmez).
+
+## Yayındaki oyunu güncelleme
+1. Studio'da **Rojo ile bağlan** (`rojo serve` + eklenti Connect), kod değişikliklerini senkronla.
+2. Harita/yerleşim değiştiyse (MAP_VERSION arttıysa) **Haritayı Kur → Doğrula**; kodla harita uyumsuzsa oyun yeni sürümde oyuncuyu atar.
+3. Tek başına bir deneme yap (Test), sonra **Dosya → Roblox'a Yayınla** (Publish to Roblox). Kayıt şemasındaki eski kayıtlar otomatik göç eder.
+4. Açık sunucular eski sürümle çalışmaya devam eder. Yeni sürümü hemen görmek için Yaratıcı Merkezi'nde oyunun **Server management** (Sunucu yönetimi) bölümünden **Shut down all servers** de; oyuncular yeniden girer. Kapanışta kayıtlar yazılır (`BindToClose`), ilerleme kaybolmaz.
+5. Arkadaşlarla oynarken büyük güncellemeyi, oyun boşken yap; kapanış 30 saniyeye kadar sürebilir.

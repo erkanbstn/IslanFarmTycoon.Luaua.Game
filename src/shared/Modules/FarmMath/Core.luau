@@ -89,6 +89,11 @@ function Core.getBonus(save: PlayerSave, key: string): number
 	return Core.getEquippedBonus(save, key) + Core.getUpgradeBonus(save, key)
 end
 
+-- Pasif Gelir: alınmışsa çevrimdışı kazanç doğrudan kasaya yatar; alınmamışsa yalnızca depo birikir (dolunca durur).
+function Core.hasOfflineIncome(save: PlayerSave): boolean
+	return save.purchased.offline_income_lv1 == true
+end
+
 -- Yardımcı (pet): "cash" = para fabrikaları, "goods" = ürün merkezleri; çiftlik başına satın alınır (save.purchased)
 function Core.hasPet(save: PlayerSave, kind: string): boolean
 	return save.purchased[`pet_{kind}_lv1`] == true

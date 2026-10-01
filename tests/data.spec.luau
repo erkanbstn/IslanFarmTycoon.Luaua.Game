@@ -243,6 +243,51 @@ return function(lock: any, codec: any, config: any, farmMath: any)
 	)
 	local _, _, _, _, grown = codec.decode(codec.encode(save, now - 100000), config, farmMath, now, uid)
 	assert(typeof(grown) == "number" and grown >= 0, "decode reports animals grown while away")
+	-- Pasif Gelir: yokken yalnızca depo birikir (dolunca durur); satın alınınca doğrudan kasaya yatar
+	local serial = 0
+	local function offlineUid(): string
+		serial += 1
+		return `offline-{serial}`
+	end
+	local function farmWithAnimals(): any
+		local data = assert(codec.decode(nil, config, farmMath, now, offlineUid))
+		data.stored = 0
+		data.animals = {}
+		for _ = 1, 6 do
+			table.insert(
+				data.animals,
+				{ uid = offlineUid(), animalId = "cow", zoneId = "starter", bornAt = 0, stage = "adult" }
+			)
+		end
+		data.unlockedZones.starter = true
+		return data
+	end
+	local plain = farmWithAnimals()
+	plain.purchased.offline_income_lv1 = nil
+	local plainSnap = codec.encode(plain, now)
+	local awayShort, earnedShort, _, _, _, storedShort =
+		codec.decode(plainSnap, config, farmMath, now + 600, offlineUid)
+	assert(awayShort and earnedShort == 0, "without Passive Income nothing reaches the wallet offline")
+	assert(awayShort.cash == plain.cash, "the wallet stays untouched while away")
+	assert(storedShort > 0 and awayShort.stored == storedShort, "the storage fills while away")
+	local awayLong, _, _, _, _, storedLong = codec.decode(plainSnap, config, farmMath, now + 8 * 3600, offlineUid)
+	assert(awayLong and awayLong.stored <= farmMath.getStorageCap(awayLong), "storage never exceeds its capacity")
+	assert(
+		awayLong.stored == farmMath.getStorageCap(awayLong) and awayLong.cash == plain.cash,
+		"a full storage stops and does not spill into cash"
+	)
+	assert(storedLong == awayLong.stored, "the summary reports what was stored")
+
+	local perk = farmWithAnimals()
+	perk.purchased.offline_income_lv1 = true
+	local perkSnap = codec.encode(perk, now)
+	local paid, earnedPaid, _, _, _, storedPaid = codec.decode(perkSnap, config, farmMath, now + 600, offlineUid)
+	assert(
+		paid and earnedPaid > 0 and paid.cash == perk.cash + earnedPaid,
+		"Passive Income pays offline earnings into the wallet"
+	)
+	assert(storedPaid == 0 and paid.stored == 0, "and leaves the storage empty")
+
 	print(
 		"data: lock ownership, response-loss retries, revision, migration, numeric, capacity and account guards passed"
 	)

@@ -217,6 +217,18 @@ local LEVEL_CHAINS = {
 		effect = "storage",
 		amount = 0.12,
 	},
+	-- Pasif Gelir (çevrimdışı gelir): satın alınmadıkça sen yokken yalnızca depo birikir (dolunca durur, kasaya geçmez).
+	-- Alınınca çevrimdışı kazanç doğrudan kasaya yatar. Yalnızca bir yetenek: etkisi SaveCodec/FarmMath.hasOfflineIncome.
+	{
+		id = "offline_income",
+		displayName = "Pasif Gelir",
+		description = "Sen yokken kazanç depoda kalmaz, doğrudan kasana yatar",
+		icon = "💤",
+		requires = "barn_2",
+		costs = { 2200 },
+		effect = "offline",
+		amount = 0,
+	},
 	-- Yardımcılar (pet): çiftlik başına. Para yardımcısı para fabrikalarını, ürün yardımcısı ürün merkezlerini
 	-- "otomatik tekrarla" işaretli olduğunda kendisi teslim alır ve yeniden başlatır (PetService).
 	{
@@ -271,7 +283,7 @@ for _, chain in LEVEL_CHAINS do
 			upgrade.incomeBoost = boost
 		elseif chain.effect == "storage" then
 			upgrade.storageBonus = chain.amount
-		elseif chain.effect == "pet" then
+		elseif chain.effect == "pet" or chain.effect == "offline" then
 			-- Yalnızca bir yetenek: etkisi PetService'te (FarmMath.hasPet)
 			upgrade.description = chain.description
 		else

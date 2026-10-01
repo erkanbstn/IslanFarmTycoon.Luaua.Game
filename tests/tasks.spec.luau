@@ -287,6 +287,7 @@ return function(
 		assert(animal.task == nil and animal.extensionId == nil, "finished tasks are cleared on load")
 	end
 	assert(late.production.packed_milk ~= nil, "the job itself stays until claimed")
+	stored.purchased.offline_income_lv1 = true -- Pasif Gelir: çevrimdışı kazanç kasaya yatar
 	local stayEncoded = codec.encode(stored, now)
 	stayEncoded.mainFarms["1"].lastSeen = now - 10
 	local plainEncoded = codec.encode(stored, now)

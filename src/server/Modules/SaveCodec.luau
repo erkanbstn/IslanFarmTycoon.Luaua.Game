@@ -96,7 +96,7 @@ local function decodeFarm(
 	farmMath: any,
 	now: number,
 	newUid: () -> string
-): (any?, number, string?, number?, number?)
+): (any?, number, string?, number?, number?, number?)
 	local problem = SessionLock.validate(raw)
 	if problem then
 		return nil, 0, problem
@@ -377,10 +377,19 @@ local function decodeFarm(
 	end
 	save.stored = math.min(save.stored, farmMath.getStorageCap(save))
 	local offlineEarned = 0
+	local offlineStored = 0
 	local grown = 0
 	if SessionLock.isFinite(source.lastSeen) and source.lastSeen >= 0 and source.lastSeen <= now then
-		offlineEarned = farmMath.computeOfflineEarnings(save, source.lastSeen, now)
-		save.cash = math.min(MAX_MONEY, save.cash + offlineEarned)
+		local potential = farmMath.computeOfflineEarnings(save, source.lastSeen, now)
+		if farmMath.hasOfflineIncome(save) then
+			-- Pasif Gelir alınmış: kazanç doğrudan kasaya yatar
+			offlineEarned = potential
+			save.cash = math.min(MAX_MONEY, save.cash + offlineEarned)
+		else
+			-- Varsayılan: yalnızca depo birikir, dolunca durur; kasaya geçmez (toplama platformundan alınır)
+			offlineStored = math.min(potential, math.max(0, farmMath.getStorageCap(save) - save.stored))
+			save.stored += offlineStored
+		end
 		-- Sen yokken yetişkin olan hayvanlar (dönüş özeti için)
 		for _, animal in save.animals do
 			if
@@ -406,7 +415,7 @@ local function decodeFarm(
 		end
 	end
 	save.farmId = nil
-	return save, offlineEarned, nil, repairs, grown
+	return save, offlineEarned, nil, repairs, grown, offlineStored
 end
 
 local function encodeFarm(save: any, now: number): { [string]: any }
@@ -478,26 +487,26 @@ function SaveCodec.decode(
 	farmMath: any,
 	now: number,
 	newUid: () -> string
-): (any?, number, string?, number?, number?)
+): (any?, number, string?, number?, number?, number?)
 	local problem = SessionLock.validate(raw)
 	if problem then
 		return nil, 0, problem
 	end
 	local source: any = if typeof(raw) == "table" then raw else {}
 	if source.version ~= 4 and source.mainFarms == nil then
-		local data, earned, err, repairs, grown = decodeFarm(raw, config, farmMath, now, newUid)
+		local data, earned, err, repairs, grown, storedOffline = decodeFarm(raw, config, farmMath, now, newUid)
 		if data then
 			FarmProfiles.ensure(data)
 			-- Yeni ya da eski tek çiftlikli kayıtlar boş envanterle başlar
 			data.inventory = data.inventory or { items = {}, equipped = {}, uses = {} }
 		end
-		return data, earned, err, repairs, grown
+		return data, earned, err, repairs, grown, storedOffline
 	end
 	if typeof(source.mainFarms) ~= "table" or typeof(source.activeMainFarmId) ~= "string" then
 		return nil, 0, "Çiftlik kayıtları geçersiz; orijinal kayıt korunuyor"
 	end
 	local farms = {}
-	local count, earnedTotal, repairTotal, refundedTotal, grownTotal = 0, 0, 0, 0, 0
+	local count, earnedTotal, repairTotal, refundedTotal, grownTotal, storedTotal = 0, 0, 0, 0, 0, 0
 	-- Eski kayıtlarda depo ve sipariş çiftlik içindeydi: hepsi toplanıp hesap düzeyine taşınır
 	local legacyGoods: { [string]: number } = {}
 	local legacyContracts: any = nil
@@ -518,7 +527,7 @@ function SaveCodec.decode(
 		local farmInput = table.clone(rawFarm)
 		farmInput.farmId = id
 		farmInput.cash = 0 -- Cüzdan sadece kök kayıttan gelir; taşıma iadeleri ayrıca eklenir.
-		local farm, earned, err, repairs, grown = decodeFarm(farmInput, config, farmMath, now, newUid)
+		local farm, earned, err, repairs, grown, storedOffline = decodeFarm(farmInput, config, farmMath, now, newUid)
 		if not farm then
 			return nil, 0, err
 		end
@@ -531,6 +540,7 @@ function SaveCodec.decode(
 		farms[id] = FarmProfiles.extract(farm)
 		refundedTotal += farm.cash
 		earnedTotal += earned
+		storedTotal += storedOffline or 0
 		repairTotal += repairs or 0
 		grownTotal += grown or 0
 	end
@@ -700,7 +710,7 @@ function SaveCodec.decode(
 		end
 	end
 	data.receipts = receipts
-	return data, earnedTotal, nil, repairTotal, grownTotal
+	return data, earnedTotal, nil, repairTotal, grownTotal, storedTotal
 end
 
 local function encodeGoods(goods: any): { [string]: number }
