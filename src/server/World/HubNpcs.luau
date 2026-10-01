@@ -4,10 +4,9 @@
 -- Haritaya kaydedilir (MapBuilder çağırır). Yerel çerçeve: -Z ön, taban zemin yüzeyinde.
 
 local CollectionService = game:GetService("CollectionService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
--- Studio harita eklentisi modülleri kopyalayıp çalıştırır; o durumda yanımızdaki "Shared" kullanılır.
-local Shared = script.Parent.Parent:FindFirstChild("Shared") or ReplicatedStorage:WaitForChild("Shared")
+-- Studio harita eklentisi modülleri kopyalayıp çalıştırır; Shared araması SharedRef'te (kopyadaki Shared'ı bulur).
+local Shared = require(script.Parent:WaitForChild("SharedRef")) :: typeof(game.ReplicatedStorage.Shared)
 local WorldUi = require(Shared:WaitForChild("WorldUi"))
 
 local HubNpcs = {}

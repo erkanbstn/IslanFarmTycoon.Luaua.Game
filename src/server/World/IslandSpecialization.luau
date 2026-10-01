@@ -1,8 +1,7 @@
 --!strict
 -- Mevcut dört adanın boş kenarlarını uzmanlaştırır; hayvan bölgelerine ve köprü girişlerine dokunmaz.
 -- Parçalar: IslandLayout (veri), IslandSiteParts (yapı taşları), IslandSiteBuilders (ada yapıları).
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Shared = script.Parent.Parent:FindFirstChild("Shared") or ReplicatedStorage:WaitForChild("Shared")
+local Shared = require(script.Parent:WaitForChild("SharedRef")) :: typeof(game.ReplicatedStorage.Shared)
 local WorldUi = require(Shared:WaitForChild("WorldUi"))
 local IslandLayout = require(script.Parent:WaitForChild("IslandLayout"))
 local IslandSiteParts = require(script.Parent:WaitForChild("IslandSiteParts"))

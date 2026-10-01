@@ -81,8 +81,9 @@ Yeni dosya eklerken `docs/MIMARI.md`'deki "Yeni şey nereye?" tablosuna bak.
   "Haritayı Kur" butonuyla düzenleme modunda kurulup place'e kaydedilir.
 - Meydandaki satıcı NPC'ler `HubNpcs.luau`, genel ada yapıları `HomeBuildings.luau`. Tabelalar uzun direklere asılır, tahtası çarpışmaz
   (yol kapanmasın); dekor kurulumunun sonunda `WorldDecor.optimize` çağrılır.
-- Düzen değişince `MAP_VERSION`'ı artır. MapBuilder ve BarnVisualService `Shared`'ı
-  `script.Parent.Parent` üzerinden de arar (eklenti modülleri kopyalayıp çalıştırıyor) — bunu bozma.
+- Düzen değişince `MAP_VERSION`'ı artır. `World` dosyaları `Shared`'ı yalnızca
+  `World/SharedRef.luau` üzerinden alır (eklenti modülleri kopyalayıp çalıştırır; kopyadaki `Shared`'ı o bulur) — bunu bozma;
+  `World` yalnızca `World`/`Shared` require eder (`check-architecture.py` denetler).
 - Gece ışığı: parça `NightLight`/`NightWindow` etiketi + `NightColor` + kapalı `PointLight` alır
  (`WorldDecor.lamp` / `smallLamp` / `markNightWindow`). Gece/gündüz Lighting değerlerini yalnızca
  `DayNight.client` yazar; `WeatherEffects` pozlamayı `Lighting.WeatherExposure` özniteliğiyle bildirir.

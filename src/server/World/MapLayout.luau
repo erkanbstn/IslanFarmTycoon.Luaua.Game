@@ -2,10 +2,8 @@
 -- Harita düzeni: boyutlar, bölge/yapı yerleşimleri ve küçük ada ile ana ada yerleşim hesapları.
 -- Buradaki değer değişirse `MapBuilder` içindeki MAP_VERSION artırılır (bkz. docs/MIMARI.md, world-map kuralı).
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
--- Studio plugin'i modülleri kopyalayıp taze Config ile çalıştırır; o durumda yanımızdaki "Shared" kullanılır.
-local Shared = script.Parent.Parent:FindFirstChild("Shared") or ReplicatedStorage:WaitForChild("Shared")
+-- Studio plugin'i modülleri kopyalayıp taze Config ile çalıştırır; Shared araması SharedRef'te (kopyadaki Shared'ı bulur).
+local Shared = require(script.Parent:WaitForChild("SharedRef")) :: typeof(game.ReplicatedStorage.Shared)
 local Config = require(Shared:WaitForChild("Config"))
 
 local SURFACE_Y = 4 -- Ada ve meydan yüzeyinin yüksekliği

@@ -14,7 +14,7 @@ description: Changes the generated island map, decor, lamps or build spots in Ma
 
 ## Adımlar
 ```
-- [ ] 1. Değişikliği yap (Shared'ı script.Parent.Parent üzerinden arayan yedeği koru)
+- [ ] 1. Değişikliği yap (Shared'ı `World/SharedRef` üzerinden al; World yalnızca World/Shared require eder)
 - [ ] 2. MAP_VERSION +1 (yalnızca place'e kaydedilen değişiklikte)
 - [ ] 3. Yeni zorunlu parça → MapBuilder.validate() + tests/world.spec.luau / tests/map-structure.spec.luau
 - [ ] 3a. Yeni avlu/dekor parçası: `WorldDecor` yardımcısı (çarpışmaz), yer `decorateHome` koordinatlarına/çim kaçınma listesine göre; yön tabelalarında `yaw` ve metin çevirisi
