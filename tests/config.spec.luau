@@ -323,6 +323,24 @@ return function(Config: any, FarmMath: any)
 			end
 		end
 		assert(withGoods >= 8, "several unlocks ask goods")
+		-- Çiftlik 1'de ürün yükü paranın yanında küçük kalır (referans tempo korunur): tüm açılışların ürün değeri para fiyatlarının %15'inden az
+		for themeIndex = 1, #Config.THEMES do
+			local reference =
+				{ tier = 1, farmId = tostring(themeIndex), activeMainFarmId = tostring(themeIndex), purchased = {} }
+			local moneyTotal, goodsTotal = 0, 0
+			for _, upgrade in Config.UPGRADES do
+				if upgrade.goodsCost and Config.upgradeInTheme(upgrade, reference.farmId) then
+					moneyTotal += FarmMath.getUpgradeCost(reference, upgrade)
+					for goodsId, amount in FarmMath.getGoodsCost(reference, upgrade) do
+						goodsTotal += amount * Config.GOODS[goodsId].value
+					end
+				end
+			end
+			assert(
+				goodsTotal < moneyTotal * 0.15,
+				`farm 1 style tier in theme {themeIndex}: goods stay a small extra cost`
+			)
+		end
 		assert(
 			Config.GOODS_BARTER.rate <= Config.GOODS_SELL.rate,
 			"bartering never beats selling the goods (no sell-then-buy arbitrage)"

@@ -111,7 +111,6 @@ return {
 			cost = 1800,
 			requires = { "barn_2" },
 			kind = "barn",
-			goodsCost = { step = 2, shares = { home = 0.06 } },
 			barnLevel = 3,
 		},
 		{
@@ -174,7 +173,6 @@ return {
 			cost = 4600,
 			requires = { "barn_3" },
 			kind = "barn",
-			goodsCost = { step = 3, shares = { home = 0.03, slot1 = 0.03, slot2 = 0.03 } },
 			barnLevel = 4,
 		},
 		{

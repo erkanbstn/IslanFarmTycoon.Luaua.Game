@@ -4,8 +4,8 @@
 -- Fiyat tek bir hesaptan çıkar (`FarmMath.getPrice`): fiyat = taban fiyat x çiftlik çarpanı x ada sırası çarpanı x n. alım eğrisi.
 --   - Taban fiyat: Çiftlik 1'in (referans çiftliğin) yazılı fiyatı; `Config/Upgrades`, `Animals`, `Production`, `Core.MAIN_FARM_PRICES`.
 --     Taban = temel gelir hızı x hedef süre ile bulunur; hedefler 1. çiftlikte ideal oyuncu: ilk ada ~15 dk, at ~45, keçi ~110, tüm yükseltmeler ~240-300 dk.
---   - Çiftlik çarpanı (`tiers[n].costMultiplier`): n. çiftlik (alım sırası = `save.tier`) o çiftlik için tek başına oynayan ideal oyuncunun tüm
---     yükseltmeleri `tiers[n].targetMinutes` dakikada bitirmesi için `scripts/simulate-economy.py --tier n` ile ayarlanır (aşağıdaki gerekçe).
+--   - Çiftlik çarpanı (`tiers[n].costMultiplier`): n. çiftlik (alım sırası = `save.tier`); çok çiftlikli ideal oyuncunun o çiftliğin tüm yükseltmelerini
+--     satın almadan sonra `tiers[n].targetMinutes` dakikada bitirmesi için `scripts/simulate-tiers.py` ile ayarlanır (aşağıdaki gerekçe).
 --   - Ada sırası çarpanı (`slotSpread`): temanın erken/orta/geç adası (THEMES.satellites sırası, ana ada = 1) çiftlik ilerledikçe daha pahalı olur;
 --     Çiftlik 1'de etkisi yoktur (korunan tempo).
 --   - n. alım eğrisi: hayvan `ANIMAL_PRICE_GROWTH + animalGrowthPerTier x (tier - 1)` ^ sahip olunan; yapı geliştirme `BUILD_UPGRADES.costGrowth`;
@@ -17,12 +17,14 @@
 local Types = require(script.Parent:WaitForChild("Types"))
 
 local REFERENCE_MINUTES = 276
-local TIME_GROWTH = 1.6
+local TIME_GROWTH = 1.5
 
--- Hedef süre: Çiftlik n tek başına (park edilmiş gelir olmadan) ideal oyuncuyla REFERENCE_MINUTES x TIME_GROWTH^(n-1) dakikada biter.
--- 1,6 katı: her çiftlik bir öncekinden belirgin uzun (1,5-2 kat aralığı) ama 6. çiftlik (~48 sa ideal) birkaç hafta casual oyunda biter.
--- costMultipliers sim ile bu hedeflere ayarlanır (maliyet ile süre doğrusal değil: gelir birikerek büyüdüğü için).
-local COST_MULTIPLIERS = { 1, 7, 13, 19, 25, 31 }
+-- Hedef süre (ideal oyuncu): Çiftlik n, satın alındıktan sonra tüm yükseltmelerini REFERENCE_MINUTES x TIME_GROWTH^(n-1) dakikada bitirir (çok çiftlikli oyuncu önceki
+-- çiftliklerini bitirip sıradakini alır; park edilmiş çiftliklerin geliri dahildir). 1,5 katı (1,5-2 kat aralığının alt ucu): her çiftlik bir öncekinden belirgin uzun,
+-- ama 6. çiftlik (~35 sa ideal, hepsi ~96 sa) casual oyunda haftalar içinde biter.
+-- costMultipliers bu hedeflere `python scripts/simulate-tiers.py` / `simulate-economy.py --farms 6 --finish-first --mults ...` ile ayarlanır; maliyet ile süre doğrusal değildir
+-- (park edilmiş çiftlik geliri ve birikim): çarpan kademe başına ~2x büyür (1, 6.6, 17.6, 34.8, 62.7, 107.5).
+local COST_MULTIPLIERS = { 1, 6.6, 17.6, 34.8, 62.7, 107.5 }
 
 local tiers: { Types.DifficultyTier } = {}
 for tier, multiplier in COST_MULTIPLIERS do
@@ -39,13 +41,13 @@ return {
 		timeGrowth = TIME_GROWTH,
 		tiers = tiers,
 		-- Ada sırası çarpanı: 1 + slotSpread x (tier - 1) x (sıra - 1); sıra: ana ada ve erken ada = 1, orta = 2, geç = 3
-		slotSpread = 0,
+		slotSpread = 0.1,
 		-- n. alım eğrisi: hayvan fiyat artışına çiftlik başına eklenen pay
-		animalGrowthPerTier = 0,
+		animalGrowthPerTier = 0.005,
 		-- Açılışlar para yanında ürün de ister (`Upgrades.luau` goodsCost; miktar: FarmMath.getGoodsCost): değer payı x adım x kademe / ürün değeri.
 		-- Çiftlik 1'in erken adımı ürün istemez (öğretici); ürün her zaman önceki adaların/ana hayvanın ürünlerinden seçilir ve ahır kapasitesine sığar.
 		goods = {
-			stepBase = { 1, 1.5, 2 },
+			stepBase = { 1, 1, 1.25 },
 			tierGrowth = 0.5,
 			tutorialFree = true,
 			capShare = 0.5,

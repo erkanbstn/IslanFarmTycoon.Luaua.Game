@@ -392,8 +392,23 @@ local function bestOption(farm: any, recipe: any): string?
 	return bestId
 end
 
-local function productionTick()
+local neededGoods: () -> { [string]: boolean }
+
+-- Oyuncu önce açılış için gereken ürünü üretir (boştaki yetişkinler önce o merkezlere gider), sonra kalan tesisleri çalıştırır
+local function productionOrder(): { string }
+	local needed = neededGoods()
+	local first: { string } = {}
+	local rest: { string } = {}
 	for _, recipeId in Config.PRODUCTION_ORDER do
+		local recipe = Config.PRODUCTION_RECIPES[recipeId]
+		table.insert(if recipe.output == "goods" and recipe.goodsId and needed[recipe.goodsId] then first else rest, recipeId)
+	end
+	table.move(rest, 1, #rest, #first + 1, first)
+	return first
+end
+
+local function productionTick()
+	for _, recipeId in productionOrder() do
 		local recipe = Config.PRODUCTION_RECIPES[recipeId]
 		local kind = ProductionLogic.petKind(recipe, FarmMath) -- kuluçka (chicken) simüle edilmez
 		if not kind or not recipeBuilt(save, recipe) then
@@ -425,7 +440,7 @@ local function productionTick()
 end
 
 -- Ürün gereksinimi: parası yetse de ürünü eksik açılışların ihtiyaç duyduğu ürünler. Ideal oyuncu yalnızca bunları üretir (talebe göre üretim).
-local function neededGoods(): { [string]: boolean }
+function neededGoods(): { [string]: boolean }
 	local needed: { [string]: boolean } = {}
 	for _, upgrade in Config.UPGRADES do
 		if inTheme(upgrade) and upgrade.goodsCost and FarmMath.getUpgradeStatus(save, upgrade.id) == "available" then
@@ -435,6 +450,19 @@ local function neededGoods(): { [string]: boolean }
 		end
 	end
 	return needed
+end
+
+-- Oyuncu açılış için biriktirdiği ürünü siparişe/satışa harcamaz: alınabilir açılışların gerektirdiği ürün miktarı rezerve edilir
+local function reservedGoods(): { [string]: number }
+	local reserved: { [string]: number } = {}
+	for _, upgrade in Config.UPGRADES do
+		if inTheme(upgrade) and upgrade.goodsCost and FarmMath.getUpgradeStatus(save, upgrade.id) == "available" then
+			for goodsId, amount in FarmMath.getGoodsCost(save, upgrade) do
+				reserved[goodsId] = math.max(reserved[goodsId] or 0, amount)
+			end
+		end
+	end
+	return reserved
 end
 
 local function goodsTick()
@@ -504,8 +532,15 @@ end
 
 -- Siparişler: bu pencerenin teklifleri arasından depodaki ürünlerle karşılanabilenleri teslim et
 local function ordersTick()
+	local reserve = reservedGoods()
 	for _, offer in FarmMath.getContractOffers(save, now, 0) do
-		if not FarmMath.isContractDone(save, offer) and FarmMath.canFulfillContract(save, offer) then
+		local keepsReserve = true
+		for _, line in offer.lines do
+			if FarmMath.getGoodsAmount(save, line.goodsId) - line.amount < (reserve[line.goodsId] or 0) then
+				keepsReserve = false
+			end
+		end
+		if keepsReserve and not FarmMath.isContractDone(save, offer) and FarmMath.canFulfillContract(save, offer) then
 			local reward = FarmMath.fulfillContract(save, offer.key, now, 0)
 			if reward then
 				for _, line in offer.lines do
@@ -526,7 +561,7 @@ local function sellTick()
 	end
 	local cap = FarmMath.getGoodsCap(save)
 	for _, goodsId in FarmMath.getContractGoods(save) do
-		if FarmMath.getGoodsAmount(save, goodsId) >= cap * S.sellAbove then
+		if FarmMath.getGoodsAmount(save, goodsId) >= cap * S.sellAbove and FarmMath.getGoodsAmount(save, goodsId) / 2 >= (reservedGoods()[goodsId] or 0) then
 			local cash, amount = FarmMath.sellGoods(save, goodsId, "half")
 			if cash and amount then
 				gstat(goodsId).sold += amount
