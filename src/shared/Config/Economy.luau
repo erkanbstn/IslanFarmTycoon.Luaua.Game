@@ -26,6 +26,11 @@ return {
 
 	ANIMAL_PRICE_GROWTH = 1.18,
 
+	-- Çiftlik numarası (alım sırası, save.tier) arttıkça yükseltme, hayvan ve yapı geliştirme fiyatları 1 + STEP x (tier - 1)
+	-- katına çıkar: 1. çiftlik x1, 2. çiftlik x(1 + STEP)... Park edilmiş çiftlikler 1. çiftliğin gelirini kasaya akıttığı için
+	-- sonraki çiftlik "saniyeler" değil, anlamlı bir süre alsın diye STEP büyüktür (scripts/simulate-economy.py --farms 2 ile ayarla).
+	FARM_COST_STEP = 8,
+
 	ANIMAL_SELL_FRACTION = 0.5, -- Hayvan satınca, son alınan hayvanın fiyatının bu kadarı geri gelir (kazanç sayılmaz)
 
 	-- Yükseltme maliyet eğrisi: yazılı fiyatlar taban fiyattır; BASE üstündekiler (fiyat/BASE)^EXPONENT ile büyütülür

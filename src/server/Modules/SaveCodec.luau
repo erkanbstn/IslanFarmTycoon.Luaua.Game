@@ -125,6 +125,10 @@ local function decodeFarm(
 		production = {},
 		autoRepeat = {},
 		farmId = if typeof(source.farmId) == "string" then source.farmId else "1",
+		-- Çiftlik alım sırası (fiyat çarpanı); yoksa ya da bozuksa 1
+		tier = if SessionLock.isFinite(source.tier)
+			then math.clamp(math.floor(source.tier), 1, config.MAIN_FARM_LIMIT)
+			else 1,
 	}
 	if source.cash ~= nil and save.cash ~= source.cash then
 		repairs += 1
@@ -455,6 +459,7 @@ local function encodeFarm(save: any, now: number): { [string]: any }
 	end
 	return {
 		version = 3,
+		tier = save.tier,
 		production = production,
 		autoRepeat = autoRepeat,
 		lineage = lineage,
@@ -468,9 +473,19 @@ local function encodeFarm(save: any, now: number): { [string]: any }
 end
 
 -- farmId: çiftlik numarası; başlangıç hayvanı temanın ana ada hayvanı olur
-function SaveCodec.newFarm(config: any, farmMath: any, now: number, newUid: () -> string, farmId: string?): any
-	local farm =
-		assert(decodeFarm({ farmId = farmId }, config, farmMath, now, newUid), "New farm initialization failed")
+-- tier: alım sırası (1 = ilk çiftlik); fiyat çarpanını belirler
+function SaveCodec.newFarm(
+	config: any,
+	farmMath: any,
+	now: number,
+	newUid: () -> string,
+	farmId: string?,
+	tier: number?
+): any
+	local farm = assert(
+		decodeFarm({ farmId = farmId, tier = tier }, config, farmMath, now, newUid),
+		"New farm initialization failed"
+	)
 	return FarmProfiles.extract(farm)
 end
 
@@ -503,6 +518,20 @@ function SaveCodec.decode(
 	-- Eski kayıtlarda depo ve sipariş çiftlik içindeydi: hepsi toplanıp hesap düzeyine taşınır
 	local legacyGoods: { [string]: number } = {}
 	local legacyContracts: any = nil
+	-- Eski kayıtlarda alım sırası yoktu: numara sırasına göre atanır (1, 2, 3...)
+	local legacyTier: { [string]: number } = {}
+	do
+		local legacyIds = {}
+		for id in source.mainFarms do
+			table.insert(legacyIds, id)
+		end
+		table.sort(legacyIds, function(a: any, b: any): boolean
+			return (tonumber(a) or 0) < (tonumber(b) or 0)
+		end)
+		for rank, id in legacyIds do
+			legacyTier[id] = rank
+		end
+	end
 	for id, rawFarm in source.mainFarms do
 		count += 1
 		local numberId = if typeof(id) == "string" then tonumber(id) else nil
@@ -519,6 +548,9 @@ function SaveCodec.decode(
 		end
 		local farmInput = table.clone(rawFarm)
 		farmInput.farmId = id
+		if farmInput.tier == nil then
+			farmInput.tier = legacyTier[id]
+		end
 		farmInput.cash = 0 -- Cüzdan sadece kök kayıttan gelir; taşıma iadeleri ayrıca eklenir.
 		local farm, earned, err, repairs, grown = decodeFarm(farmInput, config, farmMath, now, newUid)
 		if not farm then

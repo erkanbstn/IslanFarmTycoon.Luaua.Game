@@ -74,6 +74,22 @@ return function(lock: any, codec: any, config: any, farmMath: any)
 	local encoded = codec.encode(normalized, now)
 	local second = assert(codec.decode(encoded, config, farmMath, now, uid))
 	assert(second.cash == normalized.cash and #second.animals == #normalized.animals, "migration must be idempotent")
+	assert(normalized.tier == 1 and second.tier == 1, "single-farm saves are tier 1")
+	-- Çiftlik alım sırası (tier): kayıtla gidip gelir; eski çok çiftlikli kayıtta numara sırasına göre atanır; bozuk değer 1'e iner
+	do
+		local farms = codec.encode(save, now)
+		farms.mainFarms["3"] = table.clone(farms.mainFarms["1"])
+		farms.mainFarms["3"].tier = 2
+		farms.mainFarms["5"] = table.clone(farms.mainFarms["1"])
+		farms.mainFarms["5"].tier = nil
+		local loaded = assert(codec.decode(farms, config, farmMath, now, uid))
+		assert(loaded.mainFarms["3"].tier == 2, "saved tier must load")
+		assert(loaded.mainFarms["5"].tier == 3, "missing tier is assigned by farm number order")
+		assert(codec.encode(loaded, now).mainFarms["3"].tier == 2, "tier must survive saves")
+		farms.mainFarms["3"].tier = 0 / 0
+		local broken = assert(codec.decode(farms, config, farmMath, now, uid))
+		assert(broken.mainFarms["3"].tier == 1, "non-finite tier falls back to 1")
+	end
 	assert(codec.decode({ version = 999 }, config, farmMath, now, uid) == nil, "future save schema must fail closed")
 	assert(
 		codec.decode({ version = 2, animals = { { animalId = "removed-species" } } }, config, farmMath, now, uid) == nil,

@@ -36,6 +36,7 @@ FarmMath.hasOfflineIncome = Core.hasOfflineIncome
 FarmMath.getUpgradeBonus = Core.getUpgradeBonus
 FarmMath.getEquippedMultiplier = Core.getEquippedMultiplier
 FarmMath.getUpgradeCost = Core.getUpgradeCost
+FarmMath.getFarmCostMultiplier = Core.getFarmCostMultiplier
 FarmMath.hasAutoCollect = Core.hasAutoCollect
 FarmMath.getStage = Core.getStage
 FarmMath.getBarnConfig = Core.getBarnConfig

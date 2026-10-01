@@ -687,5 +687,29 @@ return function(FarmMath: any, Config: any, Environment: any)
 		"items add to island perks"
 	)
 	assert(FarmMath.getBonus(perks, "sellBonus") > 0.15, "the diamond hammer adds sell bonus on top of the island")
+	-- Çiftlik numarası (alım sırası) fiyat çarpanı: tier 1 = x1, sonrası 1 + FARM_COST_STEP x (tier-1)
+	do
+		local first, second = saveAt(start), saveAt(start)
+		second.tier = 2
+		local upgrade = Config.getUpgrade("barn_2") or Config.UPGRADES[1]
+		local mult = 1 + Config.FARM_COST_STEP
+		assert(FarmMath.getFarmCostMultiplier(first) == 1, "farms without tier cost x1")
+		assert(
+			FarmMath.getUpgradeCost(second, upgrade) == FarmMath.getUpgradeCost(first, upgrade) * mult,
+			"tier 2 upgrade"
+		)
+		-- Hayvan fiyatları tam sayıya yuvarlandığı için çarpan en çok 1 yuvarlama payıyla tutar
+		local function nearMultiple(actual: number, base: number)
+			assert(math.abs(actual - base * mult) <= mult, `Beklenen ~{base * mult}, sonuç {actual}`)
+		end
+		nearMultiple(FarmMath.getAnimalPrice(second, "cow"), FarmMath.getAnimalPrice(first, "cow"))
+		nearMultiple(FarmMath.getSellPrice(second, "cow"), FarmMath.getSellPrice(first, "cow"))
+		assert(
+			FarmMath.getExpansionCost(second, "starter") > FarmMath.getExpansionCost(first, "starter"),
+			"tier 2 expansion costs more"
+		)
+		second.tier = 3
+		assert(FarmMath.getFarmCostMultiplier(second) == 1 + 2 * Config.FARM_COST_STEP, "multiplier grows per farm")
+	end
 	print("PASS economy: growth boundaries, integrated offline/elapsed income, cap, growth upgrade, fish pricing")
 end
