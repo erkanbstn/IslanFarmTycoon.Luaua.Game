@@ -1,6 +1,6 @@
 ---
 description: Client görsel/efekt scriptlerinde kare başı maliyet ve streaming kuralları
-globs: src/client/**/*.client.luau,src/client/Effects/SeasonalScenery.luau,src/client/Effects/WeatherPrecip.luau
+globs: src/client/**/*.client.luau,src/client/Ui/Hud/MerchantBadge.luau,src/client/Effects/SeasonalScenery.luau,src/client/Effects/WeatherPrecip.luau
 alwaysApply: false
 ---
 
@@ -43,7 +43,10 @@ alwaysApply: false
 - **Açılış yükü**: süs efektleri (kuş, balık, deniz dibi, kıyı buzu) kurulmadan önce `Core/StartupGate.wait(saniye)` çağırır: yükleme ekranı kalkınca (`LoadingDone`) her efekt kendi gecikmesiyle sırayla başlar (tek karede yığılmasın).
   Yükleme ekranı kalkmadan önce gün-gece ışığının (`Lighting.DayNightReady`) ve `game:IsLoaded()`'ın kurulmasını sınırlı süre bekler; `DayNight` ilk güncellemede ışıkları geçişsiz doğru duruma oturtur.
 
-- Yardımcı (pet) canlandırması `Effects/PetAnimator.client`: sunucu yalnızca plot özniteliği yazar (`PetJob_<tür>_<ada>`, `PetCycle_<tür>_<ada>`; `PetService` içinde); yürüyüş, taşınan öğeler ve köprü rotası istemcidedir. `EffectsQuality = low` ve çok uzak mesafede yürütülmez (ışınlanır), uzaktaki yardımcının bekleme animasyonu çalışmaz (uyku), `ReducedMotion` zıplamayı keser.
+- Yardımcı (pet) canlandırması `Effects/PetAnimator.client`: sunucu yalnızca plot özniteliği yazar (`PetJob_<tür>_<ada>`, `PetCycle_<tür>_<ada>`; `PetService` içinde); yürüyüş, taşınan öğeler ve köprü rotası istemcidedir. Hareket hesabı saf `shared/Modules/PetMotion`'dadır: kalite yalnızca pahalı işi (bacak/zıplama, sallanma) ve güncelleme sıklığını keser, konum her kalitede akıcı ilerler; ışınlanma yalnızca çok uzakta (`PetMotion.teleports`). Uzaktaki yardımcının bekleme animasyonu çalışmaz (uyku), `ReducedMotion` zıplamayı keser.
+
+- Mevsim/hava oku `Effects/SeasonSignal.client`: sinyal `FarmMath.getSeasonEffect` ile (Mevsim çubuğuyla aynı hesap), olay tabanlıdır (mevsim/hava/hayvan listesi değişince); zamanlayıcı yalnızca mesafe seçer. Kameraya yakın en çok N hayvanda küçük BillboardGui havuzu (`QUALITY`), düşükte aura yok, `ReducedMotion`'da nabız yok; hayvan başına yeni gui açma.
+- Tüccar rozeti `Ui/Hud/MerchantBadge`: teklifi `Merchant.status` + `Merchant.advance` ile okur; saniyelik geri sayım yalnızca rozet görünürken çalışır.
 
 - Yağış (`Effects/WeatherPrecip`) üç halkadır: yakın (kameraya yakın küçük hacim, çatı denetimli), orta ve uzak (kameranın XZ'sinde, harita üstünde ince levhadan yağar; taneler yere inene kadar yaşar, tane boyutu uzaklıkla büyür). Bütün haritada yağış görünür; sayı `QUALITY` tablosundan, düşük kalitede uzak halka yoktur. Yeni yağış katmanı eklersen aynı halka düzenini kullan.
 

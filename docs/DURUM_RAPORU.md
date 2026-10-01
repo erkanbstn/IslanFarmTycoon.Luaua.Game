@@ -1,4 +1,4 @@
-# Island Farm Tycoon — Durum Raporu (güncel: 2026-10-01, ikinci tur sonrası)
+# Island Farm Tycoon — Durum Raporu (güncel: 2026-10-01, geri bildirim turu sonrası)
 
 Kaynak: 1 Ekim 2026 proje analizi (metni silindi: `git show b15e796:docs/ANALIZ_RAPORU.md`); bulgu numaraları ona göre. Bu rapor kodla hedefli
 karşılaştırma ve `verify.ps1 -RequireTypes` / `simulate-economy.py` çıktılarıyla hazırlandı; Studio çalıştırılmadı. İkinci turda (güvenlik paketi,
@@ -91,6 +91,18 @@ Durum: Çözüldü / Kısmen / Açık / Bilerek ertelendi. Kanıt: commit ya da 
 | 8.2 Para kazanma | Kısmen | Tasma kalktı (4.1-4.3) | Kimlikler 0; anında üretimin kalan süreyle fiyatlanması doğrulanmadı; K2 |
 | 8.3 Etik/çocuk güvenliği | Açık | — | Anket kullanıcı işi |
 
+### Oyun geri bildirimi (7 madde, dal `fix/oyun-geri-bildirimi`)
+
+| # | Madde | Durum | Kanıt | Not |
+|---|---|---|---|---|
+| G1 | Gece çok karanlık, ışıklar tutarsız | Yapıldı (Studio'da görülmedi) | `9d7b3a7`, `afe46e1` | `Environment.NIGHT_CURVE` (şafak erken), ışık rampası gökyüzüne bağlı, orta kalitede histerezisli ışık bütçesi, düşükte `NightHalo` |
+| G2 | Sipariş, toplu satış, takas, doluluk uyarısı | Yapıldı | `a62c240`, `d3ca1f8`, `06f1d2a`, `6809321`, `858354b`, `28a869d`, `5e75193`, `ca5df39`, `bc427e3` | Siparişler depo kapasitesiyle büyür (8 kademe, 12 slot); "Hepsini/Yarısını sat"; ürünle hayvan alma; Envanter rozeti + hedef kartı uyarısı; sim ürün üretim/tüketimini ölçer |
+| G3 | Büyüme hızı toplam-artı + tavan | Yapıldı | `a09d641` | `GROWTH_SPEED_KNEE/CAP`, taban süre uzadı; `getGrowthSeconds` hazır, arayüzde yok |
+| G4 | Yardımcı hareketi (PetMotion) | Yapıldı | `29d4fc3` | Düşükte ışınlanma kalktı (yalnızca çok uzakta); tek `PreRender`/`BulkMoveTo` döngüsü yapılmadı |
+| G5 | Kuluçka otomasyonu | Yapıldı | `2deaf40` | `FarmMath.petKindFor`: kuluçka "cash" yardımcısıyla teslim + tekrar |
+| G6 | Tüccar rozeti | Yapıldı | `5b44ce7` | `Merchant.status` + `MerchantBadge`; geri sayım, kaçırma bildirimi, `MERCHANT` sıklığı arttı |
+| G7 | Mevsim/hava oku | Yapıldı | `57be755` | `SeasonSignal` + `Environment.getSeasonEffect` (eşik `SEASON_SIGNAL_THRESHOLD`) |
+
 ## 3. Yeni riskler
 
 | # | Önem | Dosya:satır | Neden | Öneri |
@@ -105,6 +117,10 @@ Durum: Çözüldü / Kısmen / Açık / Bilerek ertelendi. Kanıt: commit ya da 
 | 3.9 | Düşük | `TelemetryService` / `docs/TELEMETRI.md` | AnalyticsService hız sınırı tahmini 120/dk; aşılırsa olaylar sessizce düşer (`TelemetryDropped`) | Canlıda `TelemetryDropped` izle, aralığı ayarla |
 | 3.10 | Düşük | `MapBuilder.luau` `remapPositions`, `ServerStorage` şablon etiketleri | CFrame öznitelikleri koşulsuz dünya konumu sayılıyor (Vector3'te beyaz liste var); sunucuda `GetTagged` kullanan yeni servis 6 şablon kopyasını da görür (O11-3/4) | `world-map.mdc`'ye not ya da beyaz liste |
 | 3.11 | Orta | `Services/SaveStore.luau`, `Modules/SaveCodec/` | Kayıt katmanı bölündü; pure-Luau testlerle ve 36 örnek kayıtta eski modülle birebir doğrulandı ama gerçek DataStore, kilit bekleme, yedek/karantina, `BindToClose` ve `run.server.luau` Studio'da denenmedi | §6-30 tamamlanmadan canlıya çıkma |
+| 3.12 | Orta | `Config/Islands.luau` `GROWTH_SPEED_*`, `Config/Animals.luau` | Taban büyüme süresi uzadı: mevcut kayıtta yakın zamanda alınmış hayvan (`bornAt` sabit) yeniden yavru/genç görünebilir; büyüme süresi arayüzde gösterilmiyor (`FarmMath.getGrowthSeconds` hazır) | Studio'da eski kayıtla bak (§6-36); gerekirse arayüze süre ekle |
+| 3.13 | Orta | `Config/Goods.luau` `GOODS_CONTRACTS`, sim | Casual ilk gün gelir yaklaşık -%17 (`incomeSeconds` ayarlanabilir); hardcore sipariş payı yaklaşık +%22; ürün talep ağırlığı yok (hangi ürün ne sıklıkla istenir eşit) | Sim'i yeniden çalıştır, `incomeSeconds`/kademe ağırlıklarına bak (Q18-19) |
+| 3.14 | Düşük | `Config/Goods.luau` `GOODS_BARTER` | Takas oranı satış oranıyla aynı (`config.spec` üstüne çıkmayı engeller); ürünle hayvan alma satışla eşdeğer tek adım | Telemetri sonrası ayrı oran gerekirse bak |
+| 3.15 | Düşük | `Services/ProductionService.luau`, `Modules/ProductionLogic.luau` | Kuluçka dolu kümeste teslim bekler (yardımcı de alamaz); alternatif: paraya çevirmek | Studio'da yaşa; sorun olursa paraya çevir (Q23) |
 
 ## 4. Ekonomi özeti
 
@@ -190,6 +206,14 @@ Birleştirilen kaynaklar: eski ara raporlar ve ikinci tur. `FARM_COST_STEP` 6, �
 34. Boş ada seçimi: tema 1'deki boş ada tercih ediliyor; oyuncu çıkıp aynı sunucuya dönerse son temasındaki ada. Telemetri: toplayıcısız park edilmiş çiftlik `ParkedPay`, huni `first_collect` yalnızca gerçek toplamada.
 35. es/pt: Ayarlar → Dil'de 6 buton ve İspanya/Brezilya bayrakları (Brezilya eşkenar dörtgeni biraz basık olabilir); uzun İspanyolca/Portekizce metinler menü karoları, butonlar ve pencerelerde taşıyor mu; `es-419`/`pt-BR` Roblox dili ilk girişte doğru dili seçiyor mu; Rusça yönerge metinleri ("ты") doğal okunuyor mu.
 
+**I. Geri bildirim turu (dal `fix/oyun-geri-bildirimi`)**
+36. Gece: 17:00-20:30 kararma, 03:30-07:00 şafak (saatleri `Environment.NIGHT_CURVE` ile oynat, yönetici saat aracı); fenerler gökyüzü kararınca yanıyor, sabah aydınlanmadan sönüyor; orta kalitede kamera hareketinde ışıklar titremiyor; düşükte gerçek ışık yok, fenerlerde `NightHalo` parıltısı görünüyor (görünüm beğenilmezse `HALO_*`). Eski kayıtta yakın zamanda alınmış hayvan yeniden gençleşmiş mi (risk 3.12).
+37. Siparişler: pano büyük depoda büyük birim ister, ödül gösterilen = alınan; ürün başına "Hepsini sat/Yarısını sat" paraya doğru çeviriyor; "Ürünle satın al" (takas) hayvan fiyatından değer düşüyor; depo %90 dolunca Envanter rozeti ve hedef kartı satırı; taşan üretim satış oranıyla paraya çevriliyor.
+38. Büyüme: yem silosu tek başına 2 kat, birden çok geliştirme birikince hız tavana yaklaşıyor ama hiç ulaşmıyor; yavru -> yetişkin süreleri makul.
+39. Yardımcı: düşük kalitede ışınlanmadan akıcı yürüyor (çok uzakta hariç); kuluçka: yardımcılı çiftlikte hazır parti kendi teslim ve yeniden başlıyor, dolu kümeste bekliyor.
+40. Gezgin tüccar: rozet teklif belirince geri sayımla çıkıyor, alınca/bitince kalkıyor, kaçırılan teklifte bildirim; dolu bölgeli oyuncuya teklif yok; ziyaret ~20 dk oturumda en az bir kez.
+41. Mevsim oku: yakın hayvanlarda yeşil/kırmızı ok (görevdeki hayvanda da görünür), nötrde yok; düşükte aura yok, hareketi azaltmada nabız yok; Mevsim çubuğu ile aynı yönü gösteriyor.
+
 ## 7. Açık sorular ve kullanıcı kararları
 
 | # | Soru | Kısa öneri |
@@ -210,6 +234,14 @@ Birleştirilen kaynaklar: eski ara raporlar ve ikinci tur. `FARM_COST_STEP` 6, �
 | Q15 | `data.spec` Pasif Gelir beklentisi sabit ×3 yerine Config'ten türetildi (oran × saat = ×3,0) | Kabul; sıkılaştı |
 | Q16 | `SaveStore` yedek zaman damgası artık arka plan görevi çalışınca basılıyor (aynı saniye) | Kabul |
 | Q17 | Büyük parti çarpanı, sipariş tabanı (300 sn) ve pano süresi (7 dk) telemetri verisine göre yeniden bakılacak | Gelir verisi gelince |
+| Q18 | Sabah eğrisi saatleri (`Environment.NIGHT_CURVE`: 03:30 şafak, 07:00 tam gündüz) ve halo görünümü (`DayNight` `HALO_*`) uygun mu | Studio'da gör, beğenilmezse eğri noktalarını/halo ölçeğini ayarla |
+| Q19 | Casual ilk gün gelir -%17 kabul mü? Hardcore sipariş +%22 mi | `GOODS_CONTRACTS.incomeSeconds` ile oyna; sim'de kontrol |
+| Q20 | Takas oranı satışla aynı (0.5) kalsın mı; ürün talep ağırlığı eklensin mi | Aynı kalsın; talep ağırlığı telemetri sonrası |
+| Q21 | Mevcut kayıtlarda yeni uzun büyüme süresi yüzünden yakın alınmış hayvan gençleşebilir; süre arayüzde gösterilsin mi (`getGrowthSeconds` hazır) | Kabul et; göstermek istersen küçük bir iş |
+| Q22 | Tek `PreRender`/`BulkMoveTo` pet döngüsü yapılmadı; düşükte ışınlanma tamamen kalktı | Studio'da kare süresine bak, gerekirse birleştir |
+| Q23 | Kuluçka dolu kümeste teslim bekler; alternatif: dolu kümeste paraya çevir | Bekleme kalsın; şikâyet gelirse paraya çevir |
+| Q24 | Tüccar: dolu bölgeli oyuncuya teklif yok; `MERCHANT.chance` 0.75 ile sıklık arttı | Telemetriden ziyaret/alım oranına bak |
+| Q25 | Mevsim oku görevdeki (üretim/eklenti) hayvanda da görünür | Kabul et; istenmezse görevdekileri ele |
 
 ## 8. Sıradaki adımlar
 

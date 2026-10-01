@@ -40,7 +40,7 @@ Bağımlılık yönü alttan üste: `Core` ← `Effects` ← `Ui` ← `Interacti
 | Katman | Klasör | İş | Örnekler |
 |---|---|---|---|
 | 1 | `Core/` | Durum, satın alma, yerelleştirme, ses yardımcısı | `ClientState`, `PurchaseController`, `IslandContext`, `Localizer`, `Preferences` (kayıtlı ses/hareket tercihlerini istemciye uygular ve sunucuya gönderir), `Sfx`, `EffectSettings` (ReducedMotion/EffectsQuality önbelleği), `StartupGate` (açılış yükünü yayan sıralı başlatıcı), `ClientBootstrap` |
-| 2 | `Effects/` | Görsel/işitsel atmosfer (oyun durumuna dokunmaz) | `DayNight`, `WeatherEffects`, `WeatherPrecip`, `SeasonalScenery`, `Underwater`, `Graphics`, `Birds`, `FishLife`, `SeabedLife`, `ShoreIce`, `BuildEffects`, `AnimalAnimator`, `BoatAnimator`, `Windmill`, `PetAnimator`, `Soundscape` |
+| 2 | `Effects/` | Görsel/işitsel atmosfer (oyun durumuna dokunmaz) | `DayNight`, `WeatherEffects`, `WeatherPrecip`, `SeasonalScenery`, `Underwater`, `Graphics`, `Birds`, `FishLife`, `SeabedLife`, `ShoreIce`, `BuildEffects`, `AnimalAnimator`, `BoatAnimator`, `Windmill`, `PetAnimator`, `SeasonSignal` (hayvan üstü mevsim/hava oku), `Soundscape` |
 | 3 | `Ui/` | Ekran arayüzü ve dünyada duran arayüz | `UiKit` (cephe; gövde `Kit/`: `Tokens`, `Base`, `Controls`, `Flags`, `Windows`, `Toasts`), `FarmHud` (yalnızca orkestrasyon), `Hud/*` (pencere ve bölümler; `StatsPanel`, `GoalCard`, `MenuBar`, `Celebration` ana HUD parçaları), `IslandManager` (Adalar menüsü), `IncomeBubbles`, `SettingsMenu`, `AdminPanel`, `ProductionPanel`, `TravelMenu` |
 | 4 | `Interaction/` | Oyuncunun dünyayla etkileşimi | `BuyPads`, `CollectorGuide`, `GoldenAnimal`, `HubNpcs`, `TutorialMarker` (ilk adımların dünya işareti), `IslandAutoSelect`, `IslandPrompts`, `Sprint`, `BridgeBoost` (köprüde hız), `CharacterSafety`, `WelcomeBack`, `EventSounds` (olay sesleri), `JobProgress` (iş ilerleme çubuğu), `MenuZoom` (pencere açıkken kamera yakınlaştırma) |
 | — | `init.client.luau` | Giriş noktası | Yalnızca karşılama günlüğü |
@@ -58,7 +58,7 @@ Kurallar:
 | `Config/` | **Tüm oyun dengesi ve veri** (fiyat, gelir, yol haritası, profiller). `init.luau` parçaları birleştirir ve getter'ları tutar; veri `Core` (sabitler), `Weather`, `Economy`, `Shop`, `Items`, `Goods` (depo/ürün), `Achievements`, `Audio`, `Islands` (adalar/temalar/yol haritası), `Upgrades`, `Production`, `Animals` (bölgeler/hayvanlar), tipler `Types`. Denge başka yerde yazılmaz. |
 | `GameTypes.luau` | Kayıt ve ortak tipler |
 | `Remotes.luau` | Tüm RemoteEvent adları tek listede |
-| `Modules/` | Saf mantık: `FarmMath` (tüm hesaplar), `Environment`, `Inventory`, `Rewards`, `Merchant`, `Golden`, `SeasonVisuals`, `OnboardingSteps` (ilk adımlar), `UiScale` (ekran ölçeği) |
+| `Modules/` | Saf mantık: `FarmMath` (tüm hesaplar), `Environment`, `Inventory`, `Rewards`, `Merchant` (ziyaret/teklif durumu), `Golden`, `SeasonVisuals`, `PetMotion` (yardımcı hareketi), `OnboardingSteps` (ilk adımlar), `UiScale` (ekran ölçeği) |
 | `Locales/` | Çeviriler (tr kaynak; en, de, ru, es, pt) |
 | `UiTheme.luau`, `WorldUi.luau`, `Localization.luau` | Tema, dünya tabelaları, dil seçimi |
 | `MapPaths.luau` | Taş yol listesi (harita çizimi ve yardımcı rotası aynı listeyi kullanır) |

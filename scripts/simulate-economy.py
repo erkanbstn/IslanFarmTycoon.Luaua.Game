@@ -385,7 +385,7 @@ end
 local function productionTick()
 	for _, recipeId in Config.PRODUCTION_ORDER do
 		local recipe = Config.PRODUCTION_RECIPES[recipeId]
-		local kind = ProductionLogic.petKind(recipe) -- kuluçka (chicken) simüle edilmez
+		local kind = ProductionLogic.petKind(recipe, FarmMath) -- kuluçka (chicken) simüle edilmez
 		if not kind or not recipeBuilt(save, recipe) then
 			continue
 		end

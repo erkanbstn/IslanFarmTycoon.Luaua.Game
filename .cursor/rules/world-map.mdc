@@ -56,6 +56,9 @@ alwaysApply: false
 - Genel yoğunluk ince ayarı `DayNight` içindeki `LIGHT_BRIGHTNESS_SCALE` / `LIGHT_RANGE_SCALE`
   (harita yeniden kurulmaz). Yanma zamanı `Environment.getLightFactor` = gecenin karanlığından
   türetilir; ayrı saat aralığı yazma (gündüz ışık yanar).
+- Gece payı eğrisi tek kaynaktan `Environment.NIGHT_CURVE` (saat/pay anahtarları, smoothstep; saatler artan, 0 ve 24 uçları aynı). Işık rampası takvim saatine değil gökyüzünün kararmasına bağlıdır:
+  yeni gece davranışı eğriden türer, ayrı saat yazma. Orta kalitede ışık bütçesi histerezislidir (seçili parça sıralamada düşse de hemen bırakılmaz, titreme yok); düşükte gerçek ışık yok, fenerde
+  ucuz `NightHalo` parıltısı görünür (`DayNight` `HALO_*`).
 - Teşhis: yönetici paneli "Gece ışıkları" satırı bu ekranda izlenen lamba/ışık sayısını gösterir.
 
 ## Lighting sahipliği (iki script aynı özelliğe yazmasın)
