@@ -49,14 +49,15 @@ Baseplate ve SpawnLocation korunur. Şablon Baseplate/SpawnLocation oyuna engels
 - **API olmadan açıkça kayıtsız test:** Play'den önce Workspace'e Boolean
   `StudioNonPersistentData = true` attribute'u ekle. HUD kayıtsız test uyarısını sürekli gösterir.
   Kalıcı kayıt testinden önce attribute'u kaldır veya false yap. Bu seçenek canlı oyunda etkisizdir.
-- **Max Players:** Bu place oyuncuya özel ada haritasıdır; yayında Game Settings → Places'te 1 yap. Lobi ayrı place olacak ([mimari](docs/LOBI_VE_ADA_MIMARISI.md)). Studio'da birden fazla oyuncu denemek istersen kapasite 1'den büyükken uyarı çıkar, bu normaldir.
+- **Max Players:** Haritada oyuncu başına bir ada var; yayında Game Settings → Places'te Max Players'ı `Config.MAP_PLOT_COUNT` (6) yap. Kapasite ada sayısından büyükse
+  sunucu açılışta uyarır, ada kalmayan oyuncunun girişini reddeder. Lobi planı: [mimari](docs/LOBI_VE_ADA_MIMARISI.md).
 - **Çok oyunculu test:** Test sekmesi → Clients and Servers → 2 oyuncu → Start.
 
 ### Play'de boş gökyüzünde kalma
 
-Studio günlüklerinde `MaxPlayers ada sayısından büyük` hatası görünüyorsa eski açılış kodu
-çalışıyordur. Güncel kod kapasite farkında uyarır; boş adaları kullanır, yalnızca ada kalmayan
-oyuncunun girişini reddeder. Yayında bu place'in kapasitesi 1'dir (oyuncuya özel harita).
+Studio günlüklerinde `[Map] MaxPlayers=N; haritada yalnızca 6 ada var.` uyarısı, Max Players'ın ada sayısından
+büyük olduğunu gösterir. Kod boş adaları kullanır, yalnızca ada kalmayan oyuncunun girişini reddeder
+(`Boş ada yok` günlüğü). Yayında kapasite `Config.MAP_PLOT_COUNT` olmalıdır.
 
 Rojo bağlantısı koptuğunda `Haritayı Kur` eski/eksik senkronize kodları çalıştırabilir.
 Play'i durdur, Rojo'da Disconnect → Connect ile bu projeye yeniden bağlan ve sonra Play yap.
@@ -81,7 +82,7 @@ hatasından ayrıdır.
    seviyelidir ve her seviye yapının işlevine uygun bir fayda verir: bölgelerde **kapasite** (dolu bölgede açılır), **büyüme hızı**, **verim** ve **mevsim uyumu** (olumlu mevsim/hava
    etkisi büyür, olumsuzlar küçülür); tesislerde **üretim süresi**, **satış ödülü** ve **başlatma maliyeti**. Bazı seviyeler iki fayda birden verir (ör. kapasite + büyüme).
    Maliyet bölgedeki hayvanın ya da tesisin ödülünün değerine ve seviyeye bağlıdır. Seviyeler çiftlik başınadır ve kayıtlıdır.
-4d. **Mevsim hedefi:** Çiftliğim penceresinde her mevsim (15 dk) yeni bir hedef vardır: bahar ve sonbaharda para kazan, yaz ve kışta yatırım yap
+4d. **Mevsim hedefi:** Ödüller penceresinde her mevsim (15 dk) yeni bir hedef vardır: bahar ve sonbaharda para kazan, yaz ve kışta yatırım yap
    (hayvan, yükseltme, ırk veya alan genişletme). Tamamlayınca ödülü al; mevsim değişince alınmamış hedef kaybolur. Ödül gelire göre ölçeklenir.
 4e. **Gezgin tüccar (rastgele olay):** Her oyuncuya ayrı zamanlarda, yaklaşık 15 dakikalık dönemlerde ve 4 dakikalığına gelir. Geldiğinde bildirim çıkar ve
    Pazar penceresinin en üstünde, satın alınabilen pahalı hayvanlardan biri en fazla 3 adet, %30 indirimle sunulur. Her ziyarette bir kez alınabilir.
@@ -102,19 +103,19 @@ hatasından ayrıdır.
    ustalık hedefleri görünür. Tekrar eden ürün siparişlerinde yetişkin hayvanlar çevrimiçiyken
    üretim yapar; tamamlanan siparişi teslim edince para ve yeni sipariş alınır. Hayvan tüketilmez.
 
-Çevrimdışı kazanç en fazla 8 saatlik süreyi ve büyüme aşamalarını kullanır; doğrudan kasaya eklenir ve üst sınırı
-depo kapasitesinin `OFFLINE_STORAGE_MULTIPLIER` katıdır.
+Çevrimdışı kazanç büyüme aşamalarını kullanır ve doğrudan kasaya eklenir: gelirin `Config.OFFLINE_EARNING_RATE` oranı, en çok
+`Config.OFFLINE_MAX_HOURS` saat için; Pasif Gelir yükseltmesi oranı ve süreyi `Config.OFFLINE_UPGRADED_*` değerlerine çıkarır. Sınır depoya değil süreye bağlıdır.
 Geçmiş hava kaydı tutulmadığından nötr hava/mevsim üzerinden hesaplanır. Otomatik Toplayıcı
-yalnızca çevrimiçiyken kasaya aktarır; 8 saat sınırsız veya depo üstü kazanç vaadi değildir.
+yalnızca çevrimiçiyken kasaya aktarır.
 
 Kısayollar: **P** = Pazar, **Y** = Yol Haritası, **U** = Yükseltmeler, **R** = Üretim. Alınabilecek bir şey olunca düğmede rozet çıkar.
 Yükseltmeler penceresi açılabilir geliştirmeleri önce gösterir; kilitli olanlarda gerekenleri yazar,
 alınanları listeden kaldırır. Pazar ve Yol Haritası gibi 330×430 boyutuyla sınırlıdır ve küçük
-ekranlarda kullanılabilir alana sığar. Dar ekranlarda Yol Haritası, Çiftliğim menüsündedir.
+ekranlarda kullanılabilir alana sığar.
 
 **Üretim:** Süt fabrikası, kuluçkahane, at eğitimi, peynirhane ve balık sevkiyatı süreli
 partiler üretir. Kuluçkadaki civciv satılabilir veya boş kümese eklenebilir. Her tesiste
-tek parti kaydedilir; süre çevrimdışında da ilerler. Dar ekranda Üretim, Çiftliğim içindedir.
+tek parti kaydedilir; süre çevrimdışında da ilerler.
 Harita kodu değişince (`MAP_VERSION` artar) eklenti panelinden **Haritayı Kur** gerekir.
 **Adalar / I** ekranında kendi uzman adalarını açabilir, **Git ve yönet** ile ada seçebilirsin.
 Pazar, Yükseltmeler, Yol Haritası ve Üretim seçili adayı gösterir; para ortaktır, genel çiftlik bonusları yalnızca ilgili ana çiftlikte geçerlidir.
@@ -124,13 +125,13 @@ Diğer oyuncuların çiftlikleri bu adalardan ayrı, yalnızca ziyaret olarak li
 Her ana çiftlik kendi ana adası ve bağlı üç küçük adasıyla ayrı ilerler; hayvan, yükseltme,
 depo ve üretim kayıtları birbirine karışmaz. Yalnızca para ortaktır. Seçili olmayan çiftlikler
 de kendi depo sınırları ve otomatik toplama yükseltmeleriyle gelir üretir.
-İlave ana çiftlik fiyatları `Config.MAIN_FARM_PRICES` taban değerleridir (5.000 / 12.000 / 25.000 / 50.000 / 100.000) ve yükseltmelerle aynı maliyet eğrisinden geçer
-(yaklaşık $106K / $590K / $2,4M / $9,5M / $36M); üst sınır 6 çiftliktir.
+İlave ana çiftlik fiyatları `Config.MAIN_FARM_PRICES` taban değerleridir ve yükseltmelerle aynı maliyet eğrisinden geçer;
+üst sınır `Config.MAIN_FARM_LIMIT` çiftliktir.
 Harita doluyken satın alma yapılmaz. Yeni oyunculara yer açılırken etkin olmayan çiftliklerin
 fiziksel görünümü geçici olarak kaldırılabilir; kayıtları ve gelirleri korunur, seçildiğinde
 oyuncunun kendi harita alanına geri yüklenir. [Ana çiftlik sistemi](docs/ANA_CIFTLIKLER.md).
 Ayrıntılar: [Üretim ve uzman adalar](docs/URETIM_VE_UZMAN_ADALAR.md).
-Dar ekranlarda hedefler, eve dönüş ve ayarlar **Çiftliğim** menüsündedir. Ayarlar'da
+Sağ menü sütunundaki Ayarlar'da
 grafik kalitesi (Otomatik/Düşük/Orta/Yüksek; hesaba kaydedilir) ve hareketi azaltma (yalnızca bu oturum) bulunur.
 
 ## Takımada ve Yol Haritası
@@ -178,7 +179,7 @@ Kullanıcı adı, istemcinin değiştirdiği `IsAdmin` attribute'u veya Studio'd
 yetki sağlamaz. Studio'nun sentetik çoklu test oyuncuları da otomatik yönetici olmaz.
 
 - Masaüstü: **Yönetici** düğmesi veya **F8**.
-- Mobil/dar ekran: **Çiftliğim → Yönetici**.
+- Sağ menü sütunundaki **Yönetici** düğmesi (yalnızca yetkili hesapta görünür).
 - Para: kendi bakiyeni belirli bir tutara ayarla veya ekleme yap. Kalıcı oturumda bu değişiklik
   kaydedilir; `StudioNonPersistentData` test modunda saklanmaz.
 - Hava/mevsim: yalnızca bulunduğun sunucuyu etkiler. Seçim otomatik değişimi durdurur;
@@ -198,9 +199,8 @@ olarak 2,5–4,5 dakikada bir değişir. Etkiler gelire eklenir; mevsim panelind
 Sol paneldeki küçük hava kartı ilerleme çubuğu, kalan dakika/saniye ve hava durumunu gösterir;
 geniş ekranda sıradaki mevsim de görünür. Bildirimler ayrı alandadır.
 
-HUD yerleşimi: solda para/depo/mevsim/hedef paneli; menü geniş ekranda alt ortada yatay karo çubuğu,
-dar ekranda (genişlik < 900 veya yükseklik < 560) sağ kenarda üç karoluk sütun. Ahır ve sıradaki ada
-bilgisi ile dar ekranda taşınan menü karoları "Çiftliğim" penceresindedir.
+HUD yerleşimi: sol ortada para/depo/mevsim/hedef paneli (sola kayarak kapanır); üst ortada menü çubuğu (Pazar, Yükseltmeler, Yol Haritası, Üretim, Adalar),
+sağ ortada menü sütunu (Envanter, Ödüller, Adama Dön, Ayarlar, yetkili hesapta Yönetici). Karolar kademeli açılır. Ayrıntı: `AGENTS.md` "Arayüz (UI) standardı".
 
 | Mevsim | Artış | Düşüş | Olası hava |
 |---|---|---|---|

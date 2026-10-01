@@ -30,7 +30,7 @@ korunur. Kümes doluyken civciv kaybolmaz; yer açılınca eklenebilir veya sat�
 
 ## Kullanım
 
-Masaüstünde sağdaki **Üretim** düğmesi veya **R**; dar ekranda **Çiftliğim → Üretim**.
+Üst menü çubuğundaki **Üretim** karosu veya **R**.
 **Adalar / I** ekranından uzman ada satın alınır ve **Git ve yönet** ile seçilir.
 Yatırım menüleri seçilen adaya göre süzülür; para ortaktır, güçlendirmeler ilgili ana çiftliğe aittir.
 Ana adadaki tüm yükseltmeler bitince sonraki adayı bu yönetim ekranından açmak mümkündür;
