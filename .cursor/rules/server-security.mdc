@@ -8,32 +8,35 @@ alwaysApply: false
 
 Client'a asla güvenme: fiyat, adet, para, hasar, sahiplik, kilit durumu sunucuda hesaplanır.
 
-## Remote işleyici sırası (UpgradeService / AnimalService kalıbı)
-1. Hız sınırı: `RateLimiter.allow(player, "eylem", saniye)`; reddedilen isteğe yanıtı da
-   ayrı bir anahtarla sınırla (`"...Reply"`), yoksa yanıt spam'i olur.
-2. Tip + mantık: `typeof(x) == "string" and RateLimiter.validId(x)`, sonra `Config.X[x]` var mı.
-   Sayılarda `x == x` (NaN), sonlu, tam sayı, üst sınır kontrolü.
-3. Tekrar koruması: `RateLimiter.acceptRequest(player, requestId)` (client `PurchaseController.submit`
-   artan kimlik ve `expectedFarmId` gönderir; etkin çiftlik değiştiyse reddet).
-4. Durum: `PlayerDataService.tryGet(player)` ve `player:GetAttribute("WorldReady") == true`.
-5. Para: önce `EconomyService.settlePlayer(player)`, sonra `PlayerDataService.trySpend`.
-5b. Para girişi: kazanç `PlayerDataService.addCash` (ömür boyu kazanca ve başarımlara girer); iade/satış `PlayerDataService.addRefund` (girmez).
-   Para hareketine telemetri kategorisini ver: `addCash(player, n, "daily")`, `trySpend(player, n, "upgrade", id)` (anahtarlar `TelemetryLogic.ECONOMY`, SKU yalnızca hayvan/yükseltme kimliği; bkz. `docs/TELEMETRI.md`). Kategorisiz hareket gönderilmez.
-6. Değişiklik sonrası: `FarmMath.applyDerived(data)` → `pushState` → `requestSave` →
+## Remote işleyici sırası (AnimalService / UpgradeService kalıbı)
+Remote argümanları: `(değer, requestId, expectedFarmId, ekstra?)`. İşleyici sırası:
+1. **Tekrar koruması**: `RateLimiter.acceptRequest(player, requestId)` — `requestId` Remote işleyicisinde **zorunludur**
+   (kimliksiz istek reddedilir). `allowMissing` (3. argüman) yalnızca sunucu içi ProximityPrompt çağrısı içindir; Remote işleyicisi asla vermez.
+2. **Etkin çiftlik**: `RequestGuard.activeFarm(player, requestId, expectedFarmId, seçenekler?)` — client `PurchaseController.submit`
+   ortak artan kimlik ve `expectedFarmId` gönderir; etkin çiftlik değiştiyse oyuncuya (sınırlı) söyler, `nil` döner ve işlem bırakılır. Bu kontrolü elle kopyalama.
+3. **Hız sınırı** (`tryX` içinde): `RateLimiter.allow(player, "eylem", saniye)`; reddedilen isteğin yanıtı da sınırlıdır — `RequestGuard.reply` bunu tek yerde yapar
+   (`ok=false` + mesajsız = hız sınırı), ayrı `"...Reply"` anahtarı yazma.
+4. **Tip + mantık**: `RateLimiter.validId(x)`, sonra `Config.X[x]` var mı. Sayılarda `x == x` (NaN), sonlu, tam sayı, üst sınır.
+5. **Durum**: `PlayerDataService.tryGet(player)` ve `player:GetAttribute("WorldReady") == true`.
+6. **Para**: önce `EconomyService.settlePlayer(player)`, sonra `PlayerDataService.trySpend`.
+   Kazanç `PlayerDataService.addCash` (ömür boyu kazanca ve başarımlara girer); iade/satış `PlayerDataService.addRefund` (girmez).
+   Para hareketine kategori (`reason`) ver; telemetri onu kullanır (kurallar `docs/TELEMETRI.md`).
+7. **Değişiklik sonrası**: `FarmMath.applyDerived(data)` → `pushState` → `requestSave` →
    gerekiyorsa `PlotService.refreshPlayerWorld(player)` → `Metrics.increment`.
-7. Sonuç: `requestId` varsa `PurchaseResult`/`XResult`, yoksa `Notify`.
+8. **Sonuç**: `RequestGuard.reply(player, requestId, ok, mesaj)` — kimlik varsa `PurchaseResult`, yoksa `Notify`.
+   Servise özel sonuç Remote'u (`MainFarmResult`, `ProductionResult`...) kendi servisindeki kalıbı izler.
 
 ## Yönetici
 - Yetki yalnızca `AdminPolicy.isAllowed(player.UserId)`. `IsAdmin` özniteliği sadece UI ipucu.
-- Yeni yönetici eylemi: `AdminPolicy.validAction` + `AdminService.execute` + `tests/admin.spec.luau`.
+- Yeni yönetici eylemi: `AdminPolicy.validAction` + `AdminService` içindeki `execute` + `tests/admin.spec.luau`.
 
 ## Bildirim metinleri
 - Emoji yok; tür (`success/error/money/info`) işareti belirler.
-- Tam cümle kur (parça birleştirme yok) ve `src/shared/Locales/{en,de,ru}.luau` içine ekle.
+- Tam cümle kur (parça birleştirme yok) ve `src/shared/Locales/` altındaki tüm sözlüklere ekle (`roblox-localize`).
 
 ## Yasaklar
 - `src/shared` içine gizli değer/anahtar koyma (client görür).
-- Client'tan gelen fiyat/adet/pozisyonu doğrudan kullanma; mesafe gerekiyorsa sunucu karakterden ölçer.
+- Client'tan gelen fiyat/adet/pozisyonu doğrudan kullanma; mesafe gerekiyorsa sunucu karakterden ölçer (`PlotService.isNearPlot(player, radius)`; örnek: altın hayvan `Config.GOLDEN.claimRadius`).
 
 ## Katmanlar
 - Remote ve ödeme mantığı yalnızca `src/server/Services/`'te. `Presentation/` kayıt nesnesini okuyup dünyayı çizer, para/kayıt yazmaz; `World/` statik harita ve oyun servislerine bağlanmaz (bkz. `docs/MIMARI.md`).
