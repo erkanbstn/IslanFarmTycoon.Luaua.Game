@@ -826,7 +826,7 @@ return {
 	["Ahır deposu: {}/{}"] = "Stalllager: {1}/{2}",
 	["Aç"] = "Öffnen",
 	["Ahıra eklendi"] = "Zum Stall hinzugefügt",
-	["Ahır deposunda bu ürün için yeterli yer yok."] = "Im Stalllager ist nicht genug Platz für dieses Produkt.",
+	["Ahır deposunda bu ürün için yeterli yer yok ({} gerekli, {} boş)."] = "Im Stalllager ist nicht genug Platz für dieses Produkt ({1} nötig, {2} frei).",
 
 	-- Para tesisi parti seçenekleri
 	["Küçük parti"] = "Kleine Charge",

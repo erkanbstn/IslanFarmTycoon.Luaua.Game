@@ -826,7 +826,7 @@ return {
 	["Ahır deposu: {}/{}"] = "Barn storage: {1}/{2}",
 	["Aç"] = "Open",
 	["Ahıra eklendi"] = "Added to the barn",
-	["Ahır deposunda bu ürün için yeterli yer yok."] = "Not enough room in the barn storage for this product.",
+	["Ahır deposunda bu ürün için yeterli yer yok ({} gerekli, {} boş)."] = "Not enough room in the barn storage for this product ({1} needed, {2} free).",
 
 	-- Para tesisi parti seçenekleri
 	["Küçük parti"] = "Small batch",

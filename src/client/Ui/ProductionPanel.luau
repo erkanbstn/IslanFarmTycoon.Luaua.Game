@@ -351,7 +351,7 @@ local function create(parent: Instance): UiKit.Window
 					-- Ürün miktarı: kaçırılan gelirin üstündeki garantili taban dahil; depoda yer de gerekir
 					local amount = FarmMath.getGoodsYield(state, recipe, now, preview)
 					local space = FarmMath.getGoodsSpace(state, good.id)
-					hasSpace = space >= (recipe.goodsAmount or 0)
+					hasSpace = space >= math.max(recipe.goodsAmount or 0, amount)
 					card.detail.Text =
 						`{recipe.description}\n{duration} sn · {good.displayName} · +{amount}\nAhır deposu: {FarmMath.getGoodsAmount(
 							state,

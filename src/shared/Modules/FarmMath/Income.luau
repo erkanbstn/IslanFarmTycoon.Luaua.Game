@@ -203,6 +203,18 @@ function Income.estimateForgoneIncome(save: PlayerSave, animals: { GameTypes.Ani
 	return total
 end
 
+-- Şimdi başlatılacak ürün partisinin teslimde vereceği miktar (kaçırılan gelir tabanı dahil). Depoda yer kontrolü ve gösterim bunu
+-- kullanır; böylece sığmayacak parti başlatılmaz. Tesis yönetilemeyen tarifte (ürün vermeyen) 0.
+function Income.previewGoodsYield(save: PlayerSave, recipe: Config.ProductionRecipeConfig, now: number): number
+	local picked = Production.pickProductionAnimals(save, recipe, now, nil)
+	local forgone = if picked
+		then Income.estimateForgoneIncome(save, picked, Expansion.getFacilityDuration(save, recipe, nil))
+		else 0
+	local job: any = { uid = "preview", readyAt = now, startedAt = now, forgone = forgone }
+	local amount = Production.getGoodsYield(save, recipe, now, job)
+	return amount
+end
+
 -- Çevrimdışı kazanç oranı (eşya/ada bonusu dahil) ve en çok sayılan süre (saat). Pasif Gelir ikisini de artırır.
 function Income.getOfflineTerms(save: PlayerSave): (number, number)
 	local upgraded = Core.hasOfflineIncome(save)

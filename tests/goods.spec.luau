@@ -228,9 +228,25 @@ return function(codec: any, config: any, farmMath: any, rules: any)
 	farmMath.addGoods(startSave, "milk", farmMath.getGoodsCap(startSave) - recipe.goodsAmount + 1)
 	local blocked, reason = rules.canStart(startSave, recipe, farmMath, now)
 	assert(
-		not blocked and reason == "Ahır deposunda bu ürün için yeterli yer yok.",
+		not blocked and string.find(reason :: string, "^Ahır deposunda bu ürün için yeterli yer yok %(") ~= nil,
 		"a nearly full barn blocks the batch"
 	)
+	-- Fazla yetişkin bonusu teslim miktarını temel miktarın üstüne çıkarır: yalnızca temel miktar sığıyorsa da parti reddedilir
+	local bonusSave = newSave()
+	for _ = 1, recipe.requiredAdults + 4 do
+		addAnimal(bonusSave, "cow", "starter")
+	end
+	local preview = farmMath.previewGoodsYield(bonusSave, recipe, now)
+	assert(preview > recipe.goodsAmount, "extra adults raise the batch yield above the base amount")
+	farmMath.addGoods(bonusSave, "milk", farmMath.getGoodsCap(bonusSave) - recipe.goodsAmount)
+	assert(farmMath.getGoodsSpace(bonusSave, "milk") == recipe.goodsAmount, "only the base amount fits")
+	local overflow, overflowReason = rules.canStart(bonusSave, recipe, farmMath, now)
+	assert(
+		not overflow and string.find(overflowReason :: string, tostring(preview), 1, true) ~= nil,
+		"a batch whose real yield would overflow is refused with the amounts in the message"
+	)
+	farmMath.removeGoods(bonusSave, "milk", preview - recipe.goodsAmount)
+	assert(rules.canStart(bonusSave, recipe, farmMath, now), "the same batch starts once the whole yield fits")
 	local other = config.PRODUCTION_RECIPES.packed_milk
 	assert(rules.canStart(startSave, other, farmMath, now), "a full barn does not block cash recipes")
 	print("PASS goods: config consistency, barn storage, save/decode repairs, yield floor and start rule")

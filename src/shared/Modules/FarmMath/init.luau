@@ -106,6 +106,7 @@ FarmMath.preserveGrowthProgress = Production.preserveGrowthProgress
 FarmMath.getAnimalMultiplier = Income.getAnimalMultiplier
 FarmMath.getAnimalIncome = Income.getAnimalIncome
 FarmMath.estimateForgoneIncome = Income.estimateForgoneIncome
+FarmMath.previewGoodsYield = Income.previewGoodsYield
 FarmMath.computeIncomePerSecond = Income.computeIncomePerSecond
 FarmMath.computeIncomeOverInterval = Income.computeIncomeOverInterval
 FarmMath.computeOfflineEarnings = Income.computeOfflineEarnings

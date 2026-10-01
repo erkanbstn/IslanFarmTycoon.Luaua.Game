@@ -826,7 +826,7 @@ return {
 	["Ahır deposu: {}/{}"] = "Склад амбара: {1}/{2}",
 	["Aç"] = "Открыть",
 	["Ahıra eklendi"] = "Добавлено в амбар",
-	["Ahır deposunda bu ürün için yeterli yer yok."] = "На складе амбара недостаточно места для этого товара.",
+	["Ahır deposunda bu ürün için yeterli yer yok ({} gerekli, {} boş)."] = "На складе амбара недостаточно места для этого товара (нужно {1}, свободно {2}).",
 
 	-- Para tesisi parti seçenekleri
 	["Küçük parti"] = "Малая партия",
