@@ -9,7 +9,8 @@ Rojo + Luau ile yazılan Roblox çiftlik tycoon oyunu. Her oyuncunun kendi adas�
    ```
    rokit install
    ```
-   Bu komut `rojo`, `stylua` ve `selene` araçlarını kurar.
+   Bu komut `rojo`, `stylua` ve `selene` araçlarını kurar (sürümler `rokit.toml`'da sabitlidir).
+   Doğrulama için ayrıca Luau araçları (`.tools/luau`) ve isteğe bağlı tip analizi (`.tools/luau-lsp`) gerekir; bkz. "Doğrulama ve geliştirme durumu".
 3. VS Code / Cursor'da önerilen eklentileri kur (klasörü açınca sorar):
    Rojo, Luau Language Server, StyLua, Selene.
 4. Roblox Studio'da **Rojo** eklentisini kur (Plugins → Manage Plugins veya `rojo plugin install`).
@@ -49,13 +50,13 @@ Baseplate ve SpawnLocation korunur. Şablon Baseplate/SpawnLocation oyuna engels
 - **API olmadan açıkça kayıtsız test:** Play'den önce Workspace'e Boolean
   `StudioNonPersistentData = true` attribute'u ekle. HUD kayıtsız test uyarısını sürekli gösterir.
   Kalıcı kayıt testinden önce attribute'u kaldır veya false yap. Bu seçenek canlı oyunda etkisizdir.
-- **Max Players:** Haritada oyuncu başına bir ada var; yayında Game Settings → Places'te Max Players'ı `Config.MAP_PLOT_COUNT` (6) yap. Kapasite ada sayısından büyükse
+- **Max Players:** Haritada oyuncu başına bir ada var; yayında Game Settings → Places'te Max Players'ı `Config.MAP_PLOT_COUNT` yap (şu an 6). Kapasite ada sayısından büyükse
   sunucu açılışta uyarır, ada kalmayan oyuncunun girişini reddeder. Lobi planı: [mimari](docs/LOBI_VE_ADA_MIMARISI.md).
 - **Çok oyunculu test:** Test sekmesi → Clients and Servers → 2 oyuncu → Start.
 
 ### Play'de boş gökyüzünde kalma
 
-Studio günlüklerinde `[Map] MaxPlayers=N; haritada yalnızca 6 ada var.` uyarısı, Max Players'ın ada sayısından
+Studio günlüklerinde `[Map] MaxPlayers=N; haritada yalnızca M ada var.` uyarısı, Max Players'ın ada sayısından
 büyük olduğunu gösterir. Kod boş adaları kullanır, yalnızca ada kalmayan oyuncunun girişini reddeder
 (`Boş ada yok` günlüğü). Yayında kapasite `Config.MAP_PLOT_COUNT` olmalıdır.
 
@@ -67,38 +68,38 @@ hatasından ayrıdır.
 ## Oynanış
 
 1. Oyuncu meydanda doğar, boş bir adaya ışınlanır.
-   Meydanda çeşme, bankler ve çiçeklikler vardır; satıcı NPC'ler yaklaşan oyuncuya bakar, el sallar ve kısa bir selam söyler. Tabelada adı yazar.
-2. **Ücretsiz başlangıç:** Küçük Ahır, Başlangıç Ağılı, hayvansız başlangıç (`Config.STARTING_COW_COUNT`); ilk hayvanı (temaya göre inek/tavuk/ördek) tam alacak başlangıç parası (`Config.getStartingCash`).
-2b. **İlk adımlar:** sol paneldeki hedef kartı yeni oyuncuyu üç adımda yönlendirir: ilk hayvanı al (Pazar düğmesi yanıp söner), parayı topla (yeşil platforma ışın çizgisi), ilk yükseltmeyi al. Durumdan türetilir; eski oyuncular atlar.
+   Meydanda çeşme, bankler ve çiçeklikler vardır; satıcı NPC'ler yaklaşan oyuncuya bakar, el sallar ve kısa bir selam söyler. Tabelalarında işlevi yazar; adı etkileşim ipucunda görünür.
+2. **Ücretsiz başlangıç:** ana ada, Küçük Ahır ve ana ağıl (ana hayvanın ağılı), hayvansız başlangıç (`Config.STARTING_COW_COUNT`); ilk hayvanı (temaya göre inek/tavuk/ördek) tam alacak başlangıç parası (`Config.getStartingCash`).
+2b. **İlk adımlar:** sol paneldeki hedef kartı yeni oyuncuyu adım adım yönlendirir (ilk hayvan, parayı topla, ilk yükseltme, Yol Haritası, ilk genişletme, ilk üretim partisi; `OnboardingSteps`). Pazar düğmesi yanıp söner, yeşil platforma ışın çizgisi çizilir. Durumdan türetilir (kayıt alanı yok); yeterince kazanmış hesaplar adımları atlar.
 2c. **Yapım alanları:** satın alabildiğin ama henüz almadığın binaların yeri adada kazıklı, sarı şeritli bir yapım alanı olarak görünür ve tabelasında adı ile fiyatı yazar.
    Satın alınca alan kalkar, yerine bina kurulur.
 3. Hayvanlar her saniye **depoya** para üretir. Adadaki **yeşil platforma** basınca para kasaya geçer.
    Depo dolarsa üretim durur → oyuncu geri gelip toplamalı (ya da Otomatik Toplayıcı almalı).
-4. **Hayvan Pazarı:** Açık bölgelerindeki hayvanlar (tema ve açılan adalara göre: inek, tavuk, ördek, at, koyun, keçi, domuz, hamsi, levrek). Yavru doğarlar (%25 gelir) → Genç (%60) → Yetişkin (%100).
-   Aynı türden aldıkça fiyat %18 artar.
-4b. **Irk geliştirme:** Pazar'da sahip olduğun her hayvan türünün kartında ikinci düğme vardır. Her seviye o türün gelirini %8 artırır (en fazla Sv.10);
+4. **Hayvan Pazarı:** Açık bölgelerindeki hayvanlar (tema ve açılan adalara göre: inek, tavuk, ördek, at, koyun, keçi, domuz, hamsi, levrek). Yavru doğarlar → Genç → Yetişkin; her aşamanın gelir çarpanı `Config.STAGE_INCOME_MULTIPLIER`'dadır.
+   Aynı türden aldıkça fiyat `Config.ANIMAL_PRICE_GROWTH` kadar artar.
+4b. **Irk geliştirme:** Pazar'da sahip olduğun her hayvan türünün kartında ikinci düğme vardır. Her seviye o türün gelirini artırır (`Config.LINEAGE`: seviye başına bonus, en yüksek seviye);
    maliyet her seviyede üstel büyür. Seviyeler çiftlik başınadır ve kayıtlıdır. Bu, yol haritası bittikten sonra da para harcama yoludur. Geliştirilmiş hayvanın üstünde kademe renginde (bronz, gümüş, altın, elmas) bir yıldız ve seviye rozeti görünür.
-4c. **Yapı geliştirme:** Yükseltmeler penceresinde, açık bölgelerin (ahır, kümes, ağıl, kafes...) ve kurulu üretim tesislerinin altında "Yapı geliştirme" kartı çıkar. Her yapı 5
-   seviyelidir ve her seviye yapının işlevine uygun bir fayda verir: bölgelerde **kapasite** (dolu bölgede açılır), **büyüme hızı**, **verim** ve **mevsim uyumu** (olumlu mevsim/hava
+4c. **Yapı geliştirme:** Yükseltmeler penceresinde, açık bölgelerin (ahır, kümes, ağıl, kafes...) ve kurulu üretim tesislerinin altında "Yapı geliştirme" kartı çıkar. Her yapı
+   `Config.BUILD_UPGRADES.maxLevel` seviyelidir ve her seviye yapının işlevine uygun bir fayda verir: bölgelerde **kapasite** (dolu bölgede açılır), **büyüme hızı**, **verim** ve **mevsim uyumu** (olumlu mevsim/hava
    etkisi büyür, olumsuzlar küçülür); tesislerde **üretim süresi**, **satış ödülü** ve **başlatma maliyeti**. Bazı seviyeler iki fayda birden verir (ör. kapasite + büyüme).
    Maliyet bölgedeki hayvanın ya da tesisin ödülünün değerine ve seviyeye bağlıdır. Seviyeler çiftlik başınadır ve kayıtlıdır.
-4d. **Mevsim hedefi:** Ödüller penceresinde her mevsim (15 dk) yeni bir hedef vardır: bahar ve sonbaharda para kazan, yaz ve kışta yatırım yap
+4d. **Mevsim hedefi:** Ödüller penceresinde her mevsimde (`Config.SEASON_SECONDS`) yeni bir hedef vardır (`Config.SEASONAL_GOALS`): bahar ve sonbaharda para kazan, yaz ve kışta yatırım yap
    (hayvan, yükseltme, ırk veya alan genişletme). Tamamlayınca ödülü al; mevsim değişince alınmamış hedef kaybolur. Ödül gelire göre ölçeklenir.
-4e. **Gezgin tüccar (rastgele olay):** Her oyuncuya ayrı zamanlarda, yaklaşık 15 dakikalık dönemlerde ve 4 dakikalığına gelir. Geldiğinde bildirim çıkar ve
-   Pazar penceresinin en üstünde, satın alınabilen pahalı hayvanlardan biri en fazla 3 adet, %30 indirimle sunulur. Her ziyarette bir kez alınabilir.
-4f. **Altın hayvan (rastgele olay):** Her oyuncuya ayrı zamanlarda, yaklaşık 10 dakikalık dönemlerde ve 75 saniyeliğine, etkin çiftliğindeki yetişkin bir hayvan
-   altın gibi parlar. Üstündeki **Topla** düğmesine basınca o hayvanın yaklaşık 2,5 dakikalık gelirini alırsın; her pencerede bir kez.
+4e. **Gezgin tüccar (rastgele olay):** Her oyuncuya ayrı zamanlarda, sunucu saatinden türeyen ziyaret pencerelerinde gelir (`Config.MERCHANT`: dönem, süre, olasılık). Geldiğinde bildirim çıkar ve
+   Pazar penceresinin en üstünde, satın alınabilen pahalı hayvanlardan biri sınırlı adetle, indirimle sunulur. Her ziyarette bir kez alınabilir.
+4f. **Altın hayvan (rastgele olay):** Her oyuncuya ayrı zamanlarda, kısa pencerelerde (`Config.GOLDEN`), etkin çiftliğindeki yetişkin bir hayvan
+   altın gibi parlar. Üstündeki **Topla** düğmesine basınca çiftliğinin toplam gelirinin `GOLDEN.rewardSeconds` saniyelik karşılığını alırsın; her pencerede bir kez.
 4h. **Envanter ve eşyalar:** Meydandaki **Usta Ömer**'den (Eşya Dükkânı) oyun parasıyla eşya alırsın; bir kez alınır, faydası kalıcıdır. **Envanter** (B) beş slotluktur:
-   **Alet** (çekiç: tüm yükseltme maliyetlerinden %5-20 indirim), **Asa** (mevsim ya da hava değiştirme gücü: günde 1 / 3 / 5 kez ya da sınırsız, her kullanım arası kısa bekleme),
+   **Alet** (çekiç: yükseltme maliyetlerinden indirim), **Asa** (mevsim ya da hava değiştirme gücü: günde 1 / 3 / 5 kez ya da sınırsız, her kullanım arası kısa bekleme),
    **Muska** (depo, büyüme hızı ya da gelir bonusu; yalnızca biri takılır), **Başlık** ve **Sırt** (görünüm eşyaları, karakterde görünür). Slot başına bir eşya takılır; boş slota
-   satın alınan eşya otomatik takılır. Asa ile seçilen mevsim tam süre (15 dk) **yalnızca sana** uygulanır: gelirin, gökyüzü/hava efektlerin ve HUD'un o mevsimi gösterir, süre bitince dünyanın
-   doğal mevsimine dönersin. Dünya mevsimi ve havası herkes için aynı kalır. Hava asası senin havanı değiştirir (yalnızca mevsimde görülebilen türler, yaklaşık 4 dk).
+   satın alınan eşya otomatik takılır. Asa ile seçilen mevsim tam süre (`Config.SEASON_SECONDS`) **yalnızca sana** uygulanır: gelirin, gökyüzü/hava efektlerin ve HUD'un o mevsimi gösterir, süre bitince dünyanın
+   doğal mevsimine dönersin. Dünya mevsimi ve havası herkes için aynı kalır. Hava asası senin havanı kısa süre değiştirir (yalnızca mevsimde görülebilen türler).
    Şimdilik hiçbir eşya Robux ile satılmaz.
 5. **Yol Haritası:** Oyuncu sırayı kendi seçer; sadece ön koşulu olanlar kilitlidir.
 6. **Adalar:** Herhangi bir ada tabelasına ya da meydandaki "🧭 Adalar" tabelasına yaklaşıp **E** →
    meydana veya başka bir adaya ışınlan.
 7. **Balık değiştirme:** Pazar'da bir hamsiyi yavru levreğe yükseltebilirsin; yeni levrek fiyatından
-   hamsinin sabit başlangıç fiyatının %50'si düşülür. Kafes doluyken de çalışır.
+   hamsinin sabit başlangıç fiyatının `Config.FISH_REPLACEMENT_REFUND_RATE` oranı düşülür. Kafes doluyken de çalışır.
 8. **Yol haritası sonrası:** Tüm alanları yetişkin hayvanlarla doldurma ve 10 levreğe ulaşma
    ustalık hedefleri görünür. Tekrar eden ürün siparişlerinde yetişkin hayvanlar çevrimiçiyken
    üretim yapar; tamamlanan siparişi teslim edince para ve yeni sipariş alınır. Hayvan tüketilmez.
@@ -113,26 +114,25 @@ Yükseltmeler penceresi açılabilir geliştirmeleri önce gösterir; kilitli ol
 alınanları listeden kaldırır. Pazar ve Yol Haritası gibi 330×430 boyutuyla sınırlıdır ve küçük
 ekranlarda kullanılabilir alana sığar.
 
-**Üretim:** Süt fabrikası, kuluçkahane, at eğitimi, peynirhane ve balık sevkiyatı süreli
+**Üretim:** Tesisler (`Config.PRODUCTION_RECIPES`: para fabrikaları ve depoya ürün üreten ürün merkezleri) süreli
 partiler üretir. Kuluçkadaki civciv satılabilir veya boş kümese eklenebilir. Her tesiste
 tek parti kaydedilir; süre çevrimdışında da ilerler.
 Harita kodu değişince (`MAP_VERSION` artar) eklenti panelinden **Haritayı Kur** gerekir.
-**Adalar / I** ekranında kendi uzman adalarını açabilir, **Git ve yönet** ile ada seçebilirsin.
+**Adalar / I** ekranında kendi uzman adalarını açabilir ve ada seçebilirsin.
 Pazar, Yükseltmeler, Yol Haritası ve Üretim seçili adayı gösterir; para ortaktır, genel çiftlik bonusları yalnızca ilgili ana çiftlikte geçerlidir.
 Diğer oyuncuların çiftlikleri bu adalardan ayrı, yalnızca ziyaret olarak listelenir.
 
-**Birden fazla ana çiftlik:** Ada Yönetimi'nin üst kısmından boş bir **ana ada** satın alabilirsin.
+**Birden fazla ana çiftlik:** Adalar menüsünün üst kısmından boş bir **ana ada** satın alabilirsin.
 Her ana çiftlik kendi ana adası ve bağlı üç küçük adasıyla ayrı ilerler; hayvan, yükseltme,
 depo ve üretim kayıtları birbirine karışmaz. Yalnızca para ortaktır. Seçili olmayan çiftlikler
 de kendi depo sınırları ve otomatik toplama yükseltmeleriyle gelir üretir.
 İlave ana çiftlik fiyatları `Config.MAIN_FARM_PRICES` taban değerleridir ve yükseltmelerle aynı maliyet eğrisinden geçer;
 üst sınır `Config.MAIN_FARM_LIMIT` çiftliktir.
-Harita doluyken satın alma yapılmaz. Yeni oyunculara yer açılırken etkin olmayan çiftliklerin
-fiziksel görünümü geçici olarak kaldırılabilir; kayıtları ve gelirleri korunur, seçildiğinde
-oyuncunun kendi harita alanına geri yüklenir. [Ana çiftlik sistemi](docs/ANA_CIFTLIKLER.md).
+Etkin olmayan (park edilmiş) çiftlikler çizilmez ama kayıtları ve gelirleri korunur; çiftlik seçilince oyuncunun kendi
+fiziksel adası o temayla çalışma anında yeniden giydirilir. [Ana çiftlik sistemi](docs/ANA_CIFTLIKLER.md).
 Ayrıntılar: [Üretim ve uzman adalar](docs/URETIM_VE_UZMAN_ADALAR.md).
-Sağ menü sütunundaki Ayarlar'da
-grafik kalitesi (Otomatik/Düşük/Orta/Yüksek; hesaba kaydedilir) ve hareketi azaltma (yalnızca bu oturum) bulunur.
+Sağ menü sütunundaki Ayarlar'da dil, ses düzeyleri (efekt/ortam/müzik), grafik kalitesi (Otomatik/Düşük/Orta/Yüksek) ve hareketi azaltma bulunur;
+hepsi hesaba kaydedilir.
 
 ## Takımada ve Yol Haritası
 
@@ -157,8 +157,7 @@ Hangi üç küçük adanın geldiği **çiftlik numarasına (tema)** bağlıdır
 Her ada yeni bir hayvan, kendine özel bir bonus, bir üretim tesisi ve bir eklenti alanı getirir.
 Ada ve yükseltme listesi, fiyatlar ve ön koşullar **yalnızca** `src/shared/Config/` içindedir; bu dosyada kopyalanmaz.
 
-**Tempo hedefleri** (ideal oyuncu, `python scripts/simulate-economy.py --farm 1..6`): ilk hayvan saniyeler içinde
-(ilk 3 hayvan yetişkin doğar), ilk küçük ada ~13 dk, ikincisi ~47 dk, üçüncüsü ~2 saat, tüm yükseltmeler ~4,6 saat. Yazılı yükseltme fiyatları taban
+**Tempo hedefleri:** ideal oyuncu için süreler `python scripts/simulate-economy.py --farm N` ile ölçülür (ilk hayvan saniyeler içinde, sonraki adalar ve tüm yükseltmeler saat ölçeğinde; sonuçlar Config'e bağlı olduğundan buraya yazılmaz). Yazılı yükseltme fiyatları taban
 fiyattır; `UPGRADE_COST_BASE`/`UPGRADE_COST_EXPONENT` eğrisiyle büyütülür, aynı türden her yeni hayvan `ANIMAL_PRICE_GROWTH` kadar pahalıdır.
 Denge değiştirirsen önce simülasyonu çalıştır; `--cost-exp` ve `--price-growth` bayraklarıyla Config'e dokunmadan dene.
 
@@ -173,8 +172,7 @@ uygun yere taşınır, yer yoksa ilk fiyatı iade edilir.
 
 ### Yönetici paneli
 
-Yetki yalnızca **Geo_Geyo / UserId 11641916529** hesabındadır; sunucu
-`src/server/Modules/AdminPolicy.luau` içindeki sabit kimliği kontrol eder.
+Yetki yalnızca tek bir hesaptadır; sunucu `src/server/Modules/AdminPolicy.luau` içindeki sabit UserId'yi (`OWNER_USER_ID`) kontrol eder.
 Kullanıcı adı, istemcinin değiştirdiği `IsAdmin` attribute'u veya Studio'da bulunmak
 yetki sağlamaz. Studio'nun sentetik çoklu test oyuncuları da otomatik yönetici olmaz.
 
@@ -195,29 +193,23 @@ parasını değiştiren veya istemciden keyfi kod çalıştıran bir komut bulun
 
 Mevsimler 15 dakikada bir sırayla döner (tüm sunucularda aynı anda; tam döngü 1 saat).
 Sonradan katılan oyuncu mevcut mevsimin kalan süresinden devam eder. Hava her sunucuda mevsime uygun
-olarak 2,5–4,5 dakikada bir değişir. Etkiler gelire eklenir; mevsim panelinde ve Pazar kartlarında görünür.
+olarak `Config.WEATHER_SECONDS_MIN`–`MAX` aralığında değişir. Etkiler gelire eklenir; mevsim panelinde ve Pazar kartlarında görünür.
 Sol paneldeki küçük hava kartı ilerleme çubuğu, kalan dakika/saniye ve hava durumunu gösterir;
 geniş ekranda sıradaki mevsim de görünür. Bildirimler ayrı alandadır.
 
 HUD yerleşimi: sol ortada para/depo/mevsim/hedef paneli (sola kayarak kapanır); üst ortada menü çubuğu (Pazar, Yükseltmeler, Yol Haritası, Üretim, Adalar),
 sağ ortada menü sütunu (Envanter, Ödüller, Adama Dön, Ayarlar, yetkili hesapta Yönetici). Karolar kademeli açılır. Ayrıntı: `AGENTS.md` "Arayüz (UI) standardı".
 
-| Mevsim | Artış | Düşüş | Olası hava |
-|---|---|---|---|
-| 🌸 İlkbahar | İnek +%20, Tavuk +%25 | — | Güneşli, Bulutlu, Yağmurlu |
-| ☀️ Yaz | Hamsi/Levrek +%30, At +%15 | İnek -%10 | Güneşli, Bulutlu, Fırtına |
-| 🍂 Sonbahar | At +%25, Keçi +%20 | Tavuk -%10 | Bulutlu, Yağmurlu, Fırtına, Güneşli |
-| ❄️ Kış | Keçi +%30, İnek +%15 | Tavuk -%20, Balıklar -%20 | Karlı, Bulutlu, Güneşli |
+Mevsimlerin hayvan gelir çarpanları (`incomeModifiers`), olası hava türleri (`weather`) ve sipariş bonusu `Config.SEASONS`'tadır;
+havanın gelir etkisi `Config.WEATHER`'dadır. Sayılar bu belgede tutulmaz.
 
-Hava: Yağmurlu (İnek/At/Keçi +%10), Fırtına (Balıklar -%30, Tavuk -%10), Karlı (Keçi +%10, Tavuk -%10).
 Görsel olarak: yağmur/kar, fırtınada şimşek, bulut yoğunluğu, ışık tonu, mevsime göre çimen ve yaprak rengi,
-gökyüzünde kuş ve martı sürüleri. Ayarlar: `Config.SEASONS`, `Config.WEATHER`.
-Sonbaharda yapraklar renklenip dökülür, kışın yaprak döken ağaçlar çıplak kalır; çamlar yeşil
+gökyüzünde kuş ve martı sürüleri. Sonbaharda yapraklar renklenip dökülür, kışın yaprak döken ağaçlar çıplak kalır; çamlar yeşil
 örtüsünü korur. Kar ve kıyı buzları kademeli oluşur, kışın son %30'unda erimeye başlar ve
 ilkbaharın başında kaybolur. İlkbaharda yapraklar yeniden çıkar ve çiçeklenme görülür.
 Bu değişimler yerel görseldir; buzlar yürünebilir zemin oluşturmaz ve yüzmeyi engellemez.
 Yakındaki efektler kaliteye göre sınırlanır; hareketi azaltma uçuşan yaprakları kapatır.
-**Test:** Studio'da oynarken **F7** havayı sırayla değiştirir (Güneşli → Bulutlu → Yağmurlu → Fırtına → Karlı).
+**Test:** Studio'da oynarken yönetici hesabıyla **F7** havayı sırayla değiştirir.
 Yayınlanmış oyunda çalışmaz.
 
 Oyunda ölüm yok: suya düşülürse yüzülür, dipte kum taban ve altında görünmez güvenlik zemini var;
@@ -228,7 +220,7 @@ bir şekilde haritanın altına düşülürse karakter kendi adasına ışınlan
 Hepsi kodla basit parçalardan yapılır, ama kendi modellerini koyabilirsin
 (Studio'da `ServerStorage.Assets` altına, ya da `assets/` klasörüne `.rbxm` olarak):
 
-- `Assets/Animals/cow`, `horse`, `chicken` → hayvan modelleri (Model, önü -Z yönüne baksın)
+- `Assets/Animals/<hayvan id>` (ör. `cow`, `goat`; kimlikler `Config.ANIMALS`) → hayvan modelleri (Model, önü -Z yönüne baksın)
 - `Assets/Buildings/<upgrade id>` → ör. `silo`, `milk_machine`, `auto_collector`, `egg_factory`, `golden_horseshoe`
 
 Model yoksa kodla yapılan yedek görünüm kullanılır. Hayvan ve bina klonlarındaki Script,
@@ -240,17 +232,22 @@ Eski `ReplicatedStorage.Assets` konumu geçiş için desteklenir, yeni modelleri
 ```
 src/
   server/
-    Modules/        → saf sunucu mantığı (kayıt kodlama, kilit, hız sınırı)
+    Modules/        → saf sunucu mantığı (SaveCodec/ kayıt kodlama, oturum kilidi, hız sınırı, telemetri kuralları)
     World/          → statik harita: MapBuilder, WorldDecor, HomeBuildings, HubNpcs...
     Presentation/   → oyuncu durumundan dünyaya çizim (hayvan, bina, bölge görselleri)
-    Services/       → oyun mantığı: PlayerData, Plot, Economy, Animal, Upgrade, Production, Order...
+    Services/       → oyun mantığı: PlayerData (+ SaveStore: DataStore), Plot, Economy, Animal, Upgrade, Production, Contract...
   client/
-    Core/           → ClientState, PurchaseController, Localizer, Sfx
+    Core/           → ClientState, PurchaseController, Localizer, Preferences, Sfx
     Effects/        → gün-gece, hava, mevsim, su altı, grafik kalitesi, kuşlar/balıklar
     Ui/             → UiKit, FarmHud, Hud/* pencereleri, ayarlar, yönetici paneli
     Interaction/    → satın alma platformları, toplama, NPC, ada geçişi
   shared/Config            → TÜM oyun dengesi (fiyatlar, gelirler, yol haritası)
   shared/Modules/FarmMath  → sunucu ve client'ın ortak hesapları
+  shared/Locales           → çeviriler (tr kaynak; en, de, ru, es, pt)
+tests/    → saf Luau testleri (python scripts/run-tests.py) ve Studio harita testleri
+scripts/  → verify.ps1, run-tests.py, check-*.py, simulate-economy.py, setup-types.ps1
+plugin/   → Studio harita eklentisi (MapTool)
+docs/     → mimari ve konu belgeleri (telemetri, sesler, yayın...)
 ```
 
 Ayrıntı ve bağımlılık kuralları: [docs/MIMARI.md](docs/MIMARI.md).
@@ -270,10 +267,11 @@ PowerShell'de tam yerel kontrol:
 Rokit araçlarına ek olarak resmi [Luau 0.740](https://github.com/luau-lang/luau/releases/tag/0.740)
 paketindeki `luau`, `luau-compile`, `luau-analyze` gereklidir. Paketini `.tools/luau` altına aç
 veya `-LuauDirectory` ile başka konum ver. Araçlar repoya eklenmez.
-Kontrol; biçim, lint, kaynak sözdizimi derlemesi, veri/ekonomi/sipariş ve taklit servis regresyonları,
-üç saf modülün tür analizi ve oyun/eklenti/test place derlemelerini çalıştırır.
-Bu, tüm Roblox kodunun tür analizinin veya gerçek Studio testinin yerine geçmez.
-GitHub Actions yapılandırması da aynı kontrolleri içerir; uzak repo üzerinde henüz çalıştırılmadı.
+Kontrol; biçim (StyLua), lint (Selene), kaynak sözdizimi derlemesi, saf Luau regresyon testleri, ekonomi simülasyonu duman testi,
+çeviri kapsamı, yapay zeka rehberi tutarlılığı, mimari bağımlılık kuralları, tip analizi ve oyun/eklenti/test place derlemelerini çalıştırır.
+Tip analizi için `powershell scripts/setup-types.ps1` ile `.tools/luau-lsp` kurulur (`python scripts/check-types.py`; mevcut bulgular
+`scripts/types-baseline.json` tabanındadır, yeni bulgu hata sayılır). Araç yoksa `verify.ps1` bu adımı uyarıyla atlar; temiz klonda atlamayı hata yapmak için `-RequireTypes` ekle.
+Bu, gerçek Studio testinin yerine geçmez. Depoda CI yapılandırması yoktur; kontroller yerelde çalıştırılır.
 
 Harita testleri ana place'te, eklenti panelindeki **Haritayı Doğrula** düğmesiyle çalışır (Studio düzenleme modunda; Command Bar gerekmez).
 Saf testler ayrı test place'inde de çalıştırılabilir: `rojo build test.project.json -o .test-build/tests.rbxlx` dosyasını Studio'da aç, Play'e bas.

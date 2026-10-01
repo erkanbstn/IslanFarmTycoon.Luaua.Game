@@ -8,7 +8,7 @@ Tüm olaylar **sunucudan** `Services/TelemetryService.luau` ile gönderilir; saf
   (`TelemetryEconomy`, `TelemetryFunnel`, `TelemetryCustom`, `TelemetryProgression`, `TelemetryStudioSkipped`).
   Ne gidecekti görmek için Studio'da `Workspace` özniteliği `TelemetryPrint = true` yap: olaylar Output'a yazılır.
 - Tüm AnalyticsService çağrıları `pcall` içindedir; hata `TelemetryError` sayacına yazılır, oyunu bozmaz.
-- Sunucu başına iç bütçe: dakikada `TelemetryLogic.EVENTS_PER_MINUTE` (120) olay. Aşılırsa olay düşer ve `TelemetryDropped` artar
+- Sunucu başına iç bütçe: dakikada `TelemetryLogic.EVENTS_PER_MINUTE` olay. Aşılırsa olay düşer ve `TelemetryDropped` artar
   (Roblox'un belgelenmiş bir dakikalık sınırı yok; bu değer muhafazakâr bir tahmindir, canlıda `TelemetryDropped` 0 değilse artır/azalt).
 - Yüksek frekanslı kaynaklar (Toplama, Otomatik toplama, Üretim) oyuncu başına birikir ve 60 sn'de bir (ve oyuncu çıkarken) tek olay olarak gider.
 - Roblox sınırları: 5 para birimi (yalnızca `Cash`), 20 işlem türü, 100 SKU, 100 özel olay adı. Test bunları denetler;

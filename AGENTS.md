@@ -75,19 +75,22 @@ Yeni dosya eklerken `docs/MIMARI.md`'deki "Yeni şey nereye?" tablosuna bak.
 ## Remote'lar
 - Tüm RemoteEvent/RemoteFunction'lar `src/shared/Remotes.luau` içindeki listeye eklenir.
 - Sunucu `Remotes.init()` çağırır, iki taraf `Remotes.get("Ad")` ile erişir.
+- Çiftliğe bağlı Remote işleyicileri etkin çiftlik ve hız sınırı için `Services/RequestGuard`, `Modules/RateLimiter` kullanır.
+- Kayıt: şema `GameTypes` + `Modules/SaveCodec/` (decode/encode; sürüm `SessionLock.VERSION`); DataStore'a yalnızca `Services/SaveStore.luau` dokunur (`check-architecture.py` denetler), `PlayerDataService` oturum/facade'dır.
 
 ## Harita
-- Harita `src/server/World/MapBuilder.luau` (+ `MapLayout`, `MapParts`, `IslandBuilder`, `SatelliteBuilder`, `HubBuilder`) ile üretilir; Studio'da `plugin/` eklentisinin
+- Harita `src/server/World/MapBuilder.luau` (+ `MapLayout`, `MapParts`, `MapMountains`, `IslandBuilder`, `SatelliteBuilder`, `HubBuilder`) ile üretilir; Studio'da `plugin/` eklentisinin
   "Haritayı Kur" butonuyla düzenleme modunda kurulup place'e kaydedilir.
 - Meydandaki satıcı NPC'ler `HubNpcs.luau`, genel ada yapıları `HomeBuildings.luau`. Tabelalar uzun direklere asılır, tahtası çarpışmaz
   (yol kapanmasın); dekor kurulumunun sonunda `WorldDecor.optimize` çağrılır.
-- Düzen değişince `MAP_VERSION`'ı artır. `World` dosyaları `Shared`'ı yalnızca
+- Place'e kaydedilen düzen değişince `MapBuilder.luau`'daki `MAP_VERSION`'ı artır (çalışma anı `Presentation/` için gerekmez). Temaya bağlı ada içeriği sunucu açılışında `ServerStorage.ThemeTemplates` şablonlarına kurulur,
+  çiftlik değişince `MapBuilder.applyTheme` şablonu Clone eder. `World` dosyaları `Shared`'ı yalnızca
   `World/SharedRef.luau` üzerinden alır (eklenti modülleri kopyalayıp çalıştırır; kopyadaki `Shared`'ı o bulur) — bunu bozma;
   `World` yalnızca `World`/`Shared` require eder (`check-architecture.py` denetler).
 - Gece ışığı: parça `NightLight`/`NightWindow` etiketi + `NightColor` + kapalı `PointLight` alır
  (`WorldDecor.lamp` / `smallLamp` / `markNightWindow`). Gece/gündüz Lighting değerlerini yalnızca
  `DayNight.client` yazar; `WeatherEffects` pozlamayı `Lighting.WeatherExposure` özniteliğiyle bildirir.
-- Oyun dengesi (fiyat, gelir, yol haritası) sadece `src/shared/Config/` içinde (`init.luau` birleştirir; veri ilgili dosyada: fiyat/yükseltme `Upgrades`, hayvan/bölge `Animals`, ada/tema `Islands`, sabitler `Core`).
+- Oyun dengesi (fiyat, gelir, yol haritası) sadece `src/shared/Config/` içinde (`init.luau` birleştirir; veri ilgili dosyada: fiyat/yükseltme `Upgrades`, hayvan/bölge `Animals`, ada/tema `Islands`, üretim `Production`, depo ürünleri `Goods`, eşya/olay/ürün `Shop`/`Items`, mevsim/hava `Weather`, ses `Audio`, sabitler `Core`/`Economy`).
 - Her ana çiftlik kendi hayvanıyla başlar (`theme.homeAnimal`: inek/tavuk/ördek); inek olmayanlarda inek `dairy` (Süt Adası) küçük adasındadır.
   Bölge izni `Config.zoneAllows`/`FarmMath.zoneAllows` ile sorulur, `allowedAnimals`'a doğrudan bakılmaz.
 - Her oyuncunun takımadası: ana ada + uzman adalar (`Config.FARM_ISLANDS`). Bölgeler bir adaya bağlıdır
@@ -98,7 +101,7 @@ Yeni dosya eklerken `docs/MIMARI.md`'deki "Yeni şey nereye?" tablosuna bak.
   closeButton, badge, progressBar, toastHost). Renk/yazı tipi/boyutu UiKit tablolarından al, elle değer yazma.
 - Dünyadaki tabelalar (BillboardGui/SurfaceGui) `src/shared/WorldUi.luau` ile yazılır: `tag` (havada etiket),
   `sign` (tahta tabela yüzü); güncellemek için `setTag` / `setSignText`.
-- Renk, yazı tipi ve boyutların tek kaynağı `src/shared/UiTheme.luau` (UiKit ve WorldUi ikisi de kullanır).
+- Renk, yazı tipi ve boyutların tek kaynağı `src/shared/UiTheme.luau` (UiKit ve WorldUi ikisi de kullanır). Ekran ölçeği `UiKit.screenScale` / `Shared/Modules/UiScale` ile hesaplanır; elle ölçek yazma.
 - Emoji sadece ikon kutusunda (`UiKit.iconChip`, WorldUi'nin `icon` alanı); metinlerde emoji yok.
   Kapat/bildirim işaretleri çizilir.
 - Buton tipleri: primary = alınabilir, warning = para yetmiyor, disabled = kilitli/dolu, owned = alındı.
@@ -121,12 +124,13 @@ Yeni dosya eklerken `docs/MIMARI.md`'deki "Yeni şey nereye?" tablosuna bak.
 - Bayraklar emoji değil, `UiKit.flag` ile şekillerle çizilir (Roblox yazı tipleri bayrak emojisini göstermez).
 
 ## Grafik ve atmosfer
-- Grafik kademesi (Otomatik/Düşük/Orta/Yüksek, hesaba kayıtlı `save.graphics`) yalnızca `src/client/Effects/Graphics.client.luau`'da uygulanır; `EffectsQuality` ve `ReducedMotion` yeni efektlerde zorunlu.
+- Grafik kademesi (Otomatik/Düşük/Orta/Yüksek, hesaba kayıtlı `save.graphics`) yalnızca `src/client/Effects/Graphics.client.luau`'da uygulanır; `EffectsQuality` ve `ReducedMotion` (`Core/EffectSettings`) yeni efektlerde zorunlu.
+  Ses düzeyleri ve hareketi azaltma da hesaba kayıtlıdır (`save.audio`, `save.reducedMotion`; `Modules/Preferences` doğrular, `Core/Preferences.client` uygular).
 - Su altı (`Underwater.client`) kamera su seviyesinin altındayken renk/bulanıklık/baloncuk/ses ekler ve yağışı keser (`Submerged`).
 
 ## Araçlar
-- Rokit (`rokit.toml`) ile: rojo, stylua, selene.
-- Lint: `selene src` · Format: `stylua src` · Senkronizasyon: `rojo serve`
+- Rokit (`rokit.toml`) ile: rojo, stylua, selene. Luau yorumlayıcı/derleyici/analizör `.tools/luau` altındadır (`verify.ps1 -LuauDirectory`); tip analizi için `.tools/luau-lsp`.
+- Lint: `selene src plugin tests` · Format: `stylua src tests plugin` · Senkronizasyon: `rojo serve`
 - Testler: `python scripts/run-tests.py` · Çeviri kapsamı: `python scripts/check-locales.py --strict-literals`
-- Mimari kuralları: `python scripts/check-architecture.py` · Tip analizi (yeni bulgu = hata): `python scripts/check-types.py` (araçlar `.tools/luau-lsp`, `scripts/setup-types.ps1`)
+- Mimari kuralları: `python scripts/check-architecture.py` · Tip analizi (yeni bulgu = hata): `python scripts/check-types.py` (araçları `powershell scripts/setup-types.ps1` `.tools/luau-lsp` altına kurar; yoksa `verify.ps1` adımı atlar, `-RequireTypes` ile hata sayar)
 - Tam doğrulama: `powershell -ExecutionPolicy Bypass -File scripts/verify.ps1`

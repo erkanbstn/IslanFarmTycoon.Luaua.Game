@@ -5,7 +5,7 @@ panelinde elle yapılır; kod bunları değiştiremez.
 
 ## Yayınlamadan önce (Studio)
 1. `rojo serve` ile bağlan, **Haritayı Kur → Doğrula → Ctrl+S** (MAP_VERSION değişince şart; doğrulama geçmeden yayınlama).
-2. **Game Settings → Basic Info → Max Players = 6** (haritada 6 ada var; fazlası "boş ada kalmadı" ile reddedilir).
+2. **Game Settings → Basic Info → Max Players = `Config.MAP_PLOT_COUNT`** (şu an 6; haritadaki ada sayısı; fazlası "boş ada kalmadı" ile reddedilir).
 3. **Game Settings → Security → Enable Studio Access to API Services** açık olsun (Studio'da DataStore testi için; yayında gerekmez).
 4. `Config.DEBUG = false` (varsayılan) ve Workspace'te `StudioNonPersistentData` özniteliği yok.
 5. Tek başına çık-gir turu: para/hayvan al, çık, tekrar gir; `ServerStorage.Diagnostics` ve oyuncunun `DataBytes`/`DataBackupAt` değerlerine bak.
