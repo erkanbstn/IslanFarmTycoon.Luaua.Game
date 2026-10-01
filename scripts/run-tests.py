@@ -89,6 +89,26 @@ def farm_math_bundle() -> str:
     return "".join(["local FarmMath = (function()\n", parts, init, "\nreturn FarmMathInit\nend)()\n"])
 
 
+SAVE_CODEC_PARTS = ["Common", "Goods", "Tasks", "Inventory", "Production", "Animals", "Account", "Farm"]
+
+
+def save_codec_bundle() -> str:
+    """`src/server/Modules/SaveCodec/` klasörünü tek `SaveCodec` yerel değişkeni olarak birleştirir.
+
+    Parçalar SessionLock/Preferences'ı dışarıdan, kendilerinden önceki parçaları sırayla alır; init FarmProfiles'ı dışarıdan alır.
+    """
+    parts = ""
+    for name in SAVE_CODEC_PARTS:
+        path = f"src/server/Modules/SaveCodec/{name}.luau"
+        parts += module(name, path, _declared_dependencies(path))
+    init = module(
+        "SaveCodecInit",
+        "src/server/Modules/SaveCodec/init.luau",
+        _declared_dependencies("src/server/Modules/SaveCodec/init.luau"),
+    )
+    return "".join(["local SaveCodec = (function()\n", parts, init, "\nreturn SaveCodecInit\nend)()\n"])
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--luau", help="Path to the standalone Luau interpreter (not Lua)")
@@ -114,7 +134,7 @@ def main() -> int:
         module("SaveBackup", "src/server/Modules/SaveBackup.luau"),
         module("FarmProfiles", "src/server/Modules/FarmProfiles.luau"),
         module("Preferences", "src/server/Modules/Preferences.luau"),
-        module("SaveCodec", "src/server/Modules/SaveCodec.luau", {"SessionLock", "FarmProfiles", "Preferences"}),
+        save_codec_bundle(),
         module("Rewards", "src/shared/Modules/Rewards.luau", {"Config", "FarmMath"}),
         module("Merchant", "src/shared/Modules/Merchant.luau", {"Config", "FarmMath"}),
         module("merchantSpec", "tests/merchant.spec.luau"),

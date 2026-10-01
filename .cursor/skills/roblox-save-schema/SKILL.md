@@ -14,7 +14,7 @@ Kayıt kaybı geri alınamaz; her adımı test et.
 - [ ] 2. SaveCodec.decode: eksik/bozuk değere varsayılan, sayılarda sonlu + clamp, id doğrulama
 - [ ] 3. SaveCodec.encode: alanı yaz
 - [ ] 4. Yeni hesap için varsayılan: SaveCodec.newFarm(config, farmMath, now, newUid, farmId) / FarmProfiles
-      (decodeFarm çiftlik numarasını `farmId` ile alır: başlangıç hayvanı temaya göre)
+      (SaveCodec/Farm.decode çiftlik numarasını `farmId` ile alır: başlangıç hayvanı temaya göre)
 - [ ] 5. Şema biçimi değiştiyse version +1 ve eski sürümden göç
 - [ ] 6. tests/data.spec.luau: eski kayıt → yeni, bozuk değer, gelecekteki sürüm reddi
 - [ ] 7. python scripts/run-tests.py
