@@ -20,6 +20,10 @@ Tokens.Radius = {
 	Button = 8,
 }
 
+-- Okunabilirlik ve dokunma alt sınırları (telefon): kendi küçük değerini yazma
+Tokens.MinTextSize = 11
+Tokens.TouchTarget = 44
+
 -- Menü karosu boyutu (HUD üst menü çubuğu ve sağ menü sütunu aynı ölçüyü kullanır)
 Tokens.MenuTileSize = Vector2.new(76, 60)
 

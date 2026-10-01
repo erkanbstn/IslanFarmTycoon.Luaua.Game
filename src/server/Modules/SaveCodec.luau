@@ -2,6 +2,7 @@
 -- Roblox bağımsız şema sınırı. Config/FarmMath/UID üreteci testlerde enjekte edilir.
 local SessionLock = require(script.Parent.SessionLock)
 local FarmProfiles = require(script.Parent.FarmProfiles)
+local Preferences = require(script.Parent.Preferences)
 
 local SaveCodec = {}
 local MAX_MONEY = 1e15
@@ -578,6 +579,8 @@ function SaveCodec.decode(
 	if typeof(source.graphics) == "string" and config.GRAPHICS_MODES and config.GRAPHICS_MODES[source.graphics] then
 		data.graphics = source.graphics
 	end
+	-- Ses düzeyleri ve hareket azaltma: yalnızca geçerli değerler; bozuk alan yok sayılır
+	data.audio, data.reducedMotion = Preferences.decode(source)
 	-- Hesap düzeyi ilerleme: ömür boyu kazanç, günlük ödül serisi ve alınmış başarımlar (hepsi isteğe bağlı).
 	data.lifetimeEarned = amount(source.lifetimeEarned, 0)
 	local daily = source.daily
@@ -756,6 +759,8 @@ function SaveCodec.encode(save: any, now: number): { [string]: any }
 		activeMainFarmId = save.activeMainFarmId,
 		language = save.language,
 		graphics = save.graphics,
+		audio = save.audio,
+		reducedMotion = save.reducedMotion,
 		lifetimeEarned = amount(save.lifetimeEarned, 0),
 		daily = save.daily,
 		achievements = save.achievements,

@@ -18,7 +18,7 @@ local IslandTabs = require(script.Parent:WaitForChild("Hud"):WaitForChild("Islan
 local player = Players.LocalPlayer
 local ProductionPanel = {}
 local window: UiKit.Window? = nil
-local screen: ScreenGui? = nil
+local screen: Instance? = nil
 local render: (() -> ())? = nil
 local sequence = 0
 local pending: number? = nil
@@ -72,7 +72,7 @@ Remotes.get("ProductionResult").OnClientEvent:Connect(function(id: number, ok: b
 	refresh()
 end)
 
-local function create(parent: ScreenGui): UiKit.Window
+local function create(parent: Instance): UiKit.Window
 	local created = UiKit.window(parent, {
 		title = "Üretim",
 		icon = "🏭",
@@ -376,7 +376,7 @@ local function create(parent: ScreenGui): UiKit.Window
 	return created
 end
 
-function ProductionPanel.open(parent: ScreenGui, recipeId: string?)
+function ProductionPanel.open(parent: Instance, recipeId: string?)
 	screen = parent
 	focused = recipeId
 	local recipe = recipeId and Config.PRODUCTION_RECIPES[recipeId]
@@ -395,7 +395,7 @@ function ProductionPanel.open(parent: ScreenGui, recipeId: string?)
 end
 
 -- Menü düğmesi/kısayol: açıksa kapatır
-function ProductionPanel.toggle(parent: ScreenGui)
+function ProductionPanel.toggle(parent: Instance)
 	local current = window
 	if current and current.isOpen() then
 		current.close()
@@ -404,7 +404,7 @@ function ProductionPanel.toggle(parent: ScreenGui)
 	ProductionPanel.open(parent)
 end
 
-function ProductionPanel.bind(parent: ScreenGui)
+function ProductionPanel.bind(parent: Instance)
 	screen = parent
 end
 

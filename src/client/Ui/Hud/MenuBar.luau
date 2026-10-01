@@ -48,7 +48,7 @@ export type Hud = {
 	updateVisibility: (state: PlayerSave) -> (),
 }
 
-function MenuBar.create(screenGui: ScreenGui): Hud
+function MenuBar.create(screenGui: Instance): Hud
 	-- Üst çubuk: oyun içi ana pencereler. Bildirimler (toast) bunun altında durur.
 	local topBar = Instance.new("Frame")
 	topBar.Name = "MenuTop"
@@ -102,8 +102,35 @@ function MenuBar.create(screenGui: ScreenGui): Hud
 	for index, button in { inventoryButton, rewardsButton, homeButton, settingsButton, adminButton } do
 		button.LayoutOrder = index
 	end
+	-- Gamepad: görünür karolar arasında NextSelection zinciri (gizli karo atlanır). Üst çubuk soldan sağa, son karodan sağ
+	-- sütuna geçer; sütunda yukarı/aşağı gezilir, sütundan sola basınca üst çubuğa dönülür.
+	local topOrder: { GuiObject } = { shopButton, upgradesButton, roadmapButton, productionButton, islandsButton }
+	local sideOrder: { GuiObject } = { inventoryButton, rewardsButton, homeButton, settingsButton, adminButton }
+	local function visibleOnly(list: { GuiObject }): { GuiObject }
+		local result: { GuiObject } = {}
+		for _, button in list do
+			if button.Visible then
+				table.insert(result, button)
+			end
+		end
+		return result
+	end
+	local function linkSelection()
+		local top, side = visibleOnly(topOrder), visibleOnly(sideOrder)
+		for index, button in top do
+			button.NextSelectionLeft = top[index - 1]
+			button.NextSelectionRight = top[index + 1] or side[1]
+		end
+		for index, button in side do
+			button.NextSelectionUp = side[index - 1]
+			button.NextSelectionDown = side[index + 1]
+			button.NextSelectionLeft = top[#top]
+		end
+	end
+
 	local function updateAdminAccess()
 		adminButton.Visible = localPlayer:GetAttribute("IsAdmin") == true
+		linkSelection()
 	end
 	updateAdminAccess()
 	localPlayer:GetAttributeChangedSignal("IsAdmin"):Connect(updateAdminAccess)
@@ -217,6 +244,7 @@ function MenuBar.create(screenGui: ScreenGui): Hud
 		setMenuTile(islandsButton, veteran)
 		setMenuTile(homeButton, true) -- "Adama Dön" her zaman görünür: oyuncular adasını bulmakta zorlanıyor
 		setMenuTile(inventoryButton, ownsItems or earned >= 1000)
+		linkSelection()
 	end
 
 	return {

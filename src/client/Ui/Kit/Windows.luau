@@ -10,6 +10,7 @@ local Players = game:GetService("Players")
 local Tokens = require(script.Parent:WaitForChild("Tokens"))
 local Base = require(script.Parent:WaitForChild("Base"))
 local Controls = require(script.Parent:WaitForChild("Controls"))
+local Screen = require(script.Parent:WaitForChild("Screen"))
 local Sfx = require(script.Parent.Parent.Parent:WaitForChild("Core"):WaitForChild("Sfx"))
 
 local Windows = {}
@@ -96,11 +97,10 @@ function Windows.window(parent: Instance, options: WindowOptions): Window
 	local close: TextButton? = nil
 	local targetPosition = options.position
 	local function resize()
-		local camera = Workspace.CurrentCamera
-		if not camera then
+		if not Workspace.CurrentCamera then
 			return
 		end
-		local viewport = camera.ViewportSize
+		local viewport = Screen.viewport()
 		local compact = viewport.X < 900 or viewport.Y < 600
 		frame.AnchorPoint = if compact then Vector2.new(0.5, 0.5) else options.anchor
 		targetPosition = if compact then UDim2.fromScale(0.5, 0.5) else options.position
@@ -164,7 +164,7 @@ function Windows.window(parent: Instance, options: WindowOptions): Window
 	local closeButton = Controls.closeButton(frame, window.close)
 	close = closeButton
 	closeButton.AnchorPoint = Vector2.new(1, 0)
-	closeButton.Position = UDim2.new(1, -14, 0, 14)
+	closeButton.Position = UDim2.new(1, -7, 0, 7) -- 44 px dokunma alanı, görünen 30 px daire eskisiyle aynı yerde
 	table.insert(openWindows, window)
 	local inputConnection = UserInputService.InputBegan:Connect(function(input, processed)
 		if

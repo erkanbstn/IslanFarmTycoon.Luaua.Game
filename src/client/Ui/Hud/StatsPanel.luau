@@ -17,6 +17,7 @@ type PlayerSave = GameTypes.PlayerSave
 
 local Color = UiKit.Color
 local localPlayer = Players.LocalPlayer
+local TAB_WIDTH = UiKit.TouchTarget -- açma sekmesi dokunma alt sınırında
 
 local StatsPanel = {}
 
@@ -27,7 +28,7 @@ export type Hud = {
 	bounceCash: () -> (),
 }
 
-function StatsPanel.create(screenGui: ScreenGui): Hud
+function StatsPanel.create(screenGui: Instance): Hud
 	local stats = UiKit.panel(screenGui)
 	stats.Name = "Stats"
 	stats.AnchorPoint = Vector2.new(0, 0.5)
@@ -202,7 +203,7 @@ function StatsPanel.create(screenGui: ScreenGui): Hud
 	tab.Name = "StatsToggle"
 	tab.Text = ""
 	tab.AnchorPoint = Vector2.new(0, 0.5)
-	tab.Size = UDim2.fromOffset(26, 60)
+	tab.Size = UDim2.fromOffset(TAB_WIDTH, 60)
 	tab.BackgroundColor3 = Color.Panel
 	tab.BackgroundTransparency = 0.05
 	tab.AutoButtonColor = true
@@ -214,7 +215,7 @@ function StatsPanel.create(screenGui: ScreenGui): Hud
 	for index = 1, 2 do
 		local arm = Instance.new("Frame")
 		arm.AnchorPoint = Vector2.new(0.5, 0.5)
-		arm.Position = UDim2.new(0, 13, 0.5, if index == 1 then -4 else 4)
+		arm.Position = UDim2.new(0, TAB_WIDTH / 2, 0.5, if index == 1 then -4 else 4)
 		arm.Size = UDim2.fromOffset(12, 2)
 		arm.BackgroundColor3 = Color.Text
 		arm.BorderSizePixel = 0
@@ -227,8 +228,8 @@ function StatsPanel.create(screenGui: ScreenGui): Hud
 	local tabCash = UiKit.text(tab, "$0", "Caption", Color.Gold)
 	tabCash.AutomaticSize = Enum.AutomaticSize.None
 	tabCash.AnchorPoint = Vector2.new(0, 0.5)
-	tabCash.Position = UDim2.new(0, 28, 0.5, 0)
-	tabCash.Size = UDim2.new(1, -32, 1, 0)
+	tabCash.Position = UDim2.new(0, TAB_WIDTH + 2, 0.5, 0)
+	tabCash.Size = UDim2.new(1, -(TAB_WIDTH + 6), 1, 0)
 	tabCash.TextXAlignment = Enum.TextXAlignment.Left
 	tabCash.Visible = false
 	cashLabel:GetPropertyChangedSignal("Text"):Connect(function()
@@ -243,9 +244,12 @@ function StatsPanel.create(screenGui: ScreenGui): Hud
 		return if compact then 200 else 240
 	end
 	local function followTab()
+		-- Mutlak değerler ekran pikselidir; sekme ölçekli kökün altında olduğu için kök konumu çıkarılıp ölçeğe bölünür.
+		local origin = if screenGui:IsA("GuiBase2d") then screenGui.AbsolutePosition else Vector2.zero
+		local scale = UiKit.screenScale()
 		tab.Position = UDim2.fromOffset(
-			stats.AbsolutePosition.X + stats.AbsoluteSize.X + 6,
-			stats.AbsolutePosition.Y + stats.AbsoluteSize.Y / 2
+			(stats.AbsolutePosition.X - origin.X) / scale + stats.AbsoluteSize.X / scale + 6,
+			(stats.AbsolutePosition.Y - origin.Y) / scale + stats.AbsoluteSize.Y / scale / 2
 		)
 	end
 	stats:GetPropertyChangedSignal("AbsolutePosition"):Connect(followTab)
@@ -257,7 +261,7 @@ function StatsPanel.create(screenGui: ScreenGui): Hud
 		-- Kapalıyken "<" yerine ">" (joint sağda), açıkken "<" (joint solda)
 		arms[1].Rotation = if collapsed then 45 else -45
 		arms[2].Rotation = if collapsed then -45 else 45
-		tab.Size = if collapsed then UDim2.fromOffset(96, 60) else UDim2.fromOffset(26, 60)
+		tab.Size = if collapsed then UDim2.fromOffset(TAB_WIDTH + 70, 60) else UDim2.fromOffset(TAB_WIDTH, 60)
 		tabCash.Visible = collapsed
 		if positionTween then
 			positionTween:Cancel()

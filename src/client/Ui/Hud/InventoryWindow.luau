@@ -36,7 +36,7 @@ local OWNED_ORDER = 40
 local WEATHER_ORDER = { "sunny", "cloudy", "rain", "storm", "snow" }
 local POWER_BUTTONS = 5
 
-function InventoryWindow.create(screenGui: ScreenGui): Panel
+function InventoryWindow.create(screenGui: Instance): Panel
 	local window = UiKit.window(screenGui, {
 		title = "Envanter",
 		icon = "🎒",
@@ -129,7 +129,7 @@ function InventoryWindow.create(screenGui: ScreenGui): Panel
 		button.TextScaled = true
 		local fit = Instance.new("UITextSizeConstraint")
 		fit.MaxTextSize = 13
-		fit.MinTextSize = 8
+		fit.MinTextSize = UiKit.MinTextSize
 		fit.Parent = button
 		powerButtons[index] = button
 		button.Activated:Connect(function()

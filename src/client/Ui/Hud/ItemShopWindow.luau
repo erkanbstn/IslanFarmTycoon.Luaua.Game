@@ -25,7 +25,7 @@ export type Shop = {
 	update: (state: PlayerSave) -> (),
 }
 
-function ItemShopWindow.create(screenGui: ScreenGui): Shop
+function ItemShopWindow.create(screenGui: Instance): Shop
 	local window = UiKit.window(screenGui, {
 		title = "Eşya Dükkânı",
 		icon = "🎒",

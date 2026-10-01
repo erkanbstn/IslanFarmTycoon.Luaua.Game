@@ -14,6 +14,7 @@ local Flags = require(script.Parent:WaitForChild("Kit"):WaitForChild("Flags"))
 local Grid = require(script.Parent:WaitForChild("Kit"):WaitForChild("Grid"))
 local Windows = require(script.Parent:WaitForChild("Kit"):WaitForChild("Windows"))
 local Toasts = require(script.Parent:WaitForChild("Kit"):WaitForChild("Toasts"))
+local Screen = require(script.Parent:WaitForChild("Kit"):WaitForChild("Screen"))
 
 local UiKit = {}
 
@@ -31,6 +32,8 @@ UiKit.Font = Tokens.Font
 UiKit.TextSize = Tokens.TextSize
 UiKit.Radius = Tokens.Radius
 UiKit.MenuTileSize = Tokens.MenuTileSize
+UiKit.MinTextSize = Tokens.MinTextSize
+UiKit.TouchTarget = Tokens.TouchTarget
 
 -- Bileşenler (gövde: Ui/Kit/*)
 UiKit.colorText = Base.colorText
@@ -61,5 +64,8 @@ UiKit.tabs = Grid.tabs
 UiKit.flag = Flags.flag
 UiKit.window = Windows.window
 UiKit.toastHost = Toasts.toastHost
+UiKit.screenRoot = Screen.root
+UiKit.screenScale = Screen.scale
+UiKit.viewport = Screen.viewport
 
 return UiKit

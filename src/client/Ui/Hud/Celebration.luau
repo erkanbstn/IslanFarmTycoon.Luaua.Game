@@ -19,7 +19,7 @@ local localPlayer = Players.LocalPlayer
 local Celebration = {}
 
 -- Döndürdüğü fonksiyon her durum güncellemesinde çağrılır; yeni alınanları kutlar.
-function Celebration.create(screenGui: ScreenGui): (PlayerSave) -> ()
+function Celebration.create(screenGui: Instance): (PlayerSave) -> ()
 	local lastFarmId: string? = nil
 	local lastPurchased: { [string]: boolean } = {}
 	local lastLevels: { [string]: number } = {}

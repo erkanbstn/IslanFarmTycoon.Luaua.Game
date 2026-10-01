@@ -34,6 +34,7 @@ local TelemetryService = require(Services:WaitForChild("TelemetryService"))
 local Rewards = require(Shared:WaitForChild("Modules"):WaitForChild("Rewards"))
 local RateLimiter = require(script:WaitForChild("Modules"):WaitForChild("RateLimiter"))
 local SessionLock = require(script:WaitForChild("Modules"):WaitForChild("SessionLock"))
+local Preferences = require(script:WaitForChild("Modules"):WaitForChild("Preferences"))
 
 -- Karakter, veri yüklenip ada atandıktan SONRA yüklenir: böylece oyuncu önce meydanda doğup
 -- sonra ışınlanmaz, doğrudan kendi adasında doğar (default.project.json'da da kapalı).
@@ -123,6 +124,22 @@ Remotes.get("RequestSetGraphics").OnServerEvent:Connect(function(player: Player,
 	end
 	data.graphics = mode
 	player:SetAttribute("SavedGraphics", mode)
+	PlayerDataService.requestSave(player)
+end)
+
+-- Ses düzeyi (SFX / Ortam / Müzik) ve hareket azaltma tercihi: tür ve değer Modules/Preferences'te doğrulanır.
+-- İstemci sürgüyü bırakınca/duraklayınca gönderir; hız sınırı tür başınadır (bir sürgü ötekini engellemez).
+Remotes.get("RequestSetPreference").OnServerEvent:Connect(function(player: Player, kind: unknown, value: unknown)
+	if not Preferences.isKind(kind) or not RateLimiter.allow(player, `preference:{kind}`, 0.25) then
+		return
+	end
+	local data = PlayerDataService.tryGet(player)
+	if not data or not Preferences.apply(data, kind, value) then
+		return
+	end
+	for name, attribute in Preferences.attributes(data) do
+		player:SetAttribute(name, attribute)
+	end
 	PlayerDataService.requestSave(player)
 end)
 

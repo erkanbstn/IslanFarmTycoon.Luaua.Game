@@ -1,5 +1,5 @@
 --!strict
--- Hareket azaltma yalnızca bu oturum içindir; dil ve grafik tercihi hesaba kaydedilir.
+-- Dil, grafik, ses düzeyleri ve hareket azaltma hesaba kaydedilir (ses/hareket: Core/Preferences.client).
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UiKit = require(script.Parent:WaitForChild("UiKit"))
@@ -11,25 +11,24 @@ local player = Players.LocalPlayer
 local SettingsMenu = {}
 local window: UiKit.Window? = nil
 
-if player:GetAttribute("ReducedMotion") == nil then
-	player:SetAttribute("ReducedMotion", false)
-end
+-- Ses sürgüleri: canlı öznitelik (Core/Sfx grupları okur) ve ekrandaki başlık
+local VOLUMES = {
+	{ attribute = "SoundVolume", label = "Efekt sesleri: %{}", default = Config.AUDIO_DEFAULTS.sfx },
+	{ attribute = "AmbienceVolume", label = "Ortam sesleri: %{}", default = Config.AUDIO_DEFAULTS.ambience },
+	{ attribute = "MusicVolume", label = "Müzik: %{}", default = Config.AUDIO_DEFAULTS.music },
+}
 
-local function create(parent: ScreenGui): UiKit.Window
+local function create(parent: Instance): UiKit.Window
 	local created = UiKit.window(parent, {
 		title = "Ayarlar",
 		icon = "⚙️",
 		tint = UiKit.Color.Blue,
 		width = 380,
-		maxHeight = 430,
+		maxHeight = 520,
 		anchor = Vector2.new(0.5, 0.5),
 		position = UDim2.fromScale(0.5, 0.5),
 	})
-	UiKit.text(
-		created.list,
-		"Görsel tercihler yalnızca bu oturumda geçerlidir. Gelirini ve oyun hızını değiştirmez. Dil tercihin kaydedilir.",
-		"Caption"
-	).LayoutOrder =
+	UiKit.text(created.list, "Tercihlerin hesabına kaydedilir. Gelirini ve oyun hızını değiştirmez.", "Caption").LayoutOrder =
 		1
 	-- Başlık iki dilli: dili yanlış seçen oyuncu da menüyü bulabilsin.
 	UiKit.text(created.list, "Dil / Language", "Heading").LayoutOrder = 2
@@ -63,18 +62,23 @@ local function create(parent: ScreenGui): UiKit.Window
 		end)
 	end
 	UiKit.text(created.list, "Ses", "Heading").LayoutOrder = 10
-	local volumeValue = player:GetAttribute("SoundVolume")
-	local volumeLabel = UiKit.text(created.list, "", "Caption")
-	volumeLabel.LayoutOrder = 11
-	local volumeSlider, setVolumeSlider = UiKit.slider(
-		created.list,
-		if typeof(volumeValue) == "number" then volumeValue else 0.8,
-		function(value: number)
-			player:SetAttribute("SoundVolume", value)
-		end
-	)
-	volumeSlider.LayoutOrder = 12
-	UiKit.text(created.list, "Ses düzeyi yalnızca bu oturumda geçerlidir.", "Caption").LayoutOrder = 13
+	local volumeLabels: { TextLabel } = {}
+	local volumeSetters: { (value: number) -> () } = {}
+	for index, volume in VOLUMES do
+		local label = UiKit.text(created.list, "", "Caption")
+		label.LayoutOrder = 9 + index * 2
+		local current = player:GetAttribute(volume.attribute)
+		local slider, setSlider = UiKit.slider(
+			created.list,
+			if typeof(current) == "number" then current else volume.default,
+			function(value: number)
+				player:SetAttribute(volume.attribute, value)
+			end
+		)
+		slider.LayoutOrder = 10 + index * 2
+		volumeLabels[index] = label
+		volumeSetters[index] = setSlider
+	end
 	UiKit.text(created.list, "Grafik kalitesi", "Heading").LayoutOrder = 4
 	local choices = Instance.new("Frame")
 	choices.BackgroundTransparency = 1
@@ -150,13 +154,18 @@ local function create(parent: ScreenGui): UiKit.Window
 		UiKit.setVariant(motion, if reduced then "primary" else "secondary")
 	end
 	local function refreshVolume()
-		local value = player:GetAttribute("SoundVolume")
-		local volume = if typeof(value) == "number" then value else 0.8
-		volumeLabel.Text = `Ses düzeyi: %{math.round(volume * 100)}`
-		setVolumeSlider(volume)
+		for index, volume in VOLUMES do
+			local value = player:GetAttribute(volume.attribute)
+			local level = if typeof(value) == "number" then value else volume.default
+			-- Başlıktaki {} yerine yüzde sayısı gelir (etiketin "%" işareti metinde durur)
+			volumeLabels[index].Text = (string.gsub(volume.label, "{}", tostring(math.round(level * 100))))
+			volumeSetters[index](level)
+		end
 	end
 	local connections = {
 		player:GetAttributeChangedSignal("SoundVolume"):Connect(refreshVolume),
+		player:GetAttributeChangedSignal("AmbienceVolume"):Connect(refreshVolume),
+		player:GetAttributeChangedSignal("MusicVolume"):Connect(refreshVolume),
 		player:GetAttributeChangedSignal("GraphicsMode"):Connect(refresh),
 		player:GetAttributeChangedSignal("EffectsQuality"):Connect(refresh),
 		player:GetAttributeChangedSignal("ReducedMotion"):Connect(refresh),
@@ -177,7 +186,7 @@ local function create(parent: ScreenGui): UiKit.Window
 	return created
 end
 
-function SettingsMenu.toggle(parent: ScreenGui)
+function SettingsMenu.toggle(parent: Instance)
 	local current = window
 	if current and current.isOpen() then
 		current.close()
@@ -186,7 +195,7 @@ function SettingsMenu.toggle(parent: ScreenGui)
 	SettingsMenu.open(parent)
 end
 
-function SettingsMenu.open(parent: ScreenGui)
+function SettingsMenu.open(parent: Instance)
 	local current = window
 	if current and current.frame.Parent ~= parent then
 		current.frame:Destroy()

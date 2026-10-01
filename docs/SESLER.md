@@ -2,7 +2,7 @@
 
 Bütün sesler `src/shared/Config/Audio.luau` içinde tanımlıdır. Her ses bir **yuva**dır: `id` boşsa (`""`) o yuva **sessizdir**.
 Kendi sesini yüklediğinde yalnızca ilgili yuvanın `id` alanına `"rbxassetid://NUMARA"` yaz; kodda başka bir şey değişmez.
-Ses düzeyi: yuvanın `volume` değeri x oyuncunun Ayarlar'daki ses düzeyi (`SfxMaster`). `pitch` isteğe bağlıdır (1 = normal).
+Ses düzeyi: yuvanın `volume` değeri x oyuncunun Ayarlar'daki sürgüsü. Üç SoundGroup vardır: efektler `SfxMaster` ("Efekt sesleri"), ortam döngüleri + hayvan sesleri `AmbienceMaster` ("Ortam sesleri"), müzik `MusicMaster` ("Müzik"). Sürgü düzeyleri ve "Hareketi azalt" hesaba kaydedilir (`save.audio`, `save.reducedMotion`; `RequestSetPreference`, `Modules/Preferences`); varsayılanlar `Config.AUDIO_DEFAULTS`. `pitch` isteğe bağlıdır (1 = normal).
 Aynı yuva 0,05 sn içinde ikinci kez çalmaz (üst üste binmesin). Ses dosyalarını Creator Hub'a yükleyip kimliğini al (ses yükleme
 için hesap doğrulaması ve telif kuralları geçerlidir).
 
@@ -55,6 +55,10 @@ Yakındaki yetişkin hayvan arada bir çıkarır (3B, uzaklaşınca kısılır).
 
 `cow`, `chicken`, `horse`, `goat`, `duck`, `sheep`, `pig` — hepsi **Boş**. (Balıklar ses çıkarmaz.)
 
+## 3b. Müzik (`MUSIC`)
+
+Tek döngü yuvası: `main` (boş = müzik yok). Kimliği `Config/Audio.luau` içindeki `MUSIC.main.id` alanına `"rbxassetid://NUMARA"` olarak yaz; `Effects/Soundscape` açılışta döngüyle çalar, düzeyini Ayarlar'daki "Müzik" sürgüsü belirler. Önerilen: sakin, döngüye uygun, 1-3 dk'lık çiftlik müziği.
+
 ## 4. Şu an sesi olmayan ama eklenebilecek yerler
 
 Yuvası henüz yok; istersen söyle, yuva + bağlantıyı eklerim.
@@ -65,7 +69,7 @@ Yuvası henüz yok; istersen söyle, yuva + bağlantıyı eklerim.
 - Sipariş panosu tarafında kart seçimi (tıklama sesi dışında).
 - Yeni günün/sabahın başlaması, gece başlangıcı.
 - Hayvan doğumu/büyümesi (yavru → genç → yetişkin geçişi).
-- Yükleme ekranı (ReplicatedFirst) ve oyun müziği (arka plan müzik yuvası yok).
+- Yükleme ekranı (ReplicatedFirst).
 - Dünyadaki prompt'lar (E basınca): pazar, satıcılar, ahır sandığı.
 
 ## 5. Yeni yuva ekleme

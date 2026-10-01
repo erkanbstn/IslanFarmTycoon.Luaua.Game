@@ -78,7 +78,7 @@ end)
 
 type Control = { button: TextButton, action: string, value: string? }
 
-local function create(parent: ScreenGui): UiKit.Window
+local function create(parent: Instance): UiKit.Window
 	local created = UiKit.window(parent, {
 		title = "Yönetici",
 		icon = "🛠️",
@@ -366,7 +366,7 @@ local function create(parent: ScreenGui): UiKit.Window
 	return created
 end
 
-function AdminPanel.toggle(parent: ScreenGui)
+function AdminPanel.toggle(parent: Instance)
 	local current = window
 	if current and current.isOpen() then
 		current.close()
@@ -375,7 +375,7 @@ function AdminPanel.toggle(parent: ScreenGui)
 	AdminPanel.open(parent)
 end
 
-function AdminPanel.open(parent: ScreenGui)
+function AdminPanel.open(parent: Instance)
 	if player:GetAttribute("IsAdmin") ~= true then
 		return
 	end

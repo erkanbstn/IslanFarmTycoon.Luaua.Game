@@ -1,5 +1,5 @@
 --!strict
--- Ses çalma: tüm sesler tek "SfxMaster" SoundGroup'undan geçer; Ayarlar'daki ses düzeyi bunu ölçekler.
+-- Ses çalma: sesler üç SoundGroup'tan geçer (efekt / ortam / müzik); Ayarlar'daki üç sürgü bunları ölçekler.
 -- Kimlik boşsa ya da dosya bulunamazsa ses sessizce atlanır (oyun bozulmaz).
 
 local Debris = game:GetService("Debris")
@@ -10,37 +10,57 @@ local SoundService = game:GetService("SoundService")
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 
 local player = Players.LocalPlayer
-local DEFAULT_VOLUME = 0.5
 local MIN_GAP = 0.12
 -- Bazı sesler daha seyrek çalar: kutlama sesi (yapı belirmesi) art arda çok sayıda yapı kurulsa da 30 saniyede bir çalar
 local NAME_GAPS: { [string]: number } = { build = 30 } -- Aynı ses bu kadar sıklıktan fazla üst üste çalmaz
 
 local Sfx = {}
 
-local existing = SoundService:FindFirstChild("SfxMaster")
-local master: SoundGroup
-if existing and existing:IsA("SoundGroup") then
-	master = existing
-else
-	master = Instance.new("SoundGroup")
-	master.Name = "SfxMaster"
-	master.Parent = SoundService
+-- Üç SoundGroup: efektler ("SfxMaster"), ortam döngüleri ve hayvan sesleri ("AmbienceMaster"), müzik ("MusicMaster").
+-- Düzeyleri Player öznitelikleri belirler (Ayarlar'daki sürgüler; kayıt Core/Preferences.client yapar):
+-- SoundVolume (efekt, eski ad korunur), AmbienceVolume, MusicVolume.
+local function ensureGroup(name: string): SoundGroup
+	local existing = SoundService:FindFirstChild(name)
+	if existing and existing:IsA("SoundGroup") then
+		return existing
+	end
+	local group = Instance.new("SoundGroup")
+	group.Name = name
+	group.Parent = SoundService
+	return group
 end
 
-if player:GetAttribute("SoundVolume") == nil then
-	player:SetAttribute("SoundVolume", DEFAULT_VOLUME)
+local master = ensureGroup("SfxMaster")
+local ambience = ensureGroup("AmbienceMaster")
+local music = ensureGroup("MusicMaster")
+
+local function bindVolume(group: SoundGroup, attribute: string, fallback: number)
+	if player:GetAttribute(attribute) == nil then
+		player:SetAttribute(attribute, fallback)
+	end
+	local function apply()
+		local value = player:GetAttribute(attribute)
+		group.Volume = if typeof(value) == "number" then math.clamp(value, 0, 1) else fallback
+	end
+	apply()
+	player:GetAttributeChangedSignal(attribute):Connect(apply)
 end
-local function applyVolume()
-	local value = player:GetAttribute("SoundVolume")
-	master.Volume = if typeof(value) == "number" then math.clamp(value, 0, 1) else DEFAULT_VOLUME
-end
-applyVolume()
-player:GetAttributeChangedSignal("SoundVolume"):Connect(applyVolume)
+bindVolume(master, "SoundVolume", Config.AUDIO_DEFAULTS.sfx)
+bindVolume(ambience, "AmbienceVolume", Config.AUDIO_DEFAULTS.ambience)
+bindVolume(music, "MusicVolume", Config.AUDIO_DEFAULTS.music)
 
 local lastPlayed: { [string]: number } = {}
 
 function Sfx.group(): SoundGroup
 	return master
+end
+
+function Sfx.ambienceGroup(): SoundGroup
+	return ambience
+end
+
+function Sfx.musicGroup(): SoundGroup
+	return music
 end
 
 -- Ortak yapılandırma: Config.SOUNDS'taki adla çal. pitchJitter: 0.1 -> ±%10 rastgele perde.
@@ -65,8 +85,8 @@ function Sfx.play(name: string, pitchJitter: number?)
 	Debris:AddItem(sound, 6)
 end
 
--- Bir parçadan (3B) çalınan ses; uzaklaştıkça kısılır.
-function Sfx.playAt(part: BasePart, config: Config.SoundConfig, pitchJitter: number?)
+-- Bir parçadan (3B) çalınan ses; uzaklaştıkça kısılır. `group` verilmezse efekt grubu (hayvan sesleri ortam grubunu verir).
+function Sfx.playAt(part: BasePart, config: Config.SoundConfig, pitchJitter: number?, group: SoundGroup?)
 	if config.id == "" then
 		return
 	end
@@ -77,7 +97,7 @@ function Sfx.playAt(part: BasePart, config: Config.SoundConfig, pitchJitter: num
 	sound.RollOffMode = Enum.RollOffMode.Linear
 	sound.RollOffMinDistance = 6
 	sound.RollOffMaxDistance = 45
-	sound.SoundGroup = master
+	sound.SoundGroup = group or master
 	sound.Parent = part
 	sound:Play()
 	Debris:AddItem(sound, 8)

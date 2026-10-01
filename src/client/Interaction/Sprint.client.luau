@@ -64,7 +64,8 @@ end
 
 ContextActionService:BindAction(ACTION, onAction, true, Enum.KeyCode.LeftShift, Enum.KeyCode.ButtonL3)
 ContextActionService:SetTitle(ACTION, "Koş")
-ContextActionService:SetPosition(ACTION, UDim2.new(1, -150, 1, -150))
+-- Roblox'un zıplama düğmesi sağ altta (en fazla ~90 px, alttan ~110 px'e kadar); koşu düğmesi onun hemen üstünde durur, çakışmaz.
+ContextActionService:SetPosition(ACTION, UDim2.new(1, -120, 1, -205))
 
 -- Yeniden doğunca normal hızla başla
 localPlayer.CharacterAdded:Connect(function(character: Model)

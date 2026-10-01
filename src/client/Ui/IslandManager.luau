@@ -133,7 +133,8 @@ local function create(): UiKit.Window
 	screen.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 	screen.DisplayOrder = 5
 	screen.Parent = player:WaitForChild("PlayerGui")
-	local created = UiKit.window(screen, {
+	local root = UiKit.screenRoot(screen)
+	local created = UiKit.window(root, {
 		title = "Ana Çiftlikler ve Adalar",
 		icon = "🧭",
 		tint = UiKit.Color.Blue,
@@ -145,7 +146,7 @@ local function create(): UiKit.Window
 	created.frame.BackgroundColor3 = UiKit.Color.Surface
 	created.frame.BackgroundTransparency = 0
 	-- Bu pencerenin önünde görünen bildirim alanı: yetersiz bakiye, satın alma sonucu vb.
-	local notify = UiKit.toastHost(screen)
+	local notify = UiKit.toastHost(root)
 	notifyHook = notify
 	local info = UiKit.text(created.list, "", "Caption")
 	info.LayoutOrder = 0

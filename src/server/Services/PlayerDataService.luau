@@ -17,6 +17,7 @@ local FarmProfiles = require(script.Parent.Parent.Modules.FarmProfiles)
 local Metrics = require(script.Parent.Parent.Modules.Metrics)
 local SaveBackup = require(script.Parent.Parent.Modules.SaveBackup)
 local TelemetryService = require(script.Parent.TelemetryService)
+local Preferences = require(script.Parent.Parent.Modules.Preferences)
 
 type PlayerSave = GameTypes.PlayerSave
 type Session = {
@@ -466,6 +467,9 @@ function PlayerDataService.load(player: Player): PlayerSave?
 			session.offlineGrown = grown or 0
 			player:SetAttribute("SavedLanguage", data.language or "")
 			player:SetAttribute("SavedGraphics", data.graphics or "")
+			for name, value in Preferences.attributes(data) do
+				player:SetAttribute(name, value)
+			end
 			player:SetAttribute("DataRepairCount", repairs or 0)
 			if repairs and repairs > 0 then
 				warn(`[Data] ProfileNormalized user={player.UserId} repairs={repairs}`)
