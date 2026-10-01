@@ -27,6 +27,9 @@ return function(createService: any, Config: any)
 		function tasks.delay(seconds: number, callback: any, ...: any)
 			schedule(coroutine.create(callback), clock + seconds, table.pack(...))
 		end
+		function tasks.defer(callback: any, ...: any)
+			schedule(coroutine.create(callback), clock, table.pack(...))
+		end
 		function tasks.wait(seconds: number?)
 			return coroutine.yield(seconds or 0.01)
 		end
@@ -150,9 +153,16 @@ return function(createService: any, Config: any)
 				return 2000000000 + math.floor(clock)
 			end,
 		}
+		local sent: { any } = {}
 		local remotes = {
-			get = function(): any
-				return { FireClient = function() end }
+			get = function(name: string): any
+				return {
+					FireClient = function(_self: any, _player: any, payload: any, revision: any)
+						if name == "PlayerState" then
+							table.insert(sent, { at = clock, payload = payload, revision = revision })
+						end
+					end,
+				}
 			end,
 		}
 		local dateTime = {
@@ -180,6 +190,7 @@ return function(createService: any, Config: any)
 		end
 		return {
 			service = createService(engine, tasks, instances, time, remotes, dateTime, metrics, function() end),
+			sent = sent,
 			store = store,
 			metrics = metrics,
 			player = player,
@@ -532,6 +543,65 @@ return function(createService: any, Config: any)
 		return noBackup.service.load(noBackup.player)
 	end), "corrupt primary without backup fails closed")
 	assert(noBackup.player.attributes.DataStatus == "Failed", "failure is shown to the player")
+
+	-- pushState birleştirme: aynı karedeki çağrılar tek pakette, sıkışık çağrılar 0,25 sn aralıkla gider.
+	local push = loaded()
+	local function idle()
+		push.call(function()
+			return nil
+		end)
+	end
+	push.service.pushState(push.player)
+	push.service.pushState(push.player)
+	push.service.pushState(push.player)
+	assert(#push.sent == 0, "pushState must not send synchronously")
+	idle()
+	assert(#push.sent == 1, "same-frame pushState calls collapse into one packet")
+	local first = push.sent[1]
+	assert(first.payload.mainFarms == nil, "parked farm records are not sent to the client")
+	assert(
+		typeof(first.payload.mainFarmSummaries) == "table" and #first.payload.mainFarmSummaries == 1,
+		"summaries replace parked farm records"
+	)
+	assert(
+		first.payload.cash == Config.STARTING_CASH and first.payload.animals ~= nil,
+		"active farm fields stay at top level"
+	)
+	local data = push.service.tryGet(push.player)
+	assert(data.mainFarms ~= nil and data.mainFarmSummaries == nil, "server data is not mutated by sending")
+	assert(first.revision >= 1, "packet carries a revision")
+
+	-- Hemen ardından gelen çağrılar 0,25 sn dolunca tek pakette gider; son durum gönderilir.
+	push.service.pushState(push.player)
+	idle()
+	assert(#push.sent == 1, "throttled call waits for the interval")
+	data.cash += 5
+	push.service.pushState(push.player)
+	push.service.pushState(push.player)
+	push.advance(0.1)
+	idle()
+	assert(#push.sent == 1, "still inside the 0.25 s window")
+	push.advance(0.2)
+	idle()
+	assert(#push.sent == 2, "pending calls flush once after the window")
+	assert(push.sent[2].payload.cash == data.cash, "flush carries the latest state")
+	assert(push.sent[2].revision > first.revision, "revisions keep increasing")
+
+	-- Sessiz bir aradan sonra ilk çağrı gecikmesiz (aynı kare) gider.
+	push.advance(5)
+	push.service.pushState(push.player)
+	idle()
+	assert(#push.sent == 3, "first call after a quiet period is not delayed")
+
+	-- Oturum kapanınca bekleyen paket gönderilmez.
+	push.service.pushState(push.player)
+	push.call(function()
+		return push.service.release(push.player)
+	end)
+	local count = #push.sent
+	push.advance(1)
+	idle()
+	assert(#push.sent == count, "no packet after the session is gone")
 
 	print(
 		"PASS player-data service: retries, uncertain responses, save/release overlap, leave during load, retained final save, ownership/lease loss, future schema"

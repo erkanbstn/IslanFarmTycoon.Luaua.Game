@@ -36,6 +36,8 @@ type Session = {
 	saveScheduled: boolean,
 	lastBackupAt: number, -- son yedek yazma zamanı (os.time)
 	backupSlot: number, -- dönüşümlü yedek yuvası
+	statePending: boolean, -- PlayerState gönderimi sıraya alındı (birleştirme)
+	lastStateAt: number, -- son PlayerState gönderimi (os.clock)
 	sizeLevel: string, -- son bildirilen kayıt boyutu seviyesi (ok/warn/critical)
 	recovered: boolean, -- asıl kayıt bozuk olduğu için yedekten açıldı
 	pending: {
@@ -54,6 +56,7 @@ local QUICK_SAVE_DELAY = 10
 local SAVE_BUDGET = 15
 local CLOSE_BUDGET = 25
 local LOCK_WAIT_SECONDS = 60 -- kilit başka sunucudayken girişte en çok bu kadar beklenir
+local STATE_PUSH_INTERVAL = 0.25 -- oyuncu başına PlayerState en çok bu aralıkla gider
 local FINAL_SAVE_GRACE_SECONDS = 600 -- bırakma yazımı, kira dolduktan sonra da (kilit hâlâ bizse) bu süre denenir
 local sessions: { [Player]: Session } = {}
 local busyKeys: { [string]: boolean } = {}
@@ -356,6 +359,8 @@ function PlayerDataService.load(player: Player): PlayerSave?
 		offlineGrown = 0,
 		cashStat = nil,
 		saveScheduled = false,
+		statePending = false,
+		lastStateAt = -math.huge,
 		lastBackupAt = 0,
 		backupSlot = 0,
 		sizeLevel = "ok",
@@ -651,6 +656,23 @@ function PlayerDataService.setActiveMainFarm(player: Player, farmId: string): bo
 	return data ~= nil and FarmProfiles.select(data, farmId)
 end
 
+local function sendState(player: Player, session: Session)
+	session.statePending = false
+	local data = PlayerDataService.tryGet(player)
+	if sessions[player] ~= session or not data or not player.Parent then
+		return
+	end
+	session.lastStateAt = os.clock()
+	local summaries = FarmProfiles.summaries(data, function(id: string): string?
+		return if farmPlotResolver then farmPlotResolver(player, id) else nil
+	end)
+	local offers = if mainFarmOffersResolver then mainFarmOffersResolver() else {}
+	Remotes.get("PlayerState")
+		:FireClient(player, FarmProfiles.clientState(data, summaries, offers), session.packetRevision)
+end
+
+-- Kayıt/kirli işareti hemen güncellenir; istemciye gönderim oyuncu başına birleştirilir:
+-- sessiz bir andaki ilk çağrı aynı karede (task.defer), sonrakiler son gönderimden 0,25 sn sonra tek pakette gider.
 function PlayerDataService.pushState(player: Player)
 	local data = PlayerDataService.tryGet(player)
 	local session = sessions[player]
@@ -660,11 +682,16 @@ function PlayerDataService.pushState(player: Player)
 	session.packetRevision += 1
 	player:SetAttribute("DataDirty", true)
 	updateLeaderstat(session, data)
-	data.mainFarmSummaries = FarmProfiles.summaries(data, function(id: string): string?
-		return if farmPlotResolver then farmPlotResolver(player, id) else nil
-	end)
-	data.mainFarmOffers = if mainFarmOffersResolver then mainFarmOffersResolver() else {}
-	Remotes.get("PlayerState"):FireClient(player, data, session.packetRevision)
+	if session.statePending then
+		return
+	end
+	session.statePending = true
+	local delay = session.lastStateAt + STATE_PUSH_INTERVAL - os.clock()
+	if delay > 0 then
+		task.delay(delay, sendState, player, session)
+	else
+		task.defer(sendState, player, session)
+	end
 end
 
 function PlayerDataService.pushEconomy(player: Player)
