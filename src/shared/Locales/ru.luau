@@ -822,6 +822,7 @@ return {
 	["Ürünler ahır deposunda birikir (ahırdaki sandıktan da açılır). Her slota bir eşya takılır; eşyaları meydandaki Usta Ömer'den alırsın."] = "Товары копятся на складе амбара (его можно открыть и у сундука в амбаре). В каждый слот надевается один предмет; предметы покупают у мастера Омера на площади.",
 	["Değer {}"] = "Стоимость {1}",
 	["Depoya al"] = "На склад",
+	["Fazlası paraya çevrildi"] = "Излишек обращён в деньги",
 	["Depo doldu"] = "Склад заполнен",
 	["Ahır deposu: {}/{}"] = "Склад амбара: {1}/{2}",
 	["Aç"] = "Открыть",

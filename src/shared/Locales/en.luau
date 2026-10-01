@@ -822,6 +822,7 @@ return {
 	["Ürünler ahır deposunda birikir (ahırdaki sandıktan da açılır). Her slota bir eşya takılır; eşyaları meydandaki Usta Ömer'den alırsın."] = "Goods pile up in the barn storage (also opened from the chest at the barn). Each slot holds one item; you buy items from Master Omer in the square.",
 	["Değer {}"] = "Worth {1}",
 	["Depoya al"] = "Store",
+	["Fazlası paraya çevrildi"] = "Overflow converted to cash",
 	["Depo doldu"] = "Storage filled up",
 	["Ahır deposu: {}/{}"] = "Barn storage: {1}/{2}",
 	["Aç"] = "Open",

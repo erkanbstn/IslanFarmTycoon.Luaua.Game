@@ -822,6 +822,7 @@ return {
 	["Ürünler ahır deposunda birikir (ahırdaki sandıktan da açılır). Her slota bir eşya takılır; eşyaları meydandaki Usta Ömer'den alırsın."] = "Waren sammeln sich im Stalllager (auch an der Truhe im Stall erreichbar). Jeder Platz nimmt einen Gegenstand auf; Gegenstände kaufst du bei Meister Ömer auf dem Platz.",
 	["Değer {}"] = "Wert {1}",
 	["Depoya al"] = "Einlagern",
+	["Fazlası paraya çevrildi"] = "Überschuss in Geld umgewandelt",
 	["Depo doldu"] = "Lager ist voll",
 	["Ahır deposu: {}/{}"] = "Stalllager: {1}/{2}",
 	["Aç"] = "Öffnen",

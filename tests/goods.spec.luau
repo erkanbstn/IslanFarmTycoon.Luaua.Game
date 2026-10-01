@@ -1,6 +1,6 @@
 --!strict
 -- Ahır deposu ve ürün merkezleri: yapılandırma tutarlılığı, depo işlemleri, kayıt ve verim tabanı.
-return function(codec: any, config: any, farmMath: any, rules: any)
+return function(codec: any, config: any, farmMath: any, rules: any, logic: any)
 	local now = 200000
 	local serial = 0
 	local function uid(): string
@@ -247,6 +247,40 @@ return function(codec: any, config: any, farmMath: any, rules: any)
 	)
 	farmMath.removeGoods(bonusSave, "milk", preview - recipe.goodsAmount)
 	assert(rules.canStart(bonusSave, recipe, farmMath, now), "the same batch starts once the whole yield fits")
+	-- Parti toplam kapasiteyi aşsa bile boş depoda başlar; sığmayan kısım teslimde ürün değerinin 1.0 katıyla paraya çevrilir
+	local hugeMath = setmetatable({
+		previewGoodsYield = function(): number
+			return 1e7
+		end,
+	}, { __index = farmMath })
+	local hugeSave = newSave()
+	addAnimal(hugeSave, "cow", "starter")
+	addAnimal(hugeSave, "cow", "starter")
+	local cap = farmMath.getGoodsCap(hugeSave)
+	assert(
+		rules.canStart(hugeSave, recipe, hugeMath, now),
+		"an empty barn starts a batch larger than the whole capacity"
+	)
+	farmMath.addGoods(hugeSave, "milk", 1)
+	assert(not rules.canStart(hugeSave, recipe, hugeMath, now), "a barn without room for the fitting part still blocks")
+	hugeSave.goods = {}
+	local cashed = 0
+	local hooks: any = {
+		settle = function() end,
+		addCash = function(amount: number)
+			cashed += amount
+		end,
+	}
+	local job: any = { uid = "j", readyAt = now, startedAt = now - 10, forgone = 1e9 }
+	local expectedYield = farmMath.getGoodsYield(hugeSave, recipe, now, job)
+	assert(expectedYield > cap, "the fixture batch exceeds the capacity")
+	hugeSave.production[recipe.id] = job
+	local reward = logic.claim(hugeSave, hugeSave, recipe, job, now, farmMath, config, hooks)
+	assert(farmMath.getGoodsAmount(hugeSave, "milk") == cap, "the fitting part is stored")
+	assert(
+		reward == (expectedYield - cap) * config.GOODS.milk.value and cashed == reward,
+		"the overflow pays goods value x1.0 in cash"
+	)
 	local other = config.PRODUCTION_RECIPES.packed_milk
 	assert(rules.canStart(startSave, other, farmMath, now), "a full barn does not block cash recipes")
 	print("PASS goods: config consistency, barn storage, save/decode repairs, yield floor and start rule")

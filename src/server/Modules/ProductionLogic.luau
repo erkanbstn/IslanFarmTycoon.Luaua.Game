@@ -79,7 +79,9 @@ function ProductionLogic.canClaimAutomatically(
 		return false
 	end
 	if recipe.output == "goods" and recipe.goodsId then
-		return farmMath.getGoodsSpace(root, recipe.goodsId) >= farmMath.getGoodsYield(farm, recipe, now, job)
+		local yield = farmMath.getGoodsYield(farm, recipe, now, job)
+		-- Kapasiteyi aşan kısım teslimde paraya çevrilir; yalnızca sığabilecek kısım için yer aranır
+		return farmMath.getGoodsSpace(root, recipe.goodsId) >= math.min(yield, farmMath.getGoodsCap(root))
 	end
 	return true
 end
@@ -104,8 +106,12 @@ function ProductionLogic.claim(
 		local added = farmMath.addGoods(root, recipe.goodsId, amount)
 		local good = config.GOODS[recipe.goodsId]
 		local message = `Ahıra eklendi · {good.displayName} · +{added}`
-		if added < amount then
-			message ..= " · Depo doldu"
+		-- Depoya sığmayan kısım ürün değerinin 1.0 katıyla paraya çevrilir (boşa gitmez)
+		local overflow = amount - added
+		if overflow > 0 then
+			local cash = overflow * good.value
+			hooks.addCash(cash)
+			return cash, `{message} · Fazlası paraya çevrildi · +{farmMath.formatMoney(cash)}`
 		end
 		return 0, message
 	end

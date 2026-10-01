@@ -248,7 +248,7 @@ def main() -> int:
         "mainFarmSpec(MainFarmServiceFactory, EconomyServiceFactory, RateLimiterFactory, FarmProfiles, SaveCodec, Config, FarmMath)\n",
         "economyServiceSpec(EconomyServiceFactory, RateLimiterFactory, SaveCodec, Config, FarmMath)\n",
         "tasksSpec(ExtensionServiceFactory, AnimalTaskServiceFactory, RateLimiterFactory, SaveCodec, Config, FarmMath)\n",
-        "goodsSpec(SaveCodec, Config, FarmMath, ProductionRules)\n",
+        "goodsSpec(SaveCodec, Config, FarmMath, ProductionRules, ProductionLogic)\n",
         "contractsSpec(SaveCodec, Config, FarmMath)\n",
         "petsSpec(SaveCodec, Config, FarmMath, ProductionLogic)\n",
         "mapPathsSpec(MapPaths)\n",
