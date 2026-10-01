@@ -430,17 +430,26 @@ return function(
 	local extension =
 		createExtensionService(fakeGameWith({}), remotes, dataService, economy, plots, limiter, fakeDateTime)
 	extension.init()
+	-- Eklenti eylemleri kendi hız sınırını taşır; her çağrı sınırın dışında olsun diye saat ilerletilir.
+	local function tryAssign(player: any, id: string): (boolean, string?)
+		clock += 0.3
+		return extension.tryAssign(player, id)
+	end
+	local function tryUnassign(player: any, id: string): (boolean, string?)
+		clock += 0.3
+		return extension.tryUnassign(player, id)
+	end
 	local function chickensIn(id: string): number
 		return farmMath.countInExtension(data, id, clock)
 	end
 
-	assert(not (extension.tryAssign(owner, "unknown")), "unknown extension is rejected")
+	assert(not (tryAssign(owner, "unknown")), "unknown extension is rejected")
 	data.purchased.ext_folluk_garden = nil
-	local ok, message = extension.tryAssign(owner, "folluk_garden")
+	local ok, message = tryAssign(owner, "folluk_garden")
 	assert(not ok and message == "Eklenti satın alınmamış", "unowned extension is rejected")
 	data.purchased.ext_folluk_garden = true
 	local before = settlements
-	ok = extension.tryAssign(owner, "folluk_garden")
+	ok = tryAssign(owner, "folluk_garden")
 	assert(ok, "an idle adult can be sent")
 	assert(
 		settlements == before + 1 and refreshes >= 1 and pushes >= 1 and saves >= 1,
@@ -459,22 +468,35 @@ return function(
 			and stay.task.endsAt == clock + config.EXTENSIONS.folluk_garden.stayDuration,
 		"the stay lasts the configured duration"
 	)
-	assert(extension.tryAssign(owner, "folluk_garden"), "the second animal fits (capacity two)")
-	ok, message = extension.tryAssign(owner, "folluk_garden")
+	assert(tryAssign(owner, "folluk_garden"), "the second animal fits (capacity two)")
+	ok, message = tryAssign(owner, "folluk_garden")
 	assert(not ok and message == "Eklenti dolu", "capacity is two without upgrades")
 	data.purchased.ext_folluk_garden_cap1 = true
-	assert(extension.tryAssign(owner, "folluk_garden"), "the capacity upgrade allows a third animal")
+	assert(tryAssign(owner, "folluk_garden"), "the capacity upgrade allows a third animal")
 	data.purchased.ext_folluk_garden_cap2 = true
-	assert(extension.tryAssign(owner, "folluk_garden"), "and a fourth")
-	ok, message = extension.tryAssign(owner, "folluk_garden")
+	assert(tryAssign(owner, "folluk_garden"), "and a fourth")
+	ok, message = tryAssign(owner, "folluk_garden")
 	assert(not ok and message == "Eklenti dolu", "four is the maximum")
 	assert(chickensIn("folluk_garden") == 4, "four chickens are in the extension")
 	-- Geri çağırma: en erken bitecek olan döner
 	clock += 5
 	before = settlements
-	assert(extension.tryUnassign(owner, "folluk_garden"), "an animal can be recalled early")
+	assert(tryUnassign(owner, "folluk_garden"), "an animal can be recalled early")
 	assert(settlements == before + 1, "recall settles income first")
 	assert(chickensIn("folluk_garden") == 3, "one chicken returned")
+	-- Dünya prompt'ları Remote'u atlar: ardışık çağrılar servisin kendi sınırına takılır
+	clock += 1
+	local limitedBefore = chickensIn("folluk_garden")
+	assert(extension.tryAssign(owner, "folluk_garden"), "first prompt action runs")
+	local spamOk, spamMessage = extension.tryAssign(owner, "folluk_garden")
+	assert(
+		not spamOk and spamMessage == nil and chickensIn("folluk_garden") == limitedBefore + 1,
+		"a second assign inside the interval is throttled"
+	)
+	local spamRecall, recallMessage = extension.tryUnassign(owner, "folluk_garden")
+	assert(spamRecall and recallMessage == nil, "assign and recall use independent budgets")
+	local spamAgain = extension.tryUnassign(owner, "folluk_garden")
+	assert(not spamAgain, "a second recall inside the interval is throttled")
 	-- Remote yolu: geçerli eylem bildirim üretir, geçersiz eylem üretmez
 	clock += 1
 	local noticeCount = #notices
@@ -493,7 +515,7 @@ return function(
 	local savedData = data
 	data = calfData
 	calfData.purchased.ext_folluk_garden = true
-	ok, message = extension.tryAssign(owner, "folluk_garden")
+	ok, message = tryAssign(owner, "folluk_garden")
 	assert(not ok, "a calf cannot be sent")
 	data = savedData
 	-- Bir eklentideki hayvan başka bir tesise verilemez ve tersi de geçerli
@@ -503,7 +525,7 @@ return function(
 	})
 	data = busyData
 	busyData.purchased.ext_folluk_garden = true
-	ok = extension.tryAssign(owner, "folluk_garden")
+	ok = tryAssign(owner, "folluk_garden")
 	assert(not ok, "an animal working in a facility cannot be sent to an extension")
 	data = savedData
 

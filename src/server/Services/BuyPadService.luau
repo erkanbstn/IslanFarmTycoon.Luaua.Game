@@ -199,6 +199,9 @@ function BuyPadService.buyFromWorld(player: Player, plot: Model, upgradeId: stri
 	local owned = PlayerDataService.tryGet(player)
 	if owned and owned.purchased[upgradeId] then
 		-- Başka menüden alınmış: kaide/tabela eski kalmış olabilir; uyarı vermeden dünyayı tazele
+		if not RateLimiter.allow(player, "buyPadRefresh", 0.5) then
+			return
+		end
 		BuyPadService.apply(plot, owned)
 		PlotService.refreshPlayerWorld(player)
 		return

@@ -28,6 +28,10 @@ local function nowSeconds(): number
 end
 
 function ExtensionService.tryAssign(player: Player, extensionId: string): (boolean, string?)
+	-- Dünyadaki prompt'lar Remote işleyicisini atlar; her tetik kayıt + yeniden çizim yaptığı için burada da sınırlanır.
+	if not RateLimiter.allow(player, "extensionAssign", 0.25) then
+		return false, nil
+	end
 	local extension = Config.getExtension(extensionId)
 	if not extension then
 		return false, "Bilinmeyen eklenti"
@@ -73,6 +77,9 @@ end
 
 -- Erken geri çağırma: en çok bekleyen hayvanı hemen ana bölgesine döndürür (kalan bonus süresi kaybolur).
 function ExtensionService.tryUnassign(player: Player, extensionId: string): (boolean, string?)
+	if not RateLimiter.allow(player, "extensionUnassign", 0.25) then
+		return false, nil
+	end
 	local extension = Config.getExtension(extensionId)
 	if not extension then
 		return false, "Bilinmeyen eklenti"
