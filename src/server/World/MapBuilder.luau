@@ -8,6 +8,8 @@
 local Lighting = game:GetService("Lighting")
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local ServerStorage = game:GetService("ServerStorage")
 
 -- Studio plugin'i modülleri kopyalayıp taze Config ile çalıştırır; o durumda yanımızdaki "Shared" kullanılır.
 local Shared = script.Parent.Parent:FindFirstChild("Shared") or ReplicatedStorage:WaitForChild("Shared")
@@ -43,15 +45,88 @@ local function plotCFrame(plotIndex: number): CFrame
 	return CFrame.lookAt(plotDirection(plotIndex) * Config.ISLAND_RING_RADIUS, Vector3.zero)
 end
 
--- Fiziksel adanın temaya bağlı içeriğini (yapı yerleri, süsler, uzman adalar ve bölgeleri) çalışma anında değiştirir.
--- Terrain, ana bölgeler, ahır ve köprüler bütün adalarda aynı olduğundan dokunulmaz.
-function MapBuilder.applyTheme(plot: Model, themeIndex: number): boolean
-	if plot:GetAttribute("ThemeIndex") == themeIndex then
-		return false
+-- Tema şablonları: temaya bağlı içerik (BuildSpots, Decor, Islands + uzman bölgeler) her tema için sunucu açılışında bir kez
+-- ServerStorage.ThemeTemplates altında kurulur; çiftlik değişince şablon Clone + PivotTo ile adaya basılır (yordamsal kurulum yok).
+-- Neden eklentide değil de açılışta: kayıtlı place 6 tema içeriği kadar (~3 bin parça/tema) şişmez, şablon her zaman güncel Config ile
+-- kurulur (MAP_VERSION'a bağlı eski kayıt kalmaz) ve ServerStorage içeriği zaten ağa gitmez.
+local TEMPLATE_FOLDER = "ThemeTemplates"
+local TEMPLATE_PLOT_INDEX = 1 -- şablonlar bu fiziksel adanın çerçevesinde kurulur
+local TEMPLATE_CONTENT = { "BuildSpots", "Decor", "Islands" }
+local TEMPLATE_ATTRIBUTES = { "ThemeIndex", "IslandName", "IslandIcon" }
+-- Dünya konumu taşıyan Vector3 öznitelikleri (AreaSize gibi boyut öznitelikleri taşınmaz)
+local POSITION_VECTOR_ATTRIBUTES: { [string]: boolean } = { PathStart = true, PathEnd = true }
+
+local function templateFolder(): Folder
+	local existing = ServerStorage:FindFirstChild(TEMPLATE_FOLDER)
+	if existing and existing:IsA("Folder") and existing:GetAttribute("MapVersion") == MAP_VERSION then
+		return existing
 	end
-	local plotIndex = tonumber(plot:GetAttribute("PlotId"))
-	assert(plotIndex, "[Map] applyTheme: PlotId geçersiz")
-	for _, name in { "BuildSpots", "Decor", "Islands" } do
+	if existing then
+		existing:Destroy()
+	end
+	local created = Instance.new("Folder")
+	created.Name = TEMPLATE_FOLDER
+	created:SetAttribute("MapVersion", MAP_VERSION)
+	created.Parent = ServerStorage
+	return created
+end
+
+local function buildTemplate(themeIndex: number): Model
+	local frame = plotCFrame(TEMPLATE_PLOT_INDEX)
+	local scratch = Instance.new("Model")
+	scratch.Name = `Theme{themeIndex}`
+	scratch:SetAttribute("PlotId", tostring(TEMPLATE_PLOT_INDEX))
+	local zones = Instance.new("Folder")
+	zones.Name = "Zones"
+	zones.Parent = scratch
+	IslandBuilder.buildThemeContent(scratch, themeIndex, frame, false)
+	WorldDecor.optimize(scratch) -- şablonda bir kez; basılan kopyalar bu özellikleri taşır
+	scratch.WorldPivot = frame
+	scratch.Parent = templateFolder()
+	return scratch
+end
+
+local function getTemplate(themeIndex: number): Model
+	local existing = templateFolder():FindFirstChild(`Theme{themeIndex}`)
+	if existing and existing:IsA("Model") then
+		return existing
+	end
+	return buildTemplate(themeIndex)
+end
+
+-- Tüm temaların şablonunu (yoksa) kurar. Oyun açılışında MapBuilder.ensure çağırır; applyTheme eksik şablonu tembel kurar.
+function MapBuilder.prepareTemplates()
+	for themeIndex = 1, Config.MAIN_FARM_LIMIT do
+		getTemplate(themeIndex)
+	end
+end
+
+-- Şablonları siler (Studio düzenleme modunda testten sonra place'e kaydedilmesin diye; açılışta eskisi temizlenir).
+function MapBuilder.clearTemplates()
+	local existing = ServerStorage:FindFirstChild(TEMPLATE_FOLDER)
+	if existing then
+		existing:Destroy()
+	end
+end
+
+-- PivotTo yalnızca parçaları taşır; dünya konumu taşıyan öznitelikleri (CFrame / yol uçları) aynı farkla taşı
+local function remapPositions(root: Instance, delta: CFrame)
+	local function remap(instance: Instance)
+		for name, value in instance:GetAttributes() do
+			if typeof(value) == "CFrame" or (typeof(value) == "Vector3" and POSITION_VECTOR_ATTRIBUTES[name]) then
+				instance:SetAttribute(name, delta * value)
+			end
+		end
+	end
+	remap(root)
+	for _, descendant in root:GetDescendants() do
+		remap(descendant)
+	end
+end
+
+-- Adadaki tema içeriğini siler: BuildSpots/Decor/Islands, uzman bölgeler; ana bölgelerde yalnızca Decor/LevelFlags (çalışma anı görselleri).
+local function clearThemeContent(plot: Model)
+	for _, name in TEMPLATE_CONTENT do
 		local old = plot:FindFirstChild(name)
 		if old then
 			old:Destroy()
@@ -74,10 +149,52 @@ function MapBuilder.applyTheme(plot: Model, themeIndex: number): boolean
 			end
 		end
 	end
-	plot:SetAttribute("ThemeIndex", themeIndex)
+end
+
+-- Fiziksel adanın temaya bağlı içeriğini (yapı yerleri, süsler, uzman adalar ve bölgeleri) çalışma anında değiştirir:
+-- eskisini siler, tema şablonunu kopyalayıp adanın çerçevesine taşıyarak ekler.
+-- Terrain, ana bölgeler, ahır, doğma noktası ve köprüler bütün adalarda aynı olduğundan dokunulmaz.
+function MapBuilder.applyTheme(plot: Model, themeIndex: number): boolean
+	if plot:GetAttribute("ThemeIndex") == themeIndex then
+		return false
+	end
+	local plotIndex = tonumber(plot:GetAttribute("PlotId"))
+	assert(plotIndex, "[Map] applyTheme: PlotId geçersiz")
+	local template = getTemplate(themeIndex) -- eksikse burada kurulur; eski içerik silinmeden önce hata alınsın
+	clearThemeContent(plot)
+
+	local stamp = template:Clone()
+	local targetFrame = plotCFrame(plotIndex)
+	stamp:PivotTo(targetFrame)
+	remapPositions(stamp, targetFrame * plotCFrame(TEMPLATE_PLOT_INDEX):Inverse())
+	for _, name in TEMPLATE_ATTRIBUTES do
+		plot:SetAttribute(name, stamp:GetAttribute(name))
+	end
+	local plotZones = plot:FindFirstChild("Zones")
+	local stampZones = stamp:FindFirstChild("Zones")
+	if plotZones and stampZones then
+		for _, zone in stampZones:GetChildren() do
+			zone.Parent = plotZones
+		end
+	end
+	for _, name in TEMPLATE_CONTENT do
+		local content = stamp:FindFirstChild(name)
+		if content then
+			content.Parent = plot
+		end
+	end
+	stamp:Destroy()
+	return true
+end
+
+-- Eski yordamsal kurulum: şablon kullanmadan içeriği doğrudan kurar. Oyun yolunda kullanılmaz; şablon kopyasının eşdeğerliğini
+-- karşılaştıran Studio testi (tests/map-structure.spec) referans olarak çağırır. applyTheme'in aksine aynı temadayken de yeniden kurar.
+function MapBuilder.applyThemeProcedural(plot: Model, themeIndex: number)
+	local plotIndex = tonumber(plot:GetAttribute("PlotId"))
+	assert(plotIndex, "[Map] applyThemeProcedural: PlotId geçersiz")
+	clearThemeContent(plot)
 	IslandBuilder.buildThemeContent(plot, themeIndex, plotCFrame(plotIndex), false)
 	WorldDecor.optimize(plot)
-	return true
 end
 
 -- Harita sözleşmesi: eksik dünyada ekonomik oturum açılmaz.
@@ -356,10 +473,15 @@ function MapBuilder.ensure()
 	if existing then
 		MapBuilder.validate()
 		ensureSea() -- Eski kayıtlı haritalarda da deniz tabanı ve güvenlik zemini olsun
-		return
-	end
-	if Config.MAP_AUTO_BUILD then
+	elseif Config.MAP_AUTO_BUILD then
 		MapBuilder.build()
+	end
+	if RunService:IsRunning() and Workspace:FindFirstChild("Plots") then
+		-- Oyuncular gelmeden tema şablonlarını hazırla (çiftlik değiştirme yalnızca kopyalar). Hata olursa applyTheme tembel kurar.
+		MapBuilder.clearTemplates()
+		xpcall(MapBuilder.prepareTemplates, function(err: any)
+			warn(`[Map] Tema şablonları hazırlanamadı: {err}`)
+		end)
 	end
 end
 
