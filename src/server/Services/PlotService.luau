@@ -231,18 +231,19 @@ function PlotService.teleportToHub(player: Player)
 	end
 end
 
--- Tabela ve uzaktan görünen ada etiketi: sahibin adı (nil = boş ada)
-local function setOwnerDisplay(plot: Model, ownerName: string?)
+-- Tabela ve uzaktan görünen ada etiketi: "<oyuncu> Adası" ve çiftliğin kaçıncı olduğu (nil = boş ada: temanın adı)
+local function setOwnerDisplay(plot: Model, ownerName: string?, farmId: string?)
+	local themeName = (plot:GetAttribute("IslandName") or plot.Name) :: string
 	local sign = plot:FindFirstChild("PlotSign")
 	if sign then
-		WorldUi.setSignText(sign, if ownerName then `{ownerName} Çiftliği` else "Boş Ada")
+		WorldUi.setSignTitle(sign, if ownerName then `{ownerName} Adası` else themeName)
+		WorldUi.setSignText(sign, if ownerName then `Çiftlik {farmId or "1"}` else "Boş Ada")
 	end
 
 	local anchor = plot:FindFirstChild("IslandLabelAnchor")
-	local name = plot:GetAttribute("IslandName") or plot.Name
 	WorldUi.setTag(
 		anchor and anchor:FindFirstChild("IslandLabel"),
-		if ownerName then `{name} · {ownerName}` else `{name} · Boş`
+		if ownerName then `{ownerName} Adası · Çiftlik {farmId or "1"}` else `{themeName} · Boş`
 	)
 end
 
@@ -487,7 +488,7 @@ local function bindFarm(player: Player, farmId: string, plot: Model, keepTheme: 
 	plot:SetAttribute("MainFarmId", farmId)
 	plot:SetAttribute("OwnerUserId", player.UserId)
 	plot:SetAttribute("FarmActive", true)
-	setOwnerDisplay(plot, `{player.DisplayName} · Çiftlik {farmId}`)
+	setOwnerDisplay(plot, player.DisplayName, farmId)
 	player:SetAttribute("ActiveMainFarmId", farmId)
 	player:SetAttribute("ActivePlotId", plotId)
 	player:SetAttribute("SelectedFarmIsland", "home")

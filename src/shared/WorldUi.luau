@@ -345,6 +345,15 @@ function WorldUi.setSignText(part: Instance, text: string)
 	end
 end
 
+-- Tabelanın başlık satırını değiştirir (WorldUi.sign `title` verilmişse)
+function WorldUi.setSignTitle(part: Instance, title: string)
+	for _, desc in part:GetDescendants() do
+		if desc:IsA("TextLabel") and desc.Name == "Title" and desc:FindFirstAncestorOfClass("SurfaceGui") then
+			desc.Text = title
+		end
+	end
+end
+
 -- Client'taki toplama bildirimi de aynı ikon/renk/yazı standardını kullanır.
 function WorldUi.floatingMoney(parent: BasePart, text: string, reducedMotion: boolean?): BillboardGui
 	local gui = WorldUi.tag(parent, "CollectedMoney", {
