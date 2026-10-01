@@ -18,8 +18,9 @@ Ada Yönetimi'nin üst bölümü ana çiftlikleri satın alma/etkinleştirme iç
 
 ## Ortak ve ayrı olanlar
 
-İlk çiftlik mevcut kayıttır. Sonraki beş çiftliğin fiyatları sırasıyla 5.000, 12.000,
-25.000, 50.000 ve 100.000'dir (`Config.MAIN_FARM_PRICES`).
+İlk çiftlik mevcut kayıttır. Sonraki beş çiftliğin fiyatları sırasıyla yaklaşık 590 bin, 2,5 milyon, 9,5 milyon,
+37 milyon ve 100 milyondur (`Config.MAIN_FARM_PRICES` taban değerleri 12.000 ... 167.000, yükseltme eğrisinden geçer);
+ikinci çiftlik ilk çiftlik bitmeye yakınken (yaklaşık 3. saat) bir "yeni bölüm" olacak şekilde ayarlıdır.
 
 Para, envanter ve ahır deposundaki ürünler oyuncuya aittir ve **tüm çiftliklerde ortaktır**
 (tür başına depo sınırı = sahip olunan bütün ahırların toplamı). Her çiftliğin hayvanları, küçük ada kilitleri,

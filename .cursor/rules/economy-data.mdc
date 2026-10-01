@@ -170,3 +170,5 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
   Elle başlatma sırasında tekrar açıksa tekrar edilen parti son elle seçilene güncellenir. Şişirilmiş çıkış yok: parti ödülü her zaman kaçırılan gelirin üstündedir (`returnMultiplier` tabanı).
 
 - **Pasif Gelir** (`offline_income_lv1`, `FarmMath.hasOfflineIncome`): alınmadıkça sen yokken yalnızca depo (`stored`) çevrimdışı oranla birikir, dolunca durur ve kasaya geçmez (`SaveCodec.decodeFarm`, dönüş özeti `Notify`). Alınınca çevrimdışı kazanç doğrudan kasaya yatar (önceki davranış). `decode` altıncı dönüş değeri depoda biriken tutardır.
+
+- **Depo ve toplama dengesi**: Ahır depoları (`BARN_LEVELS[].storageCap`) gelirin yaklaşık 1–3 dakikasını tutacak büyüklüktedir (10K/24K/60K/200K); küçük depo, platformdan uzak duran oyuncunun gelirini siler. Çevrimdışı üst sınır `OFFLINE_STORAGE_MULTIPLIER` (24) x depo. Denge değiştirirken `python scripts/simulate-economy.py --collect 20 --farm N` ile gerçekçi toplama aralığını da dene (varsayılan `--collect 0` anında toplar). Hedefler: ada 15/45/110 dk, ilk çiftlik 4–5 saat, ikinci çiftlik ~600K.

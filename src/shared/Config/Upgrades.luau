@@ -31,7 +31,7 @@ return {
 		{
 			id = "barn_2",
 			displayName = "Ahır Sv.2",
-			description = "Tüm gelir x1.2 · Depo 900",
+			description = "Tüm gelir x1.2 · Depo 24.000",
 			icon = "🏚️",
 			stage = 1,
 			cost = 500,
@@ -101,7 +101,7 @@ return {
 		{
 			id = "barn_3",
 			displayName = "Ahır Sv.3",
-			description = "Tüm gelir x1.4 · Depo 3.000 · Orta adalar için gerekli",
+			description = "Tüm gelir x1.4 · Depo 60.000 · Orta adalar için gerekli",
 			icon = "🏠",
 			stage = 1,
 			cost = 1800,
@@ -159,7 +159,7 @@ return {
 		{
 			id = "barn_4",
 			displayName = "Ahır Sv.4",
-			description = "Tüm gelir x1.7 · Depo 10.000 · Son adalar için gerekli",
+			description = "Tüm gelir x1.7 · Depo 200.000 · Son adalar için gerekli",
 			icon = "🏰",
 			stage = 1,
 			cost = 6000,

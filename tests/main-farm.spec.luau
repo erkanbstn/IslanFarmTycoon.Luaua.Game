@@ -29,7 +29,7 @@ return function(
 	local data = assert(
 		codec.decode({
 			version = 3,
-			cash = 300000,
+			cash = 3000000,
 			stored = 17,
 			purchased = { "zone_pasture" },
 			animals = { { uid = "old-cow", animalId = "cow", zoneId = "starter", bornAt = 0 } },

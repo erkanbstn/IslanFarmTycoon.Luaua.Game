@@ -63,7 +63,19 @@ return function(FarmMath: any, Config: any, Environment: any)
 	)
 	local offlineCap = FarmMath.getOfflineCap(save)
 	near(offlineCap, FarmMath.getStorageCap(save) * Config.OFFLINE_STORAGE_MULTIPLIER)
-	near(FarmMath.computeOfflineEarnings(save, start, start + Config.OFFLINE_MAX_HOURS * 3600), offlineCap)
+	-- Üst sınır: tek hayvan sınıra ulaşamaz (kazanç oranı belirler); yeterince hayvanla sınırda durur
+	local singleOffline = FarmMath.computeOfflineEarnings(save, start, start + Config.OFFLINE_MAX_HOURS * 3600)
+	assert(singleOffline <= offlineCap, "offline earnings never exceed the cap")
+	local crowded = saveAt(start)
+	for index = 2, 40 do
+		local copy = table.clone(crowded.animals[1])
+		copy.uid = `crowd-{index}`
+		table.insert(crowded.animals, copy)
+	end
+	near(
+		FarmMath.computeOfflineEarnings(crowded, start, start + Config.OFFLINE_MAX_HOURS * 3600),
+		FarmMath.getOfflineCap(crowded)
+	)
 	save.stored = 0
 
 	-- Üretim ödülü (seçeneksiz tarif): gerekenden fazla her yetişkin bonus verir, üst sınırda durur.

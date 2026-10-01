@@ -10,7 +10,7 @@ return {
 
 	OFFLINE_MAX_HOURS = 8,
 
-	OFFLINE_STORAGE_MULTIPLIER = 4,
+	OFFLINE_STORAGE_MULTIPLIER = 24,
 
 	-- Üretimde gerekenden fazla her yetişkin hayvan satış ödülünü bu oranda artırır (en fazla MAX kadar hayvan).
 	PRODUCTION_BONUS_PER_ADULT = 0.25,

@@ -263,11 +263,11 @@ print("ADIM ZAMANLARI (dakika, ideal oyuncu)")
 local goals: { [string]: string } = {}
 local theme = Config.getTheme(FARM)
 print(`ÇİFTLİK {FARM} · {theme.displayName} · ana hayvan: {homeAnimal}`)
-local targets = { 12, 40, 90 }
+local targets = { 15, 45, 110 }
 for index, islandId in theme.satellites do
 	goals[Config.FARM_ISLANDS[islandId].upgradeId] = `hedef ~{targets[index]} dk`
 end
-goals["TÜM YÜKSELTMELER"] = "hedef 120-180 dk"
+goals["TÜM YÜKSELTMELER"] = "hedef 240-300 dk"
 for _, name in order do
 	print(string.format("  %8.1f dk  %s%s", milestones[name], name, if goals[name] then `   ({goals[name]})` else ""))
 end

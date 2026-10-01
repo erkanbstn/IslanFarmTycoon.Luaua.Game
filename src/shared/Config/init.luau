@@ -201,12 +201,12 @@ local LEVEL_CHAINS = {
 	{
 		id = "feed_quality",
 		displayName = "Yem Kalitesi",
-		description = "Tüm hayvanların geliri +%6",
+		description = "Tüm hayvanların geliri +%8",
 		icon = "🌾",
 		requires = "silo",
-		costs = { 1200, 3000, 7500, 18000, 42000 },
+		costs = { 1200, 3000, 7500, 15000, 28000 },
 		effect = "income",
-		amount = 0.06,
+		amount = 0.08,
 	},
 	{
 		id = "storage_expansion",
