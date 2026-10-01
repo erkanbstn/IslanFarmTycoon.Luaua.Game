@@ -33,7 +33,7 @@ function UpgradesWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Up
 		icon = "🛠️",
 		tint = Color.Gold,
 		width = 330,
-		maxHeight = 430,
+		maxHeight = 500,
 		anchor = Vector2.new(1, 0.5),
 		position = WINDOW_POSITION,
 	})
@@ -66,8 +66,11 @@ function UpgradesWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Up
 	nextIslandButton.Visible = false
 	nextIslandButton.Activated:Connect(IslandManager.open)
 	local directUpgradeCards: { [string]: UiKit.Card } = {}
+	-- Kartlar 2 sütunlu ızgaradır (alt alta uzun liste yerine): karo boyutu pencere genişliğine (330) göre
+	local TILE_W, TILE_H, DETAIL_H = 145, 184, 54
+	local upgradeGrid = UiKit.grid(upgradesWindow.list, 3, false, TILE_W, TILE_H)
 	for index, upgrade in Config.UPGRADES do
-		local card = UiKit.card(upgradesWindow.list, index + 1, upgrade.icon)
+		local card = UiKit.tile(upgradeGrid, index + 1, upgrade.icon, false, DETAIL_H)
 		card.title.Text = upgrade.displayName
 		directUpgradeCards[upgrade.id] = card
 		card.action.Activated:Connect(function()
@@ -81,8 +84,10 @@ function UpgradesWindow.create(screenGui: ScreenGui, WINDOW_POSITION: UDim2): Up
 	local EXPANSION_ORDER = 1000
 	local expansionHeader = UiKit.sectionHeader(upgradesWindow.list, "Geliştirmeler", EXPANSION_ORDER)
 	local expansionCards: { [string]: UiKit.Card } = {}
+	local expansionGrid = UiKit.grid(upgradesWindow.list, EXPANSION_ORDER + 1, false, TILE_W, TILE_H)
 	for index, targetId in Config.BUILD_ORDER do
-		local card = UiKit.card(upgradesWindow.list, EXPANSION_ORDER + index, Config.BUILD_TARGETS[targetId].icon)
+		local card =
+			UiKit.tile(expansionGrid, EXPANSION_ORDER + index, Config.BUILD_TARGETS[targetId].icon, false, DETAIL_H)
 		card.frame.Visible = false
 		expansionCards[targetId] = card
 		card.action.Activated:Connect(function()

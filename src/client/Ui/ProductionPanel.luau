@@ -14,6 +14,7 @@ local PurchaseController = require(script.Parent.Parent:WaitForChild("Core"):Wai
 local UiKit = require(script.Parent:WaitForChild("UiKit"))
 local IslandContext = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("IslandContext"))
 local IslandManager = require(script.Parent:WaitForChild("IslandManager"))
+local IslandTabs = require(script.Parent:WaitForChild("Hud"):WaitForChild("IslandTabs"))
 local player = Players.LocalPlayer
 local ProductionPanel = {}
 local window: UiKit.Window? = nil
@@ -89,9 +90,9 @@ local function create(parent: ScreenGui): UiKit.Window
 		0
 	local selectedLabel = UiKit.text(created.list, "", "Heading")
 	selectedLabel.LayoutOrder = 1
-	local showAll = UiKit.button(created.list, "Tüm adaların tesislerini göster", "secondary")
+	local showAll = UiKit.button(created.list, "Adadaki tüm tesisleri göster", "secondary")
 	showAll.Size = UDim2.new(1, 0, 0, 34)
-	showAll.LayoutOrder = 9998
+	showAll.LayoutOrder = 19
 	showAll.Visible = false
 	showAll.Activated:Connect(function()
 		focusedUpgrade = nil
@@ -100,26 +101,12 @@ local function create(parent: ScreenGui): UiKit.Window
 	end)
 	local changeIsland = UiKit.button(created.list, "Adalarımı yönet", "primary")
 	changeIsland.Size = UDim2.new(1, 0, 0, 36)
-	changeIsland.LayoutOrder = 9999
+	changeIsland.LayoutOrder = 20
 	changeIsland.Activated:Connect(IslandManager.open)
 	local feedback = UiKit.text(created.list, "", "Caption")
-	feedback.LayoutOrder = 2
-	-- Üretim penceresi bütün adaları kapsar (adalara gitmeden hızlı etkileşim): tesisler ada başlıkları altında gruplanır.
-	-- Seçili ada üstte durur; açılmamış adalar yalnızca başlık + not gösterir.
-	local islandHeaders: { [string]: TextLabel } = {}
-	local islandNotes: { [string]: TextLabel } = {}
-	local islandHasRecipes: { [string]: boolean } = {}
-	for _, recipe in Config.PRODUCTION_RECIPES do
-		islandHasRecipes[recipe.island] = true
-	end
-	for _, islandId in Config.FARM_ISLAND_ORDER do
-		local header = UiKit.text(created.list, "", "Heading")
-		header.Visible = false
-		islandHeaders[islandId] = header
-		local note = UiKit.text(created.list, "Ada henüz açık değil.", "Caption")
-		note.Visible = false
-		islandNotes[islandId] = note
-	end
+	feedback.LayoutOrder = 1
+	-- Ada sekmeleri (diğer pencerelerle aynı): adaya gitmeden her adanın tesislerine geçilir
+	IslandTabs.add(created)
 	type Entry = {
 		card: UiKit.Card,
 		keep: TextButton,
@@ -211,28 +198,10 @@ local function create(parent: ScreenGui): UiKit.Window
 		end
 		feedback.Text = message
 		local focusedBuilding = if focusedUpgrade then Config.getUpgrade(focusedUpgrade) else nil
-		selectedLabel.Text = if focusedBuilding then focusedBuilding.displayName else "Tüm adaların üretimi"
+		selectedLabel.Text = if focusedBuilding
+			then `{focusedBuilding.displayName} · {IslandContext.name()}`
+			else IslandContext.name()
 		showAll.Visible = focusedBuilding ~= nil
-		local themeIslands = FarmMath.themeIslands(state)
-		local selectedIsland = IslandContext.get()
-		local function islandRank(islandId: string): number
-			if islandId == selectedIsland then
-				return 0
-			end
-			return table.find(Config.FARM_ISLAND_ORDER, islandId) or 99
-		end
-		for islandId, header in islandHeaders do
-			local listed = focusedUpgrade == nil
-				and islandHasRecipes[islandId] == true
-				and table.find(themeIslands, islandId) ~= nil
-			local island = Config.FARM_ISLANDS[islandId]
-			header.Visible = listed
-			header.Text = if island then island.displayName else islandId
-			header.LayoutOrder = islandRank(islandId) * 100 + 10
-			local note = islandNotes[islandId]
-			note.Visible = listed and state.unlockedIslands[islandId] ~= true
-			note.LayoutOrder = islandRank(islandId) * 100 + 11
-		end
 		feedback.Visible = message ~= ""
 		feedback.TextColor3 = if success then UiKit.Color.Green else UiKit.Color.Red
 		local now = Workspace:GetServerTimeNow()
@@ -244,10 +213,9 @@ local function create(parent: ScreenGui): UiKit.Window
 			local recipe = Config.PRODUCTION_RECIPES[id]
 			local entry = entries[id]
 			local card = entry.card
-			card.frame.Visible = table.find(themeIslands, recipe.island) ~= nil
-				and state.unlockedIslands[recipe.island] == true
+			card.frame.Visible = recipe.island == IslandContext.get()
 				and (focusedUpgrade == nil or recipe.upgradeId == focusedUpgrade)
-			card.frame.LayoutOrder = if focused == id then 5 else islandRank(recipe.island) * 100 + 12 + index
+			card.frame.LayoutOrder = if focused == id then 2 else index + 3
 			entry.keep.Visible = false
 			entry.progress.Visible = false
 			card.action.Visible = true

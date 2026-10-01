@@ -12,7 +12,7 @@
  "src/client/Effects/Soundscape.client.luau|Type \"snow\" cannot be compared with \"cloudy\"": 1,
  "src/client/Interaction/IslandAutoSelect.client.luau|Function only returns 1 value, but 2 are required here": 1,
  "src/client/Ui/AdminPanel.luau|Value of type 'Window?' could be nil": 2,
- "src/client/Ui/Hud/IslandTabs.luau|Function only returns 1 value, but 2 are required here": 4,
+ "src/client/Ui/Hud/IslandTabs.luau|Function only returns 1 value, but 2 are required here": 6,
  "src/client/Ui/IncomeBubbles.client.luau|Expected this to be 'Instance', but got 'nil'": 1,
  "src/client/Ui/SettingsMenu.luau|Value of type 'Window?' could be nil": 3,
  "src/server/Presentation/AnimalModels.luau|Cannot call a value of the union type:": 18,
