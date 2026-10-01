@@ -46,15 +46,6 @@ local function watch(instance: Instance)
 	if not properties or tracked[instance] then
 		return
 	end
-	-- Dünyada yalnızca tabela yüzeylerindeki yazılar (Workspace'te başka TextLabel bulunmaz).
-	if
-		instance:IsA("GuiObject")
-		and instance:IsDescendantOf(Workspace)
-		and not instance:FindFirstAncestorWhichIsA("SurfaceGui")
-		and not instance:FindFirstAncestorWhichIsA("BillboardGui")
-	then
-		return
-	end
 	tracked[instance] = {}
 	-- Roblox'un otomatik çevirisi kapalı: metni bu dosya çevirir (yoksa aynı yazı iki kez çevrilip bozulabilir).
 	pcall(function()
@@ -88,5 +79,20 @@ Localization.onChanged(function()
 	end
 end)
 
+-- Dünyada yalnızca tabela yüzeylerinin (BillboardGui/SurfaceGui) altı izlenir; Workspace'in geri kalanında
+-- TextLabel bulunmaz, o yüzden her parça için ata taraması yapılmaz.
+local function watchWorldGui(instance: Instance)
+	if not (instance:IsA("BillboardGui") or instance:IsA("SurfaceGui")) then
+		return
+	end
+	for _, descendant in instance:GetDescendants() do
+		watch(descendant)
+	end
+	instance.DescendantAdded:Connect(watch)
+end
+
 watchTree(playerGui)
-watchTree(Workspace)
+for _, descendant in Workspace:GetDescendants() do
+	watchWorldGui(descendant)
+end
+Workspace.DescendantAdded:Connect(watchWorldGui)

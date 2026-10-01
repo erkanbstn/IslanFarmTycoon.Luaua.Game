@@ -121,7 +121,7 @@ function StatsPanel.create(screenGui: ScreenGui): Hud
 	local cashTween: Tween? = nil
 	local cashTarget: number? = nil
 	cashValue.Changed:Connect(function(value: number)
-		cashLabel.Text = FarmMath.formatMoney(value)
+		UiKit.setText(cashLabel, FarmMath.formatMoney(value))
 	end)
 	local function animateCash(target: number)
 		if cashTarget == target then
@@ -143,18 +143,21 @@ function StatsPanel.create(screenGui: ScreenGui): Hud
 
 	local compact = false
 	local function update(state: PlayerSave, income: number)
-		farmContextLabel.Text = IslandContext.name()
+		UiKit.setText(farmContextLabel, IslandContext.name())
 		local status = localPlayer:GetAttribute("DataStatus")
 		local dataError = localPlayer:GetAttribute("DataError")
 		dataHealth.Visible = status ~= "Active" or (typeof(dataError) == "string" and dataError ~= "")
-		dataHealth.Text = if status ~= "Active"
-			then "Kayıt bağlantısı kesildi. Ekonomi durduruldu; lütfen yeniden katıl."
-			else "Son kayıt tamamlanamadı; tekrar deneniyor."
+		UiKit.setText(
+			dataHealth,
+			if status ~= "Active"
+				then "Kayıt bağlantısı kesildi. Ekonomi durduruldu; lütfen yeniden katıl."
+				else "Son kayıt tamamlanamadı; tekrar deneniyor."
+		)
 		local cap = FarmMath.getStorageCap(state)
 		local barnConfig = FarmMath.getBarnConfig(state)
 		animateCash(state.cash)
-		incomeLabel.Text = `+${FarmMath.formatRate(income)}/sn gelir`
-		barnLabel.Text = barnConfig.displayName
+		UiKit.setText(incomeLabel, `+${FarmMath.formatRate(income)}/sn gelir`)
+		UiKit.setText(barnLabel, barnConfig.displayName)
 		local ownedIslands, totalIslands = FarmMath.countIslands(state)
 		local islandAnimals, islandCapacity = 0, 0
 		for zoneId, zone in Config.ZONES do
@@ -163,22 +166,27 @@ function StatsPanel.create(screenGui: ScreenGui): Hud
 				islandCapacity += FarmMath.getZoneCapacity(state, zoneId)
 			end
 		end
-		barnDetail.Text =
+		UiKit.setText(
+			barnDetail,
 			`Seviye {state.barnLevel} · Ada {ownedIslands}/{totalIslands}\nBu ada: {islandAnimals}/{islandCapacity} hayvan`
+		)
 		local auto = FarmMath.hasAutoCollect(state)
 		if auto then
-			storageValue.Text = "Otomatik"
+			UiKit.setText(storageValue, "Otomatik")
 			setStorageBar(1, Color.Green)
 		else
 			local ratio = if cap > 0 then state.stored / cap else 0
-			storageValue.Text = `{FarmMath.formatMoney(state.stored)} / {FarmMath.formatMoney(cap)}`
+			UiKit.setText(storageValue, `{FarmMath.formatMoney(state.stored)} / {FarmMath.formatMoney(cap)}`)
 			setStorageBar(ratio, if ratio >= 1 then Color.Red elseif ratio > 0.8 then Color.Orange else Color.Green)
 		end
-		hintLabel.Text = if localPlayer:GetAttribute("DataPersistent") == false
-			then "Kayıtsız Studio testi: bu ilerleme saklanmaz."
-			elseif auto then "Otomatik toplama açık. Çevrimdışı kazanç da kasana eklenir."
-			elseif state.stored >= cap then "Depo dolu, üretim durdu! Yeşil platforma bas."
-			else "Parayı almak için yeşil platforma bas. Çevrimdışı kazanç kasana eklenir."
+		UiKit.setText(
+			hintLabel,
+			if localPlayer:GetAttribute("DataPersistent") == false
+				then "Kayıtsız Studio testi: bu ilerleme saklanmaz."
+				elseif auto then "Otomatik toplama açık. Çevrimdışı kazanç da kasana eklenir."
+				elseif state.stored >= cap then "Depo dolu, üretim durdu! Yeşil platforma bas."
+				else "Parayı almak için yeşil platforma bas. Çevrimdışı kazanç kasana eklenir."
+		)
 		-- İpucu satırı yalnızca bir şey ters giderken görünür (depo dolu ya da kayıtsız test); sürekli aynı cümle HUD'u kalabalıklaştırır
 		hintWanted = state.stored >= cap or localPlayer:GetAttribute("DataPersistent") == false
 		hintLabel.Visible = hintWanted and not compact

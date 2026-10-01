@@ -19,7 +19,7 @@ local RewardsSection = {}
 -- setRewardsBadge: Ödüller düğmesindeki "alınabilir ödül" rozeti
 function RewardsSection.create(list: Instance, setRewardsBadge: (number) -> ()): (PlayerSave) -> ()
 	local dailyCard = UiKit.card(list, 20, "🎁")
-	dailyCard.title.Text = "Günlük ödül"
+	UiKit.setText(dailyCard.title, "Günlük ödül")
 	dailyCard.action.Activated:Connect(function()
 		if dailyCard.action.Active then
 			PurchaseController.submit("RequestClaimDaily", "daily")
@@ -40,26 +40,28 @@ function RewardsSection.create(list: Instance, setRewardsBadge: (number) -> ()):
 		local progressText = if def.metric == "earned"
 			then `Kazan: {FarmMath.formatMoney(progress)}/{FarmMath.formatMoney(goal.target)}`
 			else `Yatırım yap: {math.floor(progress)}/{goal.target}`
-		seasonalCard.icon.Text = season.icon
-		seasonalCard.title.Text = `Mevsim hedefi · {season.eventName}`
-		seasonalCard.detail.Text =
+		UiKit.setText(seasonalCard.icon, season.icon)
+		UiKit.setText(seasonalCard.title, `Mevsim hedefi · {season.eventName}`)
+		UiKit.setText(
+			seasonalCard.detail,
 			`{progressText} · Ödül: {FarmMath.formatMoney(Rewards.seasonalReward(state))} · {string.format(
 				"%02d:%02d",
 				math.ceil(left) // 60,
 				math.ceil(left) % 60
 			)} kaldı`
+		)
 		local pending = PurchaseController.isPending()
 		if not stored then
-			seasonalCard.action.Text = "Hazırlanıyor"
+			UiKit.setText(seasonalCard.action, "Hazırlanıyor")
 			UiKit.setVariant(seasonalCard.action, "disabled")
 		elseif goal.claimed then
-			seasonalCard.action.Text = "Alındı"
+			UiKit.setText(seasonalCard.action, "Alındı")
 			UiKit.setVariant(seasonalCard.action, "owned")
 		elseif progress >= goal.target then
-			seasonalCard.action.Text = "Ödülü al"
+			UiKit.setText(seasonalCard.action, "Ödülü al")
 			UiKit.setVariant(seasonalCard.action, if pending then "disabled" else "primary")
 		else
-			seasonalCard.action.Text = `{math.floor(progress)}/{goal.target}`
+			UiKit.setText(seasonalCard.action, `{math.floor(progress)}/{goal.target}`)
 			UiKit.setVariant(seasonalCard.action, "disabled")
 		end
 	end
@@ -78,7 +80,7 @@ function RewardsSection.create(list: Instance, setRewardsBadge: (number) -> ()):
 	local achievementsSummary = ""
 	local achievementsClaimable = 0
 	local function refreshAchievementsToggle()
-		achievementsToggle.Text = if achievementsOpen then "Başarımları gizle" else achievementsSummary
+		UiKit.setText(achievementsToggle, if achievementsOpen then "Başarımları gizle" else achievementsSummary)
 		UiKit.setVariant(
 			achievementsToggle,
 			if achievementsClaimable > 0 and not achievementsOpen then "primary" else "secondary"
@@ -95,7 +97,7 @@ function RewardsSection.create(list: Instance, setRewardsBadge: (number) -> ()):
 	for index, achievement in Config.ACHIEVEMENTS do
 		local card = UiKit.autoTile(achievementGrid, index, achievement.icon)
 		card.frame.Visible = false
-		card.title.Text = achievement.displayName
+		UiKit.setText(card.title, achievement.displayName)
 		achievementCards[achievement.id] = card
 		card.action.Activated:Connect(function()
 			if card.action.Active then
@@ -131,14 +133,17 @@ function RewardsSection.create(list: Instance, setRewardsBadge: (number) -> ()):
 
 		local length = #Config.DAILY_REWARD_MULTIPLIERS
 		if status.canClaim then
-			dailyCard.detail.Text = `{status.nextStreak}. gün · Ödül: {FarmMath.formatMoney(
-				Rewards.dailyAmount(state, status.nextStreak)
-			)}`
-			dailyCard.action.Text = "Ödülü al"
+			UiKit.setText(
+				dailyCard.detail,
+				`{status.nextStreak}. gün · Ödül: {FarmMath.formatMoney(
+					Rewards.dailyAmount(state, status.nextStreak)
+				)}`
+			)
+			UiKit.setText(dailyCard.action, "Ödülü al")
 			UiKit.setVariant(dailyCard.action, if pending then "disabled" else "primary")
 		else
-			dailyCard.detail.Text = `Seri {status.streak}/{length} · Yarın yeni ödül`
-			dailyCard.action.Text = "Alındı"
+			UiKit.setText(dailyCard.detail, `Seri {status.streak}/{length} · Yarın yeni ödül`)
+			UiKit.setText(dailyCard.action, "Alındı")
 			UiKit.setVariant(dailyCard.action, "owned")
 		end
 		achievementsClaimable = claimable
@@ -173,15 +178,15 @@ function RewardsSection.create(list: Instance, setRewardsBadge: (number) -> ()):
 			local text = if achievement.metric == "earned"
 				then `{FarmMath.formatMoney(shown)}/{FarmMath.formatMoney(achievement.target)}`
 				else `{math.floor(shown)}/{achievement.target}`
-			card.detail.Text = `{achievement.description} · {text}`
+			UiKit.setText(card.detail, `{achievement.description} · {text}`)
 			if owned then
-				card.action.Text = "Alındı"
+				UiKit.setText(card.action, "Alındı")
 				UiKit.setVariant(card.action, "owned")
 			elseif progress >= achievement.target then
-				card.action.Text = `Ödülü al · {FarmMath.formatMoney(achievement.reward)}`
+				UiKit.setText(card.action, `Ödülü al · {FarmMath.formatMoney(achievement.reward)}`)
 				UiKit.setVariant(card.action, if pending then "disabled" else "primary")
 			else
-				card.action.Text = text
+				UiKit.setText(card.action, text)
 				UiKit.setVariant(card.action, "disabled")
 			end
 		end

@@ -88,8 +88,8 @@ local function trackReady(instance: Instance)
 		phase = random:NextNumber(0, math.pi * 2),
 		track = isTrack,
 		trackAngle = random:NextNumber(0, math.pi * 2),
-		near = true,
-		nextNearCheck = 0,
+		parts = nil,
+		offsets = {},
 		slot = random:NextInteger(0, 1),
 	}
 	-- İlk karede doğru yerde görünsün
