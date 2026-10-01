@@ -11,7 +11,9 @@ local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Co
 
 local player = Players.LocalPlayer
 local DEFAULT_VOLUME = 0.5
-local MIN_GAP = 0.12 -- Aynı ses bu kadar sıklıktan fazla üst üste çalmaz
+local MIN_GAP = 0.12
+-- Bazı sesler daha seyrek çalar: kutlama sesi (yapı belirmesi) art arda çok sayıda yapı kurulsa da 15 saniyede bir çalar
+local NAME_GAPS: { [string]: number } = { build = 15 } -- Aynı ses bu kadar sıklıktan fazla üst üste çalmaz
 
 local Sfx = {}
 
@@ -48,7 +50,7 @@ function Sfx.play(name: string, pitchJitter: number?)
 		return
 	end
 	local now = os.clock()
-	if now - (lastPlayed[name] or 0) < MIN_GAP then
+	if now - (lastPlayed[name] or 0) < (NAME_GAPS[name] or MIN_GAP) then
 		return
 	end
 	lastPlayed[name] = now

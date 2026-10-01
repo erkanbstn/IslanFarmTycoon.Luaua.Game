@@ -222,6 +222,9 @@ local function popIn(model: Model): boolean
 	-- Kutlama sesi yalnızca girişte/yapı alımında; çiftlik (ada teması) değişince yeniden kurulan adada çalmaz
 	if not isAnimal and os.clock() >= quietUntil then
 		Sfx.play("build")
+		if localPlayer:GetAttribute("IsAdmin") == true then
+			print(`[BuildEffects] kurulum efekti: {model:GetFullName()}`) -- tekrar eden kutlama sesinin kaynağını bulmak için (yalnızca yönetici)
+		end
 	end
 	return true
 end
