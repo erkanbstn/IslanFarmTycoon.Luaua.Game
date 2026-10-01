@@ -54,9 +54,11 @@ return function(codec: any, config: any, farmMath: any)
 			assert(line.amount >= 1 and line.amount <= cap, "amounts always fit in the barn")
 			worth += line.amount * config.GOODS[line.goodsId].value
 		end
+		local incomeFloor = farmMath.computeIncomePerSecond(save, now) * config.GOODS_CONTRACTS.incomeSeconds
 		assert(
-			offer.worth == worth and offer.reward == math.floor(worth * tier.rewardFactor * (1 + islandBonus)),
-			"reward follows worth"
+			offer.worth == worth
+				and offer.reward == math.floor(math.max(worth, incomeFloor) * tier.rewardFactor * (1 + islandBonus)),
+			"reward follows max(worth, income floor)"
 		)
 		assert(offer.reward > worth, "delivering beats the raw goods value")
 		assert(offer.rewardFactor == tier.rewardFactor, "the tier sets the reward rate")

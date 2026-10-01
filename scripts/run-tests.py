@@ -68,7 +68,7 @@ def config_bundle(freeze: bool = True) -> str:
     return "".join(["local Config = (function()\n", parts, init, "\nreturn ConfigInit\nend)()\n"])
 
 
-FARM_MATH_PARTS = ["Format", "Core", "Goods", "Contracts", "Recipes", "Counts", "Islands", "Lineage", "Expansion", "Production", "Income", "Animals"]
+FARM_MATH_PARTS = ["Format", "Core", "Goods", "Recipes", "Counts", "Islands", "Lineage", "Expansion", "Production", "Income", "Contracts", "Animals"]
 
 
 def _declared_dependencies(path: str) -> set[str]:

@@ -7,6 +7,7 @@ local Config = require(script.Parent.Parent.Parent:WaitForChild("Config"))
 local GameTypes = require(script.Parent.Parent.Parent:WaitForChild("GameTypes"))
 local Core = require(script.Parent:WaitForChild("Core"))
 local Goods = require(script.Parent:WaitForChild("Goods"))
+local Income = require(script.Parent:WaitForChild("Income"))
 
 type PlayerSave = GameTypes.PlayerSave
 
@@ -64,9 +65,10 @@ local function totalWorth(lines: { Line }): number
 	return worth
 end
 
--- Teklifin ödülü: ürünlerin para değeri x kademe çarpanı x (1 + mevsim bonusu)
-function Contracts.reward(worth: number, rewardFactor: number, bonus: number?): number
-	return math.floor(worth * rewardFactor * (1 + (bonus or 0)))
+-- Teklifin ödülü: max(ürünlerin para değeri, gelir x incomeSeconds) x kademe çarpanı x (1 + mevsim bonusu).
+-- Gelir tabanı siparişleri geç oyunda da anlamlı tutar (sabit ürün değeri gelirin yanında önemsizleşirdi).
+function Contracts.reward(worth: number, rewardFactor: number, bonus: number?, incomeFloor: number?): number
+	return math.floor(math.max(worth, incomeFloor or 0) * rewardFactor * (1 + (bonus or 0)))
 end
 
 -- Park-Miller üreteci: pencere ve sıraya bağlı, sunucu ile client'ta aynı sonucu verir (Roblox Random gerekmez).
@@ -89,6 +91,8 @@ function Contracts.offers(save: PlayerSave, now: number, bonus: number?): { Offe
 	local settings = Config.GOODS_CONTRACTS
 	local window = Contracts.window(now)
 	local cap = Goods.getGoodsCap(save)
+	-- Etkin çiftliğin geliri (istemci park edilmiş çiftliklerin hayvanlarını görmez; sunucu ile aynı sonuç için yalnızca kök kayıt)
+	local incomeFloor = Income.computeIncomePerSecond(save, now) * settings.incomeSeconds
 	local totalWeight = 0
 	for _, tier in settings.tiers do
 		totalWeight += tier.weight
@@ -124,7 +128,12 @@ function Contracts.offers(save: PlayerSave, now: number, bonus: number?): { Offe
 			lines = lines,
 			worth = worth,
 			rewardFactor = tier.rewardFactor,
-			reward = Contracts.reward(worth, tier.rewardFactor, (bonus or 0) + Core.getBonus(save, "contractBonus")),
+			reward = Contracts.reward(
+				worth,
+				tier.rewardFactor,
+				(bonus or 0) + Core.getBonus(save, "contractBonus"),
+				incomeFloor
+			),
 		})
 	end
 	return offers
