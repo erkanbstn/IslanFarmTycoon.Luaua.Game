@@ -297,7 +297,7 @@ return function(
 		gdata.activeMainFarmId
 	)
 	assert(
-		spam and spam.ok == false and spam.message == "Çok hızlı işlem yapıyorsun; biraz bekle.",
+		barterSpam and barterSpam.ok == false and barterSpam.message == "Çok hızlı işlem yapıyorsun; biraz bekle.",
 		"spam gets the throttle reply"
 	)
 	assert(
