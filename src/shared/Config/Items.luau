@@ -92,7 +92,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		displayName = "Elmas Çekiç",
 		icon = "🔨",
 		slot = "tool",
-		price = 5000000,
+		price = 2500000,
 		effects = { upgradeDiscount = 0.2, expansionDiscount = 0.12, sellBonus = 0.12, facilitySpeed = 0.08 },
 		look = hammerLook(Color3.fromRGB(110, 220, 255), "Neon"),
 	})

@@ -53,7 +53,7 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
 - **Irk geliştirme** (oyun sonu para harcama yolu): `Config.LINEAGE` (maxLevel, incomePerLevel, costMultiplier, costGrowth). Seviye
   çiftlik başına ve türe göredir: kayıt alanı `lineage { [animalId] = 1..maxLevel }` (opsiyonel; `FarmProfiles.FIELDS`'te, `SaveCodec`
   tanınmayan türü atar, seviyeyi sıkıştırır, bozuk tabloyu reddeder). Mantık paylaşılan `FarmMath.getLineageLevel/getLineageCost/getLineageStatus`;
-  gelir etkisi `getAnimalMultiplier` içinde doğrusal (+incomePerLevel/seviye), maliyet üstel. Sunucu `UpgradeService.tryUpgradeLineage`
+  gelir etkisi `getAnimalMultiplier` içinde **ayrı çarpan** `(1 + seviye x incomePerLevel)` (diğer bonuslar toplamına eklenmez; aynı şekilde takılı eşyanın `incomeBonus`'u ayrı `(1 + eşya)` çarpanıdır: gelir = taban x (1 + diğer bonuslar) x (1 + ırk) x (1 + eşya)), maliyet yavaş üstel (`costGrowth`). Her seviyenin geri dönüşü ~2 saati geçmemeli: `simulate-economy.py` "Irk geri dönüş" satırını kontrol et (her `--farm`'da); `costGrowth`/`maxLevel` değişince yeniden ölç. Sunucu `UpgradeService.tryUpgradeLineage`
   (`RequestUpgradeLineage`, en az bir yetişkin şart, `settlePlayer` sonra `trySpend`). Arayüz: Hayvan Pazarı kartlarında ikinci düğme.
   Görünürlük: `AnimalVisualService.applyLineage` hayvanın üstüne kademe renkli yıldız + "Sv.N" rozeti (`LineageTag`) koyar; seviye değişince hayvan
   yeniden kurulmaz, rozet yerinde yenilenir (`Lineage` özniteliği).

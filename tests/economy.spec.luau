@@ -432,6 +432,16 @@ return function(FarmMath: any, Config: any, Environment: any)
 		previousCost = cost
 	end
 	assert(FarmMath.getLineageCost("cow", Config.LINEAGE.maxLevel) == math.huge, "no level past the maximum")
+	-- Denge değişmezi (sim: "Irk geri dönüş" <= 2 sa): havuz ne çok ucuz (erken biter) ne çok pahalı (geri dönüş uzar) olsun
+	for animalId, animalConfig in Config.ANIMALS do
+		local pool = 0
+		for level = 0, Config.LINEAGE.maxLevel - 1 do
+			pool += FarmMath.getLineageCost(animalId, level)
+		end
+		local lastCost = FarmMath.getLineageCost(animalId, Config.LINEAGE.maxLevel - 1)
+		assert(pool >= animalConfig.price * 500, `lineage pool for {animalId} collapsed (too cheap)`)
+		assert(lastCost <= animalConfig.price * 250, `lineage last level for {animalId} too expensive (payback > 2h)`)
+	end
 	assert(FarmMath.getLineageCost("ghost", 0) == math.huge, "unknown species cannot be upgraded")
 	lineageFarm.lineage = { cow = 2 }
 	local lineageRatio = FarmMath.getAnimalMultiplier(lineageFarm, "cow", true) / lineageBase
@@ -443,6 +453,22 @@ return function(FarmMath: any, Config: any, Environment: any)
 		FarmMath.getAnimalMultiplier(lineageFarm, "chicken", true)
 			== FarmMath.getAnimalMultiplier(saveAt(start), "chicken", true),
 		"lineage only affects its own species"
+	)
+	-- Irk ve eşya geliri toplanan bonusa eklenmez, ayrı çarpandır: gelir = taban x (1 + diğer) x (1 + ırk) x (1 + eşya)
+	local stackFarm = saveAt(start)
+	stackFarm.purchased["milk_machine"] = true
+	stackFarm.lineage = { cow = 5 }
+	stackFarm.inventory = { items = { income_charm_3 = true }, equipped = { charm = "income_charm_3" } }
+	local stackPlain = saveAt(start)
+	stackPlain.purchased["milk_machine"] = true
+	local stackExpected = (1 + 5 * Config.LINEAGE.incomePerLevel)
+		* (1 + FarmMath.getEquippedBonus(stackFarm, "incomeBonus"))
+	assert(
+		math.abs(
+			FarmMath.getAnimalMultiplier(stackFarm, "cow", true) / FarmMath.getAnimalMultiplier(stackPlain, "cow", true)
+				- stackExpected
+		) < 1e-9,
+		"lineage and item income multiply instead of adding to other bonuses"
 	)
 	lineageFarm.lineage = { cow = Config.LINEAGE.maxLevel + 50 }
 	assert(FarmMath.getLineageLevel(lineageFarm, "cow") == Config.LINEAGE.maxLevel, "levels are clamped")

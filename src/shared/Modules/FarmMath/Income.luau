@@ -39,9 +39,10 @@ function Income.getAnimalMultiplier(
 			end
 		end
 	end
-	bonus += Core.getEquippedBonus(save, "incomeBonus")
-	-- Irk geliştirme: her seviye bu türün gelirini incomePerLevel kadar artırır
-	bonus += Lineage.getLineageLevel(save, animalId) * Config.LINEAGE.incomePerLevel
+	-- Irk geliştirme (seviye başına incomePerLevel) ve takılı eşya geliri toplanan bonusa eklenmez, ayrı çarpandır:
+	-- gelir = taban x (1 + diğer bonuslar) x (1 + ırk) x (1 + eşya); yoksa geç oyunda değeri sıfıra yakın erir
+	local lineageBonus = Lineage.getLineageLevel(save, animalId) * Config.LINEAGE.incomePerLevel
+	local itemBonus = Core.getEquippedBonus(save, "incomeBonus")
 	-- Oyun geçidi çarpanı (sunucu doğrular; client yalnızca gösterir)
 	local passFactor = 1
 	for key, pass in Config.PRODUCTS.passes do
@@ -49,11 +50,16 @@ function Income.getAnimalMultiplier(
 			passFactor *= pass.incomeMultiplier
 		end
 	end
-	-- Ahır seviyesi x güçlendirmeler x mevsim/hava x geçit
+	-- Ahır seviyesi x güçlendirmeler x ırk x eşya x mevsim/hava x geçit
 	local environment = if neutralWeather
 		then 1
 		else Environment.getIncomeMultiplier(animalId, save.envOverride, affinity)
-	return Core.getBarnConfig(save).incomeMultiplier * (1 + bonus) * environment * passFactor
+	return Core.getBarnConfig(save).incomeMultiplier
+		* (1 + bonus)
+		* (1 + lineageBonus)
+		* (1 + itemBonus)
+		* environment
+		* passFactor
 end
 
 -- Hayvanın görevinin gelir çarpanı: tesise verilmişse 0 (iş boyunca gelir getirmez), satın alınmış eklentide
