@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Check translation dictionaries against each other and against UI literals.
 
-Fails (exit 1) when en/de/ru do not share the same Turkish key set.
+Fails (exit 1) when the dictionaries (see LANGS) do not share the same Turkish key set.
 Also lists plain Turkish UI literals (UiKit.text/button/menuButton, `.Text = "..."`,
 `title = "..."`) that have no exact dictionary key. That list is a hint only: the
 runtime Localizer may still translate them by splitting on " · ", newlines or ", ".
@@ -17,7 +17,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 LOCALES = ROOT / "src" / "shared" / "Locales"
-LANGS = ("en", "de", "ru")
+LANGS = ("en", "de", "ru", "es", "pt")
 KEY = re.compile(r'^\s*\["((?:[^"\\]|\\.)*)"\]\s*=', re.MULTILINE)
 LITERAL_PATTERNS = [
     re.compile(r'UiKit\.(?:text|button)\([^,]+,\s*"((?:[^"\\]|\\.)+)"'),

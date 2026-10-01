@@ -1,6 +1,6 @@
 ---
 name: roblox-localize
-description: Adds or fixes translations for this Roblox project's Turkish source texts in the en/de/ru dictionaries, including template placeholders and split parts, and verifies coverage with scripts/check-locales.py. Use when new player-visible text is added, text shows up untranslated in-game, or a new language is requested.
+description: Adds or fixes translations for this Roblox project's Turkish source texts in the en/de/ru/es/pt dictionaries, including template placeholders and split parts, and verifies coverage with scripts/check-locales.py. Use when new player-visible text is added, text shows up untranslated in-game, or a new language is requested.
 ---
 
 # roblox-localize

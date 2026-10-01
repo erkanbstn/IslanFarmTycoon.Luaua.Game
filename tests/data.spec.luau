@@ -177,6 +177,11 @@ return function(lock: any, codec: any, config: any, farmMath: any)
 	local withLanguage = assert(codec.decode(languageRaw, config, farmMath, now, uid))
 	assert(withLanguage.language == "de", "chosen language must load")
 	assert(codec.encode(withLanguage, now).language == "de", "chosen language must survive saves")
+	for _, code in { "es", "pt" } do
+		languageRaw.language = code
+		assert(assert(codec.decode(languageRaw, config, farmMath, now, uid)).language == code, "es/pt must load")
+		assert(config.LANGUAGES[code] ~= nil, "language must be registered")
+	end
 	languageRaw.language = "klingon"
 	local unknownLanguage = assert(codec.decode(languageRaw, config, farmMath, now, uid))
 	assert(unknownLanguage.language == nil, "unknown language codes must be ignored")

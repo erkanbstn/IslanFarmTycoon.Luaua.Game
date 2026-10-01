@@ -27,7 +27,7 @@ Tek kaynak `src/shared/Config/` (`Upgrades`, `Animals` = bölge/hayvan, `Islands
 - [ ] 1. Config kaydı (id küçük harf_alt_çizgi, displayName Türkçe)
 - [ ] 2. FarmMath gerekiyorsa (yeni kural türü) — saf fonksiyon, sunucu+client ortak
 - [ ] 3. Görsel servis / harita (harita değiştiyse MAP_VERSION +1, "Haritayı Kur" hatırlat)
-- [ ] 4. displayName, description, trait, product metinlerinin çevirisi (en/de/ru)
+- [ ] 4. displayName, description, trait, product metinlerinin çevirisi (en/de/ru/es/pt)
 - [ ] 5. Kayıt etkisi: yeni kalıcı alan varsa roblox-save-schema skill'i
 - [ ] 6. Test: tests/economy.spec.luau (fiyat/gelir), orders/production gerekiyorsa
 - [ ] 7. Fiyat/gelir değiştiyse `python scripts/simulate-economy.py` (ada süreleri ve TÜM YÜKSELTMELER hedefi, `economy-data.mdc` tempo satırı)
