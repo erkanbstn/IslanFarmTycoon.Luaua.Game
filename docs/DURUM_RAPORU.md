@@ -1,17 +1,17 @@
-# Island Farm Tycoon — Durum Raporu (2026-10-01)
+# Island Farm Tycoon — Durum Raporu (güncel: 2026-10-01, ikinci tur sonrası)
 
-Kaynak belge `docs/ANALIZ_RAPORU.md` (1 Ekim 2026) bu raporun tamamlanmasından sonra silindi; bulgu numaraları ona göre, metni git geçmişinde. Bu rapor kodla hedefli karşılaştırma (grep + kısa okuma) ve
-`verify.ps1` / `simulate-economy.py` çıktılarıyla hazırlandı; Studio çalıştırılmadı. Ara raporlar (`docs/raporlar/`) bu raporun
-2, 3, 6 ve 7. bölümlerine taşındı ve silindi (tarihçe git geçmişinde).
+Kaynak: 1 Ekim 2026 proje analizi (metni silindi: `git show b15e796:docs/ANALIZ_RAPORU.md`); bulgu numaraları ona göre. Bu rapor kodla hedefli
+karşılaştırma ve `verify.ps1 -RequireTypes` / `simulate-economy.py` çıktılarıyla hazırlandı; Studio çalıştırılmadı. İkinci turda (güvenlik paketi,
+es/pt, denge 3. tur, kayıt bölme) güncellendi. Ara raporlar silindi; bilgileri bu raporda (tarihçe git geçmişinde).
 
 ## 1. Yönetici özeti
-- Analizdeki 5 kritik riskin 5'i de koda işlendi (tema yeniden kurulumu Studio'da ölçülmedi); ekonomi tasması (depo ×5, toplayıcı 5000), çevrimdışı gelir, park edilmiş çiftlik, çiftlik maliyet çarpanı çözüldü.
-- **Kazanım 1:** Sunucu döngü hata koruması, makbuz/kilit dayanıklılığı, prompt hız sınırları ve telemetri (huni, ekonomi, ilerleme) eklendi.
-- **Kazanım 2:** Tema şablonları (ServerStorage + Clone), `pushState` birleştirme, streaming 160/448, istemci performans paketi; tip borcu 774 → 284.
-- **Kazanım 3:** Mobil güvenli alan/UIScale, 44 px hedefler, ses grupları ve kayıtlı ayarlar, gamepad, 6 adımlı onboarding, servis testleri (38 spec).
-- **Risk 1:** Bu işlerin hiçbiri Studio'da denenmedi (harita yeniden kurulumu, tema açılış süresi, eski kayıt göçleri, mobil). Bekleyen tur büyük ve birbirine bağlı.
-- **Risk 2:** Casual oyuncuda gelirin %91,8'i çevrimdışı + park edilmiş çiftlikten (hayvan geliri %2,3): aktif oyun hâlâ zayıf ödüllendiriliyor; ada tempo hedefleri (at 54 dk, keçi 158 dk; hedef 45/110) tutmuyor.
-- **Risk 3:** Yayına hazırlık eksikleri: CI yok (P9), ses kimlikleri boş (32 yuva), Robux kimlikleri 0, admin komutları canlıda açık (K1), es/pt dilleri yok (P12), tip analizi yerelde atlanabiliyor.
+- Analizdeki 5 kritik risk ve bulguların çoğu koda işlendi: ekonomi tasması, çevrimdışı gelir, park edilmiş çiftlik, çiftlik maliyet çarpanı, açılış, ada tempoları, sipariş payı, döngü hata koruması, makbuz/kilit dayanıklılığı, güvenlik küçük paketi.
+- **Kazanım 1:** Ekonomi hedeflere oturdu: ideal ilk ada 13,1 / at 46,8 / keçi 115,8 dk; casual çevrimdışı payı %71,5, sipariş %12,3, 6. çiftlik 5,3 gün.
+- **Kazanım 2:** Kod yapısı sadeleşti: `SaveCodec/` (8 modül) + `SaveStore`, tip borcu 774 → 214, 38 spec, tip analizi `luau-lsp` ile yerelde çalışıyor.
+- **Kazanım 3:** 5 dil (tr/en/de/ru + es/pt-BR), mobil güvenli alan/UIScale, ses grupları, gamepad, 6 adımlı onboarding, telemetri.
+- **Risk 1:** Bu işlerin hiçbiri Studio'da denenmedi (harita yeniden kurulumu, tema açılış süresi, eski kayıt göçleri, `SaveStore` ile kayıt akışı, mobil, es/pt metin taşması). Bekleyen tur büyük ve birbirine bağlı.
+- **Risk 2:** Yayın hazırlığı eksik: CI yok (P9, şimdilik yapılmıyor), ses kimlikleri boş (32 yuva), Robux kimlikleri 0, admin komutları canlıda açık (K1), es/pt çevirileri anadil incelemesinden geçmedi.
+- **Risk 3:** Casual oyuncuda gelirin %81'i çevrimdışı + park edilmiş çiftlikten, hayvan geliri %2,5: aktif oyunun değeri telemetri olmadan bilinmiyor; hardcore'da sipariş payı %35.
 
 ## 2. Bulgu takibi
 
@@ -21,17 +21,17 @@ Durum: Çözüldü / Kısmen / Açık / Bilerek ertelendi. Kanıt: commit ya da 
 |---|---|---|---|
 | 1.1 Remote kopyala-yapıştır | Kısmen | `6479fbd` (`RequestGuard.reply/activeFarm`, 6 serviste), `3da3d9f` | Production/MainFarm'da elle yanıt kopyaları kaldı; `withFarmContext` sarmalayıcısı yazılmadı |
 | 1.2 Presentation ↔ Services döngüsü | Kısmen | `28ce9ad` (CollectorVisual tembel); `scripts/check-architecture.py:39-43` ALLOW 2 girdi | `PlotService.luau:28-39` hâlâ Presentation'ı doğrudan çağırıyor; `bef4c12` dosya başı yukarı require'ı yakalıyor |
-| 1.3 Tip borcu | Çözüldü (ucuz kısım) | `9415f0f` (SharedRef, 774 → 284), `b97810a`, `69a833d` (verify uyarı basıyor) | Kalan 284 bilinen taban; `.tools/luau-lsp` yoksa yalnızca uyarı (bkz. risk 3.8) |
-| 1.4 Büyük dosyalar | Açık | `SaveCodec.luau` 832, `PlayerDataService.luau` 807 satır | Bilinçli sona bırakıldı (ilk 3 ay) |
+| 1.3 Tip borcu | Çözüldü (ucuz kısım) | `9415f0f` (774 → 284), `b43e0b5` (284 → 214), `69a833d` | Kalan 214: döngüsel `require` ve `pcall` yanlış pozitifleri; tip analizi artık yerelde çalışıyor |
+| 1.4 Büyük dosyalar | Çözüldü | `114ad32` (`SaveCodec/` 8 modül), `3e2e6ca` (`SaveStore.luau`; `PlayerDataService` 807 → 638) | Davranış aynı (36 örnek kayıtta birebir); Studio testi bekliyor (§6-30) |
 | 1.5a Eklenti/BuyPad prompt hız sınırı | Çözüldü | `4f47a23`; `ExtensionService.luau:32,80`, `BuyPadService.luau:202,283` | |
 | 1.5b Admin komutları canlıda | Açık (K1) | `AdminPolicy.luau:5` yalnızca sahip UserId; `AdminService.luau:249` | Karar bekliyor |
-| 1.5c `requestId` isteğe bağlı | Açık | `RateLimiter.luau:30-33` (nil kabul) | Eski istemci gerekçesi artık yok, zorunlu yapılabilir |
-| 1.5d Altın hayvan mesafe kontrolü | Açık | `EngagementService.luau` mesafe denetimi yok | |
-| 1.5e Tüccar al-sat marjı testi | Açık | `maxSellMult < 1 - MERCHANT.discount` testi yok | |
+| 1.5c `requestId` isteğe bağlı | Çözüldü | `12254e2`; `RateLimiter.luau:29` (`allowMissing` yalnızca sunucu içi prompt) | |
+| 1.5d Altın hayvan mesafe kontrolü | Çözüldü | `b909acd`; `PlotService.isNearPlot`, `Config.GOLDEN.claimRadius` 320 | Kaba sınır: hayvanın konumu istemcide |
+| 1.5e Tüccar al-sat marjı testi | Çözüldü | `2bb09ab` (`merchant.spec`) | |
 | 1.5f Hız/konum istemcide | Bilerek ertelendi | Analiz "dokunma" dedi | |
 | 2.1 Döngü hata koruması | Çözüldü | `c6aa0d8`; `EconomyService.luau:150,160`, `AnimalService.luau:305-313` (`LoopError`), `SeasonService.luau:196` | |
 | 2.2 Keçi adası eklenti klasörü | Çözüldü | `2baee2a`; `ExtensionVisualService.luau:294-316` (eklenti başına klasör+imza) | |
-| 2.3 Giriş/çıkışta çift tema kurulumu | Kısmen | `a321fd8`, `dd7eeb2`; `PlotService.luau:461-470` (`keepTheme`) | `findFreePlot` hâlâ rastgele (`PlotService.luau:489-497`), kayıtlı temayla eşleşen boş adayı tercih etmiyor |
+| 2.3 Giriş/çıkışta çift tema kurulumu | Çözüldü | `a321fd8`, `dd7eeb2`, `b24db7c` (tema 1 / son tema tercihi, `bc7edc6` test) | Kayıtlı tema giriş anında bilinmediği için tercih yaklaşık |
 | 2.4 Çiftlik değiştirme maliyeti | Çözüldü (Studio'da ölçülmedi) | `4c32cac` (ThemeTemplates + Clone), `dd7eeb2` (6 sn, `Core.luau:10`), `fe8d156` MAP_VERSION 50 | Açılışta 6 şablon eşzamanlı kuruluyor (`MapBuilder.luau:475-486`); süre ölçümü bekliyor |
 | 2.5 Alternatifler | Bilerek ertelendi | Şablon yaklaşımı seçildi; lobi → K3 | |
 | 2.6a Hızlı sunucu değiştirenin girişi | Çözüldü | `c277930`; `PlayerDataService.luau:60,405-412` (60 sn geri çekilmeli bekleme) | |
@@ -47,19 +47,19 @@ Durum: Çözüldü / Kısmen / Açık / Bilerek ertelendi. Kanıt: commit ya da 
 | 3.3-5 SeabedLife | Çözüldü | `762001a` | |
 | 3.3-6 HUD ödül/pano | Çözüldü | `70c589b` | |
 | 4.1 Depo tasması | Çözüldü | `92615fb`; `Config/Islands.luau:18-42` (50k/120k/300k/1M), Otomatik Toplayıcı tabanı 5000; sim depo dolu %0 | |
-| 4.2 Çevrimdışı gelir | Çözüldü | `92615fb`, `b587974`; `Config/Economy.luau:9-14` (%25/2 sa, Pasif Gelir %30/6 sa, tavan 0,5) | Casual çevrimdışı payı %82,5 (hedef 70-80) |
+| 4.2 Çevrimdışı gelir | Çözüldü | `92615fb`, `b587974`; `Config/Economy.luau:9-14` (%25/2 sa, Pasif Gelir %30/5 sa (`09fb6f5`), tavan 0,5) | Casual çevrimdışı payı %71,5 |
 | 4.3 Park edilmiş çiftlik | Çözüldü | `881762b` (`PARKED_FARM_PAY_RATE`); sim park payı %9,3 | Telemetri nedeni yanlış (risk 3.3) |
 | 4.4 Çiftlik başına maliyet çarpanı | Çözüldü | `85c7a57`, `287a124`; `Config/Economy.luau:38` (`FARM_COST_STEP = 6`) | |
 | 4.5 Geç oyun düzleşmesi | Çözüldü | `c423219` (ayrı çarpan), `99376e2` (büyüme 1,15), `bc51e68` (maxLevel 30 geri alındı) | 6-12. saat ≥%50 hedefi bilinçli gevşetildi; ırk geri dönüşü geç oyunda çöker (O10-2) |
-| 4.6 Ada temposu / 3. tema | Kısmen | `0b9ac3e` (3. tema süt+at+keçi, At adası 2800, Ahır 4 5000) | İdeal: ilk ada 18,7 / at 54,2 / keçi 158,0 dk (hedef 15/45/110) |
-| 4.7 Açılış | Açık | `Config/Core.luau:65-70` (75 $, hayvansız başlangıç) değişmedi | Casual sim: Mera 2,8 dk, Silo 10,8 dk |
-| 4.8a Büyük parti çarpanı | Açık | `FarmMath/Production.luau` | Fabrikalar hâlâ en iyi yatırım olabilir; sim ölçmüyor |
+| 4.6 Ada temposu / 3. tema | Çözüldü | `0b9ac3e`, `04e02a1` (ideal ilk ada 13,1 / at 46,8 / keçi 115,8 dk) | |
+| 4.7 Açılış | Çözüldü | `3b81761` (`Config.STARTER_ADULT_ANIMALS = 3`, ilk 3 hayvan yetişkin doğar) | Silo'ya dokunulmadı |
+| 4.8a Büyük parti çarpanı | Çözüldü | `82566fc` (2,4 → 2,0, `PRODUCTION_MAX_RETURN`, sim "Tesis geri ödeme") | Süt fabrikası 57 dk (bant dışı) |
 | 4.8b Eklenti süresi | Çözüldü | `4e6a335` (360 sn, +%33) | |
 | 4.8c Ürün taşması | Çözüldü | `c409862`, `a1752f1` | |
-| 4.8d Siparişler | Çözüldü | `f04298c`, `b587974` (taban 60 sn); sim sipariş payı %1,5 | Hedef %10-20'nin çok altında |
+| 4.8d Siparişler | Çözüldü | `f04298c`, `b587974`, `9fbeebf` (taban 300 sn, pano 7 dk); sim sipariş payı %12,3 | |
 | 4.8e Altın hayvan | Çözüldü | `87e0f79` | |
 | 4.8f Elmas çekiç | Çözüldü | `460d08d` | |
-| 4.8g Mevsim "6 yatırım" hedefi | Açık | Kodda değişiklik izi yok | Doğrulanmadı |
+| 4.8g Mevsim "6 yatırım" hedefi | Çözüldü | `779d986` (sipariş teslimi de sayılır; genişletme zaten sayılıyordu) | |
 | 4.9 Simülasyon | Çözüldü | `a23ecd4`, `eaccfbb`, `eb1b080` (verify'da duman koşusu) | Bilinen sınırlar `simulate-economy.py` docstring'inde |
 | 4.10 KPI telemetri | Çözüldü | `cebc649`, `e9daf91` (`docs/TELEMETRI.md`) | Canlıda Creator Hub'da görünmesi doğrulanmadı |
 | 5a Ses | Kısmen | `1d8504a` (3 grup, kayıtlı düzey); `Config/Audio.luau`: 32 boş yuva, 5 `rbxasset://` yer tutucu | Kimlik seçimi kullanıcıda |
@@ -68,16 +68,16 @@ Durum: Çözüldü / Kısmen / Açık / Bilerek ertelendi. Kanıt: commit ya da 
 | 5d Robux penceresi güncellemesi | Çözüldü | `FarmHud.client.luau:127,169,176` (`storeForSale`) | |
 | 5e Ses/ReducedMotion kaydı | Çözüldü | `1d8504a`, `81c24fd`, `preferences.spec` | |
 | 5f Gamepad | Çözüldü | `8078cfa`, `bc860e6` | |
-| 5g es/pt | Açık (P12) | `src/shared/Locales/` yalnızca en/de/ru | |
-| 5h Çeviri kalitesi (ru hitap, de "es") | Açık (P12 ile) | — | |
+| 5g es/pt | Çözüldü | `fcbf8cb` (es "tú", pt-BR "você", 950 anahtar, bayraklar) | Anadil incelemesi yok (Q13) |
+| 5h Çeviri kalitesi (ru hitap, de "es") | Çözüldü | `f03849e` (~40 ru emir kipi "ты", 8 de "es", "dükkânı") | |
 | 5i Bildirim birleştirme | Çözüldü | `54fc4b0`, `36dfcc5` | Pencere birleştirme önerisi yapılmadı (analiz "düşük") |
 | 6.1 Makbuz/eski anlık görüntü | Çözüldü | `95fde9c`; `monetization-service.spec` | |
 | 6.2 Ödülsüz makbuz günlüğü | Çözüldü | `95fde9c`, `114a6e9` | |
 | 6.3 Süresi dolmuş kirada yazma | Çözüldü | `c277930` | |
-| 6.4a Gamepass sorgu hatası | Açık | `MonetizationService.luau:58-64` hata olunca yalnızca `warn` | Ürün kimlikleri 0 olduğu için bugün zararsız |
-| 6.4b DataStore bütçesi | Açık | `PlayerDataService.luau` bütçe denetimi yok | |
+| 6.4a Gamepass sorgu hatası | Çözüldü | `cca0b8c` (önceki değer korunur, 30 sn'de ≤3 yeniden deneme) | |
+| 6.4b DataStore bütçesi | Açık | `Services/SaveStore.luau` bütçe denetimi yok | |
 | 6.4c Bozuk `_session` yedek yolu | Açık | — | |
-| 6.4d Şema sürümü sabiti | Açık | `SessionLock.luau:6`, `SaveCodec.luau:532,810` (`4` üç yerde) | |
+| 6.4d Şema sürümü sabiti | Çözüldü | `ffe489b` (`SessionLock.VERSION`) | Çiftlik anlık görüntüsü `version = 3` ayrı kavram |
 | 6.5 Telemetri | Çözüldü | `cebc649`, `a5d38e4`, `c866d0f` | |
 | 6.6 Sürüm etiketi/geri alma | Açık | `docs/YAYIN_VE_ARKADAS_TESTI.md`'de `place-vN` süreci yok | Süreç işi; şema sürümü hâlâ 4 |
 | 7.1 README | Çözüldü | `7f6a6d2`, `01a149a` ("Çiftliğim" 0 geçiş) | |
@@ -96,46 +96,48 @@ Durum: Çözüldü / Kısmen / Açık / Bilerek ertelendi. Kanıt: commit ya da 
 | # | Önem | Dosya:satır | Neden | Öneri |
 |---|---|---|---|---|
 | 3.1 | Orta | `MapBuilder.luau:475-486` | Açılışta 6 tema şablonu eşzamanlı kuruluyor ve `optimize` ediliyor; süre ve ServerStorage belleği (~9-18 bin parça tahmini) hiç ölçülmedi. `xpcall` yarıda kalırsa tema ilk geçişte tembel kurulur ve aynı hata o oyuncuda tekrar eder | Studio'da Play → ilk giriş süresini ölç; uzunsa 1. tema eşzamanlı, kalanlar `task.defer` |
-| 3.2 | Orta | `PlotService.luau:489-497`, `:461-470` | `findFreePlot` rastgele; başka temadaki adaya girince kayıt yüklenince ilk girişte tema yeniden giydirilir (şablon sayesinde ucuz, ama ayağın altında değişir) ve tema değişimi temizliği (`9665816`) yalnızca testle korunuyor | Kayıtlı temayla eşleşen boş adayı tercih et; Studio'da iki istemciyle doğrula |
-| 3.3 | Orta | `EconomyService.luau:141-142` | Toplayıcısız park edilmiş çiftliğin %50 ödemesi telemetriye `autoCollect` yazıyor ve `first_collect` hunisini tetikliyor (O3-7); huni ve ekonomi verisi kirlenir | `reason = "parkedPay"`; hunide yalnızca gerçek toplama |
-| 3.4 | Orta | `SaveCodec.luau:170-176` | 3. tema göçü `save.farmId == "3"`'e sabit; iade sessiz, genişletme seviyeleri iade edilmiyor (zararsız ama değeri kayıp). Tema tablosu değişirse göç yeniden yazılmalı. Test yalnızca birim düzeyinde, Studio'da `BarnVisualService` ile denenmedi | Studio testi (§6); iade için tek seferlik bildirim; tema haritasından genel göç |
-| 3.5 | Orta | `Config/Economy.luau:11-14`, sim | Casual'da çevrimdışı payı %82,5 + park %9,3; aktif oyun (hayvan geliri %2,3, sipariş %1,5) neredeyse anlamsız. Üstelik P3 kararı: oran 0,3'te kaldı (0,25 Pasif Gelir'i anlamsız kılar) | `OFFLINE_UPGRADED_MAX_HOURS` 6 → 5 denemesi ve sipariş/üretim ödülünü artırma; telemetri ile gerçek oyuncu verisi gelince karar |
+| 3.2 | Düşük | `PlotService.luau` `findFreePlot` | Tercih artık tema 1 / son tema (`b24db7c`) ama kayıtlı tema giriş anında bilinmiyor: farklı temalı oyuncu ilk girişte yine tema değişimi görebilir (şablonla ucuz); temizlik yalnızca testle korunuyor | Studio'da iki istemciyle doğrula (§6-6, 34) |
+| 3.4 | Orta | `Modules/SaveCodec/Farm.luau` (3. tema göçü) | 3. tema göçü `save.farmId == "3"`'e sabit; iade sessiz, genişletme seviyeleri iade edilmiyor (zararsız ama değeri kayıp). Tema tablosu değişirse göç yeniden yazılmalı. Test yalnızca birim düzeyinde, Studio'da `BarnVisualService` ile denenmedi | Studio testi (§6); iade için tek seferlik bildirim; tema haritasından genel göç |
+| 3.5 | Düşük | `Config/Economy.luau`, sim | Casual çevrimdışı + park payı %81, aktif oyun (hayvan+üretim) %6; hardcore sipariş payı %35. Davranış gerçek oyuncuyla ölçülmedi | Telemetri sonrası bak (§8-5); Q17 |
 | 3.6 | Orta | `Config/Shop.luau:28-33`, `FarmMath/Lineage.luau` | Irk geri dönüşü maliyeti hayvan fiyatına bağlı, kazanç ilerlemeyle büyüyor: geç oyunda geri dönüş dakikalara iner (O10-2); eski Sv.10 kayıtta ayrı çarpanla ~×2,7 gelir sıçraması olabilir (O10-3) | `economy.spec`'e "en yüksek ahırda son seviye geri dönüş ≥ X dk" değişmezi; sim'de eski kayıt profili |
 | 3.7 | Düşük | `shared/GameTypes.luau:76`, `FarmProfiles.clientState` | İstemci yükünde `mainFarms` hafif görünüm; tip hâlâ `{ [string]: any }` ve "tam kayıt" der. İleride istemcide `mainFarms[id].animals` yazan biri sessizce nil okur (D-P4: opsiyonel yapmak 24 tip bulgusu açtı, geri alındı) | Ayrı `ClientPlayerState` tipi |
-| 3.8 | Orta | `scripts/verify.ps1` | `.tools/luau-lsp` yoksa tip analizi yalnızca uyarıyla atlanıyor ve son satır yine "All automated checks passed" diyor (bu raporun koşusunda da atlandı); CI yokken yanlış güven | CI'da (P9) zorunlu yap; yerelde `setup-types.ps1` çalıştır |
+| 3.8 | Düşük | `scripts/verify.ps1` | Tip analizi `.tools/luau-lsp` yoksa yalnızca uyarıyla atlanır (CI yok): temiz klonda yanlış güven | Yerelde `-RequireTypes` ile koş; `.tools/luau-lsp` bu makinede kurulu |
 | 3.9 | Düşük | `TelemetryService` / `docs/TELEMETRI.md` | AnalyticsService hız sınırı tahmini 120/dk; aşılırsa olaylar sessizce düşer (`TelemetryDropped`) | Canlıda `TelemetryDropped` izle, aralığı ayarla |
 | 3.10 | Düşük | `MapBuilder.luau` `remapPositions`, `ServerStorage` şablon etiketleri | CFrame öznitelikleri koşulsuz dünya konumu sayılıyor (Vector3'te beyaz liste var); sunucuda `GetTagged` kullanan yeni servis 6 şablon kopyasını da görür (O11-3/4) | `world-map.mdc`'ye not ya da beyaz liste |
+| 3.11 | Orta | `Services/SaveStore.luau`, `Modules/SaveCodec/` | Kayıt katmanı bölündü; pure-Luau testlerle ve 36 örnek kayıtta eski modülle birebir doğrulandı ama gerçek DataStore, kilit bekleme, yedek/karantina, `BindToClose` ve `run.server.luau` Studio'da denenmedi | §6-30 tamamlanmadan canlıya çıkma |
 
 ## 4. Ekonomi özeti
 
-Komut: `python scripts/simulate-economy.py --days 7 --persona casual` (20 dk × 3 oturum/gün) ve varsayılan 6 saatlik ideal oyuncu.
+Komut: `python scripts/simulate-economy.py --days 7 --persona casual` (20 dk × 3 oturum/gün) ve varsayılan 6 saatlik ideal oyuncu (denge 3. tur sonrası).
 
 | Ölçü | Casual (7 gün) | İdeal (6 saat) | Hedef |
 |---|---|---|---|
-| İlk ada (kümes) | 15,1 dk | 18,7 dk | ~15 dk |
-| At adası | 486,4 dk | 54,2 dk | ~45 dk (ideal) |
-| Keçi adası | 1440,1 dk | 158,0 dk | ~110 dk (ideal) |
-| Çiftlik 2 / 3 / 4 / 5 / 6 alındı | 1440 / 2400 / 3376 / 5290 / 8160 dk (6. = 5,7 gün) | — | Ç6 7 gün içinde |
-| 6. saat geliri | — | 6838/sn (analizde 4352) | — |
+| İlk ada (kümes) | 9,8 dk | 13,1 dk | ~15 dk |
+| At adası | 480 dk | 46,8 dk | ~45 dk (ideal) |
+| Keçi adası | 494 dk | 115,8 dk | ~110 dk (ideal) |
+| Çiftlik 2 / 3 / 4 / 5 / 6 alındı | 960 / 1920 / 2880 / 4800 / 7680 dk (6. = 5,3 gün) | — | Ç6 7 gün içinde |
+| Tüm yükseltmeler | — | 275,3 dk | 240-300 dk |
+| 6. saat geliri | — | 6912/sn | — |
 | Depo dolu geçen süre | %0,0 | %0,0 | düşük |
-| Eylem | 6,14 dk başına | — | — |
-| Son durum | 39/69 yükseltme, kasa $222M | 50/69, kasa $16M | — |
+| Eylem | 6,8 / dk | — | — |
+| Son durum | 40/69 yükseltme, kasa $222M | 50/69, kasa $24,9M | — |
 
-Casual gelir kaynakları: çevrimdışı %82,5 · park edilmiş çiftlik %9,3 · üretim %4,0 · hayvan %2,3 · sipariş %1,5 · günlük ödül %0,2 · mevsim %0,2 · altın hayvan %0,1.
-Irk geri dönüşü en kötü 1,67 sa; ırk Sv.60 toplam $5,3M; alan genişletme toplam $881M.
+Casual gelir kaynakları: çevrimdışı %71,5 · sipariş %12,3 · park edilmiş çiftlik %9,5 · üretim %3,5 · hayvan %2,5 · günlük ödül %0,3 · mevsim %0,3 · altın hayvan %0,1.
+Irk geri dönüşü en kötü 1,67 sa; ilk 3 hayvan yetişkin doğuyor (ilk yetişkin 0 dk; önceden ~30 dk). Fabrika geri ödemesi 1. çiftlikte ~23 dk (süt 57 dk).
 
-**Yorum.** Analizin asıl ekonomi yarası (depo tasması, ~0 çevrimdışı gelir, kazanmayan park çiftlikleri, 1. çiftlik fiyatlı ek çiftlikler) kapandı: depo dolu süre %0, çiftlik 2-6 zamanları anlamlı aralıklarda (6. çiftlik 5,7 günde) ve ideal oyuncunun 6. saat geliri %57 arttı. Kalan sorun dağılım: casual oyuncuda aktif oyun (hayvan+sipariş) gelirin %3,8'i, yani oyuncu para kazanmak için oynamaktan çok harcamak için giriyor; bu tasarım tercihi mi kusur mu kararı telemetrinin gerçek oturum verisine bağlı. İdeal oyuncuda ada tempoları hedeften hâlâ 20-45% yavaş (özellikle keçi: 158 dk, hedef 110), açılış (75 $, hayvansız, 4.7) değişmedi, siparişler gelirin yalnızca %1,5'i (hedef %10-20). Bunlar bir sonraki denge turunun (§8) konusu; telemetri gelmeden büyük değişiklik yapılmamalı.
+**Yorum.** Analizin ekonomi yarası kapandı ve 3. turla hedef bantlara oturdu: ideal tempolar hedefin %5'i içinde, casual çevrimdışı payı hedef 70-80 bandında, sipariş payı 10-20 bandında, depo tasması yok. Kalan belirsizlik gerçek oyuncu davranışı: çevrimdışı + park edilmiş çiftlik hâlâ casual gelirinin %81'i ve aktif oyun (hayvan+üretim) %6; sipariş ödülü artık gelire bağlı olduğu için hardcore persona gelirinin %35'i siparişten geliyor (aktif oyun ödüllensin diye bilinçli ama telemetriyle teyit edilmeli). Süt fabrikasının geri ödemesi (57 dk) bandın dışında; Ç3+ çiftliklerdeki 100'lerce dakikalık fabrika ölçümü büyük olasılıkla küçük sürü artefaktı. Telemetri gelmeden başka denge değişikliği yapılmamalı.
 
 ## 5. Ölçümler
-- `verify.ps1` son satırı: `All automated checks passed. Studio multiplayer, DataStore fault and device tests remain separate.` Öncesinde uyarı: `Automated checks passed, but NOT everything ran: Type analysis` (`.tools/luau-lsp` bu checkout'ta yok).
-- Tip bulgusu: `scripts/types-baseline.json` toplamı **284** (analizde 774). Bu koşuda tip analizi atlandı; rakam E raporundaki dal koşusundan ve tabandan.
+- `verify.ps1 -RequireTypes` son satırı: `All automated checks passed. Studio multiplayer, DataStore fault and device tests remain separate.` (tip analizi dahil çalıştı; yerel Studio eklentisi `plugin/`'den eski olabilir uyarısı sürüyor).
+- Tip bulgusu: `scripts/types-baseline.json` **214** (analizde 774; `check-types.py`: yeni bulgu yok). `luau-lsp` bu makinede kuruldu (`scripts/setup-types.ps1`).
 - Test spec dosyası: **38** (`tests/*.spec.luau`; analizde 25).
-- Çeviri anahtarı: **950** (en/de/ru eşit; analizde 932).
-- `MAP_VERSION`: **51** (`src/server/World/MapBuilder.luau:28`; analizde 49).
+- Çeviri anahtarı: **950** (en/de/ru/es/pt eşit; analizde 932).
+- `MAP_VERSION`: **51** (`src/server/World/MapBuilder.luau:28`).
+- Büyük dosyalar: `SaveCodec/` 8 modül (en büyüğü `Farm` 222 satır), `PlayerDataService` 638, `SaveStore` 284 satır.
 
 ## 6. Birleşik Studio test listesi (öncelik sırasıyla)
 
-Birleştirilen kaynaklar: E, P1, P3, P4, P5, P6, P7, P8, P10, P11 ve D raporları. `FARM_COST_STEP` 6 ve ırk `maxLevel` 10'a göre güncellendi.
+Birleştirilen kaynaklar: eski ara raporlar ve ikinci tur. `FARM_COST_STEP` 6, ırk `maxLevel` 10, Pasif Gelir %30 / 5 sa.
 
 **A. Harita ve eklenti (önce bunlar; gerisi haritaya bağlı)**
 1. Eklentiyi yeniden derle: `rojo build plugin.project.json --plugin IslandFarmTycoonHarita.rbxm`, Studio'da yeniden aç.
@@ -157,8 +159,8 @@ Birleştirilen kaynaklar: E, P1, P3, P4, P5, P6, P7, P8, P10, P11 ve D raporlar�
 
 **C. Ekonomi ve ürün**
 15. Üretim merkezi: kapasiteyi aşan parti boş depoda başlar; teslimde "Ahıra eklendi … Fazlası paraya çevrildi" ve nakit; sığmayan parti "yeterli yer yok (N gerekli, M boş)", düğme "Depo dolu", hedef kartı "Üretimi başlat" önermiyor.
-16. Pasif Gelir açıklaması "%25'ten %30'a, süre 2 saatten 6 saate"; eşyalı toplam oran 0,5'i geçmiyor.
-17. Sipariş panosu ödülleri (taban 60 sn): gösterilen = alınan; çiftlik değişince ödüller değişir.
+16. Pasif Gelir açıklaması "%25'ten %30'a, süre 2 saatten 5 saate"; eşyalı toplam oran 0,5'i geçmiyor.
+17. Sipariş panosu ödülleri (taban 300 sn gelir, pano 7 dk'da yenilenir): gösterilen = alınan; çiftlik değişince ödüller değişir; kış mevsiminde teslim "Yatırım yap: n/6" sayacını artırır.
 18. Altın hayvan ödülü "toplam gelir × 90 sn" (çok çiftlikte yalnızca etkin çiftlik). Eklenti: 6 dk kalış, +%33; eski kayıtta süren hayvan 2 dk'da döner.
 19. Pazar ırk düğmesi Sv.0→10, maliyet metni 3 anlamlı basamak; eski Sv.10 kayıtta düğme "en yüksek", gelir sıçraması makul; HUD gelir/sn sunucuyla aynı; rozet kademeleri; Elmas çekiç 2,5M.
 20. Hayvan al/sat, gezgin tüccar, hamsi→levrek; hızlı spam ("Çok hızlı…" ≤0,5 sn'de bir); çiftlik değiştirirken tıklama ("Etkin çiftlik değişti"); yükseltme/ırk/bölge, sipariş, günlük/başarım/mevsim/altın ödülü, envanter yanıtları.
@@ -180,38 +182,47 @@ Birleştirilen kaynaklar: E, P1, P3, P4, P5, P6, P7, P8, P10, P11 ve D raporlar�
 28. `Workspace.TelemetryPrint = true`: ilk toplama/hayvan/yükseltme/ada/Ahır 2 satırları bir kez; para harcayınca `Source/Sink`; toplama 60 sn'de tek satır; çevrimdışı dönüşte `Offline`/`OfflineSeconds`; çıkışta `SessionSeconds`. Studio'da gerçek analitik gitmiyor (`TelemetryStudioSkipped`). Canlıda Creator Hub panelleri (ve `TelemetryDropped`).
 29. Hayvan hareketi (BulkMoveTo), düşük kalitede 20 hayvan / 50 stud sınırı, parça sonradan eklenince hareket (P5-1); gece ışıkları kaliteye göre (düşükte ışıksız Neon), kalite değişince tazelenir; SeabedLife yüksek kamerada 15 Hz; Localizer: tabelalar çevrilir, Workspace'e sonradan gelen tabela çift izlenmez; pet uzakta bekler, köprü geç gelince yol grafiği güncellenir.
 
+**H. İkinci tur eklemeleri**
+30. Kayıt akışı (`SaveStore`): normal giriş/çıkış (çıkışta `DataStatus` `Closed`); aynı hesapla iki sunucu (kilit bekleme `LoadLockWait`); eski kayıt açma (tek çiftlikli, 3. tema, `goods`/`contracts` çiftlik içinde duran eski kayıt); bozuk kayıttan yedekle açılış ve karantina (`ProfileRecovered`, `player_<id>_quarantine`); oyuncular varken sunucu kapatma (`BindToClose`, son kayıt + kilit bırakma); `StudioNonPersistentData`; `tests/run.server.luau` ile `data.spec` (klasör modülü `SaveCodec`).
+31. Açılış: yeni hesapta ilk 3 hayvan yetişkin görünümünde doğuyor, 4. hayvan yavru; ilk dakikada gelir hissi.
+32. Altın hayvan: kendi adandan (uydu adalar dahil) alınıyor, çok uzaktayken "yeterince yakın değilsin" (`Config.GOLDEN.claimRadius` 320 stud; uzak uydu adadan alınabiliyor mu kontrol et).
+33. Gamepass: geçici sorguda geçit düşmüyor (Studio'da `UserOwnsGamePassAsync` hatası taklit edilirse 30 sn'de yeniden dener, en çok 3).
+34. Boş ada seçimi: tema 1'deki boş ada tercih ediliyor; oyuncu çıkıp aynı sunucuya dönerse son temasındaki ada. Telemetri: toplayıcısız park edilmiş çiftlik `ParkedPay`, huni `first_collect` yalnızca gerçek toplamada.
+35. es/pt: Ayarlar → Dil'de 6 buton ve İspanya/Brezilya bayrakları (Brezilya eşkenar dörtgeni biraz basık olabilir); uzun İspanyolca/Portekizce metinler menü karoları, butonlar ve pencerelerde taşıyor mu; `es-419`/`pt-BR` Roblox dili ilk girişte doğru dili seçiyor mu; Rusça yönerge metinleri ("ты") doğal okunuyor mu.
+
 ## 7. Açık sorular ve kullanıcı kararları
 
 | # | Soru | Kısa öneri |
 |---|---|---|
 | K1 | Canlıda admin komutları kullanılacak mı? (`AdminPolicy.luau:5`, para sahibin gerçek kaydına yazılıyor) | Yalnızca `RunService:IsStudio()` ya da özel sunucuda; ya da `adminTainted` işaretle ve panodan çıkar |
-| K2 | Robux açılışı ve ürün kimlikleri (`Config/Shop.luau` kimlikler 0) | Tasma düzeldi; kimlikleri girmeden önce 6.4a (gamepass hata) ve anında üretim fiyatlamasını kapat, 30 dk 2× güçlendirme ve kozmetikle başla |
-| K3 | Lobi / rezerve sunucu / ziyaret | 2-4 hafta telemetri biriktikten sonra karar; o zamana kadar mevcut model |
+| K2 | Robux açılışı ve ürün kimlikleri (`Config/Shop.luau` kimlikler 0) | Kimlikleri girmeden önce anında üretim fiyatlamasını kapat; 30 dk 2× güçlendirme ve kozmetikle başla |
+| K3 | Lobi / rezerve sunucu / ziyaret | 2-4 hafta telemetri biriktikten sonra karar |
 | Q1 | 3. tema göçü sonrası iade bildirimi (şu an sessiz) gösterilsin mi? | Yayında 3. çiftlikli oyuncu yoksa gereksiz; varsa tek seferlik bildirim |
-| Q2 | Casual çevrimdışı payı %82,5 (hedef 70-80): `OFFLINE_UPGRADED_MAX_HOURS` 6 → 5? | Telemetri sonrası; oran 0,3'ün altına inmesin |
 | Q3 | Alan genişletme seviyeleri 3. tema göçünde iade edilmiyor | Kabul et (zararsız) |
-| Q4 | Irk `maxLevel` 10 mu kalsın, 30'a kademeli yükselsin mi? 6-12. saat artış hedefi bilinçli gevşetildi mi? | 10 kalsın; eski kayıt profilini sim'de ölç (risk 3.6) |
-| Q5 | `findFreePlot` tema tercihi (2.3) ve çiftlik değiştirmede `flushState` (O4-4) ayrı iş mi? | Tema tercihi evet (S); `flushState` gereksiz |
-| Q6 | `QUALITY` eşikleri (50 stud/20 hayvan, 24 ışık, 120 stud, `HIGH_CAMERA_Y=40`) Config'e mi? | Dosyada kalsın (efekt kuralı) |
-| Q7 | Ayarlar'daki "Görsel Ayarlar" başlığı hesaba kayıtlı grafik için doğru mu; rozet `Active = false` bilinçli (dokunuş karoya geçer) | Evet |
+| Q4 | Irk `maxLevel` 10 kalsın mı? Geç oyunda geri dönüş çöküşü (risk 3.6) | 10 kalsın; eski kayıt profilini sim'de ölç |
+| Q6 | `QUALITY` eşikleri Config'e mi? | Dosyada kalsın |
 | Q8 | Destek karosu için sağ sütunda yer var mı (mobil düzenle) | Studio'da E-25'te bak |
 | Q9 | AnalyticsService hız sınırı 120/dk tahmini doğru mu | Canlıda `TelemetryDropped` izle |
 | Q10 | Ses kimliklerini sen mi seçeceksin (Creator Store)? 32 yuva boş | Önce para, satın alma, yükseltme, ödül, ortam, hayvan sesleri; müzik ayrı grup |
-| Q11 | Creator Hub Maturity & Compliance anketi (8.3), Game Settings → Max Players 6, `place-vN` sürüm etiketi (6.6) | Yayın öncesi kullanıcı işi |
-| Q12 | Büyük parti çarpanı (4.8a) ve mevsim "6 yatırım" hedefi (4.8g) bu turda ele alınmadı; yapılsın mı? | Bir sonraki denge turuna al |
+| Q11 | Maturity & Compliance anketi (8.3), Game Settings → Max Players 6, `place-vN` sürüm etiketi (6.6) | Yayın öncesi kullanıcı işi |
+| Q13 | es/pt çevirileri anadil incelemesinden geçsin mi; yalnızca pt-BR (pt-PT yok) yeterli mi? | Yayından önce bir kez gözden geçirt; pt-BR yeterli |
+| Q14 | Süt fabrikası geri ödemesi 57 dk (bant 25-40) | Küçük nominal artış; telemetri sonrası |
+| Q15 | `data.spec` Pasif Gelir beklentisi sabit ×3 yerine Config'ten türetildi (oran × saat = ×3,0) | Kabul; sıkılaştı |
+| Q16 | `SaveStore` yedek zaman damgası artık arka plan görevi çalışınca basılıyor (aynı saniye) | Kabul |
+| Q17 | Büyük parti çarpanı, sipariş tabanı (300 sn) ve pano süresi (7 dk) telemetri verisine göre yeniden bakılacak | Gelir verisi gelince |
 
 ## 8. Sıradaki adımlar
 
 | # | Adım | Model | Efor |
 |---|---|---|---|
-| 1 | Birleşik Studio testi (§6, A-D önce) ve bulguları düzeltme | Kullanıcı + Sonnet (düzeltme) | M |
-| 2 | **P9 CI**: `.github/workflows/verify.yml` (rokit, luau-lsp, `verify.ps1`; tip analizi atlanırsa kırmızı) | Sonnet | S |
-| 3 | Ses: kimlik seç, 32 yuvayı bağla, müzik ayrı grup | Kullanıcı seçer, Sonnet bağlar | S |
-| 4 | Küçük güvenlik/dayanıklılık paketi: `requestId` zorunlu, altın hayvan mesafe, tüccar marj testi, `parkedPay` telemetri, `findFreePlot` tema tercihi, gamepass hata, şema sabiti, K1 kararı | Sonnet | S |
-| 5 | **P12** es/pt-br + Rusça hitap, Almanca "es" düzeltmesi | Sonnet | M |
-| 6 | Denge 3. tur: açılış (4.7), ada tempoları, büyük parti çarpanı, sipariş payı, çevrimdışı payı; kısa Opus incelemesi | Sonnet + Opus | M |
-| 7 | K2 Robux açılışı (kimlikler sonrası) ve yayın süreci (`place-vN`, Maturity anketi) | Sonnet + Opus (para/kayıt incelemesi) | M |
-| 8 | `SaveCodec`/`PlayerDataService` bölme + kalan tip borcu (284) + Presentation↔Services döngüsü; telemetri verisiyle K3 | Sonnet (Opus kısa inceleme) | L |
+| 1 | Birleşik Studio testi (§6, A-D ve H önce) ve bulguları düzeltme | Kullanıcı + Sonnet (düzeltme) | M |
+| 2 | Ses: kimlik seç, 32 yuvayı bağla, müzik ayrı grup | Kullanıcı seçer, Sonnet bağlar | S |
+| 3 | K1 admin kararı + DataStore bütçe denetimi (6.4b) ve bozuk `_session` yedek yolu (6.4c) | Sonnet | S |
+| 4 | **K2** Robux açılışı (kimlikler sonrası) ve yayın süreci (`place-vN`, Maturity anketi) | Sonnet + Opus (para/kayıt incelemesi) | M |
+| 5 | Telemetri verisiyle denge ve K3 (lobi) kararı | Opus + Sonnet | M |
+| 6 | es/pt anadil incelemesi | Kullanıcı / dış | S |
+| 7 | Kalan tip borcu (214), Presentation↔Services döngüsü (1.2), `withFarmContext` sarmalayıcısı (1.1) | Sonnet | M |
+| 8 | P9 CI (şimdilik yapılmıyor; `verify.ps1 -RequireTypes` yerelde yeterli) | Sonnet | S |
 
 ## 9. Koddan çürütülmüş belge bilgileri (dokunulmadı)
 - `docs/URETIM_VE_UZMAN_ADALAR.md`: "Harita sürümü 13" (gerçek 51) ve tesis tablosu (örn. Süt fabrikası 60 sn, 2 yetişkin inek, masraf 160/teslim 650); `src/shared/Config/Production.luau:120-130` süt fabrikası 35 sn, 1 yetişkin, masraf 0. Tablo güncellenmeli.
@@ -229,3 +240,5 @@ Değiştirilen:
 - `docs/ANALIZ_RAPORU.md` (sonradan silindi): bu raporun bulgu tablosu onu kapsıyor; metni `git show b15e796:docs/ANALIZ_RAPORU.md`.
 - `docs/SES_LISTESI.md` (sonradan silindi): içeriği `docs/SESLER.md` §6'ya birleştirildi.
 - README.md, AGENTS.md, `.cursor/rules` silinen belgelere bağlantı vermiyordu; değişiklik gerekmedi.
+- Sonraki temizlik turu: `docs/ANALIZ_RAPORU.md` (metni git geçmişinde) ve `docs/SES_LISTESI.md` (`SESLER.md` §6'ya birleşti) silindi; `.test-build/` ve `sourcemap.json` artıkları temizlendi; `economy-data.mdc`'deki bayat tempo cümlesi kaldırıldı.
+- `docs/SONNET_IS_PAKETLERI.md`: P12 ve diğer yapılan işler çıkarılabilir; yalnızca P9 (ertelendi) ve K1-K3 anlamlı.
