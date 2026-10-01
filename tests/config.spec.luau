@@ -252,5 +252,13 @@ return function(Config: any, FarmMath: any)
 	end
 	assert(sellRate * cheapestTier < 1, "an order always pays more than bulk selling the same goods")
 	assert(Config.GOODS_CONTRACTS.maxLineUnits >= 20, "wholesale orders can reach 20+ units")
+	assert(
+		Config.GOODS_CONTRACTS.floorExponent > 0 and Config.GOODS_CONTRACTS.floorExponent <= 1,
+		"the order income floor grows with size but never faster than linearly"
+	)
+	assert(
+		Config.GOODS_CONTRACTS.floorWeight == 3 * Config.GOODS_CONTRACTS.unitRefValue,
+		"the reference order is 3 units"
+	)
 	print("PASS config: cross-references, prerequisite graph, seasonal goals and start state")
 end
