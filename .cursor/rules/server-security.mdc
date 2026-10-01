@@ -18,6 +18,7 @@ Client'a asla güvenme: fiyat, adet, para, hasar, sahiplik, kilit durumu sunucud
 4. Durum: `PlayerDataService.tryGet(player)` ve `player:GetAttribute("WorldReady") == true`.
 5. Para: önce `EconomyService.settlePlayer(player)`, sonra `PlayerDataService.trySpend`.
 5b. Para girişi: kazanç `PlayerDataService.addCash` (ömür boyu kazanca ve başarımlara girer); iade/satış `PlayerDataService.addRefund` (girmez).
+   Para hareketine telemetri kategorisini ver: `addCash(player, n, "daily")`, `trySpend(player, n, "upgrade", id)` (anahtarlar `TelemetryLogic.ECONOMY`, SKU yalnızca hayvan/yükseltme kimliği; bkz. `docs/TELEMETRI.md`). Kategorisiz hareket gönderilmez.
 6. Değişiklik sonrası: `FarmMath.applyDerived(data)` → `pushState` → `requestSave` →
    gerekiyorsa `PlotService.refreshPlayerWorld(player)` → `Metrics.increment`.
 7. Sonuç: `requestId` varsa `PurchaseResult`/`XResult`, yoksa `Notify`.

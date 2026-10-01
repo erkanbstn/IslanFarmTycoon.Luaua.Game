@@ -17,6 +17,7 @@ local PlotService = require(script.Parent:WaitForChild("PlotService"))
 local EconomyService = require(script.Parent:WaitForChild("EconomyService"))
 local RateLimiter = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("RateLimiter"))
 local Metrics = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("Metrics"))
+local TelemetryService = require(script.Parent:WaitForChild("TelemetryService"))
 
 local AnimalService = {}
 
@@ -70,11 +71,12 @@ function AnimalService.tryBuy(player: Player, animalId: unknown, count: unknown?
 
 	local price = FarmMath.getBulkPrice(data, animalId, amount)
 	EconomyService.settlePlayer(player)
-	if not PlayerDataService.trySpend(player, price) then
+	if not PlayerDataService.trySpend(player, price, "animal", animalId) then
 		return false, `Yeterli para yok ({FarmMath.formatMoney(price)})`
 	end
 
 	addAnimals(data, animalId, amount)
+	TelemetryService.funnel(player, "first_animal")
 	Rewards.recordInvest(data, DateTime.now().UnixTimestamp)
 	PlayerDataService.pushState(player)
 	PlayerDataService.requestSave(player)
@@ -97,12 +99,13 @@ function AnimalService.tryBuyMerchantOffer(player: Player): (boolean, string?)
 		return false, "Gezgin tüccar şu an teklif sunmuyor"
 	end
 	EconomyService.settlePlayer(player)
-	if not PlayerDataService.trySpend(player, offer.price) then
+	if not PlayerDataService.trySpend(player, offer.price, "animal", offer.animalId) then
 		return false, `Yeterli para yok ({FarmMath.formatMoney(offer.price)})`
 	end
 	-- Alındı işareti hemen yazılır; tekrarlanan ya da gecikmiş istek ikinci teklifi alamaz.
 	data.merchant = { key = offer.cycle, bought = true }
 	addAnimals(data, offer.animalId, offer.count)
+	TelemetryService.funnel(player, "first_animal")
 	Rewards.recordInvest(data, DateTime.now().UnixTimestamp)
 	PlayerDataService.pushState(player)
 	PlayerDataService.requestSave(player)
@@ -137,7 +140,7 @@ function AnimalService.tryReplaceFish(player: Player, uid: unknown): (boolean, s
 		end
 		local price = FarmMath.getFishReplacementPrice(data)
 		EconomyService.settlePlayer(player)
-		if not PlayerDataService.trySpend(player, price) then
+		if not PlayerDataService.trySpend(player, price, "animal", "seabass") then
 			return false, `Yeterli para yok ({FarmMath.formatMoney(price)})`
 		end
 		data.animals[index] = {
@@ -182,7 +185,7 @@ function AnimalService.trySell(player: Player, animalId: unknown): (boolean, str
 		return false, "Hayvan artık bulunamıyor"
 	end
 	table.remove(data.animals, index)
-	PlayerDataService.addRefund(player, refund)
+	PlayerDataService.addRefund(player, refund, "refund", animalId)
 	PlayerDataService.pushState(player)
 	PlayerDataService.requestSave(player)
 	Metrics.increment("AnimalsSold")
@@ -328,6 +331,7 @@ function AnimalService.init()
 				if not ok then
 					warn(`[Animal] Büyüme güncellenemedi: {err}`)
 					Metrics.increment("LoopError")
+					TelemetryService.custom(player, "LoopError")
 				end
 			end
 		end

@@ -11,6 +11,7 @@ local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath")
 local PlayerDataService = require(script.Parent.PlayerDataService)
 local PlotService = require(script.Parent.PlotService)
 local EconomyService = require(script.Parent.EconomyService)
+local TelemetryService = require(script.Parent.TelemetryService)
 local SaveCodec = require(script.Parent.Parent.Modules.SaveCodec)
 local FarmProfiles = require(script.Parent.Parent.Modules.FarmProfiles)
 local RateLimiter = require(script.Parent.Parent.Modules.RateLimiter)
@@ -77,6 +78,10 @@ local function apply(player: Player, action: unknown, target: unknown): (boolean
 		return false, "Çiftlik seçilemedi; ücret alınmadı."
 	end
 	data.cash -= charge
+	if charge > 0 then
+		TelemetryService.economy(player, "farm", charge, data.cash)
+		TelemetryService.progression(player, "farm", #FarmProfiles.ids(data), `Farm {farmId}`)
+	end
 	player:SetAttribute("SelectedFarmIsland", "home")
 	PlayerDataService.pushState(player)
 	PlayerDataService.requestSave(player)

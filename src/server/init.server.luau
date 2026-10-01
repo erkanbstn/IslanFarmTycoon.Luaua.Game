@@ -30,6 +30,7 @@ local BuyPadService = require(Services:WaitForChild("BuyPadService"))
 local EngagementService = require(Services:WaitForChild("EngagementService"))
 local MonetizationService = require(Services:WaitForChild("MonetizationService"))
 local InventoryService = require(Services:WaitForChild("InventoryService"))
+local TelemetryService = require(Services:WaitForChild("TelemetryService"))
 local Rewards = require(Shared:WaitForChild("Modules"):WaitForChild("Rewards"))
 local RateLimiter = require(script:WaitForChild("Modules"):WaitForChild("RateLimiter"))
 local SessionLock = require(script:WaitForChild("Modules"):WaitForChild("SessionLock"))
@@ -43,6 +44,7 @@ Players.RespawnTime = 1
 Remotes.init()
 
 PlayerDataService.init()
+TelemetryService.init()
 SeasonService.init(function()
 	-- Hava/mevsim değişmeden önce eski çarpanla geçen süreyi kapat.
 	for _, player in Players:GetPlayers() do
@@ -280,6 +282,7 @@ local function onPlayerRemoving(player: Player)
 	joining[player] = nil
 	lastTeleportAt[player] = nil
 	EconomyService.stopPlayer(player)
+	TelemetryService.onLeaving(player)
 	player:SetAttribute("WorldReady", false)
 	local released, releaseError = pcall(PlotService.release, player)
 	if not released then

@@ -48,7 +48,7 @@ function EngagementService.tryClaimDaily(player: Player): (boolean, string?)
 	local amount = Rewards.dailyAmount(data, status.nextStreak)
 	-- Gün işareti hemen yazılır; aynı ya da gecikmiş istek ikinci ödülü alamaz.
 	data.daily = { day = Rewards.dayIndex(now), streak = status.nextStreak }
-	PlayerDataService.addCash(player, amount)
+	PlayerDataService.addCash(player, amount, "daily")
 	PlayerDataService.pushState(player)
 	PlayerDataService.requestSave(player)
 	Metrics.increment("DailyRewardsClaimed")
@@ -88,7 +88,7 @@ function EngagementService.tryClaimAchievement(player: Player, achievementId: un
 		return false, "Bu başarım henüz tamamlanmadı"
 	end
 	achievements[found.id] = true
-	PlayerDataService.addCash(player, found.reward)
+	PlayerDataService.addCash(player, found.reward, "achievement")
 	PlayerDataService.pushState(player)
 	PlayerDataService.requestSave(player)
 	Metrics.increment("AchievementsClaimed")
@@ -118,7 +118,7 @@ function EngagementService.tryClaimSeasonal(player: Player): (boolean, string?)
 	local amount = Rewards.seasonalReward(data)
 	-- İşaret önce yazılır; tekrarlanan ya da gecikmiş istek ikinci ödülü alamaz.
 	goal.claimed = true
-	PlayerDataService.addCash(player, amount)
+	PlayerDataService.addCash(player, amount, "season")
 	PlayerDataService.pushState(player)
 	PlayerDataService.requestSave(player)
 	Metrics.increment("SeasonalGoalsClaimed")
@@ -140,7 +140,7 @@ function EngagementService.tryClaimGolden(player: Player): (boolean, string?)
 	end
 	-- İşaret önce yazılır; tekrarlanan ya da gecikmiş istek ikinci ödülü alamaz.
 	data.golden = { key = event.cycle }
-	PlayerDataService.addCash(player, event.reward)
+	PlayerDataService.addCash(player, event.reward, "golden")
 	PlayerDataService.pushState(player)
 	PlayerDataService.requestSave(player)
 	Metrics.increment("GoldenAnimalsClaimed")
