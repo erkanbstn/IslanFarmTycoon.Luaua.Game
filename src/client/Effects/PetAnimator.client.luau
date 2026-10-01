@@ -21,6 +21,8 @@ local MapPaths = require(Shared:WaitForChild("MapPaths"))
 local TAG = "PetFigure"
 local SPEED = 15
 local SKIP_DISTANCE = 350 -- çok uzaktaki yardımcı yürütülmez, ışınlanır
+local IDLE_SLEEP_DISTANCE = 120 -- bu uzaklıktan ötede bekleme animasyonu çalışmaz
+local IDLE_SLEEP_SECONDS = 0.5
 local FACILITY_OFFSET = CFrame.new(0, 0, -8)
 
 type Prop = { part: Part, offset: CFrame }
@@ -167,6 +169,12 @@ end
 
 -- Bekleme: olduğu yerde hafifçe sallanır
 local function idleStep(actor: Actor, facing: Vector3?)
+	-- Kameradan uzaktaki yardımcının sallanması görünmez: kare başı yerine yarım saniyede bir uyanır
+	local camera = Workspace.CurrentCamera
+	if camera and (camera.CFrame.Position - actor.cf.Position).Magnitude > IDLE_SLEEP_DISTANCE then
+		task.wait(IDLE_SLEEP_SECONDS)
+		return
+	end
 	local dt = RunService.Heartbeat:Wait()
 	actor.t += dt
 	local position = Vector3.new(actor.cf.Position.X, actor.y, actor.cf.Position.Z)
@@ -192,7 +200,25 @@ local function spotOf(plot: Model, upgradeId: string): BasePart?
 end
 
 -- Plotun taş yol ağı (dünya XZ): ana ada yolları + köprüler + uzman ada yolları. Ada içeriği yeniden kurulabildiğinden
--- her turun başında yeniden çıkarılır (küçük bir hesap).
+-- ve streaming köprüyü geç getirebildiğinden girdilerin imzası her yürüyüşte karşılaştırılır; ağ yalnızca imza değişince
+-- yeniden kurulur (aynı plotun tüm yardımcıları aynı ağı paylaşır).
+local function graphSignature(plot: Model): string
+	local parts = { tostring(plot:GetAttribute("HomeFrame")), tostring(plot:GetAttribute("HomeRadius")) }
+	local islands = plot:FindFirstChild("Islands")
+	if islands then
+		for _, island in islands:GetChildren() do
+			local bridge = island:FindFirstChild("Bridge")
+			table.insert(
+				parts,
+				`{island.Name}:{if bridge and bridge:IsA("BasePart")
+					then tostring(bridge.CFrame) .. tostring(bridge.Size)
+					else "-"}:{island:GetAttribute("PathStart")}:{island:GetAttribute("PathEnd")}`
+			)
+		end
+	end
+	return table.concat(parts, "|")
+end
+
 local function buildGraph(plot: Model): MapPaths.Graph?
 	local frame = plot:GetAttribute("HomeFrame")
 	local radius = plot:GetAttribute("HomeRadius")
@@ -241,9 +267,22 @@ local function buildGraph(plot: Model): MapPaths.Graph?
 	return graph
 end
 
+local graphCache: { [Model]: { signature: string, graph: MapPaths.Graph? } } = setmetatable({}, { __mode = "k" }) :: any
+
+local function graphOf(plot: Model): MapPaths.Graph?
+	local signature = graphSignature(plot)
+	local cached = graphCache[plot]
+	if cached and cached.signature == signature then
+		return cached.graph
+	end
+	local graph = buildGraph(plot)
+	graphCache[plot] = { signature = signature, graph = graph }
+	return graph
+end
+
 -- Hedefe taş yollar üzerinden yürür.
 local function goTo(actor: Actor, target: Vector3): boolean
-	local graph = buildGraph(actor.plot)
+	local graph = graphOf(actor.plot)
 	local position = actor.cf.Position
 	local points: { MapPaths.Point } = if graph
 		then MapPaths.route(graph, position.X, position.Z, target.X, target.Z)

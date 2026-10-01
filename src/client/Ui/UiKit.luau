@@ -40,6 +40,7 @@ UiKit.padding = Base.padding
 UiKit.textInput = Base.textInput
 UiKit.list = Base.list
 UiKit.text = Base.text
+UiKit.setText = Base.setText
 UiKit.iconChip = Base.iconChip
 UiKit.panel = Base.panel
 UiKit.progressBar = Base.progressBar

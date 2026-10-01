@@ -23,7 +23,8 @@ type Dictionary = {
 	exact: { [string]: string },
 	strong: { Template }, -- Anahtarı " · " veya satır sonu içeren şablonlar: bölmeden önce denenir
 	weak: { Template },
-	cache: { [string]: string },
+	cache: { [string]: string }, -- yeni kuşak
+	older: { [string]: string }, -- önceki kuşak (dolunca cache buraya geçer)
 	cacheSize: number,
 }
 
@@ -40,7 +41,7 @@ local function escapePattern(text: string): string
 end
 
 local function compile(source: { [string]: string }): Dictionary
-	local dictionary: Dictionary = { exact = {}, strong = {}, weak = {}, cache = {}, cacheSize = 0 }
+	local dictionary: Dictionary = { exact = {}, strong = {}, weak = {}, cache = {}, older = {}, cacheSize = 0 }
 	local weights: { [Template]: number } = {}
 	for key, value in source do
 		if string.find(key, "{}", 1, true) then
@@ -189,6 +190,16 @@ function Localization.isSupported(code: unknown): boolean
 	return typeof(code) == "string" and Config.LANGUAGES[code] ~= nil
 end
 
+local function rememberTranslation(dictionary: Dictionary, text: string, result: string)
+	if dictionary.cacheSize >= MAX_CACHE then
+		dictionary.older = dictionary.cache
+		dictionary.cache = {}
+		dictionary.cacheSize = 0
+	end
+	dictionary.cache[text] = result
+	dictionary.cacheSize += 1
+end
+
 -- Türkçe kaynak metni verilen dile çevirir (dil verilmezse geçerli dile).
 function Localization.tr(text: string, code: string?): string
 	local language = code or current
@@ -203,15 +214,16 @@ function Localization.tr(text: string, code: string?): string
 	if cached then
 		return cached
 	end
+	-- İki kuşaklı önbellek: dolunca her şeyi silmek yerine eski kuşak atılır, sık kullanılanlar yeni kuşağa geçer.
+	cached = dictionary.older[text]
+	if cached then
+		rememberTranslation(dictionary, text, cached)
+		return cached
+	end
 	local result = if string.find(text, "<", 1, true)
 		then translateRich(text, dictionary)
 		else translateCore(text, dictionary, 0)
-	if dictionary.cacheSize >= MAX_CACHE then
-		dictionary.cache = {}
-		dictionary.cacheSize = 0
-	end
-	dictionary.cache[text] = result
-	dictionary.cacheSize += 1
+	rememberTranslation(dictionary, text, result)
 	return result
 end
 

@@ -18,11 +18,15 @@ local CELL = 36
 local HUB_RADIUS = 40
 local ANIMATE_DISTANCE = 80
 local CELLS_PER_FRAME = 2
+-- Kamera su yüzeyinin bu kadar üstündeyse deniz dibi uzaktır: 15 Hz yeter (sahnede zaten kıpırtısı seçilmez).
+local HIGH_CAMERA_Y = 40
+local HIGH_CAMERA_INTERVAL = 1 / 15
 
 local QUALITY = {
-	low = { radius = 55, schools = 3, jellies = 0, bubbles = false },
-	medium = { radius = 85, schools = 6, jellies = 2, bubbles = true },
-	high = { radius = 110, schools = 10, jellies = 4, bubbles = true },
+	-- kelp: yosun; bubbles: kabarcık; jellyPulse: denizanası çanı nabız atar (Size yazar; yalnızca yüksekte)
+	low = { radius = 55, schools = 3, jellies = 0, bubbles = false, kelp = false, jellyPulse = false },
+	medium = { radius = 85, schools = 6, jellies = 2, bubbles = true, kelp = true, jellyPulse = false },
+	high = { radius = 110, schools = 10, jellies = 4, bubbles = true, kelp = true, jellyPulse = true },
 }
 
 local KELP_COLORS = {
@@ -282,7 +286,7 @@ local function cellKey(cx: number, cz: number): string
 	return `{cx},{cz}`
 end
 
-local function createCell(cx: number, cz: number, withBubbles: boolean)
+local function createCell(cx: number, cz: number, withBubbles: boolean, withKelp: boolean)
 	local key = cellKey(cx, cz)
 	local rng = Random.new(math.abs(cx * 73856093 + cz * 19349663) % 2147483646 + 1)
 	local model = Instance.new("Model")
@@ -305,9 +309,10 @@ local function createCell(cx: number, cz: number, withBubbles: boolean)
 		end
 		return x, z, y
 	end
+	-- Düşükte yosun kurulmaz (kalite değişince hücreler zaten sıfırdan kurulur)
 	for _ = 1, rng:NextInteger(2, 3) do
 		local x, z, y = spot()
-		if x and z and y then
+		if x and z and y and withKelp then
 			buildKelp(cell, x, z, y, rng)
 		end
 	end
@@ -522,12 +527,19 @@ local function refreshCells(cameraPos: Vector3, config: typeof(QUALITY.high))
 	end)
 end
 
-local function update(dt: number)
+local pendingDt = 0
+local function update(frameDt: number)
 	local camera = Workspace.CurrentCamera
 	if not camera then
 		return
 	end
 	local cameraPos = camera.CFrame.Position
+	pendingDt += frameDt
+	if cameraPos.Y > HIGH_CAMERA_Y and pendingDt < HIGH_CAMERA_INTERVAL then
+		return
+	end
+	local dt = pendingDt
+	pendingDt = 0
 	local config = settings()
 	local reduced = localPlayer:GetAttribute("ReducedMotion") == true
 	local now = os.clock()
@@ -542,7 +554,7 @@ local function update(dt: number)
 			break
 		end
 		if not cells[cellKey(nextCell.cx, nextCell.cz)] then
-			createCell(nextCell.cx, nextCell.cz, config.bubbles)
+			createCell(nextCell.cx, nextCell.cz, config.bubbles, config.kelp)
 		end
 	end
 
@@ -634,7 +646,9 @@ local function update(dt: number)
 			local pulse = math.sin(now * 2.2 + jelly.phase)
 			jelly.center += jelly.drift * dt + Vector3.new(0, pulse * 0.6 * dt, 0)
 			jelly.center = Vector3.new(jelly.center.X, math.clamp(jelly.center.Y, SEABED_Y + 4, -3), jelly.center.Z)
-			jelly.bell.Size = Vector3.new(2.4 - pulse * 0.25, 1.8 + pulse * 0.3, 2.4 - pulse * 0.25)
+			if config.jellyPulse then
+				jelly.bell.Size = Vector3.new(2.4 - pulse * 0.25, 1.8 + pulse * 0.3, 2.4 - pulse * 0.25)
+			end
 			queueMove(jelly.bell, CFrame.new(jelly.center))
 			for i, tentacle in jelly.tentacles do
 				local angle = i / #jelly.tentacles * math.pi * 2

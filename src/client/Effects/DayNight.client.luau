@@ -13,6 +13,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local EffectSettings = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("EffectSettings"))
 local Environment = require(Shared:WaitForChild("Modules"):WaitForChild("Environment"))
 
 local TICK = 0.1
@@ -42,6 +43,10 @@ local MAX_LIGHT_RANGE = 60 -- Roblox PointLight.Range üst sınırı
 local LIGHT_BRIGHTNESS_SCALE = 0.5
 local LIGHT_RANGE_SCALE = 0.8
 local LIGHT_FADE_SECONDS = 1
+-- Gerçek ışık kaynakları (PointLight/SpotLight) pahalıdır: düşükte hiç yanmaz (parçalar yine Neon/renk
+-- değiştirir), ortada kameraya en yakın bu kadar parçada yanar, yüksekte hepsi yanar.
+local MEDIUM_LIGHT_PARTS = 24
+local NEAREST_REFRESH_SECONDS = 1
 local TWILIGHT_SHIFT = Color3.fromRGB(255, 150, 90)
 
 -- Sadece bu client'ta var olan gece renk düzeltmesi
@@ -60,10 +65,15 @@ type Glow = {
 	nightColor: Color3,
 	glowMaterial: Enum.Material,
 	lit: boolean,
+	-- Son uygulanan durum: değişmediyse (3 sn'lik eşitleme dahil) hiçbir özelliğe yazılmaz
+	appliedRamp: number?,
+	appliedMultiplier: number?,
+	appliedLights: boolean?,
 }
 local glows: { [BasePart]: Glow } = {}
 local ramp = 0
 local multiplier = 1 -- Yönetici ışık parlaklığı çarpanı
+local nearestParts: { [BasePart]: boolean } = {} -- Orta kalitede ışığı yanabilecek parçalar
 -- Işıklar parçadan sonra çoğalabilir; bu yüzden her uygulamada çocuklar yeniden taranır.
 -- Özgün değer ışığın kendi (yerel) özniteliğinde saklanır. Zayıf anahtarlı tablo kullanılamaz:
 -- Roblox Instance sarmalayıcısını toplar, gündüz 0'a çekilmiş parlaklık "özgün" diye yeniden okunur.
@@ -90,8 +100,24 @@ local function publishCount()
 	Lighting:SetAttribute("NightLightSources", lights)
 end
 
+-- Bu parçanın gerçek ışıkları kalite kademesine göre yanabilir mi?
+local function lightsAllowed(part: BasePart): boolean
+	local quality = EffectSettings.quality()
+	if quality == "low" then
+		return false
+	elseif quality == "medium" then
+		return nearestParts[part] == true
+	end
+	return true
+end
+
 local function applyGlow(glow: Glow)
 	local part = glow.part
+	local allowed = lightsAllowed(part)
+	if glow.appliedRamp == ramp and glow.appliedMultiplier == multiplier and glow.appliedLights == allowed then
+		return
+	end
+	glow.appliedRamp, glow.appliedMultiplier, glow.appliedLights = ramp, multiplier, allowed
 	local on = ramp > 0.05
 	if on ~= glow.lit then
 		glow.lit = on
@@ -232,23 +258,63 @@ local function updateSky(dt: number)
 	end
 end
 
+-- Orta kalite: kameraya en yakın MEDIUM_LIGHT_PARTS ışıklı parça (1 sn'de bir yenilenir)
+local function refreshNearest()
+	table.clear(nearestParts)
+	if EffectSettings.quality() ~= "medium" then
+		return
+	end
+	local camera = Workspace.CurrentCamera
+	if not camera then
+		return
+	end
+	local cameraPos = camera.CFrame.Position
+	local ranked: { { part: BasePart, distance: number } } = {}
+	for part in glows do
+		table.insert(ranked, { part = part, distance = (part.Position - cameraPos).Magnitude })
+	end
+	table.sort(ranked, function(a, b)
+		return a.distance < b.distance
+	end)
+	for index = 1, math.min(#ranked, MEDIUM_LIGHT_PARTS) do
+		nearestParts[ranked[index].part] = true
+	end
+end
+
+local function applyAll()
+	for _, glow in glows do
+		applyGlow(glow)
+	end
+end
+
+Players.LocalPlayer:GetAttributeChangedSignal("EffectsQuality"):Connect(function()
+	refreshNearest()
+	applyAll()
+end)
+
 local elapsed = TICK
 local resyncAt = 0
+local nearestAt = 0
 local connection = RunService.Heartbeat:Connect(function(dt: number)
 	elapsed += dt
 	if elapsed >= TICK then
 		local step = elapsed
 		elapsed = 0
 		updateSky(step)
-		-- Geç gelen ışık nesneleri ve yayın gecikmeleri için birkaç saniyede bir tam eşitleme
-		if os.clock() >= resyncAt then
-			resyncAt = os.clock() + 3
-			for _, glow in glows do
-				applyGlow(glow)
-			end
+		local now = os.clock()
+		if now >= nearestAt then
+			nearestAt = now + NEAREST_REFRESH_SECONDS
+			refreshNearest()
+			applyAll() -- yalnızca ışık izni değişen parçalara yazar
+		end
+		-- Geç gelen ışık nesneleri ve yayın gecikmeleri için birkaç saniyede bir eşitleme (değer değişmediyse yazmaz)
+		if now >= resyncAt then
+			resyncAt = now + 3
+			applyAll()
 		end
 	end
 end)
+refreshNearest()
 updateSky(TICK)
 firstUpdate = false
 -- Gündüz-gece ışığı ilk kez doğru kuruldu: yükleme ekranı kalkınca sahne karanlıkta kalmaz.

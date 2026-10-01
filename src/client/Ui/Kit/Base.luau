@@ -97,6 +97,20 @@ function Base.text(parent: Instance, text: string, style: TextStyle, color: Colo
 	return label
 end
 
+-- Sıcak yollarda (her saniye çalışan HUD güncellemeleri) metin aynıysa yazmaz. Localizer çeviriyi
+-- Text'e geri yazdığı için ham `label.Text = kaynak` her seferinde değişiklik olayı + çeviri yazımı üretirdi;
+-- burada son verilen kaynak metin tutulur (dil değişse de kaynak aynı kaldığı için doğru çalışır).
+local lastSource: { [Instance]: string } = setmetatable({}, { __mode = "k" }) :: any
+
+function Base.setText(label: TextLabel | TextButton, text: string)
+	if lastSource[label] == text then
+		return
+	end
+	lastSource[label] = text
+	local target: any = label
+	target.Text = text
+end
+
 -- Emoji için sabit boyutlu, renkli zeminli ikon kutusu
 function Base.iconChip(parent: Instance, icon: string, size: number, tint: Color3?): TextLabel
 	local chip = Instance.new("TextLabel")
