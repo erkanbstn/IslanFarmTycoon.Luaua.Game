@@ -1218,4 +1218,8 @@ return {
 	["İlk hedef: yeni bir hayvan ({})"] = "Первая цель: новое животное ({1})",
 	["Çok zor: önce daha kolay çiftlikleri al. Hayvanları ve yatırımları ayrı gelişir; kasa ve depo ortaktır."] = "Очень сложно: сначала купи более простые фермы. Животные и вложения развиваются отдельно; деньги и склад общие.",
 	["Seviyeler"] = "Уровни",
+	["Günlük"] = "Ежедневно",
+	["Çiftliklerim"] = "Мои фермы",
+	["Küçük Adalar"] = "Малые острова",
+	["Ziyaret"] = "Визит",
 }

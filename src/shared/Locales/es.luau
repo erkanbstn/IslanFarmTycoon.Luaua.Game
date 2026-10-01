@@ -1220,4 +1220,8 @@ return {
 	["İlk hedef: yeni bir hayvan ({})"] = "Primer objetivo: un nuevo animal ({1})",
 	["Çok zor: önce daha kolay çiftlikleri al. Hayvanları ve yatırımları ayrı gelişir; kasa ve depo ortaktır."] = "Muy difícil: compra primero las granjas más fáciles. Sus animales e inversiones crecen por separado; el dinero y el almacén son comunes.",
 	["Seviyeler"] = "Niveles",
+	["Günlük"] = "Diario",
+	["Çiftliklerim"] = "Mis granjas",
+	["Küçük Adalar"] = "Islas pequeñas",
+	["Ziyaret"] = "Visitar",
 }

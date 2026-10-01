@@ -213,7 +213,7 @@ local function create(): UiKit.Window
 			end
 		end)
 	end
-	UiKit.sectionHeader(created.list, "Yeni ana çiftlik satın al", 4)
+	local _, buyMeta = UiKit.sectionHeader(created.list, "Yeni ana çiftlik satın al", 4)
 	local buyInfo = UiKit.text(created.list, "", "Caption")
 	buyInfo.LayoutOrder = 5
 	local freeList = section(6)
@@ -285,13 +285,10 @@ local function create(): UiKit.Window
 	specialtyList.Parent = specialtyBox
 	UiKit.list(specialtyList, 8)
 	local specialtyGrid = UiKit.autoGrid(specialtyList, 1)
-	applySpecialtyOpen = function()
-		specialtyBox.Visible = specialtyOpen
-		for _, arrow in arrows do
-			arrow.Rotation = if specialtyOpen then 0 else -90
-		end
-	end
-	applySpecialtyOpen()
+	-- Küçük adalar artık kendi sekmesinde (ok ile açılan kutu kalktı); görünürlüğü sekme belirler
+	specialtyBox.LayoutOrder = 7
+	specialtyBox.Parent = created.list
+	applySpecialtyOpen = function() end
 	local specialtyCards: { [string]: UiKit.Card } = {}
 	for index, id in Config.FARM_ISLAND_ORDER do
 		if id == "home" then
@@ -351,6 +348,27 @@ local function create(): UiKit.Window
 		created.close()
 	end)
 	local visits = section(12)
+	-- Sekmeler: Çiftliklerim | Satın Al | Küçük Adalar | Ziyaret (her sekme kendi bölümlerini gösterir)
+	local tabContent: { [string]: { GuiObject } } = {
+		farms = { mainMeta.Parent :: GuiObject, ownedList, hub },
+		buy = { buyMeta.Parent :: GuiObject, buyInfo, freeList },
+		islands = { specialtyBox },
+		visit = { visits },
+	}
+	local function showTab(id: string)
+		for tabId, objects in tabContent do
+			for _, object in objects do
+				object.Visible = tabId == id
+			end
+		end
+	end
+	UiKit.tabs(created.list, -1, {
+		{ id = "farms", label = "Çiftliklerim" },
+		{ id = "buy", label = "Satın Al" },
+		{ id = "islands", label = "Küçük Adalar" },
+		{ id = "visit", label = "Ziyaret" },
+	}, showTab)
+	showTab("farms")
 	local visitsSignature: string? = nil
 	local visitButtons: { TextButton } = {}
 	local function rebuildVisits()
@@ -449,13 +467,6 @@ local function create(): UiKit.Window
 			end
 			card.frame.Visible = true
 			local isActive = farm.id == activeId
-			local arrow = arrows[farm.id]
-			if arrow then
-				arrow.Visible = isActive
-			end
-			if isActive then
-				specialtyBox.Parent = card.frame
-			end
 			local physicalName = nameOf(farm.id)
 			card.title.Text = `Ana Çiftlik {farm.id}` .. (if isActive then " · Etkin" else "")
 			local stored = if isActive then state.stored else farm.stored

@@ -1,5 +1,5 @@
 --!strict
--- Ödüller penceresi: günlük ödül, mevsim hedefi ve başarımlar.
+-- Ödüller penceresi: Günlük (günlük ödül + mevsim hedefi) ve Başarımlar sekmeleri.
 
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -70,32 +70,35 @@ function RewardsSection.create(
 		end
 	end
 
-	-- Başarımlar uzun bir liste: varsayılan kapalıdır; düğmeyle açılır (ödül alınabiliyorsa düğme vurgulanır)
-	local achievementsToggle = UiKit.button(list, "Başarımlar", "secondary")
-	achievementsToggle.Size = UDim2.new(1, 0, 0, 38)
-	achievementsToggle.LayoutOrder = 21
-	local achievementsOpen = false
+	-- Sekmeler: Günlük (günlük ödül + mevsim hedefi) | Başarımlar (uzun liste; alınabilirler üstte)
+	local currentTab = "daily"
 	local achievementCards: { [string]: UiKit.Card } = {}
-	local cardClaimable: { [string]: boolean } = {}
-	-- Alınabilir başarımlar pencerenin en üstünde, kendi başlığıyla görünür (liste kapalı olsa da)
 	local claimableHeader = UiKit.sectionHeader(list, "Alınabilir başarımlar", 0)
 	local claimableHeaderRow = claimableHeader.Parent :: GuiObject
+	local hasClaimable = false
 	claimableHeaderRow.Visible = false
-	local achievementsSummary = ""
-	local achievementsClaimable = 0
-	local function refreshAchievementsToggle()
-		UiKit.setText(achievementsToggle, if achievementsOpen then "Başarımları gizle" else achievementsSummary)
-		UiKit.setVariant(
-			achievementsToggle,
-			if achievementsClaimable > 0 and not achievementsOpen then "primary" else "secondary"
-		)
-		for id, card in achievementCards do
-			card.frame.Visible = achievementsOpen or cardClaimable[id] == true
+	local achievementsSummary = "Başarımlar"
+	local tabsRow: Frame
+	local function refreshTabs()
+		local daily = currentTab == "daily"
+		dailyCard.frame.Visible = daily
+		seasonalCard.frame.Visible = daily
+		claimableHeaderRow.Visible = not daily and hasClaimable
+		for _, card in achievementCards do
+			card.frame.Visible = not daily
+		end
+		for _, child in tabsRow:GetChildren() do
+			if child:IsA("TextButton") and child.LayoutOrder == 2 then
+				UiKit.setText(child, achievementsSummary)
+			end
 		end
 	end
-	achievementsToggle.Activated:Connect(function()
-		achievementsOpen = not achievementsOpen
-		refreshAchievementsToggle()
+	tabsRow = UiKit.tabs(list, -1, {
+		{ id = "daily", label = "Günlük" },
+		{ id = "achievements", label = "Başarımlar" },
+	}, function(id: string)
+		currentTab = id
+		refreshTabs()
 	end)
 	local achievementGrid = UiKit.autoGrid(list, 21)
 	for index, achievement in Config.ACHIEVEMENTS do
@@ -155,7 +158,6 @@ function RewardsSection.create(
 			UiKit.setText(dailyCard.action, "Alındı")
 			UiKit.setVariant(dailyCard.action, "owned")
 		end
-		achievementsClaimable = claimable
 		achievementsSummary = if claimable > 0
 			then `Başarımlar · {claimed}/{#Config.ACHIEVEMENTS} · Ödül var`
 			else `Başarımlar · {claimed}/{#Config.ACHIEVEMENTS}`
@@ -167,18 +169,15 @@ function RewardsSection.create(
 			local progress = Rewards.progress(state, achievement)
 			if owned then
 				card.frame.LayoutOrder = 3000 + index
-				cardClaimable[achievement.id] = false
 			elseif progress >= achievement.target then
 				claimableIndex += 1
 				card.frame.LayoutOrder = claimableIndex
-				cardClaimable[achievement.id] = true
 			else
 				card.frame.LayoutOrder = 100 + math.floor((1 - progress / achievement.target) * 1000)
-				cardClaimable[achievement.id] = false
 			end
 		end
-		claimableHeaderRow.Visible = claimableIndex > 0
-		refreshAchievementsToggle()
+		hasClaimable = claimableIndex > 0
+		refreshTabs()
 		for _, achievement in Config.ACHIEVEMENTS do
 			local card = achievementCards[achievement.id]
 			local owned = state.achievements ~= nil and state.achievements[achievement.id] == true
