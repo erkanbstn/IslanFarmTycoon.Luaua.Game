@@ -1,6 +1,9 @@
 --!strict
 -- Yerel yağış ve uzaktaki şimşek. Dokular Roblox Player/Studio ile gelir;
 -- asset yükleme izni veya harici ağ isteği gerekmez.
+-- Yağış bütün haritada görünür: kameranın etrafında üç halka vardır. Yakın halka kameraya yakın küçük bir hacim (çatı/içeri
+-- denetimli); orta ve uzak halka kameranın XZ'sinde duran, harita üstünde ince bir "tavan" levhasından yağar (tane boyutu
+-- uzaklıkla büyür). Taneler yere ulaşınca yaşam süresiyle biter. Parçacık sayısı kaliteyle ölçeklenir (düşükte uzak halka yok).
 local Players = game:GetService("Players")
 local Lighting = game:GetService("Lighting")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -15,11 +18,30 @@ local WeatherPrecip = {}
 -- İki yağış da yuvarlaktır; yağmur daha küçük ve çok daha hızlı düşer.
 local RAIN_TEXTURE = "rbxasset://textures/smallWhiteCircle.png"
 local SNOW_TEXTURE = "rbxasset://textures/smallWhiteCircle.png"
-local QUALITY = {
-	low = { rain = 70, storm = 95, snow = 22 },
-	medium = { rain = 160, storm = 230, snow = 45 },
-	high = { rain = 300, storm = 390, snow = 75 },
+type Budget = { rain: number, storm: number, snow: number }
+local QUALITY: { [string]: { near: Budget, mid: Budget, far: Budget } } = {
+	low = {
+		near = { rain = 70, storm = 95, snow = 22 },
+		mid = { rain = 80, storm = 110, snow = 28 },
+		far = { rain = 0, storm = 0, snow = 0 },
+	},
+	medium = {
+		near = { rain = 160, storm = 230, snow = 45 },
+		mid = { rain = 140, storm = 200, snow = 50 },
+		far = { rain = 90, storm = 130, snow = 40 },
+	},
+	high = {
+		near = { rain = 300, storm = 390, snow = 75 },
+		mid = { rain = 240, storm = 330, snow = 70 },
+		far = { rain = 150, storm = 220, snow = 60 },
+	},
 }
+-- Orta/uzak halka levhaları: harita zemini ~4 stud; levha yüksekliği ve yere düşme süresi (yaşam süresi) buradan gelir.
+local GROUND_Y = 4
+local MID_SLAB_Y = 80
+local FAR_SLAB_Y = 100
+local RAIN_FALL_SPEED = 80
+local SNOW_FALL_SPEED = 12
 local PRECIP_MAX_CAMERA_Y = 70 -- Kamera bunun üstündeyse yağış çizilmez
 local MAIN_SEGMENTS = 12
 local BRANCH_SEGMENTS = 4
@@ -42,73 +64,118 @@ function WeatherPrecip.start(): () -> ()
 		part.Parent = folder
 		return part
 	end
-	local sky = cosmetic("WeatherEmitter")
-	-- Eski 140x140 alan yerine yakın hacim: yağış görüş alanının içinde doğar.
-	sky.Size = Vector3.new(28, 12, 28)
-	local rain = Instance.new("ParticleEmitter")
-	rain.Name = "Rain"
-	rain.Texture = RAIN_TEXTURE
-	rain.Shape = Enum.ParticleEmitterShape.Box
-	rain.ShapeStyle = Enum.ParticleEmitterShapeStyle.Volume
-	rain.EmissionDirection = Enum.NormalId.Bottom
-	rain.Orientation = Enum.ParticleOrientation.FacingCamera
-	rain.Speed = NumberRange.new(68, 84)
-	rain.Lifetime = NumberRange.new(0.38, 0.55)
-	rain.Size = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 0.14, 0.02),
-		NumberSequenceKeypoint.new(1, 0.12, 0.015),
-	})
-	-- Kamera yönüne bakan daire: açıya bağlı yatay levha veya uzun çizgi oluşmaz.
-	-- Esnetme ve dönüş tamamen kapalı; karla farkını boyut ve düşüş hızı verir.
-	rain.Squash = NumberSequence.new(0)
-	rain.Rotation = NumberRange.new(0)
-	rain.RotSpeed = NumberRange.new(0)
-	rain.SpreadAngle = Vector2.new(2, 2)
-	rain.Color = ColorSequence.new(Color3.fromRGB(208, 222, 237))
-	rain.Transparency = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 0.8),
-		NumberSequenceKeypoint.new(0.1, 0.3),
-		NumberSequenceKeypoint.new(0.8, 0.42),
-		NumberSequenceKeypoint.new(1, 1),
-	})
-	rain.LightInfluence = 0
-	rain.LightEmission = 0
-	rain.LockedToPart = false
-	rain.VelocityInheritance = 0
-	rain.Enabled = false
-	rain.Rate = 0
-	rain.Parent = sky
-	local snow = Instance.new("ParticleEmitter")
-	snow.Name = "Snow"
-	snow.Texture = SNOW_TEXTURE
-	snow.Shape = Enum.ParticleEmitterShape.Box
-	snow.ShapeStyle = Enum.ParticleEmitterShapeStyle.Volume
-	snow.EmissionDirection = Enum.NormalId.Bottom
-	snow.Orientation = Enum.ParticleOrientation.FacingCamera
-	snow.Speed = NumberRange.new(4, 6)
-	snow.Lifetime = NumberRange.new(4, 5.5)
-	snow.Size = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 0.18, 0.045),
-		NumberSequenceKeypoint.new(0.5, 0.22, 0.05),
-		NumberSequenceKeypoint.new(1, 0.17, 0.04),
-	})
-	snow.Squash = NumberSequence.new(0)
-	snow.SpreadAngle = Vector2.new(12, 12)
-	snow.Acceleration = Vector3.new(0.5, -0.08, 0.2)
-	snow.Rotation = NumberRange.new(0, 360)
-	snow.RotSpeed = NumberRange.new(0)
-	snow.Color = ColorSequence.new(Color3.fromRGB(245, 249, 255))
-	snow.Transparency = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 0.8),
-		NumberSequenceKeypoint.new(0.08, 0.05),
-		NumberSequenceKeypoint.new(0.85, 0.1),
-		NumberSequenceKeypoint.new(1, 1),
-	})
-	snow.LightInfluence = 0
-	snow.LightEmission = 0
-	snow.Enabled = false
-	snow.Rate = 0
-	snow.Parent = sky
+	type Ring = { name: string, part: Part, rain: ParticleEmitter, snow: ParticleEmitter }
+
+	local function makeRain(
+		parent: Part,
+		size: number,
+		lifetime: number,
+		speed: number,
+		transparency: number
+	): ParticleEmitter
+		local rain = Instance.new("ParticleEmitter")
+		rain.Name = "Rain"
+		rain.Texture = RAIN_TEXTURE
+		rain.Shape = Enum.ParticleEmitterShape.Box
+		rain.ShapeStyle = Enum.ParticleEmitterShapeStyle.Volume
+		rain.EmissionDirection = Enum.NormalId.Bottom
+		rain.Orientation = Enum.ParticleOrientation.FacingCamera
+		rain.Speed = NumberRange.new(speed * 0.92, speed * 1.08)
+		rain.Lifetime = NumberRange.new(lifetime * 0.92, lifetime)
+		rain.Size = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, size, size * 0.15),
+			NumberSequenceKeypoint.new(1, size * 0.85, size * 0.1),
+		})
+		-- Kamera yönüne bakan daire: açıya bağlı yatay levha veya uzun çizgi oluşmaz.
+		rain.Squash = NumberSequence.new(0)
+		rain.Rotation = NumberRange.new(0)
+		rain.RotSpeed = NumberRange.new(0)
+		rain.SpreadAngle = Vector2.new(2, 2)
+		rain.Color = ColorSequence.new(Color3.fromRGB(208, 222, 237))
+		rain.Transparency = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, math.min(1, transparency + 0.35)),
+			NumberSequenceKeypoint.new(0.1, transparency),
+			NumberSequenceKeypoint.new(0.8, math.min(1, transparency + 0.12)),
+			NumberSequenceKeypoint.new(1, 1),
+		})
+		rain.LightInfluence = 0
+		rain.LightEmission = 0
+		rain.LockedToPart = false
+		rain.VelocityInheritance = 0
+		rain.Enabled = false
+		rain.Rate = 0
+		rain.Parent = parent
+		return rain
+	end
+	local function makeSnow(
+		parent: Part,
+		size: number,
+		lifetime: number,
+		speed: number,
+		transparency: number
+	): ParticleEmitter
+		local snow = Instance.new("ParticleEmitter")
+		snow.Name = "Snow"
+		snow.Texture = SNOW_TEXTURE
+		snow.Shape = Enum.ParticleEmitterShape.Box
+		snow.ShapeStyle = Enum.ParticleEmitterShapeStyle.Volume
+		snow.EmissionDirection = Enum.NormalId.Bottom
+		snow.Orientation = Enum.ParticleOrientation.FacingCamera
+		snow.Speed = NumberRange.new(speed * 0.85, speed * 1.15)
+		snow.Lifetime = NumberRange.new(lifetime * 0.9, lifetime * 1.1)
+		snow.Size = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, size, size * 0.25),
+			NumberSequenceKeypoint.new(0.5, size * 1.2, size * 0.28),
+			NumberSequenceKeypoint.new(1, size * 0.95, size * 0.22),
+		})
+		snow.Squash = NumberSequence.new(0)
+		snow.SpreadAngle = Vector2.new(12, 12)
+		snow.Acceleration = Vector3.new(0.5, -0.08, 0.2)
+		snow.Rotation = NumberRange.new(0, 360)
+		snow.RotSpeed = NumberRange.new(0)
+		snow.Color = ColorSequence.new(Color3.fromRGB(245, 249, 255))
+		snow.Transparency = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, math.min(1, transparency + 0.3)),
+			NumberSequenceKeypoint.new(0.08, transparency),
+			NumberSequenceKeypoint.new(0.85, math.min(1, transparency + 0.05)),
+			NumberSequenceKeypoint.new(1, 1),
+		})
+		snow.LightInfluence = 0
+		snow.LightEmission = 0
+		snow.Enabled = false
+		snow.Rate = 0
+		snow.Parent = parent
+		return snow
+	end
+
+	-- Yakın: kameraya yakın küçük hacim. Orta/uzak: harita üstünde ince levha (yere inene kadar yaşar).
+	local nearPart = cosmetic("WeatherNear")
+	nearPart.Size = Vector3.new(28, 12, 28) -- Yağış görüş alanının içinde doğar.
+	local midPart = cosmetic("WeatherMid")
+	midPart.Size = Vector3.new(170, 2, 170)
+	local farPart = cosmetic("WeatherFar")
+	farPart.Size = Vector3.new(440, 2, 440)
+	local rings: { near: Ring, mid: Ring, far: Ring } = {
+		near = {
+			name = "near",
+			part = nearPart,
+			rain = makeRain(nearPart, 0.14, 0.55, 76, 0.3),
+			snow = makeSnow(nearPart, 0.2, 5, 5, 0.05),
+		},
+		mid = {
+			name = "mid",
+			part = midPart,
+			rain = makeRain(midPart, 0.5, (MID_SLAB_Y - GROUND_Y) / RAIN_FALL_SPEED, RAIN_FALL_SPEED, 0.5),
+			snow = makeSnow(midPart, 0.5, (MID_SLAB_Y - GROUND_Y) / SNOW_FALL_SPEED, SNOW_FALL_SPEED, 0.3),
+		},
+		far = {
+			name = "far",
+			part = farPart,
+			rain = makeRain(farPart, 1.8, (FAR_SLAB_Y - GROUND_Y) / RAIN_FALL_SPEED, RAIN_FALL_SPEED, 0.62),
+			snow = makeSnow(farPart, 1.6, (FAR_SLAB_Y - GROUND_Y) / SNOW_FALL_SPEED, SNOW_FALL_SPEED, 0.45),
+		},
+	}
+	local ringList: { Ring } = { rings.near, rings.mid, rings.far }
 
 	-- Bir kez oluşturulan 20 fizik dışı segment; ekranı beyaza çeviren çift flaş yok.
 	local bolts: { Part } = {}
@@ -161,10 +228,11 @@ function WeatherPrecip.start(): () -> ()
 		strikeParams.FilterDescendantsInstances = exclusions
 		local camera = Workspace.CurrentCamera
 		local blocked = camera == nil
+		local submerged = player:GetAttribute("Submerged") == true
 		if camera then
-			-- Su altında yağış yok; çok yüksekten bakarken (ada üstü genel bakış) taneler yalnızca gürültü olur
+			-- Yakın halka: su altında, çatı altında ya da çok yüksekten bakarken (ada üstü genel bakış) kapanır
 			local cameraY = camera.CFrame.Position.Y
-			if player:GetAttribute("Submerged") == true or cameraY > PRECIP_MAX_CAMERA_Y then
+			if submerged or cameraY > PRECIP_MAX_CAMERA_Y then
 				blocked = true
 			else
 				blocked = Workspace:Raycast(
@@ -175,12 +243,17 @@ function WeatherPrecip.start(): () -> ()
 			end
 		end
 		if blocked ~= covered then
-			rain:Clear()
-			snow:Clear()
+			rings.near.rain:Clear()
+			rings.near.snow:Clear()
 			covered = blocked
 		end
-		rain.Enabled = not covered and rain.Rate > 0
-		snow.Enabled = not covered and snow.Rate > 0
+		-- Orta/uzak halka bütün haritayı kaplar: yalnızca su altında kapanır, çatı denetimi yoktur
+		local farVisible = camera ~= nil and not submerged
+		for _, ring in ringList do
+			local visible = if ring.name == "near" then not covered else farVisible
+			ring.rain.Enabled = visible and ring.rain.Rate > 0
+			ring.snow.Enabled = visible and ring.snow.Rate > 0
+		end
 	end
 	local function positionEmitter()
 		local camera = Workspace.CurrentCamera
@@ -189,34 +262,41 @@ function WeatherPrecip.start(): () -> ()
 		end
 		local position = camera.CFrame.Position
 		if lastPosition and (position - lastPosition).Magnitude > 50 then
-			rain:Clear()
-			snow:Clear()
+			for _, ring in ringList do
+				ring.rain:Clear()
+				ring.snow:Clear()
+			end
 			updateRoof()
 		end
 		lastPosition = position
 		local look = camera.CFrame.LookVector
 		local forward = Vector3.new(look.X, 0, look.Z)
 		forward = if forward.Magnitude > 0.01 then forward.Unit else Vector3.new(0, 0, -1)
-		sky.CFrame = CFrame.new(position + forward * 16 + Vector3.new(0, 10, 0)) -- Kameraya yapışık büyük taneler olmasın
+		rings.near.part.CFrame = CFrame.new(position + forward * 16 + Vector3.new(0, 10, 0)) -- Kameraya yapışık büyük taneler olmasın
+		rings.mid.part.CFrame = CFrame.new(position.X, MID_SLAB_Y, position.Z)
+		rings.far.part.CFrame = CFrame.new(position.X, FAR_SLAB_Y, position.Z)
 	end
 	local function configure()
 		local weather = Environment.getWeather().id
 		if weather ~= currentWeather then
-			rain:Clear()
-			snow:Clear()
+			for _, ring in ringList do
+				ring.rain:Clear()
+				ring.snow:Clear()
+			end
 			hideLightning()
 			nextLightning = os.clock() + random:NextNumber(3, 5)
 		end
 		currentWeather = weather
 		local quality = player:GetAttribute("EffectsQuality")
-		local budget = if quality == "low"
-			then QUALITY.low
-			elseif quality == "high" then QUALITY.high
-			else QUALITY.medium
+		local tier = if quality == "low" then QUALITY.low elseif quality == "high" then QUALITY.high else QUALITY.medium
 		local factor = if player:GetAttribute("ReducedMotion") == true then 0.35 else 1
-		rain.Rate = (if weather == "storm" then budget.storm elseif weather == "rain" then budget.rain else 0) * factor
-		snow.Rate = (if weather == "snow" then budget.snow else 0) * factor
-		rain.Acceleration = if weather == "storm" then Vector3.new(12, -8, 3) else Vector3.new(2, -4, 0)
+		for _, ring in ringList do
+			local budget: Budget = (tier :: any)[ring.name]
+			ring.rain.Rate = (if weather == "storm" then budget.storm elseif weather == "rain" then budget.rain else 0)
+				* factor
+			ring.snow.Rate = (if weather == "snow" then budget.snow else 0) * factor
+			ring.rain.Acceleration = if weather == "storm" then Vector3.new(12, -8, 3) else Vector3.new(2, -4, 0)
+		end
 		if not lightningAllowed() then
 			hideLightning()
 		end
@@ -312,8 +392,10 @@ function WeatherPrecip.start(): () -> ()
 			connection:Disconnect()
 		end
 		hideLightning()
-		rain:Clear()
-		snow:Clear()
+		for _, ring in ringList do
+			ring.rain:Clear()
+			ring.snow:Clear()
+		end
 		cloudFlash:Destroy()
 		folder:Destroy()
 	end

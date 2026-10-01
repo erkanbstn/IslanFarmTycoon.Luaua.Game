@@ -40,3 +40,5 @@ alwaysApply: false
   Yükleme ekranı kalkmadan önce gün-gece ışığının (`Lighting.DayNightReady`) ve `game:IsLoaded()`'ın kurulmasını sınırlı süre bekler; `DayNight` ilk güncellemede ışıkları geçişsiz doğru duruma oturtur.
 
 - Yardımcı (pet) canlandırması `Effects/PetAnimator.client`: sunucu yalnızca plot özniteliği yazar (`PetCashJob/PetGoodsJob/PetCashCycle/PetGoodsCycle`, `PetService.publish`); yürüyüş, taşınan öğeler ve köprü rotası istemcidedir. `EffectsQuality = low` ve çok uzak mesafede yürütülmez (ışınlanır), `ReducedMotion` zıplamayı keser.
+
+- Yağış (`Effects/WeatherPrecip`) üç halkadır: yakın (kameraya yakın küçük hacim, çatı denetimli), orta ve uzak (kameranın XZ'sinde, harita üstünde ince levhadan yağar; taneler yere inene kadar yaşar, tane boyutu uzaklıkla büyür). Bütün haritada yağış görünür; sayı `QUALITY` tablosundan, düşük kalitede uzak halka yoktur. Yeni yağış katmanı eklersen aynı halka düzenini kullan.
