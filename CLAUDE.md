@@ -18,6 +18,6 @@ Yeni dosya açmadan önce `docs/MIMARI.md` (katmanlar: sunucu `Modules → World
 
 ## Çalışma biçimi
 - Kapsamlı iş: yalnızca ilgili dosyayı ve en yakın tüketicisini/testini aç; repoyu baştan tarama.
-- Değişiklik sonrası hızlı döngü: `stylua src tests plugin` → `selene src` → `python scripts/run-tests.py`.
+- Değişiklik sonrası hızlı döngü: `stylua src tests plugin` → `selene src plugin tests` → `python scripts/run-tests.py`.
   Commit öncesi: `powershell -ExecutionPolicy Bypass -File scripts/verify.ps1`.
 - Studio'da görülmesi gerekenleri (HUD, ışık, harita yeniden kurulumu) kullanıcıya ayrıca yaz.

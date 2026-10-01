@@ -1,27 +1,20 @@
 # Üretim ve uzman adalar
 
-Harita sürümü 13. Mevcut takımadalardaki kayıtlı hayvan/bölge kimlikleri korunur.
-Haritadaki altı takımada oyuncu başına birer fiziksel adadır; oyuncu birden fazla çiftlik (tema)
+Harita sürümü `MapBuilder.luau` içindeki `MAP_VERSION`'dır. Mevcut takımadalardaki kayıtlı hayvan/bölge kimlikleri korunur.
+Haritada `Config.MAP_PLOT_COUNT` kadar takımada oyuncu başına birer fiziksel adadır; oyuncu birden fazla çiftlik (tema)
 satın alabilir ve etkin olanı kendi adasında çizilir; her çiftliğin ana ve küçük adaları ayrı ilerler. Ayrıntılar
 [Ana çiftlikler](ANA_CIFTLIKLER.md) belgesindedir.
 
 ## Oyun döngüsü
 
-Tesis satın al → yeterli yetişkin hayvanı yetiştir → parti masrafını öde → üretim
-süresini bekle → ürünü sat veya kuluçkadaki civcivi kümese ekle → yeni parti başlat.
-Pasif hayvan geliri devam eder. Yetişkin hayvanlar üretim girdisi olarak tüketilmez.
+Tesis satın al → yeterli yetişkin hayvanı yetiştir → parti seçeneğini (küçük/standart/büyük) seç, varsa masrafı öde →
+üretim süresini bekle → ürünü sat (para tesisleri), depoya al (ürün merkezleri) veya kuluçkadaki civcivi kümese ekle →
+yeni parti başlat. Pasif hayvan geliri devam eder. Yetişkin hayvanlar üretim girdisi olarak tüketilmez.
 
-| Tesis | Gereken | Süre | Masraf | Teslim |
-|---|---|---|---|---|
-| Süt fabrikası | 2 yetişkin inek | 60 sn | 160 | 650 |
-| Kuluçkahane | 2 yetişkin tavuk | 90 sn | 120 | 240 veya 1 yavru tavuk |
-| At eğitim merkezi | 1 yetişkin at | 75 sn | 300 | 850 |
-| Peynirhane | 2 yetişkin keçi | 100 sn | 500 | 1.400 |
-| Balık sevkiyatı | Toplam 3 yetişkin hamsi/levrek | 90 sn | 350 | 1.050 |
-
-Tablodaki teslim tutarları brüttür; net kazanç için masraf düşülür. Dengelerin kodda
-tek kaynağı `Config.PRODUCTION_RECIPES` ve `Config.UPGRADES` tablolarıdır.
-Süt makinesi korunur; süt fabrikası ayrıca inek gelirine +%150 ekler ve parti üretimini açar.
+Tesis listesi, gereken yetişkin sayısı, süre, masraf ve ödül **tek kaynaktan** okunur: `Config.PRODUCTION_ORDER` sırasıyla
+`Config.PRODUCTION_RECIPES` (`src/shared/Config/Production.luau`; parti seçenekleri `options`). Tesisi açan yükseltmeler ve
+gelir bonusları `Config.UPGRADES` içindedir. Rakamlar bu belgede tutulmaz; sürüm kaymasın diye koda bak.
+Tesisler iki türdür: para tesisleri (`output = "cash"`) ve depoya ürün üreten ürün merkezleri (ahır deposu, bkz. `Config/Goods.luau`).
 
 Her tesiste aynı anda bir parti bulunabilir. Parti, tek UID ve bitiş zamanı ile oyuncu
 kaydına yazılır. Oyundan çıkınca süre devam eder; dönüşte en fazla mevcut tek parti
@@ -47,7 +40,7 @@ ekonomi hesabını etkilemez.
 ## Studio'ya aktarma ve doğrulama
 
 Play'i durdur, Rojo senkronizasyonunu tamamla, **Eklentiler → Island Farm Tycoon → Haritayı Kur**,
-ardından kaydet ve Play. Bu sürümde harita düzeni değiştiği için yeniden kurulum gerekir.
+ardından kaydet ve Play. Harita düzeni değiştiyse (`MAP_VERSION` arttıysa) yeniden kurulum gerekir.
 
 Studio'da ayrıca teknenin iskele/denizle hizası, tesislerin yürüme yolları, mobil panel,
 iki oyuncu arasında üretim ayrımı, parti sürerken çıkıp geri girme ve dolu kümeste

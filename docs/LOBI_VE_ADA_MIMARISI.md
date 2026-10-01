@@ -6,7 +6,7 @@ Karar (kullanıcıdan): oyun iki ayrı haritadan oluşur.
 - 6 oyunculu sunucu: her oyuncuya bir fiziksel ada verilir (hepsi aynı düzende); etkin ana çiftliğin teması o adaya
   çalışma anında giydirilir, diğer çiftlikler park edilir (ayrıntı: [Ana çiftlikler](ANA_CIFTLIKLER.md)).
 - Hangi çiftliklerin/adaların açık olduğu kişisel ilerlemedir (`PlayerSave`); harita herkes için aynıdır.
-- `Players.MaxPlayers` en fazla `Config.MAP_PLOT_COUNT` (6) olmalıdır; fazlası için `PlotService.init` uyarı verir.
+- `Players.MaxPlayers` en fazla `Config.MAP_PLOT_COUNT` olmalıdır; fazlası için `PlotService.init` uyarı verir.
 
 ## 2. Lobi (henüz yok, sonra yapılacak)
 - Ayrı bir place. Oyun lobide açılır.
@@ -19,5 +19,5 @@ Karar (kullanıcıdan): oyun iki ayrı haritadan oluşur.
 ## Ada haritasında lobiye hazırlık için yapılacaklar (sonraya)
 1. Sahip kimliği: ada sunucusu açılırken `TeleportData`/reserved server ile sahibi belirle; misafirleri ayır.
 2. Lobiye dönüş düğmesi ("Lobiye git").
-3. Sıralama puanı: gelir, açık ada sayısı, toplam hayvan gibi bir skoru lobiye yayınlama.
+3. Sıralama puanı: gelir, açık ada sayısı, toplam hayvan gibi bir skoru lobiye yayınlama. (Meydandaki sunucu içi "Sunucu Sıralaması" panosu `HubBoardService`'te zaten var; lobi için kalıcı sıralama yok.)
 4. `Config.MAP_PLOT_COUNT` haritadaki fiziksel ada sayısıdır ve sunucudaki en fazla oyuncu sayısını belirler.

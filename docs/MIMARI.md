@@ -55,12 +55,13 @@ Kurallar:
 
 | Dosya/klasör | İş |
 |---|---|
-| `Config/` | **Tüm oyun dengesi ve veri** (fiyat, gelir, yol haritası, profiller). `init.luau` parçaları birleştirir ve getter'ları tutar; veri `Core` (sabitler), `Weather`, `Economy`, `Shop`, `Items`, `Achievements`, `Audio`, `Islands` (adalar/temalar/yol haritası), `Upgrades`, `Production`, `Animals` (bölgeler/hayvanlar), tipler `Types`. Denge başka yerde yazılmaz. |
+| `Config/` | **Tüm oyun dengesi ve veri** (fiyat, gelir, yol haritası, profiller). `init.luau` parçaları birleştirir ve getter'ları tutar; veri `Core` (sabitler), `Weather`, `Economy`, `Shop`, `Items`, `Goods` (depo/ürün), `Achievements`, `Audio`, `Islands` (adalar/temalar/yol haritası), `Upgrades`, `Production`, `Animals` (bölgeler/hayvanlar), tipler `Types`. Denge başka yerde yazılmaz. |
 | `GameTypes.luau` | Kayıt ve ortak tipler |
 | `Remotes.luau` | Tüm RemoteEvent adları tek listede |
-| `Modules/` | Saf mantık: `FarmMath` (tüm hesaplar), `Environment`, `Inventory`, `Rewards`, `Merchant`, `Golden`, `SeasonVisuals` |
+| `Modules/` | Saf mantık: `FarmMath` (tüm hesaplar), `Environment`, `Inventory`, `Rewards`, `Merchant`, `Golden`, `SeasonVisuals`, `OnboardingSteps` (ilk adımlar), `UiScale` (ekran ölçeği) |
 | `Locales/` | Çeviriler (tr kaynak; en, de, ru, es, pt) |
 | `UiTheme.luau`, `WorldUi.luau`, `Localization.luau` | Tema, dünya tabelaları, dil seçimi |
+| `MapPaths.luau` | Taş yol listesi (harita çizimi ve yardımcı rotası aynı listeyi kullanır) |
 
 Kural: `shared` sunucu ya da istemci klasörlerine bağlanmaz.
 
@@ -76,7 +77,7 @@ Kural: `shared` sunucu ya da istemci klasörlerine bağlanmaz.
 | Yeni şey | Yer |
 |---|---|
 | Fiyat/gelir/profil | `shared/Config/` (ilgili veri dosyası) |
-| Hesap/formül | `shared/Modules/FarmMath/` (ilgili alan dosyası: `Core`, `Recipes` (parti seçeneği çözümü), `Contracts` (ahır siparişleri), `Expansion`, `Production`, `Income`, `Animals`, `Islands`, `Lineage`, `Counts`, `Format`; testle) |
+| Hesap/formül | `shared/Modules/FarmMath/` (ilgili alan dosyası: `Core`, `Recipes` (parti seçeneği çözümü), `Contracts` (ahır siparişleri), `Goods` (ahır deposu), `Expansion`, `Production`, `Income`, `Animals`, `Islands`, `Lineage`, `Counts`, `Format`; testle) |
 | Oyun kuralı + Remote | `server/Services/<Ad>Service.luau` + `shared/Remotes.luau` |
 | Kayıt alanı | `GameTypes` + `server/Modules/SaveCodec/` (ilgili parça) + test |
 | Dünyada görünen durum | `server/Presentation/` |

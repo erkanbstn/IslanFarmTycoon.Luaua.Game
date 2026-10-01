@@ -6,8 +6,8 @@ description: Changes the generated island map, decor, lamps or build spots in Ma
 # Harita değişikliği
 
 ## Karar: place'e kaydedilen mi, çalışma anında mı?
-- `src/server/World/` (MapBuilder, MapLayout, MapParts, IslandBuilder, SatelliteBuilder, HubBuilder, WorldDecor, HomeBuildings (+ HomeParts/HomeHouses/HomeFarmland/HomeMarket/HomeLandmarks), HubNpcs, IslandSpecialization) → place'e kaydedilir →
-  **MAP_VERSION +1** ve Studio'da yeniden kurulum gerekir.
+- `src/server/World/` (MapBuilder, MapLayout, MapParts, MapMountains, IslandBuilder (+ IslandLayout/IslandSiteBuilders/IslandSiteParts), SatelliteBuilder, HubBuilder, WorldDecor (cephe; parçalar `Decor*`), HomeBuildings (cephe; parçalar `Home*`), HubNpcs, IslandSpecialization, BarnVisualService) → place'e kaydedilir →
+  **`MapBuilder.luau` içindeki `MAP_VERSION` +1** ve Studio'da yeniden kurulum gerekir. Sunucu açılışında tema şablonları (`ServerStorage.ThemeTemplates`) sürüme bağlı yeniden kurulur.
 - `src/server/Presentation/` (hayvan, bölge, yükseltme, eklenti, toplama görselleri; tesis seviye halkaları, bölge bayrakları) → sunucu her oturumda
   kurar → sürüm gerekmez.
 - Klasör adı/yapısı ya da `plugin/` değiştiyse eklentiyi yeniden üret: `rojo build plugin.project.json --plugin IslandFarmTycoonHarita.rbxm` (Studio'yu yeniden başlat).
