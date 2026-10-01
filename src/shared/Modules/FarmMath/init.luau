@@ -109,6 +109,8 @@ FarmMath.getContractBaseUnits = Contracts.baseUnits
 FarmMath.getContractIncomeFloor = Contracts.incomeFloor
 FarmMath.findProductionOption = Recipes.findOption
 FarmMath.getProductionReward = Production.getProductionReward
+FarmMath.combineGrowthExcess = Production.combineGrowthExcess
+FarmMath.getGrowthSeconds = Production.getGrowthSeconds
 FarmMath.snapshotGrowthSpeeds = Production.snapshotGrowthSpeeds
 FarmMath.preserveGrowthProgress = Production.preserveGrowthProgress
 -- Income

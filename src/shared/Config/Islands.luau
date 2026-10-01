@@ -6,9 +6,15 @@ local Types = require(script.Parent:WaitForChild("Types"))
 return {
 	-- Bir hayvanın her evrede kaldığı süre (saniye). Yetişkin olunca tam gelir verir.
 	GROWTH_SECONDS = {
-		calf = 600,
-		young = 1200,
+		calf = 800,
+		young = 1600,
 	},
+
+	-- Büyüme hızı birleşimi (FarmMath.getGrowthSpeed): her kaynağın artısı (çarpan - 1) TOPLANIR; toplam artı
+	-- GROWTH_SPEED_KNEE'ye kadar aynen geçer (yem silosu tek başına tam 2 kat), üstü azalan getiriyle sıkışır ve toplam
+	-- hız GROWTH_SPEED_CAP'e yaklaşır ama hiç ulaşmaz. Her yeni geliştirme hep biraz daha hızlandırır, büyüme anlık olmaz.
+	GROWTH_SPEED_KNEE = 1,
+	GROWTH_SPEED_CAP = 4,
 
 	BARN_LEVELS = {
 		{

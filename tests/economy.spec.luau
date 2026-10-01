@@ -175,6 +175,59 @@ return function(FarmMath: any, Config: any, Environment: any)
 	near(save.animals[1].bornAt + growSeconds / 2, start + growSeconds)
 	assert(save.animals[1].stage == "adult", "an adult stays adult after a speed change")
 
+	-- Büyüme hızı: artılar toplanır, KNEE üstü azalan getiri, CAP'e hiç ulaşmaz; her Hızlı Büyüme seviyesi süreyi kısaltır.
+	do
+		local knee, cap = Config.GROWTH_SPEED_KNEE, Config.GROWTH_SPEED_CAP
+		near(FarmMath.combineGrowthExcess(0), 1)
+		near(FarmMath.combineGrowthExcess(knee), 1 + knee) -- silo tek başına tam 2 kat
+		local previous, previousStep = 1, math.huge
+		for step = 1, 400 do
+			local speed = FarmMath.combineGrowthExcess(step * 0.05)
+			assert(speed > previous, "growth speed strictly rises with every extra bonus")
+			assert(speed < cap, "growth speed never reaches the cap")
+			local gain = speed - previous
+			assert(gain <= previousStep + 1e-9, "growth speed gains never grow (diminishing returns)")
+			previous, previousStep = speed, gain
+		end
+		local growFarm = saveAt(start)
+		local total = Config.GROWTH_SECONDS.calf + Config.GROWTH_SECONDS.young
+		near(FarmMath.getGrowthSeconds(growFarm, "cow", "starter"), total)
+		growFarm.purchased.silo = true
+		near(FarmMath.getGrowthSeconds(growFarm, "cow", "starter"), total / 2)
+		assert(total / 2 >= 600, "even with the silo a calf needs at least ten minutes")
+		local seconds = FarmMath.getGrowthSeconds(growFarm, "cow", "starter")
+		for level = 1, 3 do
+			growFarm.purchased[`fast_growth_lv{level}`] = true
+			local nextSeconds = FarmMath.getGrowthSeconds(growFarm, "cow", "starter")
+			assert(nextSeconds < seconds * 0.96, `fast growth level {level} must clearly shorten the growth time`)
+			seconds = nextSeconds
+		end
+		-- Azalan getiri bölgesinde de yükseltme mevcut büyüme ilerlemesini sıçratmaz.
+		local progressFarm = saveAt(start)
+		progressFarm.purchased.silo = true
+		FarmMath.applyDerived(progressFarm)
+		local progressAt = start + total / 4
+		local before = (progressAt - start) * FarmMath.getGrowthSpeed(progressFarm, "cow", "starter")
+		local speedsBefore = FarmMath.snapshotGrowthSpeeds(progressFarm)
+		progressFarm.purchased.fast_growth_lv1 = true
+		FarmMath.preserveGrowthProgress(progressFarm, speedsBefore, progressAt)
+		local after = (progressAt - progressFarm.animals[1].bornAt)
+			* FarmMath.getGrowthSpeed(progressFarm, "cow", "starter")
+		near(after, before)
+		growFarm.expansions = { starter = Config.BUILD_UPGRADES.maxLevel }
+		growFarm.inventory = { items = { growth_charm_2 = true }, equipped = { charm = "growth_charm_2" } }
+		local maxedSeconds = FarmMath.getGrowthSeconds(growFarm, "cow", "starter")
+		assert(maxedSeconds < seconds, "zone and charm bonuses still help on top of the upgrades")
+		assert(maxedSeconds > total / cap, "the fully stacked growth time stays above the hard floor")
+		for _, upgrade in Config.UPGRADES do
+			growFarm.purchased[upgrade.id] = true
+		end
+		assert(
+			FarmMath.getGrowthSeconds(growFarm, "cow", "starter") > total / cap,
+			"buying every upgrade never makes growth instant"
+		)
+	end
+
 	-- Satış: fiyatın yarısı, en genç hayvan, son hayvan satılmaz, görevdeki (eklenti/tesis) hayvan satılmaz.
 	save = saveAt(start)
 	save.animals = {

@@ -108,6 +108,15 @@ function Core.getEquippedMultiplier(save: PlayerSave, key: string): number
 	return product
 end
 
+-- Çarpan olarak yazılmış etkinin artısı: (çarpan - 1) toplamı (growthSpeed: 1.15 -> +0.15)
+function Core.getEquippedExcess(save: PlayerSave, key: string): number
+	local total = 0
+	forEachEquippedEffect(save, key, function(value: number)
+		total += value - 1
+	end)
+	return total
+end
+
 -- Çiftlik numarasına (alım sırası) göre fiyat çarpanı: 1 + Config.FARM_COST_STEP x (tier - 1); 1. çiftlik ve bilinmeyen kayıt x1.
 function Core.getFarmCostMultiplier(save: PlayerSave?): number
 	local tier = if save then save.tier else nil

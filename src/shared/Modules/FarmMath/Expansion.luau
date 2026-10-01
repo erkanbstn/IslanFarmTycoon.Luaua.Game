@@ -68,6 +68,21 @@ function Expansion.getBuildMultiplier(save: PlayerSave, targetId: string, key: s
 	return product
 end
 
+-- Ulaşılmış seviyelerdeki çarpan etkisinin artısı: (çarpan - 1) toplamı (büyüme hızı: 1.12 -> +0.12)
+function Expansion.getBuildExcess(save: PlayerSave, targetId: string, key: string): number
+	local profile = buildProfile(targetId)
+	local total = 0
+	if profile then
+		for level = 1, Expansion.getExpansionLevel(save, targetId) do
+			local value = if profile[level] then (profile[level] :: any)[key] else nil
+			if typeof(value) == "number" then
+				total += value - 1
+			end
+		end
+	end
+	return total
+end
+
 -- Bir sonraki seviyenin fayda demeti (en üst seviyede nil)
 function Expansion.getNextBuildLevel(save: PlayerSave, targetId: string): Config.BuildLevelEffects?
 	local profile = buildProfile(targetId)

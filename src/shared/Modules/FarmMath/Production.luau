@@ -13,25 +13,44 @@ type PlayerSave = GameTypes.PlayerSave
 
 local Production = {}
 
--- Bir hayvan türünün büyüme hızı: genel güçlendirmeler (silo) x o türe özel (ör. Tavuk Adası) x takılı muska
+-- Toplam hız artısını (çarpan - 1 toplamı) hıza çevirir: KNEE'ye kadar doğrusal (1 + artı), üstü azalan getiri.
+-- Hız her zaman artıyla birlikte artar (sıkı monoton) ve GROWTH_SPEED_CAP'in altında kalır.
+function Production.combineGrowthExcess(excess: number): number
+	local knee = Config.GROWTH_SPEED_KNEE
+	if excess <= knee then
+		return 1 + math.max(0, excess)
+	end
+	local room = Config.GROWTH_SPEED_CAP - 1 - knee -- sıkışan bölümün üst sınırı
+	local over = excess - knee
+	return 1 + knee + over * room / (over + room)
+end
+
+-- Bir hayvan türünün büyüme hızı: genel güçlendirmeler (silo, Hızlı Büyüme) + o türe özel + bölge geliştirmesi + takılı muska.
+-- Artılar toplanır, toplam combineGrowthExcess ile azalan getiriye sokulur (çarpım birikmez).
 function Production.getGrowthSpeed(save: PlayerSave, animalId: string, zoneId: string?): number
-	local speed = Core.getEquippedMultiplier(save, "growthSpeed")
+	local excess = Core.getEquippedExcess(save, "growthSpeed")
 	if zoneId then
-		speed *= Expansion.getBuildMultiplier(save, zoneId, "growthSpeed") -- bölge geliştirmesi (ör. yemlik, kuluçka)
+		excess += Expansion.getBuildExcess(save, zoneId, "growthSpeed") -- bölge geliştirmesi (ör. yemlik, kuluçka)
 	end
 	for _, upgrade in Config.UPGRADES do
 		if not save.purchased[upgrade.id] then
 			continue
 		end
 		if upgrade.growthSpeed then
-			speed *= upgrade.growthSpeed
+			excess += upgrade.growthSpeed - 1
 		end
 		local perAnimal = upgrade.growthBoost
 		if perAnimal and perAnimal[animalId] then
-			speed *= perAnimal[animalId]
+			excess += perAnimal[animalId] - 1
 		end
 	end
-	return speed
+	return Production.combineGrowthExcess(excess)
+end
+
+-- Yavrunun yetişkin olması için gereken saniye (arayüz ve test bunu kullanır; elle çarpma yok)
+function Production.getGrowthSeconds(save: PlayerSave, animalId: string, zoneId: string?): number
+	return (Config.GROWTH_SECONDS.calf + Config.GROWTH_SECONDS.young)
+		/ Production.getGrowthSpeed(save, animalId, zoneId)
 end
 
 -- Yetişkin ve boşta hayvanlar (açık bölgede, tarifin türlerinden; eklentide duranlar ve başka bir tesise verilmiş
