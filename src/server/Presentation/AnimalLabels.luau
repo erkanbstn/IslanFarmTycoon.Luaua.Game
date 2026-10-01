@@ -33,8 +33,7 @@ local LINEAGE_TIER_COLORS = {
 }
 
 local function lineageTier(level: number): number
-	local maxLevel = Config.LINEAGE.maxLevel
-	return if level >= maxLevel then 4 elseif level >= maxLevel * 2 / 3 then 3 elseif level >= maxLevel / 3 then 2 else 1
+	return if level >= Config.LINEAGE.maxLevel then 4 elseif level >= 7 then 3 elseif level >= 4 then 2 else 1
 end
 
 local function applyLineage(model: Model, level: number, extraHeight: number)
