@@ -70,7 +70,7 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
   Tempo (ideal oyuncu, `simulate-economy.py`): 1. çiftlikte ilk ada ~19 dk, at adası ~54 dk, keçi adası ~158 dk, tüm yükseltmeler ~4,9 saat; 3. temada (Güneşli Tarla: süt, at, keçi) süt ~24, at ~47, keçi ~140 dk (`--farm 3`); sayıları değiştirirsen yeniden koştur ve bu satırı güncelle.
 - **Mevsim hedefi**: `Config.SEASONAL_GOALS` (mevsim id -> `earned` veya `invest`), `SEASONAL_REWARD_SECONDS/MIN_REWARD`. Hesap düzeyi opsiyonel kayıt
   alanı `seasonal {key, progress, target, base, claimed}` (key = `Rewards.seasonNumber`; bozuk kayıt sessizce atılır). Mantık saf `Rewards.seasonal*`
-  (kazanç = `lifetimeEarned - base` canlı; yatırım sayacı sunucu kancalarıyla `Rewards.recordInvest`: hayvan alma, yükseltme, ırk, alan genişletme).
+  (kazanç = `lifetimeEarned - base` canlı; yatırım sayacı sunucu kancalarıyla `Rewards.recordInvest`: hayvan alma, yükseltme, ırk, alan genişletme, ahır siparişi teslimi).
   Sunucu: `EngagementService` her 5 sn hedefi hazırlar ve ilerleme değişince durum iter; ödül `RequestClaimSeasonal` (işaret önce yazılır).
   Yeni bir yatırım türü eklersen `Rewards.recordInvest` çağır; yeni metrik eklersen `Rewards.seasonalProgress` ve istemci metnini güncelle.
 - **Gezgin tüccar** (rastgele olay): `Config.MERCHANT` (cycleSeconds, visitSeconds, chance, discount, stock). Saf `Merchant.visit/offer` (paylaşılan):

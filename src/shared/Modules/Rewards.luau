@@ -222,7 +222,7 @@ function Rewards.forceCompleteSeasonal(save: any, now: number)
 	end
 end
 
--- Sunucu: başarılı bir yatırım (hayvan, yükseltme, ırk, alan genişletme) sayılır; yalnızca "invest" mevsiminde işler.
+-- Sunucu: başarılı bir yatırım (hayvan, yükseltme, ırk, alan genişletme, ahır siparişi teslimi) sayılır; yalnızca "invest" mevsiminde işler.
 function Rewards.recordInvest(save: any, now: number)
 	Rewards.ensureSeasonal(save, now)
 	local goal = save.seasonal

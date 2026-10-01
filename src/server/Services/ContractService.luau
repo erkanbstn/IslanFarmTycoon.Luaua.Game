@@ -6,6 +6,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 local Environment = require(Shared:WaitForChild("Modules"):WaitForChild("Environment"))
+local Rewards = require(Shared:WaitForChild("Modules"):WaitForChild("Rewards"))
 local PlayerDataService = require(script.Parent:WaitForChild("PlayerDataService"))
 local RequestGuard = require(script.Parent:WaitForChild("RequestGuard"))
 local RateLimiter = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("RateLimiter"))
@@ -29,6 +30,7 @@ function ContractService.tryFulfill(player: Player, key: unknown): (boolean, str
 		return false, problem
 	end
 	Metrics.increment("ContractsCompleted")
+	Rewards.recordInvest(data, now) -- sipariş teslimi de mevsimin "yatırım" hedefine sayılır (geç oyunda yeni hayvan/yükseltme kalmasa da)
 	PlayerDataService.addCash(player, reward, "order")
 	PlayerDataService.pushState(player)
 	PlayerDataService.requestSave(player)

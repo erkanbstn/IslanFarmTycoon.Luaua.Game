@@ -433,6 +433,7 @@ local function ordersTick()
 			if reward then
 				earn(reward, "sipariş")
 				actions += 1
+				invested()
 			end
 		end
 	end
