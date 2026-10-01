@@ -20,6 +20,7 @@ return function(
 			h.remotes,
 			h.dataService,
 			h.economyService,
+			h.plotService,
 			h.limiter,
 			h.metrics,
 			h.dateTime,
@@ -153,6 +154,13 @@ return function(
 	gdata.adminForce = { goldenUntil = golden.now + 120 }
 	local stale = golden.fire("RequestClaimGolden", nil, golden.nextId(), "bogus-farm")
 	assert(stale == nil and gdata.cash == 0 and gdata.golden == nil, "a stale farm id is dropped without paying")
+	golden.near = false
+	local far = claim(golden, "RequestClaimGolden")
+	assert(
+		far and far.ok == false and far.message == "Altın hayvana yeterince yakın değilsin" and gdata.cash == 0,
+		"too far from the own island: no reward"
+	)
+	golden.near = true
 	local caught = claim(golden, "RequestClaimGolden")
 	assert(caught and caught.ok == true and gdata.cash > 0, `the golden animal pays: {caught and caught.message}`)
 	local paid = gdata.cash

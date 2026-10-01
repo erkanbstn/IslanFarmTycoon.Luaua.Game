@@ -106,6 +106,7 @@ return {
 		chance = 0.6,
 		rewardSeconds = 90,
 		minReward = 100,
+		claimRadius = 320, -- stud: oyuncu kendi adasının (uydu adalar dahil) bu kadar yakınında olmalı; hayvanın konumu istemcidedir
 	},
 
 	-- Mevsim hedefi: her mevsimde (SEASON_SECONDS) tek bir hedef; mevsim dönünce yenisi gelir, alınmamışsa kaybolur.

@@ -211,6 +211,9 @@ return function(createLimiter: any, codec: any, config: any, farmMath: any, crea
 			getOwner = function(target: any): any
 				return if target == plot then h.player else nil
 			end,
+			isNearPlot = function(): boolean
+				return h.near ~= false
+			end,
 			refreshPlayerWorld = function()
 				h.counters.refreshes += 1
 			end,

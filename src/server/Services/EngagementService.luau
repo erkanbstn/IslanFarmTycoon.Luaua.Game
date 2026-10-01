@@ -15,6 +15,7 @@ local Golden = require(Shared:WaitForChild("Modules"):WaitForChild("Golden"))
 local PlayerDataService = require(script.Parent:WaitForChild("PlayerDataService"))
 local RequestGuard = require(script.Parent:WaitForChild("RequestGuard"))
 local EconomyService = require(script.Parent:WaitForChild("EconomyService"))
+local PlotService = require(script.Parent:WaitForChild("PlotService"))
 local RateLimiter = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("RateLimiter"))
 local Metrics = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("Metrics"))
 
@@ -138,6 +139,10 @@ function EngagementService.tryClaimGolden(player: Player): (boolean, string?)
 	local event = Golden.current(data, player.UserId, nowSeconds())
 	if not event then
 		return false, "Altın hayvan artık burada değil"
+	end
+	-- Hayvanın konumu istemcide; sunucu yalnızca oyuncunun kendi adasında olduğunu doğrular.
+	if not PlotService.isNearPlot(player, Config.GOLDEN.claimRadius) then
+		return false, "Altın hayvana yeterince yakın değilsin"
 	end
 	-- İşaret önce yazılır; tekrarlanan ya da gecikmiş istek ikinci ödülü alamaz.
 	data.golden = { key = event.cycle }

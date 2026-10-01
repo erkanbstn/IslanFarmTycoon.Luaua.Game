@@ -101,6 +101,19 @@ function PlotService.getPlot(player: Player): Model?
 	return activePlots[player]
 end
 
+-- Karakter canlı ve oyuncunun etkin adasının merkezine yatayda radius stud içinde mi (istemci konumu yalnızca ucuz bir sınır denetimidir).
+function PlotService.isNearPlot(player: Player, radius: number): boolean
+	local plot = activePlots[player]
+	local character = player.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart")
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	if not plot or not root or not root:IsA("BasePart") or not humanoid or humanoid.Health <= 0 then
+		return false
+	end
+	local offset = root.Position - plot:GetPivot().Position
+	return Vector3.new(offset.X, 0, offset.Z).Magnitude <= radius
+end
+
 function PlotService.getAllOwned(player: Player): { [string]: Model }
 	return table.clone(ownedOf(player))
 end
