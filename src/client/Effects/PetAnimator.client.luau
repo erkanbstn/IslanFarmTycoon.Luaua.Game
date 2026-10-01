@@ -8,20 +8,20 @@
 -- iş sürüyorsa (otomatik tekrar) yeni hayvanı ağıldan alıp tesise getir. Rotalar taş yolları izler (Shared/MapPaths).
 
 local CollectionService = game:GetService("CollectionService")
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
-local player = Players.LocalPlayer
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local MapPaths = require(Shared:WaitForChild("MapPaths"))
+local PetMotion = require(Shared:WaitForChild("Modules"):WaitForChild("PetMotion"))
+local EffectSettings = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("EffectSettings"))
 
 local TAG = "PetFigure"
 local SPEED = 15
-local SKIP_DISTANCE = 350 -- çok uzaktaki yardımcı yürütülmez, ışınlanır
-local IDLE_SLEEP_DISTANCE = 120 -- bu uzaklıktan ötede bekleme animasyonu çalışmaz
+local FAR_TELEPORT_SECONDS = 0.25 -- çok uzaktaki (PetMotion.SKIP_DISTANCE) yardımcı yürütülmez: ışınlanır, durak başına bekler
+local IDLE_SLEEP_DISTANCE = 120 -- bu uzaklıktan ötede (ya da düşük kalitede) bekleme sallanması çalışmaz
 local IDLE_SLEEP_SECONDS = 0.5
 local FACILITY_OFFSET = CFrame.new(0, 0, -8)
 
@@ -131,54 +131,62 @@ local function carry(actor: Actor, what: string)
 	end
 end
 
-local function farAway(actor: Actor): boolean
+local function cameraDistance(actor: Actor): number?
 	local camera = Workspace.CurrentCamera
-	local low = player:GetAttribute("EffectsQuality") == "low"
-	return low or (camera ~= nil and (camera.CFrame.Position - actor.cf.Position).Magnitude > SKIP_DISTANCE)
+	return if camera then (camera.CFrame.Position - actor.cf.Position).Magnitude else nil
 end
 
+-- Hedefe yürür. Kalite yalnızca zıplamayı keser; konum her kalitede akıcı ilerler (PetMotion.walkInterval aralığıyla).
+-- Yalnızca çok uzaktaki yardımcı ışınlanır.
 local function walk(actor: Actor, target: Vector3): boolean
 	target = Vector3.new(target.X, actor.y, target.Z)
-	if farAway(actor) then
+	if PetMotion.teleports(cameraDistance(actor)) then
 		place(actor, CFrame.lookAt(target, target + actor.cf.LookVector))
-		task.wait(0.25)
+		task.wait(FAR_TELEPORT_SECONDS)
 		return alive(actor)
 	end
-	local reduced = player:GetAttribute("ReducedMotion") == true
+	local pending = 0
 	while true do
 		if not alive(actor) then
 			return false
 		end
-		local dt = RunService.Heartbeat:Wait()
+		pending += RunService.Heartbeat:Wait()
+		if pending < PetMotion.walkInterval(EffectSettings.quality(), cameraDistance(actor)) then
+			continue
+		end
+		local dt = pending
+		pending = 0
 		local position = actor.cf.Position
-		local delta = Vector3.new(target.X - position.X, 0, target.Z - position.Z)
-		local distance = delta.Magnitude
-		if distance < 0.4 then
+		local nextX, nextZ, arrived = PetMotion.advance(position.X, position.Z, target.X, target.Z, SPEED, dt)
+		if arrived then
 			return true
 		end
-		local direction = delta.Unit
-		local nextPosition = Vector3.new(position.X, actor.y, position.Z) + direction * math.min(distance, SPEED * dt)
 		actor.t += dt
-		local bob = if reduced then 0 else math.abs(math.sin(actor.t * 9)) * 0.35
-		place(
-			actor,
-			CFrame.lookAt(nextPosition + Vector3.new(0, bob, 0), nextPosition + Vector3.new(0, bob, 0) + direction)
-		)
+		local bob = if PetMotion.animates(EffectSettings.quality(), EffectSettings.reducedMotion())
+			then math.abs(math.sin(actor.t * 9)) * 0.35
+			else 0
+		local flat = Vector3.new(nextX, actor.y, nextZ)
+		local direction = Vector3.new(nextX - position.X, 0, nextZ - position.Z)
+		if direction.Magnitude < 1e-4 then
+			direction = actor.cf.LookVector
+		end
+		place(actor, CFrame.lookAt(flat + Vector3.new(0, bob, 0), flat + Vector3.new(0, bob, 0) + direction))
 	end
 end
 
 -- Bekleme: olduğu yerde hafifçe sallanır
 local function idleStep(actor: Actor, facing: Vector3?)
-	-- Kameradan uzaktaki yardımcının sallanması görünmez: kare başı yerine yarım saniyede bir uyanır
-	local camera = Workspace.CurrentCamera
-	if camera and (camera.CFrame.Position - actor.cf.Position).Magnitude > IDLE_SLEEP_DISTANCE then
+	-- Kameradan uzaktaki ya da düşük kalitedeki yardımcının sallanması gereksiz: kare başı yerine yarım saniyede bir uyanır
+	local distance = cameraDistance(actor)
+	local quality = EffectSettings.quality()
+	if quality == "low" or (distance ~= nil and distance > IDLE_SLEEP_DISTANCE) then
 		task.wait(IDLE_SLEEP_SECONDS)
 		return
 	end
 	local dt = RunService.Heartbeat:Wait()
 	actor.t += dt
 	local position = Vector3.new(actor.cf.Position.X, actor.y, actor.cf.Position.Z)
-	local sway = if player:GetAttribute("ReducedMotion") == true then 0 else math.sin(actor.t * 3) * 0.12
+	local sway = if PetMotion.animates(quality, EffectSettings.reducedMotion()) then math.sin(actor.t * 3) * 0.12 else 0
 	local lookAt = if facing then Vector3.new(facing.X, actor.y, facing.Z) else position + actor.cf.LookVector
 	if (lookAt - position).Magnitude < 0.1 then
 		lookAt = position + actor.cf.LookVector

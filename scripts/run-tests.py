@@ -196,6 +196,8 @@ def main() -> int:
         module("petsSpec", "tests/pets.spec.luau"),
         module("MapPaths", "src/shared/MapPaths.luau"),
         module("mapPathsSpec", "tests/map-paths.spec.luau"),
+        module("PetMotion", "src/shared/Modules/PetMotion.luau"),
+        module("petMotionSpec", "tests/pet-motion.spec.luau"),
         module("UiScale", "src/shared/Modules/UiScale.luau"),
         module("uiScaleSpec", "tests/ui-scale.spec.luau"),
         module("preferencesSpec", "tests/preferences.spec.luau"),
