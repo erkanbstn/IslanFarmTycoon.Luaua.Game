@@ -98,9 +98,15 @@ return function(context: any?)
 		mapBuilder.applyTheme(probe, themeIndex)
 		assert(probe:GetAttribute("ThemeIndex") == themeIndex, "applyTheme ThemeIndex özniteliğini yazmalı.")
 		local decorFolder = probe:FindFirstChild("Decor") :: Folder
-		local landmark = decorFolder:FindFirstChild("Landmark")
+		-- İşaret yapısı RevealGate sarmalayıcısının içindedir (aynı adlı iki model): Kind özniteliği iç modeldedir
+		local landmarkKind: any = nil
+		for _, descendant in decorFolder:GetDescendants() do
+			if descendant.Name == "Landmark" and descendant:GetAttribute("Kind") ~= nil then
+				landmarkKind = descendant:GetAttribute("Kind")
+			end
+		end
 		assert(
-			landmark and landmark:GetAttribute("Kind") == Config.getTheme(tostring(themeIndex)).landmark,
+			landmarkKind == Config.getTheme(tostring(themeIndex)).landmark,
 			`Tema {themeIndex}: işaret yapısı eksik ya da yanlış.`
 		)
 		local islands = probe:FindFirstChild("Islands") :: Folder
