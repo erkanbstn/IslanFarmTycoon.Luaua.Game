@@ -9,7 +9,7 @@ return {
 	OFFLINE_EARNING_RATE = 0.25,
 	OFFLINE_MAX_HOURS = 2,
 	OFFLINE_UPGRADED_EARNING_RATE = 0.3,
-	OFFLINE_UPGRADED_MAX_HOURS = 6,
+	OFFLINE_UPGRADED_MAX_HOURS = 5,
 	-- Eşya/yükseltme çevrimdışı bonusları dahil toplam oran bunu aşamaz (aktif oyun çevrimdışından değerli kalsın).
 	OFFLINE_MAX_TOTAL_RATE = 0.5,
 
