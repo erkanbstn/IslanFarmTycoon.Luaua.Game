@@ -26,12 +26,18 @@ local TIME_GROWTH = 1.5
 -- (park edilmiş çiftlik geliri ve birikim): çarpan kademe başına ~2x büyür (1, 6.6, 17.6, 34.8, 62.7, 107.5).
 local COST_MULTIPLIERS = { 1, 5.9, 16.8, 34.8, 62.7, 125 }
 
+-- Kademe başına en pahalı tek kalemin (yükseltme, hayvan, yapı geliştirme) tavanı: `scripts/audit-economy.py` (bölüm C) ve `tests/goods.spec` bunu denetler.
+-- Tavan, fiyat tablosunun doğal sonucudur (çarpan x yazılı taban); aşılırsa fiyat/çarpan değişimi ya da yeni içerik "uçuk" büyüklüğe çıkmış demektir.
+-- Gösterim her zaman kısaltılır (`FarmMath.formatMoney`: 3,3M, 900M ...).
+local MAX_PRICES = { 4e6, 3e7, 1e8, 2e8, 5e8, 1e9 }
+
 local tiers: { Types.DifficultyTier } = {}
 for tier, multiplier in COST_MULTIPLIERS do
 	table.insert(tiers, {
 		tier = tier,
 		targetMinutes = math.floor(REFERENCE_MINUTES * TIME_GROWTH ^ (tier - 1) + 0.5),
 		costMultiplier = multiplier,
+		maxPrice = MAX_PRICES[tier],
 	})
 end
 

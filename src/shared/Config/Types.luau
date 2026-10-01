@@ -67,15 +67,13 @@ export type AnimalConfig = {
 	baseIncomePerSecond: number,
 }
 
--- Ahır siparişi kademesi: kaç farklı ürün (lines) ve her üründen en az kaç birim (units) ister; birim sayısı ahır deposu kapasitesiyle
--- büyür (capShare: kapasitenin oranı, ucuz üründe tam, pahalı üründe değerle ters orantılı küçülür). Ödül FarmMath/Contracts.reward ile
--- (ürün değeri ya da gelir tabanı) x rewardFactor.
+-- Ahır siparişi kademesi: kaç farklı ürün (lines) ve her üründen kaç birim (units, ± variation) ister. Ödül FarmMath/Contracts.reward ile
+-- ürün değeri x rewardFactor (gelire bağlı değil).
 export type GoodsContractTierConfig = {
 	id: string,
 	displayName: string,
 	lines: number,
 	units: number,
-	capShare: number,
 	rewardFactor: number,
 	weight: number, -- Panoda çıkma ağırlığı (büyüğü seyrek)
 }
@@ -114,6 +112,7 @@ export type DifficultyTier = {
 	tier: number,
 	targetMinutes: number, -- Çiftlik tek başına, ideal oyuncu tüm yükseltmeleri bu sürede (dk) bitirir
 	costMultiplier: number, -- Yükseltme, hayvan ve yapı geliştirme fiyatlarını çarpar
+	maxPrice: number, -- Bu çiftlikteki en pahalı tek kalemin tavanı (uçuk büyüklük denetimi; oyun mantığında kullanılmaz)
 }
 -- Ada açılış primi: prim = 1 + perTier x (tier - 1) ^ power. Çiftlik 2+'da ilk ada alınır alınmaz açılmasın, orta/geç ada kademeyle birlikte geç açılsın
 -- (Çiftlik 1'in ~%4 / %16 / %42 ritmi: ilk / orta / geç ada tamamlama süresinin payı olarak). Tier 1'de prim yoktur.

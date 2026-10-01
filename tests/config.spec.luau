@@ -323,7 +323,7 @@ return function(Config: any, FarmMath: any)
 			end
 		end
 		assert(withGoods >= 8, "several unlocks ask goods")
-		-- Çiftlik 1'de ürün yükü paranın yanında küçük kalır (referans tempo korunur): tüm açılışların ürün değeri para fiyatlarının %15'inden az
+		-- Çiftlik 1'de ürün yükü paranın yanında küçük kalır (referans tempo korunur): tüm açılışların ürün değeri para fiyatlarının %25'inden az (en az 1 birim kuralı, değerli üründe oranı yükseltir)
 		for themeIndex = 1, #Config.THEMES do
 			local reference = { farmId = tostring(themeIndex), activeMainFarmId = tostring(themeIndex), purchased = {} }
 			local moneyTotal, goodsTotal = 0, 0
@@ -336,7 +336,7 @@ return function(Config: any, FarmMath: any)
 				end
 			end
 			assert(
-				goodsTotal < moneyTotal * 0.15,
+				goodsTotal < moneyTotal * 0.25,
 				`farm 1 style tier in theme {themeIndex}: goods stay a small extra cost`
 			)
 		end
@@ -471,19 +471,24 @@ return function(Config: any, FarmMath: any)
 	for _, tier in Config.GOODS_CONTRACTS.tiers do
 		cheapestTier = math.min(cheapestTier, tier.rewardFactor)
 		assert(
-			tier.rewardFactor >= 1 and tier.units >= 1 and tier.capShare > 0 and tier.lines >= 1,
+			tier.rewardFactor >= 1 and tier.rewardFactor <= 2 and tier.units >= 1 and tier.lines >= 1,
 			`{tier.id}: tier shape`
 		)
 	end
 	assert(sellRate * cheapestTier < 1, "an order always pays more than bulk selling the same goods")
-	assert(Config.GOODS_CONTRACTS.maxLineUnits >= 20, "wholesale orders can reach 20+ units")
+	-- Sipariş sayıları küçük kalır (okunabilirlik); ödül ürün değerine bağlıdır (gelir tabanı yoktur)
+	local limits = Config.ECONOMY_LIMITS
 	assert(
-		Config.GOODS_CONTRACTS.floorExponent > 0 and Config.GOODS_CONTRACTS.floorExponent <= 1,
-		"the order income floor grows with size but never faster than linearly"
+		Config.GOODS_CONTRACTS.maxLineUnits <= limits.maxLineUnits and Config.GOODS_CONTRACTS.unitRefValue > 0,
+		"order lines stay within the readable unit limit"
 	)
 	assert(
-		Config.GOODS_CONTRACTS.floorWeight == 3 * Config.GOODS_CONTRACTS.unitRefValue,
-		"the reference order is 3 units"
+		(Config.GOODS_CONTRACTS :: any).incomeSeconds == nil and (Config.GOODS_CONTRACTS :: any).floorWeight == nil,
+		"order rewards no longer follow the player's income"
+	)
+	assert(
+		Config.PRODUCTION_MAX_BATCH_UNITS <= limits.maxBatchUnits and Config.PRODUCTION_YIELD_MAX_MULT >= 1,
+		"production batches stay small"
 	)
 	-- Çiftlik çeşitliliği (docs/ADA_TASARIMI.md): 6 çiftlik x (1 ana + 3 küçük ada) x tek hayvan = 24 benzersiz hayvan; Süt Adası yok
 	do

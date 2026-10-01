@@ -119,7 +119,6 @@ FarmMath.fulfillContract = Contracts.fulfill
 FarmMath.getReadyContractCount = Contracts.readyCount
 FarmMath.getContractGoods = Contracts.availableGoods
 FarmMath.getContractBaseUnits = Contracts.baseUnits
-FarmMath.getContractIncomeFloor = Contracts.incomeFloor
 FarmMath.findProductionOption = Recipes.findOption
 FarmMath.petKindFor = Recipes.petKindFor
 FarmMath.petIsland = Recipes.petIsland
