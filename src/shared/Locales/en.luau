@@ -597,6 +597,7 @@ return {
 	["%{} indirim"] = "{1}% off",
 	["Normal fiyat: {}"] = "Regular price: {1}",
 	["Gezgin tüccar meydana geldi: Pazar'da indirimli hayvanlar var!"] = "The travelling merchant has arrived: discounted animals at the Market!",
+	["Gezgin tüccar yola çıktı. Bir sonrakini kaçırma!"] = "The travelling merchant has left. Don't miss the next one!",
 	["Gezgin tüccar şu an teklif sunmuyor"] = "The travelling merchant has no offer right now",
 	["Gezgin tüccardan indirimli hayvanlar geldi!"] = "Discounted animals arrived from the travelling merchant!",
 	["Topla"] = "Collect",

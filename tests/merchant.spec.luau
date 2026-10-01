@@ -119,6 +119,96 @@ return function(Merchant: any, Config: any, FarmMath: any)
 	assert(Merchant.offer(forcedFarm, userId, quiet + 101) == nil, "a forced visit ends on time")
 	forcedFarm.merchant = { key = forcedOffer.cycle, bought = true }
 	assert(Merchant.offer(forcedFarm, userId, quiet) == nil, "a forced visit still respects the bought marker")
+	-- Gerçek zaman ölçeği (Workspace:GetServerTimeNow ~ 1.7e9): küçük sayılarla geçen testler büyük döngü numaralarında
+	-- bozulan rastgeleliği yakalayamazdı. 2 saatte ortalama ziyaret sayısı beklenen bantta olmalı.
+	local epoch = 1.76e9
+	local hourCycles = math.floor(7200 / settings.cycleSeconds)
+	local sampleUsers = { 1, 777, 98765, 1234567, 55555555, 4567890123, 3000000001, 9876543210 }
+	local twoHourVisits = 0
+	for _, sampleUser in sampleUsers do
+		for cycle = 0, hourCycles - 1 do
+			if Merchant.visit(sampleUser, epoch + cycle * settings.cycleSeconds) then
+				twoHourVisits += 1
+			end
+		end
+	end
+	local averageVisits = twoHourVisits / #sampleUsers
+	local expectedVisits = hourCycles * settings.chance
+	assert(
+		averageVisits >= expectedVisits * 0.6 and averageVisits <= math.min(hourCycles, expectedVisits * 1.4),
+		`visits in 2 hours at real timestamps: {averageVisits} (expected about {expectedVisits})`
+	)
+	assert(averageVisits >= 4, "a long session meets the merchant several times")
+	-- Oturum uzunluğu: ~20 dk oynayan oyuncu ortalama en az bir ziyaret yakalamalı ve çoğu oturumda en az birini görmeli
+	for _, sampleUser in sampleUsers do
+		local sessions, caught, seenVisits = 0, 0, 0
+		for startOffset = 0, 30 * 3600, 211 do
+			sessions += 1
+			local cyclesSeen: { [number]: boolean } = {}
+			local count = 0
+			for t = epoch + startOffset, epoch + startOffset + 1200, 20 do
+				local visit = Merchant.visit(sampleUser, t)
+				if visit and visit.active and not cyclesSeen[visit.cycle] then
+					cyclesSeen[visit.cycle] = true
+					count += 1
+				end
+			end
+			seenVisits += count
+			if count > 0 then
+				caught += 1
+			end
+		end
+		assert(caught / sessions >= 0.75, `a 20 min session catches a visit: {caught / sessions} (user {sampleUser})`)
+		assert(seenVisits / sessions >= 1, `20 min sessions average {seenVisits / sessions} visits (user {sampleUser})`)
+	end
+
+	-- İstemci ve sunucu aynı teklifi üretir: istemci kesirli sunucu saatini, sunucu tam saniyeyi kullanır
+	local syncFarm = newSave()
+	local syncUser = 424242
+	local syncVisit: any = nil
+	for cycle = 0, 60 do
+		syncVisit = Merchant.visit(syncUser, epoch + cycle * settings.cycleSeconds)
+		if syncVisit then
+			break
+		end
+	end
+	assert(syncVisit, "sync player has a visit")
+	local serverNow = syncVisit.startsAt + 10
+	local serverOffer = Merchant.offer(syncFarm, syncUser, serverNow)
+	local clientStatus = Merchant.status(syncFarm, syncUser, serverNow + 0.37)
+	assert(serverOffer and clientStatus.offer, "both sides see the offer")
+	local clientOffer: any = clientStatus.offer
+	assert(
+		clientOffer.animalId == serverOffer.animalId
+			and clientOffer.count == serverOffer.count
+			and clientOffer.price == serverOffer.price
+			and clientOffer.cycle == serverOffer.cycle
+			and clientOffer.endsAt == serverOffer.endsAt,
+		"client and server compute the same offer"
+	)
+	assert(clientStatus.visit and clientStatus.visit.active and not clientStatus.bought, "status reports the visit")
+
+	-- Ziyaret takibi: geliş bir kez, alınmadan bitince "kaçırdın", alınırsa sessiz
+	local tracker = Merchant.newTracker()
+	local function statusAt(t: number): any
+		return Merchant.status(syncFarm, syncUser, t)
+	end
+	assert(Merchant.advance(tracker, statusAt(syncVisit.startsAt - 1)) == nil, "quiet before the visit")
+	assert(Merchant.advance(tracker, statusAt(serverNow)) == "arrived", "arrival is announced")
+	assert(Merchant.advance(tracker, statusAt(serverNow + 5)) == nil, "arrival is announced once")
+	assert(
+		Merchant.advance(tracker, statusAt(syncVisit.endsAt + 1)) == "missed",
+		"an unbought visit is reported missed"
+	)
+	assert(Merchant.advance(tracker, statusAt(syncVisit.endsAt + 2)) == nil, "missed is reported once")
+	syncFarm.merchant = { key = syncVisit.cycle, bought = true }
+	local boughtTracker = Merchant.newTracker()
+	syncFarm.merchant = nil
+	assert(Merchant.advance(boughtTracker, statusAt(serverNow)) == "arrived", "arrival before buying")
+	syncFarm.merchant = { key = syncVisit.cycle, bought = true }
+	assert(Merchant.advance(boughtTracker, statusAt(serverNow + 5)) == nil, "buying is not a miss")
+	assert(Merchant.advance(boughtTracker, statusAt(syncVisit.endsAt + 1)) == nil, "a bought visit is never missed")
+
 	-- Al-sat marjı: en iyi eşya takımıyla satış iadesi, tüccar fiyatının altında kalmalı (tüccardan al, geri sat = kâr yok)
 	local bestPerSlot: { [string]: number } = {}
 	for _, item in Config.ITEMS do

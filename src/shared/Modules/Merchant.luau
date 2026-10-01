@@ -41,8 +41,10 @@ function Merchant.visit(userId: number, now: number): Visit?
 	return { cycle = cycle, startsAt = startsAt, endsAt = endsAt, active = now >= startsAt and now < endsAt }
 end
 
--- Şu an sunulan teklif: ziyaret sürüyor, bu döngüde alınmadı ve satın alınabilen bir hayvan var.
-function Merchant.offer(save: any, userId: number, now: number): Offer?
+-- Şu an süren ziyaret (yönetici zorlaması dahil) ve bu ziyaretin teklifi alınmış mı. Teklif/rozet/bildirim aynı kaynaktan okur.
+export type Status = { visit: Visit?, bought: boolean, offer: Offer? }
+
+local function activeVisit(save: any, userId: number, now: number): Visit?
 	-- Test aracı: yönetici ziyareti zorlayabilir (save.adminForce yalnızca çalışma anında vardır, kaydedilmez)
 	local forcedUntil = if save.adminForce then save.adminForce.merchantUntil else nil
 	local visit: Visit? = nil
@@ -56,12 +58,22 @@ function Merchant.offer(save: any, userId: number, now: number): Offer?
 	else
 		visit = Merchant.visit(userId, now)
 	end
-	if not visit or not visit.active then
-		return nil
+	if visit and visit.active then
+		return visit
+	end
+	return nil
+end
+
+-- Şu an sunulan teklif: ziyaret sürüyor, bu döngüde alınmadı ve satın alınabilen bir hayvan var.
+function Merchant.status(save: any, userId: number, now: number): Status
+	local visit = activeVisit(save, userId, now)
+	if not visit then
+		return { visit = nil, bought = false, offer = nil }
 	end
 	local merchant = save.merchant
-	if merchant and merchant.key == visit.cycle and merchant.bought then
-		return nil
+	local bought = merchant ~= nil and merchant.key == visit.cycle and merchant.bought == true
+	if bought then
+		return { visit = visit, bought = true, offer = nil }
 	end
 	local candidates: { string } = {}
 	for _, animalId in Config.ANIMAL_ORDER do
@@ -70,7 +82,7 @@ function Merchant.offer(save: any, userId: number, now: number): Offer?
 		end
 	end
 	if #candidates == 0 then
-		return nil
+		return { visit = visit, bought = false, offer = nil }
 	end
 	-- Pahalı yarıdan seç: indirim anlamlı olsun
 	table.sort(candidates, function(a: string, b: string): boolean
@@ -83,17 +95,53 @@ function Merchant.offer(save: any, userId: number, now: number): Offer?
 	local animalId = upper[math.floor(rand(userId, visit.cycle, 3) * #upper) + 1]
 	local count = math.min(Config.MERCHANT.stock, FarmMath.getFreeSlots(save, animalId))
 	if count < 1 then
-		return nil
+		return { visit = visit, bought = false, offer = nil }
 	end
 	local fullPrice = FarmMath.getBulkPrice(save, animalId, count)
 	return {
-		animalId = animalId,
-		count = count,
-		price = math.floor(fullPrice * (1 - Config.MERCHANT.discount)),
-		fullPrice = fullPrice,
-		cycle = visit.cycle,
-		endsAt = visit.endsAt,
+		visit = visit,
+		bought = false,
+		offer = {
+			animalId = animalId,
+			count = count,
+			price = math.floor(fullPrice * (1 - Config.MERCHANT.discount)),
+			fullPrice = fullPrice,
+			cycle = visit.cycle,
+			endsAt = visit.endsAt,
+		},
 	}
+end
+
+function Merchant.offer(save: any, userId: number, now: number): Offer?
+	return Merchant.status(save, userId, now).offer
+end
+
+-- Ziyaret takibi (istemci): teklif belirince "arrived", alınmadan bitince "missed" döner; alınan teklif haber vermez.
+export type Tracker = { cycle: number?, pending: boolean }
+
+function Merchant.newTracker(): Tracker
+	return { cycle = nil, pending = false }
+end
+
+function Merchant.advance(tracker: Tracker, status: Status): "arrived" | "missed" | nil
+	local offer = status.offer
+	if offer then
+		if tracker.cycle ~= offer.cycle then
+			tracker.cycle = offer.cycle
+			tracker.pending = true
+			return "arrived"
+		end
+		return nil
+	end
+	-- Ziyaret sürerken teklif geçici kaybolduysa (yer doldu, alındı) beklemeye devam; ziyaret bitince karar ver
+	if tracker.pending and not status.visit then
+		tracker.pending = false
+		return "missed"
+	end
+	if status.bought then
+		tracker.pending = false
+	end
+	return nil
 end
 
 return Merchant

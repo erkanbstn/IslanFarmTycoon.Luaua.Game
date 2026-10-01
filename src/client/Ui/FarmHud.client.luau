@@ -18,7 +18,6 @@ local GameTypes = require(Shared:WaitForChild("GameTypes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 local ClientState = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("ClientState"))
 local Environment = require(Shared:WaitForChild("Modules"):WaitForChild("Environment"))
-local Merchant = require(Shared:WaitForChild("Modules"):WaitForChild("Merchant"))
 local Golden = require(Shared:WaitForChild("Modules"):WaitForChild("Golden"))
 local UiKit = require(script.Parent:WaitForChild("UiKit"))
 local PurchaseController = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("PurchaseController"))
@@ -35,6 +34,7 @@ local ItemShopWindow = require(Hud:WaitForChild("ItemShopWindow"))
 local InventoryWindow = require(Hud:WaitForChild("InventoryWindow"))
 local IslandTabs = require(Hud:WaitForChild("IslandTabs"))
 local ShopWindow = require(Hud:WaitForChild("ShopWindow"))
+local MerchantBadge = require(Hud:WaitForChild("MerchantBadge"))
 local RoadmapWindow = require(Hud:WaitForChild("RoadmapWindow"))
 local UpgradesWindow = require(Hud:WaitForChild("UpgradesWindow"))
 local StatsPanel = require(Hud:WaitForChild("StatsPanel"))
@@ -338,7 +338,8 @@ toastRelay.show = showToast
 local toastHolder = hudRoot:FindFirstChild("Toasts") :: Frame
 -- Bildirimler üst menü çubuğunun (60 px) altında, sağ menü sütununa ve sol panele taşmadan durur.
 toastHolder.AnchorPoint = Vector2.new(0.5, 0)
-toastHolder.Position = UDim2.new(0.5, 0, 0, 84)
+-- Gezgin tüccar rozeti (MerchantBadge) menü çubuğunun hemen altındadır; bildirimler onun da altında başlar.
+toastHolder.Position = UDim2.new(0.5, 0, 0, MerchantBadge.TOP + MerchantBadge.HEIGHT + 8)
 toastHolder.Size = UDim2.new(1, -240, 0, 0)
 PurchaseController.Completed:Connect(function(success: boolean, message: string?)
 	-- Adalar penceresi açıkken bildirimi pencerenin kendi bildirim alanı gösterir (üstte, pencerenin önünde)
@@ -349,10 +350,14 @@ end)
 
 local seasonBar = SeasonBar.create(statsHud.frame)
 
--- Gezgin tüccar ve altın hayvan belirdiğinde bir kez haber ver (teklif Pazar penceresinde, hayvan çiftlikte parlar)
-local lastMerchantCycle = -1
+-- Altın hayvan belirdiğinde bir kez haber ver (hayvan çiftlikte parlar); tüccar için kalıcı rozet var
+local merchantBadge = MerchantBadge.create(hudRoot, function()
+	if not shopWindow.isOpen() then
+		toggleWindow(shopWindow)
+	end
+end, showToast)
 local lastGoldenCycle = -1
-local function merchantNotice(state: PlayerSave?)
+local function goldenNotice(state: PlayerSave?)
 	if not state then
 		return
 	end
@@ -362,17 +367,13 @@ local function merchantNotice(state: PlayerSave?)
 		Sfx.play("golden_spawn")
 		showToast("Bir hayvanın altın gibi parlıyor! Yakala ve ödülünü al.", "info")
 	end
-	local offer = Merchant.offer(state, localPlayer.UserId, Workspace:GetServerTimeNow())
-	if offer and offer.cycle ~= lastMerchantCycle then
-		lastMerchantCycle = offer.cycle
-		Sfx.play("merchant_arrive")
-		showToast("Gezgin tüccar meydana geldi: Pazar'da indirimli hayvanlar var!", "info")
-	end
 end
 task.spawn(function()
 	while true do
 		seasonBar.update()
-		merchantNotice(ClientState.get())
+		local current = ClientState.get()
+		goldenNotice(current)
+		merchantBadge.update(current)
 		menu.updateProductionBadge(ClientState.get())
 		-- Geri sayımlar ve zamanla açılan ödüller için; kapalı pencerede yalnızca rozet
 		updateRewards(ClientState.get())

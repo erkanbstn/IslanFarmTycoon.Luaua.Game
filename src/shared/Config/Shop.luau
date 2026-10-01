@@ -89,10 +89,11 @@ return {
 	-- Gezgin tüccar (rastgele olay): her oyuncuya ayrı ve sunucu saatinden türeyen ziyaret pencereleri.
 	-- Her cycleSeconds içinde chance olasılıkla, rastgele bir başlangıçla visitSeconds süren bir ziyaret olur;
 	-- ziyarette satın alınabilen hayvanlardan pahalı yarısından biri, en fazla stock adet, discount indirimle sunulur.
+	-- Ziyaret oturum uzunluğuna göre ayarlıdır: ~20 dk'lık oturumda en az bir, çoğunlukla iki ziyaret yakalanır.
 	MERCHANT = {
-		cycleSeconds = 900,
-		visitSeconds = 240,
-		chance = 0.7,
+		cycleSeconds = 600,
+		visitSeconds = 300,
+		chance = 0.75,
 		discount = 0.3,
 		stock = 3,
 	},
