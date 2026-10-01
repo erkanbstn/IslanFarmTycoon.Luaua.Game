@@ -21,6 +21,7 @@ local ContractService = require(Services:WaitForChild("ContractService"))
 local MainFarmService = require(Services:WaitForChild("MainFarmService"))
 local ProductionService = require(Services:WaitForChild("ProductionService"))
 local PetService = require(Services:WaitForChild("PetService"))
+local HubBoardService = require(Services:WaitForChild("HubBoardService"))
 local AdminService = require(Services:WaitForChild("AdminService"))
 local ExtensionService = require(Services:WaitForChild("ExtensionService"))
 local AnimalTaskService = require(Services:WaitForChild("AnimalTaskService"))
@@ -66,6 +67,7 @@ ProductionService.init()
 PetService.init()
 AnimalTaskService.init()
 MainFarmService.init()
+HubBoardService.init()
 
 local TELEPORT_COOLDOWN = 1.5
 local lastTeleportAt: { [Player]: number } = {}

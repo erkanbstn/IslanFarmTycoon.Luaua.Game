@@ -974,4 +974,8 @@ return {
 	["Pasif Gelir Sv.1"] = "Passive Income Lv.1",
 	["Sen yokken kazanç depoda kalmaz, doğrudan kasana yatar"] = "While you are away, earnings go straight to your cash instead of staying in storage",
 	["Sen yokken depoda {} birikti. Toplama platformundan al."] = "While you were away {1} built up in storage. Collect it at the collection pad.",
+
+	-- Meydan sıralama panosu
+	["Sunucu Sıralaması"] = "Server Ranking",
+	["{} ada"] = "{1} island(s)",
 }

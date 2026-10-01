@@ -107,7 +107,7 @@ local function buildHub(parent: Instance)
 		local rad = math.rad(angle)
 		return Vector3.new(math.sin(rad), 0, math.cos(rad)) * radius + center
 	end
-	HubNpcs.fountain(hub, CFrame.new(onRing(330, 20)))
+	HubNpcs.fountain(hub, CFrame.new(center)) -- meydanın tam ortası
 	for _, angle in { 120, 180, 240 } do
 		local pos = onRing(angle, 15)
 		HubNpcs.bench(hub, CFrame.lookAt(pos, center))
@@ -122,7 +122,7 @@ local function buildHub(parent: Instance)
 	local spawn = Instance.new("SpawnLocation")
 	spawn.Name = "HubSpawn"
 	spawn.Size = Vector3.new(10, 0.4, 10)
-	spawn.CFrame = CFrame.new(0, SURFACE_Y + 0.2, 0)
+	spawn.CFrame = CFrame.new(onRing(330, 20) + Vector3.new(0, 0.2, 0)) -- merkez çeşmeye ayrıldı
 	spawn.Anchored = true
 	spawn.Neutral = true
 	spawn.Duration = 0
@@ -136,7 +136,7 @@ local function buildHub(parent: Instance)
 	local sign = makePart(
 		"Title",
 		Vector3.new(20, 6, 1),
-		signCf + Vector3.new(0, SURFACE_Y + 12, 0),
+		signCf + Vector3.new(0, SURFACE_Y + 14.5, 0),
 		Color3.fromRGB(150, 45, 40),
 		hub
 	)
@@ -144,25 +144,35 @@ local function buildHub(parent: Instance)
 	for _, face in { Enum.NormalId.Front, Enum.NormalId.Back } do
 		WorldUi.sign(sign, face, { icon = "🐄", title = "Hoş geldin", text = Config.GAME_NAME })
 	end
-	makePart(
-		"Pole",
-		Vector3.new(1, 9, 1),
-		signCf * CFrame.new(0, SURFACE_Y + 4.5, 0.9),
-		Color3.fromRGB(80, 60, 40),
-		hub
-	)
+	makePart("Pole", Vector3.new(1, 18, 1), signCf * CFrame.new(0, SURFACE_Y + 9, 0.9), Color3.fromRGB(80, 60, 40), hub)
 
 	-- Direğin önünde yön tabelası: adalara ışınlanma menüsü
 	local board = makePart(
 		"TravelBoard",
 		Vector3.new(6, 2.4, 0.4),
-		signCf * CFrame.new(0, SURFACE_Y + 3.5, 0.2),
+		signCf * CFrame.new(0, SURFACE_Y + 1.9, 0.2),
 		Color3.fromRGB(85, 60, 40),
 		hub
 	)
 	board.Material = Enum.Material.WoodPlanks
 	WorldUi.sign(board, Enum.NormalId.Front, { icon = "🧭", text = "Adalar", tint = UiTheme.Color.Blue })
 	addTravelPrompt(board, "Meydan")
+
+	-- Sunucudaki oyuncuların para ve ada durumu (HubBoardService satırları günceller); yürümeyi engellemez
+	local ranking = makePart(
+		"PlayerBoard",
+		Vector3.new(16, 7.5, 0.4),
+		signCf * CFrame.new(0, SURFACE_Y + 7.3, 0),
+		Color3.fromRGB(60, 42, 30),
+		hub
+	)
+	ranking.Material = Enum.Material.WoodPlanks
+	ranking.CanCollide = false
+	WorldUi.board(
+		ranking,
+		Enum.NormalId.Front,
+		{ title = "Sunucu Sıralaması", icon = "🏆", rows = Config.MAP_PLOT_COUNT }
+	)
 end
 
 local function buildBridge(parent: Instance, direction: Vector3)

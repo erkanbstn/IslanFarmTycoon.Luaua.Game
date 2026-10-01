@@ -13,7 +13,7 @@ local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Co
 
 local ACTION = "Sprint"
 local NORMAL_FOV = 70
-local SPRINT_FOV = 88
+local SPRINT_FOV = 80
 local FOV_TWEEN = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
 local localPlayer = Players.LocalPlayer

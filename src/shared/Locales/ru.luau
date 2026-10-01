@@ -972,4 +972,8 @@ return {
 	["Pasif Gelir Sv.1"] = "Пассивный доход ур.1",
 	["Sen yokken kazanç depoda kalmaz, doğrudan kasana yatar"] = "Пока тебя нет, доход идёт сразу в кассу, а не остаётся на складе",
 	["Sen yokken depoda {} birikti. Toplama platformundan al."] = "Пока тебя не было, на складе накопилось {1}. Забери на площадке сбора.",
+
+	-- Meydan sıralama panosu
+	["Sunucu Sıralaması"] = "Рейтинг сервера",
+	["{} ada"] = "островов: {1}",
 }

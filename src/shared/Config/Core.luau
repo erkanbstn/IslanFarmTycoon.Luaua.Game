@@ -56,7 +56,7 @@ return {
 	-- Hareket: Shift basılıyken (telefonda "Koş" düğmesiyle) koşu hızı
 	WALK_SPEED = 16,
 
-	SPRINT_SPEED = 48, -- Yürümenin 3 katı
+	SPRINT_SPEED = 24, -- Yürümenin 1,5 katı
 
 	-- Yeni oyuncuya ücretsiz: ana ada, Küçük Ahır (Sv.1) ve ana ağıl. Hayvanla başlanmaz (STARTING_COW_COUNT = 0):
 	-- ilk hayvan, çiftliğin ana hayvanını (inek/tavuk/ördek) tam alacak kadar parayla alınır (Config.getStartingCash).

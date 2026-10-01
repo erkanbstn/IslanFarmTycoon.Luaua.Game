@@ -22,7 +22,7 @@ local function block(model: Model, name: string, size: Vector3, cframe: CFrame, 
 	p.CanTouch = false
 	p.CanCollide = false
 	p.CanQuery = false
-	p.Material = Enum.Material.SmoothPlastic
+	p.Material = Enum.Material.Fabric -- mat yüzey: Future ışıkta beyaz tüyler parlamasın
 	p.TopSurface = Enum.SurfaceType.Smooth
 	p.BottomSurface = Enum.SurfaceType.Smooth
 	p.Parent = model
@@ -31,7 +31,7 @@ end
 
 -- Tüm ölçüler s (evre ölçeği) ile çarpılır. Model -Z yönüne (başı) bakar.
 local function buildCow(model: Model, s: number)
-	local white = Color3.fromRGB(245, 245, 240)
+	local white = Color3.fromRGB(222, 221, 214)
 	local black = Color3.fromRGB(35, 35, 35)
 	local pink = Color3.fromRGB(240, 170, 170)
 	local legH = 2 * s
@@ -123,7 +123,7 @@ local function buildHorse(model: Model, s: number)
 end
 
 local function buildChicken(model: Model, s: number)
-	local white = Color3.fromRGB(250, 250, 245)
+	local white = Color3.fromRGB(230, 230, 223)
 	local red = Color3.fromRGB(220, 40, 40)
 	local orange = Color3.fromRGB(245, 160, 40)
 	local legH = 0.8 * s
@@ -261,7 +261,7 @@ local function buildSeabass(model: Model, s: number)
 end
 
 local function buildDuck(model: Model, s: number)
-	local white = Color3.fromRGB(252, 250, 240)
+	local white = Color3.fromRGB(232, 230, 220)
 	local yellow = Color3.fromRGB(248, 190, 50)
 	local orange = Color3.fromRGB(245, 140, 40)
 	local dark = Color3.fromRGB(30, 30, 30)
@@ -301,7 +301,7 @@ local function buildDuck(model: Model, s: number)
 end
 
 local function buildSheep(model: Model, s: number)
-	local wool = Color3.fromRGB(245, 242, 232)
+	local wool = Color3.fromRGB(226, 222, 212)
 	local face = Color3.fromRGB(60, 52, 48)
 	local dark = Color3.fromRGB(25, 22, 20)
 	local legH = 1.3 * s

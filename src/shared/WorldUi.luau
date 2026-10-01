@@ -235,6 +235,108 @@ function WorldUi.sign(part: BasePart, face: Enum.NormalId, options: SignOptions)
 end
 
 -- Parçanın tüm yüzlerindeki ana yazıyı ("Text") günceller
+-- Sıralama panosu (SurfaceGui): üstte başlık, altında rows satır; her satırda solda ad, sağda değer.
+-- Satırlar setBoardRow ile güncellenir (sunucu yazar, herkes görür).
+function WorldUi.board(part: BasePart, face: Enum.NormalId, options: { title: string, icon: string?, rows: number })
+	local gui = Instance.new("SurfaceGui")
+	gui.Name = "Board"
+	gui.Face = face
+	gui.LightInfluence = 0.2
+	gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+	gui.PixelsPerStud = 50
+	gui.Parent = part
+
+	local root = Instance.new("Frame")
+	root.Name = "Content"
+	root.Size = UDim2.fromScale(1, 1)
+	root.BackgroundTransparency = 1
+	root.Parent = gui
+	local pad = Instance.new("UIPadding")
+	pad.PaddingTop, pad.PaddingBottom = UDim.new(0.05, 0), UDim.new(0.05, 0)
+	pad.PaddingLeft, pad.PaddingRight = UDim.new(0.04, 0), UDim.new(0.04, 0)
+	pad.Parent = root
+	local layout = Instance.new("UIListLayout")
+	layout.SortOrder = Enum.SortOrder.LayoutOrder
+	layout.Padding = UDim.new(0.01, 0)
+	layout.Parent = root
+
+	local header = Instance.new("Frame")
+	header.Name = "Header"
+	header.Size = UDim2.fromScale(1, 0.15)
+	header.BackgroundTransparency = 1
+	header.LayoutOrder = 0
+	header.Parent = root
+	if options.icon then
+		local chip = iconChip(header, options.icon, Color.Gold)
+		chip.Position = UDim2.fromScale(0, 0)
+	end
+	local title = Instance.new("TextLabel")
+	title.Name = "Title"
+	title.Size = UDim2.fromScale(if options.icon then 0.9 else 1, 1)
+	title.Position = UDim2.fromScale(if options.icon then 0.1 else 0, 0)
+	title.BackgroundTransparency = 1
+	title.FontFace = Font.Display
+	title.TextScaled = true
+	title.TextColor3 = Color.Gold
+	title.TextXAlignment = Enum.TextXAlignment.Left
+	title.Text = options.title
+	title.Parent = header
+
+	local rowHeight = (0.85 - 0.01 * options.rows) / options.rows
+	for index = 1, options.rows do
+		local row = Instance.new("Frame")
+		row.Name = `Row{index}`
+		row.Size = UDim2.fromScale(1, rowHeight)
+		row.BackgroundColor3 = Color3.new(0, 0, 0)
+		row.BackgroundTransparency = if index % 2 == 0 then 0.75 else 0.88
+		row.BorderSizePixel = 0
+		row.LayoutOrder = index
+		row.Parent = root
+		local corner = Instance.new("UICorner")
+		corner.CornerRadius = UDim.new(0.2, 0)
+		corner.Parent = row
+		local name = Instance.new("TextLabel")
+		name.Name = "Name"
+		name.Size = UDim2.fromScale(0.5, 0.8)
+		name.Position = UDim2.fromScale(0.02, 0.1)
+		name.BackgroundTransparency = 1
+		name.FontFace = Font.Display
+		name.TextScaled = true
+		name.TextColor3 = Color.Cream
+		name.TextXAlignment = Enum.TextXAlignment.Left
+		name.Text = ""
+		name.Parent = row
+		local value = Instance.new("TextLabel")
+		value.Name = "Value"
+		value.Size = UDim2.fromScale(0.44, 0.8)
+		value.Position = UDim2.fromScale(0.54, 0.1)
+		value.BackgroundTransparency = 1
+		value.FontFace = Font.Display
+		value.TextScaled = true
+		value.TextColor3 = Color.Gold
+		value.TextXAlignment = Enum.TextXAlignment.Right
+		value.Text = ""
+		value.Parent = row
+	end
+	return gui
+end
+
+function WorldUi.setBoardRow(part: Instance, index: number, name: string, value: string)
+	local gui = part:FindFirstChild("Board")
+	local content = gui and gui:FindFirstChild("Content")
+	local row = content and content:FindFirstChild(`Row{index}`)
+	if not row then
+		return
+	end
+	local nameLabel, valueLabel = row:FindFirstChild("Name"), row:FindFirstChild("Value")
+	if nameLabel and nameLabel:IsA("TextLabel") and nameLabel.Text ~= name then
+		nameLabel.Text = name
+	end
+	if valueLabel and valueLabel:IsA("TextLabel") and valueLabel.Text ~= value then
+		valueLabel.Text = value
+	end
+end
+
 function WorldUi.setSignText(part: Instance, text: string)
 	for _, desc in part:GetDescendants() do
 		if desc:IsA("TextLabel") and desc.Name == "Text" and desc:FindFirstAncestorOfClass("SurfaceGui") then
