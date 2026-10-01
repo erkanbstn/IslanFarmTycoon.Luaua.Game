@@ -182,7 +182,7 @@ local function write(player: Player, session: Session, release: boolean, deadlin
 			token = newUid(),
 			revision = session.revision,
 			packetRevision = session.packetRevision,
-			release = release,
+			release = release :: boolean,
 		}
 	end
 	local operation = assert(session.pending, "Serialized write operation missing")
@@ -582,7 +582,8 @@ function PlayerDataService.release(player: Player): boolean
 	else
 		-- Başarısız son snapshot bellekten atılmaz; bakım döngüsü süreli kilit bitene kadar tekrar dener.
 		session.releasing = false
-		status(player, session, "Closing", player:GetAttribute("DataError"))
+		local lastError = player:GetAttribute("DataError")
+		status(player, session, "Closing", if typeof(lastError) == "string" then lastError else nil)
 		warn(`[Data] FinalSaveFailed user={player.UserId}; snapshot retained`)
 		Metrics.increment("FinalSaveFailed")
 	end
