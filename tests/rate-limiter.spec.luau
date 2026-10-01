@@ -36,7 +36,8 @@ return function(createLimiter: any)
 		not limiter.validId(4) and not limiter.validId("") and not limiter.validId(string.rep("x", 65)),
 		"IDs require bounded strings"
 	)
-	assert(limiter.acceptRequest(player, nil), "legacy prompt requests omit request ID")
+	assert(not limiter.acceptRequest(player, nil), "remote requests must carry a request ID")
+	assert(limiter.acceptRequest(player, nil, true), "server-side prompt calls may omit request ID")
 	for _, invalid in { -1, 0.5, 0 / 0, math.huge, 2147483648, "1", {} } do
 		assert(not limiter.acceptRequest(player, invalid), "invalid request ID must not be registered")
 	end

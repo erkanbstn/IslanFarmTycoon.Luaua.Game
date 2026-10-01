@@ -109,8 +109,8 @@ function UpgradeService.tryUpgradeLineage(player: Player, animalId: unknown): (b
 end
 
 -- Satın al ve sonucu oyuncuya bildir (yol haritası düğmesi ve ada tabelası ortak kullanır)
-local function buyAndNotify(player: Player, upgradeId: unknown, requestId: unknown)
-	if not RateLimiter.acceptRequest(player, requestId) then
+local function buyAndNotify(player: Player, upgradeId: unknown, requestId: unknown, fromPrompt: boolean?)
+	if not RateLimiter.acceptRequest(player, requestId, fromPrompt) then
 		return
 	end
 	local ok, err = UpgradeService.tryBuy(player, upgradeId)
@@ -238,7 +238,7 @@ function UpgradeService.init()
 					end
 					return
 				end
-				buyAndNotify(player, prompt:GetAttribute("UpgradeId"), nil)
+				buyAndNotify(player, prompt:GetAttribute("UpgradeId"), nil, true)
 				return
 			end
 		end

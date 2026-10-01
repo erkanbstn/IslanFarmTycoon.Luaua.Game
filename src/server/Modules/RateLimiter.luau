@@ -24,11 +24,12 @@ function RateLimiter.validId(value: unknown): boolean
 	return typeof(value) == "string" and #value > 0 and #value <= 64
 end
 
--- Eski client/prompt kimlik göndermeyebilir. Yeni client tüm satın almalarda
--- ortak artan kimlik kullanır; son istekler tekrar gönderilirse işlem yapılmaz.
-function RateLimiter.acceptRequest(player: Player, requestId: unknown): boolean
+-- Client tüm Remote isteklerinde ortak artan kimlik gönderir; kimliksiz istek reddedilir.
+-- Son istekler tekrar gönderilirse işlem yapılmaz. allowMissing yalnızca sunucu içi (ProximityPrompt)
+-- çağrılar içindir: Remote işleyicileri hiçbir zaman true vermez.
+function RateLimiter.acceptRequest(player: Player, requestId: unknown, allowMissing: boolean?): boolean
 	if requestId == nil then
-		return true
+		return allowMissing == true
 	end
 	if
 		typeof(requestId) ~= "number"
