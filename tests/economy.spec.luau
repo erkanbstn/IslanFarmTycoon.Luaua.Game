@@ -444,6 +444,22 @@ return function(FarmMath: any, Config: any, Environment: any)
 			== FarmMath.getAnimalMultiplier(saveAt(start), "chicken", true),
 		"lineage only affects its own species"
 	)
+	-- Irk ve eşya geliri toplanan bonusa eklenmez, ayrı çarpandır: gelir = taban x (1 + diğer) x (1 + ırk) x (1 + eşya)
+	local stackFarm = saveAt(start)
+	stackFarm.purchased["milk_machine"] = true
+	stackFarm.lineage = { cow = 5 }
+	stackFarm.inventory = { items = { income_charm_3 = true }, equipped = { charm = "income_charm_3" } }
+	local stackPlain = saveAt(start)
+	stackPlain.purchased["milk_machine"] = true
+	local stackExpected = (1 + 5 * Config.LINEAGE.incomePerLevel)
+		* (1 + FarmMath.getEquippedBonus(stackFarm, "incomeBonus"))
+	assert(
+		math.abs(
+			FarmMath.getAnimalMultiplier(stackFarm, "cow", true) / FarmMath.getAnimalMultiplier(stackPlain, "cow", true)
+				- stackExpected
+		) < 1e-9,
+		"lineage and item income multiply instead of adding to other bonuses"
+	)
 	lineageFarm.lineage = { cow = Config.LINEAGE.maxLevel + 50 }
 	assert(FarmMath.getLineageLevel(lineageFarm, "cow") == Config.LINEAGE.maxLevel, "levels are clamped")
 	assert(FarmMath.getLineageStatus(lineageFarm, "cow") == "max", "maximum level is reported")
