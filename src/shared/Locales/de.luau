@@ -987,4 +987,5 @@ return {
 	["Toplam etki"] = "Gesamteffekt",
 	["Sipariş ödülü"] = "Auftragsbelohnung",
 	["Etki yok"] = "Kein Effekt",
+	["Toplam etki (bölge uyumu dahil)"] = "Gesamteffekt (inkl. Zonen-Jahreszeitenbonus)",
 }

@@ -7,6 +7,8 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local Environment = require(Shared:WaitForChild("Modules"):WaitForChild("Environment"))
+local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
+local ClientState = require(script.Parent.Parent.Parent:WaitForChild("Core"):WaitForChild("ClientState"))
 local UiKit = require(script.Parent.Parent:WaitForChild("UiKit"))
 
 local Color = UiKit.Color
@@ -129,8 +131,34 @@ function SeasonBar.create(stats: Instance): Bar
 		return count
 	end
 
+	-- Toplam etki: mevsim + hava; hayvanların durduğu bölgelerin "mevsim uyumu" (olumlu etkiyi büyütür, olumsuzu küçültür) dahil.
+	-- Aynı türden hayvanlar farklı bölgelerdeyse ortalaması alınır; hayvan yoksa uyumsuz (0) gösterilir.
+	local function effectiveTotals(): ({ [string]: number }, string)
+		local state = ClientState.get()
+		local totals: { [string]: number } = {}
+		local parts: { string } = {}
+		for _, animalId in Config.ANIMAL_ORDER do
+			local sum, count = 0, 0
+			if state then
+				for _, animal in state.animals do
+					if animal.animalId == animalId then
+						local affinity = if animal.zoneId
+							then FarmMath.getBuildBonus(state, animal.zoneId, "seasonAffinity")
+							else 0
+						sum += Environment.getIncomeMultiplier(animalId, nil, affinity) - 1
+						count += 1
+					end
+				end
+			end
+			totals[animalId] = if count > 0 then sum / count else Environment.getIncomeMultiplier(animalId) - 1
+			table.insert(parts, string.format("%.3f", totals[animalId]))
+		end
+		return totals, table.concat(parts, ",")
+	end
+
 	local function renderDetails(season: Config.SeasonConfig, weather: Config.WeatherConfig)
-		local signature = `{season.id}|{weather.id}`
+		local total, totalKey = effectiveTotals()
+		local signature = `{season.id}|{weather.id}|{totalKey}`
 		if signature == detailsSignature then
 			return
 		end
@@ -158,12 +186,8 @@ function SeasonBar.create(stats: Instance): Bar
 			none.LayoutOrder = order
 			order += 1
 		end
-		addTitle("Toplam etki", order)
+		addTitle("Toplam etki (bölge uyumu dahil)", order)
 		order += 1
-		local total: { [string]: number } = {}
-		for _, animalId in Config.ANIMAL_ORDER do
-			total[animalId] = Environment.getIncomeMultiplier(animalId) - 1
-		end
 		local totalRows = addModifierRows(total, order)
 		if totalRows == 0 then
 			local none = UiKit.text(details, "Etki yok", "Caption")

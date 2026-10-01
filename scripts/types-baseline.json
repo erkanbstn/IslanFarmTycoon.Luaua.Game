@@ -1,5 +1,5 @@
 {
- "src/client/Core/ClientState.luau|Function only returns 1 value, but 2 are required here": 15,
+ "src/client/Core/ClientState.luau|Function only returns 1 value, but 2 are required here": 16,
  "src/client/Effects/BuildEffects.client.luau|Expected this to be '{ [Model]: boolean }', but got 'played'": 1,
  "src/client/Effects/BuildEffects.client.luau|Expected this to be exactly 'Dust', but got '{| born: number, origin: Vector3, part: Part, startSize: number, velocity: Vector3 |}'": 1,
  "src/client/Effects/BuildEffects.client.luau|Expected this to be exactly 'Spark', but got '{| born: number, life: number, origin: Vector3, part: Part, velocity: Vector3 |}'": 1,

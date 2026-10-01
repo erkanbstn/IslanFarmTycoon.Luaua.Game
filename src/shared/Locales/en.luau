@@ -987,4 +987,5 @@ return {
 	["Toplam etki"] = "Total effect",
 	["Sipariş ödülü"] = "Order reward",
 	["Etki yok"] = "No effect",
+	["Toplam etki (bölge uyumu dahil)"] = "Total effect (incl. zone season affinity)",
 }
