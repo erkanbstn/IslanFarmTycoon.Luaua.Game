@@ -29,6 +29,7 @@ type Session = {
 	packetRevision: number,
 	savedPacketRevision: number,
 	leaseExpires: number,
+	saveFailing: boolean, -- son kayıt denemesi aktarım hatasıyla başarısız oldu (kira dolsa da oturum düşmez)
 	offlineEarned: number,
 	offlineGrown: number, -- Çevrimdışıyken yetişkin olan hayvan sayısı (dönüş özeti)
 	offlineStored: number, -- Pasif Gelir yokken depoda biriken çevrimdışı kazanç (dönüş özeti)
@@ -53,6 +54,8 @@ local SAVE_RETRIES = 3
 local QUICK_SAVE_DELAY = 10
 local SAVE_BUDGET = 15
 local CLOSE_BUDGET = 25
+local LOCK_WAIT_SECONDS = 60 -- kilit başka sunucudayken girişte en çok bu kadar beklenir
+local FINAL_SAVE_GRACE_SECONDS = 600 -- bırakma yazımı, kira dolduktan sonra da (kilit hâlâ bizse) bu süre denenir
 local sessions: { [Player]: Session } = {}
 local busyKeys: { [string]: boolean } = {}
 local shutdownDeadline: number? = nil
@@ -224,6 +227,7 @@ local function write(player: Player, session: Session, release: boolean, deadlin
 			session.savedPacketRevision = snapshotRevision
 			session.leaseExpires = if operation.release then 0 else result._session.expiresAt
 			session.pending = nil
+			session.saveFailing = false
 			player:SetAttribute("DataLastSavedAt", os.time())
 			player:SetAttribute("DataDirty", session.packetRevision ~= snapshotRevision)
 			player:SetAttribute("DataError", "")
@@ -269,8 +273,11 @@ local function write(player: Player, session: Session, release: boolean, deadlin
 	if not success then
 		Metrics.increment("SaveFailed")
 		player:SetAttribute("DataError", lastError)
-		if ownershipLost or os.time() >= session.leaseExpires then
+		-- Kira dolsa bile yalnızca sahiplik gerçekten kaybedildiyse düş: sahip + revizyon bizse sonraki yazım güvenle geçer.
+		if ownershipLost then
 			fail(player, session, lastError)
+		else
+			session.saveFailing = true
 		end
 	end
 	return success
@@ -281,7 +288,7 @@ function PlayerDataService.tryGet(player: Player): PlayerSave?
 	if not session or session.status ~= "Active" then
 		return nil
 	end
-	if session.persistent and os.time() >= session.leaseExpires then
+	if session.persistent and os.time() >= session.leaseExpires and not session.saveFailing then
 		fail(player, session, "Kayıt oturumu yenilenemedi; yeniden bağlanmalısın.")
 		return nil
 	end
@@ -345,6 +352,7 @@ function PlayerDataService.load(player: Player): PlayerSave?
 		packetRevision = 0,
 		savedPacketRevision = 0,
 		leaseExpires = 0,
+		saveFailing = false,
 		offlineEarned = 0,
 		offlineGrown = 0,
 		offlineStored = 0,
@@ -361,44 +369,61 @@ function PlayerDataService.load(player: Player): PlayerSave?
 	local raw: unknown = nil
 	local problem: string? = nil
 	local acquired = nonpersistent
-	local deadline = deadlineAfter(SAVE_BUDGET)
 	local key = keyFor(player)
 	if session.persistent then
 		if not store then
 			problem = "Kayıt hizmetine bağlanılamadı. Lütfen yeniden bağlan."
-		elseif lockKey(key, deadline) then
-			for attempt = 1, SAVE_RETRIES do
-				if not withinDeadline(deadline) then
-					break
-				end
-				local rejection: string? = nil
-				local ok, result = pcall(function()
-					return (store :: DataStore):UpdateAsync(key, function(current)
+		else
+			-- Hızlı sunucu değiştiren oyuncunun eski kilidi birkaç saniye içinde bırakılır: kilit başka sunucudaysa
+			-- hemen vazgeçme, artan beklemeyle LOCK_WAIT_SECONDS boyunca tekrar dene.
+			local lockWaitUntil = deadlineAfter(LOCK_WAIT_SECONDS)
+			local pause = 2
+			while true do
+				local deadline = deadlineAfter(SAVE_BUDGET)
+				local heldElsewhere = false
+				if lockKey(key, deadline) then
+					for attempt = 1, SAVE_RETRIES do
 						if not withinDeadline(deadline) then
-							rejection = "Yükleme zaman bütçesi doldu"
-							return nil
+							break
 						end
-						local nextValue, reason = SessionLock.acquire(current, session.owner, os.time(), LEASE_SECONDS)
-						rejection = reason
-						return nextValue
-					end)
-				end)
-				if ok and SessionLock.owns(result, session.owner, os.time()) then
-					raw = result
-					session.revision = result._revision
-					session.leaseExpires = result._session.expiresAt
-					acquired = true
+						local rejection: string? = nil
+						local ok, result = pcall(function()
+							return (store :: DataStore):UpdateAsync(key, function(current)
+								if not withinDeadline(deadline) then
+									rejection = "Yükleme zaman bütçesi doldu"
+									return nil
+								end
+								local nextValue, reason =
+									SessionLock.acquire(current, session.owner, os.time(), LEASE_SECONDS)
+								rejection = reason
+								return nextValue
+							end)
+						end)
+						if ok and SessionLock.owns(result, session.owner, os.time()) then
+							raw = result
+							session.revision = result._revision
+							session.leaseExpires = result._session.expiresAt
+							acquired = true
+							break
+						end
+						problem = rejection or tostring(result)
+						if rejection then
+							heldElsewhere = rejection == SessionLock.HELD
+							break
+						end
+						if attempt < SAVE_RETRIES and withinDeadline(deadline) then
+							retryWait(deadline, attempt)
+						end
+					end
+					busyKeys[key] = nil
+				end
+				if acquired or not heldElsewhere or not player.Parent or not withinDeadline(lockWaitUntil) then
 					break
 				end
-				problem = rejection or tostring(result)
-				if rejection then
-					break
-				end
-				if attempt < SAVE_RETRIES and withinDeadline(deadline) then
-					retryWait(deadline, attempt)
-				end
+				Metrics.increment("LoadLockWait")
+				retryWait(lockWaitUntil, pause)
+				pause = math.min(pause * 2, 15)
 			end
-			busyKeys[key] = nil
 		end
 	end
 	if acquired then
@@ -669,7 +694,7 @@ function PlayerDataService.init()
 				if session.status == "Active" then
 					task.spawn(PlayerDataService.save, player)
 				elseif session.status == "Closing" and not session.releasing and session.data then
-					if os.time() < session.leaseExpires then
+					if os.time() < session.leaseExpires + FINAL_SAVE_GRACE_SECONDS then
 						task.spawn(PlayerDataService.release, player)
 					else
 						warn(`[Data] FinalSaveAbandoned user={player.UserId}; lease expired`)

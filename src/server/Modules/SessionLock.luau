@@ -5,6 +5,8 @@ local SessionLock = {}
 export type RawSave = { [string]: any }
 local VERSION = 4
 local MAX_REVISION = 9007199254740990
+-- acquire'ın "kilit başka sunucuda" reddi; çağıran bunu bekleyip yeniden deneyebilir.
+SessionLock.HELD = "Profil başka bir sunucuda açık"
 
 function SessionLock.isFinite(value: unknown): boolean
 	return typeof(value) == "number" and value == value and math.abs(value :: number) < math.huge
@@ -55,6 +57,16 @@ function SessionLock.owns(raw: unknown, owner: string, now: number): boolean
 		and session.expiresAt > now
 end
 
+-- Kira süresi dolmuş olsa bile kilit hâlâ bizim mi? Başka sunucu ancak `_session.owner`'ı değiştirerek devralabilir
+-- (acquire), bu yüzden sahip + revizyon eşleşiyorsa yazmak güvenlidir.
+function SessionLock.holds(raw: unknown, owner: string): boolean
+	if typeof(raw) ~= "table" then
+		return false
+	end
+	local session = (raw :: RawSave)._session
+	return typeof(session) == "table" and session.owner == owner
+end
+
 function SessionLock.acquire(raw: unknown, owner: string, now: number, leaseSeconds: number): (RawSave?, string?)
 	local problem = SessionLock.validate(raw)
 	if problem then
@@ -63,7 +75,7 @@ function SessionLock.acquire(raw: unknown, owner: string, now: number, leaseSeco
 	local current: RawSave = if typeof(raw) == "table" then raw :: RawSave else {}
 	local session = current._session
 	if session and session.owner ~= owner and session.expiresAt > now then
-		return nil, "Profil başka bir sunucuda açık"
+		return nil, SessionLock.HELD
 	end
 	local result = table.clone(current)
 	result._session = { owner = owner, expiresAt = now + leaseSeconds }
@@ -93,7 +105,7 @@ function SessionLock.commit(
 	if (current._revision or 0) >= MAX_REVISION then
 		return nil, "Kayıt revizyon sınırına ulaştı"
 	end
-	if not SessionLock.owns(current, owner, now) or (current._revision or 0) ~= revision then
+	if not SessionLock.holds(current, owner) or (current._revision or 0) ~= revision then
 		return nil, "Kayıt oturumunun sahipliği kaybedildi"
 	end
 	local result = table.clone(payload)

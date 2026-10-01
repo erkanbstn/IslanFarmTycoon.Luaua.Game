@@ -343,10 +343,85 @@ return function(createService: any, Config: any)
 	end)
 	assert(t.service.tryGet(t.player) == nil, "expired lease cannot continue transactions")
 	assert(t.player.attributes.DataStatus == "Failed", "lease expiry is visible")
+	assert(
+		t.call(function()
+			return t.service.release(t.player)
+		end),
+		"an expired lease that nobody took over may still write the final snapshot"
+	)
+	assert(t.store.raw._revision == 1 and t.store.raw._session == nil, "late final write commits and unlocks")
+
+	-- Kira dolduktan sonra başka sunucu devraldıysa son yazım reddedilir.
+	t = loaded()
+	t.call(function()
+		t.tasks.wait(181)
+	end)
+	t.store.raw._session = { owner = "other-server", expiresAt = 2000000000 + 400 }
 	assert(not t.call(function()
 		return t.service.release(t.player)
-	end), "expired owner cannot force a final write")
-	assert(t.store.raw._revision == 0, "expired owner must not commit")
+	end), "a taken-over lease cannot write")
+	assert(
+		t.store.raw._revision == 0 and t.store.raw._session.owner == "other-server",
+		"taken-over record is untouched"
+	)
+
+	-- DataStore kesintisi kira süresinden uzun sürse de oturum düşmez; kayıt dönünce ilerleme yazılır.
+	t = loaded()
+	t.service.addCash(t.player, 10)
+	t.store.actions = { { failBefore = true }, { failBefore = true }, { failBefore = true } }
+	assert(not t.call(function()
+		return t.service.save(t.player)
+	end), "outage save fails")
+	t.advance(200)
+	assert(t.service.tryGet(t.player) ~= nil, "retrying saves keep the session alive past the lease")
+	t.service.addCash(t.player, 5)
+	assert(
+		t.call(function()
+			return t.service.save(t.player)
+		end),
+		"first save after the outage succeeds"
+	)
+	assert(
+		t.store.raw.cash == Config.STARTING_CASH + 15 and t.player.attributes.DataStatus == "Active",
+		"progress made during the outage is persisted"
+	)
+
+	-- Kilit başka sunucudayken giriş beklenir (hızlı sunucu değiştirme); çok uzun sürerse açık hatayla düşer.
+	t = loaded()
+	t.service.addCash(t.player, 7)
+	assert(
+		t.call(function()
+			return t.service.release(t.player)
+		end),
+		"first server releases"
+	)
+	t.store.raw._session = { owner = "slow-server", expiresAt = 2000000000 + 40 }
+	local rejoined = t.call(function()
+		return t.service.load(t.player)
+	end)
+	assert(
+		rejoined ~= nil and rejoined.cash == Config.STARTING_CASH + 7,
+		"a lock that expires within the wait window is acquired"
+	)
+	assert(t.player.attributes.DataStatus == "Active", "waited load becomes active")
+	assert(t.metrics.counters.LoadLockWait ~= nil, "lock waits are counted")
+	t = loaded()
+	assert(
+		t.call(function()
+			return t.service.release(t.player)
+		end),
+		"release before long lock"
+	)
+	t.store.raw._session = { owner = "stuck-server", expiresAt = 2000000000 + 170 }
+	assert(t.call(function()
+		return t.service.load(t.player)
+	end) == nil, "a lock held beyond the wait window fails the load")
+	assert(
+		t.player.attributes.DataStatus == "Failed"
+			and t.player.attributes.DataError == "Profil başka bir sunucuda açık",
+		"the failure names the lock"
+	)
+	assert(t.store.raw._session.owner == "stuck-server", "the other server's lock stays untouched")
 
 	-- Gelecek sürüm asla boş profille açılmaz veya geri yazılmaz.
 	t = fixture()

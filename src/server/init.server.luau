@@ -32,6 +32,7 @@ local MonetizationService = require(Services:WaitForChild("MonetizationService")
 local InventoryService = require(Services:WaitForChild("InventoryService"))
 local Rewards = require(Shared:WaitForChild("Modules"):WaitForChild("Rewards"))
 local RateLimiter = require(script:WaitForChild("Modules"):WaitForChild("RateLimiter"))
+local SessionLock = require(script:WaitForChild("Modules"):WaitForChild("SessionLock"))
 
 -- Karakter, veri yüklenip ada atandıktan SONRA yüklenir: böylece oyuncu önce meydanda doğup
 -- sonra ışınlanmaz, doğrudan kendi adasında doğar (default.project.json'da da kapalı).
@@ -216,6 +217,15 @@ local function onPlayerAdded(player: Player)
 	-- 2) Kaydı arka planda yükle; gelince ada (hayvanlar, binalar) ve arayüz dolar
 	local data = PlayerDataService.load(player) -- yield eder
 	if not data or not player.Parent then
+		if not data and player.Parent then
+			-- Kayıt açılamadı (ör. kilit başka sunucuda kaldı): adayı boşalt, oyuncuya nedenini söyle.
+			local reason = player:GetAttribute("DataError")
+			player:Kick(
+				if reason == SessionLock.HELD
+					then "Kaydın başka bir sunucuda hâlâ açık. Biraz bekleyip yeniden katıl."
+					else "Kayıt yüklenemedi. Lütfen yeniden katıl."
+			)
+		end
 		joining[player] = nil
 		return
 	end

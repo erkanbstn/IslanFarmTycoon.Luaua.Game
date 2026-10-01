@@ -16,6 +16,14 @@ return function(lock: any, codec: any, config: any, farmMath: any)
 		lock.commit(committed, "server-a", 0, "stale", snapshot, now + 5, 180, false) == nil,
 		"old revision must be rejected"
 	)
+	local late = assert(
+		lock.commit(committed, "server-a", 1, "late", snapshot, now + 500, 180, false),
+		"an expired lease nobody has taken over can still be written by its owner"
+	)
+	assert(
+		late._revision == 2 and late._session.owner == "server-a" and late._session.expiresAt == now + 680,
+		"late commit renews the lease"
+	)
 	local takeover = assert(lock.acquire(committed, "server-b", now + 184, 180))
 	assert(
 		lock.commit(takeover, "server-a", 1, "old-owner", snapshot, now + 185, 180, false) == nil,
