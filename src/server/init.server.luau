@@ -3,6 +3,7 @@
 -- Oyun mantığı, veri kaydı ve doğrulama burada yapılır. Client'a asla güvenme.
 
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -219,11 +220,14 @@ local function onPlayerAdded(player: Player)
 		if not data and player.Parent then
 			-- Kayıt açılamadı (ör. kilit başka sunucuda kaldı): adayı boşalt, oyuncuya nedenini söyle.
 			local reason = player:GetAttribute("DataError")
-			player:Kick(
-				if reason == SessionLock.HELD
-					then "Kaydın başka bir sunucuda hâlâ açık. Biraz bekleyip yeniden katıl."
-					else "Kayıt yüklenemedi. Lütfen yeniden katıl."
-			)
+			local message = if reason == SessionLock.HELD
+				then "Kaydın başka bir sunucuda hâlâ açık. Biraz bekleyip yeniden katıl."
+				else "Kayıt yüklenemedi. Lütfen yeniden katıl."
+			if RunService:IsStudio() then
+				-- Studio'da API erişimi kapalıyken neden görünsün; canlıda mesaj aynı kalır.
+				message ..= ` [DataError: {tostring(reason)}]`
+			end
+			player:Kick(message)
 		end
 		joining[player] = nil
 		return
