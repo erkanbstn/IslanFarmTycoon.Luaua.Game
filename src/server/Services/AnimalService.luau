@@ -31,17 +31,19 @@ end
 
 -- Yavru hayvanları ilk uygun bölgelere ekler (normal alım ve gezgin tüccar ortak kullanır)
 local function addAnimals(data: any, animalId: string, amount: number)
-	local bornAt = DateTime.now().UnixTimestampMillis / 1000
+	local now = DateTime.now().UnixTimestampMillis / 1000
 	for _ = 1, amount do
 		local targetZone = FarmMath.findZoneForAnimal(data, animalId)
 		if not targetZone then
 			break -- Çağıran boş yer denetimini yapmış olmalı
 		end
+		-- Çiftliğin ilk hayvanları yetişkin doğar (bornAt = 0), sonrakiler yavru
+		local bornAt = FarmMath.getNewAnimalBornAt(data, now)
 		table.insert(data.animals, {
 			uid = HttpService:GenerateGUID(false),
 			animalId = animalId,
 			zoneId = targetZone,
-			stage = "calf",
+			stage = if bornAt == 0 then "adult" else "calf",
 			bornAt = bornAt,
 		})
 	end

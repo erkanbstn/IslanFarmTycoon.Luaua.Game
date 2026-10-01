@@ -163,6 +163,9 @@ end
 local function refreshStages()
 	for _, animal in save.animals do
 		animal.stage = FarmMath.getStage(animal.bornAt, now, FarmMath.getGrowthSpeed(save, animal.animalId, animal.zoneId))
+		if animal.stage == "adult" and animal.bornAt ~= 0 then
+			mark("ilk büyüyen yetişkin")
+		end
 	end
 end
 
@@ -180,7 +183,8 @@ local uidCounter = 0
 local function buyAnimal(animalId: string, zoneId: string)
 	uidCounter += 1
 	save.cash -= FarmMath.getAnimalPrice(save, animalId)
-	table.insert(save.animals, { uid = `sim-{uidCounter}`, animalId = animalId, zoneId = zoneId, bornAt = now, stage = "calf" })
+	local bornAt = FarmMath.getNewAnimalBornAt(save, now)
+	table.insert(save.animals, { uid = `sim-{uidCounter}`, animalId = animalId, zoneId = zoneId, bornAt = bornAt, stage = if bornAt == 0 then "adult" else "calf" })
 	actions += 1
 	invested()
 	local count = FarmMath.countAnimals(save, animalId)

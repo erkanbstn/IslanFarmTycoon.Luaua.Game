@@ -23,6 +23,14 @@ function Animals.getAnimalPrice(save: PlayerSave, animalId: string): number
 	return math.floor(animalConfig.price * Core.getFarmCostMultiplier(save) * Config.ANIMAL_PRICE_GROWTH ^ owned)
 end
 
+-- Yeni alınan hayvanın doğum zamanı: çiftlikteki ilk STARTER_ADULT_ANIMALS hayvan yetişkin (bornAt = 0), sonrakiler yavru.
+function Animals.getNewAnimalBornAt(save: PlayerSave, now: number): number
+	if #save.animals < Config.STARTER_ADULT_ANIMALS then
+		return 0
+	end
+	return now
+end
+
 -- Satış: son alınan hayvanın (sahip olunan - 1) fiyatının ANIMAL_SELL_FRACTION'ı geri gelir
 function Animals.getSellPrice(save: PlayerSave, animalId: string): number
 	local animalConfig = Config.ANIMALS[animalId]
