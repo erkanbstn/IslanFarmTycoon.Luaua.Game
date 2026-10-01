@@ -78,8 +78,50 @@ function Toasts.toastHost(parent: Instance): (message: string, kind: string?) ->
 	layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
 	local counter = 0
+	-- Aynı metin ve türdeki bildirim ekranda duruyorsa yenisi eklenmez: "×N" rozeti artar ve süre tazelenir
+	type Entry = { toast: CanvasGroup, label: TextLabel, badge: TextLabel?, count: number, token: number }
+	local active: { [string]: Entry } = {}
+	local function scheduleFade(key: string, entry: Entry)
+		entry.token += 1
+		local mine = entry.token
+		task.delay(2.6, function()
+			if entry.token ~= mine then
+				return
+			end
+			if active[key] == entry then
+				active[key] = nil
+			end
+			if not entry.toast.Parent then
+				return -- taşan kuyrukta silinmişti
+			end
+			TweenService:Create(entry.toast, TweenInfo.new(0.35), { GroupTransparency = 1 }):Play()
+			task.wait(0.35)
+			entry.toast:Destroy()
+		end)
+	end
+	local function makeBadge(entry: Entry, resolvedKind: string): TextLabel
+		local created = Base.text(entry.toast, "", "Body")
+		created.FontFace = Tokens.Font.Bold
+		created.TextColor3 = TOAST_COLORS[resolvedKind]
+		created.AutomaticSize = Enum.AutomaticSize.X
+		created.Size = UDim2.new(0, 0, 0, 24)
+		created.LayoutOrder = 3
+		entry.badge = created
+		entry.label.Size = UDim2.new(1, -74, 0, 24)
+		return created
+	end
 	return function(message: string, kind: string?)
 		local resolvedKind = if kind and TOAST_COLORS[kind] then kind else "info"
+		local key = `{resolvedKind}|{message}`
+		local existing = active[key]
+		if existing and existing.toast.Parent then
+			existing.count += 1
+			local badge: TextLabel = existing.badge or makeBadge(existing, resolvedKind)
+			badge.Text = `×{existing.count}`
+			existing.toast.GroupTransparency = 0
+			scheduleFade(key, existing)
+			return
+		end
 		counter += 1
 
 		-- CanvasGroup: tüm bildirim (işaret dahil) tek parça halinde solar
@@ -130,14 +172,9 @@ function Toasts.toastHost(parent: Instance): (message: string, kind: string?) ->
 			toasts[1]:Destroy()
 		end
 
-		task.delay(2.6, function()
-			if not toast.Parent then
-				return
-			end
-			TweenService:Create(toast, TweenInfo.new(0.35), { GroupTransparency = 1 }):Play()
-			task.wait(0.35)
-			toast:Destroy()
-		end)
+		local entry: Entry = { toast = toast, label = label, badge = nil, count = 1, token = 0 }
+		active[key] = entry
+		scheduleFade(key, entry)
 	end
 end
 
