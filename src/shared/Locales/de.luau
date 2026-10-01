@@ -1224,4 +1224,6 @@ return {
 	["Çiftliklerim"] = "Meine Farmen",
 	["Küçük Adalar"] = "Kleine Inseln",
 	["Ziyaret"] = "Besuch",
+	["{} geldi! Etkilere göz at (Mevsim çubuğu)"] = "{1} ist da! Effekte ansehen (Jahreszeitenleiste)",
+	["Hava: {} · Etkilere göz at"] = "Wetter: {1} · Effekte ansehen",
 }

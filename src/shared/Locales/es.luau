@@ -1224,4 +1224,6 @@ return {
 	["Çiftliklerim"] = "Mis granjas",
 	["Küçük Adalar"] = "Islas pequeñas",
 	["Ziyaret"] = "Visitar",
+	["{} geldi! Etkilere göz at (Mevsim çubuğu)"] = "¡Llegó {1}! Mira los efectos (barra de estación)",
+	["Hava: {} · Etkilere göz at"] = "Clima: {1} · Mira los efectos",
 }

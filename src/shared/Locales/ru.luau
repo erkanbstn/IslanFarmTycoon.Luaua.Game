@@ -1222,4 +1222,6 @@ return {
 	["Çiftliklerim"] = "Мои фермы",
 	["Küçük Adalar"] = "Малые острова",
 	["Ziyaret"] = "Визит",
+	["{} geldi! Etkilere göz at (Mevsim çubuğu)"] = "{1} наступила! Посмотри эффекты (панель сезона)",
+	["Hava: {} · Etkilere göz at"] = "Погода: {1} · Посмотри эффекты",
 }

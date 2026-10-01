@@ -1223,4 +1223,6 @@ return {
 	["Çiftliklerim"] = "My Farms",
 	["Küçük Adalar"] = "Small Islands",
 	["Ziyaret"] = "Visit",
+	["{} geldi! Etkilere göz at (Mevsim çubuğu)"] = "{1} has arrived! See the effects (Season bar)",
+	["Hava: {} · Etkilere göz at"] = "Weather: {1} · See the effects",
 }

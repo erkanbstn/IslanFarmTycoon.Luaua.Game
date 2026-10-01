@@ -60,7 +60,9 @@ local function setWeather(weather: Config.WeatherConfig, announce: boolean)
 	Environment.setWeather(weather, weatherEndsAt)
 	if announce then
 		local effects = Environment.describeModifiers(weather.incomeModifiers)
-		notifyAll(if effects ~= "" then `Hava: {weather.displayName} · {effects}` else `Hava: {weather.displayName}`)
+		notifyAll(
+			if effects ~= "" then `Hava: {weather.displayName} · Etkilere göz at` else `Hava: {weather.displayName}`
+		)
 	end
 end
 
@@ -81,7 +83,8 @@ local function update(announce: boolean)
 			else (math.floor(now / Config.SEASON_SECONDS) + 1) * Config.SEASON_SECONDS
 		Environment.setSeason(season, endsAt)
 		if announce and seasonChanged then
-			notifyAll(`{season.displayName} geldi! {Environment.describeModifiers(season.incomeModifiers)}`)
+			-- Etkilerin tam listesi bildirimi şişirmesin: ayrıntı Mevsim çubuğundaki "Etkileri göster"de
+			notifyAll(`{season.displayName} geldi! Etkilere göz at (Mevsim çubuğu)`)
 		end
 		if seasonChanged then
 			-- Mevsim değişse de yöneticinin sabitlediği hava korunur.

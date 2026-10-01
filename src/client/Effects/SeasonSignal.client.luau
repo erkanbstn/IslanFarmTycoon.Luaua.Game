@@ -1,10 +1,11 @@
 --!strict
 -- Hayvan altı mevsim/hava göstergesi (sadece görsel, sadece bu oyuncunun ekranında): gelir çarpanı artıya geçen
--- hayvanın altından yukarı süzülen, kuzey ışığı gibi çok soluk yeşilimsi parıltı (eksiye düşende kırmızımsı); nötr hayvanda hiçbir şey.
+-- hayvanın üstüne binen, yukarı eriyen çok soluk yeşilimsi ışık sütunu (kuzey ışığı gibi; eksiye düşende kırmızımsı); nötr hayvanda hiçbir şey.
 -- Sinyal `FarmMath.getSeasonEffect` ile hesaplanır (Mevsim çubuğu ile aynı hesap) ve OLAY tabanlıdır:
 -- mevsim/hava/bölge uyumu/hayvan listesi değişince yeniden hesaplanır. Zamanlayıcı yalnızca mesafe seçer.
--- Yalnızca kameraya yakın, en yakın N hayvanda küçük bir havuzdaki ParticleEmitter'lar çalışır; ReducedMotion'da akış yok.
+-- Yalnızca kameraya yakın, en yakın N hayvanda küçük bir havuzdaki BillboardGui sütunları gösterilir; ReducedMotion'da dalgalanma yok.
 
+local Players = game:GetService("Players")
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -28,18 +29,17 @@ local QUALITY = {
 	high = { distance = 75, maxMarkers = 20 },
 }
 local SELECT_INTERVAL = 0.5 -- mesafe seçimi (olay tabanlı sinyalden ayrı, seyrek)
-local FOLLOW_INTERVAL = 1 / 20 -- ışıltı hayvanı bu aralıkla izler
+local FOLLOW_INTERVAL = 1 / 15
+local SHIMMER_SPEED = 1.1
 local FACING_LIMIT = -0.3 -- kameranın tamamen arkasındaki hayvan seçilmez (bakış yönü ile nokta çarpımı)
-local GLOW_MIN, GLOW_MAX = 2.5, 7 -- ışıltının yayıldığı taban çapı (stud)
 local AURORA_UP = Color3.fromRGB(150, 255, 205) -- kuzey ışığı: yeşilden açık turkuaza yükselir
 local AURORA_UP_BAD = Color3.fromRGB(255, 170, 150)
 
 type Marker = {
-	part: Part,
-	emitter: ParticleEmitter,
+	gui: BillboardGui,
+	glow: Frame,
+	gradient: UIGradient,
 	model: Model?,
-	anchor: BasePart?,
-	yOffset: number,
 	phase: number,
 }
 
@@ -49,79 +49,68 @@ local assigned: { [Model]: Marker } = {}
 local active: { Marker } = {}
 local free: { Marker } = {}
 
-local ringFolder = Instance.new("Folder")
-ringFolder.Name = "SeasonRings" -- yalnızca bu istemcide var
-ringFolder.Parent = Workspace
+local player = Players.LocalPlayer
 
 local function createMarker(): Marker
-	-- Görünmez ince bir kutu: üstündeki ParticleEmitter hayvanın altından yukarı doğru yavaşça süzülen, kuzey ışığı gibi hafif parıltılar çıkarır
-	local part = Instance.new("Part")
-	part.Name = "SeasonAurora"
-	part.Size = Vector3.new(GLOW_MIN, 0.2, GLOW_MIN)
-	part.Transparency = 1
-	part.Anchored = true
-	part.CanCollide, part.CanTouch, part.CanQuery, part.CastShadow = false, false, false, false
-	local emitter = Instance.new("ParticleEmitter")
-	emitter.Texture = "rbxasset://textures/particles/smoke_main.dds"
-	emitter.Orientation = Enum.ParticleOrientation.VelocityParallel
-	emitter.EmissionDirection = Enum.NormalId.Top
-	emitter.SpreadAngle = Vector2.new(6, 6)
-	emitter.Lifetime = NumberRange.new(2.2, 3.4)
-	emitter.Speed = NumberRange.new(0.8, 1.5)
-	emitter.LightEmission = 1
-	emitter.LightInfluence = 0
-	emitter.Rotation = NumberRange.new(0, 0)
-	emitter.RotSpeed = NumberRange.new(0, 0)
-	emitter.Size = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 0.5),
-		NumberSequenceKeypoint.new(0.5, 1.3),
-		NumberSequenceKeypoint.new(1, 0.4),
-	})
-	-- Çok soluk: en yoğun anda bile belli belirsiz (belli etmeden fark edilsin)
-	emitter.Transparency = NumberSequence.new({
+	-- Hayvanın üstüne binen, kameraya dönük tek bir yumuşak ışık sütunu: altı hafif parlak, yukarı doğru eriyip kaybolur (parçacık/halka yok)
+	local gui = Instance.new("BillboardGui")
+	gui.Name = "SeasonGlow"
+	gui.Size = UDim2.fromOffset(120, 150)
+	gui.LightInfluence = 0
+	gui.ResetOnSpawn = false
+	gui.Active = false
+	gui.Enabled = false
+	gui.AlwaysOnTop = false
+	gui.StudsOffsetWorldSpace = Vector3.new(0, 1.2, 0)
+	gui.Parent = player:WaitForChild("PlayerGui")
+	local glow = Instance.new("Frame")
+	glow.Name = "Glow"
+	glow.AnchorPoint = Vector2.new(0.5, 1)
+	glow.Position = UDim2.fromScale(0.5, 1)
+	glow.Size = UDim2.fromScale(1, 1)
+	glow.BorderSizePixel = 0
+	glow.BackgroundColor3 = Color.Green
+	glow.BackgroundTransparency = 0
+	glow.Parent = gui
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0.5, 0)
+	corner.Parent = glow
+	-- Dikey saydamlık geçişi: dipte belli belirsiz, tepede tamamen saydam
+	local gradient = Instance.new("UIGradient")
+	gradient.Rotation = 90
+	gradient.Transparency = NumberSequence.new({
 		NumberSequenceKeypoint.new(0, 1),
-		NumberSequenceKeypoint.new(0.25, 0.82),
-		NumberSequenceKeypoint.new(0.7, 0.9),
+		NumberSequenceKeypoint.new(0.35, 0.86),
+		NumberSequenceKeypoint.new(0.75, 0.94),
 		NumberSequenceKeypoint.new(1, 1),
 	})
-	emitter.Rate = 0
-	emitter.Enabled = false
-	emitter.Parent = part
-	part.Parent = ringFolder
-	return { part = part, emitter = emitter, model = nil, anchor = nil, yOffset = 0, phase = 0 }
+	gradient.Parent = glow
+	return { gui = gui, glow = glow, gradient = gradient, model = nil, phase = 0 }
 end
 
 local function anchorOf(model: Model): BasePart?
 	return model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
 end
 
-local function place(marker: Marker)
-	local anchor = marker.anchor
-	if anchor then
-		marker.part.CFrame = CFrame.new(anchor.Position.X, anchor.Position.Y + marker.yOffset, anchor.Position.Z)
-	end
-end
-
--- Hayvanın altından yukarı süzülen hafif parıltı: artıda yeşilimsi, eksiye düşende kırmızımsı (ok/ikon/halka yok)
+-- Hayvanın üstünde çok soluk, yukarı eriyen ışık sütunu: artıda yeşilimsi, eksiye düşende kırmızımsı (ok/ikon/halka/parçacık yok)
 local function style(marker: Marker, signal: number, model: Model, anchor: BasePart)
 	local good = signal > 0
-	local base = if good then Color.Green else Color.Red
-	marker.emitter.Color = ColorSequence.new(base, if good then AURORA_UP else AURORA_UP_BAD)
-	local boxCf, boxSize = model:GetBoundingBox()
-	local diameter = math.clamp(math.max(boxSize.X, boxSize.Z) * 0.9, GLOW_MIN, GLOW_MAX)
-	marker.part.Size = Vector3.new(diameter, 0.2, diameter)
-	marker.emitter.Rate = 3 + diameter * 0.8
-	-- Hareketi azalt: akış yok, yalnızca zeminde çok soluk bir iz
-	local still = EffectSettings.reducedMotion()
-	marker.emitter.Enabled = not still
-	marker.part.Transparency = if still then 0.93 else 1
-	marker.part.Color = base
-	marker.part.Material = Enum.Material.Neon
-	marker.yOffset = boxCf.Position.Y - boxSize.Y / 2 - anchor.Position.Y + 0.1
-	marker.anchor = anchor
+	marker.glow.BackgroundColor3 = if good then Color.Green else Color.Red
+	marker.gradient.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, if good then Color.Green else Color.Red),
+		ColorSequenceKeypoint.new(1, if good then AURORA_UP else AURORA_UP_BAD),
+	})
+	local _, boxSize = model:GetBoundingBox()
+	local depth = model:GetAttribute("SwimDepthOffset")
+	-- Dipte ayakların hizası (balıkta su altı payı dahil), sütun hayvanın boyundan biraz uzun
+	local width = math.clamp(boxSize.X * 18, 70, 150)
+	marker.gui.Size = UDim2.fromOffset(width, math.clamp(boxSize.Y * 38 + 60, 90, 190))
+	marker.gui.StudsOffsetWorldSpace =
+		Vector3.new(0, -boxSize.Y / 2 + (if typeof(depth) == "number" then depth else 0), 0)
+	marker.gui.Adornee = anchor
+	marker.gui.Enabled = true
 	marker.model = model
-	marker.phase = 0
-	place(marker)
+	marker.phase = (model:GetAttribute("Uid") and #tostring(model:GetAttribute("Uid")) or 0) * 0.7
 end
 
 local function release(model: Model)
@@ -130,9 +119,8 @@ local function release(model: Model)
 		return
 	end
 	assigned[model] = nil
-	marker.part.Transparency = 1
-	marker.emitter.Enabled = false
-	marker.anchor = nil
+	marker.gui.Enabled = false
+	marker.gui.Adornee = nil :: any
 	marker.model = nil
 	local index = table.find(active, marker)
 	if index then
@@ -263,7 +251,7 @@ task.spawn(function()
 		pickMarkers()
 	end)
 
-	local selectElapsed, pulseElapsed = 0, 0
+	local selectElapsed, pulseElapsed, clock = 0, 0, 0
 	RunService.Heartbeat:Connect(function(dt: number)
 		selectElapsed += dt
 		if selectElapsed >= SELECT_INTERVAL then
@@ -277,9 +265,14 @@ task.spawn(function()
 		if pulseElapsed < FOLLOW_INTERVAL then
 			return
 		end
+		clock += pulseElapsed
 		pulseElapsed = 0
+		if EffectSettings.reducedMotion() then
+			return
+		end
+		-- Çok yavaş, hafif dalgalanma: sütun nefes alır gibi (kuzey ışığı)
 		for _, marker in active do
-			place(marker) -- hayvan yürürken ışıltı onu izler
+			marker.gradient.Offset = Vector2.new(0, math.sin(clock * SHIMMER_SPEED + marker.phase) * 0.06)
 		end
 	end)
 end)
