@@ -412,8 +412,10 @@ local function run(actor: Actor)
 			continue
 		end
 
-		local facilityPoint = (spot.CFrame * FACILITY_OFFSET).Position
-		local pen = penPoint(plot, actor.island) or actor.home.Position
+		-- Denizdeki tesis (balıkçı teknesi) ve balık kafesi suyun üstündedir: yardımcı karada, evinde durup tekneye bakar
+		local onWater = spot:GetAttribute("BoatPatrolX") ~= nil or actor.island == "sea"
+		local facilityPoint = if onWater then actor.home.Position else (spot.CFrame * FACILITY_OFFSET).Position
+		local pen = if onWater then actor.home.Position else penPoint(plot, actor.island) or actor.home.Position
 		if not atFacility then
 			-- İş zaten sürüyor (elle ya da önceki turdan): doğrudan tesisin başına git
 			if not goTo(actor, facilityPoint) then
