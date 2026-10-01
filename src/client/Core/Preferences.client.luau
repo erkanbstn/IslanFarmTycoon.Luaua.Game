@@ -26,8 +26,23 @@ end
 
 for _, preference in PREFERENCES do
 	local loaded = false
-	local applying = false
+	local synced: unknown = nil -- sunucunun bildiği son değer; aynısı yeniden gönderilmez
 	local version = 0
+
+	local function queueSend()
+		version += 1
+		local mine = version
+		task.delay(SEND_DELAY, function()
+			if version ~= mine then
+				return
+			end
+			local value = player:GetAttribute(preference.live)
+			if typeof(value) == preference.valueType and value ~= synced then
+				synced = value
+				Remotes.get("RequestSetPreference"):FireServer(preference.kind, value)
+			end
+		end)
+	end
 
 	-- Kayıtlı değer (boş metin = hiç seçilmemiş, varsayılan kalır) yalnızca ilk görüldüğünde uygulanır.
 	local function applySaved()
@@ -40,28 +55,17 @@ for _, preference in PREFERENCES do
 		end
 		loaded = true
 		if typeof(saved) == preference.valueType then
-			applying = true
+			synced = saved
 			player:SetAttribute(preference.live, saved)
-			applying = false
 		end
 	end
 
 	player:GetAttributeChangedSignal(preference.saved):Connect(applySaved)
 	player:GetAttributeChangedSignal(preference.live):Connect(function()
-		if applying or not loaded then
-			return
+		-- Kayıt gelmeden değişen canlı değer varsayılandır (Sfx yazar); kayıt gelince ezilir, gönderilmez.
+		if loaded then
+			queueSend()
 		end
-		version += 1
-		local mine = version
-		task.delay(SEND_DELAY, function()
-			if version ~= mine then
-				return
-			end
-			local value = player:GetAttribute(preference.live)
-			if typeof(value) == preference.valueType then
-				Remotes.get("RequestSetPreference"):FireServer(preference.kind, value)
-			end
-		end)
 	end)
 	applySaved()
 end
