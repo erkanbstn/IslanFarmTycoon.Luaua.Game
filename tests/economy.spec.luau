@@ -944,11 +944,11 @@ return function(FarmMath: any, Config: any, Environment: any)
 					assert(premium >= 1, `theme {index} slot {slot}: premium never discounts`)
 					assert(index > 1 or premium == 1, "farm 1 pays no island premium")
 					local upgrade = Config.getUpgrade(Config.FARM_ISLANDS[islandId].upgradeId :: string) :: any
-					local expected =
+					local expectedPrice =
 						math.floor(upgrade.cost * tierMult * FarmMath.getSlotFactor(probe, islandId) * premium + 0.5)
 					assert(
-						FarmMath.getUpgradeCost(probe, upgrade) == expected
-							and FarmMath.getPrice(probe, "upgrade", upgrade.id) == expected,
+						FarmMath.getUpgradeCost(probe, upgrade) == expectedPrice
+							and FarmMath.getPrice(probe, "upgrade", upgrade.id) == expectedPrice,
 						`theme {index} {upgrade.id}: island price = base x tier x slot x premium`
 					)
 				end

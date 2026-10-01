@@ -1152,6 +1152,7 @@ def main() -> int:
     parser.add_argument("--finish-first", action="store_true", help="Sonraki çiftlik yalnızca etkin çiftliğin tüm yükseltmeleri bitince alınır (çiftlik tamamlama süresi)")
     parser.add_argument("--farms", type=int, default=None, help="Sahip olunacak en çok ana çiftlik sayısı (1 = çoklu çiftlik yok)")
     parser.add_argument("--json", action="store_true", help="Makine okunur JSON çıktısı")
+    parser.add_argument("--smoke", action="store_true", help="Duman testi: JSON'u kendisi ayrıştırır ve hayvan sayısını doğrular (PowerShell boru hattı BOM'u olmadan)")
     args = parser.parse_args()
     executable = args.luau or shutil.which("luau")
     if executable is None:
@@ -1195,7 +1196,7 @@ def main() -> int:
         "goodsTierGrowth": args.goods_tier if args.goods_tier is not None else False,
         "goodsStepBase": [float(item) for item in args.goods_step.split(",") if item.strip()],
         "sellAbove": float(pick("sell_above", args.sell_above, 0)),
-        "json": args.json,
+        "json": args.json or args.smoke,
     }
 
     module = run_tests.module
@@ -1227,7 +1228,7 @@ def main() -> int:
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text("\n".join(pieces), encoding="utf-8")
     try:
-        if not args.json:
+        if not (args.json or args.smoke):
             return subprocess.run([executable, str(output)], cwd=ROOT, check=False).returncode
         result = subprocess.run([executable, str(output)], cwd=ROOT, check=False, capture_output=True)
     finally:
@@ -1236,7 +1237,11 @@ def main() -> int:
         sys.stderr.write(result.stderr.decode("utf-8", errors="replace"))
         sys.stdout.write(result.stdout.decode("utf-8", errors="replace"))
         return result.returncode
-    data = json.loads(result.stdout.decode("utf-8"))
+    data = json.loads(result.stdout.decode("utf-8-sig"))
+    if args.smoke:
+        assert data["totals"]["animals"] > 0, "simülasyon hayvan üretmedi"
+        print(f"Simülasyon duman testi tamam ({data['totals']['animals']} hayvan).")
+        return 0
     sys.stdout.buffer.write(json.dumps(data, ensure_ascii=False).encode("utf-8") + b"\n")
     return 0
 
