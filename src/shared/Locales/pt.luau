@@ -1218,4 +1218,5 @@ return {
 	["Bir çiftlik teması seç; her temanın kendi fiyatı vardır (ilerledikçe pahalı ve zor). Satın alınca adan o çiftliğe dönüşür; önceki çiftliğin park edilir ve çalışmaya devam eder."] = "Escolha um tema de fazenda; cada tema tem seu próprio preço (mais caro e difícil conforme você avança). Ao comprar, a ilha vira essa fazenda; a fazenda anterior fica guardada e continua funcionando.",
 	["İlk hedef: ilk hayvanını satın al ({})"] = "Primeira meta: compre seu primeiro animal ({1})",
 	["İlk hedef: yeni bir hayvan ({})"] = "Primeira meta: um novo animal ({1})",
+	["Çok zor: önce daha kolay çiftlikleri al. Hayvanları ve yatırımları ayrı gelişir; kasa ve depo ortaktır."] = "Muito difícil: compre primeiro as fazendas mais fáceis. Os animais e investimentos evoluem separadamente; o dinheiro e o depósito são compartilhados.",
 }

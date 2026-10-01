@@ -1216,4 +1216,5 @@ return {
 	["Bir çiftlik teması seç; her temanın kendi fiyatı vardır (ilerledikçe pahalı ve zor). Satın alınca adan o çiftliğe dönüşür; önceki çiftliğin park edilir ve çalışmaya devam eder."] = "Выбери тему фермы; у каждой темы своя цена (чем дальше, тем дороже и сложнее). После покупки остров превращается в эту ферму; прежняя ферма паркуется и продолжает работать.",
 	["İlk hedef: ilk hayvanını satın al ({})"] = "Первая цель: купи первое животное ({1})",
 	["İlk hedef: yeni bir hayvan ({})"] = "Первая цель: новое животное ({1})",
+	["Çok zor: önce daha kolay çiftlikleri al. Hayvanları ve yatırımları ayrı gelişir; kasa ve depo ortaktır."] = "Очень сложно: сначала купи более простые фермы. Животные и вложения развиваются отдельно; деньги и склад общие.",
 }

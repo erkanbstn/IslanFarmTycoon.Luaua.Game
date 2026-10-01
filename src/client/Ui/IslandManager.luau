@@ -472,6 +472,11 @@ local function create(): UiKit.Window
 		buyInfo.Text = if atLimit
 			then `En fazla {LIMIT} ana çiftliğin olabilir.`
 			else "Bir çiftlik teması seç; her temanın kendi fiyatı vardır (ilerledikçe pahalı ve zor). Satın alınca adan o çiftliğe dönüşür; önceki çiftliğin park edilir ve çalışmaya devam eder."
+		-- Sahip olunan en yüksek tema: ondan iki ya da daha fazla ileri tema "çok zor" etiketi alır (fiyat ve süre kademesi tema numarasından gelir)
+		local highestOwned = 0
+		for _, farm in farms do
+			highestOwned = math.max(highestOwned, tonumber(farm.id) or 0)
+		end
 		for id, card in freeCards do
 			local known = isKnown(id)
 			local cardPrice = FarmMath.getPrice(state, "farm", nil, tonumber(id) or 1)
@@ -487,7 +492,10 @@ local function create(): UiKit.Window
 			elseif atLimit then
 				card.detail.Text, card.action.Text = "Bu çiftlik teması henüz senin değil.", "Çiftlik sınırı"
 			elseif typeof(cardPrice) == "number" then
-				card.detail.Text = "Hayvanları ve yatırımları ayrı gelişir; kasa ve depo ortaktır."
+				local veryHard = (tonumber(id) or 1) >= highestOwned + 2
+				card.detail.Text = if veryHard
+					then "Çok zor: önce daha kolay çiftlikleri al. Hayvanları ve yatırımları ayrı gelişir; kasa ve depo ortaktır."
+					else "Hayvanları ve yatırımları ayrı gelişir; kasa ve depo ortaktır."
 				card.action.Text = if pending then "İşleniyor" else `Satın al · {FarmMath.formatMoney(cardPrice)}`
 				variant = if state.cash >= cardPrice then "primary" else "warning"
 			else

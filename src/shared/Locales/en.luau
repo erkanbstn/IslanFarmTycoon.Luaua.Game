@@ -1217,4 +1217,5 @@ return {
 	["Bir çiftlik teması seç; her temanın kendi fiyatı vardır (ilerledikçe pahalı ve zor). Satın alınca adan o çiftliğe dönüşür; önceki çiftliğin park edilir ve çalışmaya devam eder."] = "Pick a farm theme; each theme has its own price (pricier and harder as you progress). Once bought, your island becomes that farm; your previous farm is parked and keeps working.",
 	["İlk hedef: ilk hayvanını satın al ({})"] = "First goal: buy your first animal ({1})",
 	["İlk hedef: yeni bir hayvan ({})"] = "First goal: a new animal ({1})",
+	["Çok zor: önce daha kolay çiftlikleri al. Hayvanları ve yatırımları ayrı gelişir; kasa ve depo ortaktır."] = "Very hard: buy the easier farms first. Its animals and investments grow separately; cash and storage are shared.",
 }
