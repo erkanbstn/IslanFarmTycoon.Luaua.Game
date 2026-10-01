@@ -267,9 +267,9 @@ return function(createPlotService: any, Config: any)
 	end
 	carolPlot:SetAttribute("ThemeIndex", 1)
 	local swapsBeforePick = multi.themeSwaps()
-	local newcomer = player(108)
+	local picker = player(110)
 	assert(
-		service.assign(newcomer) and service.getPlot(newcomer) == carolPlot,
+		service.assign(picker) and service.getPlot(picker) == carolPlot,
 		"a new player prefers an already theme-1 plot"
 	)
 	assert(multi.themeSwaps() == swapsBeforePick, "picking a matching plot must not rebuild a theme")
