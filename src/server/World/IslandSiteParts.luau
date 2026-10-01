@@ -1,6 +1,8 @@
 --!strict
 -- Uzman ada yapıları için ortak renkler ve yapı taşları (parça, tabela, yüzey).
 
+local CollectionService = game:GetService("CollectionService")
+
 -- Studio harita eklentisi modülleri kopyalayıp çalıştırır; Shared araması SharedRef'te (kopyadaki Shared'ı bulur).
 local Shared = require(script.Parent:WaitForChild("SharedRef")) :: typeof(game.ReplicatedStorage.Shared)
 local WorldUi = require(Shared:WaitForChild("WorldUi"))
@@ -54,7 +56,35 @@ local function surface(
 	return p
 end
 
+-- Hayvanların içinden geçmemesi gereken katı küçük dekor parçaları ("AnimalObstacle" etiketi); AnimalAnimator hedef seçerken bunları atlar.
+-- Zemin kaplamaları, yollar, teraslar ve çatılar (hayvan altından geçer) etiketlenmez.
+local OBSTACLE_NAMES = {
+	WaterTrough = true,
+	HayBale = true,
+	ShelterPost = true,
+	MushroomStem = true,
+	MushroomCap = true,
+	GroveLog = true,
+	HillWall = true,
+	NestBack = true,
+	NestSide = true,
+	JumpStandard = true,
+	TrainingRail = true,
+	FlagPole = true,
+	TerraceStep = true,
+	CliffStep = true,
+}
+
+local function markObstacles(root: Instance)
+	for _, descendant in root:GetDescendants() do
+		if descendant:IsA("BasePart") and OBSTACLE_NAMES[descendant.Name] then
+			CollectionService:AddTag(descendant, "AnimalObstacle")
+		end
+	end
+end
+
 return {
+	markObstacles = markObstacles,
 	WOOD = WOOD,
 	CREAM = CREAM,
 	STRAW = STRAW,

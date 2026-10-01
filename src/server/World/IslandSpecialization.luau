@@ -19,6 +19,7 @@ IslandSpecialization.SITE_UPGRADE_ID = IslandLayout.SITE_UPGRADE_ID
 local WOOD = IslandSiteParts.WOOD
 local part = IslandSiteParts.part
 local sign = IslandSiteParts.sign
+IslandSpecialization.markObstacles = IslandSiteParts.markObstacles
 local surface = IslandSiteParts.surface
 local horse = IslandSiteBuilders.horse
 local poultry = IslandSiteBuilders.poultry
@@ -84,6 +85,7 @@ function IslandSpecialization.buildExtensionVisual(parent: Instance, surfaceCf: 
 	wrapper:SetAttribute("AreaSize", layout.areaSize)
 	wrapper:SetAttribute("MovementStyle", layout.movement)
 	wrapper:SetAttribute("ExtensionId", extensionId)
+	IslandSiteParts.markObstacles(wrapper)
 	return wrapper
 end
 

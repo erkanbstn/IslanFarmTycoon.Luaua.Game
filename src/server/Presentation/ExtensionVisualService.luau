@@ -331,6 +331,7 @@ function ExtensionVisualService.apply(plot: Model, save: PlayerSave?)
 				JobMarks.ensureAnchor(model, if signBoard and signBoard:IsA("BasePart") then signBoard else nil, 3)
 				JobMarks.setExtension(model, count, capacity, startedAt, endsAt)
 				addCapacityProps(target, surfaceCf, layout, capacity)
+				IslandSpecialization.markObstacles(target)
 			end
 		else
 			model = IslandSpecialization.buildForSaleSign(target, surfaceCf, extensionId, priceText)

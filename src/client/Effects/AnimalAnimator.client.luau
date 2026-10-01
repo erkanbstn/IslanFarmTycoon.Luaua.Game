@@ -39,12 +39,73 @@ local states: { [Model]: AnimalState } = {}
 local frameCount = 0
 local random = Random.new()
 
+-- Katı dekor ("AnimalObstacle" etiketi, sunucu IslandSiteParts.markObstacles): hedef noktası ve oraya giden doğru bunların
+-- (payla genişletilmiş) ayak izine düşmez. Liste hedef seçerken (nadir) tazelenir; kare başı iş yoktur.
+local OBSTACLE_MARGIN = 1.3
+local obstacleCache: { BasePart } = {}
+local obstacleCacheAt = -math.huge
+
+local function obstaclesNear(state: AnimalState): { BasePart }
+	local now = os.clock()
+	if now - obstacleCacheAt > 5 then
+		table.clear(obstacleCache)
+		for _, instance in CollectionService:GetTagged("AnimalObstacle") do
+			if instance:IsA("BasePart") then
+				table.insert(obstacleCache, instance)
+			end
+		end
+		obstacleCacheAt = now
+	end
+	local center = state.area.Position
+	local reach = state.halfSize.Magnitude + 8
+	local near: { BasePart } = {}
+	for _, part in obstacleCache do
+		if part.Parent and (part.Position - center).Magnitude <= reach then
+			table.insert(near, part)
+		end
+	end
+	return near
+end
+
+local function blockedAt(state: AnimalState, point: Vector3, obstacles: { BasePart }): boolean
+	local world = state.area:PointToWorldSpace(point)
+	for _, part in obstacles do
+		local localPoint = part.CFrame:PointToObjectSpace(Vector3.new(world.X, part.Position.Y, world.Z))
+		local half = part.Size / 2
+		if math.abs(localPoint.X) < half.X + OBSTACLE_MARGIN and math.abs(localPoint.Z) < half.Z + OBSTACLE_MARGIN then
+			return true
+		end
+	end
+	return false
+end
+
+local function pathBlocked(state: AnimalState, from: Vector3, to: Vector3, obstacles: { BasePart }): boolean
+	local steps = math.ceil((to - from).Magnitude / 1.2)
+	for step = 1, steps do
+		if blockedAt(state, from:Lerp(to, step / steps), obstacles) then
+			return true
+		end
+	end
+	return false
+end
+
 local function randomPoint(state: AnimalState): Vector3
-	return Vector3.new(
-		random:NextNumber(-state.halfSize.X, state.halfSize.X),
-		0,
-		random:NextNumber(-state.halfSize.Z, state.halfSize.Z)
-	)
+	local obstacles = obstaclesNear(state)
+	local fallback = state.position
+	for _ = 1, 8 do
+		local point = Vector3.new(
+			random:NextNumber(-state.halfSize.X, state.halfSize.X),
+			0,
+			random:NextNumber(-state.halfSize.Z, state.halfSize.Z)
+		)
+		if
+			#obstacles == 0
+			or (not blockedAt(state, point, obstacles) and not pathBlocked(state, state.position, point, obstacles))
+		then
+			return point
+		end
+	end
+	return fallback -- uygun nokta bulunamadı: yerinde bekler (üst üste biner, ama dekora girmez)
 end
 
 local function trackReady(instance: Instance)
