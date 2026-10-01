@@ -432,6 +432,16 @@ return function(FarmMath: any, Config: any, Environment: any)
 		previousCost = cost
 	end
 	assert(FarmMath.getLineageCost("cow", Config.LINEAGE.maxLevel) == math.huge, "no level past the maximum")
+	-- Denge değişmezi (sim: "Irk geri dönüş" <= 2 sa): havuz ne çok ucuz (erken biter) ne çok pahalı (geri dönüş uzar) olsun
+	for animalId, animalConfig in Config.ANIMALS do
+		local pool = 0
+		for level = 0, Config.LINEAGE.maxLevel - 1 do
+			pool += FarmMath.getLineageCost(animalId, level)
+		end
+		local lastCost = FarmMath.getLineageCost(animalId, Config.LINEAGE.maxLevel - 1)
+		assert(pool >= animalConfig.price * 500, `lineage pool for {animalId} collapsed (too cheap)`)
+		assert(lastCost <= animalConfig.price * 250, `lineage last level for {animalId} too expensive (payback > 2h)`)
+	end
 	assert(FarmMath.getLineageCost("ghost", 0) == math.huge, "unknown species cannot be upgraded")
 	lineageFarm.lineage = { cow = 2 }
 	local lineageRatio = FarmMath.getAnimalMultiplier(lineageFarm, "cow", true) / lineageBase
