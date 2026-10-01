@@ -124,36 +124,35 @@ end
 
 -- Gerçek ışık yokken fenerin "yandığı" hissi: yarı saydam Neon küre (çarpışmaz, gölge atmaz).
 -- Pencereler (NightWindow) zaten parlak renkli yüzeydir, hale almaz.
+local function createHalo(glow: Glow): BasePart
+	local part = glow.part
+	local size = math.clamp(math.max(part.Size.X, part.Size.Y, part.Size.Z) * HALO_SCALE, HALO_MIN_SIZE, HALO_MAX_SIZE)
+	local halo = Instance.new("Part")
+	halo.Name = "NightHalo"
+	halo.Shape = Enum.PartType.Ball
+	halo.Size = Vector3.new(size, size, size)
+	halo.Material = Enum.Material.Neon
+	halo.Color = glow.nightColor
+	halo.Anchored = true
+	halo.CanCollide = false
+	halo.CanQuery = false
+	halo.CanTouch = false
+	halo.CastShadow = false
+	glow.halo = halo
+	return halo
+end
+
 local function updateHalo(glow: Glow, show: boolean)
-	local halo = glow.halo
 	if not show then
-		if halo then
-			halo.Parent = nil
+		if glow.halo then
+			glow.halo.Parent = nil
 		end
 		return
 	end
-	local part = glow.part
-	if not halo then
-		local size =
-			math.clamp(math.max(part.Size.X, part.Size.Y, part.Size.Z) * HALO_SCALE, HALO_MIN_SIZE, HALO_MAX_SIZE)
-		halo = Instance.new("Part")
-		halo.Name = "NightHalo"
-		halo.Shape = Enum.PartType.Ball
-		halo.Size = Vector3.new(size, size, size)
-		halo.Material = Enum.Material.Neon
-		halo.Color = glow.nightColor
-		halo.Anchored = true
-		halo.CanCollide = false
-		halo.CanQuery = false
-		halo.CanTouch = false
-		halo.CastShadow = false
-		glow.halo = halo
-	end
-	local fade = math.clamp(ramp * multiplier, 0, 1)
-	local node = halo :: BasePart
-	node.CFrame = part.CFrame
-	node.Transparency = 1 - (1 - HALO_TRANSPARENCY) * fade
-	node.Parent = part
+	local halo = glow.halo or createHalo(glow)
+	halo.CFrame = glow.part.CFrame
+	halo.Transparency = 1 - (1 - HALO_TRANSPARENCY) * math.clamp(ramp * multiplier, 0, 1)
+	halo.Parent = glow.part
 end
 
 local function applyGlow(glow: Glow)
@@ -214,8 +213,11 @@ local function track(instance: Instance)
 end
 
 local function untrack(instance: Instance)
+	if not instance:IsA("BasePart") then
+		return
+	end
 	local glow = glows[instance]
-	if instance:IsA("BasePart") and glow then
+	if glow then
 		if glow.halo then
 			glow.halo:Destroy()
 		end
