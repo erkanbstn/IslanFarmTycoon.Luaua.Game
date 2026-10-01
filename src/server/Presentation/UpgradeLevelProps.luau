@@ -595,7 +595,8 @@ local function applyProps(plot: Model, save: PlayerSave?)
 	if storage > 0 and collector and collector:IsA("BasePart") then
 		local base = CFrame.new(collector.Position.X, collector.Position.Y - 0.75, collector.Position.Z)
 			* collector.CFrame.Rotation
-		storageYard(model, base * CFrame.new(-9, 0, 0), storage)
+		-- Toplayıcı 180° döner: yerel -X dünyada kuleye (+X) düşüyordu; yığın kulenin ve yardımcıların dışında, ada kuzeyinde durur.
+		storageYard(model, base * CFrame.new(0, 0, 8), storage)
 	end
 	local plotBase = plot:FindFirstChild("PlotBase")
 	if #monument > 0 and plotBase and plotBase:IsA("BasePart") then

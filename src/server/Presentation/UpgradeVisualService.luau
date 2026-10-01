@@ -138,7 +138,7 @@ local function buildUpgrade(upgradeId: string, spot: BasePart, parent: Instance)
 		WorldUi.configureProximityPrompt(prompt)
 		prompt.Parent = anchor
 		-- Binanın üstünde iş ilerlemesi (çubuk + yeşil tik) için işaret noktası
-		JobMarks.ensureAnchor(built, nil, 3)
+		JobMarks.ensureAnchor(built, nil, 6)
 	end
 	do
 		local parts = 0

@@ -196,7 +196,7 @@ local HOME_LAYOUT_FLAGS = {
 	{ swapGarden = true, swapWindmill = true, swapEast = true, wellEast = true },
 }
 
-local HOME_LANDMARK_SLOT = Vector2.new(48, -20)
+local HOME_LANDMARK_SLOT = Vector2.new(59, -7) -- ana ada fabrikasının (43,-21) dışında; yoksa Ahır Sv.4 işareti fabrikanın içinde belirir
 
 local function homePlacements(plotIndex: number): { [string]: HomePlacement }
 	local flags = HOME_LAYOUT_FLAGS[(plotIndex - 1) % #HOME_LAYOUT_FLAGS + 1]

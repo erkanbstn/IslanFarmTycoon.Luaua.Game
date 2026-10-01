@@ -87,7 +87,7 @@ local function decorateHome(decor: Instance, islandCf: CFrame, plotIndex: number
 		Vector2.new(-45, -35),
 		Vector2.new(45, -38),
 		Vector2.new(-58, -5),
-		Vector2.new(58, -8),
+		Vector2.new(62, -24),
 		Vector2.new(-54, 20),
 		Vector2.new(54, 20),
 		Vector2.new(30, -58),
