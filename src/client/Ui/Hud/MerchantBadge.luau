@@ -23,7 +23,7 @@ export type Badge = {
 }
 
 -- Üst menü çubuğunun hemen altı; bildirimler (FarmHud toastHolder) bunun da altında durur.
-MerchantBadge.TOP = 66
+MerchantBadge.TOP = 112
 MerchantBadge.HEIGHT = 30
 
 function MerchantBadge.create(
