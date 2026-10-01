@@ -147,6 +147,25 @@ function EconomyService.stopPlayer(player: Player)
 	end
 end
 
+-- Tek oyuncunun hatası döngüyü (herkesin gelirini) durdurmasın.
+function EconomyService.tick()
+	for _, player in Players:GetPlayers() do
+		local ok, err = pcall(function()
+			EconomyService.settlePlayer(player)
+			EconomyService.collect(player)
+		end)
+		if not ok then
+			warn(`[Economy] {err}`)
+			Metrics.increment("LoopError")
+		end
+	end
+	for player in lastCollectAt do
+		if player.Parent == nil then
+			lastCollectAt[player] = nil
+		end
+	end
+end
+
 function EconomyService.init()
 	for _, plot in PlotService.getAllPlots() do
 		local collector = plot:FindFirstChild("Collector")
@@ -166,15 +185,7 @@ function EconomyService.init()
 	task.spawn(function()
 		while true do
 			task.wait(Config.INCOME_TICK_SECONDS)
-			for _, player in Players:GetPlayers() do
-				EconomyService.settlePlayer(player)
-				EconomyService.collect(player)
-			end
-			for player in lastCollectAt do
-				if player.Parent == nil then
-					lastCollectAt[player] = nil
-				end
-			end
+			EconomyService.tick()
 		end
 	end)
 end

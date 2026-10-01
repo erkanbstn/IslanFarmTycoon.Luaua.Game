@@ -40,8 +40,12 @@ return function(createService: any, createEnvironment: any, createLimiter: any, 
 			return services[name]
 		end,
 	}
+	local failClock = false
 	local clock = {
 		time = function(): number
+			if failClock then
+				error("saat hatası")
+			end
 			return now
 		end,
 		clock = function(): number
@@ -88,7 +92,15 @@ return function(createService: any, createEnvironment: any, createLimiter: any, 
 	}
 	local environment = createEnvironment(engine)
 	local limiter = createLimiter(engine, clock)
-	local service = createService(engine, clock, random, remotes, tasks, environment, limiter)
+	local loopErrors = 0
+	local metrics = {
+		increment = function(name: string)
+			if name == "LoopError" then
+				loopErrors += 1
+			end
+		end,
+	}
+	local service = createService(engine, clock, random, remotes, tasks, environment, limiter, metrics, function() end)
 	local settlementPermit = false
 	local settlements = 0
 	for _, method in { "setSeason", "setWeather" } do
@@ -178,6 +190,13 @@ return function(createService: any, createEnvironment: any, createLimiter: any, 
 	studio = false
 	events.DebugCycleWeather.callback(owner)
 	assert(environment.getWeather().id == forced, "F7 remains Studio-only even for authorized owner")
+	failClock = true
+	local resumed, resumeError = coroutine.resume(loop :: thread)
+	assert(resumed, tostring(resumeError))
+	failClock = false
+	assert(loopErrors == 1, "loop failure is counted")
+	tick(1)
+	assert(loopErrors == 1, "season loop keeps running after a failure")
 	print(
 		"PASS season admin: forced/auto weather and seasons, timer renewal, settlement ordering, exact F7 authorization and throttle"
 	)

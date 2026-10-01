@@ -13,6 +13,7 @@ local Remotes = require(Shared:WaitForChild("Remotes"))
 local Environment = require(Shared:WaitForChild("Modules"):WaitForChild("Environment"))
 local AdminPolicy = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("AdminPolicy"))
 local RateLimiter = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("RateLimiter"))
+local Metrics = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("Metrics"))
 
 local SeasonService = {}
 
@@ -192,7 +193,11 @@ function SeasonService.init(beforeChange: (() -> ())?)
 	task.spawn(function()
 		while true do
 			task.wait(1)
-			update(true)
+			local ok, err = pcall(update, true)
+			if not ok then
+				warn(`[Season] Mevsim güncellenemedi: {err}`)
+				Metrics.increment("LoopError")
+			end
 		end
 	end)
 end

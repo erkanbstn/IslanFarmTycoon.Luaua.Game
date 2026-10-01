@@ -167,7 +167,8 @@ return function(
 		{ increment = function() end },
 		clock,
 		dateTime,
-		{}
+		{},
+		function() end
 	)
 	economy.startPlayer(player)
 	local service = createService(engine, remotes, dataService, plots, economy, limiter, dateTime, function() end)

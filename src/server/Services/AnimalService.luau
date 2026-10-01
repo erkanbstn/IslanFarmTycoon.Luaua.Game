@@ -320,8 +320,14 @@ function AnimalService.init()
 		while true do
 			task.wait(1)
 			for _, player in Players:GetPlayers() do
-				for _, farmId in PlayerDataService.getFarmIds(player) do
-					updateGrowth(player, PlayerDataService.getFarmView(player, farmId))
+				local ok, err = pcall(function()
+					for _, farmId in PlayerDataService.getFarmIds(player) do
+						updateGrowth(player, PlayerDataService.getFarmView(player, farmId))
+					end
+				end)
+				if not ok then
+					warn(`[Animal] Büyüme güncellenemedi: {err}`)
+					Metrics.increment("LoopError")
 				end
 			end
 		end
