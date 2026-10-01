@@ -276,18 +276,19 @@ local function create(parent: Instance): UiKit.Window
 	choices("completeSeason", { { id = "now", label = "Mevsim hedefini tamamla" } }, 42)
 	choices("resetEvents", { { id = "now", label = "Olayları ve mevsim hedefini sıfırla" } }, 43)
 	UiKit.text(created.list, "Envanter (test)", "Heading").LayoutOrder = 44
+	choices("fillBarn", { { id = "now", label = "Ahır deposunu doldur" } }, 47)
 	choices("grantItems", { { id = "now", label = "Bütün eşyaları ver (takmaz)" } }, 45)
 	choices("clearItems", { { id = "now", label = "Envanteri boşalt" } }, 46)
 
 	-- Oyuncu işlemleri: seçilen oyuncuya para ver/al/ayarla, kayıt özeti, sunucudan at. Hedef ve tutar sunucuda yeniden doğrulanır.
-	UiKit.text(created.list, "Oyuncu işlemleri", "Heading").LayoutOrder = 47
+	UiKit.text(created.list, "Oyuncu işlemleri", "Heading").LayoutOrder = 48
 	local targetStatus = UiKit.text(created.list, "Önce bir oyuncu seç.", "Caption")
-	targetStatus.LayoutOrder = 48
+	targetStatus.LayoutOrder = 49
 	local playerList = Instance.new("Frame")
 	playerList.BackgroundTransparency = 1
 	playerList.Size = UDim2.new(1, 0, 0, 0)
 	playerList.AutomaticSize = Enum.AutomaticSize.Y
-	playerList.LayoutOrder = 49
+	playerList.LayoutOrder = 50
 	playerList.Parent = created.list
 	UiKit.list(playerList, 4)
 	local selectedTarget: Player? = nil
@@ -325,7 +326,7 @@ local function create(parent: Instance): UiKit.Window
 	rebuildPlayers()
 	local targetAmount = UiKit.textInput(created.list, "Tutar (para işlemleri için)")
 	targetAmount.Name = "TargetAmount"
-	targetAmount.LayoutOrder = 50
+	targetAmount.LayoutOrder = 51
 	local function targetRow(order: number, options: { { id: string, label: string, needsAmount: boolean } })
 		local frame = row(order)
 		for index, option in options do
@@ -367,12 +368,12 @@ local function create(parent: Instance): UiKit.Window
 			end)
 		end
 	end
-	targetRow(51, {
+	targetRow(52, {
 		{ id = "giveCash", label = "Para ver", needsAmount = true },
 		{ id = "takeCash", label = "Para al", needsAmount = true },
 		{ id = "setTargetCash", label = "Bakiyeyi ayarla", needsAmount = true },
 	})
-	targetRow(52, {
+	targetRow(53, {
 		{ id = "inspect", label = "Kasayı göster", needsAmount = false },
 		{ id = "kickPlayer", label = "Sunucudan at", needsAmount = false },
 	})

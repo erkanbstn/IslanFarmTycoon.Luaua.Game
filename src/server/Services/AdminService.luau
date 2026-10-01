@@ -77,6 +77,22 @@ local function execute(player: Player, action: string, value: unknown): (boolean
 		return true,
 			if action == "grantItems" then "Bütün eşyalar verildi (Envanter'den tak)" else "Envanter boşaltıldı"
 	end
+	if action == "fillBarn" then
+		-- Test aracı: ahır deposunu bütün ürünlerden kapasiteye kadar doldurur (yalnızca yöneticinin kendi profili).
+		if player:GetAttribute("WorldReady") ~= true then
+			return false, "Çiftliğin henüz hazır değil"
+		end
+		local data = PlayerDataService.tryGet(player)
+		if not data then
+			return false, "Kayıt oturumu artık etkin değil"
+		end
+		for goodsId in Config.GOODS do
+			FarmMath.addGoods(data, goodsId, FarmMath.getGoodsSpace(data, goodsId))
+		end
+		PlayerDataService.pushState(player)
+		PlayerDataService.requestSave(player)
+		return true, "Ahır deposu doldu"
+	end
 	if
 		action == "forceMerchant"
 		or action == "forceGolden"

@@ -38,6 +38,7 @@ function AdminPolicy.validAction(value: unknown): boolean
 		or value == "resetEvents"
 		or value == "grantItems"
 		or value == "clearItems"
+		or value == "fillBarn"
 end
 
 -- Başka bir oyuncuyu hedefleyen eylemler (Services/AdminPlayerService). Para eylemlerinde değer tutardır.
