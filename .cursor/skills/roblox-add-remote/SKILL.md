@@ -66,7 +66,7 @@ Yeni servis dosyasıysa `src/server/Services/<Ad>Service.luau` olarak aç ve `sr
 - Basit tetik: `Remotes.get("X"):FireServer(...)`. Client hiçbir zaman fiyat/adet göndermez.
 
 ## 4. Metinler
-Tüm ret/başarı mesajları tam Türkçe cümle, emojisiz; `en/de/ru.luau`'ya ekle
+Tüm ret/başarı mesajları tam Türkçe cümle, emojisiz; `Locales/*.luau` (en, de, ru, es, pt)'ya ekle
 (bkz. `roblox-localize` skill'i).
 
 ## 5. Test

@@ -1,5 +1,5 @@
 ---
-description: Yeni oyuncuya görünen metin eklerken çeviri kuralları (tr kaynak; en, de, ru)
+description: Yeni oyuncuya görünen metin eklerken çeviri kuralları (tr kaynak; en, de, ru, es, pt)
 globs: src/client/**/*.luau,src/server/**/*.luau,src/shared/**/*.luau
 alwaysApply: false
 ---
@@ -9,7 +9,7 @@ alwaysApply: false
 Kod Türkçe metin yazar; `Localizer.client.luau` TextLabel/TextButton/ProximityPrompt metnini
 `src/shared/Locales/<kod>.luau` sözlüğüyle çevirir. Sunucu dili bilmez; Notify da client'ta çevrilir.
 
-Yeni/değişen metin → aynı Türkçe anahtarı **üç dosyaya** ekle: `en.luau`, `de.luau`, `ru.luau`.
+Yeni/değişen metin → aynı Türkçe anahtarı **tüm sözlük dosyalarına** ekle: `en`, `de`, `ru`, `es`, `pt` (`.luau`).
 
 ```luau
 ["Depo dolu. Devam etmek için parayı topla."] = "Storage full. Collect to continue.",

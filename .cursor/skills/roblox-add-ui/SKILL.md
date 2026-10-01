@@ -49,7 +49,7 @@ setPurchaseButton(card.action, FarmMath.formatMoney(price), if canAfford then "p
 - [ ] Para/süre/kapasite gösteriyorsan `FarmMath` yardımcısı (elle hesap yok)
 - [ ] Kompakt (<900 genişlik veya <560 yükseklik) ve geniş yerleşimde çakışma yok;
       sağ üst (oyuncu listesi) ve sol üst (sohbet) boş
-- [ ] Yeni metinler en/de/ru sözlüklerinde; etiketler kısa (karo 76 px)
+- [ ] Yeni metinler en/de/ru/es/pt sözlüklerinde; etiketler kısa (karo 76 px)
 - [ ] `python scripts/check-locales.py --strict-literals` temiz
 - [ ] Studio'da 1920x1080, 1366x768 ve telefon emülatöründe görsel kontrol (kullanıcıya hatırlat)
 ```

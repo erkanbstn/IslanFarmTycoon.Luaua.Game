@@ -1,6 +1,6 @@
 ---
 name: roblox-localize
-description: Adds or fixes translations for this Roblox project's Turkish source texts in the en/de/ru dictionaries, including template placeholders and split parts, and verifies coverage with scripts/check-locales.py. Use when new player-visible text is added, text shows up untranslated in-game, or a new language is requested.
+description: Adds or fixes translations for this Roblox project's Turkish source texts in the en/de/ru/es/pt dictionaries, including template placeholders and split parts, and verifies coverage with scripts/check-locales.py. Use when new player-visible text is added, text shows up untranslated in-game, or a new language is requested.
 ---
 
 # Çeviri ekleme
@@ -11,7 +11,7 @@ description: Adds or fixes translations for this Roblox project's Turkish source
 3. Aynı anahtarı `src/shared/Locales/en.luau`, `de.luau`, `ru.luau` içine ilgili bölüme ekle.
 4. Parçalı metin: Localizer önce tam eşleşme, sonra " · " / satır sonu, sonra şablon, sonra ", "
    ile böler. `"İnek x3 · Süt"` için `"İnek x{}"` ve `"Süt"` ayrı ayrı yeterli.
-5. Kısa etiket kuralı: menü karosu ~10 karakter; Almanca/Rusça uzarsa kısalt ("Nach Hause", "Домой").
+5. Kısa etiket kuralı: menü karosu ~10 karakter; Almanca/Rusça/İspanyolca/Portekizce uzarsa kısalt ("Nach Hause", "Домой").
 6. Doğrula:
    ```
    python scripts/check-locales.py --strict-literals
@@ -24,4 +24,4 @@ description: Adds or fixes translations for this Roblox project's Turkish source
 `flagPainters[<kod>]` çiz → `check-locales.py` içindeki `LANGS`'a ekle.
 
 ## Toplu ekleme
-Çok sayıda anahtar için küçük bir Python betiği yaz (Write aracıyla; bash heredoc ters eğik çizgiyi bozar): mevcut anahtarları oku, eksikleri `en/de/ru` dosyalarının sonuna ekle, `check-locales.py --strict-literals` ile doğrula.
+Çok sayıda anahtar için küçük bir Python betiği yaz (Write aracıyla; bash heredoc ters eğik çizgiyi bozar): mevcut anahtarları oku, eksikleri sözlük dosyalarının sonuna ekle, `check-locales.py --strict-literals` ile doğrula.

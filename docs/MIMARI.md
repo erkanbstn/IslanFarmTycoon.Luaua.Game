@@ -59,7 +59,7 @@ Kurallar:
 | `GameTypes.luau` | Kayıt ve ortak tipler |
 | `Remotes.luau` | Tüm RemoteEvent adları tek listede |
 | `Modules/` | Saf mantık: `FarmMath` (tüm hesaplar), `Environment`, `Inventory`, `Rewards`, `Merchant`, `Golden`, `SeasonVisuals` |
-| `Locales/` | Çeviriler (tr kaynak; en, de, ru) |
+| `Locales/` | Çeviriler (tr kaynak; en, de, ru, es, pt) |
 | `UiTheme.luau`, `WorldUi.luau`, `Localization.luau` | Tema, dünya tabelaları, dil seçimi |
 
 Kural: `shared` sunucu ya da istemci klasörlerine bağlanmaz.

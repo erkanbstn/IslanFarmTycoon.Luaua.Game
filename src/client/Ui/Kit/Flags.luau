@@ -78,9 +78,20 @@ local flagPainters: { [string]: (Frame) -> () } = {
 		flagPart(flag, Color3.fromRGB(0, 57, 166), Vector2.new(0.5, 0.5), Vector2.new(1, 0.334))
 		flagPart(flag, Color3.fromRGB(213, 43, 30), Vector2.new(0.5, 0.833), Vector2.new(1, 0.334))
 	end,
+	-- Kırmızı / sarı (iki kat geniş) / kırmızı yatay şeritler
+	es = function(flag: Frame)
+		flag.BackgroundColor3 = Color3.fromRGB(170, 21, 27)
+		flagPart(flag, Color3.fromRGB(241, 191, 0), Vector2.new(0.5, 0.5), Vector2.new(1, 0.5))
+	end,
+	-- Yeşil zemin, sarı baklava (45° döndürülmüş kare) ve mavi daire
+	pt = function(flag: Frame)
+		flag.BackgroundColor3 = Color3.fromRGB(0, 156, 59)
+		flagPart(flag, Color3.fromRGB(255, 223, 0), Vector2.new(0.5, 0.5), Vector2.new(0.36, 0.54), 45)
+		flagPart(flag, Color3.fromRGB(0, 39, 118), Vector2.new(0.5, 0.5), Vector2.new(0.2, 0.3), 0, true)
+	end,
 }
 
--- Ülke/dil kodundan (tr, en, de, ru) çizilmiş bayrak; genişlik piksel, yükseklik 2/3'ü.
+-- Ülke/dil kodundan (tr, en, de, ru, es, pt) çizilmiş bayrak; genişlik piksel, yükseklik 2/3'ü.
 function Flags.flag(parent: Instance, code: string, width: number): Frame
 	local flag = Instance.new("Frame")
 	flag.Name = "Flag"

@@ -162,7 +162,7 @@ function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 		updateMerchant(state)
 		if content then
 			shopInfo.Text =
-				`Açık bölgelerdeki hayvanlar listelenir (ada seçimi shop'u gizlemez). Yavru doğar, büyüdükçe kazanç artar.\nIrk geliştirme: her seviye o türün gelirini +%{math.round(
+				`Açık bölgelerdeki hayvanlar listelenir (ada seçimi dükkânı gizlemez). Yavru doğar, büyüdükçe kazanç artar.\nIrk geliştirme: her seviye o türün gelirini +%{math.round(
 					Config.LINEAGE.incomePerLevel * 100
 				)} artırır.`
 		end

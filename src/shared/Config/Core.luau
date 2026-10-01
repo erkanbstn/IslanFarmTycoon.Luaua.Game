@@ -11,7 +11,7 @@ return {
 
 	-- Arayüz dilleri. Kaynak dil Türkçe; diğerleri src/shared/Locales/<kod>.luau içinde.
 	-- countries: kullanılmıyor (başlangıç dili yalnızca Roblox sistem dilinden; desteklenmiyorsa İngilizce).
-	LANGUAGE_ORDER = { "tr", "en", "de", "ru" },
+	LANGUAGE_ORDER = { "tr", "en", "de", "ru", "es", "pt" },
 
 	-- Grafik tercihi (hesaba kaydedilir): auto = cihaza ve kare hızına göre otomatik
 	GRAPHICS_MODES = { auto = true, low = true, medium = true, high = true } :: { [string]: boolean },
@@ -21,6 +21,8 @@ return {
 		en = { code = "en", name = "English", countries = {} },
 		de = { code = "de", name = "Deutsch", countries = { "DE", "AT", "CH", "LI", "LU" } },
 		ru = { code = "ru", name = "Русский", countries = { "RU", "BY", "KZ", "KG" } },
+		es = { code = "es", name = "Español", countries = {} },
+		pt = { code = "pt", name = "Português", countries = {} },
 	} :: { [string]: { code: string, name: string, countries: { string } } },
 
 	DEFAULT_LANGUAGE = "en",
