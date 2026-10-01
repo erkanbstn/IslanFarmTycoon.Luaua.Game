@@ -1,6 +1,6 @@
 # Island Farm Tycoon — Durum Raporu (2026-10-01)
 
-Kaynak belge: `docs/ANALIZ_RAPORU.md` (bulgu numaraları ona göre). Bu rapor kodla hedefli karşılaştırma (grep + kısa okuma) ve
+Kaynak belge `docs/ANALIZ_RAPORU.md` (1 Ekim 2026) bu raporun tamamlanmasından sonra silindi; bulgu numaraları ona göre, metni git geçmişinde. Bu rapor kodla hedefli karşılaştırma (grep + kısa okuma) ve
 `verify.ps1` / `simulate-economy.py` çıktılarıyla hazırlandı; Studio çalıştırılmadı. Ara raporlar (`docs/raporlar/`) bu raporun
 2, 3, 6 ve 7. bölümlerine taşındı ve silindi (tarihçe git geçmişinde).
 
@@ -216,16 +216,16 @@ Birleştirilen kaynaklar: E, P1, P3, P4, P5, P6, P7, P8, P10, P11 ve D raporlar�
 ## 9. Koddan çürütülmüş belge bilgileri (dokunulmadı)
 - `docs/URETIM_VE_UZMAN_ADALAR.md`: "Harita sürümü 13" (gerçek 51) ve tesis tablosu (örn. Süt fabrikası 60 sn, 2 yetişkin inek, masraf 160/teslim 650); `src/shared/Config/Production.luau:120-130` süt fabrikası 35 sn, 1 yetişkin, masraf 0. Tablo güncellenmeli.
 - `docs/ANA_CIFTLIKLER.md`: "Haritada 6 fiziksel ada hepsi aynı (1. tema) kurulur" ve "çalışma anında yeniden giydirilir" ifadesi artık yalnızca kısmen doğru (şablon Clone, `MapBuilder.luau:48-51,170`); çiftlik fiyat cümlesi (~590 bin ... 100 milyon) `FARM_COST_STEP = 6` sonrası doğrulanmadı.
-- `docs/ANALIZ_RAPORU.md` kaynak belge olarak olduğu gibi duruyor; rakamları (774 tip, 932 anahtar, 25 spec, MAP_VERSION 49) tarihsel.
 
 ## 10. Temizlik
 
 Silinen:
 - `docs/raporlar/*.md` (23 dosya: D-P1, D-P2, D-P4, D-P6, D-P7, D-P10, D-P11, E, O3, O4, O10, O11, P1, P2, P3, P3-birlestirme, P4, P5, P6, P7, P8, P10, P11): açık sorular, Studio adımları, ertelenen bulgular ve kararlar bu rapora (§2, §3, §6, §7) taşındı; tarihçe git geçmişinde.
 - `docs/DEVAM_PLANI.md`: Aşama 1-5 tamamlandı (P9 hariç, o §8'de); dal haritası ve ajan kuralları geçersiz, kalan iş §8'de.
-- `docs/AI_ANALIZ_PROMPTU.md`: tek seferlik analiz prompt'u; analiz yapıldı, proje tarifi (kayıt, ekonomi, tema) o günkü duruma ait ve artık güncel değil. `ANALIZ_RAPORU.md:3`'teki tarihsel anış kaldı.
+- `docs/AI_ANALIZ_PROMPTU.md`: tek seferlik analiz prompt'u; analiz yapıldı, proje tarifi (kayıt, ekonomi, tema) o günkü duruma ait ve artık güncel değil.
 
 Değiştirilen:
 - `docs/SONNET_IS_PAKETLERI.md`: yapılan paketler (P0-P8, P10, P11, P3, inceleme prompt'ları) çıkarıldı; yalnızca ortak kurallar ile yapılmamış P9, P12, K1-K3 kaldı.
-- `docs/ANALIZ_RAPORU.md`: başına "Güncel durum için docs/DURUM_RAPORU.md" satırı eklendi.
+- `docs/ANALIZ_RAPORU.md` (sonradan silindi): bu raporun bulgu tablosu onu kapsıyor; metni `git show b15e796:docs/ANALIZ_RAPORU.md`.
+- `docs/SES_LISTESI.md` (sonradan silindi): içeriği `docs/SESLER.md` §6'ya birleştirildi.
 - README.md, AGENTS.md, `.cursor/rules` silinen belgelere bağlantı vermiyordu; değişiklik gerekmedi.

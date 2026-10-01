@@ -77,3 +77,29 @@ Yuvası henüz yok; istersen söyle, yuva + bağlantıyı eklerim.
 1. `Audio.luau` → `SOUNDS` içine `yuva = { id = "", volume = 0.4 }` ekle.
 2. Olayın olduğu yerde `Sfx.play("yuva")` çağır (istemcide; bkz. `Core/Sfx`). Durum farkından anlaşılan olaylar `Interaction/EventSounds`'ta toplanır.
 3. Bu tabloya satır ekle.
+
+## 6. Ses üretme (dosya kuralları ve istek örnekleri)
+
+Genel kurallar: mono ya da stereo `.wav`/`.mp3`, en fazla 7 dakika (Roblox sınırı); kısa efektler 0,2-1,5 sn,
+döngüler 20-40 sn ve başı-sonu dikişsiz. Sessizlikle başlayıp bitmesin (kırpılmış olsun). Ortam döngülerini
+ayrı ayrı yükle, oyun katmanları karıştırır.
+
+| Yuva | İstek (prompt) örneği | Süre |
+|---|---|---|
+| `click` | "soft wooden UI click, cozy farm game, dry" | 0,1-0,2 sn |
+| `coin` | "bright coin pickup chime, cartoon, sparkly, short" | 0,4-0,7 sn |
+| `success` | "cheerful two-note success chime, warm, cartoon" | 0,6-1 sn |
+| `error` | "soft low error blip, gentle, not harsh" | 0,3-0,5 sn |
+| `build` | "construction pop with wood and sparkles, triumphant short jingle" | 1-1,5 sn |
+| `birds` | "peaceful spring meadow ambience, gentle birdsong, soft breeze, seamless loop" | döngü |
+| `wind` | "cold autumn wind over open field, soft, slow gusts, seamless loop" | döngü |
+| `rain` | "steady light rain on grass and wood roofs, calm, seamless loop" | döngü |
+| `storm` | "heavy rain with distant rolling thunder, wind, seamless loop" | döngü |
+| `night` | "summer night crickets and soft frogs, quiet countryside, seamless loop" | döngü |
+| `MUSIC.main` | "relaxing acoustic farm tycoon background music, light guitar and strings, warm, loopable, 90 BPM" | 1-2 dk döngü |
+
+Hayvanlar (0,6-1,5 sn, yumuşak ve sevimli): cow (yumuşak böğürme), chicken (kısa gıdaklama), horse (kısa kişneme), goat (melemek),
+duck (vak vak), sheep (mee), pig (hafif homurtu). Kalıp: "friendly cartoon {hayvan} sound, gentle, short, no background".
+
+Su altı için yuva henüz yok (bkz. 4); eklenirse: `splash` "small water splash, soft, cartoon, short", `bubbles` "underwater bubbles rising,
+calm, short loop", `underwaterAmbience` "muffled deep underwater ambience, soft hum, seamless loop".
