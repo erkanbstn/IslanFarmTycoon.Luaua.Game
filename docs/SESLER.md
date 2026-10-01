@@ -12,30 +12,30 @@ Durum: **Var** = şu an motorun kendi yer tutucu dosyası çalıyor (kendi sesin
 
 | Yuva | Ne zaman çalar | Nerede bağlı | Durum | Önerilen ses |
 |---|---|---|---|---|
-| `click` | Her buton tıklaması | `Ui/Kit/Controls` (tüm düğmeler, menü karoları, slider) | Var | Kısa, yumuşak "tık" (çok kısık, sık çalar) |
-| `coin` | Para platformundan para toplama | `Ui/FarmHud` (Notify "money") | Var | Kısa, tok bozuk para; **tok ve kısık** (sık çalar) |
-| `success` | Satın alma/işlem başarılı | `Core/PurchaseController`, `Ui/IslandManager` | Var | Olumlu kısa "ding" |
-| `error` | Reddedilen işlem / hata bildirimi | `Core/PurchaseController`, `Ui/FarmHud`, `IslandManager` | Var | Alçak, nazik "bzzt" |
-| `build` | Yeni bina/yükseltme belirirken | `Effects/BuildEffects` | Var | İnşaat/çekiç + kısa zafer |
-| `ui_open` | Pencere açılır | `Ui/Kit/Windows` (tüm pencereler) | Boş | Hafif kayma/"whoosh" |
-| `ui_close` | Pencere kapanır | `Ui/Kit/Windows` | Boş | `ui_open`'ın tersi |
-| `notify` | Bilgi bildirimi (mavi toast) | `Ui/FarmHud` (Notify "info") | Boş | Yumuşak zil |
-| `animal_buy` | Hayvan satın alındı | `Interaction/EventSounds` (hayvan sayısı arttı) | Boş | Kısa hayvan "hoop"/pop |
-| `animal_sell` | Hayvan satıldı | `EventSounds` (hayvan sayısı azaldı) | Boş | Nötr kısa "pat" |
-| `upgrade_buy` | Yükseltme alındı | `EventSounds` (alınan yükseltme arttı) | Boş | Tatmin edici "ka-ching" + yükseliş |
-| `expansion_buy` | Bölge/tesis geliştirme seviyesi | `EventSounds` (geliştirme toplamı arttı) | Boş | Çekiç + parlayan "çın" |
-| `barn_level` | Ahır seviyesi arttı | `EventSounds` | Boş | Büyük kutlama (kısa fanfar) |
-| `production_start` | Üretim partisi başladı | `EventSounds` (yeni iş) | Boş | Makine çalışma / düğme basma |
-| `production_ready` | Parti hazır oldu | `EventSounds` (süre doldu) | Boş | Fırın "ding" / tamamlanma zili |
-| `production_claim` | Parti teslim alındı | `EventSounds` (iş kalktı) | Boş | Kasa/çuval teslim sesi |
-| `contract_done` | Ahır siparişi teslim edildi | `EventSounds` (teslim sayacı arttı) | Boş | Ticaret "onay" + bozuk para |
-| `achievement` | Başarım ödülü alındı | `EventSounds` (başarım sayısı arttı) | Boş | Ödül fanfarı (kısa, parlak) |
-| `daily_claim` | Günlük ödül alındı | `EventSounds` (günlük gün değişti) | Boş | Hediye açma |
-| `item_buy` | Eşya satın alındı | `EventSounds` (eşya sayısı arttı) | Boş | Dükkân zili |
-| `item_equip` | Eşya takıldı/çıkarıldı | `EventSounds` (takılı değişti) | Boş | Kumaş/metal "tık" |
-| `season_change` | Mevsim değişti | `EventSounds` (sunucu saatinden) | Boş | Yumuşak mevsim geçişi |
-| `golden_spawn` | Altın hayvan belirdi | `Ui/FarmHud` (merchantNotice) | Boş | Parıltı/"şıngırtı" |
-| `merchant_arrive` | Gezgin tüccar geldi | `Ui/FarmHud` (merchantNotice) | Boş | Bisiklet/çan, yolculuk sesi |
+| `click` | Her buton tıklaması | `Ui/Kit/Controls` (tüm düğmeler, menü karoları, slider) | Var (yüklendi) | Kısa, yumuşak "tık" (çok kısık, sık çalar) |
+| `coin` | Para platformundan para toplama | `Ui/FarmHud` (Notify "money") | Var (yüklendi) | Kısa, tok bozuk para; **tok ve kısık** (sık çalar) |
+| `success` | Satın alma/işlem başarılı | `Core/PurchaseController`, `Ui/IslandManager` | Var (yüklendi) | Olumlu kısa "ding" |
+| `error` | Reddedilen işlem / hata bildirimi | `Core/PurchaseController`, `Ui/FarmHud`, `IslandManager` | Var (yüklendi) | Alçak, nazik "bzzt" |
+| `build` | Yeni bina/yükseltme belirirken | `Effects/BuildEffects` | Var (yüklendi) | İnşaat/çekiç + kısa zafer |
+| `ui_open` | Pencere açılır | `Ui/Kit/Windows` (tüm pencereler) | Var (yüklendi) | Hafif kayma/"whoosh" |
+| `ui_close` | Pencere kapanır | `Ui/Kit/Windows` | Var (yüklendi) | `ui_open`'ın tersi |
+| `notify` | Bilgi bildirimi (mavi toast) | `Ui/FarmHud` (Notify "info") | Var (yüklendi) | Yumuşak zil |
+| `animal_buy` | Hayvan satın alındı | `Interaction/EventSounds` (hayvan sayısı arttı) | Var (yüklendi) | Kısa hayvan "hoop"/pop |
+| `animal_sell` | Hayvan satıldı | `EventSounds` (hayvan sayısı azaldı) | Var (yüklendi) | Nötr kısa "pat" |
+| `upgrade_buy` | Yükseltme alındı | `EventSounds` (alınan yükseltme arttı) | Var (yüklendi) | Tatmin edici "ka-ching" + yükseliş |
+| `expansion_buy` | Bölge/tesis geliştirme seviyesi | `EventSounds` (geliştirme toplamı arttı) | Var (yüklendi) | Çekiç + parlayan "çın" |
+| `barn_level` | Ahır seviyesi arttı | `EventSounds` | Var (yüklendi) | Büyük kutlama (kısa fanfar) |
+| `production_start` | Üretim partisi başladı | `EventSounds` (yeni iş) | Var (yüklendi) | Makine çalışma / düğme basma |
+| `production_ready` | Parti hazır oldu | `EventSounds` (süre doldu) | Var (yüklendi) | Fırın "ding" / tamamlanma zili |
+| `production_claim` | Parti teslim alındı | `EventSounds` (iş kalktı) | Var (yüklendi) | Kasa/çuval teslim sesi |
+| `contract_done` | Ahır siparişi teslim edildi | `EventSounds` (teslim sayacı arttı) | Var (yüklendi) | Ticaret "onay" + bozuk para |
+| `achievement` | Başarım ödülü alındı | `EventSounds` (başarım sayısı arttı) | Var (yüklendi) | Ödül fanfarı (kısa, parlak) |
+| `daily_claim` | Günlük ödül alındı | `EventSounds` (günlük gün değişti) | Var (yüklendi) | Hediye açma |
+| `item_buy` | Eşya satın alındı | `EventSounds` (eşya sayısı arttı) | Var (yüklendi) | Dükkân zili |
+| `item_equip` | Eşya takıldı/çıkarıldı | `EventSounds` (takılı değişti) | Var (yüklendi) | Kumaş/metal "tık" |
+| `season_change` | Mevsim değişti | `EventSounds` (sunucu saatinden) | Var (yüklendi) | Yumuşak mevsim geçişi |
+| `golden_spawn` | Altın hayvan belirdi | `Ui/FarmHud` (merchantNotice) | Var (yüklendi) | Parıltı/"şıngırtı" |
+| `merchant_arrive` | Gezgin tüccar geldi | `Ui/FarmHud` (merchantNotice) | Var (yüklendi) | Bisiklet/çan, yolculuk sesi |
 
 ## 2. Ortam döngüleri (`AMBIENCE`)
 
@@ -43,11 +43,11 @@ Sürekli (döngü) çalan, mevsim/hava/gece durumuna göre açılıp kısılan k
 
 | Yuva | Ne zaman | Durum | Önerilen ses |
 |---|---|---|---|
-| `birds` | İlkbahar/yaz gündüz | Boş | Kuş cıvıltısı (döngü) |
-| `wind` | Sonbahar/kış | Boş | Rüzgâr (döngü) |
-| `rain` | Yağmur | Boş | Yağmur (döngü) |
-| `storm` | Fırtına | Boş | Gök gürültüsü + yağmur |
-| `night` | Gece | Boş | Cırcır böceği (döngü) |
+| `birds` | İlkbahar/yaz gündüz | Var (yüklendi) | Kuş cıvıltısı (döngü) |
+| `wind` | Sonbahar/kış | Var (yüklendi) | Rüzgâr (döngü) |
+| `rain` | Yağmur | Var (yüklendi) | Yağmur (döngü) |
+| `storm` | Fırtına | Var (yüklendi) | Gök gürültüsü + yağmur |
+| `night` | Gece | Var (yüklendi) | Cırcır böceği (döngü) |
 
 ## 3. Hayvan sesleri (`ANIMAL_SOUNDS`)
 
