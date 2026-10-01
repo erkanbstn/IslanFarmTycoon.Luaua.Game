@@ -27,7 +27,7 @@ TelemetryLogic.ECONOMY = {
 	season = { flow = "Source", transaction = "Season", batched = false },
 	golden = { flow = "Source", transaction = "GoldenAnimal", batched = false },
 	order = { flow = "Source", transaction = "Order", batched = false },
-	production = { flow = "Source", transaction = "Production", batched = false },
+	production = { flow = "Source", transaction = "Production", batched = true },
 	achievement = { flow = "Source", transaction = "Achievement", batched = false },
 	iap = { flow = "Source", transaction = "IncomePack", batched = false },
 	refund = { flow = "Source", transaction = "Refund", batched = false },

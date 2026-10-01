@@ -10,7 +10,7 @@ Tüm olaylar **sunucudan** `Services/TelemetryService.luau` ile gönderilir; saf
 - Tüm AnalyticsService çağrıları `pcall` içindedir; hata `TelemetryError` sayacına yazılır, oyunu bozmaz.
 - Sunucu başına iç bütçe: dakikada `TelemetryLogic.EVENTS_PER_MINUTE` (120) olay. Aşılırsa olay düşer ve `TelemetryDropped` artar
   (Roblox'un belgelenmiş bir dakikalık sınırı yok; bu değer muhafazakâr bir tahmindir, canlıda `TelemetryDropped` 0 değilse artır/azalt).
-- Yüksek frekanslı kaynaklar (Toplama, Otomatik toplama) oyuncu başına birikir ve 60 sn'de bir (ve oyuncu çıkarken) tek olay olarak gider.
+- Yüksek frekanslı kaynaklar (Toplama, Otomatik toplama, Üretim) oyuncu başına birikir ve 60 sn'de bir (ve oyuncu çıkarken) tek olay olarak gider.
 - Roblox sınırları: 5 para birimi (yalnızca `Cash`), 20 işlem türü, 100 SKU, 100 özel olay adı. Test bunları denetler;
   yeni kategori/olay eklerken `TelemetryLogic`'e ekle (listede olmayan olay gönderilmez, `TelemetryUnknown*` sayılır).
 
@@ -36,7 +36,7 @@ oyuncular bu yüzden hunide görünmez; yalnızca sonradan geçtikleri adımlar 
 | Kaynak | Offline | `PlayerDataService.load` (çevrimdışı dönüş) |
 | Kaynak | Daily, Season, Achievement, GoldenAnimal | `EngagementService` |
 | Kaynak | Order | `ContractService` |
-| Kaynak | Production | `ProductionService`, `PetService` (para fabrikası ödülü) |
+| Kaynak | Production (toplu, 60 sn) | `ProductionService`, `PetService` (para fabrikası ödülü) |
 | Kaynak | IncomePack | `MonetizationService` (gelir paketi) |
 | Kaynak | Refund | `AnimalService` (hayvan satışı iadesi) |
 | Gider | Animal (hayvan, gezgin tüccar, balık değişimi) | `AnimalService` |

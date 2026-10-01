@@ -100,7 +100,7 @@ local function sendEconomy(
 	end)
 end
 
--- Para hareketi. Yüksek frekanslı kaynaklar (toplama, otomatik toplama) oyuncu başına birikir, FLUSH_SECONDS'ta bir gider.
+-- Para hareketi. Yüksek frekanslı kaynaklar (toplama, otomatik toplama, üretim) oyuncu başına birikir, FLUSH_SECONDS'ta bir gider.
 -- `balance`: işlem sonrası bakiye. `sku`: yalnızca sınırlı kümeden (hayvan/eşya/yükseltme kimliği; en çok 100 farklı).
 function TelemetryService.economy(player: Player, key: string, amount: number, balance: number, sku: string?)
 	local category = TelemetryLogic.ECONOMY[key]

@@ -25,7 +25,10 @@ return function(createService: any, Logic: any, Config: any)
 		assert(not transactions[category.transaction], `{key}: işlem türü benzersiz`)
 		transactions[category.transaction] = true
 		transactionCount += 1
-		assert(category.batched == (key == "collect" or key == "autoCollect"), `{key}: yalnızca toplama toplu gider`)
+		assert(
+			category.batched == (key == "collect" or key == "autoCollect" or key == "production"),
+			`{key}: yalnızca toplama ve üretim toplu gider`
+		)
 	end
 	assert(transactionCount <= 20, "AnalyticsService işlem türü sınırı 20")
 	for _, key in { "collect", "autoCollect", "offline", "daily", "season", "golden", "order", "production", "refund" } do
