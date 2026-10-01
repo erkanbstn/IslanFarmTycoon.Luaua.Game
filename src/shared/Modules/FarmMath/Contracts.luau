@@ -69,25 +69,56 @@ function Contracts.reward(worth: number, rewardFactor: number, bonus: number?): 
 	return math.floor(worth * rewardFactor * (1 + (bonus or 0)))
 end
 
--- O anki pencerenin teklifleri: kademe başına bir teklif; satır sayısı kadar farklı ürün ister. Hiç ürün merkezi yoksa boş.
+-- Park-Miller üreteci: pencere ve sıraya bağlı, sunucu ile client'ta aynı sonucu verir (Roblox Random gerekmez).
+local function newGenerator(seed: number): () -> number
+	local state = seed % 2147483646 + 1
+	return function(): number
+		state = state * 16807 % 2147483647
+		return state / 2147483647
+	end
+end
+
+-- O anki pencerenin teklifleri: `slots` kadar (ızgara). Her sıra ağırlıklı rastgele bir kademe seçer, kademenin satır sayısı kadar
+-- farklı ürünü rastgele sıralar ve birim sayısını ± variation oranında oynatır. Hiç ürün merkezi yoksa boş.
 function Contracts.offers(save: PlayerSave, now: number, bonus: number?): { Offer }
 	local available = Contracts.availableGoods(save)
 	local offers: { Offer } = {}
 	if #available == 0 then
 		return offers
 	end
+	local settings = Config.GOODS_CONTRACTS
 	local window = Contracts.window(now)
 	local cap = Goods.getGoodsCap(save)
-	for index, tier in Config.GOODS_CONTRACTS.tiers do
+	local totalWeight = 0
+	for _, tier in settings.tiers do
+		totalWeight += tier.weight
+	end
+	for slot = 1, settings.slots do
+		local random = newGenerator(window * 7919 + slot * 104729 + 12345)
+		random()
+		local roll = random() * totalWeight
+		local tier = settings.tiers[#settings.tiers]
+		for _, candidate in settings.tiers do
+			roll -= candidate.weight
+			if roll <= 0 then
+				tier = candidate
+				break
+			end
+		end
+		-- Ürünleri karıştır (Fisher-Yates), ilk `lines` tanesini al
+		local pool = table.clone(available)
+		for index = #pool, 2, -1 do
+			local pick = math.floor(random() * index) + 1
+			pool[index], pool[pick] = pool[pick], pool[index]
+		end
 		local lines: { Line } = {}
-		local start = (window * 3 + index * 2) % #available
-		for step = 0, math.min(tier.lines, #available) - 1 do
-			local goodsId = available[(start + step) % #available + 1]
-			table.insert(lines, { goodsId = goodsId, amount = math.min(tier.units, cap) })
+		for step = 1, math.min(tier.lines, #pool) do
+			local amount = math.floor(tier.units * (1 + (random() * 2 - 1) * settings.variation) + 0.5)
+			table.insert(lines, { goodsId = pool[step], amount = math.clamp(amount, 1, math.max(cap, 1)) })
 		end
 		local worth = totalWorth(lines)
 		table.insert(offers, {
-			key = `{window}:{index}`,
+			key = `{window}:{slot}`,
 			tier = tier.id,
 			displayName = tier.displayName,
 			lines = lines,

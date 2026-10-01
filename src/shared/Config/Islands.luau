@@ -16,7 +16,7 @@ return {
 			displayName = "Küçük Ahır",
 			barnScale = 1,
 			storageCap = 10000,
-			goodsCap = 60,
+			goodsCap = 12,
 			incomeMultiplier = 1,
 		},
 		{
@@ -24,7 +24,7 @@ return {
 			displayName = "Genişletilmiş Ahır",
 			barnScale = 1.2,
 			storageCap = 24000,
-			goodsCap = 120,
+			goodsCap = 24,
 			incomeMultiplier = 1.2,
 		},
 		{
@@ -32,7 +32,7 @@ return {
 			displayName = "Çiftlik Ahırı",
 			barnScale = 1.45,
 			storageCap = 60000,
-			goodsCap = 240,
+			goodsCap = 48,
 			incomeMultiplier = 1.4,
 		},
 		{
@@ -40,7 +40,7 @@ return {
 			displayName = "Büyük Çiftlik",
 			barnScale = 1.7,
 			storageCap = 200000,
-			goodsCap = 500,
+			goodsCap = 96,
 			incomeMultiplier = 1.7,
 		},
 	} :: { Types.BarnLevelConfig },

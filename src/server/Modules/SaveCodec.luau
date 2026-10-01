@@ -80,7 +80,7 @@ local function parseContracts(raw: any, config: any): (any?, number)
 	end
 	local kept = 0
 	for key, flag in raw.done do
-		if typeof(key) == "string" and #key <= 24 and flag == true and kept < #config.GOODS_CONTRACTS.tiers then
+		if typeof(key) == "string" and #key <= 24 and flag == true and kept < config.GOODS_CONTRACTS.slots then
 			kept += 1
 			contracts.done[key] = true
 		else

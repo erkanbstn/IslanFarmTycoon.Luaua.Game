@@ -432,12 +432,12 @@ return {
 			animalId = "cow",
 			animalIds = { "cow" },
 			requiredAdults = 2,
-			duration = 60,
+			duration = 90,
 			cost = 80,
-			reward = 650, -- ürünlerin para karşılığı (yalnızca gösterim/dengeleme)
+			reward = 750, -- ürünlerin para karşılığı (yalnızca gösterim/dengeleme)
 			output = "goods",
 			goodsId = "milk",
-			goodsAmount = 26,
+			goodsAmount = 3,
 		},
 		egg_goods = {
 			id = "egg_goods",
@@ -449,12 +449,12 @@ return {
 			animalId = "chicken",
 			animalIds = { "chicken" },
 			requiredAdults = 2,
-			duration = 90,
+			duration = 135,
 			cost = 60,
-			reward = 240, -- ürünlerin para karşılığı (yalnızca gösterim/dengeleme)
+			reward = 960, -- ürünlerin para karşılığı (yalnızca gösterim/dengeleme)
 			output = "goods",
 			goodsId = "egg",
-			goodsAmount = 20,
+			goodsAmount = 2,
 		},
 		down_goods = {
 			id = "down_goods",
@@ -466,12 +466,12 @@ return {
 			animalId = "duck",
 			animalIds = { "duck" },
 			requiredAdults = 3,
-			duration = 70,
+			duration = 105,
 			cost = 130,
-			reward = 900, -- ürünlerin para karşılığı (yalnızca gösterim/dengeleme)
+			reward = 1600, -- ürünlerin para karşılığı (yalnızca gösterim/dengeleme)
 			output = "goods",
 			goodsId = "down",
-			goodsAmount = 30,
+			goodsAmount = 2,
 		},
 		cheese_goods = {
 			id = "cheese_goods",
@@ -483,12 +483,12 @@ return {
 			animalId = "goat",
 			animalIds = { "goat" },
 			requiredAdults = 2,
-			duration = 100,
+			duration = 150,
 			cost = 250,
-			reward = 1400, -- ürünlerin para karşılığı (yalnızca gösterim/dengeleme)
+			reward = 5500, -- ürünlerin para karşılığı (yalnızca gösterim/dengeleme)
 			output = "goods",
 			goodsId = "cheese",
-			goodsAmount = 20,
+			goodsAmount = 1,
 		},
 		wool_goods = {
 			id = "wool_goods",
@@ -500,12 +500,12 @@ return {
 			animalId = "sheep",
 			animalIds = { "sheep" },
 			requiredAdults = 2,
-			duration = 90,
+			duration = 135,
 			cost = 350,
-			reward = 2100, -- ürünlerin para karşılığı (yalnızca gösterim/dengeleme)
+			reward = 2000, -- ürünlerin para karşılığı (yalnızca gösterim/dengeleme)
 			output = "goods",
 			goodsId = "wool",
-			goodsAmount = 21,
+			goodsAmount = 1,
 		},
 		meat_goods = {
 			id = "meat_goods",
@@ -517,12 +517,12 @@ return {
 			animalId = "pig",
 			animalIds = { "pig" },
 			requiredAdults = 2,
-			duration = 110,
+			duration = 165,
 			cost = 650,
-			reward = 3700, -- ürünlerin para karşılığı (yalnızca gösterim/dengeleme)
+			reward = 9000, -- ürünlerin para karşılığı (yalnızca gösterim/dengeleme)
 			output = "goods",
 			goodsId = "meat",
-			goodsAmount = 20,
+			goodsAmount = 1,
 		},
 		horseshoe_goods = {
 			id = "horseshoe_goods",
@@ -534,12 +534,12 @@ return {
 			animalId = "horse",
 			animalIds = { "horse" },
 			requiredAdults = 1,
-			duration = 75,
+			duration = 110,
 			cost = 150,
-			reward = 850, -- ürünlerin para karşılığı (yalnızca gösterim/dengeleme)
+			reward = 1300, -- ürünlerin para karşılığı (yalnızca gösterim/dengeleme)
 			output = "goods",
 			goodsId = "horseshoe",
-			goodsAmount = 10,
+			goodsAmount = 1,
 		},
 		fish_goods = {
 			id = "fish_goods",
@@ -551,12 +551,12 @@ return {
 			animalId = "anchovy",
 			animalIds = { "anchovy", "seabass" },
 			requiredAdults = 3,
-			duration = 90,
+			duration = 135,
 			cost = 180,
-			reward = 1050, -- ürünlerin para karşılığı (yalnızca gösterim/dengeleme)
+			reward = 1000, -- ürünlerin para karşılığı (yalnızca gösterim/dengeleme)
 			output = "goods",
 			goodsId = "fish",
-			goodsAmount = 30,
+			goodsAmount = 2,
 		},
 	} :: { [string]: Types.ProductionRecipeConfig },
 }

@@ -74,6 +74,7 @@ export type GoodsContractTierConfig = {
 	lines: number,
 	units: number,
 	rewardFactor: number,
+	weight: number, -- Panoda çıkma ağırlığı (büyüğü seyrek)
 }
 
 export type GoodConfig = {

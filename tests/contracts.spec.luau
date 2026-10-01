@@ -34,11 +34,17 @@ return function(codec: any, config: any, farmMath: any)
 	local save = newSave(true)
 	local islandBonus = farmMath.getBonus(save, "contractBonus") -- ada yükseltmelerinden gelen sipariş bonusu (At Adası)
 	local offers = farmMath.getContractOffers(save, now, 0)
-	assert(#offers == #config.GOODS_CONTRACTS.tiers, "one offer per tier")
+	assert(#offers == config.GOODS_CONTRACTS.slots, "one offer per grid slot")
 	local cap = farmMath.getGoodsCap(save)
-	local previousFactor = 0
 	for index, offer in offers do
-		local tier = config.GOODS_CONTRACTS.tiers[index]
+		local tier: any = nil
+		for _, candidate in config.GOODS_CONTRACTS.tiers do
+			if candidate.id == offer.tier then
+				tier = candidate
+			end
+		end
+		assert(tier, "every offer uses a configured tier")
+		assert(offer.key == `{farmMath.getContractWindow(now)}:{index}`, "keys carry the window and slot")
 		assert(#offer.lines == tier.lines, "line count follows the tier")
 		local seen: { [string]: boolean } = {}
 		local worth = 0
@@ -53,9 +59,43 @@ return function(codec: any, config: any, farmMath: any)
 			"reward follows worth"
 		)
 		assert(offer.reward > worth, "delivering beats the raw goods value")
-		assert(tier.rewardFactor > previousFactor, "bigger tiers pay a better rate")
-		previousFactor = tier.rewardFactor
+		assert(offer.rewardFactor == tier.rewardFactor, "the tier sets the reward rate")
+		for _, line in offer.lines do
+			local low = math.max(1, math.floor(tier.units * (1 - config.GOODS_CONTRACTS.variation)))
+			local high = math.ceil(tier.units * (1 + config.GOODS_CONTRACTS.variation))
+			assert(line.amount >= low and line.amount <= math.min(high, cap), "units vary only inside the tier band")
+		end
 	end
+	-- Rastgelelik: aynı pencere her seferinde aynı teklifleri verir; pencereler farklıdır; kademeler ve ürünler çeşitlenir
+	local replay = farmMath.getContractOffers(save, now, 0)
+	for index, offer in offers do
+		assert(replay[index].tier == offer.tier and replay[index].worth == offer.worth, "a window is deterministic")
+	end
+	local tiersSeen: { [string]: boolean } = {}
+	local goodsSeen: { [string]: boolean } = {}
+	local differentWindows = false
+	for window = 1, 30 do
+		local sample = farmMath.getContractOffers(save, now + window * config.GOODS_CONTRACTS.seconds, 0)
+		for index, offer in sample do
+			tiersSeen[offer.tier] = true
+			for _, line in offer.lines do
+				goodsSeen[line.goodsId] = true
+			end
+			if offer.tier ~= offers[index].tier or offer.worth ~= offers[index].worth then
+				differentWindows = true
+			end
+		end
+	end
+	local tierCount, goodsCount = 0, 0
+	for _ in tiersSeen do
+		tierCount += 1
+	end
+	for _ in goodsSeen do
+		goodsCount += 1
+	end
+	assert(differentWindows, "windows differ from each other")
+	assert(tierCount >= 5, "most tiers show up across windows")
+	assert(goodsCount >= 6, "most goods show up across windows")
 	local seasonal = farmMath.getContractOffers(save, now, 0.5)
 	assert(
 		seasonal[1].reward == math.floor(offers[1].worth * offers[1].rewardFactor * (1.5 + islandBonus)),
@@ -145,7 +185,7 @@ return function(codec: any, config: any, farmMath: any)
 	for _ in repaired.contracts.done do
 		kept += 1
 	end
-	assert(kept <= #config.GOODS_CONTRACTS.tiers, "delivered keys are bounded")
+	assert(kept <= config.GOODS_CONTRACTS.slots, "delivered keys are bounded")
 	assert(repaired.contracts.window == 0 and repaired.contracts.completed <= 1e9, "numbers are clamped")
 	print("PASS contracts: offers, atomic delivery, windows, season bonus and save repairs")
 end

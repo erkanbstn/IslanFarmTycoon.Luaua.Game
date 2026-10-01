@@ -26,8 +26,10 @@ function BoardSection.create(list: Instance): (PlayerSave?) -> ()
 	contractNote.LayoutOrder = CONTRACT_ORDER + 1
 	local contractCards: { UiKit.Card } = {}
 	local contractOffers: { FarmMath.ContractOffer } = {}
-	for index = 1, #Config.GOODS_CONTRACTS.tiers do
-		local card = UiKit.card(list, CONTRACT_ORDER + 1 + index, "📦")
+	-- Siparişler ızgara karolarıdır: aşağı uzayan liste yerine yan yana, daha çok teklif görünür
+	local contractGrid = UiKit.grid(list, CONTRACT_ORDER + 2)
+	for index = 1, Config.GOODS_CONTRACTS.slots do
+		local card = UiKit.tile(contractGrid, index, "📦")
 		contractCards[index] = card
 		card.action.Activated:Connect(function()
 			local offer = contractOffers[index]
