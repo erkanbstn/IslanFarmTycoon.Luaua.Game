@@ -163,7 +163,6 @@ local function create(): UiKit.Window
 		UiKit.list(frame, 8)
 		return frame
 	end
-	local _, mainMeta = UiKit.sectionHeader(created.list, "Ana çiftliklerim", 2)
 	local ownedList = section(3)
 	local ownedCards: { [string]: UiKit.Card } = {}
 	-- Etkin çiftlik kartındaki ok: bu çiftliğe bağlı küçük adalar kartın altında açılır/kapanır.
@@ -213,7 +212,6 @@ local function create(): UiKit.Window
 			end
 		end)
 	end
-	local _, buyMeta = UiKit.sectionHeader(created.list, "Yeni ana çiftlik satın al", 4)
 	local buyInfo = UiKit.text(created.list, "", "Caption")
 	buyInfo.LayoutOrder = 5
 	local freeList = section(6)
@@ -350,8 +348,8 @@ local function create(): UiKit.Window
 	local visits = section(12)
 	-- Sekmeler: Çiftliklerim | Satın Al | Küçük Adalar | Ziyaret (her sekme kendi bölümlerini gösterir)
 	local tabContent: { [string]: { GuiObject } } = {
-		farms = { mainMeta.Parent :: GuiObject, ownedList, hub },
-		buy = { buyMeta.Parent :: GuiObject, buyInfo, freeList },
+		farms = { ownedList, hub },
+		buy = { buyInfo, freeList },
 		islands = { specialtyBox },
 		visit = { visits },
 	}
@@ -448,14 +446,15 @@ local function create(): UiKit.Window
 		local activeId = (state :: any).activeMainFarmId or "1"
 		local activeName = `Ana Çiftlik {activeId}`
 		info.Text =
-			`Etkin: {activeName} · Bölüm: {IslandContext.name()}\nKasa {FarmMath.formatMoney(state.cash)} bütün ana çiftliklerinde ortaktır.`
+			`Etkin: {activeName} · Bölüm: {IslandContext.name()} · Çiftlik {#farms}/{LIMIT}\nKasa {FarmMath.formatMoney(
+				state.cash
+			)} bütün ana çiftliklerinde ortaktır.`
 		feedback.Text = resultMessage
 		feedback.Visible = resultMessage ~= ""
 		feedback.TextColor3 = if pending
 			then UiKit.Color.TextMuted
 			elseif resultOk then UiKit.Color.Green
 			else UiKit.Color.Red
-		mainMeta.Text = `{#farms}/{LIMIT}`
 		local unavailable = blocked()
 		for _, card in ownedCards do
 			card.frame.Visible = false
