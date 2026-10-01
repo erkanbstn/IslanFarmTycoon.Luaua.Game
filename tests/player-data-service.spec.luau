@@ -154,12 +154,15 @@ return function(createService: any, Config: any)
 			end,
 		}
 		local sent: { any } = {}
+		local economy: { any } = {}
 		local remotes = {
 			get = function(name: string): any
 				return {
 					FireClient = function(_self: any, _player: any, payload: any, revision: any)
 						if name == "PlayerState" then
 							table.insert(sent, { at = clock, payload = payload, revision = revision })
+						elseif name == "EconomyTick" then
+							table.insert(economy, { at = clock, payload = payload, revision = revision })
 						end
 					end,
 				}
@@ -191,6 +194,7 @@ return function(createService: any, Config: any)
 		return {
 			service = createService(engine, tasks, instances, time, remotes, dateTime, metrics, function() end),
 			sent = sent,
+			economy = economy,
 			store = store,
 			metrics = metrics,
 			player = player,
@@ -592,6 +596,18 @@ return function(createService: any, Config: any)
 	push.service.pushState(push.player)
 	idle()
 	assert(#push.sent == 3, "firstPacket call after a quiet period is not delayed")
+
+	-- Bekleyen PlayerState varken pushEconomy ek paket (ve revizyon boşluğu) üretmez.
+	push.advance(5)
+	push.service.pushState(push.player)
+	local beforeEconomy = #push.economy
+	push.service.pushEconomy(push.player)
+	assert(#push.economy == beforeEconomy, "pushEconomy is skipped while a state packet is pending")
+	idle()
+	assert(#push.sent == 4, "the pending state packet still goes out")
+	push.service.pushEconomy(push.player)
+	assert(#push.economy == beforeEconomy + 1, "pushEconomy sends when nothing is pending")
+	assert(push.economy[#push.economy].revision == push.sent[4].revision + 1, "economy revision follows without gap")
 
 	-- Oturum kapanınca bekleyen paket gönderilmez.
 	push.service.pushState(push.player)

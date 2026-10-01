@@ -700,9 +700,14 @@ function PlayerDataService.pushEconomy(player: Player)
 	if not data or not session then
 		return
 	end
-	session.packetRevision += 1
 	player:SetAttribute("DataDirty", true)
 	updateLeaderstat(session, data)
+	if session.statePending then
+		-- Bekleyen PlayerState zaten güncel parayı/depoyu taşır; araya giren EconomyTick istemcide revizyon boşluğu açıp
+		-- gereksiz tam durum isteği doğurur.
+		return
+	end
+	session.packetRevision += 1
 	Remotes.get("EconomyTick"):FireClient(player, data.cash, data.stored, session.packetRevision, data.activeMainFarmId)
 end
 
