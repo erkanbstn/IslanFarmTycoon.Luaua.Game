@@ -250,7 +250,7 @@ local function buyFarm(farmId: string, price: number)
 	invested()
 end
 
--- Park edilmiş çiftliklerin geliri: otomatik toplayıcı varsa kasaya, yoksa kendi deposuna (kapasiteye kadar)
+-- Park edilmiş çiftliklerin geliri: FarmMath.settleFarmIncome (toplayıcı varsa tamamı, yoksa PARKED_FARM_PAY_RATE kasaya)
 local function accrueParked()
 	for farmId in save.mainFarms do
 		if farmId == save.activeMainFarmId then
@@ -258,11 +258,10 @@ local function accrueParked()
 		end
 		local farm = FarmProfiles.view(save, farmId)
 		local earned = FarmMath.computeIncomeOverInterval(farm, now - STEP, now)
-		if FarmMath.hasAutoCollect(farm) then
-			earn(earned + farm.stored, "park edilmiş çiftlik")
-			farm.stored = 0
-		else
-			farm.stored = math.min(farm.stored + earned, FarmMath.getStorageCap(farm))
+		local collected, newStored = FarmMath.settleFarmIncome(farm, earned, true)
+		farm.stored = newStored
+		if collected > 0 then
+			earn(collected, "park edilmiş çiftlik")
 		end
 	end
 end

@@ -711,5 +711,20 @@ return function(FarmMath: any, Config: any, Environment: any)
 		second.tier = 3
 		assert(FarmMath.getFarmCostMultiplier(second) == 1 + 2 * Config.FARM_COST_STEP, "multiplier grows per farm")
 	end
+	-- Gelir dağılımı: toplayıcılı çiftlik her şeyi kasaya yatırır; toplayıcısız park edilmiş çiftlik PARKED_FARM_PAY_RATE kadar
+	do
+		local farm = saveAt(start)
+		farm.stored = 40
+		local cash, stored = FarmMath.settleFarmIncome(farm, 100, true)
+		near(cash, 100 * Config.PARKED_FARM_PAY_RATE)
+		near(stored, 40)
+		cash, stored = FarmMath.settleFarmIncome(farm, 100, false)
+		near(cash, 0)
+		near(stored, math.min(140, FarmMath.getStorageCap(farm)))
+		farm.purchased.auto_collector = true
+		cash, stored = FarmMath.settleFarmIncome(farm, 100, true)
+		near(cash, 140)
+		near(stored, 0)
+	end
 	print("PASS economy: growth boundaries, integrated offline/elapsed income, cap, growth upgrade, fish pricing")
 end

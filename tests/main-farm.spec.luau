@@ -207,12 +207,18 @@ return function(
 	assert(#profiles.ids(data) == 2, "duplicate buy cannot create another farm")
 	data.stored = 23
 	data.purchased.silo = true
+	economy.settlePlayer(player) -- park edilmiş çiftlik geliri kasaya yattığı için geçişten önce hesabı kapat
 	local cash = data.cash
 	assert(
 		fire("select", "1").ok and data.purchased.zone_pasture and not data.purchased.silo,
 		"selection restores the correct upgrade set"
 	)
-	assert(data.cash == cash, "switch cannot mint or reset shared wallet")
+	-- Geçiş öncesi hesap kapanırken park edilmiş çiftlik geliri kasaya yatabilir; ondan fazlası üretilemez, cüzdan sıfırlanamaz
+	local walletRise = 0
+	for _, id in profiles.ids(data) do
+		walletRise += farmMath.computeIncomePerSecond(profiles.view(data, id)) * (config.MAIN_FARM_SWITCH_COOLDOWN_SECONDS + 0.2)
+	end
+	assert(data.cash >= cash and data.cash - cash <= walletRise, "switch cannot mint or reset shared wallet")
 	assert(
 		profiles.view(data, "2").stored >= 23 and profiles.view(data, "2").purchased.silo,
 		"old active scalars and tables survive switch"
@@ -246,14 +252,26 @@ return function(
 	local oldStored = data.stored
 	local second = profiles.view(data, "2")
 	second.stored = 0
+	if #second.animals == 0 then
+		table.insert(
+			second.animals,
+			{ uid = "parked-home", animalId = config.getHomeAnimal(second.farmId), zoneId = "starter", bornAt = 0 }
+		)
+	end
 	local secondIncome = farmMath.computeIncomePerSecond(second)
 	local firstIncome = farmMath.computeIncomePerSecond(data)
+	assert(secondIncome > 0, "the parked farm has income to settle")
+	local cashBeforeParked = data.cash
 	now += 10
 	economy.settlePlayer(player)
 	assert(
-		math.abs(data.stored - oldStored - firstIncome * 10) < 0.001
-			and math.abs(second.stored - secondIncome * 10) < 0.001,
-		"every owned farm earns using its own animals and upgrades"
+		math.abs(data.stored - oldStored - firstIncome * 10) < 0.001,
+		"the active farm fills its own storage using its own animals and upgrades"
+	)
+	assert(
+		second.stored == 0
+			and math.abs(data.cash - cashBeforeParked - secondIncome * 10 * config.PARKED_FARM_PAY_RATE) < 0.001,
+		"a parked farm without a collector pays PARKED_FARM_PAY_RATE of its income straight to the wallet"
 	)
 	second.purchased.auto_collector = true
 	local cashBeforeAuto = data.cash

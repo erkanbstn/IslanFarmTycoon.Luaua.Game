@@ -144,6 +144,17 @@ function Core.hasAutoCollect(save: PlayerSave): boolean
 	return false
 end
 
+-- Bir çiftliğin `earned` gelirinin dağılımı: (kasaya yatan, yeni depo). Toplayıcılı çiftlik her şeyi (depo dahil) kasaya yatırır;
+-- toplayıcısız park edilmiş çiftlik gelirin PARKED_FARM_PAY_RATE'ini kasaya yatırır ve deposuna dokunmaz; etkin çiftlik depoyu doldurur.
+function Core.settleFarmIncome(farm: PlayerSave, earned: number, parked: boolean): (number, number)
+	if Core.hasAutoCollect(farm) then
+		return earned + farm.stored, 0
+	elseif parked then
+		return earned * Config.PARKED_FARM_PAY_RATE, farm.stored
+	end
+	return 0, math.min(farm.stored + earned, Core.getStorageCap(farm))
+end
+
 function Core.getStage(bornAt: number, now: number, growthSpeed: number): AnimalStage
 	if bornAt == 0 then
 		return "adult"
