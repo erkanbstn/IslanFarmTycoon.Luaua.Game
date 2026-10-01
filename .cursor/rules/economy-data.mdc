@@ -67,10 +67,12 @@ Değişiklikten sonra: `python scripts/run-tests.py` (economy/data/orders/produc
   tesis için kurulu olmalı (`getExpansionStatus`). Sunucu `UpgradeService.tryExpandZone` (`RequestExpandZone`); arayüz Yükseltmeler penceresindeki "Geliştirmeler" kartları (alınabilirlik sırasıyla, tamamlananlar listeden çıkar, rozet sayar, hedef kartında "Hızlı kazanç")
   (`Config.BUILD_ORDER/BUILD_TARGETS`). Yeni profil/seviye eklersen `tests/economy.spec.luau` (seviye sayısı = maxLevel, her bölge büyüyebilmeli) ve sim kalibrasyonu
   (`scripts/simulate-economy.py`: `ALAN toplam Sv.N`; hedef ada süreleri ve "TÜM YÜKSELTMELER" korunmalı).
-  Tempo (ideal oyuncu, `simulate-economy.py`): 1. çiftlikte ilk ada ~19 dk, at adası ~54 dk, keçi adası ~158 dk, tüm yükseltmeler ~4,9 saat; 3. temada (Güneşli Tarla: süt, at, keçi) süt ~24, at ~47, keçi ~140 dk (`--farm 3`); sayıları değiştirirsen yeniden koştur ve bu satırı güncelle.
+  Tempo (ideal oyuncu, `simulate-economy.py`): 1. çiftlikte ilk ada ~13 dk, at adası ~47 dk, keçi adası ~116 dk, tüm yükseltmeler ~4,6 saat; 3. temada (Güneşli Tarla: süt, at, keçi) süt ~15, at ~35, keçi ~95 dk (`--farm 3`); sayıları değiştirirsen yeniden koştur ve bu satırı güncelle.
+  Casual (`--days 7 --persona casual`): çevrimdışı ~%72, sipariş ~%12, park ~%10 (çevrimdışı+park ~%81), 6. çiftlik ~5,3 gün; sim "Tesis geri ödeme" satırı fabrikaların geri ödemesini gösterir (1. çiftlikte ~25 dk bandı; `PRODUCTION_MAX_RETURN` parti çarpanını 2,0'da tutar).
+  Açılış: çiftliğin ilk `STARTER_ADULT_ANIMALS` (3) hayvanı yetişkin doğar (`FarmMath.getNewAnimalBornAt`, bornAt = 0; kayıt şeması değişmez).
 - **Mevsim hedefi**: `Config.SEASONAL_GOALS` (mevsim id -> `earned` veya `invest`), `SEASONAL_REWARD_SECONDS/MIN_REWARD`. Hesap düzeyi opsiyonel kayıt
   alanı `seasonal {key, progress, target, base, claimed}` (key = `Rewards.seasonNumber`; bozuk kayıt sessizce atılır). Mantık saf `Rewards.seasonal*`
-  (kazanç = `lifetimeEarned - base` canlı; yatırım sayacı sunucu kancalarıyla `Rewards.recordInvest`: hayvan alma, yükseltme, ırk, alan genişletme).
+  (kazanç = `lifetimeEarned - base` canlı; yatırım sayacı sunucu kancalarıyla `Rewards.recordInvest`: hayvan alma, yükseltme, ırk, alan genişletme, ahır siparişi teslimi).
   Sunucu: `EngagementService` her 5 sn hedefi hazırlar ve ilerleme değişince durum iter; ödül `RequestClaimSeasonal` (işaret önce yazılır).
   Yeni bir yatırım türü eklersen `Rewards.recordInvest` çağır; yeni metrik eklersen `Rewards.seasonalProgress` ve istemci metnini güncelle.
 - **Gezgin tüccar** (rastgele olay): `Config.MERCHANT` (cycleSeconds, visitSeconds, chance, discount, stock). Saf `Merchant.visit/offer` (paylaşılan):

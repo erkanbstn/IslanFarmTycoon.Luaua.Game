@@ -114,6 +114,7 @@ FarmMath.getOfflineTerms = Income.getOfflineTerms
 -- Animals
 FarmMath.getAnimalPrice = Animals.getAnimalPrice
 FarmMath.getSellPrice = Animals.getSellPrice
+FarmMath.getNewAnimalBornAt = Animals.getNewAnimalBornAt
 FarmMath.findSellableAnimal = Animals.findSellableAnimal
 FarmMath.getFreeSlots = Animals.getFreeSlots
 FarmMath.getBulkPrice = Animals.getBulkPrice

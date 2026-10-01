@@ -216,6 +216,10 @@ return function(Config: any, FarmMath: any)
 				`{recipeId}/{option.id} values`
 			)
 			assert(option.returnMultiplier > 1, `{recipeId}/{option.id}: pays more than the animals would have earned`)
+			assert(
+				option.returnMultiplier <= Config.PRODUCTION_MAX_RETURN,
+				`{recipeId}/{option.id}: batch multiplier stays within PRODUCTION_MAX_RETURN`
+			)
 			if previous then
 				assert(
 					option.requiredAdults > previous.requiredAdults,

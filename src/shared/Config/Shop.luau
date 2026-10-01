@@ -111,7 +111,7 @@ return {
 
 	-- Mevsim hedefi: her mevsimde (SEASON_SECONDS) tek bir hedef; mevsim dönünce yenisi gelir, alınmamışsa kaybolur.
 	-- metric "earned": mevsim başından beri kazanılan para (hedef = gelir x mevsim süresi x factor, en az minTarget).
-	-- metric "invest": başarılı yatırım sayısı (hayvan, yükseltme, ırk veya alan genişletme; hedef = target).
+	-- metric "invest": başarılı yatırım sayısı (hayvan, yükseltme, ırk, alan genişletme veya ahır siparişi teslimi; hedef = target).
 	-- Ödül alınırken gelirin SEASONAL_REWARD_SECONDS saniyelik karşılığıdır (en az SEASONAL_MIN_REWARD).
 	SEASONAL_GOALS = {
 		spring = { metric = "earned", factor = 0.35, minTarget = 300 },

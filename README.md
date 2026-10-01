@@ -157,8 +157,8 @@ Hangi üç küçük adanın geldiği **çiftlik numarasına (tema)** bağlıdır
 Her ada yeni bir hayvan, kendine özel bir bonus, bir üretim tesisi ve bir eklenti alanı getirir.
 Ada ve yükseltme listesi, fiyatlar ve ön koşullar **yalnızca** `src/shared/Config/` içindedir; bu dosyada kopyalanmaz.
 
-**Tempo hedefleri** (ideal oyuncu, `python scripts/simulate-economy.py --farm 1..6`): ilk hayvan saniyeler içinde,
-ilk küçük ada ~10 dk, ikincisi ~30 dk, üçüncüsü ~1 saat, tüm yükseltmeler ~3 saat. Yazılı yükseltme fiyatları taban
+**Tempo hedefleri** (ideal oyuncu, `python scripts/simulate-economy.py --farm 1..6`): ilk hayvan saniyeler içinde
+(ilk 3 hayvan yetişkin doğar), ilk küçük ada ~13 dk, ikincisi ~47 dk, üçüncüsü ~2 saat, tüm yükseltmeler ~4,6 saat. Yazılı yükseltme fiyatları taban
 fiyattır; `UPGRADE_COST_BASE`/`UPGRADE_COST_EXPONENT` eğrisiyle büyütülür, aynı türden her yeni hayvan `ANIMAL_PRICE_GROWTH` kadar pahalıdır.
 Denge değiştirirsen önce simülasyonu çalıştır; `--cost-exp` ve `--price-growth` bayraklarıyla Config'e dokunmadan dene.
 

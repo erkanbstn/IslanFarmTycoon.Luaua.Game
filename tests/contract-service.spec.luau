@@ -1,6 +1,14 @@
 --!strict
 -- Ahır siparişi servisi: gerçek servis kaynağı; sahiplik, tekrar oynatma, atomik teslim, ödül ve bildirim.
-return function(createService: any, createLimiter: any, codec: any, config: any, farmMath: any, createGuard: any)
+return function(
+	createService: any,
+	createLimiter: any,
+	codec: any,
+	config: any,
+	farmMath: any,
+	createGuard: any,
+	rewards: any
+)
 	local function signal(): any
 		local callbacks = {}
 		return {
@@ -98,6 +106,7 @@ return function(createService: any, createLimiter: any, codec: any, config: any,
 				return { orderBonus = bonus }
 			end,
 		},
+		rewards,
 		dataService,
 		limiter,
 		metrics,
@@ -172,6 +181,22 @@ return function(createService: any, createLimiter: any, codec: any, config: any,
 				== math.floor(small.worth * small.rewardFactor * (1.5 + farmMath.getBonus(data, "contractBonus"))),
 		"the season bonus applies"
 	)
+
+	-- Mevsim "yatırım" hedefi: sipariş teslimi de sayılır (yeni hayvan/yükseltme kalmayan geç oyunda hedef ulaşılabilir kalır)
+	now += config.SEASON_SECONDS -- sonraki mevsim (yatırım mevsimi)
+	assert(rewards.seasonalDef(rewards.seasonNumber(now)).metric == "invest", "the fixture reaches an invest season")
+	rewards.ensureSeasonal(data, now)
+	local investBefore = data.seasonal.progress
+	for _, goodsId in config.GOODS_ORDER do
+		farmMath.addGoods(data, goodsId, farmMath.getGoodsCap(data))
+	end
+	assert(fire(offers()[2].key).ok, "an order is delivered in the invest season")
+	assert(
+		data.seasonal.progress == investBefore + 1,
+		"a delivered order counts as one investment toward the season goal"
+	)
+	local refused = fire("x")
+	assert(not refused.ok and data.seasonal.progress == investBefore + 1, "a refused delivery counts nothing")
 
 	-- Kilit: oturum hazır değilse teslim yok
 	worldReady = false

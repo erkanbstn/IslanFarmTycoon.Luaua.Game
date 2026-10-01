@@ -777,5 +777,21 @@ return function(FarmMath: any, Config: any, Environment: any)
 		near(cash, 140)
 		near(stored, 0)
 	end
+	-- Açılış: çiftliğin ilk STARTER_ADULT_ANIMALS hayvanı yetişkin doğar (bornAt = 0), sonrakiler yavru
+	do
+		local opening = { animals = {} }
+		for index = 1, Config.STARTER_ADULT_ANIMALS + 2 do
+			local bornAt = FarmMath.getNewAnimalBornAt(opening, start)
+			if index <= Config.STARTER_ADULT_ANIMALS then
+				assert(bornAt == 0 and FarmMath.getStage(bornAt, start, 1) == "adult", `animal {index} starts adult`)
+			else
+				assert(
+					bornAt == start and FarmMath.getStage(bornAt, start, 1) == "calf",
+					`animal {index} starts as calf`
+				)
+			end
+			table.insert(opening.animals, { uid = `o-{index}`, animalId = "cow", zoneId = "starter", bornAt = bornAt })
+		end
+	end
 	print("PASS economy: growth boundaries, integrated offline/elapsed income, cap, growth upgrade, fish pricing")
 end

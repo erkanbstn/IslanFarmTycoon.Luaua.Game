@@ -383,8 +383,12 @@ return function(lock: any, codec: any, config: any, farmMath: any)
 	local _, paidAtLimit =
 		codec.decode(perkSnap, config, farmMath, now + config.OFFLINE_UPGRADED_MAX_HOURS * 3600, offlineUid)
 	local _, paidLong = codec.decode(perkSnap, config, farmMath, now + 40 * 3600, offlineUid)
+	-- Pasif Gelir'in getirdiği kazanç artışı (oran x süre) Config'ten türer: süre/oran değişince test beklentisi de kendiliğinden izler
+	local expectedGain = (config.OFFLINE_UPGRADED_EARNING_RATE * config.OFFLINE_UPGRADED_MAX_HOURS)
+		/ (config.OFFLINE_EARNING_RATE * config.OFFLINE_MAX_HOURS)
+	assert(expectedGain >= 2.5, "Passive Income stays a meaningful upgrade (rate x hours gain)")
 	assert(
-		paidLong == paidAtLimit and paidAtLimit > earnedLong * 3,
+		paidLong == paidAtLimit and paidAtLimit >= earnedLong * expectedGain * 0.99,
 		"with the upgrade up to OFFLINE_UPGRADED_MAX_HOURS of income counts at the higher rate"
 	)
 

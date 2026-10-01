@@ -41,12 +41,31 @@ return function(
 	assert(reply and reply.remote == "PurchaseResult" and reply.ok == true, "the owner can buy")
 	assert(data.cash == 7, "exactly the server-computed price is spent")
 	assert(#data.animals == animalsBefore + 1, "one animal is added")
-	assert(data.animals[#data.animals].stage == "calf", "bought animals start as calves")
+	local starterCount = config.STARTER_ADULT_ANIMALS
+	local newest = data.animals[#data.animals]
+	assert(
+		newest.stage == (if animalsBefore < starterCount then "adult" else "calf")
+			and (newest.bornAt == 0) == (animalsBefore < starterCount),
+		"the farm's first animals are bought adult, later ones as calves"
+	)
 	assert(
 		h.counters.pushes == 1 and h.counters.saves == 1 and h.counters.refreshes == 1,
 		"state pushed, saved, redrawn"
 	)
 	assert(h.counters.settles == 1 and h.metricCounts.AnimalsPurchased == 1, "income settled, purchase counted")
+
+	-- Başlangıç hayvanları dolduktan sonra alınanlar yavru olur
+	while #data.animals < starterCount do
+		table.insert(data.animals, { uid = `fill-{#data.animals}`, animalId = "cow", zoneId = "starter", bornAt = 0 })
+	end
+	data.cash = farmMath.getBulkPrice(data, "cow", 1) + 7
+	assert(buy(h, "cow").ok == true, "a purchase beyond the starter animals works")
+	assert(
+		data.animals[#data.animals].stage == "calf" and data.animals[#data.animals].bornAt > 0,
+		"later animals start as calves"
+	)
+	price = farmMath.getBulkPrice(data, "cow", 1)
+	animalsBefore = #data.animals - 1
 
 	-- Parası yok: hiçbir şey değişmez, oyuncu nedenini görür
 	data.cash = price - 1
