@@ -55,4 +55,14 @@ function Recipes.petKindFor(recipe: Config.ProductionRecipeConfig): string?
 	return if output == "goods" then "goods" elseif output == "cash" or output == "chicken" then "cash" else nil
 end
 
+-- Yardımcının bakacağı "ada": balık tesisleri (ana adadaki balık kafesi) ana adanın ayrı bir yardımcısını ("sea") alır; süt/yumurta tesisleriyle
+-- aynı yardımcıyı paylaşıp iki yere birden bakmasın. Diğer tesislerde tarifin adası.
+function Recipes.petIsland(recipe: Config.ProductionRecipeConfig): string
+	local pen = Config.ZONES.fishpen
+	if recipe.island == pen.island and table.find(pen.allowedAnimals, recipe.animalId) then
+		return "sea"
+	end
+	return recipe.island
+end
+
 return Recipes

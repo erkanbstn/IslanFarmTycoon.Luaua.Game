@@ -39,11 +39,12 @@ local function publish(player: Player, data: any, claims: { [string]: number }?)
 		local recipe = Config.PRODUCTION_RECIPES[recipeId]
 		local kind = ProductionLogic.petKind(recipe, FarmMath)
 		if kind then
-			local key = `{kind}:{recipe.island}`
+			local petIsland = FarmMath.petIsland(recipe)
+			local key = `{kind}:{petIsland}`
 			if jobs[key] == "" and data.production[recipeId] then
 				jobs[key] = recipe.upgradeId
 			end
-			plot:SetAttribute(`PetJob_{attributeKey(kind, recipe.island)}`, jobs[key] or "")
+			plot:SetAttribute(`PetJob_{attributeKey(kind, petIsland)}`, jobs[key] or "")
 		end
 	end
 	if claims then

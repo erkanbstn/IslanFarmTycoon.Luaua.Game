@@ -178,7 +178,7 @@ local function buildPad(
 	prompt.ActionText = "Satın al"
 	prompt.ObjectText = upgrade.displayName
 	prompt.KeyboardKeyCode = Enum.KeyCode.E
-	prompt.HoldDuration = 0
+	prompt.HoldDuration = 0.5 -- yanlışlıkla satın alma olmasın: basılı tut
 	prompt.MaxActivationDistance = 9
 	prompt.RequiresLineOfSight = false
 	prompt:SetAttribute("Locked", true) -- IslandPrompts: yalnızca sahibine görünür

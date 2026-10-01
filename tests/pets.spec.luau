@@ -68,9 +68,25 @@ return function(codec: any, config: any, farmMath: any, logic: any)
 		local recipe = config.PRODUCTION_RECIPES[recipeId]
 		local kind = logic.petKind(recipe, farmMath)
 		if kind and data.purchased[recipe.upgradeId] and data.unlockedIslands[recipe.island] then
-			assert(seenSlots[`{kind}:{recipe.island}`], `{recipe.island} has a {kind} pet for its facility`)
+			assert(
+				seenSlots[`{kind}:{farmMath.petIsland(recipe)}`],
+				`{recipe.island} has a {kind} pet for its facility`
+			)
 		end
 	end
+	-- Balık tesisleri (ana adadaki kafes) süt/yumurta tesisleriyle aynı yardımcıyı paylaşmaz: ayrı "sea" yardımcısı
+	local seaData = newData()
+	seaData.purchased.fishing_boat, seaData.purchased.fish_cannery = true, true
+	farmMath.applyDerived(seaData)
+	local seaSlots: { [string]: boolean } = {}
+	for _, slot in logic.petSlots(seaData, config.PRODUCTION_ORDER, farmMath, config) do
+		seaSlots[`{slot.kind}:{slot.island}`] = true
+	end
+	assert(
+		seaSlots["cash:home"] and seaSlots["cash:sea"],
+		"the boat gets its own cash pet besides the milk factory pet"
+	)
+	assert(seaSlots["goods:home"] and seaSlots["goods:sea"], "the cannery gets its own goods pet")
 	local barePet = newData()
 	barePet.purchased.pet_cash_lv1 = nil
 	for _, slot in logic.petSlots(barePet, config.PRODUCTION_ORDER, farmMath, config) do

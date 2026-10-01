@@ -122,6 +122,7 @@ FarmMath.getContractBaseUnits = Contracts.baseUnits
 FarmMath.getContractIncomeFloor = Contracts.incomeFloor
 FarmMath.findProductionOption = Recipes.findOption
 FarmMath.petKindFor = Recipes.petKindFor
+FarmMath.petIsland = Recipes.petIsland
 FarmMath.getProductionReward = Production.getProductionReward
 FarmMath.combineGrowthExcess = Production.combineGrowthExcess
 FarmMath.getGrowthSeconds = Production.getGrowthSeconds

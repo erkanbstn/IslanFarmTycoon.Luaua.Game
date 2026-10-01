@@ -3,6 +3,7 @@
 return function(UiScale: any)
 	assert(UiScale.forViewport(800, 360) == 0.85, "phone landscape shrinks")
 	assert(UiScale.forViewport(360, 800) == 0.85, "phone portrait uses the short side")
+	assert(UiScale.forViewport(1249, 565) == 0.8, "a short desktop window shrinks so the HUD clears the Roblox top bar")
 	assert(UiScale.forViewport(1024, 768) == 1, "tablet stays 1")
 	assert(UiScale.forViewport(1920, 1080) == 1, "1080p stays 1")
 	assert(UiScale.forViewport(2560, 1440) > 1, "1440p grows")

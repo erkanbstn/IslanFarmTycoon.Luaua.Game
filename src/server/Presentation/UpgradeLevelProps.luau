@@ -445,6 +445,8 @@ local PET_SPECIES: { [string]: string } = {
 local function petSpecies(island: string, kind: string): string
 	if island == "home" then
 		return if kind == "cash" then "dog" else "cat"
+	elseif island == "sea" then
+		return "frog"
 	end
 	return PET_SPECIES[island] or "dog"
 end
@@ -632,13 +634,15 @@ local function applyPets(plot: Model, save: PlayerSave?)
 	local islands = plot:FindFirstChild("Islands")
 	for _, slot in slots do
 		local home: CFrame? = nil
-		if slot.island == "home" then
+		if slot.island == "home" or slot.island == "sea" then
 			if collector and collector:IsA("BasePart") then
 				local base = CFrame.new(collector.Position.X, collector.Position.Y - 0.75, collector.Position.Z)
 					* collector.CFrame.Rotation
+				-- Deniz yardımcısı toplama platformunun öbür yanında durur (süt/yumurta yardımcılarıyla karışmasın)
+				local side = if slot.island == "sea" then -6 else 6
 				home = if slot.kind == "cash"
-					then base * CFrame.new(6, 0, 3) * CFrame.Angles(0, math.rad(-150), 0)
-					else base * CFrame.new(6, 0, -3) * CFrame.Angles(0, math.rad(-30), 0)
+					then base * CFrame.new(side, 0, 3) * CFrame.Angles(0, math.rad(-150), 0)
+					else base * CFrame.new(side, 0, -3) * CFrame.Angles(0, math.rad(-30), 0)
 			end
 		elseif islands then
 			for _, island in islands:GetChildren() do

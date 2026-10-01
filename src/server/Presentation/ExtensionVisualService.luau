@@ -94,6 +94,7 @@ local function attachPrompts(
 		buy.Name = "BuyExtensionPrompt"
 		buy.ActionText = "Satın al"
 		buy.ObjectText = layout.title
+		buy.HoldDuration = 0.5 -- yanlışlıkla satın alma olmasın: basılı tut
 		buy.MaxActivationDistance = 12
 		buy.RequiresLineOfSight = false
 		buy:SetAttribute("UpgradeId", upgradeId)

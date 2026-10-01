@@ -596,7 +596,7 @@ return {
 	["x{}"] = "x{1}",
 	["%{} indirim"] = "{1}% de descuento",
 	["Normal fiyat: {}"] = "Precio normal: {1}",
-	["Gezgin tüccar meydana geldi: Pazar'da indirimli hayvanlar var!"] = "¡Llegó el comerciante viajero: animales con descuento en el Mercado!",
+	["Gezgin tüccar geldi: Pazar'da indirimli hayvanlar var!"] = "¡Llegó el comerciante viajero: animales con descuento en el Mercado!",
 	["Gezgin tüccar yola çıktı. Bir sonrakini kaçırma!"] = "El comerciante viajero se fue. ¡No te pierdas el próximo!",
 	["Gezgin tüccar şu an teklif sunmuyor"] = "El comerciante viajero no tiene ofertas ahora",
 	["Gezgin tüccardan indirimli hayvanlar geldi!"] = "¡Llegaron animales con descuento del comerciante viajero!",

@@ -169,10 +169,11 @@ function ProductionLogic.petSlots(farm: any, recipeOrder: { string }, farmMath: 
 			and farm.purchased[recipe.upgradeId]
 			and farm.unlockedIslands[recipe.island]
 		then
-			local key = `{kind}:{recipe.island}`
+			local petIsland = farmMath.petIsland(recipe)
+			local key = `{kind}:{petIsland}`
 			if not seen[key] then
 				seen[key] = true
-				table.insert(slots, { kind = kind, island = recipe.island })
+				table.insert(slots, { kind = kind, island = petIsland })
 			end
 		end
 	end
@@ -249,7 +250,7 @@ function ProductionLogic.runPets(
 					counts = {}
 					summary.claims[farmId] = counts
 				end
-				local key = `{kind}:{recipe.island}`
+				local key = `{kind}:{farmMath.petIsland(recipe)}`
 				counts[key] = (counts[key] or 0) + 1
 			end
 			local repeatOption = if farm.autoRepeat then farm.autoRepeat[recipeId] else nil

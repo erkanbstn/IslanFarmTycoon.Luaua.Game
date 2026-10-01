@@ -314,7 +314,11 @@ local function penPoint(plot: Model, island: string): Vector3?
 		local zoneId = zone:GetAttribute("ZoneId")
 		local zoneConfig = if typeof(zoneId) == "string" then Config.ZONES[zoneId] else nil
 		local ground = zone:FindFirstChild("Ground")
-		if zoneConfig and zoneConfig.island == island and ground and ground:IsA("BasePart") then
+		-- "sea": ana adadaki balık kafesinin yardımcısı; ağılı balık kafesidir
+		local sameIsland = if island == "sea"
+			then zoneId == "fishpen"
+			else zoneConfig ~= nil and zoneConfig.island == island
+		if sameIsland and ground and ground:IsA("BasePart") then
 			if zoneId == "starter" then
 				return ground.Position
 			end

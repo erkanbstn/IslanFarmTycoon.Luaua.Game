@@ -71,7 +71,7 @@ function MerchantBadge.create(
 		local event = Merchant.advance(tracker, status)
 		if event == "arrived" then
 			Sfx.play("merchant_arrive")
-			notify("Gezgin tüccar meydana geldi: Pazar'da indirimli hayvanlar var!", "info")
+			notify("Gezgin tüccar geldi: Pazar'da indirimli hayvanlar var!", "info")
 		elseif event == "missed" then
 			notify("Gezgin tüccar yola çıktı. Bir sonrakini kaçırma!", "info")
 		end

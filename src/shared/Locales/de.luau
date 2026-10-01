@@ -596,7 +596,7 @@ return {
 	["x{}"] = "x{1}",
 	["%{} indirim"] = "{1} % Rabatt",
 	["Normal fiyat: {}"] = "Normalpreis: {1}",
-	["Gezgin tüccar meydana geldi: Pazar'da indirimli hayvanlar var!"] = "Der fahrende Händler ist da: Reduzierte Tiere auf dem Markt!",
+	["Gezgin tüccar geldi: Pazar'da indirimli hayvanlar var!"] = "Der fahrende Händler ist da: Reduzierte Tiere auf dem Markt!",
 	["Gezgin tüccar yola çıktı. Bir sonrakini kaçırma!"] = "Der fahrende Händler ist weitergezogen. Verpasse den nächsten nicht!",
 	["Gezgin tüccar şu an teklif sunmuyor"] = "Der fahrende Händler hat gerade kein Angebot",
 	["Gezgin tüccardan indirimli hayvanlar geldi!"] = "Reduzierte Tiere vom fahrenden Händler sind angekommen!",
