@@ -321,6 +321,19 @@ return function(createService: any, Logic: any, Config: any)
 	flood.service.economy(spammer, "daily", 5, 5)
 	assert(#flood.calls == Logic.EVENTS_PER_MINUTE + 1, "bütçe zamanla yenilenir")
 
+	-- Bütçe yüzünden düşen huni adımı işaretlenmez; bütçe yenilenince bir sonraki çağrıda gider.
+	local starved = build(false)
+	local newcomer = newPlayer()
+	for _ = 1, Logic.EVENTS_PER_MINUTE do
+		starved.service.economy(spammer, "daily", 5, 5)
+	end
+	starved.service.funnel(newcomer, "first_collect")
+	assert(#ofKind(starved, "funnel") == 0, "bütçe doluyken huni adımı düşer")
+	starved.advance(60)
+	starved.service.funnel(newcomer, "first_collect")
+	starved.service.funnel(newcomer, "first_collect")
+	assert(#ofKind(starved, "funnel") == 1, "düşen huni adımı sonra bir kez gider")
+
 	-- pcall: AnalyticsService hata verirse oyun akışı sürer.
 	local broken = build(false, true)
 	local survivor = newPlayer()

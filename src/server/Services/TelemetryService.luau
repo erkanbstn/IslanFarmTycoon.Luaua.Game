@@ -56,23 +56,25 @@ local function stateFor(player: Player): PlayerState?
 end
 
 -- Tek çıkış noktası: sayaç, Studio'da gönderme yok, bütçe, pcall.
-local function dispatch(kind: string, label: string, send: () -> ())
+-- Dönüş: olay bütçe yüzünden düşmediyse true (Studio'da ve AnalyticsService hatasında da true: yeniden denemek anlamsız).
+local function dispatch(kind: string, label: string, send: () -> ()): boolean
 	Metrics.increment(`Telemetry{kind}`)
 	if not live then
 		Metrics.increment("TelemetryStudioSkipped")
 		if Workspace:GetAttribute("TelemetryPrint") == true then
 			print(`[Telemetry] {kind} {label}`)
 		end
-		return
+		return true
 	end
 	if not TelemetryLogic.allow(budget, os.clock()) then
 		Metrics.increment("TelemetryDropped")
-		return
+		return false
 	end
 	local ok = pcall(send)
 	if not ok then
 		Metrics.increment("TelemetryError")
 	end
+	return true
 end
 
 local function sendEconomy(
@@ -125,10 +127,13 @@ function TelemetryService.funnel(player: Player, id: string)
 	if not step or not state or state.funnel[id] then
 		return
 	end
-	state.funnel[id] = true
-	dispatch("Funnel", `{step.step} {step.name}`, function()
+	-- İşaret yalnızca olay gerçekten gittiyse konur; bütçe yüzünden düşen adım bir sonraki fırsatta yeniden denenir.
+	local sent = dispatch("Funnel", `{step.step} {step.name}`, function()
 		analytics:LogOnboardingFunnelStepEvent(player, step.step, step.name)
 	end)
+	if sent then
+		state.funnel[id] = true
+	end
 end
 
 function TelemetryService.custom(player: Player, name: string, value: number?)
