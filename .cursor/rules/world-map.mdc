@@ -68,6 +68,7 @@ alwaysApply: false
 | Bulutlar, Atmosphere Haze/Density, SunRays (yoğunluk), WeatherGrade | WeatherEffects |
 | Bloom/SunRays/Clouds `Enabled`, GlobalShadows, ShadowSoftness, EnvironmentSpecularScale, Terrain su/süs, DepthOfField | Graphics (kalite profili) |
 | UnderwaterGrade, UnderwaterBlur, `SoundService.AmbientReverb`, `Submerged` özniteliği | Underwater |
+- Değerlerin kaynağı Studio'daki `Lighting.Presets` klasörüdür (`src/lighting/Presets.rbxmx`: Day, Night, Twilight, Lights, Weather/<id>, Season/<id>; `Core/LightingPresets` okur). Rengi/parlaklığı değiştirmek kod değil preset değeri düzenlemektir; yeni hava/mevsim = klasöre ilgili değer klasörü eklemek.
 - Hava pozlaması: WeatherEffects `Lighting:SetAttribute("WeatherExposure", n)` yazar, DayNight
   yumuşatıp gece payıyla birlikte uygular. Yeni efekt bu tabloya uymalı.
 - **Geliştirmeyle beliren yapılar**: haritaya kaydedilen süs yapıları `RevealGate` etiketli Model olarak kurulur (`RevealBarnLevel = n` ya da `RevealZoneId` + `RevealZoneLevel = n`;

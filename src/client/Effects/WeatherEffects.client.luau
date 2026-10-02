@@ -39,97 +39,13 @@ end
 
 local TRANSITION = TweenInfo.new(6, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
 
-type Look = {
-	cloudCover: number,
-	cloudDensity: number,
-	cloudColor: Color3,
-	tint: Color3,
-	brightness: number,
-	saturation: number,
-	contrast: number,
-	exposure: number, -- Genel aydınlık (negatif = karanlık)
-	haze: number,
-	fog: number, -- Atmosphere.Density (uzağı ne kadar sisli)
-	sunRays: number,
-}
+-- Havanın ve mevsimin görünümü Studio'da düzenlenir: Lighting.Presets/Weather/<havaId> ve Presets/Season/<mevsimId> (Core/LightingPresets).
+-- Güneşli parlak ve berrak; bulutlu hafif karanlık; yağmur karanlık ve sisli; fırtına çok karanlık (+ şimşek); kar soğuk ve puslu.
+local Presets = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("LightingPresets"))
 
--- Havanın görünümü: güneşli parlak ve berrak; bulutlu hafif karanlık; yağmur karanlık ve sisli;
--- fırtına çok karanlık (+ şimşek); kar soğuk ve puslu.
-local WEATHER_LOOK: { [string]: Look } = {
-	sunny = {
-		cloudCover = 0.4,
-		cloudDensity = 0.45,
-		cloudColor = Color3.fromRGB(255, 255, 255),
-		tint = Color3.fromRGB(255, 250, 240),
-		brightness = 0.02,
-		saturation = -0.03,
-		contrast = 0.02,
-		exposure = -0.12,
-		haze = 1,
-		fog = 0.26,
-		sunRays = 0.03,
-	},
-	cloudy = {
-		cloudCover = 0.8,
-		cloudDensity = 0.75,
-		cloudColor = Color3.fromRGB(215, 220, 228),
-		tint = Color3.fromRGB(232, 236, 244),
-		brightness = -0.03,
-		saturation = -0.12,
-		contrast = -0.02,
-		exposure = -0.2,
-		haze = 2,
-		fog = 0.33,
-		sunRays = 0.02,
-	},
-	rain = {
-		cloudCover = 0.92,
-		cloudDensity = 0.9,
-		cloudColor = Color3.fromRGB(140, 146, 158),
-		tint = Color3.fromRGB(205, 215, 232),
-		brightness = -0.06,
-		saturation = -0.22,
-		contrast = -0.04,
-		exposure = -0.4,
-		haze = 2.8,
-		fog = 0.42,
-		sunRays = 0,
-	},
-	storm = {
-		cloudCover = 0.98,
-		cloudDensity = 1,
-		cloudColor = Color3.fromRGB(85, 90, 102),
-		tint = Color3.fromRGB(180, 192, 215),
-		brightness = -0.1,
-		saturation = -0.3,
-		contrast = 0.02,
-		exposure = -0.65,
-		haze = 3.5,
-		fog = 0.48,
-		sunRays = 0,
-	},
-	snow = {
-		cloudCover = 0.85,
-		cloudDensity = 0.8,
-		cloudColor = Color3.fromRGB(225, 230, 240),
-		tint = Color3.fromRGB(222, 232, 255),
-		brightness = 0.03,
-		saturation = -0.25,
-		contrast = -0.03,
-		exposure = -0.15,
-		haze = 2.6,
-		fog = 0.4,
-		sunRays = 0.01,
-	},
-}
-
--- Mevsimin ışık tonu (hava tonuyla çarpılır)
-local SEASON_TINT: { [string]: Color3 } = {
-	spring = Color3.fromRGB(250, 255, 250),
-	summer = Color3.fromRGB(255, 248, 232),
-	autumn = Color3.fromRGB(255, 235, 210),
-	winter = Color3.fromRGB(232, 240, 255),
-}
+local function weatherNumber(weatherId: string, name: string): number
+	return Presets.number(`Weather/{weatherId}/{name}`)
+end
 
 ---------------------------------------------------------------------------
 -- Işık ve bulutlar
@@ -171,34 +87,40 @@ end
 
 local function applyLook()
 	local season = Environment.getSeason()
-	local weather = Environment.getWeather()
-	local look = WEATHER_LOOK[weather.id] or WEATHER_LOOK.sunny
+	-- Tanımsız hava kimliği güneşliye düşer
+	local id = Environment.getWeather().id
+	if not table.find(Presets.names("Weather"), id) then
+		id = "sunny"
+	end
+	local seasonTint = if table.find(Presets.names("Season"), season.id)
+		then Presets.color(`Season/{season.id}`)
+		else Color3.new(1, 1, 1)
 
 	transition(grade, {
-		TintColor = multiplyColor(look.tint, SEASON_TINT[season.id] or Color3.new(1, 1, 1)),
-		Brightness = look.brightness,
-		Saturation = look.saturation,
-		Contrast = look.contrast,
+		TintColor = multiplyColor(Presets.color(`Weather/{id}/Tint`), seasonTint),
+		Brightness = weatherNumber(id, "Brightness"),
+		Saturation = weatherNumber(id, "Saturation"),
+		Contrast = weatherNumber(id, "Contrast"),
 	})
 	-- Genel aydınlık: bulutlu/yağmurlu/fırtınalı havada etraf kararır. ExposureCompensation'ı
 	-- DayNight tek başına yazar (hava hedefi + gece payı); burası yalnızca hedefi bildirir.
-	Lighting:SetAttribute("WeatherExposure", look.exposure)
+	Lighting:SetAttribute("WeatherExposure", weatherNumber(id, "Exposure"))
 	local sunRays = Lighting:FindFirstChildOfClass("SunRaysEffect")
 	if sunRays then
-		transition(sunRays, { Intensity = look.sunRays })
+		transition(sunRays, { Intensity = weatherNumber(id, "SunRays") })
 	end
 
 	local clouds = Workspace.Terrain:FindFirstChildOfClass("Clouds")
 	if clouds then
 		transition(clouds, {
-			Cover = look.cloudCover,
-			Density = look.cloudDensity,
-			Color = look.cloudColor,
+			Cover = weatherNumber(id, "CloudCover"),
+			Density = weatherNumber(id, "CloudDensity"),
+			Color = Presets.color(`Weather/{id}/CloudColor`),
 		})
 	end
 	local atmosphere = Lighting:FindFirstChildOfClass("Atmosphere")
 	if atmosphere then
-		transition(atmosphere, { Haze = look.haze, Density = look.fog })
+		transition(atmosphere, { Haze = weatherNumber(id, "Haze"), Density = weatherNumber(id, "Fog") })
 	end
 end
 

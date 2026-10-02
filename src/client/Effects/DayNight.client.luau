@@ -14,36 +14,18 @@ local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local EffectSettings = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("EffectSettings"))
+local Presets = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("LightingPresets"))
 local Environment = require(Shared:WaitForChild("Modules"):WaitForChild("Environment"))
 
 local TICK = 0.1
 -- Hava pozlamasına geçiş hızı (saniye); WeatherEffects'in 6 sn'lik geçişiyle aynı hissi verir.
 local EXPOSURE_SMOOTHING = 2
 
--- Gece kararır ama en karanlık anda bile zemin ve hayvanlar seçilebilmeli: ay ışığı mavisi bir taban vardır.
--- Gün içi eğri `Environment.getNightFactor`ta (anahtar saat -> pay); bu tablolar yalnızca iki uç değerdir.
-local DAY = {
-	brightness = 1.9, -- göz yormasın (önceden 2.4)
-	outdoor = Color3.fromRGB(120, 122, 136),
-	ambient = Color3.fromRGB(70, 70, 80),
-	atmosphere = Color3.fromRGB(199, 220, 235),
-	decay = Color3.fromRGB(106, 135, 165),
-}
-local NIGHT = {
-	brightness = 1.5,
-	exposure = -0.15,
-	outdoor = Color3.fromRGB(84, 98, 148),
-	ambient = Color3.fromRGB(60, 70, 108),
-	atmosphere = Color3.fromRGB(50, 64, 102),
-	decay = Color3.fromRGB(24, 32, 58),
-	tint = Color3.fromRGB(190, 204, 246),
-}
+-- Gündüz/gece uç değerleri, ışık ölçekleri ve alacakaranlık tonu Studio'da düzenlenir: Lighting.Presets (Core/LightingPresets).
+-- Gün içi eğri `Environment.getNightFactor`ta (anahtar saat -> pay); preset'ler yalnızca iki uç değerdir.
 local MAX_LIGHT_RANGE = 60 -- Roblox PointLight.Range üst sınırı
--- Tüm gece ışıklarının genel yoğunluğu. Haritadaki taban değerler place'e kayıtlı olduğundan
--- ince ayar burada yapılır (harita yeniden kurulmadan). "Normal" yönetici seviyesi = bu değerler.
-local LIGHT_BRIGHTNESS_SCALE = 0.5
-local LIGHT_RANGE_SCALE = 0.8
-local LIGHT_FADE_SECONDS = 1
+-- Tüm gece ışıklarının genel yoğunluğu/menzili ve açılış süresi: Lighting.Presets/Lights. Haritadaki taban değerler place'e kayıtlı olduğundan
+-- ince ayar preset'ten yapılır (harita yeniden kurulmadan). "Normal" yönetici seviyesi = bu değerler.
 -- Gerçek ışık kaynakları (PointLight/SpotLight) pahalıdır: düşükte hiç yanmaz, ortada kameraya en yakın
 -- bu kadar parçada yanar, yüksekte hepsi yanar. Gerçek ışığı olmayan fenerler yine de "yanar":
 -- Neon/renk değişir ve ucuz bir hale küresi (HALO_*) görünür.
@@ -57,7 +39,6 @@ local HALO_MIN_SIZE = 2
 local HALO_MAX_SIZE = 9
 local HALO_TRANSPARENCY = 0.82
 local NEAREST_REFRESH_SECONDS = 1
-local TWILIGHT_SHIFT = Color3.fromRGB(255, 150, 90)
 
 -- Sadece bu client'ta var olan gece renk düzeltmesi
 local nightGrade = Instance.new("ColorCorrectionEffect")
@@ -175,11 +156,12 @@ local function applyGlow(glow: Glow)
 		if child:IsA("Light") then
 			local base = baseValue(child, "BaseBrightness", child.Brightness)
 			child.Enabled = on
-			child.Brightness = base * LIGHT_BRIGHTNESS_SCALE * ramp * multiplier
+			child.Brightness = base * Presets.number("Lights/BrightnessScale") * ramp * multiplier
 			-- Parlaklık seçimi menzili de etkiler; yalnızca Brightness çarpmak gözle zor fark edilir.
 			if child:IsA("PointLight") or child:IsA("SpotLight") then
 				local range = baseValue(child, "BaseRange", child.Range)
-				child.Range = math.min(range * LIGHT_RANGE_SCALE * (0.6 + 0.4 * multiplier), MAX_LIGHT_RANGE)
+				child.Range =
+					math.min(range * Presets.number("Lights/RangeScale") * (0.6 + 0.4 * multiplier), MAX_LIGHT_RANGE)
 			end
 		end
 	end
@@ -253,7 +235,14 @@ local function updateSky(dt: number)
 	local clock = Environment.getClockTime(Workspace:GetServerTimeNow())
 	local night = Environment.getNightFactor(clock)
 	Lighting.ClockTime = clock
-	Lighting.Brightness = DAY.brightness + (NIGHT.brightness - DAY.brightness) * night
+	local function mix(name: string): number
+		local day, nightValue = Presets.number(`Day/{name}`), Presets.number(`Night/{name}`)
+		return day + (nightValue - day) * night
+	end
+	local function mixColor(name: string): Color3
+		return Presets.color(`Day/{name}`):Lerp(Presets.color(`Night/{name}`), night)
+	end
+	Lighting.Brightness = mix("Brightness")
 
 	local target = targetWeatherExposure()
 	local current = weatherExposure
@@ -263,28 +252,29 @@ local function updateSky(dt: number)
 		current += (target - current) * math.min(1, dt / EXPOSURE_SMOOTHING)
 	end
 	weatherExposure = current
-	Lighting.ExposureCompensation = (current :: number) + NIGHT.exposure * night
+	Lighting.ExposureCompensation = (current :: number) + mix("Exposure")
 
-	Lighting.OutdoorAmbient = DAY.outdoor:Lerp(NIGHT.outdoor, night)
-	Lighting.Ambient = DAY.ambient:Lerp(NIGHT.ambient, night)
+	Lighting.OutdoorAmbient = mixColor("OutdoorAmbient")
+	Lighting.Ambient = mixColor("Ambient")
 	-- Gün doğumu ve batımında ufka sıcak bir ton
 	local twilight = math.sin(night * math.pi)
-	Lighting.ColorShift_Top = Color3.new(0, 0, 0):Lerp(TWILIGHT_SHIFT, twilight * 0.3)
+	Lighting.ColorShift_Top = Color3.new(0, 0, 0)
+		:Lerp(Presets.color("Twilight/Color"), twilight * Presets.number("Twilight/Strength"))
 
 	local atmosphere = Lighting:FindFirstChildOfClass("Atmosphere")
 	if atmosphere then
-		atmosphere.Color = DAY.atmosphere:Lerp(NIGHT.atmosphere, night)
-		atmosphere.Decay = DAY.decay:Lerp(NIGHT.decay, night)
+		atmosphere.Color = mixColor("AtmosphereColor")
+		atmosphere.Decay = mixColor("AtmosphereDecay")
 	end
 	local bloom = Lighting:FindFirstChildOfClass("BloomEffect")
 	if bloom then
 		-- Neon fenerler gece hafif bir hale alsın ama çevresi beyaza boğulmasın.
-		bloom.Intensity = 0.28 - 0.08 * night
-		bloom.Threshold = 1.8 + 0.6 * night
+		bloom.Intensity = mix("BloomIntensity")
+		bloom.Threshold = mix("BloomThreshold")
 	end
-	nightGrade.TintColor = Color3.new(1, 1, 1):Lerp(NIGHT.tint, night)
-	nightGrade.Saturation = -0.08 * night
-	nightGrade.Brightness = 0.01 * night
+	nightGrade.TintColor = mixColor("Tint")
+	nightGrade.Saturation = mix("GradeSaturation")
+	nightGrade.Brightness = mix("GradeBrightness")
 
 	local targetRamp = Environment.getLightFactor(clock)
 	-- Gündüz bile yağmur/fırtına etrafı karartıyorsa lambalar kısmen yanar (karanlık hava + sönük ışık kötü görünüyordu)
@@ -303,7 +293,7 @@ local function updateSky(dt: number)
 		and math.abs(targetRamp - ramp) > 0.01
 		and Players.LocalPlayer:GetAttribute("ReducedMotion") ~= true
 	then
-		newRamp = ramp + (targetRamp - ramp) * math.min(1, dt / LIGHT_FADE_SECONDS)
+		newRamp = ramp + (targetRamp - ramp) * math.min(1, dt / math.max(Presets.number("Lights/FadeSeconds"), 0.05))
 	end
 	local newMultiplier = Environment.getLightMultiplier()
 	if math.abs(newRamp - ramp) > 0.005 or (newRamp == 0) ~= (ramp == 0) or newMultiplier ~= multiplier then

@@ -19,7 +19,7 @@ Tek kaynak `src/shared/Config/` (`init.luau` birleştirir; veri: `Upgrades`, `An
 | Üretim | `PRODUCTION_RECIPES` (+ `upgradeProfile`; para tesisi: `cost = 0` + `options` partileri, çok hayvan = hayvan başına daha çok ödül; kimlik bölge kimliğiyle çakışmamalı) | `ProductionRules`, `World/IslandSpecialization`; tesis geliştirmesi `BUILD_UPGRADES.profiles` |
 | Ürün / ürün merkezi | `GOODS` + `GOODS_ORDER` + `PRODUCTION_RECIPES` (`output = "goods"`) + açan `UPGRADES` | bina `Presentation/UpgradeBuildersGoods` + yapı noktası; ayrıntı `economy-data.mdc` "Ahır deposu"; `tests/goods.spec.luau` |
 | Yapı geliştirme | `BUILD_UPGRADES` (`profiles`, `costMultiplier/costGrowth`) | etki `FarmMath`'te; `tests/economy.spec.luau`; `simulate-economy.py` kalibrasyonu |
-| Mevsim/hava | `SEASONS`, `WEATHER` (incomeModifiers) | `client/Effects/WeatherEffects` WEATHER_LOOK, `SEASON_TINT` |
+| Mevsim/hava | `SEASONS`, `WEATHER` (incomeModifiers) | `Lighting.Presets/Weather/<id>` ve `Presets/Season/<id>` değerleri (`src/lighting/Presets.rbxmx`; `client/Effects/WeatherEffects` okur) |
 | Eklenti (süreli kalış) | `Config.EXTENSIONS` (`stayDuration`, `incomeBonus`) + `UPGRADES` kind "extension" (kapasite yükseltmeleri `EXTENSION_CAPACITY_UPGRADES` ile otomatik üretilir) | `IslandLayout.EXTENSIONS` (yer) + `IslandSiteBuilders` (görsel) + `IslandSpecialization.buildExtensionVisual` (+ `Presentation/ExtensionVisualService`); `MAP_VERSION` +1; çeviri; `tests/tasks.spec.luau` |
 | Eşya (çekiç, asa, muska, kozmetik) | `Config.ITEMS` (+ `ITEM_SLOTS`) — `effects`/`power`/`look` | etki `FarmMath`'te okunur; çeviri (ad + şablon); `tests/inventory.spec.luau` |
 

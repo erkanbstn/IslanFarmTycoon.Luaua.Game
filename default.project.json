@@ -44,6 +44,9 @@
     "Lighting": {
       "$properties": {
         "Technology": "Future"
+      },
+      "Presets": {
+        "$path": "src/lighting/Presets.rbxmx"
       }
     },
 
