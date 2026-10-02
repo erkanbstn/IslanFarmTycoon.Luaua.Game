@@ -68,6 +68,46 @@ local function cloneAsset(upgradeId: string): Model?
 	return nil
 end
 
+-- Hazır modelde (assets/Buildings) tabela yoktur (SurfaceGui modelde saklanmaz): kod kurucusundaki tabelalar burada, aynı yerde ve aynı metinle eklenir.
+-- Kaynak: UpgradeBuildersGoods.house (merkezler), UpgradeBuildersHome.milk_factory, UpgradeBuildersBarnyard (hatchery, horse_training).
+-- Kod kurucuları silinirse bu tablo tek kaynak olur.
+type SignSpec = { offset: CFrame, title: string, text: string, icon: string, width: number }
+local HOUSE_SIGN = CFrame.new(0, 7.5, -4.3)
+local function houseSign(title: string, text: string, icon: string): SignSpec
+	return { offset = HOUSE_SIGN, title = title, text = text, icon = icon, width = 8 }
+end
+local ASSET_SIGNS: { [string]: SignSpec } = {
+	milk_factory = {
+		offset = CFrame.new(-2, 5.65, -5.2),
+		title = "Süt Fabrikası",
+		text = "İşleme ve paketleme",
+		icon = "🥛",
+		width = 8,
+	},
+	hatchery = {
+		offset = CFrame.new(0, 5, -2.2),
+		title = "Kuluçkahane",
+		text = "Yumurta ve civciv",
+		icon = "🐣",
+		width = 8,
+	},
+	horse_training = {
+		offset = CFrame.new(0, 3.15, 5.05),
+		title = "At Eğitim Alanı",
+		text = "Antrenman istasyonu",
+		icon = "🏇",
+		width = 6.4,
+	},
+	milk_center = houseSign("Süt Merkezi", "Süt depoya gider", "🥛"),
+	egg_center = houseSign("Yumurta Merkezi", "Yumurta depoya gider", "🥚"),
+	down_home_center = houseSign("Tüy Atölyesi", "Tüy depoya gider", "🪶"),
+	cheese_cellar = houseSign("Peynir Mahzeni", "Peynir depoya gider", "🧀"),
+	wool_loom = houseSign("Yün Atölyesi", "Yün depoya gider", "🧶"),
+	meat_smokehouse = houseSign("Tütsühane", "Et depoya gider", "🥩"),
+	horseshoe_forge = houseSign("Nal Demirhanesi", "Nal depoya gider", "🧲"),
+	fish_cannery = houseSign("Balık Merkezi", "Balık depoya gider", "🐟"),
+}
+
 local function buildUpgrade(upgradeId: string, spot: BasePart, parent: Instance)
 	local base = spot.CFrame
 	local cloned = cloneAsset(upgradeId)
@@ -75,6 +115,17 @@ local function buildUpgrade(upgradeId: string, spot: BasePart, parent: Instance)
 	if cloned then
 		cloned:PivotTo(base)
 		built = cloned
+		local signSpec = ASSET_SIGNS[upgradeId]
+		if signSpec then
+			UpgradeParts.sign(
+				built,
+				base * signSpec.offset,
+				signSpec.title,
+				signSpec.text,
+				signSpec.icon,
+				signSpec.width
+			)
+		end
 	else
 		local builder = BUILDERS[upgradeId]
 		if not builder then
