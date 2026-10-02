@@ -10,6 +10,7 @@ local Shared = require(script.Parent:WaitForChild("SharedRef")) :: typeof(game.R
 local Config = require(Shared:WaitForChild("Config"))
 local WorldUi = require(Shared:WaitForChild("WorldUi"))
 local UiTheme = require(Shared:WaitForChild("UiTheme"))
+local ModelAssets = require(script.Parent:WaitForChild("ModelAssets"))
 
 local BarnVisualService = {}
 
@@ -162,27 +163,8 @@ local function addTierDetails(barn: Model, frame: CFrame, level: number, width: 
 	end
 end
 
--- Ahır deposunun sandığı: kapının sağında; yaklaşınca "E" ile envanter (Ahır Deposu) açılır.
--- Prompt yalnızca çiftliğin sahibine görünür (client IslandPrompts: Locked özniteliği).
-local function addStorageChest(barn: Model, frame: CFrame, doorW: number, depth: number)
-	local at = frame * CFrame.new(doorW / 2 + 4.6, 0, -(depth / 2 + 3))
-	local wood = Color3.fromRGB(139, 95, 55)
-	local body = makePart("StorageChest", Vector3.new(3.4, 2, 2.2), at * CFrame.new(0, 1, 0), wood, barn)
-	makePart("ChestLid", Vector3.new(3.6, 0.7, 2.4), at * CFrame.new(0, 2.35, 0), Color3.fromRGB(120, 80, 45), barn)
-	for _, x in { -1.1, 1.1 } do
-		local band = makePart(
-			"ChestBand",
-			Vector3.new(0.3, 3.1, 2.5),
-			at * CFrame.new(x, 1.55, 0),
-			Color3.fromRGB(70, 65, 62),
-			barn
-		)
-		band.Material = Enum.Material.Metal
-	end
-	local lock =
-		makePart("ChestLock", Vector3.new(0.6, 0.8, 0.3), at * CFrame.new(0, 1.9, -1.2), UiTheme.Color.Gold, barn)
-	lock.Material = Enum.Material.Metal
-
+-- Sandığın etkileşimi (model de kod da aynı): prompt yalnızca sahibine görünür; üstünde ad etiketi
+local function attachChestInteraction(body: BasePart)
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.Name = "BarnChestPrompt"
 	prompt.ActionText = "Aç"
@@ -205,10 +187,62 @@ local function addStorageChest(barn: Model, frame: CFrame, doorW: number, depth:
 	})
 end
 
+-- Ahır deposunun sandığı: kapının sağında; yaklaşınca "E" ile envanter (Ahır Deposu) açılır.
+-- Prompt yalnızca çiftliğin sahibine görünür (client IslandPrompts: Locked özniteliği).
+local function addStorageChest(barn: Model, frame: CFrame, doorW: number, depth: number)
+	local at = frame * CFrame.new(doorW / 2 + 4.6, 0, -(depth / 2 + 3))
+	local wood = Color3.fromRGB(139, 95, 55)
+	local body = makePart("StorageChest", Vector3.new(3.4, 2, 2.2), at * CFrame.new(0, 1, 0), wood, barn)
+	makePart("ChestLid", Vector3.new(3.6, 0.7, 2.4), at * CFrame.new(0, 2.35, 0), Color3.fromRGB(120, 80, 45), barn)
+	for _, x in { -1.1, 1.1 } do
+		local band = makePart(
+			"ChestBand",
+			Vector3.new(0.3, 3.1, 2.5),
+			at * CFrame.new(x, 1.55, 0),
+			Color3.fromRGB(70, 65, 62),
+			barn
+		)
+		band.Material = Enum.Material.Metal
+	end
+	local lock =
+		makePart("ChestLock", Vector3.new(0.6, 0.8, 0.3), at * CFrame.new(0, 1.9, -1.2), UiTheme.Color.Gold, barn)
+	lock.Material = Enum.Material.Metal
+
+	attachChestInteraction(body)
+end
+
 -- frame: zemin yüzeyinde, LookVector (-Z) kapı yönü
 local function buildBarn(parent: Instance, frame: CFrame, barnLevel: number)
 	local levelConfig = Config.getBarnLevelConfig(barnLevel)
 	local tier = math.clamp(barnLevel, 1, 4)
+
+	-- Hazır model (assets/Barns/Barn_Lv<1-4>): geometri modelden; fener/pencere ışığı, sandık etkileşimi ve seviye yazısı burada eklenir.
+	local modelBarn = ModelAssets.clone("Barns", `Barn_Lv{tier}`)
+	if modelBarn then
+		modelBarn.Name = "Barn"
+		modelBarn:PivotTo(frame)
+		ModelAssets.eachNamed(modelBarn, { "Lantern" }, ModelAssets.markLantern)
+		ModelAssets.eachNamed(modelBarn, { "HayloftWindow", "SideWindow" }, ModelAssets.markGlowWindow)
+		local chest = modelBarn:FindFirstChild("StorageChest")
+		if chest and chest:IsA("BasePart") then
+			attachChestInteraction(chest)
+		end
+		local sign = modelBarn:FindFirstChild("LevelSign")
+		if sign and sign:IsA("BasePart") then
+			WorldUi.sign(sign, Enum.NormalId.Front, {
+				title = `Seviye {barnLevel}`,
+				text = if levelConfig then levelConfig.displayName else "Ahır",
+			})
+		end
+		modelBarn:SetAttribute("VisualCreatedAt", game:GetService("Workspace"):GetServerTimeNow())
+		modelBarn:SetAttribute("PartCount", ModelAssets.partCount(modelBarn))
+		local floor = modelBarn:FindFirstChild("Floor")
+		if floor and floor:IsA("BasePart") then
+			modelBarn.PrimaryPart = floor
+		end
+		modelBarn.Parent = parent
+		return
+	end
 
 	-- Karakter (~5.5 stud) rahatça girsin: geniş ve yüksek kapı, yüksek iç mekân.
 	local width, depth = 18, 12

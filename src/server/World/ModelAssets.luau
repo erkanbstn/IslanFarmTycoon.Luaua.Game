@@ -1,0 +1,98 @@
+--!strict
+-- Studio'da yapılan hazır modellerin (assets/ → ServerStorage.Assets.<klasör>.<ad>) ortak yükleyicisi.
+-- Model dosyaları yalnızca parça geometrisi taşır (ad, ölçü, renk, malzeme, çarpışma, pivot); öznitelik, etiket, ışık, tabela ve istemci
+-- etkileşimi yoktur: bunları çağıran kurucu ekler. Model yoksa çağıran kod kurucusuna düşer (yedek; model dosyası kaldırılınca eski görünüm gelir).
+-- World katmanı: eklenti (plugin) ve Presentation aynı modülü kullanır.
+local CollectionService = game:GetService("CollectionService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerStorage = game:GetService("ServerStorage")
+
+local ModelAssets = {}
+
+local function assetsRoot(): Instance?
+	return ServerStorage:FindFirstChild("Assets") or ReplicatedStorage:FindFirstChild("Assets")
+end
+
+-- Şablon: Assets.<klasör>.<ad> (Model); yoksa nil
+function ModelAssets.find(folderName: string, name: string): Model?
+	local root = assetsRoot()
+	local folder = if root then root:FindFirstChild(folderName) else nil
+	local template = if folder then folder:FindFirstChild(name) else nil
+	if template and template:IsA("Model") then
+		return template
+	end
+	return nil
+end
+
+-- Şablonun temiz kopyası: çalışabilir içerik atılır, parçalar sabitlenir; çarpışma/sorgu değerleri modeldekiyle kalır
+-- (AssetSanitizer.clone tüm parçaları çarpışır yapar; süs parçaları için fazla ağır ve yanlış).
+function ModelAssets.clone(folderName: string, name: string): Model?
+	local template = ModelAssets.find(folderName, name)
+	if not template then
+		return nil
+	end
+	local model = template:Clone()
+	for _, descendant in model:GetDescendants() do
+		if descendant:IsA("LuaSourceContainer") then
+			descendant:Destroy()
+		elseif descendant:IsA("BasePart") then
+			descendant.Anchored = true
+			descendant.CanTouch = false
+		end
+	end
+	return model
+end
+
+function ModelAssets.partCount(model: Instance): number
+	local count = 0
+	for _, descendant in model:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			count += 1
+		end
+	end
+	return count
+end
+
+local function addNightLight(
+	part: BasePart,
+	tag: string,
+	nightColor: Color3,
+	lightColor: Color3,
+	range: number,
+	brightness: number
+)
+	part:SetAttribute("NightColor", nightColor)
+	CollectionService:AddTag(part, tag)
+	local light = Instance.new("PointLight")
+	light.Color = lightColor
+	light.Range = range
+	light.Brightness = brightness
+	light.Shadows = false
+	light.Enabled = false
+	light.Parent = part
+end
+
+-- Fener gövdesi (geceleri DayNight yakar): kod kurucusundaki değerlerle aynı
+function ModelAssets.markLantern(part: BasePart)
+	addNightLight(part, "NightLight", Color3.fromRGB(255, 214, 130), Color3.fromRGB(255, 205, 130), 26, 2.5)
+end
+
+-- Pencere (geceleri DayNight parlatır)
+function ModelAssets.markGlowWindow(part: BasePart)
+	addNightLight(part, "NightWindow", Color3.fromRGB(255, 219, 140), Color3.fromRGB(255, 205, 130), 12, 1.4)
+end
+
+-- Adı `names` içinde olan parçaların her birine `apply` uygular
+function ModelAssets.eachNamed(model: Instance, names: { string }, apply: (BasePart) -> ())
+	local wanted: { [string]: boolean } = {}
+	for _, name in names do
+		wanted[name] = true
+	end
+	for _, descendant in model:GetDescendants() do
+		if descendant:IsA("BasePart") and wanted[descendant.Name] then
+			apply(descendant)
+		end
+	end
+end
+
+return ModelAssets
