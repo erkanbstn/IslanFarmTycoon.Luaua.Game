@@ -24,7 +24,7 @@ ALLOWED_MISSING: dict[str, str] = {}
 # Koda bağlanmamış (harita kurucuları) klasörler: bilgi amaçlı, hata sayılmaz.
 UNWIRED_FOLDERS: set[str] = set()
 FORBIDDEN_CLASSES = {
-    "Script", "LocalScript", "ModuleScript", "ProximityPrompt", "SurfaceGui", "BillboardGui", "PointLight", "SpotLight", "MeshPart",
+    "Script", "LocalScript", "ModuleScript", "ProximityPrompt", "SurfaceGui", "BillboardGui", "SpotLight", "MeshPart",
 }
 MAX_PARTS_BUILDING = 35
 # Üretim yapmayan (tabelasız) binalar; diğer bütün binalarda SignBoard + 2 SignPost zorunlu.
@@ -151,6 +151,36 @@ CLIENT_EXPECTED: dict[str, set[str]] = {
 }
 
 
+# Kullanıcı kararıyla gerçek ışık taşıyan tek istemci dip modelleri (devamlı açık küçük PointLight): her modelde tam bir tane.
+LIGHT_MODELS = {("Sea", "DiverChest"), ("Sea", "ReefArch"), ("Sea", "SeaAnemone")}
+
+
+def light_problems(model: ET.Element, allowed: bool) -> list[str]:
+    problems: list[str] = []
+    lights = []
+    for part in model.iter("Item"):
+        for child in part.findall("Item"):
+            if child.get("class") == "PointLight":
+                lights.append((part, child))
+    if not lights:
+        return [] if not allowed else ["bu modelde bir PointLight olmalı"]
+    if not allowed:
+        return ["PointLight yalnızca LIGHT_MODELS'teki dip modellerinde olabilir"]
+    if len(lights) != 1:
+        problems.append(f"tam bir PointLight olmalı ({len(lights)} var)")
+    for part, light in lights:
+        if part.get("class") not in ("Part", "WedgePart"):
+            problems.append("PointLight bir BasePart çocuğu olmalı")
+        shadows = light.find("Properties/bool[@name='Shadows']")
+        if shadows is not None and shadows.text == "true":
+            problems.append("PointLight Shadows=false olmalı")
+        for name, limit in (("Brightness", 2.5), ("Range", 16)):
+            value = light.find(f"Properties/float[@name='{name}']")
+            if value is not None and float(value.text) > limit:
+                problems.append(f"PointLight {name} <= {limit} olmalı")
+    return problems
+
+
 def inspect(path: Path, folder: str) -> list[str]:
     problems: list[str] = []
     try:
@@ -165,6 +195,7 @@ def inspect(path: Path, folder: str) -> list[str]:
         problems.append(f"model adı dosya adıyla uyuşmuyor ({name.text if name is not None else '?'})")
     if model.find("Properties/OptionalCoordinateFrame[@name='WorldPivotData']") is None:
         problems.append("WorldPivotData (pivot) yok")
+    problems.extend(light_problems(model, (folder, path.stem) in LIGHT_MODELS))
     parts = 0
     for item in model.iter("Item"):
         cls = item.get("class")

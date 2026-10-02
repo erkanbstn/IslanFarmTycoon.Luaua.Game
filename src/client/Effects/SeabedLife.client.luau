@@ -89,6 +89,14 @@ local function placeSea(
 	if scale ~= 1 then
 		model:ScaleTo(scale)
 	end
+	-- Modeldeki gerçek dip ışıkları (DiverChest/ReefArch/SeaAnemone PointLight) düşük kalitede yakılmaz (ışık bütçesi)
+	if localPlayer:GetAttribute("EffectsQuality") == "low" then
+		for _, descendant in model:GetDescendants() do
+			if descendant:IsA("PointLight") then
+				descendant:Destroy()
+			end
+		end
+	end
 	if tint then
 		local index = 0
 		for _, descendant in model:GetDescendants() do

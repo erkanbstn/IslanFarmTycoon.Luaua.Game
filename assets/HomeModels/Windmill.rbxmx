@@ -1,318 +1,2408 @@
+<?xml version='1.0' encoding='utf-8'?>
 <roblox version="4">
-<Meta name="ExplicitAutoJoints">true</Meta>
-<Item class="Model" referent="RBXMODEL"><Properties>
-<string name="Name">Windmill</string>
-<OptionalCoordinateFrame name="WorldPivotData"><CFrame><X>1500</X><Y>4</Y><Z>7130</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CFrame></OptionalCoordinateFrame>
-</Properties>
-<Item class="Part" referent="RBXPART1"><Properties>
-<string name="Name">Tower</string>
-<Vector3 name="Size"><X>5.199999809265137</X><Y>9</Y><Z>9</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1500</X><Y>6.599999904632568</Y><Z>7130</Z><R00>-4.371138828673793e-8</R00><R01>-1</R01><R02>0</R02><R10>1</R10><R11>-4.371138828673793e-8</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.886274516582489</R><G>0.8392156958580017</G><B>0.7450980544090271</B></Color3>
-<token name="Material">848</token>
-<token name="Shape">2</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART2"><Properties>
-<string name="Name">Tower</string>
-<Vector3 name="Size"><X>5.199999809265137</X><Y>7.599999904632568</Y><Z>7.599999904632568</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1500</X><Y>11.600000381469727</Y><Z>7130</Z><R00>-4.371138828673793e-8</R00><R01>-1</R01><R02>0</R02><R10>1</R10><R11>-4.371138828673793e-8</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.886274516582489</R><G>0.8392156958580017</G><B>0.7450980544090271</B></Color3>
-<token name="Material">848</token>
-<token name="Shape">2</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART3"><Properties>
-<string name="Name">Tower</string>
-<Vector3 name="Size"><X>5.199999809265137</X><Y>6.199999809265137</Y><Z>6.199999809265137</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1500</X><Y>16.600000381469727</Y><Z>7130</Z><R00>-4.371138828673793e-8</R00><R01>-1</R01><R02>0</R02><R10>1</R10><R11>-4.371138828673793e-8</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.886274516582489</R><G>0.8392156958580017</G><B>0.7450980544090271</B></Color3>
-<token name="Material">848</token>
-<token name="Shape">2</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART4"><Properties>
-<string name="Name">TowerBase</string>
-<Vector3 name="Size"><X>0.800000011920929</X><Y>9.4</Y><Z>9.4</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1500</X><Y>4.400000095367432</Y><Z>7130</Z><R00>-4.371138828673793e-8</R00><R01>-1</R01><R02>0</R02><R10>1</R10><R11>-4.371138828673793e-8</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.501960813999176</R><G>0.4941176474094391</G><B>0.4627451002597809</B></Color3>
-<token name="Material">880</token>
-<token name="Shape">2</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART5"><Properties>
-<string name="Name">Door</string>
-<Vector3 name="Size"><X>3.200000047683716</X><Y>5.199999809265137</Y><Z>0.5</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1500</X><Y>6.599999904632568</Y><Z>7125.4</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.3921568691730499</R><G>0.27450981736183167</G><B>0.1764705926179886</B></Color3>
-<token name="Material">528</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART6"><Properties>
-<string name="Name">CapLow</string>
-<Vector3 name="Size"><X>1.399999976158142</X><Y>7.400000095367432</Y><Z>7.400000095367432</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1500</X><Y>19.700000762939453</Y><Z>7130</Z><R00>-4.371138828673793e-8</R00><R01>-1</R01><R02>0</R02><R10>1</R10><R11>-4.371138828673793e-8</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.6274510025978088</R><G>0.24313725531101227</G><B>0.1882352977991104</B></Color3>
-<token name="Material">800</token>
-<token name="Shape">2</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART7"><Properties>
-<string name="Name">CapMid</string>
-<Vector3 name="Size"><X>1.399999976158142</X><Y>5.199999809265137</Y><Z>5.199999809265137</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1500</X><Y>21</Y><Z>7130</Z><R00>-4.371138828673793e-8</R00><R01>-1</R01><R02>0</R02><R10>1</R10><R11>-4.371138828673793e-8</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.6274510025978088</R><G>0.24313725531101227</G><B>0.1882352977991104</B></Color3>
-<token name="Material">800</token>
-<token name="Shape">2</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART8"><Properties>
-<string name="Name">CapTop</string>
-<Vector3 name="Size"><X>1.600000023841858</X><Y>2.5999999046325684</Y><Z>2.5999999046325684</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1500</X><Y>22.299999237060547</Y><Z>7130</Z><R00>-4.371138828673793e-8</R00><R01>-1</R01><R02>0</R02><R10>1</R10><R11>-4.371138828673793e-8</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.6274510025978088</R><G>0.24313725531101227</G><B>0.1882352977991104</B></Color3>
-<token name="Material">800</token>
-<token name="Shape">2</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART9"><Properties>
-<string name="Name">Window</string>
-<Vector3 name="Size"><X>1.600000023841858</X><Y>2.200000047683716</Y><Z>0.30000001192092896</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1500</X><Y>16</Y><Z>7126.7001953125</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.47058823704719543</R><G>0.7058823704719543</G><B>0.8627451062202454</B></Color3>
-<token name="Material">1568</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART10"><Properties>
-<string name="Name">Hub</string>
-<Vector3 name="Size"><X>1.399999976158142</X><Y>1.399999976158142</Y><Z>1.600000023841858</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1500</X><Y>17.5</Y><Z>7125.39990234375</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.3921568691730499</R><G>0.27450981736183167</G><B>0.1764705926179886</B></Color3>
-<token name="Material">512</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART10_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART11"><Properties>
-<string name="Name">Arm</string>
-<Vector3 name="Size"><X>0.5</X><Y>13</Y><Z>0.3499999940395355</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1500</X><Y>17.5</Y><Z>7125.39990234375</Z><R00>0.7071067690849304</R00><R01>-0.7071067690849304</R01><R02>0</R02><R10>0.7071067690849304</R10><R11>0.7071067690849304</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.3921568691730499</R><G>0.27450981736183167</G><B>0.1764705926179886</B></Color3>
-<token name="Material">512</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART12"><Properties>
-<string name="Name">Arm</string>
-<Vector3 name="Size"><X>0.5</X><Y>13</Y><Z>0.3499999940395355</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1500</X><Y>17.5</Y><Z>7125.7998046875</Z><R00>-0.7071067690849304</R00><R01>-0.7071067690849304</R01><R02>0</R02><R10>0.7071067690849304</R10><R11>-0.7071067690849304</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.3921568691730499</R><G>0.27450981736183167</G><B>0.1764705926179886</B></Color3>
-<token name="Material">512</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART13"><Properties>
-<string name="Name">Sail</string>
-<Vector3 name="Size"><X>2.5999999046325684</X><Y>5.199999809265137</Y><Z>0.15000000596046448</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1498.3736572265625</X><Y>21.389087677001953</Y><Z>7124.94970703125</Z><R00>0.7071067690849304</R00><R01>-0.7071067690849304</R01><R02>0</R02><R10>0.7071067690849304</R10><R11>0.7071067690849304</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.9411764740943909</R><G>0.9098039269447327</G><B>0.8235294222831726</B></Color3>
-<token name="Material">1312</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART14"><Properties>
-<string name="Name">Sail</string>
-<Vector3 name="Size"><X>2.5999999046325684</X><Y>5.199999809265137</Y><Z>0.15000000596046448</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1496.1109619140625</X><Y>15.87365436553955</Y><Z>7124.94970703125</Z><R00>-0.7071067690849304</R00><R01>-0.7071067690849304</R01><R02>0</R02><R10>0.7071067690849304</R10><R11>-0.7071067690849304</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.9411764740943909</R><G>0.9098039269447327</G><B>0.8235294222831726</B></Color3>
-<token name="Material">1312</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART15"><Properties>
-<string name="Name">Sail</string>
-<Vector3 name="Size"><X>2.5999999046325684</X><Y>5.199999809265137</Y><Z>0.15000000596046448</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1501.6263427734375</X><Y>13.610912322998047</Y><Z>7124.94970703125</Z><R00>-0.7071068286895752</R00><R01>0.7071067094802856</R01><R02>0</R02><R10>-0.7071067094802856</R10><R11>-0.7071068286895752</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.9411764740943909</R><G>0.9098039269447327</G><B>0.8235294222831726</B></Color3>
-<token name="Material">1312</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART16"><Properties>
-<string name="Name">Sail</string>
-<Vector3 name="Size"><X>2.5999999046325684</X><Y>5.199999809265137</Y><Z>0.15000000596046448</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1503.8890380859375</X><Y>19.126344680786133</Y><Z>7124.94970703125</Z><R00>0.7071067094802856</R00><R01>0.70710688829422</R01><R02>0</R02><R10>-0.70710688829422</R10><R11>0.7071067094802856</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.9411764740943909</R><G>0.9098039269447327</G><B>0.8235294222831726</B></Color3>
-<token name="Material">1312</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART17"><Properties>
-<string name="Name">Box</string>
-<Vector3 name="Size"><X>2</X><Y>2</Y><Z>2</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1506.4000244140625</X><Y>5</Y><Z>7127</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.6666666865348816</R><G>0.4901960790157318</G><B>0.29411765933036804</B></Color3>
-<token name="Material">528</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART18"><Properties>
-<string name="Name">Slat</string>
-<Vector3 name="Size"><X>0.20000000298023224</X><Y>2.049999952316284</Y><Z>0.20000000298023224</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1505.4500732421875</X><Y>5</Y><Z>7126.0498046875</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.47058823704719543</R><G>0.3333333432674408</G><B>0.19607843458652496</B></Color3>
-<token name="Material">512</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART19"><Properties>
-<string name="Name">Slat</string>
-<Vector3 name="Size"><X>0.20000000298023224</X><Y>2.049999952316284</Y><Z>0.20000000298023224</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1507.3499755859375</X><Y>5</Y><Z>7126.0498046875</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.47058823704719543</R><G>0.3333333432674408</G><B>0.19607843458652496</B></Color3>
-<token name="Material">512</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART20"><Properties>
-<string name="Name">Body</string>
-<Vector3 name="Size"><X>2.5999999046325684</X><Y>2</Y><Z>2</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1493.5999755859375</X><Y>5.300000190734863</Y><Z>7126.7998046875</Z><R00>-4.371138828673793e-8</R00><R01>-1</R01><R02>0</R02><R10>1</R10><R11>-4.371138828673793e-8</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.529411792755127</R><G>0.3529411852359772</G><B>0.21568627655506134</B></Color3>
-<token name="Material">528</token>
-<token name="Shape">2</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART21"><Properties>
-<string name="Name">Hoop</string>
-<Vector3 name="Size"><X>0.20000000298023224</X><Y>2.0999999046325684</Y><Z>2.0999999046325684</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1493.5999755859375</X><Y>4.5</Y><Z>7126.7998046875</Z><R00>-4.371138828673793e-8</R00><R01>-1</R01><R02>0</R02><R10>1</R10><R11>-4.371138828673793e-8</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.27450981736183167</R><G>0.27450981736183167</G><B>0.29411765933036804</B></Color3>
-<token name="Material">1088</token>
-<token name="Shape">2</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART22"><Properties>
-<string name="Name">Hoop</string>
-<Vector3 name="Size"><X>0.20000000298023224</X><Y>2.0999999046325684</Y><Z>2.0999999046325684</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1493.5999755859375</X><Y>6.099999904632568</Y><Z>7126.7998046875</Z><R00>-4.371138828673793e-8</R00><R01>-1</R01><R02>0</R02><R10>1</R10><R11>-4.371138828673793e-8</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.27450981736183167</R><G>0.27450981736183167</G><B>0.29411765933036804</B></Color3>
-<token name="Material">1088</token>
-<token name="Shape">2</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-</Item>
+  <Meta name="ExplicitAutoJoints">true</Meta>
+  <Item class="Model" referent="RBXMODEL">
+    <Properties>
+      <string name="Name">Windmill</string>
+      <OptionalCoordinateFrame name="WorldPivotData">
+        <CFrame>
+          <X>1500</X>
+          <Y>4</Y>
+          <Z>7130</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CFrame>
+      </OptionalCoordinateFrame>
+    </Properties>
+    <Item class="Part" referent="RBXPART10">
+      <Properties>
+        <string name="Name">Hub</string>
+        <Vector3 name="Size">
+          <X>1.399999976158142</X>
+          <Y>1.399999976158142</Y>
+          <Z>1.600000023841858</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1500</X>
+          <Y>17.5</Y>
+          <Z>7125.39990234375</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.37254902</R>
+          <G>0.415686275</G>
+          <B>0.42745098</B>
+        </Color3>
+        <token name="Material">1088</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART11">
+      <Properties>
+        <string name="Name">Arm</string>
+        <Vector3 name="Size">
+          <X>0.5</X>
+          <Y>13</Y>
+          <Z>0.3499999940395355</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1500</X>
+          <Y>17.5</Y>
+          <Z>7125.39990234375</Z>
+          <R00>0.7071067690849304</R00>
+          <R01>-0.7071067690849304</R01>
+          <R02>0</R02>
+          <R10>0.7071067690849304</R10>
+          <R11>0.7071067690849304</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.341176471</R>
+          <G>0.243137255</G>
+          <B>0.17254902</B>
+        </Color3>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART12">
+      <Properties>
+        <string name="Name">Arm</string>
+        <Vector3 name="Size">
+          <X>0.5</X>
+          <Y>13</Y>
+          <Z>0.3499999940395355</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1500</X>
+          <Y>17.5</Y>
+          <Z>7125.7998046875</Z>
+          <R00>-0.7071067690849304</R00>
+          <R01>-0.7071067690849304</R01>
+          <R02>0</R02>
+          <R10>0.7071067690849304</R10>
+          <R11>-0.7071067690849304</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.341176471</R>
+          <G>0.243137255</G>
+          <B>0.17254902</B>
+        </Color3>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART13">
+      <Properties>
+        <string name="Name">Sail</string>
+        <Vector3 name="Size">
+          <X>2.5999999046325684</X>
+          <Y>5.199999809265137</Y>
+          <Z>0.15000000596046448</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1498.3736572265625</X>
+          <Y>21.389087677001953</Y>
+          <Z>7124.94970703125</Z>
+          <R00>0.7071067690849304</R00>
+          <R01>-0.7071067690849304</R01>
+          <R02>0</R02>
+          <R10>0.7071067690849304</R10>
+          <R11>0.7071067690849304</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.870588235</R>
+          <G>0.815686275</G>
+          <B>0.674509804</B>
+        </Color3>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART14">
+      <Properties>
+        <string name="Name">Sail</string>
+        <Vector3 name="Size">
+          <X>2.5999999046325684</X>
+          <Y>5.199999809265137</Y>
+          <Z>0.15000000596046448</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1496.1109619140625</X>
+          <Y>15.87365436553955</Y>
+          <Z>7124.94970703125</Z>
+          <R00>-0.7071067690849304</R00>
+          <R01>-0.7071067690849304</R01>
+          <R02>0</R02>
+          <R10>0.7071067690849304</R10>
+          <R11>-0.7071067690849304</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.870588235</R>
+          <G>0.815686275</G>
+          <B>0.674509804</B>
+        </Color3>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART15">
+      <Properties>
+        <string name="Name">Sail</string>
+        <Vector3 name="Size">
+          <X>2.5999999046325684</X>
+          <Y>5.199999809265137</Y>
+          <Z>0.15000000596046448</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1501.6263427734375</X>
+          <Y>13.610912322998047</Y>
+          <Z>7124.94970703125</Z>
+          <R00>-0.7071068286895752</R00>
+          <R01>0.7071067094802856</R01>
+          <R02>0</R02>
+          <R10>-0.7071067094802856</R10>
+          <R11>-0.7071068286895752</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.870588235</R>
+          <G>0.815686275</G>
+          <B>0.674509804</B>
+        </Color3>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART16">
+      <Properties>
+        <string name="Name">Sail</string>
+        <Vector3 name="Size">
+          <X>2.5999999046325684</X>
+          <Y>5.199999809265137</Y>
+          <Z>0.15000000596046448</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1503.8890380859375</X>
+          <Y>19.126344680786133</Y>
+          <Z>7124.94970703125</Z>
+          <R00>0.7071067094802856</R00>
+          <R01>0.70710688829422</R01>
+          <R02>0</R02>
+          <R10>-0.70710688829422</R10>
+          <R11>0.7071067094802856</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.870588235</R>
+          <G>0.815686275</G>
+          <B>0.674509804</B>
+        </Color3>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_9">
+      <Properties>
+        <string name="Name">TowerBase</string>
+        <Vector3 name="Size">
+          <X>8.6</X>
+          <Y>0.35</Y>
+          <Z>8.6</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1500</X>
+          <Y>4.175</Y>
+          <Z>7130</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.674509804</R>
+          <G>0.611764706</G>
+          <B>0.509803922</B>
+        </Color3>
+        <token name="Material">912</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_10">
+      <Properties>
+        <string name="Name">Tower</string>
+        <Vector3 name="Size">
+          <X>1.6</X>
+          <Y>7.65</Y>
+          <Z>0.5</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1496.8</X>
+          <Y>8.175</Y>
+          <Z>7126.25</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.874509804</R>
+          <G>0.815686275</G>
+          <B>0.68627451</B>
+        </Color3>
+        <token name="Material">912</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_11">
+      <Properties>
+        <string name="Name">Tower</string>
+        <Vector3 name="Size">
+          <X>1.6</X>
+          <Y>7.65</Y>
+          <Z>0.5</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1503.2</X>
+          <Y>8.175</Y>
+          <Z>7126.25</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.874509804</R>
+          <G>0.815686275</G>
+          <B>0.68627451</B>
+        </Color3>
+        <token name="Material">912</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_12">
+      <Properties>
+        <string name="Name">DoorLintel</string>
+        <Vector3 name="Size">
+          <X>4.8</X>
+          <Y>0.8</Y>
+          <Z>0.5</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1500</X>
+          <Y>11.6</Y>
+          <Z>7126.25</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.874509804</R>
+          <G>0.815686275</G>
+          <B>0.68627451</B>
+        </Color3>
+        <token name="Material">912</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_13">
+      <Properties>
+        <string name="Name">Tower</string>
+        <Vector3 name="Size">
+          <X>0.5</X>
+          <Y>7.65</Y>
+          <Z>8</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1496.25</X>
+          <Y>8.175</Y>
+          <Z>7130</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.874509804</R>
+          <G>0.815686275</G>
+          <B>0.68627451</B>
+        </Color3>
+        <token name="Material">912</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_14">
+      <Properties>
+        <string name="Name">Tower</string>
+        <Vector3 name="Size">
+          <X>0.5</X>
+          <Y>7.65</Y>
+          <Z>8</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1503.75</X>
+          <Y>8.175</Y>
+          <Z>7130</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.874509804</R>
+          <G>0.815686275</G>
+          <B>0.68627451</B>
+        </Color3>
+        <token name="Material">912</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_15">
+      <Properties>
+        <string name="Name">Tower</string>
+        <Vector3 name="Size">
+          <X>8</X>
+          <Y>7.65</Y>
+          <Z>0.5</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1500</X>
+          <Y>8.175</Y>
+          <Z>7133.75</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.874509804</R>
+          <G>0.815686275</G>
+          <B>0.68627451</B>
+        </Color3>
+        <token name="Material">912</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_16">
+      <Properties>
+        <string name="Name">DoorFrame</string>
+        <Vector3 name="Size">
+          <X>0.22</X>
+          <Y>6.85</Y>
+          <Z>0.3</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1497.48</X>
+          <Y>7.775</Y>
+          <Z>7125.97</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.411764706</R>
+          <G>0.290196078</G>
+          <B>0.192156863</B>
+        </Color3>
+        <token name="Material">528</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_17">
+      <Properties>
+        <string name="Name">DoorFrame</string>
+        <Vector3 name="Size">
+          <X>0.22</X>
+          <Y>6.85</Y>
+          <Z>0.3</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1502.52</X>
+          <Y>7.775</Y>
+          <Z>7125.97</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.411764706</R>
+          <G>0.290196078</G>
+          <B>0.192156863</B>
+        </Color3>
+        <token name="Material">528</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_18">
+      <Properties>
+        <string name="Name">DoorFrame</string>
+        <Vector3 name="Size">
+          <X>5.26</X>
+          <Y>0.22</Y>
+          <Z>0.3</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1500</X>
+          <Y>11.08</Y>
+          <Z>7125.97</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.411764706</R>
+          <G>0.290196078</G>
+          <B>0.192156863</B>
+        </Color3>
+        <token name="Material">528</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_19">
+      <Properties>
+        <string name="Name">Door</string>
+        <Vector3 name="Size">
+          <X>0.4</X>
+          <Y>6.3</Y>
+          <Z>0.3</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1502.88</X>
+          <Y>7.55</Y>
+          <Z>7125.84</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.411764706</R>
+          <G>0.290196078</G>
+          <B>0.192156863</B>
+        </Color3>
+        <token name="Material">528</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">false</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_20">
+      <Properties>
+        <string name="Name">DoorStep</string>
+        <Vector3 name="Size">
+          <X>4.8</X>
+          <Y>0.25</Y>
+          <Z>1.1</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1500</X>
+          <Y>4.125</Y>
+          <Z>7125.42</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.674509804</R>
+          <G>0.611764706</G>
+          <B>0.509803922</B>
+        </Color3>
+        <token name="Material">912</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_21">
+      <Properties>
+        <string name="Name">Tower</string>
+        <Vector3 name="Size">
+          <X>2.92523087</X>
+          <Y>3.2</Y>
+          <Z>0.42</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1500</X>
+          <Y>13.6</Y>
+          <Z>7126.65</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>-0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>-0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.874509804</R>
+          <G>0.815686275</G>
+          <B>0.68627451</B>
+        </Color3>
+        <token name="Material">912</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_22">
+      <Properties>
+        <string name="Name">Tower</string>
+        <Vector3 name="Size">
+          <X>2.92523087</X>
+          <Y>3.2</Y>
+          <Z>0.42</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1502.36881</X>
+          <Y>13.6</Y>
+          <Z>7127.63119</Z>
+          <R00>0.707106781</R00>
+          <R01>-0</R01>
+          <R02>-0.707106781</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0.707106781</R20>
+          <R21>-0</R21>
+          <R22>0.707106781</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.874509804</R>
+          <G>0.815686275</G>
+          <B>0.68627451</B>
+        </Color3>
+        <token name="Material">912</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_23">
+      <Properties>
+        <string name="Name">Tower</string>
+        <Vector3 name="Size">
+          <X>2.92523087</X>
+          <Y>3.2</Y>
+          <Z>0.42</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1503.35</X>
+          <Y>13.6</Y>
+          <Z>7130</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.874509804</R>
+          <G>0.815686275</G>
+          <B>0.68627451</B>
+        </Color3>
+        <token name="Material">912</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_24">
+      <Properties>
+        <string name="Name">Tower</string>
+        <Vector3 name="Size">
+          <X>2.92523087</X>
+          <Y>3.2</Y>
+          <Z>0.42</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1502.36881</X>
+          <Y>13.6</Y>
+          <Z>7132.36881</Z>
+          <R00>-0.707106781</R00>
+          <R01>0</R01>
+          <R02>-0.707106781</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0.707106781</R20>
+          <R21>-0</R21>
+          <R22>-0.707106781</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.874509804</R>
+          <G>0.815686275</G>
+          <B>0.68627451</B>
+        </Color3>
+        <token name="Material">912</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_25">
+      <Properties>
+        <string name="Name">Tower</string>
+        <Vector3 name="Size">
+          <X>2.92523087</X>
+          <Y>3.2</Y>
+          <Z>0.42</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1500</X>
+          <Y>13.6</Y>
+          <Z>7133.35</Z>
+          <R00>-1</R00>
+          <R01>0</R01>
+          <R02>-1.2246468e-16</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1.2246468e-16</R20>
+          <R21>-0</R21>
+          <R22>-1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.874509804</R>
+          <G>0.815686275</G>
+          <B>0.68627451</B>
+        </Color3>
+        <token name="Material">912</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_26">
+      <Properties>
+        <string name="Name">Tower</string>
+        <Vector3 name="Size">
+          <X>2.92523087</X>
+          <Y>3.2</Y>
+          <Z>0.42</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1497.63119</X>
+          <Y>13.6</Y>
+          <Z>7132.36881</Z>
+          <R00>-0.707106781</R00>
+          <R01>0</R01>
+          <R02>0.707106781</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.707106781</R20>
+          <R21>0</R21>
+          <R22>-0.707106781</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.874509804</R>
+          <G>0.815686275</G>
+          <B>0.68627451</B>
+        </Color3>
+        <token name="Material">912</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_27">
+      <Properties>
+        <string name="Name">Tower</string>
+        <Vector3 name="Size">
+          <X>2.92523087</X>
+          <Y>3.2</Y>
+          <Z>0.42</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1496.65</X>
+          <Y>13.6</Y>
+          <Z>7130</Z>
+          <R00>-1.8369702e-16</R00>
+          <R01>0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>-1.8369702e-16</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.874509804</R>
+          <G>0.815686275</G>
+          <B>0.68627451</B>
+        </Color3>
+        <token name="Material">912</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_28">
+      <Properties>
+        <string name="Name">Tower</string>
+        <Vector3 name="Size">
+          <X>2.92523087</X>
+          <Y>3.2</Y>
+          <Z>0.42</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1497.63119</X>
+          <Y>13.6</Y>
+          <Z>7127.63119</Z>
+          <R00>0.707106781</R00>
+          <R01>-0</R01>
+          <R02>0.707106781</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.707106781</R20>
+          <R21>0</R21>
+          <R22>0.707106781</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.874509804</R>
+          <G>0.815686275</G>
+          <B>0.68627451</B>
+        </Color3>
+        <token name="Material">912</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_29">
+      <Properties>
+        <string name="Name">Tower</string>
+        <Vector3 name="Size">
+          <X>2.55243866</X>
+          <Y>0.2</Y>
+          <Z>0.42</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1500</X>
+          <Y>15.3</Y>
+          <Z>7127.1</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.874509804</R>
+          <G>0.815686275</G>
+          <B>0.68627451</B>
+        </Color3>
+        <token name="Material">912</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_30">
+      <Properties>
+        <string name="Name">Tower</string>
+        <Vector3 name="Size">
+          <X>2.55243866</X>
+          <Y>1.8</Y>
+          <Z>0.42</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1500</X>
+          <Y>18.5</Y>
+          <Z>7127.1</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.874509804</R>
+          <G>0.815686275</G>
+          <B>0.68627451</B>
+        </Color3>
+        <token name="Material">912</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_31">
+      <Properties>
+        <string name="Name">WindowPier</string>
+        <Vector3 name="Size">
+          <X>0.476219331</X>
+          <Y>2.2</Y>
+          <Z>0.42</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1498.96189</X>
+          <Y>16.5</Y>
+          <Z>7127.1</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.874509804</R>
+          <G>0.815686275</G>
+          <B>0.68627451</B>
+        </Color3>
+        <token name="Material">912</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_32">
+      <Properties>
+        <string name="Name">WindowPier</string>
+        <Vector3 name="Size">
+          <X>0.476219331</X>
+          <Y>2.2</Y>
+          <Z>0.42</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1501.03811</X>
+          <Y>16.5</Y>
+          <Z>7127.1</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.874509804</R>
+          <G>0.815686275</G>
+          <B>0.68627451</B>
+        </Color3>
+        <token name="Material">912</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_33">
+      <Properties>
+        <string name="Name">Window</string>
+        <Vector3 name="Size">
+          <X>1.6</X>
+          <Y>2.2</Y>
+          <Z>0.15</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1500</X>
+          <Y>16.5</Y>
+          <Z>7127.1</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.639215686</R>
+          <G>0.776470588</G>
+          <B>0.749019608</B>
+        </Color3>
+        <token name="Material">1568</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0.12</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">false</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_34">
+      <Properties>
+        <string name="Name">Tower</string>
+        <Vector3 name="Size">
+          <X>2.55243866</X>
+          <Y>4.2</Y>
+          <Z>0.42</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1502.05061</X>
+          <Y>17.3</Y>
+          <Z>7127.94939</Z>
+          <R00>0.707106781</R00>
+          <R01>-0</R01>
+          <R02>-0.707106781</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0.707106781</R20>
+          <R21>-0</R21>
+          <R22>0.707106781</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.874509804</R>
+          <G>0.815686275</G>
+          <B>0.68627451</B>
+        </Color3>
+        <token name="Material">912</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_35">
+      <Properties>
+        <string name="Name">Tower</string>
+        <Vector3 name="Size">
+          <X>2.55243866</X>
+          <Y>4.2</Y>
+          <Z>0.42</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1502.9</X>
+          <Y>17.3</Y>
+          <Z>7130</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.874509804</R>
+          <G>0.815686275</G>
+          <B>0.68627451</B>
+        </Color3>
+        <token name="Material">912</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_36">
+      <Properties>
+        <string name="Name">Tower</string>
+        <Vector3 name="Size">
+          <X>2.55243866</X>
+          <Y>4.2</Y>
+          <Z>0.42</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1502.05061</X>
+          <Y>17.3</Y>
+          <Z>7132.05061</Z>
+          <R00>-0.707106781</R00>
+          <R01>0</R01>
+          <R02>-0.707106781</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0.707106781</R20>
+          <R21>-0</R21>
+          <R22>-0.707106781</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.874509804</R>
+          <G>0.815686275</G>
+          <B>0.68627451</B>
+        </Color3>
+        <token name="Material">912</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_37">
+      <Properties>
+        <string name="Name">Tower</string>
+        <Vector3 name="Size">
+          <X>2.55243866</X>
+          <Y>4.2</Y>
+          <Z>0.42</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1500</X>
+          <Y>17.3</Y>
+          <Z>7132.9</Z>
+          <R00>-1</R00>
+          <R01>0</R01>
+          <R02>-1.2246468e-16</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1.2246468e-16</R20>
+          <R21>-0</R21>
+          <R22>-1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.874509804</R>
+          <G>0.815686275</G>
+          <B>0.68627451</B>
+        </Color3>
+        <token name="Material">912</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_38">
+      <Properties>
+        <string name="Name">Tower</string>
+        <Vector3 name="Size">
+          <X>2.55243866</X>
+          <Y>4.2</Y>
+          <Z>0.42</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1497.94939</X>
+          <Y>17.3</Y>
+          <Z>7132.05061</Z>
+          <R00>-0.707106781</R00>
+          <R01>0</R01>
+          <R02>0.707106781</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.707106781</R20>
+          <R21>0</R21>
+          <R22>-0.707106781</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.874509804</R>
+          <G>0.815686275</G>
+          <B>0.68627451</B>
+        </Color3>
+        <token name="Material">912</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_39">
+      <Properties>
+        <string name="Name">Tower</string>
+        <Vector3 name="Size">
+          <X>2.55243866</X>
+          <Y>4.2</Y>
+          <Z>0.42</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1497.1</X>
+          <Y>17.3</Y>
+          <Z>7130</Z>
+          <R00>-1.8369702e-16</R00>
+          <R01>0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>-1.8369702e-16</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.874509804</R>
+          <G>0.815686275</G>
+          <B>0.68627451</B>
+        </Color3>
+        <token name="Material">912</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_40">
+      <Properties>
+        <string name="Name">Tower</string>
+        <Vector3 name="Size">
+          <X>2.55243866</X>
+          <Y>4.2</Y>
+          <Z>0.42</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1497.94939</X>
+          <Y>17.3</Y>
+          <Z>7127.94939</Z>
+          <R00>0.707106781</R00>
+          <R01>-0</R01>
+          <R02>0.707106781</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.707106781</R20>
+          <R21>0</R21>
+          <R22>0.707106781</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.874509804</R>
+          <G>0.815686275</G>
+          <B>0.68627451</B>
+        </Color3>
+        <token name="Material">912</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_41">
+      <Properties>
+        <string name="Name">CapRoof</string>
+        <Vector3 name="Size">
+          <X>5.09313263</X>
+          <Y>0.45</Y>
+          <Z>7.4</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1498.15</X>
+          <Y>21.15</Y>
+          <Z>7130</Z>
+          <R00>0.726468417</R00>
+          <R01>-0.687199854</R01>
+          <R02>0</R02>
+          <R10>0.687199854</R10>
+          <R11>0.726468417</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.580392157</R>
+          <G>0.301960784</G>
+          <B>0.2</B>
+        </Color3>
+        <token name="Material">848</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_42">
+      <Properties>
+        <string name="Name">CapRoof</string>
+        <Vector3 name="Size">
+          <X>5.09313263</X>
+          <Y>0.45</Y>
+          <Z>7.4</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1501.85</X>
+          <Y>21.15</Y>
+          <Z>7130</Z>
+          <R00>0.726468417</R00>
+          <R01>0.687199854</R01>
+          <R02>0</R02>
+          <R10>-0.687199854</R10>
+          <R11>0.726468417</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>-0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.580392157</R>
+          <G>0.301960784</G>
+          <B>0.2</B>
+        </Color3>
+        <token name="Material">848</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_43">
+      <Properties>
+        <string name="Name">CapRidge</string>
+        <Vector3 name="Size">
+          <X>0.4</X>
+          <Y>0.3</Y>
+          <Z>7.4</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1500</X>
+          <Y>22.92</Y>
+          <Z>7130</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.411764706</R>
+          <G>0.290196078</G>
+          <B>0.192156863</B>
+        </Color3>
+        <token name="Material">528</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="MILL_44">
+      <Properties>
+        <string name="Name">CapGable</string>
+        <Vector3 name="Size">
+          <X>0.4</X>
+          <Y>3.12</Y>
+          <Z>3.3</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1498.35</X>
+          <Y>20.96</Y>
+          <Z>7126.7</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.874509804</R>
+          <G>0.815686275</G>
+          <B>0.68627451</B>
+        </Color3>
+        <token name="Material">912</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="MILL_45">
+      <Properties>
+        <string name="Name">CapGable</string>
+        <Vector3 name="Size">
+          <X>0.4</X>
+          <Y>3.12</Y>
+          <Z>3.3</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1501.65</X>
+          <Y>20.96</Y>
+          <Z>7126.7</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.874509804</R>
+          <G>0.815686275</G>
+          <B>0.68627451</B>
+        </Color3>
+        <token name="Material">912</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="MILL_46">
+      <Properties>
+        <string name="Name">CapGable</string>
+        <Vector3 name="Size">
+          <X>0.4</X>
+          <Y>3.12</Y>
+          <Z>3.3</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1498.35</X>
+          <Y>20.96</Y>
+          <Z>7133.3</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.874509804</R>
+          <G>0.815686275</G>
+          <B>0.68627451</B>
+        </Color3>
+        <token name="Material">912</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="MILL_47">
+      <Properties>
+        <string name="Name">CapGable</string>
+        <Vector3 name="Size">
+          <X>0.4</X>
+          <Y>3.12</Y>
+          <Z>3.3</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1501.65</X>
+          <Y>20.96</Y>
+          <Z>7133.3</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.874509804</R>
+          <G>0.815686275</G>
+          <B>0.68627451</B>
+        </Color3>
+        <token name="Material">912</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_48">
+      <Properties>
+        <string name="Name">Millstone</string>
+        <Vector3 name="Size">
+          <X>0.55</X>
+          <Y>1.7</Y>
+          <Z>1.7</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1497.4</X>
+          <Y>4.625</Y>
+          <Z>7131.65</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-1</R01>
+          <R02>0</R02>
+          <R10>1</R10>
+          <R11>6.123234e-17</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.556862745</R>
+          <G>0.57254902</G>
+          <B>0.525490196</B>
+        </Color3>
+        <token name="Material">800</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">2</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_49">
+      <Properties>
+        <string name="Name">StoneRim</string>
+        <Vector3 name="Size">
+          <X>0.22</X>
+          <Y>1.85</Y>
+          <Z>1.85</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1497.4</X>
+          <Y>5.02</Y>
+          <Z>7131.65</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-1</R01>
+          <R02>0</R02>
+          <R10>1</R10>
+          <R11>6.123234e-17</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.674509804</R>
+          <G>0.611764706</G>
+          <B>0.509803922</B>
+        </Color3>
+        <token name="Material">912</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">2</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_50">
+      <Properties>
+        <string name="Name">MillHandle</string>
+        <Vector3 name="Size">
+          <X>1.1</X>
+          <Y>0.15</Y>
+          <Z>0.15</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1497.4</X>
+          <Y>5.2</Y>
+          <Z>7131.65</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.411764706</R>
+          <G>0.290196078</G>
+          <B>0.192156863</B>
+        </Color3>
+        <token name="Material">528</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">false</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_51">
+      <Properties>
+        <string name="Name">GrainSack</string>
+        <Vector3 name="Size">
+          <X>1.1</X>
+          <Y>1.35</Y>
+          <Z>0.8</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1497.25</X>
+          <Y>5.025</Y>
+          <Z>7131.7</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.698039216</R>
+          <G>0.615686275</G>
+          <B>0.443137255</B>
+        </Color3>
+        <token name="Material">1312</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_52">
+      <Properties>
+        <string name="Name">SackTie</string>
+        <Vector3 name="Size">
+          <X>0.4</X>
+          <Y>0.15</Y>
+          <Z>0.3</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1497.25</X>
+          <Y>5.775</Y>
+          <Z>7131.7</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.411764706</R>
+          <G>0.290196078</G>
+          <B>0.192156863</B>
+        </Color3>
+        <token name="Material">1312</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">false</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_53">
+      <Properties>
+        <string name="Name">GrainSack</string>
+        <Vector3 name="Size">
+          <X>1.1</X>
+          <Y>1.35</Y>
+          <Z>0.8</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1497.25</X>
+          <Y>5.025</Y>
+          <Z>7132.75</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.698039216</R>
+          <G>0.615686275</G>
+          <B>0.443137255</B>
+        </Color3>
+        <token name="Material">1312</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_54">
+      <Properties>
+        <string name="Name">SackTie</string>
+        <Vector3 name="Size">
+          <X>0.4</X>
+          <Y>0.15</Y>
+          <Z>0.3</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1497.25</X>
+          <Y>5.775</Y>
+          <Z>7132.75</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.411764706</R>
+          <G>0.290196078</G>
+          <B>0.192156863</B>
+        </Color3>
+        <token name="Material">1312</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">false</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_55">
+      <Properties>
+        <string name="Name">Worktop</string>
+        <Vector3 name="Size">
+          <X>1.4</X>
+          <Y>0.25</Y>
+          <Z>2.5</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1502.65</X>
+          <Y>5.65</Y>
+          <Z>7131.75</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.411764706</R>
+          <G>0.290196078</G>
+          <B>0.192156863</B>
+        </Color3>
+        <token name="Material">528</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_56">
+      <Properties>
+        <string name="Name">TableLeg</string>
+        <Vector3 name="Size">
+          <X>0.3</X>
+          <Y>1.4</Y>
+          <Z>0.3</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1502.65</X>
+          <Y>5.05</Y>
+          <Z>7130.8</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.411764706</R>
+          <G>0.290196078</G>
+          <B>0.192156863</B>
+        </Color3>
+        <token name="Material">528</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_57">
+      <Properties>
+        <string name="Name">TableLeg</string>
+        <Vector3 name="Size">
+          <X>0.3</X>
+          <Y>1.4</Y>
+          <Z>0.3</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1502.65</X>
+          <Y>5.05</Y>
+          <Z>7132.7</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.411764706</R>
+          <G>0.290196078</G>
+          <B>0.192156863</B>
+        </Color3>
+        <token name="Material">528</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_58">
+      <Properties>
+        <string name="Name">FlourTray</string>
+        <Vector3 name="Size">
+          <X>0.9</X>
+          <Y>0.15</Y>
+          <Z>0.8</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1502.65</X>
+          <Y>5.85</Y>
+          <Z>7131.75</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.862745098</R>
+          <G>0.811764706</G>
+          <B>0.698039216</B>
+        </Color3>
+        <token name="Material">912</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">false</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_59">
+      <Properties>
+        <string name="Name">Box</string>
+        <Vector3 name="Size">
+          <X>2</X>
+          <Y>1.8</Y>
+          <Z>2</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1506.4</X>
+          <Y>4.9</Y>
+          <Z>7127</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.411764706</R>
+          <G>0.290196078</G>
+          <B>0.192156863</B>
+        </Color3>
+        <token name="Material">528</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_60">
+      <Properties>
+        <string name="Name">Slat</string>
+        <Vector3 name="Size">
+          <X>0.15</X>
+          <Y>1.85</Y>
+          <Z>2.03</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1505.5</X>
+          <Y>4.925</Y>
+          <Z>7127</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.658823529</R>
+          <G>0.51372549</G>
+          <B>0.325490196</B>
+        </Color3>
+        <token name="Material">528</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">false</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_61">
+      <Properties>
+        <string name="Name">Slat</string>
+        <Vector3 name="Size">
+          <X>0.15</X>
+          <Y>1.85</Y>
+          <Z>2.03</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1507.3</X>
+          <Y>4.925</Y>
+          <Z>7127</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.658823529</R>
+          <G>0.51372549</G>
+          <B>0.325490196</B>
+        </Color3>
+        <token name="Material">528</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">1</token>
+        <bool name="CastShadow">false</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_62">
+      <Properties>
+        <string name="Name">Body</string>
+        <Vector3 name="Size">
+          <X>2.6</X>
+          <Y>2</Y>
+          <Z>2</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1493.6</X>
+          <Y>5.3</Y>
+          <Z>7126.8</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-1</R01>
+          <R02>0</R02>
+          <R10>1</R10>
+          <R11>6.123234e-17</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.411764706</R>
+          <G>0.290196078</G>
+          <B>0.192156863</B>
+        </Color3>
+        <token name="Material">528</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">2</token>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_63">
+      <Properties>
+        <string name="Name">Hoop</string>
+        <Vector3 name="Size">
+          <X>0.15</X>
+          <Y>2.06</Y>
+          <Z>2.06</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1493.6</X>
+          <Y>4.55</Y>
+          <Z>7126.8</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-1</R01>
+          <R02>0</R02>
+          <R10>1</R10>
+          <R11>6.123234e-17</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.305882353</R>
+          <G>0.356862745</G>
+          <B>0.37254902</B>
+        </Color3>
+        <token name="Material">1088</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">2</token>
+        <bool name="CastShadow">false</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="MILL_64">
+      <Properties>
+        <string name="Name">Hoop</string>
+        <Vector3 name="Size">
+          <X>0.15</X>
+          <Y>2.06</Y>
+          <Z>2.06</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1493.6</X>
+          <Y>6.05</Y>
+          <Z>7126.8</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-1</R01>
+          <R02>0</R02>
+          <R10>1</R10>
+          <R11>6.123234e-17</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.305882353</R>
+          <G>0.356862745</G>
+          <B>0.37254902</B>
+        </Color3>
+        <token name="Material">1088</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <token name="Shape">2</token>
+        <bool name="CastShadow">false</bool>
+      </Properties>
+    </Item>
+  </Item>
 </roblox>

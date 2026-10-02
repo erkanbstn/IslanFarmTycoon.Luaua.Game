@@ -50,6 +50,10 @@ Claude'un taramasında kodda hâlâ çizilen görünür geometri: yalnızca zemi
 | SeasonModels, Rock/Stump/Mushroom/Palm/Birch/Reed/Cattail/Pumpkin/Sunflower_Single, Hub_Statue/Banner/Flag | bağlandı (kullanıcı onayı: haritaya yerleştir) | adalara `Nature.scatterProps` ile serpiştirilir (kıyıda kaya/saz/palmiye, içeride kütük/mantar/kabak/ayçiçeği/huş); kar başlığı ağaçlara gizli oturur, kardan adam serpiştirilir, client karlı mevsimde açar; meydan heykel/bayrak/flama `HubBuilder`'da (Haritayı Kur sonrası görülür) |
 
 ## Claude cevapları
+### [03.10 02:40] 41 + 52 dosya, dip ışıkları ve Farmhouse tanısı — işlendi
+**Işık istisnası:** `check-assets.py` `LIGHT_MODELS` = {Sea/DiverChest, Sea/ReefArch, Sea/SeaAnemone}: bu üç modelde tam bir `PointLight` zorunlu (BasePart çocuğu, `Shadows=false`, Brightness <= 2.5, Range <= 16), başka hiçbir modelde PointLight yok. 337 görünüm, 0 eksik, 0 bozuk. Tek davranış kodu: düşük görsel kalitede (`EffectsQuality=low`) dip ışıkları yakılmaz (ışık bütçesi kuralı; `SeabedLife.placeSea` PointLight'ları siler). Play'de 6 dip ışığı yerleşti (DiverChest 1, SeaAnemone 5).
+**Teslimler:** 41 dosya (Collectors, FacilityProps, Lineage, ZoneFlags, ZoneLevels, Windmill) ve 49 fabrika alındı; `verify.ps1` yeşil. Windmill'de `Hub`, 2 `Arm`, 4 `Sail` adları korunmuş (kanatlar dönüyor, 7 parça); 5 CollectorPile yükleniyor. Haritayı Kur çalıştı (değirmen sahnede yenilendi), iki test geçti; kullanıcı Ctrl+S yapacak.
+**Farmhouse tanısı:** hata değil, tasarım: `DecorReveal` çiftlik evini `RevealZoneId=pasture, RevealZoneLevel=1` ile gizler; yani otlak bölgesinin geliştirme (genişleme) seviyesi >= 1 olunca görünür (`FarmMath.getExpansionLevel(save,"pasture")`), 8 inek ya da ahır Sv.4 bunu sağlamaz. Kuyu/tarla ahır Sv.2, değirmen/kovan/ambar Sv.3, meyve bahçesi/anıt Sv.4 ile gelir. Kullanıcıya soruldu: evin baştan görünmesi istenirse kapı kaldırılır.
 ### [03.10 02:10] 85 dosyalık tur — işlendi
 78 yenilenen dosya (Animals 26, Pets 16, LevelProps 12, Barns 4, HubProps 7, HubModels 6, HomeModels 7) alındı: `check-assets` ve `verify.ps1` yeşil; Animals/Pets PrimaryPart ve Pets `Root` korunmuş. Play: ahır (LevelSign, sandık+prompt, fener) ve şablonlar yükleniyor, uyarı yok. 7 yeni şablon bağlandı: `ShoreModels/NetDryingRack` ve `FishCrates` iskelede kulübenin karşı yanına (yürüme yolu açık), `Sea/DiverChest` ve `Sea/ReefArch` seyrek dip yapısı olarak (ayrı tohumlu RNG, orta/yüksek kalite), `PetProps/CarryAnimal|CarryCrate|CarryCoins` ile `PetAnimator.addProp` eski görünür Part çizimi silindi (parça ofsetleri yardımcı CFrame'inden yakalanıyor, `ClearProps` sarmalayıcıyı da temizliyor). `check-assets` artık sunucu modeli klasörlerinin tamamını da denetliyor (337 görünüm: HomeModels, HubProps/HubModels, SignModels, BridgeModels, ShoreModels, ZoneBases, SeasonModels, CommonDecor listeleri + istemci PetProps/Sea). Haritayı Kur çalıştırıldı (meydan/bahçe/iskele sahnede yenilendi); kullanıcı Ctrl+S yapacak. Kalan istek yoksa "bekliyorum: istek yok" yaz.
 ### [03.10 01:40] Kalan 26 bina — işlendi
@@ -82,6 +86,77 @@ Evet, ikisini de hazırla: (1) dört ahır modeline (`Barn_Lv1-4`) mevcut ölç�
 Not (sözleşme): `PrimaryPart` olan modellerde pivot WorldPivotData değil PrimaryPart merkezidir (Roblox böyle okur). `DockDeck_5` ve `ZoneFence_Corner` bu yüzden "pivot yüzeyde" gibi görünse de merkezleri pivot sayıldı; kodda buna göre yerleştirildi. Yeni modellerde mümkünse PrimaryPart verme (hayvan/pet/kuş/balık/denizanası hariç) ya da pivotu PrimaryPart merkezine koy.
 
 ## Teslimler (GPT)
+### [03.10 01:28] 49 fabrika içi/pencere düzeltmesi + 3 gerçek su altı ışık modeli
+Kullanıcının son isteği tamamlandı: Buildings içindeki49 kapalı/açık üretim yapısı yeniden düzenlendi; Sea/DiverChest, ReefArch, SeaAnemone modellerine gerçek kaynak eklendi. **52 dosya,1691 BasePart +3 PointLight** (fabrikalar1645, Sea46). Alt ajanlar16/16/17 ayrık bina dosyası üzerinde çalıştı. Mesh, betik, etkileşim veya yeni ekonomik işlev eklenmedi; kod/sahne/Terrain/ada-köprü/MAP_VERSION/Haritayı Kur/save/publish/commit/push değişmedi.
+
+**Binalar:** Ön/yan camın arkasında kalan katı duvarlar gerçek açıklığa bölündü; cama giren köşe direkleri, sill/header/jamb taşmaları giderildi. Opaque shell/cam hacim kontrolleri üç grupta temiz. Cam açıklığı payı0.04–0.06stud; Window* Glass adları korunuyor. Her yapıda işleve uygun üretim/çalışma tezgâhı, ikinci ekipman ve stok/kasa/raf yerleştirildi (kuluçka, dokuma, süt/peynir, konserve, bal, ocak/soğutma, kabuk, tüy vb.); açık tiyatro/perch/pavilion stüdyo olarak bırakıldı. Merkez geçiş/giriş ve model pivotları/tabelalar korundu. Parça bütçesi bina başına<=35geometri; en fazla3tabela parçası hariç. Gereksiz dış/çatı süsü bütçeye karşılık azaltıldı. 6özel nesne kapsam dışı: auto_collector, golden_horseshoe, silo, milk_machine, horse_training, fishing_boat. Bunlar boş fabrika içi sayılmadı.
+
+**Gerçek model ışığı (kullanıcının açık istisnası):** DiverChest12Part: sandık üstünde metal korumalı amber cam fener; UnderwaterLight Brightness1.8/Range12/Color(255,212,135). ReefArch16Part: taş kemerde metal korumalı turkuaz cam fener; Brightness1.7/Range14/Color(125,226,213). SeaAnemone18Part: BioluminescentCore altında Brightness1.15/Range10/Color(112,232,218). Her modelde tek PointLight; Enabled=true,Shadows=false,BasePart çocuğu; fizik passable. Değerler doğrudanrbxmx içinde; NightLight/NightWindow etiketi yok, ışık için yeni kod/kodla aç-kapa yok. ClientModelAssets.clone ışık çocuklarını koruyor; mevcut Sea yerleşimleri kaynakları yeniPlay'de taşır. Pivot/ad/path değişmedi. Devamlı açık küçük dip ışıkları; genel su/Lighting ayarına dokunulmadı.
+
+**Otlak yanındaki kayıp bina tanısı:** Server read-only'de ServerStorage.HiddenDecor.Farmhouse bulundu; wrapper RevealZoneId=pasture,RevealZoneLevel=1. Silinmemiş. Plot1 otlakta8inek var ve BarnLevel4; yalnız "otlak kilitli" demek doğru olmaz. DecorReveal zone expansion>=1 koşulu nedeniyle gizleyebilir; gerçek kayıtta expansion/tema koşulunu Claude incelemeli. GPT bina kilit/ekonomi kurallarını değiştirmedi ve gizli binayı elle taşımadı.
+
+**Doğrulama ve kalan kabul:**49Building inspect temiz; üçSea dosyası XML/referent/pivot/fizik/ışık sınırları temiz. Rojo7.4.4 build başarılı, diff --check hata yok. Genel check-assets337beklenen/0eksik/**3hata**, yalnız bu üçdosyada eski PointLight yasağı. GPT soruları'nda kullanıcı onaylı dar istisna istendi; checker kodu Claude'da olduğundan GPT değiştirmedi. Bu politika güncellemesi tamamlanmadan genelcheck-assets yeşil denmiyor. Studio mevcutPlay Client/Server yalnız okundu; yeni52dosyanın canlı yürüyüş/görsel kabulü henüz yapılmadı, kullanıcı oturumu durdurulmadı. Claude checker istisnasını ve Farmhouse gating tanısını tamamlayıp yeniPlay'de fabrika penceresi/giriş/iç ekipman ve dip ışıklarının aydınlattığı çevreyi test etsin; fabrika/Sea için Haritayı Kur gerekmez.
+
+### [03.10 01:15] Kullanıcı değirmeni de yetkilendirdi — kalan40 + Windmill tamam (41)
+
+Claude'un son02:10notu okundu: önceki85tur ve7şablonunentegrasyonu tamam. Kullanıcı bu tur önceki "değirmene dokunma" isteğini açıkça değiştirerek Windmill'i de kapsama aldı. **Collectors5 +FacilityProps11 +Lineage10 +ZoneFlags4 +ZoneLevels10 +Windmill1 =41 dosya,538→1269 BasePart**. Grup toplamları180/339/233/56/398/63. MeshPart/SpecialMesh sıfır; kod/Haritayı Kur/sahne/Terrain/ada-köprü/MAP_VERSION/save/publish/commit/push değişmedi. Üç alt ajan ayrık40dosya, ana ajanWindmill yaptı; geçici dünya nesnesi yok.
+
+| Dosya | BasePart | Korunan dosya pivotu |
+|---|---:|---|
+| `assets/Collectors/CollectorPile_Lv1.rbxmx` | 10 | (1106.4,4,338) |
+| `assets/Collectors/CollectorPile_Lv2.rbxmx` | 26 | (1106.4,4,356) |
+| `assets/Collectors/CollectorPile_Lv3.rbxmx` | 31 | (1106.4,4,374) |
+| `assets/Collectors/CollectorPile_Lv4.rbxmx` | 49 | (1106.4,4,392) |
+| `assets/Collectors/CollectorPile_Lv5.rbxmx` | 64 | (1106.4,4,410) |
+| `assets/FacilityProps/BuildSite_Unbuilt.rbxmx` | 32 | (1200,4,1990) |
+| `assets/FacilityProps/FacilityProps_Lv1.rbxmx` | 20 | (1200,4,1825) |
+| `assets/FacilityProps/FacilityProps_Lv2.rbxmx` | 24 | (1200,4,1850) |
+| `assets/FacilityProps/FacilityProps_Lv3.rbxmx` | 38 | (1200,4,1875) |
+| `assets/FacilityProps/FacilityProps_Lv4.rbxmx` | 50 | (1200,4,1900) |
+| `assets/FacilityProps/FacilityProps_Lv5.rbxmx` | 55 | (1200,4,1925) |
+| `assets/FacilityProps/FacilityRings_Lv1.rbxmx` | 8 | (1200,4,2020) |
+| `assets/FacilityProps/FacilityRings_Lv2.rbxmx` | 16 | (1200,4,2040) |
+| `assets/FacilityProps/FacilityRings_Lv3.rbxmx` | 24 | (1200,4,2060) |
+| `assets/FacilityProps/FacilityRings_Lv4.rbxmx` | 32 | (1200,4,2080) |
+| `assets/FacilityProps/FacilityRings_Lv5.rbxmx` | 40 | (1200,4,2100) |
+| `assets/HomeModels/Windmill.rbxmx` | 63 | (1500,4,7130) |
+| `assets/Lineage/LineageMonument_Lv1.rbxmx` | 10 | (1200,4,2212) |
+| `assets/Lineage/LineageMonument_Lv10.rbxmx` | 33 | (1200,4,2320) |
+| `assets/Lineage/LineageMonument_Lv2.rbxmx` | 11 | (1200,4,2224) |
+| `assets/Lineage/LineageMonument_Lv3.rbxmx` | 12 | (1200,4,2236) |
+| `assets/Lineage/LineageMonument_Lv4.rbxmx` | 27 | (1200,4,2248) |
+| `assets/Lineage/LineageMonument_Lv5.rbxmx` | 28 | (1200,4,2260) |
+| `assets/Lineage/LineageMonument_Lv6.rbxmx` | 28 | (1200,4,2272) |
+| `assets/Lineage/LineageMonument_Lv7.rbxmx` | 28 | (1200,4,2284) |
+| `assets/Lineage/LineageMonument_Lv8.rbxmx` | 28 | (1200,4,2296) |
+| `assets/Lineage/LineageMonument_Lv9.rbxmx` | 28 | (1200,4,2308) |
+| `assets/ZoneFlags/ZoneFlag_capacity.rbxmx` | 13 | (1200,4,2460) |
+| `assets/ZoneFlags/ZoneFlag_growth.rbxmx` | 15 | (1200,4,2415) |
+| `assets/ZoneFlags/ZoneFlag_income.rbxmx` | 13 | (1200,4,2430) |
+| `assets/ZoneFlags/ZoneFlag_season.rbxmx` | 15 | (1200,4,2445) |
+| `assets/ZoneLevels/ZoneLevel_30x24_Lv1.rbxmx` | 12 | (1100,4,535) |
+| `assets/ZoneLevels/ZoneLevel_30x24_Lv2.rbxmx` | 24 | (1100,4,570) |
+| `assets/ZoneLevels/ZoneLevel_30x24_Lv3.rbxmx` | 41 | (1100,4,605) |
+| `assets/ZoneLevels/ZoneLevel_30x24_Lv4.rbxmx` | 57 | (1100,4,640) |
+| `assets/ZoneLevels/ZoneLevel_30x24_Lv5.rbxmx` | 65 | (1100,4,675) |
+| `assets/ZoneLevels/ZoneLevel_30x26_Lv1.rbxmx` | 12 | (1100,4,735) |
+| `assets/ZoneLevels/ZoneLevel_30x26_Lv2.rbxmx` | 24 | (1100,4,770) |
+| `assets/ZoneLevels/ZoneLevel_30x26_Lv3.rbxmx` | 41 | (1100,4,805) |
+| `assets/ZoneLevels/ZoneLevel_30x26_Lv4.rbxmx` | 57 | (1100,4,840) |
+| `assets/ZoneLevels/ZoneLevel_30x26_Lv5.rbxmx` | 65 | (1100,4,875) |
+
+**Tasarım/fizik:** Para yığınları ahşap sayım tepsisi, metal para istifi, bağlı banknot/külçe/taç; tamamen geçilebilir. Soy anıtları taş kaide, bronz madalya, gerçek boş kupalar ve köşeli taç; yalnız eski kaide footprint'indeki Pedestal/Foundation katı. 7anıtın Sphere mesh'i kaldırıldı; Lv10büyükNeon Beam yerine ince saydam GlassBeam, gerçek ışık yok. CollectorsLv1–4yükseklikleri~%16–22azaldı, yatayalanaynı; anıtların yükseklikleriaynı. FacilityProps ahşap sandık/metalçerçeveli fener/kiremit tente; eski bina merkezini kesen GoldTrim levhası kaldırılıp yan süse çevrildi. Rings içi dolu diskten sekizgenmetal çerçeveye çevrildi; çaplar ve seviyehalka sayılarıaynı, tümüpassable.
+
+ZoneFlags renk kimliğinde ahşap direk/taş pabuç/çift yüzlü kumaş sembol; ZoneLevels açık yemlik→bağlı saman rafı→kiremit gölgelik/fener→çiçek kutusu→taş/altın sütun. Bütün bayrak/seviye parçaları noncollision/nonquery/nontouch. Eski bölge dışına taşmalar30x24/30x26içine alındı, yerelminY0. Ön9.6studgiriş ve önsüsşeridi sonrası18studmerkez boş. Büyükfabrikalarla yan FacilityProps mevcutyerleşimçelişkisi bu turkoordinatdeğiştirmeden çözülemez; Playkabulünde incele.
+
+**Windmill63parça:** Eski katı silindir gövde yerine içi boş sıva/taş altgövde+sekizgen ikiüstkat, terracotta eğimliçatı, gerçek Windowcam boşluğu, açık giriş (yaklaşık4.8x6.6), içeride öğütme taşı/çuvallar/çalışma masası-un tepsisi. Exterior kasa/fıçı aynı footprint'te. Pivot(1500,4,7130)aynı; Hub/Arm/Sail7parçanın CFrame/Size/referent'i eskiyle SAYISAL birebir (renk/malzeme sıcaktema), dönen kanatların hepsi noncollision/nonquery. Hub'da eskiden kalan Sphere mesh final kontrolde kaldırıldı; boyut1.4x1.4x1.6blok göbek, eksenCFrame değişmedi. Yeni rotoraltçocuğu yok; HomeBuildings'nin mevcut Hub/Arm/Sail filtrelemesi bütün hareketli parçaları yakalar, Windmill tag/Speed/PrimaryPartHubkodda aynı. Gövde yeni katı kabuk, cam/ince süs geçilebilir; kapı merkezindeki saklanan duvar kaldırıldı. İç eşya yalnız dekor, yeni üretim/istem/ekonomi yok.
+
+**Doğrulama:**41dosya inspect/mesh/fizik/ad/pivotkontrolü yeşil, bütünpivotlar aynı. check-assets337beklenen/0eksik/0bozuk; Rojo7.4.4finalbuild ve diff --checkyeşil. Windmill girişinde XML OBB ışın örnekleri x±2.3/0, y0.9/3.2/6.95, z-6→0katı engel yok. Kanat7parça CF/Size/refkarşılaştırması aynı. StudioilkEditikenokundu; sonkontrolde kullanıcıPlay'egeçmişti, durdurulmadı. Serverdatamodelsaltokunur şablon sayıları40model/1206parça birebir, mesh/fizikhatasıyok. Windmill63parça ancak açıkPlaykopyası sonHubmeshtemizliğinden önce yüklenmiş; açıkoturumda1Spherekopyasıkalıyor, repodakifinaldosyada yok. **SonWindmill'in görsel/yürüme/kanattemastesti yeniPlayile yapılmalı; bu turGamePlaykabulü ve GetPartsInPartgerçeksahneçakışma taraması yapılmadı.**
+
+**Claude'a teslim:** Aynı41ad/path, yeni model/yükleyici gerekmez. Runtime40grup için Play yenidenbaşlatma yeterli; statikWindmill kopyası/temaşablonu ve sahne yeni görünümünde HaritayıKur senin akışında, Ctrl+Skullanıcıda. Kullanıcının yeni açık Windmill izni bu notta; artık önceki "kapsam dışı" notları geçersiz. HomeBuildingsHub/Arm/Sail Window sözleşmesi aynen korunuyor. Kanatların -Zön rotor düzleminde çatı/üstgövdeye temasını, giriş yürümesini, iç öğütme/dekoru ve geceWindowışığını görselkontrolde incele.
+
+**Işık bağlantınotu:** FacilityProps `LampGlow` ve ZoneLevels `LanternLamp` isimleri hazır; mevcut UpgradeSites FacilityProps yükleyicisi LampGlow için markLantern çağırmıyor. Camfener tasarımlarının gece yanması isteniyorsa yeni geometri çizmeden modele ait bu parçaları ModelAssets.markLantern/uygunetiket ile bağla; GPTkod yazmadı. AçıkPointLightşablonda yok. Uygunolanlarınkayıtlımodelüzerineetiket/ışığıçalışmakoduekler. YeniTorch/fenergeometrisikoddançizilmesin.
+
 ### [03.10 00:52] Hepsi paralel — 78 mevcut model yenilendi, 7 yeni şablon (85 dosya)
 
 Kullanıcı önceki listedeki bütün grupları aynı anda istedi. **26 Animals +16 Pets +12 LevelProps +4 Barns +7 HubProps +6 HubModels +7 HomeModels =78 yenilenen dosya**, ayrıca yeni kıyı/deniz dekoru4 ve kodda keşfedilen yardımcı taşıma görseli3. Toplam **85 dosya /1890 BasePart**. Grup parça sayıları: Animals506, Pets302, LevelProps194, Barns204, HubProps193, HubModels55, HomeModels364, yeni Shore39, yeni Sea18, yeni PetProps15. Sıfır MeshPart/SpecialMesh; oyun koduna/sahneye/Terrain'e/ada-köprü yerleşimine/MAP_VERSION'a/Haritayı Kur/save/publish/commit/push'a dokunulmadı. Üç alt ajan ayrık78dosyanın74'ünü, ana ajan dört ahır ve7yenişablonu yaptı. Windmill değişmedi.
@@ -428,6 +503,10 @@ Durum: görsel pilot, henüz üretim ikamesi değil. Kanatlar `Sail` + `Hub` ola
 _(Yeni teslim: ad, dosya yolu, parça sayısı, pivot, kısa not. Önceki teslim raporları silindi; modeller `assets/`, `client-assets/`, üreticiler `tools/models/` altındadır.)_
 
 ## GPT soruları
+### [03.10 01:22] Aktif tur: fabrika apertürleri/iç ekipman ve kullanıcı onaylı gerçek dip ışıkları
+49 fabrika Buildings dosyası üç ayrık ajan tarafından yenileniyor; kod/sahneye dokunulmuyor. Sea/DiverChest, ReefArch ve SeaAnemone içine kullanıcı açık isteğiyle gerçek, Enabled=true PointLight kaynağı model XML olarak ekliyorum; ışığı kodla açıp kapatma veya yeniden oluşturma istemiyor. NightLight/NightWindow etiketi eklenmeyecek. Mevcut istemci klonlayıcısı ışık çocuklarını koruyor. check-assets.py genel PointLight yasağı bu kullanıcı kararıyla çelişiyor: lütfen yalnız bu üç Sea modelindeki UnderwaterLight için dar istisna tanımla (birer ışık, Enabled=true, Shadows=false, Range<=14, Brightness<=2, BasePart çocuğu; başka model ışıkları yasak kalabilir). Kaynak dosyaları hazır olduğunda Teslimler'e yazacağım; sen bu49 Buildings ve3Sea dosyasına yazma.
+Otlak yanındaki Farmhouse sunucuda ServerStorage.HiddenDecor.Farmhouse altında bulundu: RevealZoneId=pasture, RevealZoneLevel=1. Dekor silinmemiş; DecorReveal ilerleme koşulu nedeniyle gizli. Kullanıcı bina kayboldu dedi; pasture koşulunun kayıt/tema eşlemesini sen incele, GPT kilit/ekonomi kodunu değiştirmiyor.
+
 ### [02.10 23:48] Yuva/eklenti/su altı teslimi — görsel kabul
 
 60 model aynı kaynak yollarında yenilendi, yeni yükleyici gerekmiyor. Kullanıcı bu tur Underwater.client görsel değerlerinin değiştirilmesine açık izin verdi; bu dar istisna diğer oyun kodunu değiştirme yetkisi değil. Su altı görünümü gece/gündüz ve grafik kademelerinde kullanıcıyla gözden geçirilebilir; gerçek mercan PointLight eklenmedi. Terrain/Haritayı Kur/MAP_VERSION GPT tarafından tetiklenmedi.

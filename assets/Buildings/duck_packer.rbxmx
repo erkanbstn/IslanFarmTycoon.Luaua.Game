@@ -72,7 +72,7 @@
         <Vector3 name="Size">
           <X>0.6</X>
           <Y>7.2</Y>
-          <Z>7.4</Z>
+          <Z>7.099999999999966</Z>
         </Vector3>
         <Color3 name="Color">
           <R>0.7450980392156863</R>
@@ -82,7 +82,7 @@
         <CoordinateFrame name="CFrame">
           <X>995.3</X>
           <Y>8.0</Y>
-          <Z>175.0</Z>
+          <Z>175.15</Z>
           <R00>1.0</R00>
           <R01>-0.0</R01>
           <R02>0.0</R02>
@@ -109,7 +109,7 @@
         <Vector3 name="Size">
           <X>0.6</X>
           <Y>7.2</Y>
-          <Z>7.4</Z>
+          <Z>7.099999999999966</Z>
         </Vector3>
         <Color3 name="Color">
           <R>0.7450980392156863</R>
@@ -119,7 +119,7 @@
         <CoordinateFrame name="CFrame">
           <X>1004.7</X>
           <Y>8.0</Y>
-          <Z>175.0</Z>
+          <Z>175.15</Z>
           <R00>1.0</R00>
           <R01>-0.0</R01>
           <R02>0.0</R02>
@@ -169,80 +169,6 @@
         </CoordinateFrame>
       </Properties>
     </Item>
-    <Item class="Part" referent="RBX_duck_packer_5">
-      <Properties>
-        <string name="Name">FrontPier</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">true</bool>
-        <bool name="CanQuery">true</bool>
-        <bool name="CastShadow">true</bool>
-        <token name="Material">816</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0</float>
-        <Vector3 name="Size">
-          <X>2.6</X>
-          <Y>7.2</Y>
-          <Z>0.6</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.7450980392156863</R>
-          <G>0.8392156862745098</G>
-          <B>0.796078431372549</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>996.3</X>
-          <Y>8.0</Y>
-          <Z>171.3</Z>
-          <R00>1.0</R00>
-          <R01>-0.0</R01>
-          <R02>0.0</R02>
-          <R10>0.0</R10>
-          <R11>1.0</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
-    <Item class="Part" referent="RBX_duck_packer_6">
-      <Properties>
-        <string name="Name">FrontPier</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">true</bool>
-        <bool name="CanQuery">true</bool>
-        <bool name="CastShadow">true</bool>
-        <token name="Material">816</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0</float>
-        <Vector3 name="Size">
-          <X>2.6</X>
-          <Y>7.2</Y>
-          <Z>0.6</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.7450980392156863</R>
-          <G>0.8392156862745098</G>
-          <B>0.796078431372549</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>1003.7</X>
-          <Y>8.0</Y>
-          <Z>171.3</Z>
-          <R00>1.0</R00>
-          <R01>-0.0</R01>
-          <R02>0.0</R02>
-          <R10>0.0</R10>
-          <R11>1.0</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
     <Item class="Part" referent="RBX_duck_packer_7">
       <Properties>
         <string name="Name">FrontLintel</string>
@@ -268,80 +194,6 @@
           <X>1000.0</X>
           <Y>11.85</Y>
           <Z>171.3</Z>
-          <R00>1.0</R00>
-          <R01>-0.0</R01>
-          <R02>0.0</R02>
-          <R10>0.0</R10>
-          <R11>1.0</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
-    <Item class="Part" referent="RBX_duck_packer_8">
-      <Properties>
-        <string name="Name">CornerPost</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">false</bool>
-        <bool name="CanQuery">false</bool>
-        <bool name="CastShadow">true</bool>
-        <token name="Material">512</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0</float>
-        <Vector3 name="Size">
-          <X>0.35</X>
-          <Y>7.5</Y>
-          <Z>0.35</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.3607843137254902</R>
-          <G>0.2549019607843137</G>
-          <B>0.16862745098039217</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>995.23</X>
-          <Y>8.15</Y>
-          <Z>171.23</Z>
-          <R00>1.0</R00>
-          <R01>-0.0</R01>
-          <R02>0.0</R02>
-          <R10>0.0</R10>
-          <R11>1.0</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
-    <Item class="Part" referent="RBX_duck_packer_10">
-      <Properties>
-        <string name="Name">CornerPost</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">false</bool>
-        <bool name="CanQuery">false</bool>
-        <bool name="CastShadow">true</bool>
-        <token name="Material">512</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0</float>
-        <Vector3 name="Size">
-          <X>0.35</X>
-          <Y>7.5</Y>
-          <Z>0.35</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.3607843137254902</R>
-          <G>0.2549019607843137</G>
-          <B>0.16862745098039217</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>1004.77</X>
-          <Y>8.15</Y>
-          <Z>171.23</Z>
           <R00>1.0</R00>
           <R01>-0.0</R01>
           <R02>0.0</R02>
@@ -453,487 +305,6 @@
           <X>1000.0</X>
           <Y>14.376143426542681</Y>
           <Z>175.0</Z>
-          <R00>1.0</R00>
-          <R01>-0.0</R01>
-          <R02>0.0</R02>
-          <R10>0.0</R10>
-          <R11>1.0</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
-    <Item class="Part" referent="RBX_duck_packer_15">
-      <Properties>
-        <string name="Name">WindowLeft</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">false</bool>
-        <bool name="CanQuery">false</bool>
-        <bool name="CastShadow">true</bool>
-        <token name="Material">1568</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0.18</float>
-        <Vector3 name="Size">
-          <X>0.14</X>
-          <Y>1.9</Y>
-          <Z>2.2</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.403921568627451</R>
-          <G>0.5882352941176471</G>
-          <B>0.615686274509804</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>994.97</X>
-          <Y>8.5</Y>
-          <Z>175.25</Z>
-          <R00>1.0</R00>
-          <R01>-0.0</R01>
-          <R02>0.0</R02>
-          <R10>0.0</R10>
-          <R11>1.0</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
-    <Item class="Part" referent="RBX_duck_packer_16">
-      <Properties>
-        <string name="Name">WindowSill</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">false</bool>
-        <bool name="CanQuery">false</bool>
-        <bool name="CastShadow">true</bool>
-        <token name="Material">512</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0</float>
-        <Vector3 name="Size">
-          <X>0.4</X>
-          <Y>0.22</Y>
-          <Z>2.5</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.3607843137254902</R>
-          <G>0.2549019607843137</G>
-          <B>0.16862745098039217</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>994.91</X>
-          <Y>7.42</Y>
-          <Z>175.25</Z>
-          <R00>1.0</R00>
-          <R01>-0.0</R01>
-          <R02>0.0</R02>
-          <R10>0.0</R10>
-          <R11>1.0</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
-    <Item class="Part" referent="RBX_duck_packer_17">
-      <Properties>
-        <string name="Name">DoorFrame</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">false</bool>
-        <bool name="CanQuery">false</bool>
-        <bool name="CastShadow">true</bool>
-        <token name="Material">512</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0</float>
-        <Vector3 name="Size">
-          <X>0.18</X>
-          <Y>6.8</Y>
-          <Z>0.2</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.3607843137254902</R>
-          <G>0.2549019607843137</G>
-          <B>0.16862745098039217</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>997.52</X>
-          <Y>7.8</Y>
-          <Z>170.92</Z>
-          <R00>1.0</R00>
-          <R01>-0.0</R01>
-          <R02>0.0</R02>
-          <R10>0.0</R10>
-          <R11>1.0</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
-    <Item class="Part" referent="RBX_duck_packer_18">
-      <Properties>
-        <string name="Name">WindowRight</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">false</bool>
-        <bool name="CanQuery">false</bool>
-        <bool name="CastShadow">true</bool>
-        <token name="Material">1568</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0.18</float>
-        <Vector3 name="Size">
-          <X>0.14</X>
-          <Y>1.9</Y>
-          <Z>2.2</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.403921568627451</R>
-          <G>0.5882352941176471</G>
-          <B>0.615686274509804</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>1005.03</X>
-          <Y>8.5</Y>
-          <Z>175.25</Z>
-          <R00>1.0</R00>
-          <R01>-0.0</R01>
-          <R02>0.0</R02>
-          <R10>0.0</R10>
-          <R11>1.0</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
-    <Item class="Part" referent="RBX_duck_packer_19">
-      <Properties>
-        <string name="Name">WindowSill</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">false</bool>
-        <bool name="CanQuery">false</bool>
-        <bool name="CastShadow">true</bool>
-        <token name="Material">512</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0</float>
-        <Vector3 name="Size">
-          <X>0.4</X>
-          <Y>0.22</Y>
-          <Z>2.5</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.3607843137254902</R>
-          <G>0.2549019607843137</G>
-          <B>0.16862745098039217</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>1005.09</X>
-          <Y>7.42</Y>
-          <Z>175.25</Z>
-          <R00>1.0</R00>
-          <R01>-0.0</R01>
-          <R02>0.0</R02>
-          <R10>0.0</R10>
-          <R11>1.0</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
-    <Item class="Part" referent="RBX_duck_packer_20">
-      <Properties>
-        <string name="Name">DoorFrame</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">false</bool>
-        <bool name="CanQuery">false</bool>
-        <bool name="CastShadow">true</bool>
-        <token name="Material">512</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0</float>
-        <Vector3 name="Size">
-          <X>0.18</X>
-          <Y>6.8</Y>
-          <Z>0.2</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.3607843137254902</R>
-          <G>0.2549019607843137</G>
-          <B>0.16862745098039217</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>1002.48</X>
-          <Y>7.8</Y>
-          <Z>170.92</Z>
-          <R00>1.0</R00>
-          <R01>-0.0</R01>
-          <R02>0.0</R02>
-          <R10>0.0</R10>
-          <R11>1.0</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
-    <Item class="Part" referent="RBX_duck_packer_21">
-      <Properties>
-        <string name="Name">DuckBody</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">false</bool>
-        <bool name="CanQuery">false</bool>
-        <bool name="CastShadow">true</bool>
-        <token name="Material">272</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0</float>
-        <Vector3 name="Size">
-          <X>1.7</X>
-          <Y>0.9</Y>
-          <Z>1.15</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.8823529411764706</R>
-          <G>0.8274509803921568</G>
-          <B>0.6627450980392157</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>1000.0</X>
-          <Y>15.05614342654268</Y>
-          <Z>175.0</Z>
-          <R00>1.0</R00>
-          <R01>-0.0</R01>
-          <R02>0.0</R02>
-          <R10>0.0</R10>
-          <R11>1.0</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
-    <Item class="Part" referent="RBX_duck_packer_22">
-      <Properties>
-        <string name="Name">DuckHead</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">false</bool>
-        <bool name="CanQuery">false</bool>
-        <bool name="CastShadow">false</bool>
-        <token name="Material">272</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0</float>
-        <Vector3 name="Size">
-          <X>0.8</X>
-          <Y>0.8</Y>
-          <Z>0.8</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.9058823529411765</R>
-          <G>0.8666666666666667</G>
-          <B>0.7333333333333333</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>1000.0</X>
-          <Y>15.72614342654268</Y>
-          <Z>174.45</Z>
-          <R00>1.0</R00>
-          <R01>-0.0</R01>
-          <R02>0.0</R02>
-          <R10>0.0</R10>
-          <R11>1.0</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
-    <Item class="Part" referent="RBX_duck_packer_23">
-      <Properties>
-        <string name="Name">DuckBill</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">false</bool>
-        <bool name="CanQuery">false</bool>
-        <bool name="CastShadow">false</bool>
-        <token name="Material">272</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0</float>
-        <Vector3 name="Size">
-          <X>0.65</X>
-          <Y>0.18</Y>
-          <Z>0.65</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.8509803921568627</R>
-          <G>0.6313725490196078</G>
-          <B>0.25882352941176473</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>1000.0</X>
-          <Y>15.55614342654268</Y>
-          <Z>173.88</Z>
-          <R00>1.0</R00>
-          <R01>-0.0</R01>
-          <R02>0.0</R02>
-          <R10>0.0</R10>
-          <R11>1.0</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
-    <Item class="Part" referent="RBX_duck_packer_24">
-      <Properties>
-        <string name="Name">DuckEye</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">false</bool>
-        <bool name="CanQuery">false</bool>
-        <bool name="CastShadow">false</bool>
-        <token name="Material">272</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0</float>
-        <Vector3 name="Size">
-          <X>0.1</X>
-          <Y>0.12</Y>
-          <Z>0.1</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.1568627450980392</R>
-          <G>0.16862745098039217</G>
-          <B>0.14901960784313725</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>999.6</X>
-          <Y>15.80614342654268</Y>
-          <Z>174.3</Z>
-          <R00>1.0</R00>
-          <R01>-0.0</R01>
-          <R02>0.0</R02>
-          <R10>0.0</R10>
-          <R11>1.0</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
-    <Item class="Part" referent="RBX_duck_packer_25">
-      <Properties>
-        <string name="Name">DuckEye</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">false</bool>
-        <bool name="CanQuery">false</bool>
-        <bool name="CastShadow">false</bool>
-        <token name="Material">272</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0</float>
-        <Vector3 name="Size">
-          <X>0.1</X>
-          <Y>0.12</Y>
-          <Z>0.1</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.1568627450980392</R>
-          <G>0.16862745098039217</G>
-          <B>0.14901960784313725</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>1000.4</X>
-          <Y>15.80614342654268</Y>
-          <Z>174.3</Z>
-          <R00>1.0</R00>
-          <R01>-0.0</R01>
-          <R02>0.0</R02>
-          <R10>0.0</R10>
-          <R11>1.0</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
-    <Item class="Part" referent="RBX_duck_packer_26">
-      <Properties>
-        <string name="Name">PackingCounter</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">true</bool>
-        <bool name="CanQuery">true</bool>
-        <bool name="CastShadow">true</bool>
-        <token name="Material">528</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0</float>
-        <Vector3 name="Size">
-          <X>2.6</X>
-          <Y>0.8</Y>
-          <Z>1.1</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.3607843137254902</R>
-          <G>0.2549019607843137</G>
-          <B>0.16862745098039217</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>1002.8</X>
-          <Y>5.2</Y>
-          <Z>177.4</Z>
-          <R00>1.0</R00>
-          <R01>-0.0</R01>
-          <R02>0.0</R02>
-          <R10>0.0</R10>
-          <R11>1.0</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
-    <Item class="Part" referent="RBX_duck_packer_27">
-      <Properties>
-        <string name="Name">PackingCrate</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">false</bool>
-        <bool name="CanQuery">false</bool>
-        <bool name="CastShadow">false</bool>
-        <token name="Material">528</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0</float>
-        <Vector3 name="Size">
-          <X>1.5</X>
-          <Y>0.7</Y>
-          <Z>0.9</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.8980392156862745</R>
-          <G>0.8274509803921568</G>
-          <B>0.6627450980392157</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>1002.8</X>
-          <Y>5.95</Y>
-          <Z>177.4</Z>
           <R00>1.0</R00>
           <R01>-0.0</R01>
           <R02>0.0</R02>
@@ -1266,6 +637,783 @@
           <R20>1.0</R20>
           <R21>0</R21>
           <R22>6.123233995736766e-17</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_duck_packer_1">
+      <Properties>
+        <string name="Name">FrontWallLower</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">912</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>2.6000000000000454</X>
+          <Y>3.19</Y>
+          <Z>0.5</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.7450980392156863</R>
+          <G>0.8392156862745098</G>
+          <B>0.796078431372549</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>996.3</X>
+          <Y>5.995</Y>
+          <Z>171.3</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_duck_packer_2">
+      <Properties>
+        <string name="Name">FrontWallUpper</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">912</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>2.6000000000000454</X>
+          <Y>2.29</Y>
+          <Z>0.5</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.7450980392156863</R>
+          <G>0.8392156862745098</G>
+          <B>0.796078431372549</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>996.3</X>
+          <Y>10.555</Y>
+          <Z>171.3</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_duck_packer_3">
+      <Properties>
+        <string name="Name">WindowJamb</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>0.29</X>
+          <Y>1.82</Y>
+          <Z>0.5</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.4</R>
+          <G>0.27450980392156865</G>
+          <B>0.17647058823529413</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>995.145</X>
+          <Y>8.5</Y>
+          <Z>171.3</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_duck_packer_4">
+      <Properties>
+        <string name="Name">WindowJamb</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>0.29</X>
+          <Y>1.82</Y>
+          <Z>0.5</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.4</R>
+          <G>0.27450980392156865</G>
+          <B>0.17647058823529413</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>997.455</X>
+          <Y>8.5</Y>
+          <Z>171.3</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_duck_packer_5">
+      <Properties>
+        <string name="Name">Window</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">1568</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">.22</float>
+        <Vector3 name="Size">
+          <X>1.9000000000000454</X>
+          <Y>1.7</Y>
+          <Z>0.12</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.6666666666666666</R>
+          <G>0.8313725490196079</G>
+          <B>0.8784313725490196</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>996.3</X>
+          <Y>8.5</Y>
+          <Z>171.3</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_duck_packer_6">
+      <Properties>
+        <string name="Name">WindowSill</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>2.6000000000000454</X>
+          <Y>0.16</Y>
+          <Z>0.66</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.4</R>
+          <G>0.27450980392156865</G>
+          <B>0.17647058823529413</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>996.3</X>
+          <Y>7.49</Y>
+          <Z>171.22</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_duck_packer_7">
+      <Properties>
+        <string name="Name">FrontWallLower</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">912</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>2.6000000000000454</X>
+          <Y>3.19</Y>
+          <Z>0.5</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.7450980392156863</R>
+          <G>0.8392156862745098</G>
+          <B>0.796078431372549</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1003.7</X>
+          <Y>5.995</Y>
+          <Z>171.3</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_duck_packer_8">
+      <Properties>
+        <string name="Name">FrontWallUpper</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">912</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>2.6000000000000454</X>
+          <Y>2.29</Y>
+          <Z>0.5</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.7450980392156863</R>
+          <G>0.8392156862745098</G>
+          <B>0.796078431372549</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1003.7</X>
+          <Y>10.555</Y>
+          <Z>171.3</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_duck_packer_9">
+      <Properties>
+        <string name="Name">WindowJamb</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>0.29</X>
+          <Y>1.82</Y>
+          <Z>0.5</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.4</R>
+          <G>0.27450980392156865</G>
+          <B>0.17647058823529413</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1002.545</X>
+          <Y>8.5</Y>
+          <Z>171.3</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_duck_packer_10">
+      <Properties>
+        <string name="Name">WindowJamb</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>0.29</X>
+          <Y>1.82</Y>
+          <Z>0.5</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.4</R>
+          <G>0.27450980392156865</G>
+          <B>0.17647058823529413</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1004.855</X>
+          <Y>8.5</Y>
+          <Z>171.3</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_duck_packer_11">
+      <Properties>
+        <string name="Name">Window</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">1568</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">.22</float>
+        <Vector3 name="Size">
+          <X>1.9000000000000454</X>
+          <Y>1.7</Y>
+          <Z>0.12</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.6666666666666666</R>
+          <G>0.8313725490196079</G>
+          <B>0.8784313725490196</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1003.7</X>
+          <Y>8.5</Y>
+          <Z>171.3</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_duck_packer_12">
+      <Properties>
+        <string name="Name">WindowSill</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>2.6000000000000454</X>
+          <Y>0.16</Y>
+          <Z>0.66</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.4</R>
+          <G>0.27450980392156865</G>
+          <B>0.17647058823529413</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1003.7</X>
+          <Y>7.49</Y>
+          <Z>171.22</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_duck_packer_13">
+      <Properties>
+        <string name="Name">WorkBenchBase</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>1.35</X>
+          <Y>1.4</Y>
+          <Z>1.15</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.4</R>
+          <G>0.27450980392156865</G>
+          <B>0.17647058823529413</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>996.75</X>
+          <Y>5.1</Y>
+          <Z>174.9</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_duck_packer_14">
+      <Properties>
+        <string name="Name">WorkBenchTop</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>2.1</X>
+          <Y>0.16</Y>
+          <Z>1.45</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.4</R>
+          <G>0.27450980392156865</G>
+          <B>0.17647058823529413</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>996.75</X>
+          <Y>5.88</Y>
+          <Z>174.9</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_duck_packer_15">
+      <Properties>
+        <string name="Name">SortingTray</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>1.3</X>
+          <Y>0.9</Y>
+          <Z>1.0</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.8392156862745098</R>
+          <G>0.792156862745098</G>
+          <B>0.6470588235294118</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>996.75</X>
+          <Y>6.4</Y>
+          <Z>174.9</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_duck_packer_16">
+      <Properties>
+        <string name="Name">PackingMachineBase</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>1.5</X>
+          <Y>1.4</Y>
+          <Z>1.4</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.25882352941176473</R>
+          <G>0.2980392156862745</G>
+          <B>0.30980392156862746</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1003.25</X>
+          <Y>5.1</Y>
+          <Z>175.0</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_duck_packer_17">
+      <Properties>
+        <string name="Name">PackingMachine</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>1.6</X>
+          <Y>0.85</Y>
+          <Z>1.5</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.8980392156862745</R>
+          <G>0.8431372549019608</G>
+          <B>0.7215686274509804</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1003.25</X>
+          <Y>6.25</Y>
+          <Z>175.0</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_duck_packer_18">
+      <Properties>
+        <string name="Name">FeedTray</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>1.3</X>
+          <Y>0.35</Y>
+          <Z>1.1</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.8980392156862745</R>
+          <G>0.8431372549019608</G>
+          <B>0.7215686274509804</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1003.25</X>
+          <Y>6.9</Y>
+          <Z>175.0</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_duck_packer_19">
+      <Properties>
+        <string name="Name">StorageShelf</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>3.3</X>
+          <Y>1.9</Y>
+          <Z>1.1</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.4</R>
+          <G>0.27450980392156865</G>
+          <B>0.17647058823529413</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1000.0</X>
+          <Y>5.35</Y>
+          <Z>177.85</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_duck_packer_20">
+      <Properties>
+        <string name="Name">PackedGoods</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>1.35</X>
+          <Y>0.55</Y>
+          <Z>0.85</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.8980392156862745</R>
+          <G>0.8431372549019608</G>
+          <B>0.7215686274509804</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>999.15</X>
+          <Y>6.6</Y>
+          <Z>177.85</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_duck_packer_21">
+      <Properties>
+        <string name="Name">PackedGoods</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>1.35</X>
+          <Y>0.55</Y>
+          <Z>0.85</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.8980392156862745</R>
+          <G>0.8431372549019608</G>
+          <B>0.7215686274509804</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1000.85</X>
+          <Y>6.6</Y>
+          <Z>177.85</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
         </CoordinateFrame>
       </Properties>
     </Item>

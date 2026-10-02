@@ -72,7 +72,7 @@
         <Vector3 name="Size">
           <X>0.6</X>
           <Y>7.2</Y>
-          <Z>7.4</Z>
+          <Z>7.100000000000136</Z>
         </Vector3>
         <Color3 name="Color">
           <R>0.8980392156862745</R>
@@ -82,7 +82,7 @@
         <CoordinateFrame name="CFrame">
           <X>1055.3</X>
           <Y>8.0</Y>
-          <Z>1255.0</Z>
+          <Z>1255.15</Z>
           <R00>1.0</R00>
           <R01>-0.0</R01>
           <R02>0.0</R02>
@@ -109,7 +109,7 @@
         <Vector3 name="Size">
           <X>0.6</X>
           <Y>7.2</Y>
-          <Z>7.4</Z>
+          <Z>7.100000000000136</Z>
         </Vector3>
         <Color3 name="Color">
           <R>0.8980392156862745</R>
@@ -119,7 +119,7 @@
         <CoordinateFrame name="CFrame">
           <X>1064.7</X>
           <Y>8.0</Y>
-          <Z>1255.0</Z>
+          <Z>1255.15</Z>
           <R00>1.0</R00>
           <R01>-0.0</R01>
           <R02>0.0</R02>
@@ -169,80 +169,6 @@
         </CoordinateFrame>
       </Properties>
     </Item>
-    <Item class="Part" referent="RBX_buffalo_packer_5">
-      <Properties>
-        <string name="Name">FrontPier</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">true</bool>
-        <bool name="CanQuery">true</bool>
-        <bool name="CastShadow">true</bool>
-        <token name="Material">816</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0</float>
-        <Vector3 name="Size">
-          <X>2.6</X>
-          <Y>7.2</Y>
-          <Z>0.6</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.8980392156862745</R>
-          <G>0.8274509803921568</G>
-          <B>0.6627450980392157</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>1056.3</X>
-          <Y>8.0</Y>
-          <Z>1251.3</Z>
-          <R00>1.0</R00>
-          <R01>-0.0</R01>
-          <R02>0.0</R02>
-          <R10>0.0</R10>
-          <R11>1.0</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
-    <Item class="Part" referent="RBX_buffalo_packer_6">
-      <Properties>
-        <string name="Name">FrontPier</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">true</bool>
-        <bool name="CanQuery">true</bool>
-        <bool name="CastShadow">true</bool>
-        <token name="Material">816</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0</float>
-        <Vector3 name="Size">
-          <X>2.6</X>
-          <Y>7.2</Y>
-          <Z>0.6</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.8980392156862745</R>
-          <G>0.8274509803921568</G>
-          <B>0.6627450980392157</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>1063.7</X>
-          <Y>8.0</Y>
-          <Z>1251.3</Z>
-          <R00>1.0</R00>
-          <R01>-0.0</R01>
-          <R02>0.0</R02>
-          <R10>0.0</R10>
-          <R11>1.0</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
     <Item class="Part" referent="RBX_buffalo_packer_7">
       <Properties>
         <string name="Name">FrontLintel</string>
@@ -268,80 +194,6 @@
           <X>1060.0</X>
           <Y>11.85</Y>
           <Z>1251.3</Z>
-          <R00>1.0</R00>
-          <R01>-0.0</R01>
-          <R02>0.0</R02>
-          <R10>0.0</R10>
-          <R11>1.0</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
-    <Item class="Part" referent="RBX_buffalo_packer_8">
-      <Properties>
-        <string name="Name">CornerPost</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">false</bool>
-        <bool name="CanQuery">false</bool>
-        <bool name="CastShadow">true</bool>
-        <token name="Material">512</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0</float>
-        <Vector3 name="Size">
-          <X>0.35</X>
-          <Y>7.5</Y>
-          <Z>0.35</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.3607843137254902</R>
-          <G>0.2549019607843137</G>
-          <B>0.16862745098039217</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>1055.23</X>
-          <Y>8.15</Y>
-          <Z>1251.23</Z>
-          <R00>1.0</R00>
-          <R01>-0.0</R01>
-          <R02>0.0</R02>
-          <R10>0.0</R10>
-          <R11>1.0</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
-    <Item class="Part" referent="RBX_buffalo_packer_10">
-      <Properties>
-        <string name="Name">CornerPost</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">false</bool>
-        <bool name="CanQuery">false</bool>
-        <bool name="CastShadow">true</bool>
-        <token name="Material">512</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0</float>
-        <Vector3 name="Size">
-          <X>0.35</X>
-          <Y>7.5</Y>
-          <Z>0.35</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.3607843137254902</R>
-          <G>0.2549019607843137</G>
-          <B>0.16862745098039217</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>1064.77</X>
-          <Y>8.15</Y>
-          <Z>1251.23</Z>
           <R00>1.0</R00>
           <R01>-0.0</R01>
           <R02>0.0</R02>
@@ -465,228 +317,6 @@
         </CoordinateFrame>
       </Properties>
     </Item>
-    <Item class="Part" referent="RBX_buffalo_packer_15">
-      <Properties>
-        <string name="Name">WindowLeft</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">false</bool>
-        <bool name="CanQuery">false</bool>
-        <bool name="CastShadow">true</bool>
-        <token name="Material">1568</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0.18</float>
-        <Vector3 name="Size">
-          <X>0.14</X>
-          <Y>1.9</Y>
-          <Z>2.2</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.403921568627451</R>
-          <G>0.5882352941176471</G>
-          <B>0.615686274509804</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>1054.97</X>
-          <Y>8.5</Y>
-          <Z>1255.25</Z>
-          <R00>1.0</R00>
-          <R01>-0.0</R01>
-          <R02>0.0</R02>
-          <R10>0.0</R10>
-          <R11>1.0</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
-    <Item class="Part" referent="RBX_buffalo_packer_16">
-      <Properties>
-        <string name="Name">WindowSill</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">false</bool>
-        <bool name="CanQuery">false</bool>
-        <bool name="CastShadow">true</bool>
-        <token name="Material">512</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0</float>
-        <Vector3 name="Size">
-          <X>0.4</X>
-          <Y>0.22</Y>
-          <Z>2.5</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.3607843137254902</R>
-          <G>0.2549019607843137</G>
-          <B>0.16862745098039217</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>1054.91</X>
-          <Y>7.42</Y>
-          <Z>1255.25</Z>
-          <R00>1.0</R00>
-          <R01>-0.0</R01>
-          <R02>0.0</R02>
-          <R10>0.0</R10>
-          <R11>1.0</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
-    <Item class="Part" referent="RBX_buffalo_packer_17">
-      <Properties>
-        <string name="Name">DoorFrame</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">false</bool>
-        <bool name="CanQuery">false</bool>
-        <bool name="CastShadow">true</bool>
-        <token name="Material">512</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0</float>
-        <Vector3 name="Size">
-          <X>0.18</X>
-          <Y>6.8</Y>
-          <Z>0.2</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.3607843137254902</R>
-          <G>0.2549019607843137</G>
-          <B>0.16862745098039217</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>1057.52</X>
-          <Y>7.8</Y>
-          <Z>1250.92</Z>
-          <R00>1.0</R00>
-          <R01>-0.0</R01>
-          <R02>0.0</R02>
-          <R10>0.0</R10>
-          <R11>1.0</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
-    <Item class="Part" referent="RBX_buffalo_packer_18">
-      <Properties>
-        <string name="Name">WindowRight</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">false</bool>
-        <bool name="CanQuery">false</bool>
-        <bool name="CastShadow">true</bool>
-        <token name="Material">1568</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0.18</float>
-        <Vector3 name="Size">
-          <X>0.14</X>
-          <Y>1.9</Y>
-          <Z>2.2</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.403921568627451</R>
-          <G>0.5882352941176471</G>
-          <B>0.615686274509804</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>1065.03</X>
-          <Y>8.5</Y>
-          <Z>1255.25</Z>
-          <R00>1.0</R00>
-          <R01>-0.0</R01>
-          <R02>0.0</R02>
-          <R10>0.0</R10>
-          <R11>1.0</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
-    <Item class="Part" referent="RBX_buffalo_packer_19">
-      <Properties>
-        <string name="Name">WindowSill</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">false</bool>
-        <bool name="CanQuery">false</bool>
-        <bool name="CastShadow">true</bool>
-        <token name="Material">512</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0</float>
-        <Vector3 name="Size">
-          <X>0.4</X>
-          <Y>0.22</Y>
-          <Z>2.5</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.3607843137254902</R>
-          <G>0.2549019607843137</G>
-          <B>0.16862745098039217</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>1065.09</X>
-          <Y>7.42</Y>
-          <Z>1255.25</Z>
-          <R00>1.0</R00>
-          <R01>-0.0</R01>
-          <R02>0.0</R02>
-          <R10>0.0</R10>
-          <R11>1.0</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
-    <Item class="Part" referent="RBX_buffalo_packer_20">
-      <Properties>
-        <string name="Name">DoorFrame</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">false</bool>
-        <bool name="CanQuery">false</bool>
-        <bool name="CastShadow">true</bool>
-        <token name="Material">512</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0</float>
-        <Vector3 name="Size">
-          <X>0.18</X>
-          <Y>6.8</Y>
-          <Z>0.2</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.3607843137254902</R>
-          <G>0.2549019607843137</G>
-          <B>0.16862745098039217</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>1062.48</X>
-          <Y>7.8</Y>
-          <Z>1250.92</Z>
-          <R00>1.0</R00>
-          <R01>-0.0</R01>
-          <R02>0.0</R02>
-          <R10>0.0</R10>
-          <R11>1.0</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
     <Item class="Part" referent="RBX_buffalo_packer_21">
       <Properties>
         <string name="Name">Chimney</string>
@@ -749,265 +379,6 @@
           <X>1056.1</X>
           <Y>15.97614342654268</Y>
           <Z>1257.85</Z>
-          <R00>1.0</R00>
-          <R01>-0.0</R01>
-          <R02>0.0</R02>
-          <R10>0.0</R10>
-          <R11>1.0</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
-    <Item class="Part" referent="RBX_buffalo_packer_23">
-      <Properties>
-        <string name="Name">HeraldicPlaque</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">false</bool>
-        <bool name="CanQuery">false</bool>
-        <bool name="CastShadow">true</bool>
-        <token name="Material">512</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0</float>
-        <Vector3 name="Size">
-          <X>2.7</X>
-          <Y>1.1</Y>
-          <Z>0.25</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.3607843137254902</R>
-          <G>0.2549019607843137</G>
-          <B>0.16862745098039217</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>1060.0</X>
-          <Y>12.8</Y>
-          <Z>1250.9</Z>
-          <R00>1.0</R00>
-          <R01>-0.0</R01>
-          <R02>0.0</R02>
-          <R10>0.0</R10>
-          <R11>1.0</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
-    <Item class="Part" referent="RBX_buffalo_packer_24">
-      <Properties>
-        <string name="Name">Antler</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">false</bool>
-        <bool name="CanQuery">false</bool>
-        <bool name="CastShadow">false</bool>
-        <token name="Material">912</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0</float>
-        <Vector3 name="Size">
-          <X>0.24</X>
-          <Y>1.25</Y>
-          <Z>0.24</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.8980392156862745</R>
-          <G>0.8274509803921568</G>
-          <B>0.6627450980392157</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>1059.15</X>
-          <Y>13.0</Y>
-          <Z>1250.71</Z>
-          <R00>0.766044443118978</R00>
-          <R01>0.6427876096865393</R01>
-          <R02>0.0</R02>
-          <R10>-0.6427876096865393</R10>
-          <R11>0.766044443118978</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>-0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
-    <Item class="Part" referent="RBX_buffalo_packer_25">
-      <Properties>
-        <string name="Name">AntlerTip</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">false</bool>
-        <bool name="CanQuery">false</bool>
-        <bool name="CastShadow">false</bool>
-        <token name="Material">912</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0</float>
-        <Vector3 name="Size">
-          <X>0.18</X>
-          <Y>0.7</Y>
-          <Z>0.18</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.8980392156862745</R>
-          <G>0.8274509803921568</G>
-          <B>0.6627450980392157</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>1058.65</X>
-          <Y>13.4</Y>
-          <Z>1250.71</Z>
-          <R00>0.9396926207859084</R00>
-          <R01>-0.3420201433256687</R01>
-          <R02>0.0</R02>
-          <R10>0.3420201433256687</R10>
-          <R11>0.9396926207859084</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
-    <Item class="Part" referent="RBX_buffalo_packer_26">
-      <Properties>
-        <string name="Name">Antler</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">false</bool>
-        <bool name="CanQuery">false</bool>
-        <bool name="CastShadow">false</bool>
-        <token name="Material">912</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0</float>
-        <Vector3 name="Size">
-          <X>0.24</X>
-          <Y>1.25</Y>
-          <Z>0.24</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.8980392156862745</R>
-          <G>0.8274509803921568</G>
-          <B>0.6627450980392157</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>1060.85</X>
-          <Y>13.0</Y>
-          <Z>1250.71</Z>
-          <R00>0.766044443118978</R00>
-          <R01>-0.6427876096865393</R01>
-          <R02>0.0</R02>
-          <R10>0.6427876096865393</R10>
-          <R11>0.766044443118978</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
-    <Item class="Part" referent="RBX_buffalo_packer_27">
-      <Properties>
-        <string name="Name">AntlerTip</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">false</bool>
-        <bool name="CanQuery">false</bool>
-        <bool name="CastShadow">false</bool>
-        <token name="Material">912</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0</float>
-        <Vector3 name="Size">
-          <X>0.18</X>
-          <Y>0.7</Y>
-          <Z>0.18</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.8980392156862745</R>
-          <G>0.8274509803921568</G>
-          <B>0.6627450980392157</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>1061.35</X>
-          <Y>13.4</Y>
-          <Z>1250.71</Z>
-          <R00>0.9396926207859084</R00>
-          <R01>0.3420201433256687</R01>
-          <R02>0.0</R02>
-          <R10>-0.3420201433256687</R10>
-          <R11>0.9396926207859084</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>-0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
-    <Item class="Part" referent="RBX_buffalo_packer_28">
-      <Properties>
-        <string name="Name">SupplyBale</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">true</bool>
-        <bool name="CanQuery">true</bool>
-        <bool name="CastShadow">true</bool>
-        <token name="Material">528</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0</float>
-        <Vector3 name="Size">
-          <X>2</X>
-          <Y>1.1</Y>
-          <Z>1.2</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.3607843137254902</R>
-          <G>0.2549019607843137</G>
-          <B>0.16862745098039217</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>1063.5</X>
-          <Y>5.0</Y>
-          <Z>1254.0</Z>
-          <R00>1.0</R00>
-          <R01>-0.0</R01>
-          <R02>0.0</R02>
-          <R10>0.0</R10>
-          <R11>1.0</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
-    <Item class="Part" referent="RBX_buffalo_packer_29">
-      <Properties>
-        <string name="Name">SupplyBale</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">true</bool>
-        <bool name="CanQuery">true</bool>
-        <bool name="CastShadow">true</bool>
-        <token name="Material">528</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0</float>
-        <Vector3 name="Size">
-          <X>2</X>
-          <Y>1.1</Y>
-          <Z>1.2</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.3607843137254902</R>
-          <G>0.2549019607843137</G>
-          <B>0.16862745098039217</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>1063.5</X>
-          <Y>5.0</Y>
-          <Z>1256.0</Z>
           <R00>1.0</R00>
           <R01>-0.0</R01>
           <R02>0.0</R02>
@@ -1125,43 +496,6 @@
         <bool name="CanQuery">false</bool>
       </Properties>
     </Item>
-    <Item class="Part" referent="RBX_buffalo_packer_EavesBeam_30">
-      <Properties>
-        <string name="Name">EavesBeam</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">true</bool>
-        <bool name="CanQuery">true</bool>
-        <bool name="CastShadow">true</bool>
-        <token name="Material">816</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0</float>
-        <Vector3 name="Size">
-          <X>10.0</X>
-          <Y>0.3</Y>
-          <Z>0.6</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.8980392156862745</R>
-          <G>0.8274509803921568</G>
-          <B>0.6627450980392157</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>1060.0</X>
-          <Y>11.75</Y>
-          <Z>1251.3</Z>
-          <R00>1.0</R00>
-          <R01>0</R01>
-          <R02>0.0</R02>
-          <R10>0</R10>
-          <R11>1</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
     <Item class="WedgePart" referent="RBX_buffalo_packer_GableLeft_31">
       <Properties>
         <string name="Name">GableLeft</string>
@@ -1234,43 +568,6 @@
         </CoordinateFrame>
       </Properties>
     </Item>
-    <Item class="Part" referent="RBX_buffalo_packer_EavesBeam_33">
-      <Properties>
-        <string name="Name">EavesBeam</string>
-        <bool name="Anchored">true</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanCollide">true</bool>
-        <bool name="CanQuery">true</bool>
-        <bool name="CastShadow">true</bool>
-        <token name="Material">816</token>
-        <token name="Shape">1</token>
-        <float name="Transparency">0</float>
-        <Vector3 name="Size">
-          <X>10.0</X>
-          <Y>0.3</Y>
-          <Z>0.6</Z>
-        </Vector3>
-        <Color3 name="Color">
-          <R>0.8980392156862745</R>
-          <G>0.8274509803921568</G>
-          <B>0.6627450980392157</B>
-        </Color3>
-        <CoordinateFrame name="CFrame">
-          <X>1060.0</X>
-          <Y>11.75</Y>
-          <Z>1258.7</Z>
-          <R00>1.0</R00>
-          <R01>0</R01>
-          <R02>0.0</R02>
-          <R10>0</R10>
-          <R11>1</R11>
-          <R12>0</R12>
-          <R20>-0.0</R20>
-          <R21>0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-      </Properties>
-    </Item>
     <Item class="WedgePart" referent="RBX_buffalo_packer_GableLeft_34">
       <Properties>
         <string name="Name">GableLeft</string>
@@ -1340,6 +637,783 @@
           <R20>1.0</R20>
           <R21>0</R21>
           <R22>6.123233995736766e-17</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_buffalo_packer_1">
+      <Properties>
+        <string name="Name">FrontWallLower</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">912</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>2.6000000000000454</X>
+          <Y>3.19</Y>
+          <Z>0.5</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.8980392156862745</R>
+          <G>0.8274509803921568</G>
+          <B>0.6627450980392157</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1056.3</X>
+          <Y>5.995</Y>
+          <Z>1251.3</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_buffalo_packer_2">
+      <Properties>
+        <string name="Name">FrontWallUpper</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">912</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>2.6000000000000454</X>
+          <Y>2.29</Y>
+          <Z>0.5</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.8980392156862745</R>
+          <G>0.8274509803921568</G>
+          <B>0.6627450980392157</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1056.3</X>
+          <Y>10.555</Y>
+          <Z>1251.3</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_buffalo_packer_3">
+      <Properties>
+        <string name="Name">WindowJamb</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>0.29</X>
+          <Y>1.82</Y>
+          <Z>0.5</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.4</R>
+          <G>0.27450980392156865</G>
+          <B>0.17647058823529413</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1055.145</X>
+          <Y>8.5</Y>
+          <Z>1251.3</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_buffalo_packer_4">
+      <Properties>
+        <string name="Name">WindowJamb</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>0.29</X>
+          <Y>1.82</Y>
+          <Z>0.5</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.4</R>
+          <G>0.27450980392156865</G>
+          <B>0.17647058823529413</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1057.455</X>
+          <Y>8.5</Y>
+          <Z>1251.3</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_buffalo_packer_5">
+      <Properties>
+        <string name="Name">Window</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">1568</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">.22</float>
+        <Vector3 name="Size">
+          <X>1.9000000000000454</X>
+          <Y>1.7</Y>
+          <Z>0.12</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.6666666666666666</R>
+          <G>0.8313725490196079</G>
+          <B>0.8784313725490196</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1056.3</X>
+          <Y>8.5</Y>
+          <Z>1251.3</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_buffalo_packer_6">
+      <Properties>
+        <string name="Name">WindowSill</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>2.6000000000000454</X>
+          <Y>0.16</Y>
+          <Z>0.66</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.4</R>
+          <G>0.27450980392156865</G>
+          <B>0.17647058823529413</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1056.3</X>
+          <Y>7.49</Y>
+          <Z>1251.22</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_buffalo_packer_7">
+      <Properties>
+        <string name="Name">FrontWallLower</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">912</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>2.6000000000000454</X>
+          <Y>3.19</Y>
+          <Z>0.5</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.8980392156862745</R>
+          <G>0.8274509803921568</G>
+          <B>0.6627450980392157</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1063.7</X>
+          <Y>5.995</Y>
+          <Z>1251.3</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_buffalo_packer_8">
+      <Properties>
+        <string name="Name">FrontWallUpper</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">912</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>2.6000000000000454</X>
+          <Y>2.29</Y>
+          <Z>0.5</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.8980392156862745</R>
+          <G>0.8274509803921568</G>
+          <B>0.6627450980392157</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1063.7</X>
+          <Y>10.555</Y>
+          <Z>1251.3</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_buffalo_packer_9">
+      <Properties>
+        <string name="Name">WindowJamb</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>0.29</X>
+          <Y>1.82</Y>
+          <Z>0.5</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.4</R>
+          <G>0.27450980392156865</G>
+          <B>0.17647058823529413</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1062.545</X>
+          <Y>8.5</Y>
+          <Z>1251.3</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_buffalo_packer_10">
+      <Properties>
+        <string name="Name">WindowJamb</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>0.29</X>
+          <Y>1.82</Y>
+          <Z>0.5</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.4</R>
+          <G>0.27450980392156865</G>
+          <B>0.17647058823529413</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1064.855</X>
+          <Y>8.5</Y>
+          <Z>1251.3</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_buffalo_packer_11">
+      <Properties>
+        <string name="Name">Window</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">1568</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">.22</float>
+        <Vector3 name="Size">
+          <X>1.9000000000000454</X>
+          <Y>1.7</Y>
+          <Z>0.12</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.6666666666666666</R>
+          <G>0.8313725490196079</G>
+          <B>0.8784313725490196</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1063.7</X>
+          <Y>8.5</Y>
+          <Z>1251.3</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_buffalo_packer_12">
+      <Properties>
+        <string name="Name">WindowSill</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>2.6000000000000454</X>
+          <Y>0.16</Y>
+          <Z>0.66</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.4</R>
+          <G>0.27450980392156865</G>
+          <B>0.17647058823529413</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1063.7</X>
+          <Y>7.49</Y>
+          <Z>1251.22</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_buffalo_packer_13">
+      <Properties>
+        <string name="Name">WorkBenchBase</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>1.35</X>
+          <Y>1.4</Y>
+          <Z>1.15</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.4</R>
+          <G>0.27450980392156865</G>
+          <B>0.17647058823529413</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1056.75</X>
+          <Y>5.1</Y>
+          <Z>1254.9</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_buffalo_packer_14">
+      <Properties>
+        <string name="Name">WorkBenchTop</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>2.1</X>
+          <Y>0.16</Y>
+          <Z>1.45</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.4</R>
+          <G>0.27450980392156865</G>
+          <B>0.17647058823529413</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1056.75</X>
+          <Y>5.88</Y>
+          <Z>1254.9</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_buffalo_packer_15">
+      <Properties>
+        <string name="Name">SortingTray</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>1.3</X>
+          <Y>0.9</Y>
+          <Z>1.0</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.8392156862745098</R>
+          <G>0.792156862745098</G>
+          <B>0.6470588235294118</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1056.75</X>
+          <Y>6.4</Y>
+          <Z>1254.9</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_buffalo_packer_16">
+      <Properties>
+        <string name="Name">PackingMachineBase</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>1.5</X>
+          <Y>1.4</Y>
+          <Z>1.4</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.25882352941176473</R>
+          <G>0.2980392156862745</G>
+          <B>0.30980392156862746</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1063.25</X>
+          <Y>5.1</Y>
+          <Z>1255.0</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_buffalo_packer_17">
+      <Properties>
+        <string name="Name">PackingMachine</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>1.6</X>
+          <Y>0.85</Y>
+          <Z>1.5</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.8980392156862745</R>
+          <G>0.8431372549019608</G>
+          <B>0.7215686274509804</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1063.25</X>
+          <Y>6.25</Y>
+          <Z>1255.0</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_buffalo_packer_18">
+      <Properties>
+        <string name="Name">FeedTray</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>1.3</X>
+          <Y>0.35</Y>
+          <Z>1.1</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.8980392156862745</R>
+          <G>0.8431372549019608</G>
+          <B>0.7215686274509804</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1063.25</X>
+          <Y>6.9</Y>
+          <Z>1255.0</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_buffalo_packer_19">
+      <Properties>
+        <string name="Name">StorageShelf</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>3.3</X>
+          <Y>1.9</Y>
+          <Z>1.1</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.4</R>
+          <G>0.27450980392156865</G>
+          <B>0.17647058823529413</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1060.0</X>
+          <Y>5.35</Y>
+          <Z>1257.8500000000001</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_buffalo_packer_20">
+      <Properties>
+        <string name="Name">PackedGoods</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>1.35</X>
+          <Y>0.55</Y>
+          <Z>0.85</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.8980392156862745</R>
+          <G>0.8431372549019608</G>
+          <B>0.7215686274509804</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1059.15</X>
+          <Y>6.6</Y>
+          <Z>1257.8500000000001</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_fill_buffalo_packer_21">
+      <Properties>
+        <string name="Name">PackedGoods</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>1.35</X>
+          <Y>0.55</Y>
+          <Z>0.85</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.8980392156862745</R>
+          <G>0.8431372549019608</G>
+          <B>0.7215686274509804</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1060.85</X>
+          <Y>6.6</Y>
+          <Z>1257.8500000000001</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
         </CoordinateFrame>
       </Properties>
     </Item>

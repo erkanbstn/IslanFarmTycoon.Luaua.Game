@@ -174,12 +174,12 @@
         <string name="Name">FrontPierBase</string>
         <Vector3 name="Size">
           <X>2.6</X>
-          <Y>2.8</Y>
+          <Y>2.76</Y>
           <Z>0.5</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1056.3</X>
-          <Y>5.7</Y>
+          <Y>5.68</Y>
           <Z>1811.25</Z>
           <R00>1</R00>
           <R01>-0</R01>
@@ -211,12 +211,12 @@
         <string name="Name">FrontPierTop</string>
         <Vector3 name="Size">
           <X>2.6</X>
-          <Y>2.5</Y>
+          <Y>2.46</Y>
           <Z>0.5</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1056.3</X>
-          <Y>10.05</Y>
+          <Y>10.07</Y>
           <Z>1811.25</Z>
           <R00>1</R00>
           <R01>-0</R01>
@@ -321,12 +321,12 @@
       <Properties>
         <string name="Name">Window</string>
         <Vector3 name="Size">
-          <X>1.95</X>
-          <Y>1.7</Y>
+          <X>1.71</X>
+          <Y>1.64</Y>
           <Z>0.12</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1056.3</X>
+          <X>1056.39</X>
           <Y>7.95</Y>
           <Z>1811.12</Z>
           <R00>1</R00>
@@ -351,7 +351,7 @@
         <bool name="CanTouch">false</bool>
         <bool name="CanQuery">false</bool>
         <bool name="CastShadow">true</bool>
-        <float name="Transparency">0.23</float>
+        <float name="Transparency">.32</float>
       </Properties>
     </Item>
     <Item class="Part" referent="RBX_llama_loom_10">
@@ -396,12 +396,12 @@
         <string name="Name">FrontPierBase</string>
         <Vector3 name="Size">
           <X>2.6</X>
-          <Y>2.8</Y>
+          <Y>2.76</Y>
           <Z>0.5</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1063.7</X>
-          <Y>5.7</Y>
+          <Y>5.68</Y>
           <Z>1811.25</Z>
           <R00>1</R00>
           <R01>-0</R01>
@@ -433,12 +433,12 @@
         <string name="Name">FrontPierTop</string>
         <Vector3 name="Size">
           <X>2.6</X>
-          <Y>2.5</Y>
+          <Y>2.46</Y>
           <Z>0.5</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1063.7</X>
-          <Y>10.05</Y>
+          <Y>10.07</Y>
           <Z>1811.25</Z>
           <R00>1</R00>
           <R01>-0</R01>
@@ -543,12 +543,12 @@
       <Properties>
         <string name="Name">Window</string>
         <Vector3 name="Size">
-          <X>1.95</X>
-          <Y>1.7</Y>
+          <X>1.71</X>
+          <Y>1.64</Y>
           <Z>0.12</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1063.7</X>
+          <X>1063.61</X>
           <Y>7.95</Y>
           <Z>1811.12</Z>
           <R00>1</R00>
@@ -573,7 +573,7 @@
         <bool name="CanTouch">false</bool>
         <bool name="CanQuery">false</bool>
         <bool name="CastShadow">true</bool>
-        <float name="Transparency">0.23</float>
+        <float name="Transparency">.32</float>
       </Properties>
     </Item>
     <Item class="Part" referent="RBX_llama_loom_16">
@@ -1168,117 +1168,6 @@
         <float name="Transparency">0</float>
       </Properties>
     </Item>
-    <Item class="Part" referent="RBX_llama_loom_32">
-      <Properties>
-        <string name="Name">YarnSpool</string>
-        <Vector3 name="Size">
-          <X>0.8</X>
-          <Y>0.8</Y>
-          <Z>0.8</Z>
-        </Vector3>
-        <CoordinateFrame name="CFrame">
-          <X>1063</X>
-          <Y>5.35</Y>
-          <Z>1815</Z>
-          <R00>1</R00>
-          <R01>-0</R01>
-          <R02>0</R02>
-          <R10>0</R10>
-          <R11>1</R11>
-          <R12>0</R12>
-          <R20>0</R20>
-          <R21>0</R21>
-          <R22>1</R22>
-        </CoordinateFrame>
-        <Color3 name="Color">
-          <R>0.83137255</R>
-          <G>0.74509804</G>
-          <B>0.56470588</B>
-        </Color3>
-        <token name="Material">1312</token>
-        <token name="Shape">0</token>
-        <bool name="Anchored">true</bool>
-        <bool name="CanCollide">false</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanQuery">false</bool>
-        <bool name="CastShadow">true</bool>
-        <float name="Transparency">0</float>
-      </Properties>
-    </Item>
-    <Item class="Part" referent="RBX_llama_loom_33">
-      <Properties>
-        <string name="Name">YarnSpool</string>
-        <Vector3 name="Size">
-          <X>0.8</X>
-          <Y>0.8</Y>
-          <Z>0.8</Z>
-        </Vector3>
-        <CoordinateFrame name="CFrame">
-          <X>1063</X>
-          <Y>5.35</Y>
-          <Z>1816</Z>
-          <R00>1</R00>
-          <R01>-0</R01>
-          <R02>0</R02>
-          <R10>0</R10>
-          <R11>1</R11>
-          <R12>0</R12>
-          <R20>0</R20>
-          <R21>0</R21>
-          <R22>1</R22>
-        </CoordinateFrame>
-        <Color3 name="Color">
-          <R>0.83137255</R>
-          <G>0.74509804</G>
-          <B>0.56470588</B>
-        </Color3>
-        <token name="Material">1312</token>
-        <token name="Shape">0</token>
-        <bool name="Anchored">true</bool>
-        <bool name="CanCollide">false</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanQuery">false</bool>
-        <bool name="CastShadow">true</bool>
-        <float name="Transparency">0</float>
-      </Properties>
-    </Item>
-    <Item class="Part" referent="RBX_llama_loom_34">
-      <Properties>
-        <string name="Name">YarnSpool</string>
-        <Vector3 name="Size">
-          <X>0.8</X>
-          <Y>0.8</Y>
-          <Z>0.8</Z>
-        </Vector3>
-        <CoordinateFrame name="CFrame">
-          <X>1063</X>
-          <Y>5.35</Y>
-          <Z>1817</Z>
-          <R00>1</R00>
-          <R01>-0</R01>
-          <R02>0</R02>
-          <R10>0</R10>
-          <R11>1</R11>
-          <R12>0</R12>
-          <R20>0</R20>
-          <R21>0</R21>
-          <R22>1</R22>
-        </CoordinateFrame>
-        <Color3 name="Color">
-          <R>0.83137255</R>
-          <G>0.74509804</G>
-          <B>0.56470588</B>
-        </Color3>
-        <token name="Material">1312</token>
-        <token name="Shape">0</token>
-        <bool name="Anchored">true</bool>
-        <bool name="CanCollide">false</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanQuery">false</bool>
-        <bool name="CastShadow">true</bool>
-        <float name="Transparency">0</float>
-      </Properties>
-    </Item>
     <Item class="Part" referent="RBXPART25">
       <Properties>
         <string name="Name">SignBoard</string>
@@ -1382,6 +1271,117 @@
         <bool name="CanCollide">true</bool>
         <bool name="CanTouch">false</bool>
         <bool name="CanQuery">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_Interior_llama_loom_1">
+      <Properties>
+        <string name="Name">FinishedClothCrate</string>
+        <Vector3 name="Size">
+          <X>1.7</X>
+          <Y>1.3</Y>
+          <Z>1.5</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1063</X>
+          <Y>4.95</Y>
+          <Z>1813.9</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.5137254901960784</R>
+          <G>0.34509803921568627</G>
+          <B>0.2</B>
+        </Color3>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_Interior_llama_loom_2">
+      <Properties>
+        <string name="Name">FoldedCloth</string>
+        <Vector3 name="Size">
+          <X>1.4</X>
+          <Y>0.3</Y>
+          <Z>1.2</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1063</X>
+          <Y>5.75</Y>
+          <Z>1813.9</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.7137254901960784</R>
+          <G>0.4549019607843137</G>
+          <B>0.4235294117647059</B>
+        </Color3>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">true</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_Interior_llama_loom_3">
+      <Properties>
+        <string name="Name">YarnSpool</string>
+        <Vector3 name="Size">
+          <X>0.8</X>
+          <Y>0.8</Y>
+          <Z>0.8</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1063</X>
+          <Y>5.35</Y>
+          <Z>1816</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.8784313725490196</R>
+          <G>0.7686274509803922</G>
+          <B>0.6078431372549019</B>
+        </Color3>
+        <token name="Material">272</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">true</bool>
+        <float name="Transparency">0</float>
       </Properties>
     </Item>
   </Item>
