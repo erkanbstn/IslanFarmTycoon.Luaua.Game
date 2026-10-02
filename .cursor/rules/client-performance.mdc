@@ -38,6 +38,8 @@ alwaysApply: false
   (`NEAR_CHECK_INTERVAL`) aralıklı önbelleğe al.
 - Çok sayıda parçayı kare kare hareket ettiren efekt parçaları toplayıp tek `Workspace:BulkMoveTo` ile taşır (`AnimalAnimator`: PreRender'da, `PivotTo` başına bir çağrı yerine).
   Uzak/küçük etkiyi seyrelt: `SeabedLife` yüksek kamerada düşük güncelleme sıklığına iner (`HIGH_CAMERA_INTERVAL`).
+- İstemci efekt nesnelerinin (kuş, balık, mercan, kaya, deniz yıldızı, denizanası) geometrisi `client-assets/` modelindedir (`Core/ClientModelAssets.clone`; parçalar çarpışmaz, sorgulanmaz, gölge atmaz): kare başı model yaratma, havuzla ve her parçanın gövdeye göre ofsetini (`rel`) bir kez hesapla;
+  `PrimaryPart`'lı modelde (`PivotTo`) merkez PrimaryPart'tır. Tek parçalık havuz nesneleri (`SeasonFragment`, `WinterTwig`) model gerektirmez.
 - Gerçek ışık kaynağı (PointLight/SpotLight) pahalıdır: `DayNight` düşük kalitede hiç yakmaz, orta kalitede kameraya en yakın `MEDIUM_LIGHT_PARTS` parçada yakar, yüksekte hepsini; yeni gece ışığı bu sınırı atlamamalı.
 - StreamingEnabled yarıçapları `default.project.json`'da (Workspace); uzaktaki nesne her an olmayabilir, yukarıdaki etiket/`DescendantAdded` kalıbını kullan.
 - **Açılış yükü**: süs efektleri (kuş, balık, deniz dibi, kıyı buzu) kurulmadan önce `Core/StartupGate.wait(saniye)` çağırır: yükleme ekranı kalkınca (`LoadingDone`) her efekt kendi gecikmesiyle sırayla başlar (tek karede yığılmasın).

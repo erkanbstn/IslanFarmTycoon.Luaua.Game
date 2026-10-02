@@ -1,8 +1,10 @@
 # Model sözleşmesi (Studio'da elle/ajanla yapılan görseller)
 
-Bu belge, kod kurucusu yerine Studio'da yapılıp `ServerStorage.Assets` altına konan bir modelin **kodun beklediği her
-şeyi** karşılaması için kuralları verir. Kaynak kod okunarak çıkarıldı; satır numaraları 2026-10-01 `main` (ffb8d0e)
-içindir. İş akışı, dışa aktarma, pilot ve ajan şablonu: `docs/MODEL_IS_PLANI.md`.
+Bu belge, kod kurucusu yerine yapılıp `ServerStorage.Assets` (`assets/`) altına konan bir modelin **kodun beklediği her
+şeyi** karşılaması için kuralları verir. **Durum (2026-10-02):** kod kurucuları silindi, görünen geometri artık yalnızca modellerden gelir;
+aşağıdaki "kod kurucusu" ve satır numarası anlatımları tarihsel bağlamdır, güncel yükleyiciler `World/ModelAssets` ve `Core/ClientModelAssets`'tir
+(model yoksa görünüm çizilmez, `scripts/check-assets.py` eksikte kırmızı olur). İş akışı: `docs/MODEL_IS_PLANI.md`; üretici ajan sözleşmesi ve istek defteri: `docs/GPT_MODEL_IS_LISTESI.md`, `docs/GPT_ILETISIM.md`.
+`PrimaryPart` verilmiş modelde pivot PrimaryPart merkezidir (WorldPivotData yok sayılır).
 
 Kural dili: **ZORUNLU** (ihlal = hata/bozuk görünüm), **YASAK**, **ÖNERİ** (kodda sınır yok, stil/performans kararı).
 
@@ -51,7 +53,7 @@ Kural dili: **ZORUNLU** (ihlal = hata/bozuk görünüm), **YASAK**, **ÖNERİ** 
 | Ad | Tam yükseltme kimliği (`duck_packer`, `silo`, `wool_mill`...). Tür fabrikaları `Config/Species.luau`'dan türer | `UpgradeVisualService.luau:64` |
 | Pivot | ZORUNLU: zemin ortası, y=0 = ada yüzeyi. `PivotTo(spot.CFrame)` yapılır; spot ada yüzeyinde | `:76`, `MapLayout.luau:10`, `MapParts.luau:224-230` |
 | Yön | ZORUNLU: kapı/ön yüz **-Z** | `UpgradeSites.luau` |
-| Gövde kutusu | ZORUNLU: gövde 10 x 8 (X x Z), çatı taşması dahil ≤ 11.4 x 9.4. Seviye süsleri bu kutunun dışına (x ±7.2, z 5-8.2, z -5.6) kurulur, taşan model süsle iç içe girer | `UpgradeSites.luau:111-211`, `UpgradeBuildersGoods.luau:26` |
+| Gövde kutusu | ZORUNLU: gövde 10 x 8 (X x Z), çatı taşması dahil ≤ 11.4 x 9.4. Seviye süsleri bu kutunun dışına (x ±7.2, z 5-8.2, z -5.6) kurulur, taşan model süsle iç içe girer | `UpgradeSites.luau` (kod kurucusu `UpgradeBuildersGoods` silindi; kutu kuralı modeller için geçerli) |
 | Yükseklik | ÖNERİ: ≤ 12 stud (ör. ördek evinin çatı heykeli ~y12). İş çubuğu kutunun 6 üstüne kurulur | `UpgradeVisualService.luau` |
 | Kapı | ZORUNLU: ≥ 4.6 x 6.6 açıklık; kapı önü (-Z) boş | `world-map.mdc:22` |
 | Üretim prompt'u | YASAK: modele `ProductionPromptAnchor`/`ProductionPrompt` koyma; servis her zaman `base * (0, 2.5, -6)`'ya ekler (çift olur). ZORUNLU: o nokta duvar içinde kalmasın (gövde z ≥ -4) | `UpgradeVisualService.luau:122-139` |

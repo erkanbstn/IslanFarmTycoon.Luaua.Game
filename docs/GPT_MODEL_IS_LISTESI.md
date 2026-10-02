@@ -308,11 +308,9 @@ Her biri için kural aynı: ölçek 1'de çiz, pivot zeminde, `Tint` adlı parç
 
 ## 7. Entegrasyon (Claude yapar — GPT dokunmaz)
 
-1. `client-assets/` modelleri için `Core/ClientModelAssets` ile yükleme; kuş/balık/denizanası/mercan/kaya/yıldız/dal/yaprak kodlarının geometri üretimi silinir.
-2. `assets/` modelleri için `World/ModelAssets` yükleyicisi harita kurucularına bağlanır; `HomeHouses`, `HomeFarmland`, `HomeMarket`, `HomeLandmarks`, `HubNpcs`, `DecorProps`, `DecorShore` silinir.
-3. `scripts/check-assets.py` yeni klasörleri ve adları denetleyecek şekilde genişler; eksikse `verify.ps1` kırmızı olur.
-4. Yerleşim değişirse `MAP_VERSION` artırılır ve "Haritayı Kur" eklentisi yeniden derlenir.
-5. Studio'da Play ile görsel doğrulama.
+**Durum (2026-10-02): tamamlandı.** Bu listedeki modellerin hepsi koda bağlandı ve eski çizim kodu silindi: `client-assets/` modelleri `Core/ClientModelAssets` ile (kuş, balık, mercan, kaya, deniz yıldızı, denizanası), `assets/` modelleri `World/ModelAssets` ile
+(`HomeBuildings`, `HubNpcs`, `DecorProps/Nature/Lights/Shore`, `MapParts`, `IslandBuilder`, `SatelliteBuilder`, `BarnVisualService`, `IslandSiteParts`). Ayrıntı ve güncel durum tablosu `docs/GPT_ILETISIM.md` "Entegrasyon durumu".
+Kodda kalanlar (modele çevrilmez): zemin plakaları, Terrain/kıyı, taş yollar, çim yamaları, dağ halkası, `BareBranch`/`FallingLeaf` havuz parçaları. `check-assets.py` `verify.ps1` içinde çalışır; yerleşim değişirse `MAP_VERSION` artırılır ve harita yeniden kurulur (`tests-tooling.mdc` "Geliştirme otomasyonu").
 
 ---
 

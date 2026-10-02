@@ -1,10 +1,9 @@
 --!strict
 -- Yol haritasından alınan güçlendirmeleri adada bina olarak gösterir (silo, süt makinesi...).
 -- Konum: plot içindeki BuildSpots klasöründe "<upgradeId>" adlı görünmez parça.
--- Kendi modelini kullanmak için: ServerStorage.Assets.Buildings içine upgrade id'si
--- ile aynı isimde bir Model koy (ör. "silo"). Model'in pivotu zemine oturmalı.
--- Parçalar: UpgradeParts (ortak yapı taşları), UpgradeBuildersHome/Barnyard/Workshops (bina görselleri),
--- UpgradeSites (yapım alanı ve seviye işaretleri).
+-- Bina geometrisi hazır modelden gelir: assets/Buildings/<upgradeId>.rbxmx (ServerStorage.Assets.Buildings; pivot zemine oturur,
+-- tabela tahtası "SignBoard" + 2 "SignPost"). Model yoksa warn verilir ve bina çizilmez (yedek kod kurucusu yoktur).
+-- Parçalar: UpgradeParts (METAL/GOLD, tarifler, faceSign), UpgradeSites (yapım alanı ve seviye işaretleri), UpgradeLevelProps.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerStorage = game:GetService("ServerStorage")

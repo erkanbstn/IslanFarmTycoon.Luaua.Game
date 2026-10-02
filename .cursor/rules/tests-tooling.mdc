@@ -22,13 +22,16 @@ alwaysApply: false
 ## Studio (dünya) testleri
 - `tests/map-structure.spec.luau` ve `tests/world.spec.luau` Studio eklentisine gömülüdür (`plugin.project.json`); panelde **Haritayı Doğrula** çalıştırır (`MapBuilder.validate` + iki spec).
   Spec `return function(context)` kalıbında kalmalı (`context.mapBuilder/Config` eklentiden taze gelir). Yeni tabela/satıcı/tema kuralı bunu genişletir. Harita sürümünü sabit sayıyla değil `validate()` ile kontrol et.
+- Spec dosyaları Rojo ile `ServerStorage.MapSpecs` altına da senkronlanır; eklenti varsa o güncel kopyayı (klonlayıp) çalıştırır, yani testi değiştirince eklentiyi yeniden üretmek gerekmez. Eklenti (`plugin/`) değişirse `rojo build plugin.project.json --plugin IslandFarmTycoonHarita.rbxm` + Studio'yu yeniden aç (eklenti yalnızca açılışta yüklenir).
+- Geliştirme otomasyonu: eklenti `ServerStorage` özniteliği `MapToolRun`'ı dinler (`build` | `verify` | `buildverify`); Studio MCP `execute_luau` (Edit) ile `game:GetService("ServerStorage"):SetAttribute("MapToolRun","buildverify")` yazınca panel düğmeleriyle aynı kod çalışır, sonuç Output'ta (`get_console_output`) okunur. MCP oturumu modülleri `require` edemez (Capabilities), bu yüzden eklenti yolu kullanılır. Kaydetme (Ctrl+S) kullanıcıda kalır.
+- Plot ile şablonu karşılaştıran sayımlar tohum farkına karşı toleranslıdır; yeni tohumlu süs sayımı oynatıyorsa `compareThemes` muafiyetine ekle, testi gevşetme.
 - `test.project.json` ayrı test place'idir; `tests/run.server.luau` çalıştırır.
 
 ## Doğrulama komutları
 - Hızlı döngü: `stylua src tests plugin` → `selene src` → `python scripts/run-tests.py`.
 - Tam doğrulama: `powershell -ExecutionPolicy Bypass -File scripts/verify.ps1` (adımların listesi ve çıktısı `scripts/verify.ps1`'dedir; `-RequireTypes` tip analizi araçları yoksa hata sayar).
 - `python scripts/check-ai-docs.py`: kural/skill/yönlendirme tutarlılığı (AGENTS.md tablosu, glob eşleşmesi, metindeki repo yolları gerçekten var mı).
-- `python scripts/check-assets.py`: kodun beklediği her hayvan/bina/bölge/eklenti/seviye görünümü için `assets/` modeli var mı, XML sağlıklı mı (ad, yasak sınıf, PrimaryPart, bina ≤35 parça). Bilinçli boşluklar betikteki `ALLOWED_MISSING`'e gerekçesiyle girer; kod kurucusu silmeden önce yeşil olmalı.
+- `python scripts/check-assets.py`: kodun beklediği her hayvan/bina/bölge/eklenti/seviye görünümü için `assets/` modeli var mı, XML sağlıklı mı (ad, yasak sınıf, PrimaryPart, bina ≤35 parça). Bilinçli boşluklar betikteki `ALLOWED_MISSING`'e gerekçesiyle girer. Yeni görünüm (hayvan/bina/bölge/süs) eklerken beklenen listeyi (`expected()`) ve XML'i birlikte güncelle; eksik model görünümü çizilmez (yedek kod kurucusu yoktur), `verify.ps1` kırmızı olur. `UNWIRED_FOLDERS` koda bağlanmamış model klasörlerini bildirir.
 - `python scripts/check-architecture.py`: katmanlar yalnızca izinli katmanlara `require` eder (`docs/MIMARI.md`); bilinçli istisna gerekçesiyle `ALLOW` listesine girer.
 - `python scripts/check-locales.py --strict-literals`: çeviri anahtarı eşitliği ve arayüz metni kapsamı.
 

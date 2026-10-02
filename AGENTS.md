@@ -11,7 +11,7 @@ Bu dosya Claude, Cursor, Copilot, Codex gibi AI araçlarının projeyi doğru an
   ekonomi/kayıt, client performansı, testler.
 - `.cursor/skills/<ad>/SKILL.md`: adım adım iş akışları — remote ekleme, UI ekleme, içerik/denge,
   harita değişikliği, çeviri, kayıt şeması, doğrulama. `.claude/skills/` bunlara yönlendirir.
-- `docs/GPT_MODEL_IS_LISTESI.md`: model üreten yapay zekâya verilen iş listesi (kodla çizilen görselleri modele çevirme: ölçü/renk/parça adı şartnameleri, teslim yolu, doğrulama).
+- `docs/GPT_MODEL_IS_LISTESI.md`: model üreten yapay zekâya verilen iş listesi (ölçü/renk/parça adı şartnameleri, teslim yolu, doğrulama); `docs/GPT_ILETISIM.md`: aynı ajanla iş defteri (istek, teslim, soru, entegrasyon durumu; iki taraf yalnızca kendi bölümüne yazar).
 - Kural değişirse önce ilgili `.mdc`/`SKILL.md`'yi güncelle; aynı bilgiyi iki yere kopyalama.
 - Kural/skill/yönlendirme dosyalarının tutarlılığı `python scripts/check-ai-docs.py`, katman bağımlılıkları `python scripts/check-architecture.py` ile denetlenir (`verify.ps1` ikisini de çalıştırır).
 
@@ -82,6 +82,7 @@ Yeni dosya eklerken `docs/MIMARI.md`'deki "Yeni şey nereye?" tablosuna bak.
 ## Harita
 - Harita `src/server/World/MapBuilder.luau` (+ `MapLayout`, `MapParts`, `MapMountains`, `IslandBuilder`, `SatelliteBuilder`, `HubBuilder`) ile üretilir; Studio'da `plugin/` eklentisinin
   "Haritayı Kur" butonuyla düzenleme modunda kurulup place'e kaydedilir.
+- **Görünen geometri modelden gelir, kodla çizilmez**: hayvan, bina, bölge/ahır dekoru, ana ada yapıları, meydan, köprü, tabela, süs, iskele, çit ve istemci efektleri (kuş, balık, mercan...) `assets/` (sunucu) ve `client-assets/` (istemci) `.rbxmx` modellerindedir (`World/ModelAssets`, `Core/ClientModelAssets`). Kod yazı, etkileşim, ışık etiketi, ölçek/yerleşim ekler. Yeni görsel = model + `scripts/check-assets.py` beklentisi (`docs/MODEL_SOZLESMESI.md`, `docs/GPT_MODEL_IS_LISTESI.md`; model üreten ajanla iş defteri `docs/GPT_ILETISIM.md`).
 - Bina/hayvan modellerini Studio'da (MCP ajanıyla) yapma: `docs/MODEL_SOZLESMESI.md` (kurallar) ve `docs/MODEL_IS_PLANI.md` (iş akışı, pilot). Modeller `ServerStorage.Assets` altına doğrudan değil, repodaki `assets/` dosyasından gelir.
 - Meydandaki satıcı NPC'ler `HubNpcs.luau`, genel ada yapıları `HomeBuildings.luau`. Tabelalar uzun direklere asılır, tahtası çarpışmaz
   (yol kapanmasın); dekor kurulumunun sonunda `WorldDecor.optimize` çağrılır.
@@ -133,9 +134,10 @@ Yeni dosya eklerken `docs/MIMARI.md`'deki "Yeni şey nereye?" tablosuna bak.
 - Su altı (`Underwater.client`) kamera su seviyesinin altındayken renk/bulanıklık/baloncuk/ses ekler ve yağışı keser (`Submerged`).
 
 ## Araçlar
+- Studio'da Haritayı Kur/Doğrula'yı kendin tetikle: eklenti `ServerStorage` özniteliği `MapToolRun`'ı dinler (`build`|`verify`|`buildverify`, Studio MCP `execute_luau` Edit ile yaz, sonuç `get_console_output`); eklenti (`plugin/`) değişince yeniden derle + Studio'yu yeniden aç (`tests-tooling.mdc`).
 - Rokit (`rokit.toml`) ile: rojo, stylua, selene. Luau yorumlayıcı/derleyici/analizör `.tools/luau` altındadır (`verify.ps1 -LuauDirectory`); tip analizi için `.tools/luau-lsp`.
 - Lint: `selene src plugin tests` · Format: `stylua src tests plugin` · Senkronizasyon: `rojo serve`
 - Testler: `python scripts/run-tests.py` · Çeviri kapsamı: `python scripts/check-locales.py --strict-literals`
 - Çiftlik kademeleri/zorluk: `python scripts/simulate-tiers.py` (`docs/ZORLUK_VE_FIYAT.md`)
-- Model kapsamı (her kod görünümünün `assets/` karşılığı var mı): `python scripts/check-assets.py` (eksik = kod kurucusu silinemez; `verify.ps1` çalıştırır) · Mimari kuralları: `python scripts/check-architecture.py` · Tip analizi (yeni bulgu = hata): `python scripts/check-types.py` (araçları `powershell scripts/setup-types.ps1` `.tools/luau-lsp` altına kurar; yoksa `verify.ps1` adımı atlar, `-RequireTypes` ile hata sayar)
+- Model kapsamı (her kod görünümünün `assets/` karşılığı var mı): `python scripts/check-assets.py` (eksik model = o görünüm çizilmez, yedek kod kurucusu yoktur; `verify.ps1` çalıştırır) · Mimari kuralları: `python scripts/check-architecture.py` · Tip analizi (yeni bulgu = hata): `python scripts/check-types.py` (araçları `powershell scripts/setup-types.ps1` `.tools/luau-lsp` altına kurar; yoksa `verify.ps1` adımı atlar, `-RequireTypes` ile hata sayar)
 - Tam doğrulama: `powershell -ExecutionPolicy Bypass -File scripts/verify.ps1`

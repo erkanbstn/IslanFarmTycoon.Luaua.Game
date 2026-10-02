@@ -36,7 +36,7 @@ Elle yazılan eski türler (inek, tavuk, at, keçi, ördek, koyun, domuz, balık
 `Config/Species.luau` tablosundan türer (sıra profili: ana ada / erken / orta / geç). Balık (hamsi, levrek) "Deniz" dalıdır ve her çiftlikte ortaktır (`fish_dispatch` / `fishing_boat`, `fish_goods` / `fish_cannery`).
 
 Ana ada yuvaları (her ana hayvanın fabrikası ve ürün merkezi) harita üzerinde aynı koordinatı paylaşır (`MapLayout.HOME_BUILD_SPOTS`, `Config.SPECIES` home satırlarından eklenir); bir çiftlikte yalnızca ana
-hayvanın yükseltmesi alınabildiği için üst üste binmez. Görünüm: yeni türlerin binaları `Presentation/UpgradeBuildersSpecies`, eski ördek ana ada binaları `UpgradeVisualService.BUILDER_ALIASES`.
+hayvanın yükseltmesi alınabildiği için üst üste binmez. Görünüm: her bina `assets/Buildings/<upgradeId>.rbxmx` modelidir (`UpgradeVisualService` klonlar; kod kurucuları silindi).
 
 ## Kullanım
 

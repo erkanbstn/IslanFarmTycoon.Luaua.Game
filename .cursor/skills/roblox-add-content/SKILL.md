@@ -8,6 +8,8 @@ description: Adds or rebalances game content through the Config/ folder in this 
 Tek kaynak `src/shared/Config/` (`init.luau` birleştirir; veri: `Upgrades`, `Animals` = hayvan/bölge, `Islands` = ada/tema/yol haritası/ahır, `Production`, `Goods`, `Shop`, `Items`, `Weather`, `Economy`, `Core`).
 Önce benzer mevcut kaydı bul ve aynı alanları doldur (tipler `Config/Types.luau`; `Config.ZoneConfig` gibi yeniden dışa aktarılır).
 
+**Görsel kuralı:** geometri her zaman `assets/` modelinden gelir (yedek kod kurucusu yoktur, model yoksa görünüm çizilmez ve `check-assets.py` kırmızı olur); kod yalnızca yazı, etkileşim, ışık etiketi ve yerleşimi ekler. Model sözleşmesi: `docs/MODEL_SOZLESMESI.md`; model üretimi için `docs/GPT_MODEL_IS_LISTESI.md` / `docs/GPT_ILETISIM.md` (iş defteri).
+
 ## Nereye ne eklenir
 | İçerik | Config | Ek dokunuş |
 |---|---|---|
@@ -20,7 +22,7 @@ Tek kaynak `src/shared/Config/` (`init.luau` birleştirir; veri: `Upgrades`, `An
 | Ürün / ürün merkezi | `GOODS` + `GOODS_ORDER` + `PRODUCTION_RECIPES` (`output = "goods"`) + açan `UPGRADES` | bina `assets/Buildings/<id>` + yapı noktası; ayrıntı `economy-data.mdc` "Ahır deposu"; `tests/goods.spec.luau` |
 | Yapı geliştirme | `BUILD_UPGRADES` (`profiles`, `costMultiplier/costGrowth`) | etki `FarmMath`'te; `tests/economy.spec.luau`; `simulate-economy.py` kalibrasyonu |
 | Mevsim/hava | `SEASONS`, `WEATHER` (incomeModifiers) | `Lighting.Presets/Weather/<id>` ve `Presets/Season/<id>` değerleri (`src/lighting/Presets.rbxmx`; `client/Effects/WeatherEffects` okur) |
-| Eklenti (süreli kalış) | `Config.EXTENSIONS` (`stayDuration`, `incomeBonus`) + `UPGRADES` kind "extension" (kapasite yükseltmeleri `EXTENSION_CAPACITY_UPGRADES` ile otomatik üretilir) | `IslandLayout.EXTENSIONS` (yer) + `IslandSiteBuilders` (görsel) + `IslandSpecialization.buildExtensionVisual` (+ `Presentation/ExtensionVisualService`); `MAP_VERSION` +1; çeviri; `tests/tasks.spec.luau` |
+| Eklenti (süreli kalış) | `Config.EXTENSIONS` (`stayDuration`, `incomeBonus`) + `UPGRADES` kind "extension" (kapasite yükseltmeleri `EXTENSION_CAPACITY_UPGRADES` ile otomatik üretilir) | `IslandLayout.EXTENSIONS` (yer) + model `assets/Extensions/<id>` (+ `ExtensionCapacity/CapacityProps_<id>_Cap3|4`, `ProductionSites/ProductionSite_<id>`) + `IslandSpecialization.buildExtensionVisual` (+ `Presentation/ExtensionVisualService`); `check-assets.py` eksiği yakalar; `MAP_VERSION` +1; çeviri; `tests/tasks.spec.luau` |
 | Eşya (çekiç, asa, muska, kozmetik) | `Config.ITEMS` (+ `ITEM_SLOTS`) — `effects`/`power`/`look` | etki `FarmMath`'te okunur; çeviri (ad + şablon); `tests/inventory.spec.luau` |
 
 ## Adımlar

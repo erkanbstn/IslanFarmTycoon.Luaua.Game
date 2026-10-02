@@ -6,21 +6,23 @@ description: Changes the generated island map, decor, lamps or build spots in Ma
 # Harita değişikliği
 
 ## Karar: place'e kaydedilen mi, çalışma anında mı?
-- `src/server/World/` (MapBuilder, MapLayout, MapParts, MapMountains, IslandBuilder (+ IslandLayout/IslandSiteParts), SatelliteBuilder, HubBuilder, WorldDecor (cephe; parçalar `Decor*`), HomeBuildings (cephe; parçalar `Home*`), HubNpcs, IslandSpecialization, BarnVisualService) → place'e kaydedilir →
+- `src/server/World/` (MapBuilder, MapLayout, MapParts, MapMountains, IslandBuilder (+ IslandLayout/IslandSiteParts), SatelliteBuilder, HubBuilder, WorldDecor (cephe; parçalar `Decor*`), HomeBuildings, HubNpcs, IslandSpecialization, BarnVisualService) → place'e kaydedilir →
   **`MapBuilder.luau` içindeki `MAP_VERSION` +1** ve Studio'da yeniden kurulum gerekir. Sunucu açılışında tema şablonları (`ServerStorage.ThemeTemplates`) sürüme bağlı yeniden kurulur.
 - `src/server/Presentation/` (hayvan, bölge, yükseltme, eklenti, toplama görselleri; tesis seviye halkaları, bölge bayrakları) → sunucu her oturumda
   kurar → sürüm gerekmez.
-- Klasör adı/yapısı ya da `plugin/` değiştiyse eklentiyi yeniden üret: `rojo build plugin.project.json --plugin IslandFarmTycoonHarita.rbxm` (Studio'yu yeniden başlat).
+- Klasör adı/yapısı ya da `plugin/` değiştiyse eklentiyi yeniden üret: `rojo build plugin.project.json --plugin IslandFarmTycoonHarita.rbxm` (Studio'yu yeniden başlat; eklenti yalnızca açılışta yüklenir).
+- Yalnızca `src/`/`tests/`/`assets/` değiştiyse eklenti ve Studio yeniden açılmaz (Rojo senkronu yeter; testler `ServerStorage.MapSpecs`'ten gelir).
+- Görsel (geometri) **modelden** gelir: yeni/değişen şekil için `assets/` modeli (GPT/Studio, `docs/MODEL_SOZLESMESI.md`), kodda `ModelAssets.clone/place`; kodda `makePart` ile geometri yazma (bkz. `world-map.mdc` "Model tabanlı görseller").
 
 ## Adımlar
 ```
 - [ ] 1. Değişikliği yap (Shared'ı `World/SharedRef` üzerinden al; World yalnızca World/Shared require eder)
 - [ ] 2. MAP_VERSION +1 (yalnızca place'e kaydedilen değişiklikte)
 - [ ] 3. Yeni zorunlu parça → MapBuilder.validate() + tests/world.spec.luau / tests/map-structure.spec.luau
-- [ ] 3a. Yeni avlu/dekor parçası: `WorldDecor` yardımcısı (çarpışmaz), yer `decorateHome` koordinatlarına/çim kaçınma listesine göre; yön tabelalarında `yaw` ve metin çevirisi
+- [ ] 3a. Yeni avlu/dekor parçası: önce model (`assets/CommonDecor` vb.) + `check-assets.py` beklentisi, sonra `WorldDecor` yardımcısı/`ModelAssets.place`; yer `decorateHome` koordinatlarına/çim kaçınma listesine göre; yön tabelalarında `yaw` ve metin çevirisi
 - [ ] 3b. Dekor bitince WorldDecor.optimize; tabela eklediysen uzun direk + CanCollide=false (yüksekliği map-structure denetler)
 - [ ] 4. rojo build (verify.ps1) + selene
-- [ ] 5. Kullanıcıya: Studio'da eklenti paneli → "Haritayı Kur" → "Haritayı Doğrula" → place'i kaydet
+- [ ] 5. Haritayı Kur + Doğrula: Studio MCP varsa kendin tetikle (`ServerStorage` özniteliği `MapToolRun` = `buildverify`, çıktı `get_console_output`; ayrıntı `tests-tooling.mdc`), yoksa kullanıcıya: eklenti paneli → "Haritayı Kur" → "Haritayı Doğrula". Sonra kullanıcı place'i kaydeder (Ctrl+S); kayıtsız Studio kapatılırsa kurulum boşa gider
 ```
 
 ## Gece ışığı ekleme

@@ -51,7 +51,7 @@ Rojo'nun yönetmediği `Workspace.ModelBench` kullanılır (Workspace düğümü
 |---|---|---|---|---|
 | K1 | Bina klonunda her parça çarpışır | `AssetSanitizer.luau:12` `CanCollide = collide` | Şablondaki `CanCollide`'ı koru (yalnızca `true`→ zorlamayı kaldır) ya da `NoCollide` özniteliği | Hayır (pilot binada tabela/ince süs yok) |
 | K2 | Asset takma adı yok | `cloneAsset` tam ad arar (`UpgradeVisualService.luau:64`) | `BUILDER_ALIASES` asset aramasına da uygulansın (`duck_house` modeli `duck_packer`'ı da kapsasın) | Hayır |
-| K3 | Kod kurucusu silinemez | `hasBuildSite` `BUILDERS[id]` ister (`:157-164`) | Kural olarak yaz: kurucular yedek kalır | — |
+| K3 | ~~Kod kurucusu silinemez~~ | Çözüldü (2026-10-02): kurucular silindi, `hasBuildSite` modele bakar | Model yoksa görünüm çizilmez; `check-assets.py` denetler | — |
 | K4 | Ağıl/ahır/eklenti köprüsü yok | sözleşme §1, §3c | `ZoneVisualService.luau:117-130`'a `Assets/Zones` + `markObstacles` | Hayır (2. dalga) |
 | K5 | `VISUAL_VERSION` | Sahipli binalar yalnızca sürüm değişince yeniden kurulur (`:177-180`) | Asset değişince sunucu yeniden açılır; canlı yenileme gerekmez | Hayır |
 
@@ -79,7 +79,7 @@ Rojo'nun yönetmediği `Workspace.ModelBench` kullanılır (Workspace düğümü
 | 7 | Seviye 1-5 süsleri binaya girmiyor | Yönetici panelinden seviye artır, her seviyede küçük ekran görüntüsü |
 | 8 | Hayvan: yavru/genç/yetişkin ölçeği, isim etiketi başın üstünde, yürürken parçalar ayrılmıyor | Play, 10 sn izle |
 | 9 | Dosya repoda, `rojo build` hatasız, denetim (varsa) geçiyor | `python scripts/run-tests.py`, `rojo build` |
-| 10 | Yedek: dosya kaldırılınca kod görünümü geri geliyor | dosyayı geçici taşı → sunucu yeniden başlat |
+| 10 | (Eski adım: yedek kod görünümü) artık yok; dosya kaldırılınca görünüm çizilmez ve `warn` düşer | `python scripts/check-assets.py` |
 
 ## 5. Ajan şablonları
 
@@ -88,7 +88,7 @@ Rojo'nun yönetmediği `Workspace.ModelBench` kullanılır (Workspace düğümü
 ```text
 Görev: Roblox Studio'da TEK model yap: <Buildings|Animals>/<id>. Repo: C:\Users\erkan\Desktop\roblox-oyun.
 Oku (yalnızca bunlar): docs/MODEL_SOZLESMESI.md §2 ve §<3a|3b>, docs/MODEL_IS_PLANI.md §1-2 ve §4 tablosu.
-Referans görünüm: <kod kurucusu dosya:satır> (renk ve oranları buradan al; kodu değiştirme).
+Referans görünüm: mevcut model dosyası ya da `git log` (kod kurucuları 2026-10-02 silindi; renk/oranları mevcut `assets/` modelinden al).
 
 Kurallar:
 - Studio MCP ile çalış. Önce list_roblox_studios + get_studio_state; play modundaysan durdur.
@@ -131,7 +131,7 @@ Yalnızca docs/MODEL_SOZLESMESI.md §<n>'e bak. Başka dosyaya dokunma, commit y
 bölge zemini/çit (harita, `MAP_VERSION`), seviye işaretleri ve seviye süsleri (zemine/bina kutusuna göre hesaplanır), gece lambaları
 (`WorldDecor.lamp` sözleşmesi), tabelalar (`WorldUi.sign` ve çeviri).
 
-**Geri dönüş:** dosyayı `assets/` altından sil → sunucu yeniden başlayınca kod kurucusu çalışır. Kod kurucuları silinmez (K3).
+**Geri dönüş:** kod kurucuları silindi; bir modeli geri almak için dosyayı git geçmişinden getir.
 
 ## 7. Sıra
 

@@ -16,23 +16,38 @@ alwaysApply: false
 - Harita sözleşmesi (Plots/Zones/Islands/BuildSpots/HubSpawn) `validate()` içindedir; yeni zorunlu
   parça eklersen oraya ve `tests/world.spec.luau` / `tests/map-structure.spec.luau`'ya ekle (Studio düzenleme modu).
 
+## Model tabanlı görseller (kod geometri çizmez)
+- Oyunda görünen her şeyin geometrisi `assets/<klasör>/<ad>.rbxmx` (sunucu: `ServerStorage.Assets`, `World/ModelAssets`; istemci efektleri: `client-assets/` → `ReplicatedStorage.ClientAssets`, `Core/ClientModelAssets`)
+  modelinden gelir. Kod yalnızca model dosyasında olamayanı ekler: yazı/ikon (`WorldUi`), prompt/etkileşim, gece ışığı etiketi (`ModelAssets.markLantern/markGlowWindow`), parçacık, öznitelik/etiket,
+  boyuta/yerleşime bağlı ölçekleme. **Yeni görsel için `makePart`/`Instance.new("Part")` ile geometri yazma**: modeli GPT/Studio ile `assets/`a koy, `scripts/check-assets.py` beklenen listesine ekle, kodda `ModelAssets.clone/place` ile yerleştir.
+  Model yoksa kod bir kez `warn` verir ve o görseli çizmez (yedek kod kurucusu yoktur); `check-assets.py` eksikte `verify.ps1`'i kırmızı yapar.
+- Model sözleşmesi `docs/MODEL_SOZLESMESI.md` / `docs/GPT_MODEL_IS_LISTESI.md`: yalnızca Part/WedgePart (+ elips için Block + `SpecialMesh` MeshType=Sphere), `WorldPivotData` zorunlu, Script/ışık/GUI/prompt/MeshPart yok.
+  `PrimaryPart` verilmiş modelde pivot **PrimaryPart merkezidir** (Roblox WorldPivotData'yı yok sayar): yalnızca hayvan/yardımcı/kuş/balık/denizanasında kullan, tabela/dekor/zemin modülünde verme.
+- Modeller doğrudan değil sarmalayıcıyla yerleşirse (ör. tabela, toplayıcı, meydan tahtaları) parçaları plot/hub modeline düz taşı; servisler ve testler `PlotSign`, `Collector`, `PlayerBoard`, `TravelBoard`, `IslandSign`, `SignPost` gibi adları doğrudan çocuk olarak arar.
+- Ölçeklenen/dizilen modüller: köprü (`BridgeModels/BridgeModule_8/_2`, `MapParts.buildBridgeBetween`), iskele güvertesi (`ShoreModels/DockDeck_5` + kazık `Pile` boyu koddan, kazık katıdır), bölge çiti (`ZoneBases/ZoneFence_Segment_4/Corner`, ray boyu bölüme göre),
+  balık yolu (`FishWalkway_Module` Deck'i boyutlandırılır), sandık (`Crate_16/20/24`).
+- Çeşitlilik: ağaç/çalı/çiçek varyantları (`OakTree_A–D`, `PineTree_A–C`, `Bush_A/B/Berry`, `FlowerPatch_*`) tohumla seçilir (`DecorNature.placeVaried`); yerleşen modelin adı türün adıdır (`OakTree`, `PineTree`, `Bush`, `Flowers`) çünkü
+  `SeasonalScenery` (client) mevsim rengini bu ad + parça adlarıyla (`Trunk`, `Leaves`, `Needles`, `Berry`, `Bloom`, `Stem`) bulur: yeni varyant bu adları korumalı. Ağaç/çalıya gizli `SnowCap` (assets/SeasonModels) oturur, kardan adam `Nature.scatterProps` ile serpiştirilir;
+  ikisi de Transparency=1 gelir, client karlı mevsimde açar. Adalara serpiştirilen süsler (`Nature.scatterProps`: kaya, saz, kütük, mantar, kabak, ayçiçeği, huş, palmiye) `addIslandGrass` kaçınma listesine uyar.
+- Tohum konuma bağlıdır (`MapParts.seedFrom`): şablon başka konumda kurulduğu için ağaç/çim/serpiştirme sayıları plot ile şablon arasında oynar; `tests/map-structure.spec` bunları (ScatterProps, GrassTufts, SnowCap, ağaç yolları) sayım dışı bırakır. Yeni tohumlu süs ekleyince aynı muafiyeti düşün.
+
 ## Ana ada yapıları
 - `HomeBuildings.luau` (geometri `assets/HomeModels` modellerinden gelir; kod yalnızca gece ışığı, duman, değirmen kanatları ve pazar etkileşimini ekler): pazar tezgâhı (`MarketPrompt` → Hayvan Pazarı penceresi), çiftlik evi, yel değirmeni
   (kanatlar `Windmill` etiketi, döndürme `Windmill.client`), kuyu, sebze bahçesi, meyve bahçesi, arı kovanları, ambar.
   `IslandBuilder` (`decorateHome`) çağırır; yerleri `addIslandGrass` kaçınma listesinde de tutulur. Kapılar >= 4.6 x 6.6 stud.
-- Meydan (`HubBuilder.buildHub`): doğma noktası, Adalar tabelası ve `HubNpcs.vendor` ile 4 satıcı (`VendorPrompt`, `Action`:
+- Meydan (`HubBuilder.buildHub`; modeller `assets/HubProps` + `assets/HubModels`: satıcı tezgâhları, çeşme, bank, çiçeklik, karşılama/sıralama/adalar tahtaları, heykel, bayraklar, flama): doğma noktası, Adalar tabelası ve `HubNpcs.vendor` ile 4 satıcı (`VendorPrompt`, `Action`:
   `orders`/`store`/`roadmap`/`travel`; client `FarmHud.client` ilgili pencereyi açar). Satıcı doğma noktasından >= 15 stud uzakta durur.
 - Ana ada avlusu (`IslandBuilder.decorateHome`): ana yolu çerçeveleyen çitler, saman balyaları, korkuluk, el arabası, kavşak yön tabelası (`buildSignpost`, ok yönleri `yaw` ile).
-  Yeni avlu parçası `WorldDecor` yardımcısı (`fenceRun/hayBale/scarecrow/wheelbarrow`) olarak yazılır; çit/dekor çarpışmaz (`CanCollide=false`).
+  Yeni avlu parçası bir `assets/CommonDecor` modeli olarak eklenir ve `WorldDecor` yardımcısıyla (`fenceRun/hayBale/scarecrow/wheelbarrow/barrel/crate/mailbox`, hepsi `DecorProps.placeDecor`) yerleştirilir; çarpışma modeldeki `CanCollide` değerinden gelir (çit/dekor çarpışmaz).
 - Çalışma anı seviye işaretleri: `UpgradeSites.applyLevelMarks` (UpgradeVisualService çağırır) (tesis dibinde altın halkalar + "Sv.N" etiketi), `ZoneVisualService.applyLevelFlags` (bölge bayrakları).
 - NPC tabelasında `title` + işlev satırı (`blurb`) vardır; NPC adı etkileşim ipucunda (`ObjectText`). Yeni satıcıya `blurb` zorunlu.
 - Yapım alanları (`UpgradeSites.buildSite`): `UpgradeVisualService.apply` satın alınabilen ama alınmamış, karada yapı noktası olan binaların yerine `plot.Sites` altında toprak zemin +
   kazık + sarı şerit + fiyatlı tabela koyar (çalışma anında, harita sürümü gerekmez); alınınca kaldırılır ve bina kurulur. Denizdeki nokta (`BoatPatrolX`) atlanır.
 - Meydan dekoru (`HubNpcs.fountain/bench/planter`): köprü ışınlarından (0°, 60°, ...) ve doğma noktasından uzak tut; satıcılar `HubNpc` etiketi taşır,
   `src/client/Interaction/HubNpcs.client.luau` onları canlandırır (göz teması, el sallama, selam balonu; yalnızca client'ta CFrame yazılır).
-- Tabelalar (giriş, ada, "satılık"): uzun direk, tahta alt kenarı yerden >= 10 stud, tahta `CanCollide=false` (yolu kapatmaz).
+- Tabelalar (giriş `PlotSign`, ada `IslandSign`, yön `Signpost_Direction`, uzman/satılık `SpecialtySign`, ahır `LevelSign`; hepsi `assets/SignModels` ya da ahır modelinde, yazı kodla): uzun direk, tahta alt kenarı yerden >= 10 stud, tahta `CanCollide=false` (yolu kapatmaz).
   Yeni tabela eklerken `tests/map-structure.spec.luau` bu yüksekliği denetler.
-- Ahır sandığı: `BarnVisualService.addStorageChest` (kapının sağı; `BarnChestPrompt` → Envanter/Ahır Deposu). Ürün merkezleri (8 bina): süt merkezi ana adada ahırın arkasında, balık merkezi iskelenin yanında (`HOME_BUILD_SPOTS.milk_center/fish_cannery`, kapısı iskeleye bakar; iskele başında küçük balıkçı kulübesi `Shore.dock`),
+- Ahır sandığı: `BarnVisualService.addStorageChest` (kapının sağı; `BarnChestPrompt` → Envanter/Ahır Deposu). Ürün merkezleri (8 bina): süt merkezi ana adada ahırın arkasında, balık merkezi iskelenin yanında (`HOME_BUILD_SPOTS.milk_center/fish_cannery`, kapısı iskeleye bakar; iskele başında küçük balıkçı kulübesi `Shore.dock` → `ShoreModels/FisherHut_Lv1`),
   küçük adalarda `SATELLITE_TYPES[...].buildSpot/itemSpot` (±18, 0, 37; `SATELLITE_TYPES` `Config.FARM_ISLANDS` + `World/IslandLooks` satırından türer: yeni ada = `Config/Species.luau` satırı + bir `IslandLooks` satırı, `MAP_VERSION` +1; ana ada hayvanlarının yuvaları `Config.SPECIES` home satırlarından `HOME_BUILD_SPOTS`'a eklenir). Küçük adalar yarıçap 52'dir; yuvalar (`SATELLITE_SLOTS`) komşu çiftliklerle arada en az ~24 stud su kalacak biçimde hesaplıdır
   (yarıçap/yuva değişirse 6'lı halka için yeniden hesapla). Adadaki ağaç/çalı süsleri bina yerlerinden (`addIslandGrass` kaçınma dikdörtgenleri) uzak tutulur; yeni bina yeri eklerken kaçınma listesini de güncelle.
   Yeni bir "boost" yükseltmesi için yapı noktası zorunludur.

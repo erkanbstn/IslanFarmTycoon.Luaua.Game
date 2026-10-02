@@ -1,7 +1,7 @@
 --!strict
 -- Studio'da yapılan hazır modellerin (assets/ → ServerStorage.Assets.<klasör>.<ad>) ortak yükleyicisi.
 -- Model dosyaları yalnızca parça geometrisi taşır (ad, ölçü, renk, malzeme, çarpışma, pivot); öznitelik, etiket, ışık, tabela ve istemci
--- etkileşimi yoktur: bunları çağıran kurucu ekler. Model yoksa çağıran kod kurucusuna düşer (yedek; model dosyası kaldırılınca eski görünüm gelir).
+-- etkileşimi yoktur: bunları çağıran kurucu ekler. Model yoksa nil döner; çağıran bir kez `warn` verip o görünümü çizmez (yedek kod kurucusu yoktur; `scripts/check-assets.py` eksiği yakalar).
 -- World katmanı: eklenti (plugin) ve Presentation aynı modülü kullanır.
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -84,7 +84,7 @@ local function addNightLight(
 	light.Parent = part
 end
 
--- Fener gövdesi (geceleri DayNight yakar): kod kurucusundaki değerlerle aynı
+-- Fener gövdesi (geceleri DayNight yakar): menzil/parlaklık verilmezse ortak varsayılan (26 / 2.5)
 function ModelAssets.markLantern(part: BasePart, range: number?, brightness: number?)
 	addNightLight(
 		part,

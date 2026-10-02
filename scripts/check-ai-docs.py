@@ -163,7 +163,7 @@ else:
 
 # ---------------------------------------------------------------- MIMARI.md dosya listeleri ↔ klasörler
 # Katman satırları ("| 2 | `World/` | ... |") o klasördeki her .luau dosyasını adıyla anmalı ve var olmayan dosya adı anmamalı.
-# Kısaltma: `UpgradeBuildersHome`/`Barnyard` = UpgradeBuildersHome + UpgradeBuildersBarnyard (ilk adın son sözcüğü atılır).
+# Kısaltma: `X`/`Y` biçimi (ör. `DecorProps`/`DecorShore`) ortak öneki olan iki dosyayı birden anar (ilk adın son sözcüğü atılır).
 if architecture.exists():
     layer_rows: dict[str, str] = {}
     for line in architecture_text.splitlines():
