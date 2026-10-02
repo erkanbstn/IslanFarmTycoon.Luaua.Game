@@ -154,15 +154,16 @@ function CollectorVisualService.apply(plot: Model, level: number)
 	local ground = CFrame.new(collector.Position.X, collector.Position.Y - 0.6, collector.Position.Z)
 		* collector.CFrame.Rotation
 	-- Hazır model (assets/Collectors/CollectorPile_Lv<1-5>); yoksa kod kurucusu
-	local model = ModelAssets.clone("Collectors", `CollectorPile_Lv{level}`)
-	if model then
-		model.Name = PILE_NAME
+	local model: Model
+	local cloned = ModelAssets.clone("Collectors", `CollectorPile_Lv{level}`)
+	if cloned then
+		model = cloned
 		model:PivotTo(ground * CFrame.new(SIDE_OFFSET, 0, 0))
 	else
 		model = Instance.new("Model")
-		model.Name = PILE_NAME
 		build(model, ground * CFrame.new(SIDE_OFFSET, 0, 0), level)
 	end
+	model.Name = PILE_NAME
 	model:SetAttribute("Level", level)
 	model.Parent = plot
 end
