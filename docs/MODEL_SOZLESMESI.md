@@ -12,9 +12,15 @@ Kural dili: **ZORUNLU** (ihlal = hata/bozuk görünüm), **YASAK**, **ÖNERİ** 
 |---|---|---|---|---|
 | Yükseltme binası (fabrika, ürün merkezi, silo...) | `ServerStorage.Assets.Buildings.<upgradeId>` (yoksa `ReplicatedStorage.Assets`) | `AssetSanitizer.clone(t, true)` | `UpgradeVisualService.luau:61-69` | Var |
 | Hayvan (24 tür) | `ServerStorage.Assets.Animals.<animalId>` | `AssetSanitizer.clone(t, false)` | `AnimalModels.luau:406-419` | Var |
-| Bölge/ağıl dekoru | — | — | `ZoneVisualService.luau:117-130` (`BUILDERS[zoneId]`) | **Yok** (doğal kanca bu satırlar) |
-| Ahır, toplayıcı, eklenti | — | — | `BarnVisualService.luau`, `CollectorVisualService.luau:156-157`, `ExtensionVisualService.luau` | **Yok** |
-| Bölge zemini + çit | — | — | `World/MapParts.luau` `buildZone` (~143-200) | Yok (haritanın parçası; `MAP_VERSION` ister) |
+| Ahır | `Assets.Barns.Barn_Lv<1-4>` | `World/ModelAssets.clone` (çarpışma modeldeki gibi) | `World/BarnVisualService.luau` | Var (fener/pencere ışığı, sandık istemi, seviye yazısı kodla eklenir) |
+| Toplayıcı para yığını | `Assets.Collectors.CollectorPile_Lv<1-5>` | aynı | `CollectorVisualService.luau` | Var |
+| Bölge dekoru, bayrak, seviye süsü | `Assets.ZoneDecor.Decor_<bölge>[_T<tema>]`, `ZoneFlags.ZoneFlag_<tür>`, `ZoneLevels.ZoneLevel_<X>x<Z>_Lv<1-5>` | aynı | `ZoneVisualService.luau` | Var (çim tutamları ve gece pencereleri kodla) |
+| Yem/büyüme/depo yığını, soy anıtı, yardımcı | `Assets.LevelProps`, `Lineage`, `Pets.Pet_<tür>_<cash\|goods>` | aynı | `UpgradeLevelProps.luau` | Var (yardımcı öznitelik/etiketi kodla) |
+| Yapım alanı, tesis süsü/halkası | `Assets.FacilityProps.BuildSite_Unbuilt`, `FacilityProps_Lv<1-5>`, `FacilityRings_Lv<1-5>` | aynı | `UpgradeSites.luau` | Var (fiyat tabelası, direk ve satın alma istemi kodla) |
+| Eklenti yapısı, kapasite süsü, üretim zemini, süt yükleme dekoru | `Assets.Extensions.<id>`, `ExtensionCapacity.CapacityProps_<id>_Cap3\|4`, `ProductionSites.ProductionSite_<id>`, `Extensions.MilkLoadingDecor` | aynı | `World/IslandSpecialization.luau`, `ExtensionVisualService.luau` | Var (tabela/istem kodla) |
+| Bina tabelaları (hazır modelde yok) | — | — | `UpgradeVisualService.luau` `ASSET_SIGNS` | 11 bina için kodla eklenir |
+| Bölge zemini + çit, ana ada/meydan dekoru (`HomeModels`, `HubProps`, `CommonDecor`, `ShoreModels`) | `assets/` dosyaları var | — | `World/MapParts.luau`, `Home*`, `Hub*`, `Decor*` | **Bağlanmadı**: harita yalnızca "Haritayı Kur" ile kurulur, Studio'daki kayıtlı harita zaten modeldir |
+
 
 - Model yoksa kod kurucusu çalışır (`UpgradeVisualService.luau:78-86`, `AnimalModels.luau:421-431`). Kod kurucuları **silinmez**:
   yapım alanı (`BuildSite`) yalnızca `BUILDERS[id]` tanımlıysa kurulur (`UpgradeVisualService.luau:157-164` `hasBuildSite`).
