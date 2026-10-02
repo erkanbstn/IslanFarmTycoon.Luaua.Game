@@ -8,6 +8,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
+local ModelAssets = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("ModelAssets"))
 
 -- Services katmanı bu dosyaya bağlanır; döngü olmasın diye tembel require (ALLOW'da gerekçe)
 local function playerDataService()
@@ -152,10 +153,17 @@ function CollectorVisualService.apply(plot: Model, level: number)
 	-- Zemin: platformun merkezi zeminden 0.6 stud yukarıdadır (MapBuilder)
 	local ground = CFrame.new(collector.Position.X, collector.Position.Y - 0.6, collector.Position.Z)
 		* collector.CFrame.Rotation
-	local model = Instance.new("Model")
-	model.Name = PILE_NAME
+	-- Hazır model (assets/Collectors/CollectorPile_Lv<1-5>); yoksa kod kurucusu
+	local model = ModelAssets.clone("Collectors", `CollectorPile_Lv{level}`)
+	if model then
+		model.Name = PILE_NAME
+		model:PivotTo(ground * CFrame.new(SIDE_OFFSET, 0, 0))
+	else
+		model = Instance.new("Model")
+		model.Name = PILE_NAME
+		build(model, ground * CFrame.new(SIDE_OFFSET, 0, 0), level)
+	end
 	model:SetAttribute("Level", level)
-	build(model, ground * CFrame.new(SIDE_OFFSET, 0, 0), level)
 	model.Parent = plot
 end
 
