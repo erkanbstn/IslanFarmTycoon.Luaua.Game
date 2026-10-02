@@ -412,6 +412,8 @@ end
 
 -- Haritayı sıfırdan kurar (eskisini siler). Studio plugin'i düzenleme modunda bunu çağırır.
 function MapBuilder.build(replaceGeneratedRegion: boolean?)
+	-- Düzenleme modunda önceki testlerden/oturumlardan kalan şablonlar eski model/kodla kurulmuş olabilir: temiz başla
+	MapBuilder.clearTemplates()
 	-- Eklenti bu sınırlı alanı yeniden oluşturmayı açıkça ister. Çevresindeki kullanıcı
 	-- Terrain'i ve Workspace'teki bağımsız modeller/doğma noktaları korunur.
 	local half = WATER_SIZE / 2

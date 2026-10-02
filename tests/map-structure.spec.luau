@@ -18,6 +18,8 @@ return function(context: any?)
 		then context.mapBuilder
 		else require(ServerScriptService:WaitForChild("Server"):WaitForChild("World"):WaitForChild("MapBuilder"))
 
+	-- Önceki bir (başarısız) çalıştırmadan kalan şablonlar eski model/kodla kurulmuş olabilir; temiz başla
+	mapBuilder.clearTemplates()
 	mapBuilder.validate()
 	local plots = Workspace:FindFirstChild("Plots") :: Folder
 	assert(plots and #plots:GetChildren() == Config.MAP_PLOT_COUNT, "Her fiziksel ada için bir plot olmalı.")
@@ -212,22 +214,27 @@ return function(context: any?)
 		)
 		-- Ağaç/çalı türü ve sayısı konuma bağlı tohumdan gelir (MapParts.seedFrom: çam mı meşe mi); şablon başka konumda kurulduğu için bu parçalar
 		-- birkaç ağaç kadar oynar. Diğer her şey sıkı tolerans kullanır.
-		local TREE_PARTS = {
-			["Part:Needles"] = true,
-			["Part:Trunk"] = true,
-			["Part:Leaves"] = true,
-			["Part:Branch"] = true,
-			["Part:Berry"] = true,
-			["Model:PineTree"] = true,
-			["Model:OakTree"] = true,
-			["Model:Bush"] = true,
-			["Model:SnowCap"] = true,
-			["Part:Snow"] = true,
-			["SpecialMesh:SpecialMesh"] = true, -- çam iğneleri, kar başlıkları ve elips parçalar ağaç sayısıyla birlikte oynar
+		-- Anahtar "Sınıf:Ad"dır; ağaç parçaları Part/WedgePart olabilir (yeni modellerde yaprak/iğne katmanları kama), bu yüzden ad sınıftan bağımsız eşlenir.
+		local TREE_NAMES = {
+			Needles = true,
+			Trunk = true,
+			Leaves = true,
+			Branch = true,
+			Berry = true,
+			PineTree = true,
+			OakTree = true,
+			Bush = true,
+			SnowCap = true,
+			Snow = true,
+			SpecialMesh = true, -- çam iğneleri, kar başlıkları ve elips parçalar ağaç sayısıyla birlikte oynar
 		}
+		local function treeKey(key: string): boolean
+			local name = string.match(key, "^[^:]+:(.+)$")
+			return name ~= nil and TREE_NAMES[name] == true
+		end
 		for key, count in reference.counts do
 			local other = stamped.counts[key] or 0
-			local allowed = if TREE_PARTS[key]
+			local allowed = if treeKey(key)
 				then math.max(20, math.ceil(count * 0.5))
 				else math.max(2, math.ceil(count * 0.1))
 			assert(
