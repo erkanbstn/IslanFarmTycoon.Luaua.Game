@@ -15,6 +15,15 @@
     "ServerStorage": {
       "Assets": {
         "$path": "assets"
+      },
+      "MapSpecs": {
+        "$className": "Folder",
+        "MapStructureSpec": {
+          "$path": "tests/map-structure.spec.luau"
+        },
+        "WorldSpec": {
+          "$path": "tests/world.spec.luau"
+        }
       }
     },
 

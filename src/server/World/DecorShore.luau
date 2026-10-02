@@ -86,6 +86,8 @@ function Shore.pierPile(parent: Instance, position: Vector3, surfaceY: number, s
 	-- Silindirin ekseni X'tir (dikey durur): uzunluk X'te
 	pile.Size = Vector3.new(top - bottom, pile.Size.Y, pile.Size.Z)
 	pile.CFrame = CFrame.new(position.X, (top + bottom) / 2, position.Z) * rotation
+	-- Kazık katıdır (yüzenler/tekne içinden geçmesin) ve sorgulanabilir; model yalnızca geometri taşır
+	pile.CanCollide, pile.CanQuery, pile.CanTouch = true, true, false
 	pile:SetAttribute("SeabedY", seabedY)
 	pile.Parent = parent
 	if template then

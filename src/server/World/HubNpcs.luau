@@ -93,6 +93,7 @@ function HubNpcs.planter(parent: Instance, base: CFrame, seed: number)
 	if not model then
 		return
 	end
+	model.Name = "Planter" -- model dosya adı (Planter_seed2) değil, tür adı: test ve sayımlar buna bakar
 	local index = 0
 	ModelAssets.eachNamed(model, { "Bloom" }, function(bloom: BasePart)
 		bloom.Color = BLOOM_COLORS[(seed + index) % #BLOOM_COLORS + 1]

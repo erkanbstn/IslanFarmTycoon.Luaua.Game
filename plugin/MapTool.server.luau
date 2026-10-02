@@ -13,6 +13,7 @@ local ChangeHistoryService = game:GetService("ChangeHistoryService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local ServerScriptService = game:GetService("ServerScriptService")
+local ServerStorage = game:GetService("ServerStorage")
 local StarterPlayer = game:GetService("StarterPlayer")
 local Workspace = game:GetService("Workspace")
 
@@ -241,6 +242,13 @@ local function buildMap()
 	end
 end
 
+-- Testler Rojo ile ServerStorage.MapSpecs altına da senkronlanır; varsa güncel kopya kullanılır (eklentiyi yeniden üretmeden
+-- test değişebilir), yoksa eklentiye gömülü kopya.
+local function specModule(name: string): Instance?
+	local specs = ServerStorage:FindFirstChild("MapSpecs")
+	return (specs and specs:FindFirstChild(name)) or script:FindFirstChild(name)
+end
+
 local function verifyMap()
 	log("info", "Harita doğrulanıyor...")
 	local ok, err = pcall(function()
@@ -252,11 +260,11 @@ local function verifyMap()
 				{
 					{
 						name = "Harita yapısı (tema, tabela, meydan, düzen)",
-						module = script:FindFirstChild("MapStructureSpec"),
+						module = specModule("MapStructureSpec"),
 					},
 					{
 						name = "Dünya (iskele, üretim noktaları, sanitizer)",
-						module = script:FindFirstChild("WorldSpec"),
+						module = specModule("WorldSpec"),
 					},
 				}
 			do
@@ -265,7 +273,7 @@ local function verifyMap()
 					continue
 				end
 				local specOk, specErr = pcall(function()
-					(require(spec.module) :: any)(context)
+					(require(spec.module:Clone() :: ModuleScript) :: any)(context)
 				end)
 				if specOk then
 					log("ok", `{spec.name}: geçti.`)
@@ -433,5 +441,25 @@ end)
 -- (ilk tıklama paneli açar).
 widget.Enabled = false
 panelButton:SetActive(false)
+
+-- Uzaktan tetikleme (geliştirme otomasyonu): ServerStorage "MapToolRun" özniteliği "build" | "verify" | "buildverify" olursa
+-- işlem panel düğmesiyle aynı kodla çalışır; bitince öznitelik temizlenir. Sonuç Output'ta (log) görünür.
+local function runRemote()
+	local request = ServerStorage:GetAttribute("MapToolRun")
+	if typeof(request) ~= "string" or request == "" then
+		return
+	end
+	ServerStorage:SetAttribute("MapToolRun", "")
+	for _, action in actions do
+		if
+			(request == "build" or request == "buildverify") and action.label == "Haritayı Kur"
+			or (request == "verify" or request == "buildverify") and action.label == "Haritayı Doğrula"
+		then
+			runAction(action)
+		end
+	end
+end
+ServerStorage:GetAttributeChangedSignal("MapToolRun"):Connect(runRemote)
+runRemote()
 
 log("info", "Panel hazır. Haritayı kurduktan sonra 'Haritayı Doğrula'yı çalıştır.")

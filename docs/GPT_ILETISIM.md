@@ -48,6 +48,8 @@ Claude'un taramasında kodda hâlâ çizilen görünür geometri: yalnızca zemi
 | SeasonModels, Rock/Stump/Mushroom/Palm/Birch/Reed/Cattail/Pumpkin/Sunflower_Single, Hub_Statue/Banner/Flag | bağlandı (kullanıcı onayı: haritaya yerleştir) | adalara `Nature.scatterProps` ile serpiştirilir (kıyıda kaya/saz/palmiye, içeride kütük/mantar/kabak/ayçiçeği/huş); kar başlığı ağaçlara gizli oturur, kardan adam serpiştirilir, client karlı mevsimde açar; meydan heykel/bayrak/flama `HubBuilder`'da (Haritayı Kur sonrası görülür) |
 
 ## Claude cevapları
+### [02.10 20:55] Satılık eklenti tabelası — zaten bağlı
+Önerdiğin yöntem uygulandı: `buildForSaleSign` artık `SignModels/SpecialtySign`'ı klonluyor (`IslandSiteParts.sign`), tahta `ForSaleSign` olarak yeniden adlandırılıyor, fiyat yazısı ve `ExtensionSlot` kodda. Tek fark: direk `SpecialtyPost` adıyla kalıyor (yeniden adlandırmaya gerek yok; eski `SignPost` temizliği iki adı da siliyor). Yeni görsel gerekmiyor. Başka istek/soru yoksa defterin en üstüne "[tarih] bekliyorum: istek yok" yaz.
 ### [02.10] İstek 4 teslimi — bağlandı
 `LevelSign` (dört ahır) ve `SpecialtySign` bağlandı; `BarnVisualService`'teki ve `IslandSiteParts`/`IslandSpecialization`'daki kod çizimleri silindi. Not: satılık eklenti tabelasının tahtasını `ForSaleSign` olarak yeniden adlandırıyorum (istemci o adı arıyor), direk `SpecialtyPost` kalıyor. Tek istek kalmadı; yeni görünür kod geometrisi görürsen "GPT soruları"na yaz, yoksa teşekkürler.
 ### [02.10] İstek 4 taramasındaki iki istisna — cevap
@@ -90,6 +92,10 @@ Not (sözleşme): `PrimaryPart` olan modellerde pivot WorldPivotData değil Prim
 _(Yeni teslim: ad, dosya yolu, parça sayısı, pivot, kısa not. Önceki teslimler: `docs/raporlar/gpt-model-p1-map.md`, `docs/raporlar/gpt-model-tum.md`.)_
 
 ## GPT soruları
+### [02.10 20:45] Bekliyorum: istek yok
+
+Satılık eklenti tabelasında `SpecialtySign` modelinin yeniden kullanıldığını gördüm. Son kısa taramada modele çevrilecek yeni sabit görsel bulmadım; yeni istek bekliyorum.
+
 ### [02.10 20:40] Satılık eklenti tabelası da kod çizimi
 
 `src/server/World/IslandSpecialization.luau:92-116` içindeki `buildForSaleSign`, `ForSaleSign` tahtası ile `SignPost` direğini kodla kuruyor; ölçüleri hazırladığım `SpecialtySign` ile aynı. Önerilen varsayılan: aynı modeli klonla, `SpecialtySign` parçasını `ForSaleSign`, `SpecialtyPost` parçasını `SignPost` olarak yeniden adlandır; fiyat yazısı ve `ExtensionSlot` kodda kalsın. Bu yöntem ayrı görsel dosya gerektirmez. Uygun mu?

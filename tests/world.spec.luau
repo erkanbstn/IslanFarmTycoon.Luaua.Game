@@ -84,7 +84,16 @@ return function(context: any?)
 	local walkway = (fishZone :: Instance):FindFirstChild("Walkway") :: Model
 	local decor = first:FindFirstChild("Decor") :: Folder
 	local dock = decor:FindFirstChild("Dock") :: Model
-	local dockDeck = dock:FindFirstChild("Deck") :: BasePart
+	-- İskele güvertesi uç uca modüllerden oluşur (DockDeck_5): ilk güverte karaya, sonuncusu balık kafesine yakındır
+	local dockDecks: { BasePart } = {}
+	for _, child in dock:GetChildren() do
+		if child:IsA("BasePart") and child.Name == "Deck" then
+			table.insert(dockDecks, child)
+		end
+	end
+	assert(#dockDecks > 0, "İskele güvertesi eksik.")
+	local dockDeck = dockDecks[1]
+	local lastDeck = dockDecks[#dockDecks]
 	local spawnPad = first:FindFirstChild("Spawn") :: BasePart
 	local landY = spawnPad.Position.Y - spawnPad.Size.Y / 2
 	local dockTop = dockDeck.Position.Y + dockDeck.Size.Y / 2
@@ -94,7 +103,7 @@ return function(context: any?)
 	local distanceFromIsland =
 		Vector3.new(entrance.X - plotBase.Position.X, 0, entrance.Z - plotBase.Position.Z).Magnitude
 	assert(distanceFromIsland < plotBase.Size.Y / 2 - 1, "İskele girişi ada yüzeyine oturmuyor.")
-	local tip = dockDeck.CFrame:PointToWorldSpace(Vector3.new(0, 0, -dockDeck.Size.Z / 2))
+	local tip = lastDeck.CFrame:PointToWorldSpace(Vector3.new(0, 0, -lastDeck.Size.Z / 2))
 	local joined = false
 	for _, deck in walkway:GetChildren() do
 		if deck:IsA("BasePart") and deck.Name == "Deck" then

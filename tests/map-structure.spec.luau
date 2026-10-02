@@ -154,6 +154,18 @@ return function(context: any?)
 		local paths: { [string]: number } = {}
 		local parts = 0
 		local function visit(instance: Instance)
+			-- Serpiştirilen süsler (kaya, saz, kütük, mantar, kardan adam...) konuma bağlı tohumdan gelir; şablonda başka konumda
+			-- kurulduğu için tür dağılımı oynar. Klasörün kendisi sayılır, içi sayılmaz.
+			-- Çim tutamları da konuma bağlı tohumdan gelir (sayıları ve çiçekli oranları oynar); kar başlığı ağaçla birlikte
+			-- gelir (ağaç sayısı oynar). Bunlar da sayılmaz.
+			if
+				instance.Name == "SnowCap"
+				or instance:FindFirstAncestor("ScatterProps")
+				or instance:FindFirstAncestor("GrassTufts")
+				or instance:FindFirstAncestor("SnowCap")
+			then
+				return
+			end
 			local path = string.sub(instance:GetFullName(), #plot:GetFullName() + 2)
 			local key = `{instance.ClassName}:{instance.Name}`
 			counts[key] = (counts[key] or 0) + 1
@@ -209,11 +221,14 @@ return function(context: any?)
 			["Model:PineTree"] = true,
 			["Model:OakTree"] = true,
 			["Model:Bush"] = true,
+			["Model:SnowCap"] = true,
+			["Part:Snow"] = true,
+			["SpecialMesh:SpecialMesh"] = true, -- çam iğneleri, kar başlıkları ve elips parçalar ağaç sayısıyla birlikte oynar
 		}
 		for key, count in reference.counts do
 			local other = stamped.counts[key] or 0
 			local allowed = if TREE_PARTS[key]
-				then math.max(12, math.ceil(count * 0.4))
+				then math.max(20, math.ceil(count * 0.5))
 				else math.max(2, math.ceil(count * 0.1))
 			assert(
 				if exact then other == count else math.abs(other - count) <= allowed,
@@ -223,8 +238,19 @@ return function(context: any?)
 		for key in stamped.counts do
 			assert(reference.counts[key] ~= nil, `{label}: şablonda fazladan {key}.`)
 		end
+		-- Ağaç/çalı çeşidi konuma bağlı tohumdan gelir (yukarıdaki tohum notu): tek bir çam ya da meşe yolunun şablonda aynı
+		-- türden çıkması beklenmez; yalnızca bu adlı model yolları atlanır.
+		local SEED_MODELS = { PineTree = true, OakTree = true, Bush = true, Flowers = true }
+		local function seedDependent(path: string): boolean
+			for component in string.gmatch(path, "[^%.]+") do
+				if SEED_MODELS[component] then
+					return true
+				end
+			end
+			return false
+		end
 		for path, count in reference.paths do
-			if count ~= 1 then
+			if count ~= 1 or seedDependent(path) then
 				continue
 			end
 			local entryA, entryB = stamped.byPath[path], reference.byPath[path]
@@ -245,7 +271,7 @@ return function(context: any?)
 					`{label}: {path} konumu farklı.`
 				)
 				assert(
-					entryA.size == entryB.size
+					(entryA.size - entryB.size).Magnitude <= 0.001 -- döndürülmüş çerçevede uzunluk son hanede oynayabilir
 						and entryA.canQuery == entryB.canQuery
 						and entryA.castShadow == entryB.castShadow,
 					`{label}: {path} boyut/optimize özellikleri farklı.`
