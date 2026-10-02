@@ -1131,44 +1131,6 @@
         <float name="Reflectance">0</float>
       </Properties>
     </Item>
-    <Item class="Part" referent="RBX33AFAFA22E6143419C8BA91DC02DA963">
-      <Properties>
-        <string name="Name">TileCourse</string>
-        <Vector3 name="Size">
-          <X>9.24</X>
-          <Y>0.09</Y>
-          <Z>0.16</Z>
-        </Vector3>
-        <CoordinateFrame name="CFrame">
-          <X>1304.0</X>
-          <Y>9.795</Y>
-          <Z>3447.72</Z>
-          <R00>1.0</R00>
-          <R01>0.0</R01>
-          <R02>0.0</R02>
-          <R10>0.0</R10>
-          <R11>1.0</R11>
-          <R12>0.0</R12>
-          <R20>0.0</R20>
-          <R21>0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-        <Color3 name="Color">
-          <R>0.439216</R>
-          <G>0.2</G>
-          <B>0.141176</B>
-        </Color3>
-        <token name="Material">848</token>
-        <token name="Shape">1</token>
-        <bool name="Anchored">true</bool>
-        <bool name="CanCollide">false</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanQuery">false</bool>
-        <float name="Transparency">0</float>
-        <float name="Reflectance">0</float>
-        <bool name="CastShadow">false</bool>
-      </Properties>
-    </Item>
     <Item class="Part" referent="RBX66FB5D39FD7049A7A76825E4681C3882">
       <Properties>
         <string name="Name">TileCourse</string>
@@ -1181,44 +1143,6 @@
           <X>1304.0</X>
           <Y>9.795</Y>
           <Z>3449.0</Z>
-          <R00>1.0</R00>
-          <R01>0.0</R01>
-          <R02>0.0</R02>
-          <R10>0.0</R10>
-          <R11>1.0</R11>
-          <R12>0.0</R12>
-          <R20>0.0</R20>
-          <R21>0.0</R21>
-          <R22>1.0</R22>
-        </CoordinateFrame>
-        <Color3 name="Color">
-          <R>0.439216</R>
-          <G>0.2</G>
-          <B>0.141176</B>
-        </Color3>
-        <token name="Material">848</token>
-        <token name="Shape">1</token>
-        <bool name="Anchored">true</bool>
-        <bool name="CanCollide">false</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanQuery">false</bool>
-        <float name="Transparency">0</float>
-        <float name="Reflectance">0</float>
-        <bool name="CastShadow">false</bool>
-      </Properties>
-    </Item>
-    <Item class="Part" referent="RBXF77C07C9C0194849BDC70C31F4F98CB7">
-      <Properties>
-        <string name="Name">TileCourse</string>
-        <Vector3 name="Size">
-          <X>9.24</X>
-          <Y>0.09</Y>
-          <Z>0.16</Z>
-        </Vector3>
-        <CoordinateFrame name="CFrame">
-          <X>1304.0</X>
-          <Y>9.795</Y>
-          <Z>3450.28</Z>
           <R00>1.0</R00>
           <R01>0.0</R01>
           <R02>0.0</R02>
