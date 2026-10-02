@@ -1,0 +1,273 @@
+<roblox version="4">
+<Meta name="ExplicitAutoJoints">true</Meta>
+<Item class="Model" referent="RBXMODEL"><Properties>
+<string name="Name">parrot</string>
+<OptionalCoordinateFrame name="WorldPivotData"><CFrame><X>1018</X><Y>5.400000095367432</Y><Z>1055</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CFrame></OptionalCoordinateFrame>
+<Ref name="PrimaryPart">RBXPART1</Ref>
+</Properties>
+<Item class="Part" referent="RBXPART1"><Properties>
+<string name="Name">Body</string>
+<Vector3 name="Size"><X>1.2000000476837158</X><Y>1.600000023841858</Y><Z>1.2999999523162842</Z></Vector3>
+<CoordinateFrame name="CFrame"><X>1018</X><Y>5.400000095367432</Y><Z>1055</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+<Color3 name="Color"><R>0.8235294222831726</R><G>0.13725490868091583</G><B>0.1568627506494522</B></Color3>
+<token name="Material">1312</token>
+<token name="Shape">1</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+</Properties></Item>
+<Item class="Part" referent="RBXPART2"><Properties>
+<string name="Name">Leg</string>
+<Vector3 name="Size"><X>0.20000000298023224</X><Y>0.699999988079071</Y><Z>0.20000000298023224</Z></Vector3>
+<CoordinateFrame name="CFrame"><X>1017.7000122070312</X><Y>4.349999904632568</Y><Z>1055</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+<Color3 name="Color"><R>0.4313725531101227</R><G>0.4313725531101227</G><B>0.45098039507865906</B></Color3>
+<token name="Material">1312</token>
+<token name="Shape">1</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+</Properties></Item>
+<Item class="Part" referent="RBXPART3"><Properties>
+<string name="Name">Leg</string>
+<Vector3 name="Size"><X>0.20000000298023224</X><Y>0.699999988079071</Y><Z>0.20000000298023224</Z></Vector3>
+<CoordinateFrame name="CFrame"><X>1018.2999877929688</X><Y>4.349999904632568</Y><Z>1055</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+<Color3 name="Color"><R>0.4313725531101227</R><G>0.4313725531101227</G><B>0.45098039507865906</B></Color3>
+<token name="Material">1312</token>
+<token name="Shape">1</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+</Properties></Item>
+<Item class="Part" referent="RBXPART4"><Properties>
+<string name="Name">Belly</string>
+<Vector3 name="Size"><X>0.8999999761581421</X><Y>0.800000011920929</Y><Z>0.11999999731779099</Z></Vector3>
+<CoordinateFrame name="CFrame"><X>1018</X><Y>5.199999809265137</Y><Z>1054.3199462890625</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+<Color3 name="Color"><R>0.27450981736183167</R><G>0.7450980544090271</G><B>0.3529411852359772</B></Color3>
+<token name="Material">1312</token>
+<token name="Shape">1</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+</Properties></Item>
+<Item class="Part" referent="RBXPART5"><Properties>
+<string name="Name">Head</string>
+<Vector3 name="Size"><X>0.949999988079071</X><Y>0.949999988079071</Y><Z>0.949999988079071</Z></Vector3>
+<CoordinateFrame name="CFrame"><X>1018</X><Y>6.599999904632568</Y><Z>1054.75</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+<Color3 name="Color"><R>0.8235294222831726</R><G>0.13725490868091583</G><B>0.1568627506494522</B></Color3>
+<token name="Material">1312</token>
+<token name="Shape">1</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+</Properties></Item>
+<Item class="Part" referent="RBXPART6"><Properties>
+<string name="Name">BeakUpper</string>
+<Vector3 name="Size"><X>0.4000000059604645</X><Y>0.4000000059604645</Y><Z>0.550000011920929</Z></Vector3>
+<CoordinateFrame name="CFrame"><X>1018</X><Y>6.449999809265137</Y><Z>1054.050048828125</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+<Color3 name="Color"><R>0.9215686321258545</R><G>0.8823529481887817</G><B>0.7843137383460999</B></Color3>
+<token name="Material">1312</token>
+<token name="Shape">1</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+</Properties></Item>
+<Item class="Part" referent="RBXPART7"><Properties>
+<string name="Name">BeakHook</string>
+<Vector3 name="Size"><X>0.30000001192092896</X><Y>0.25</Y><Z>0.20000000298023224</Z></Vector3>
+<CoordinateFrame name="CFrame"><X>1018</X><Y>6.220000267028809</Y><Z>1053.8499755859375</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+<Color3 name="Color"><R>0.23529411852359772</R><G>0.22745098173618317</G><B>0.22745098173618317</B></Color3>
+<token name="Material">1312</token>
+<token name="Shape">1</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+</Properties></Item>
+<Item class="Part" referent="RBXPART8"><Properties>
+<string name="Name">BeakLower</string>
+<Vector3 name="Size"><X>0.30000001192092896</X><Y>0.15000000596046448</Y><Z>0.3499999940395355</Z></Vector3>
+<CoordinateFrame name="CFrame"><X>1018</X><Y>6.150000095367432</Y><Z>1054.1500244140625</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+<Color3 name="Color"><R>0.23529411852359772</R><G>0.22745098173618317</G><B>0.22745098173618317</B></Color3>
+<token name="Material">1312</token>
+<token name="Shape">1</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+</Properties></Item>
+<Item class="Part" referent="RBXPART9"><Properties>
+<string name="Name">Cheek</string>
+<Vector3 name="Size"><X>0.10000000149011612</X><Y>0.5</Y><Z>0.44999998807907104</Z></Vector3>
+<CoordinateFrame name="CFrame"><X>1017.510009765625</X><Y>6.550000190734863</Y><Z>1054.550048828125</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+<Color3 name="Color"><R>0.9607843160629272</R><G>0.9607843160629272</G><B>0.9411764740943909</B></Color3>
+<token name="Material">1312</token>
+<token name="Shape">1</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+</Properties></Item>
+<Item class="Part" referent="RBXPART10"><Properties>
+<string name="Name">Wing</string>
+<Vector3 name="Size"><X>0.2199999988079071</X><Y>1.2999999523162842</Y><Z>0.8999999761581421</Z></Vector3>
+<CoordinateFrame name="CFrame"><X>1017.2999877929688</X><Y>5.349999904632568</Y><Z>1055.1500244140625</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+<Color3 name="Color"><R>0.11764705926179886</R><G>0.3529411852359772</G><B>0.8235294222831726</B></Color3>
+<token name="Material">1312</token>
+<token name="Shape">1</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+</Properties></Item>
+<Item class="Part" referent="RBXPART11"><Properties>
+<string name="Name">WingBand</string>
+<Vector3 name="Size"><X>0.23999999463558197</X><Y>0.4000000059604645</Y><Z>0.8999999761581421</Z></Vector3>
+<CoordinateFrame name="CFrame"><X>1017.2999877929688</X><Y>5.949999809265137</Y><Z>1055.1500244140625</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+<Color3 name="Color"><R>0.9607843160629272</R><G>0.8039215803146362</G><B>0.19607843458652496</B></Color3>
+<token name="Material">1312</token>
+<token name="Shape">1</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+</Properties></Item>
+<Item class="Part" referent="RBXPART12"><Properties>
+<string name="Name">WingTip</string>
+<Vector3 name="Size"><X>0.20000000298023224</X><Y>0.3499999940395355</Y><Z>0.699999988079071</Z></Vector3>
+<CoordinateFrame name="CFrame"><X>1017.2999877929688</X><Y>4.599999904632568</Y><Z>1055.199951171875</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+<Color3 name="Color"><R>0.19607843458652496</R><G>0.7058823704719543</G><B>0.3529411852359772</B></Color3>
+<token name="Material">1312</token>
+<token name="Shape">1</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+</Properties></Item>
+<Item class="Part" referent="RBXPART13"><Properties>
+<string name="Name">Cheek</string>
+<Vector3 name="Size"><X>0.10000000149011612</X><Y>0.5</Y><Z>0.44999998807907104</Z></Vector3>
+<CoordinateFrame name="CFrame"><X>1018.489990234375</X><Y>6.550000190734863</Y><Z>1054.550048828125</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+<Color3 name="Color"><R>0.9607843160629272</R><G>0.9607843160629272</G><B>0.9411764740943909</B></Color3>
+<token name="Material">1312</token>
+<token name="Shape">1</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+</Properties></Item>
+<Item class="Part" referent="RBXPART14"><Properties>
+<string name="Name">Wing</string>
+<Vector3 name="Size"><X>0.2199999988079071</X><Y>1.2999999523162842</Y><Z>0.8999999761581421</Z></Vector3>
+<CoordinateFrame name="CFrame"><X>1018.7000122070312</X><Y>5.349999904632568</Y><Z>1055.1500244140625</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+<Color3 name="Color"><R>0.11764705926179886</R><G>0.3529411852359772</G><B>0.8235294222831726</B></Color3>
+<token name="Material">1312</token>
+<token name="Shape">1</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+</Properties></Item>
+<Item class="Part" referent="RBXPART15"><Properties>
+<string name="Name">WingBand</string>
+<Vector3 name="Size"><X>0.23999999463558197</X><Y>0.4000000059604645</Y><Z>0.8999999761581421</Z></Vector3>
+<CoordinateFrame name="CFrame"><X>1018.7000122070312</X><Y>5.949999809265137</Y><Z>1055.1500244140625</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+<Color3 name="Color"><R>0.9607843160629272</R><G>0.8039215803146362</G><B>0.19607843458652496</B></Color3>
+<token name="Material">1312</token>
+<token name="Shape">1</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+</Properties></Item>
+<Item class="Part" referent="RBXPART16"><Properties>
+<string name="Name">WingTip</string>
+<Vector3 name="Size"><X>0.20000000298023224</X><Y>0.3499999940395355</Y><Z>0.699999988079071</Z></Vector3>
+<CoordinateFrame name="CFrame"><X>1018.7000122070312</X><Y>4.599999904632568</Y><Z>1055.199951171875</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+<Color3 name="Color"><R>0.19607843458652496</R><G>0.7058823704719543</G><B>0.3529411852359772</B></Color3>
+<token name="Material">1312</token>
+<token name="Shape">1</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+</Properties></Item>
+<Item class="Part" referent="RBXPART17"><Properties>
+<string name="Name">Tail</string>
+<Vector3 name="Size"><X>0.5</X><Y>0.18000000715255737</Y><Z>2.200000047683716</Z></Vector3>
+<CoordinateFrame name="CFrame"><X>1018</X><Y>4.427855491638184</Y><Z>1056.9658203125</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>0.9689124226570129</R11><R12>-0.24740396440029144</R12><R20>0</R20><R21>0.24740396440029144</R21><R22>0.9689124226570129</R22></CoordinateFrame>
+<Color3 name="Color"><R>0.8235294222831726</R><G>0.13725490868091583</G><B>0.1568627506494522</B></Color3>
+<token name="Material">1312</token>
+<token name="Shape">1</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+</Properties></Item>
+<Item class="Part" referent="RBXPART18"><Properties>
+<string name="Name">TailBlue</string>
+<Vector3 name="Size"><X>0.3499999940395355</X><Y>0.15000000596046448</Y><Z>1.7999999523162842</Z></Vector3>
+<CoordinateFrame name="CFrame"><X>1018</X><Y>4.336326599121094</Y><Z>1056.8392333984375</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>0.9689124226570129</R11><R12>-0.24740396440029144</R12><R20>0</R20><R21>0.24740396440029144</R21><R22>0.9689124226570129</R22></CoordinateFrame>
+<Color3 name="Color"><R>0.11764705926179886</R><G>0.3529411852359772</G><B>0.8235294222831726</B></Color3>
+<token name="Material">1312</token>
+<token name="Shape">1</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+</Properties></Item>
+<Item class="Part" referent="RBXPART19"><Properties>
+<string name="Name">Eye</string>
+<Vector3 name="Size"><X>0.2199999988079071</X><Y>0.2199999988079071</Y><Z>0.2199999988079071</Z></Vector3>
+<CoordinateFrame name="CFrame"><X>1017.5999755859375</X><Y>6.800000190734863</Y><Z>1054.3699951171875</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+<Color3 name="Color"><R>0.0784313753247261</R><G>0.0784313753247261</G><B>0.09803921729326248</B></Color3>
+<token name="Material">272</token>
+<token name="Shape">0</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+</Properties></Item>
+<Item class="Part" referent="RBXPART20"><Properties>
+<string name="Name">EyeGlint</string>
+<Vector3 name="Size"><X>0.07039999961853027</X><Y>0.07039999961853027</Y><Z>0.07039999961853027</Z></Vector3>
+<CoordinateFrame name="CFrame"><X>1017.6395874023438</X><Y>6.848400115966797</Y><Z>1054.290771484375</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+<Color3 name="Color"><R>1</R><G>1</G><B>1</B></Color3>
+<token name="Material">272</token>
+<token name="Shape">0</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+</Properties></Item>
+<Item class="Part" referent="RBXPART21"><Properties>
+<string name="Name">Eye</string>
+<Vector3 name="Size"><X>0.2199999988079071</X><Y>0.2199999988079071</Y><Z>0.2199999988079071</Z></Vector3>
+<CoordinateFrame name="CFrame"><X>1018.4000244140625</X><Y>6.800000190734863</Y><Z>1054.3699951171875</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+<Color3 name="Color"><R>0.0784313753247261</R><G>0.0784313753247261</G><B>0.09803921729326248</B></Color3>
+<token name="Material">272</token>
+<token name="Shape">0</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+</Properties></Item>
+<Item class="Part" referent="RBXPART22"><Properties>
+<string name="Name">EyeGlint</string>
+<Vector3 name="Size"><X>0.07039999961853027</X><Y>0.07039999961853027</Y><Z>0.07039999961853027</Z></Vector3>
+<CoordinateFrame name="CFrame"><X>1018.4395751953125</X><Y>6.848400115966797</Y><Z>1054.290771484375</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+<Color3 name="Color"><R>1</R><G>1</G><B>1</B></Color3>
+<token name="Material">272</token>
+<token name="Shape">0</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+</Properties></Item>
+</Item>
+</roblox>
