@@ -227,7 +227,18 @@ local function buildBarn(parent: Instance, frame: CFrame, barnLevel: number)
 		if chest and chest:IsA("BasePart") then
 			attachChestInteraction(chest)
 		end
+		-- Seviye tabelası modelde yoktur (SurfaceGui modelde saklanmaz): kapı üstüne kodla konur (kod kurucusuyla aynı ölçü ve yer)
 		local sign = modelBarn:FindFirstChild("LevelSign")
+		if not sign then
+			local aboveDoorH = 11 - 8.5 -- duvar yüksekliği - kapı yüksekliği
+			sign = makePart(
+				"LevelSign",
+				Vector3.new(8 + 2, aboveDoorH * 0.8, 0.4),
+				frame * CFrame.new(0, 1 + 8.5 + aboveDoorH / 2, -(12 / 2) - 0.3),
+				Color3.fromRGB(40, 30, 25),
+				modelBarn
+			)
+		end
 		if sign and sign:IsA("BasePart") then
 			WorldUi.sign(sign, Enum.NormalId.Front, {
 				title = `Seviye {barnLevel}`,
