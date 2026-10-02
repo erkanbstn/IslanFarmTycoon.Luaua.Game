@@ -87,6 +87,13 @@ local function beam(model: Model, name: string, from: Vector3, to: Vector3, widt
 	)
 end
 
+-- Hazır modeldeki tahtanın (SignBoard, geometri modelde) ön yüzüne yazıyı ekler; tahta çarpışmaz, direkler çarpışır.
+local function faceSign(board: BasePart, title: string, text: string, icon: string)
+	board.Name = "ProductionSign"
+	board.CanCollide = false
+	WorldUi.sign(board, Enum.NormalId.Front, { title = title, text = text, icon = icon })
+end
+
 local function sign(model: Model, at: CFrame, title: string, text: string, icon: string, width: number)
 	local board = makePart(
 		model,
@@ -96,8 +103,7 @@ local function sign(model: Model, at: CFrame, title: string, text: string, icon:
 		Color3.fromRGB(39, 66, 77),
 		Enum.Material.Metal
 	)
-	board.CanCollide = false
-	WorldUi.sign(board, Enum.NormalId.Front, { title = title, text = text, icon = icon })
+	faceSign(board, title, text, icon)
 end
 
 -- Wedge'ın eğimi Y/Z düzlemindedir. Z çevresinde ±90° döndürüp çift kullanarak
@@ -136,5 +142,6 @@ return {
 	makeBall = makeBall,
 	beam = beam,
 	sign = sign,
+	faceSign = faceSign,
 	taperedBow = taperedBow,
 }

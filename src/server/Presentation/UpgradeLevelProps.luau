@@ -630,7 +630,7 @@ local function applyProps(plot: Model, save: PlayerSave?)
 			feedStation(model, top * CFrame.new(halfX - 2, 0, -halfZ * 0.55) * CFrame.Angles(0, math.rad(90), 0), feed)
 		end
 		if growth > 0 then
-			growthBeacon(model, top * CFrame.new(-halfX + 1.5, 0, -halfZ * 0.75), growth)
+			growthBeacon(model, top * CFrame.new(halfX - 5, 0, -halfZ * 0.75), growth)
 		end
 	end
 	local collector = plot:FindFirstChild("Collector")

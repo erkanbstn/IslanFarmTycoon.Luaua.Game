@@ -118,7 +118,7 @@ local builders: { [string]: Builder } = {
 		hayBale(decor, o * CFrame.new(-(hx - 4), 0, hz - 3))
 		hayBale(decor, o * CFrame.new(-(hx - 7), 0, hz - 3))
 		hayBale(decor, o * CFrame.new(-(hx - 5.5), 1.6, hz - 3))
-		waterTrough(decor, o * CFrame.new(hx - 3, 0, -(hz - 6)), 6)
+		waterTrough(decor, o * CFrame.new(hx - 3, 0, hz - 3.5), 6) -- yem istasyonu ön sağda (z -); suluk arka sağda
 		local style = PASTURE_STYLES[Look.current.pasture]
 		if style then
 			style(decor, o, size)

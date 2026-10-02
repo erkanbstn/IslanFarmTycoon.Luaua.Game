@@ -68,7 +68,8 @@ local function cloneAsset(upgradeId: string): Model?
 	return nil
 end
 
--- Hazır modelde (assets/Buildings) tabela yoktur (SurfaceGui modelde saklanmaz): kod kurucusundaki tabelalar burada, aynı yerde ve aynı metinle eklenir.
+-- Hazır modelde (assets/Buildings) tabela tahtası ve direkleri "SignBoard"/"SignPost" olarak vardır (üretim binaları); SurfaceGui modelde saklanmaz, yazı burada eklenir.
+-- Tahtası olmayan model (milk_factory, hatchery, horse_training) eski yerde kodla eklenen tabelayı kullanır.
 -- Kaynak: UpgradeBuildersGoods.house (merkezler), UpgradeBuildersHome.milk_factory, UpgradeBuildersBarnyard (hatchery, horse_training).
 -- Kod kurucuları silinirse bu tablo tek kaynak olur.
 type SignSpec = { offset: CFrame, title: string, text: string, icon: string, width: number }
@@ -108,6 +109,30 @@ local ASSET_SIGNS: { [string]: SignSpec } = {
 	fish_cannery = houseSign("Balık Merkezi", "Balık depoya gider", "🐟"),
 }
 
+-- Tabela yazısı: elle yazılan tablo (ASSET_SIGNS) önce; yoksa binanın üretim tarifinden (bina adı + tarif adı + tarif simgesi).
+local function signSpecFor(upgradeId: string): SignSpec?
+	local fixed = ASSET_SIGNS[upgradeId]
+	if fixed then
+		return fixed
+	end
+	local upgrade = Config.getUpgrade(upgradeId)
+	if not upgrade then
+		return nil
+	end
+	for _, recipe in Config.PRODUCTION_RECIPES do
+		if recipe.upgradeId == upgradeId then
+			return {
+				offset = HOUSE_SIGN,
+				title = upgrade.displayName,
+				text = recipe.displayName,
+				icon = recipe.icon,
+				width = 8,
+			}
+		end
+	end
+	return nil
+end
+
 local function buildUpgrade(upgradeId: string, spot: BasePart, parent: Instance)
 	local base = spot.CFrame
 	local cloned = cloneAsset(upgradeId)
@@ -115,16 +140,25 @@ local function buildUpgrade(upgradeId: string, spot: BasePart, parent: Instance)
 	if cloned then
 		cloned:PivotTo(base)
 		built = cloned
-		local signSpec = ASSET_SIGNS[upgradeId]
-		if signSpec then
-			UpgradeParts.sign(
-				built,
-				base * signSpec.offset,
-				signSpec.title,
-				signSpec.text,
-				signSpec.icon,
-				signSpec.width
-			)
+		local board = built:FindFirstChild("SignBoard")
+		if board and board:IsA("BasePart") then
+			-- Tahta ve direkleri modelde (SignBoard/SignPost); yazı üretim tarifinden (Config) gelir.
+			local spec = signSpecFor(upgradeId)
+			if spec then
+				UpgradeParts.faceSign(board, spec.title, spec.text, spec.icon)
+			end
+		else
+			local signSpec = ASSET_SIGNS[upgradeId]
+			if signSpec then
+				UpgradeParts.sign(
+					built,
+					base * signSpec.offset,
+					signSpec.title,
+					signSpec.text,
+					signSpec.icon,
+					signSpec.width
+				)
+			end
 		end
 	else
 		local builder = BUILDERS[upgradeId]

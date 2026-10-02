@@ -18,7 +18,7 @@ Kural dili: **ZORUNLU** (ihlal = hata/bozuk görünüm), **YASAK**, **ÖNERİ** 
 | Yem/büyüme/depo yığını, soy anıtı, yardımcı | `Assets.LevelProps`, `Lineage`, `Pets.Pet_<tür>_<cash\|goods>` | aynı | `UpgradeLevelProps.luau` | Var (yardımcı öznitelik/etiketi kodla) |
 | Yapım alanı, tesis süsü/halkası | `Assets.FacilityProps.BuildSite_Unbuilt`, `FacilityProps_Lv<1-5>`, `FacilityRings_Lv<1-5>` | aynı | `UpgradeSites.luau` | Var (fiyat tabelası, direk ve satın alma istemi kodla) |
 | Eklenti yapısı, kapasite süsü, üretim zemini, süt yükleme dekoru | `Assets.Extensions.<id>`, `ExtensionCapacity.CapacityProps_<id>_Cap3\|4`, `ProductionSites.ProductionSite_<id>`, `Extensions.MilkLoadingDecor` | aynı | `World/IslandSpecialization.luau`, `ExtensionVisualService.luau` | Var (tabela/istem kodla) |
-| Bina tabelaları (hazır modelde yok) | — | — | `UpgradeVisualService.luau` `ASSET_SIGNS` | 11 bina için kodla eklenir |
+| Bina tabelası | binada `SignBoard` (tahta) + 2 `SignPost` (direk) parçası | tahta çarpışmaz (kodda kapatılır) | `UpgradeVisualService.luau` `signSpecFor`, `UpgradeParts.faceSign` | Var: tahta/direk modelde (46 üretim binası), yazı (`WorldUi.sign`) tarif adından kodla eklenir. Tahtası olmayan 3 bina (`milk_factory`, `hatchery`, `horse_training`) eski kod tabelasını kullanır |
 | Bölge zemini + çit, ana ada/meydan dekoru (`HomeModels`, `HubProps`, `CommonDecor`, `ShoreModels`) | `assets/` dosyaları var | — | `World/MapParts.luau`, `Home*`, `Hub*`, `Decor*` | **Bağlanmadı**: harita yalnızca "Haritayı Kur" ile kurulur, Studio'daki kayıtlı harita zaten modeldir |
 
 
@@ -57,7 +57,7 @@ Kural dili: **ZORUNLU** (ihlal = hata/bozuk görünüm), **YASAK**, **ÖNERİ** 
 | Kapı | ZORUNLU: ≥ 4.6 x 6.6 açıklık; kapı önü (-Z) boş | `world-map.mdc:22` |
 | Üretim prompt'u | YASAK: modele `ProductionPromptAnchor`/`ProductionPrompt` koyma; servis her zaman `base * (0, 2.5, -6)`'ya ekler (çift olur). ZORUNLU: o nokta duvar içinde kalmasın (gövde z ≥ -4) | `UpgradeVisualService.luau:122-139` |
 | `JobAnchor` | İSTEĞE BAĞLI: modelde bu adda parça varsa iş çubuğu ona bağlanır; yoksa kutu üstü +6 | `JobMarks.luau:17-36` |
-| Tabela | ÖNERİ: koyma (K1 çözülene kadar çarpışır). Kod binalarında `UpgradeParts.sign` 1.7 yüksek tahta + `WorldUi.sign` | `UpgradeParts.luau:333-344` |
+| Tabela | ÖNERİ (üretim binaları): ön sağ dışta, zeminde iki direkli `SignBoard` (6 x 1.7 x 0.16, ön yüz -Z; merkez x 9.4, z = en öndeki parça - 1, alt kenar y 2.45) + 2 `SignPost` (0.25 x 2.45 x 0.25). Kapı önü (|x| < 5.6) boş kalır; seviye süsleri sol-ön köşe (x -6.4) ve fener direkleri (x ±4.4) ile çakışmaz. Yazıyı kod ekler (`UpgradeParts.faceSign`); tahta adı koddan sonra `ProductionSign` olur, `CanCollide` kapatılır | `UpgradeVisualService.luau`, `UpgradeParts.luau` |
 | Pencere | `Window*` + Glass (bkz. §2). Cam olmayan "Window" ışık almaz | `:89-97` |
 | Parça bütçesi | ZORUNLU: ≤ 35 BasePart (kod binalarının sınırı) | `UpgradeBuildersSpecies.luau:4` |
 | Seviye (Sv.1-5) | Modelde varyant YOK; seviye süsleri (`addFacilityProps`) ve altın halkalar ayrı modellerde (`LevelMarks/<id>`) koddan gelir | `UpgradeSites.luau:113-270` |

@@ -32,7 +32,8 @@ function Farmland.vegetableGarden(parent: Instance, base: CFrame)
 		Enum.Material.Ground,
 		false
 	)
-	-- Alçak çit; ön kenarda geçit boşluğu
+	-- Alçak çit; ön kenarda geçit boşluğu. Köşede iki çit uç uca gelir: aynı noktaya ikinci direk konmaz (üst üste binip titremesin).
+	local placedPosts: { [string]: boolean } = {}
 	local function fence(from: Vector3, to: Vector3)
 		local length = (to - from).Magnitude
 		local mid = (from + to) / 2
@@ -48,6 +49,11 @@ function Farmland.vegetableGarden(parent: Instance, base: CFrame)
 		local posts = math.max(1, math.round(length / 3))
 		for index = 0, posts do
 			local p = from:Lerp(to, index / posts)
+			local key = string.format("%.2f,%.2f", p.X, p.Z)
+			if placedPosts[key] then
+				continue
+			end
+			placedPosts[key] = true
 			part(
 				garden,
 				"FencePost",
