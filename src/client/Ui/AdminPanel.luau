@@ -144,6 +144,22 @@ local function create(parent: Instance): UiKit.Window
 	amount.Name = "CashAmount"
 	amount.LayoutOrder = 5
 
+	-- Uzun düğme yazıları satıra sarılır, gerekirse küçülür; düğmeden taşmaz.
+	local function fit(button: TextButton)
+		button.TextWrapped = true
+		button.TextScaled = true
+		local limit = Instance.new("UITextSizeConstraint")
+		limit.MaxTextSize = button.TextSize
+		limit.MinTextSize = 9
+		limit.Parent = button
+		local padding = Instance.new("UIPadding")
+		padding.PaddingLeft = UDim.new(0, 6)
+		padding.PaddingRight = UDim.new(0, 6)
+		padding.PaddingTop = UDim.new(0, 3)
+		padding.PaddingBottom = UDim.new(0, 3)
+		padding.Parent = button
+	end
+
 	local function row(order: number): Frame
 		local frame = Instance.new("Frame")
 		frame.BackgroundTransparency = 1
@@ -156,6 +172,7 @@ local function create(parent: Instance): UiKit.Window
 	local cashRow = row(6)
 	for index, option in { { id = "addCash", label = "Kasaya ekle" }, { id = "setCash", label = "Bakiyeyi ayarla" } } do
 		local button = UiKit.button(cashRow, option.label, "primary")
+		fit(button)
 		button.Size = UDim2.new(0.5, -3, 1, 0)
 		button.LayoutOrder = index
 		table.insert(controls, { button = button, action = option.id, value = nil })
@@ -219,6 +236,7 @@ local function create(parent: Instance): UiKit.Window
 				option.label,
 				"secondary"
 			)
+			fit(button)
 			button.Size = UDim2.new(
 				if index == #options and index % 2 == 1 then 1 else 0.5,
 				if index == #options and index % 2 == 1 then 0 else -3,
@@ -281,28 +299,35 @@ local function create(parent: Instance): UiKit.Window
 	UiKit.text(page, "Test araçları (yalnızca kendi çiftliğin)", "Heading").LayoutOrder = 33
 	UiKit.text(
 		page,
-		"Açma ve doldurma, seçili (bulunduğun) ada içindir. Hayvanları yetişkin yapmak büyüme animasyonunu, açmak tabela ve eklentileri, doldurmak yoğunluğu denemek içindir. Para harcamaz.",
+		'Açma ve doldurma, seçili (bulunduğun) ada ya da bütün adalar içindir (kilitli ada seçilemediği için "Bütün adalar" onları da açar). Hayvanları yetişkin yapmak büyüme animasyonunu, açmak tabela ve eklentileri, doldurmak yoğunluğu denemek içindir. Para harcamaz.',
 		"Caption"
 	).LayoutOrder =
 		34
-	choices("growAll", { { id = "now", label = "Bütün hayvanları büyüt" } }, 35)
-	choices("unlockIslands", { { id = "now", label = "Bu adadaki her şeyi aç (eklentiler dahil)" } }, 36)
-	choices("fillSlots", { { id = "now", label = "Bu adadaki bütün slotları hayvanla doldur" } }, 37)
-	UiKit.text(page, "Rastgele olaylar (test)", "Heading").LayoutOrder = 38
+	choices("maxAll", { { id = "now", label = "Hepsini aç, büyüt ve doldur (bütün adalar)" } }, 35)
+	choices("growAll", { { id = "now", label = "Bütün hayvanları büyüt" } }, 36)
+	choices("unlockIslands", {
+		{ id = "now", label = "Bu adadaki her şeyi aç (eklentiler dahil)" },
+		{ id = "all", label = "Bütün adalardaki her şeyi aç" },
+	}, 37)
+	choices("fillSlots", {
+		{ id = "now", label = "Bu adadaki bütün slotları hayvanla doldur" },
+		{ id = "all", label = "Bütün adaları hayvanla doldur" },
+	}, 38)
+	UiKit.text(page, "Rastgele olaylar (test)", "Heading").LayoutOrder = 39
 	UiKit.text(
 		page,
 		"Olaylar normalde rastgele gelir; bunlar hemen görmek içindir. Altın hayvan ve tüccar yalnızca senin profilinde çıkar, kaydedilmez.",
 		"Caption"
 	).LayoutOrder =
-		39
-	choices("forceMerchant", { { id = "now", label = "Gezgin tüccarı çağır" } }, 40)
-	choices("forceGolden", { { id = "now", label = "Altın hayvanı çağır" } }, 41)
-	choices("completeSeason", { { id = "now", label = "Mevsim hedefini tamamla" } }, 42)
-	choices("resetEvents", { { id = "now", label = "Olayları ve mevsim hedefini sıfırla" } }, 43)
-	UiKit.text(page, "Envanter (test)", "Heading").LayoutOrder = 44
-	choices("fillBarn", { { id = "now", label = "Ahır deposunu doldur" } }, 47)
-	choices("grantItems", { { id = "now", label = "Bütün eşyaları ver (takmaz)" } }, 45)
-	choices("clearItems", { { id = "now", label = "Envanteri boşalt" } }, 46)
+		40
+	choices("forceMerchant", { { id = "now", label = "Gezgin tüccarı çağır" } }, 41)
+	choices("forceGolden", { { id = "now", label = "Altın hayvanı çağır" } }, 42)
+	choices("completeSeason", { { id = "now", label = "Mevsim hedefini tamamla" } }, 43)
+	choices("resetEvents", { { id = "now", label = "Olayları ve mevsim hedefini sıfırla" } }, 44)
+	UiKit.text(page, "Envanter (test)", "Heading").LayoutOrder = 45
+	choices("fillBarn", { { id = "now", label = "Ahır deposunu doldur" } }, 48)
+	choices("grantItems", { { id = "now", label = "Bütün eşyaları ver (takmaz)" } }, 46)
+	choices("clearItems", { { id = "now", label = "Envanteri boşalt" } }, 47)
 
 	-- Oyuncu işlemleri: seçilen oyuncuya para ver/al/ayarla, kayıt özeti, sunucudan at. Hedef ve tutar sunucuda yeniden doğrulanır.
 	page = pages.players
@@ -329,6 +354,7 @@ local function create(parent: Instance): UiKit.Window
 		for index, other in Players:GetPlayers() do
 			local label = if other == player then `{other.DisplayName} (ben)` else other.DisplayName
 			local button = UiKit.button(playerList, label, if other == selectedTarget then "primary" else "secondary")
+			fit(button)
 			button.Size = UDim2.new(1, 0, 0, 34)
 			button.LayoutOrder = index
 			button.Activated:Connect(function()
@@ -356,6 +382,7 @@ local function create(parent: Instance): UiKit.Window
 		local frame = row(order)
 		for index, option in options do
 			local button = UiKit.button(frame, option.label, "primary")
+			fit(button)
 			button.Size = UDim2.new(1 / #options, -4, 1, 0)
 			button.LayoutOrder = index
 			table.insert(controls, { button = button, action = `target:{option.id}`, value = nil })

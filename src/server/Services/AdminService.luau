@@ -10,7 +10,10 @@ local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath")
 local PlayerDataService = require(script.Parent:WaitForChild("PlayerDataService"))
 local EconomyService = require(script.Parent:WaitForChild("EconomyService"))
 local PlotService = require(script.Parent:WaitForChild("PlotService"))
+local HttpService = game:GetService("HttpService")
 local SeasonService = require(script.Parent:WaitForChild("SeasonService"))
+local SaveCodec = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("SaveCodec"))
+local FarmProfiles = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("FarmProfiles"))
 local AdminPolicy = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("AdminPolicy"))
 local RateLimiter = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("RateLimiter"))
 
@@ -32,6 +35,101 @@ local function validSeason(id: string): boolean
 		end
 	end
 	return false
+end
+
+-- Bir çiftlik görünümünde (etkin kayıt ya da park edilmiş çiftlik) seçilen adaları açar/doldurur/büyütür; para harcamaz.
+-- Gerçek satın almayla aynı yol: büyüme hızı anlığı alınır, türetilmiş durum (açık adalar/bölgeler) yeniden hesaplanır.
+local function maxFarmView(
+	view: any,
+	farmId: string,
+	islandIds: { string },
+	grow: boolean,
+	unlockAll: boolean,
+	fill: boolean
+): (number, number)
+	if grow then
+		for _, animal in view.animals do
+			animal.bornAt = 0
+			animal.stage = "adult"
+		end
+	end
+	if unlockAll then
+		local previousSpeeds = FarmMath.snapshotGrowthSpeeds(view)
+		local function unlock(upgradeId: string)
+			local upgrade = Config.getUpgrade(upgradeId)
+			if not upgrade or view.purchased[upgradeId] then
+				return
+			end
+			for _, requiredId in upgrade.requires do
+				unlock(requiredId)
+			end
+			view.purchased[upgradeId] = true
+		end
+		for _, islandId in islandIds do
+			for _, upgrade in Config.UPGRADES do
+				if Config.getUpgradeIsland(upgrade) == islandId and Config.upgradeInTheme(upgrade, farmId) then
+					unlock(upgrade.id)
+				end
+			end
+		end
+		FarmMath.applyDerived(view)
+		FarmMath.preserveGrowthProgress(view, previousSpeeds, os.time())
+	end
+	local added, sent = 0, 0
+	if fill then
+		-- Seçilen adalardaki bütün bölgeleri ve satın alınmış eklentileri yetişkin hayvanla doldur.
+		local serial = 0
+		local inScope: { [string]: boolean } = {}
+		for _, islandId in islandIds do
+			inScope[islandId] = true
+		end
+		for zoneId, zone in Config.ZONES do
+			if inScope[zone.island] and view.unlockedZones[zoneId] then
+				for _ = FarmMath.countInZone(view, zoneId) + 1, FarmMath.getZoneCapacity(view, zoneId) do
+					serial += 1
+					table.insert(view.animals, {
+						uid = string.format("adm%d_%d_%d_%s", os.time(), math.floor(os.clock() * 1000), serial, farmId),
+						animalId = Config.getZoneAnimals(zone, farmId)[1],
+						zoneId = zoneId,
+						stage = "adult",
+						bornAt = 0,
+					})
+					added += 1
+				end
+			end
+		end
+		-- Satın alınmış eklentiler: ana bölgedeki boşta yetişkinleri eklentiye gönder (süreli görev; bölgeden yeni
+		-- hayvan eklenmez çünkü eklentideki hayvanın ana bölgedeki yeri ayrılı kalır).
+		local sentNow = os.time()
+		for extensionId, extension in Config.EXTENSIONS do
+			local upgrade = Config.getExtensionUpgrade(extensionId)
+			if inScope[extension.island] and upgrade and view.purchased[upgrade.id] then
+				local room = FarmMath.getExtensionCapacity(view, extensionId)
+					- FarmMath.countInExtension(view, extensionId, sentNow)
+				for _, animal in view.animals do
+					if room <= 0 then
+						break
+					end
+					if
+						animal.animalId == extension.animalId
+						and animal.zoneId == extension.sourceZoneId
+						and FarmMath.getActiveTask(animal, sentNow) == nil
+					then
+						animal.extensionId = extensionId
+						animal.task = {
+							kind = "extension",
+							id = extensionId,
+							startedAt = sentNow,
+							endsAt = sentNow + extension.stayDuration,
+						}
+						room -= 1
+						sent += 1
+					end
+				end
+			end
+		end
+	end
+	return added, sent
 end
 
 local function execute(player: Player, action: string, value: unknown): (boolean, string)
@@ -133,7 +231,7 @@ local function execute(player: Player, action: string, value: unknown): (boolean
 		PlayerDataService.requestSave(player)
 		return true, message
 	end
-	if action == "growAll" or action == "unlockIslands" or action == "fillSlots" then
+	if action == "growAll" or action == "unlockIslands" or action == "fillSlots" or action == "maxAll" then
 		-- Test aracı: yalnızca yöneticinin kendi profili; para harcamaz, sonuç normal kayıt akışına girer.
 		if player:GetAttribute("WorldReady") ~= true then
 			return false, "Çiftliğin henüz hazır değil"
@@ -142,93 +240,56 @@ local function execute(player: Player, action: string, value: unknown): (boolean
 		if not data then
 			return false, "Kayıt oturumu artık etkin değil"
 		end
+		-- Değer: "now" = seçili ada, "all" = bütün adalar, ya da bir ada kimliği (kilitli adayı seçmek mümkün olmadığı için)
 		local selected = player:GetAttribute("SelectedFarmIsland")
-		local islandId = if typeof(selected) == "string" and Config.FARM_ISLANDS[selected] then selected else "home"
-		local message = ""
-		if action == "growAll" then
-			for _, animal in data.animals do
-				animal.bornAt = 0
-				animal.stage = "adult"
-			end
-			message = "Bütün hayvanlar yetişkin oldu"
-		elseif action == "unlockIslands" then
-			-- Seçili adadaki HER şey: ada, bölgeler, güçlendirmeler ve eklentiler (ön koşullarıyla birlikte).
-			local function unlock(upgradeId: string)
-				local upgrade = Config.getUpgrade(upgradeId)
-				if not upgrade or data.purchased[upgradeId] then
-					return
-				end
-				for _, requiredId in upgrade.requires do
-					unlock(requiredId)
-				end
-				data.purchased[upgradeId] = true
-			end
-			for _, upgrade in Config.UPGRADES do
-				if
-					Config.getUpgradeIsland(upgrade) == islandId
-					and Config.upgradeInTheme(upgrade, data.activeMainFarmId)
-				then
-					unlock(upgrade.id)
-				end
-			end
-			FarmMath.applyDerived(data)
-			message = `{Config.FARM_ISLANDS[islandId].displayName}: her şey açıldı`
+		local islandIds: { string } = {}
+		if value == "all" or action == "maxAll" then
+			islandIds = table.clone(Config.FARM_ISLAND_ORDER)
+		elseif typeof(value) == "string" and Config.FARM_ISLANDS[value] then
+			islandIds = { value }
 		else
-			-- Seçili adadaki bütün bölgeleri ve satın alınmış eklentileri yetişkin hayvanla doldur.
-			local serial = 0
-			local function addAnimal(animalId: string, zoneId: string, _extensionId: string?)
-				serial += 1
-				table.insert(data.animals, {
-					uid = string.format("adm%d_%d_%d", os.time(), math.floor(os.clock() * 1000), serial),
-					animalId = animalId,
-					zoneId = zoneId,
-					stage = "adult",
-					bornAt = 0,
-				})
-			end
-			local added = 0
-			for zoneId, zone in Config.ZONES do
-				if zone.island == islandId and data.unlockedZones[zoneId] then
-					for _ = FarmMath.countInZone(data, zoneId) + 1, FarmMath.getZoneCapacity(data, zoneId) do
-						addAnimal(Config.getZoneAnimals(zone, data.activeMainFarmId)[1], zoneId, nil)
-						added += 1
-					end
+			islandIds = { if typeof(selected) == "string" and Config.FARM_ISLANDS[selected] then selected else "home" }
+		end
+		local scopeName = if #islandIds > 1 then "Bütün adalar" else Config.FARM_ISLANDS[islandIds[1]].displayName
+		local doAll = action == "maxAll"
+		local grow = action == "growAll" or doAll
+		local unlockAll = action == "unlockIslands" or doAll
+		local fill = action == "fillSlots" or doAll
+		local message = ""
+		if doAll then
+			-- Eksik ana çiftlikleri ücretsiz ekle (Çiftliklerim listesinde görünsün); etkin çiftlik değişmez.
+			FarmProfiles.ensure(data)
+			for plotNumber = 1, Config.MAIN_FARM_LIMIT do
+				local farmId = tostring(plotNumber)
+				if not data.mainFarms[farmId] then
+					data.mainFarms[farmId] = SaveCodec.newFarm(Config, FarmMath, os.time(), function(): string
+						return HttpService:GenerateGUID(false)
+					end, farmId)
 				end
 			end
-			-- Satın alınmış eklentiler: ana bölgedeki boşta yetişkinleri eklentiye gönder (süreli görev; bölgeden yeni
-			-- hayvan eklenmez çünkü eklentideki hayvanın ana bölgedeki yeri ayrılı kalır).
-			local sentNow = os.time()
-			local sent = 0
-			for extensionId, extension in Config.EXTENSIONS do
-				local upgrade = Config.getExtensionUpgrade(extensionId)
-				if extension.island == islandId and upgrade and data.purchased[upgrade.id] then
-					local room = FarmMath.getExtensionCapacity(data, extensionId)
-						- FarmMath.countInExtension(data, extensionId, sentNow)
-					for _, animal in data.animals do
-						if room <= 0 then
-							break
-						end
-						if
-							animal.animalId == extension.animalId
-							and animal.zoneId == extension.sourceZoneId
-							and FarmMath.getActiveTask(animal, sentNow) == nil
-						then
-							animal.extensionId = extensionId
-							animal.task = {
-								kind = "extension",
-								id = extensionId,
-								startedAt = sentNow,
-								endsAt = sentNow + extension.stayDuration,
-							}
-							room -= 1
-							sent += 1
-						end
-					end
+			local added, sent = 0, 0
+			for _, farmId in FarmProfiles.ids(data) do
+				local view = FarmProfiles.view(data, farmId)
+				local a, s = maxFarmView(view, farmId, islandIds, grow, unlockAll, fill)
+				added += a
+				sent += s
+			end
+			FarmProfiles.capture(data)
+			message =
+				`Bütün çiftlikler ve adalar açıldı, büyütüldü ve dolduruldu ({added} hayvan eklendi, {sent} eklentiye gitti)`
+		else
+			local added, sent = maxFarmView(data, data.activeMainFarmId, islandIds, grow, unlockAll, fill)
+			if unlockAll then
+				message = `{scopeName}: her şey açıldı`
+			end
+			if fill then
+				message = `{scopeName}: {added} hayvan eklendi`
+				if sent > 0 then
+					message ..= `, {sent} hayvan eklentiye gönderildi`
 				end
 			end
-			message = `{Config.FARM_ISLANDS[islandId].displayName}: {added} hayvan eklendi`
-			if sent > 0 then
-				message ..= `, {sent} hayvan eklentiye gönderildi`
+			if grow and not unlockAll and not fill then
+				message = "Bütün hayvanlar yetişkin oldu"
 			end
 		end
 		PlayerDataService.pushState(player)

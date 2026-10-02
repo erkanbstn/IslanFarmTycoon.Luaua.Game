@@ -32,6 +32,7 @@ function AdminPolicy.validAction(value: unknown): boolean
 		or value == "growAll"
 		or value == "unlockIslands"
 		or value == "fillSlots"
+		or value == "maxAll"
 		or value == "forceMerchant"
 		or value == "forceGolden"
 		or value == "completeSeason"

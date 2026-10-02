@@ -51,7 +51,16 @@ return function(policy: any, createService: any, createLimiter: any, config: any
 	end
 	local fakeGame: any = {}
 	function fakeGame:GetService(name: string): any
-		return if name == "Players" then players else node
+		if name == "Players" then
+			return players
+		elseif name == "HttpService" then
+			return {
+				GenerateGUID = function(): string
+					return "guid"
+				end,
+			}
+		end
+		return node
 	end
 	local now = 0
 	local limiter = createLimiter(fakeGame, {
@@ -71,7 +80,7 @@ return function(policy: any, createService: any, createLimiter: any, config: any
 			return if name == "RequestAdminAction" then request else reply
 		end,
 	}
-	local data: any = { cash = 50 }
+	local data: any = { cash = 50, activeMainFarmId = "1" }
 	local active = true
 	local pushes, saves = 0, 0
 	local trace: { string } = {}
@@ -127,6 +136,13 @@ return function(policy: any, createService: any, createLimiter: any, config: any
 		end,
 	}
 	local farmMath = {
+		getStorageCap = function(_save: any): number
+			return 1e9
+		end,
+		snapshotGrowthSpeeds = function(_save: any)
+			return {}
+		end,
+		preserveGrowthProgress = function(_save: any, _speeds: any, _now: number) end,
 		applyDerived = function(save: any)
 			save.derived = true
 			save.unlockedZones = { poultry = save.purchased.island_poultry == true }
@@ -387,6 +403,26 @@ return function(policy: any, createService: any, createLimiter: any, config: any
 		results[#results].ok and next(data.inventory.items) == nil and next(data.inventory.equipped) == nil,
 		"clearItems empties the inventory"
 	)
+	-- Kilitli adayı seçmek mümkün olmadığından ada kimliği ya da "all" değeriyle de açılabilir
+	now += 1
+	owner.attributes.SelectedFarmIsland = "home"
+	fire(owner, "unlockIslands", "horse", 219)
+	assert(data.purchased.island_horse == true and results[#results].ok, "unlock accepts an explicit island id")
+	now += 1
+	fire(owner, "unlockIslands", "all", 220)
+	assert(data.purchased.island_goat == true, "unlock all opens every island of the theme")
+	now += 1
+	data.animals = {}
+	fire(owner, "maxAll", "now", 221)
+	assert(results[#results].ok and #data.animals > 0, "maxAll opens, grows and fills every island")
+	local farmCount = 0
+	for _ in data.mainFarms do
+		farmCount += 1
+	end
+	assert(farmCount == config.MAIN_FARM_LIMIT, "maxAll adds every missing main farm for free")
+	for _, animal in data.animals do
+		assert(animal.stage == "adult", "maxAll animals are adult")
+	end
 	owner.attributes.SelectedFarmIsland = nil
 	local newcomer = makePlayer(43)
 	players.PlayerAdded.fire(newcomer)
