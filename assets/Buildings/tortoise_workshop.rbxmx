@@ -98,9 +98,9 @@
 <token name="Material">1568</token>
 <token name="Shape">1</token>
 <bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
+<bool name="CanCollide">false</bool>
 <bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
+<bool name="CanQuery">false</bool>
 </Properties></Item>
 <Item class="Part" referent="RBXPART9"><Properties>
 <string name="Name">Window</string>
@@ -110,9 +110,9 @@
 <token name="Material">1568</token>
 <token name="Shape">1</token>
 <bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
+<bool name="CanCollide">false</bool>
 <bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
+<bool name="CanQuery">false</bool>
 </Properties></Item>
 <Item class="Part" referent="RBXPART10"><Properties>
 <string name="Name">TortoiseLeg</string>
@@ -170,9 +170,9 @@
 <token name="Material">1088</token>
 <token name="Shape">1</token>
 <bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
+<bool name="CanCollide">false</bool>
 <bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
+<bool name="CanQuery">false</bool>
 </Properties></Item>
 <Item class="Part" referent="RBXPART15"><Properties>
 <string name="Name">SignPost</string>

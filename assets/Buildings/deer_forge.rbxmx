@@ -48,9 +48,9 @@
 <token name="Material">1568</token>
 <token name="Shape">1</token>
 <bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
+<bool name="CanCollide">false</bool>
 <bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
+<bool name="CanQuery">false</bool>
 </Properties></Item>
 <Item class="Part" referent="RBXPART5"><Properties>
 <string name="Name">Chimney</string>
@@ -72,9 +72,9 @@
 <token name="Material">288</token>
 <token name="Shape">1</token>
 <bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
+<bool name="CanCollide">false</bool>
 <bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
+<bool name="CanQuery">false</bool>
 </Properties></Item>
 <Item class="Part" referent="RBXPART7"><Properties>
 <string name="Name">RackPost</string>
@@ -240,9 +240,9 @@
 <token name="Material">1088</token>
 <token name="Shape">1</token>
 <bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
+<bool name="CanCollide">false</bool>
 <bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
+<bool name="CanQuery">false</bool>
 </Properties></Item>
 <Item class="Part" referent="RBXPART21"><Properties>
 <string name="Name">SignPost</string>
