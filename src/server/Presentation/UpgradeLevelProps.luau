@@ -14,6 +14,7 @@ local GameTypes = require(Shared:WaitForChild("GameTypes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 local ProductionLogic = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("ProductionLogic"))
 local MapLayout = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("MapLayout"))
+local ModelAssets = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("ModelAssets"))
 
 type PlayerSave = GameTypes.PlayerSave
 
@@ -61,11 +62,26 @@ local function piece(
 	return p
 end
 
+-- Hazır model (assets/<klasör>/<ad>, pivot = kurucunun taban çerçevesi) varsa kopyasını `cf` noktasına koyar; yoksa false (kod kurucusu çalışır)
+local function placeAsset(model: Model, folder: string, name: string, cf: CFrame): boolean
+	local clone = ModelAssets.clone(folder, name)
+	if not clone then
+		return false
+	end
+	clone:PivotTo(cf)
+	clone.Name = name
+	clone.Parent = model
+	return true
+end
+
 local SOLID = { solid = true }
 local BALL = { shape = Enum.PartType.Ball }
 
 -- cf: zemin yüzeyinde; yem istasyonu X ekseni boyunca uzanır
 local function feedStation(model: Model, cf: CFrame, level: number)
+	if placeAsset(model, "LevelProps", `FeedStation_Lv{level}`, cf) then
+		return
+	end
 	local rim = if level >= 5 then GOLD else DARK_WOOD
 	local feedColor = if level >= 5
 		then GOLD
@@ -139,6 +155,9 @@ end
 
 -- Büyüme feneri: direk ve kristal; seviye arttıkça kristal büyür, halka ve yıldızlar eklenir
 local function growthBeacon(model: Model, cf: CFrame, level: number)
+	if placeAsset(model, "LevelProps", `GrowthBeacon_Lv{level}`, cf) then
+		return
+	end
 	local crystalColor = Color3.fromRGB(110, 235, 140)
 	piece(
 		model,
@@ -181,6 +200,9 @@ end
 
 -- Depo yığını: toplama platformunun yanı
 local function storageYard(model: Model, cf: CFrame, level: number)
+	if placeAsset(model, "LevelProps", `StorageYard_Lv{level}`, cf) then
+		return
+	end
 	local crate = Color3.fromRGB(170, 125, 75)
 	for _, offset in { Vector3.new(0, 0.9, 0), Vector3.new(2, 0.9, 0), Vector3.new(1, 2.7, 0) } do
 		piece(
@@ -261,6 +283,9 @@ local function lineageMonument(model: Model, cf: CFrame, levels: { { id: string,
 		local height = 0.8 + level * 0.3
 		-- 8 kaideden sonra ikinci sıra (ada kenarına taşmasın; 24 hayvan türünde tek sıra x>56 olur)
 		local at = cf * CFrame.new(((index - 1) % 8) * PEDESTAL_SPACING, 0, -math.floor((index - 1) / 8) * 2.6)
+		if placeAsset(model, "Lineage", `LineageMonument_Lv{level}`, at) then
+			continue
+		end
 		piece(
 			model,
 			"Pedestal",
@@ -456,11 +481,34 @@ local function petFigure(parent: Model, cf: CFrame, kind: string, island: string
 	-- Kendi Model'i ve görünmez kök parçasıyla durur; PetAnimator (istemci) bu modeli yürütür. Pivot: zemin, önü -Z.
 	local species = petSpecies(island, kind)
 	local style = PET_STYLES[species]
-	local model = Instance.new("Model")
+	-- Hazır gövde (assets/Pets/Pet_<tür>_<cash|goods>, pivot = zemin, önü -Z, görünmez Root): öznitelik ve etiketi burada eklenir
+	local ready = ModelAssets.clone("Pets", `Pet_{species}_{kind}`)
+	local model: Model
+	if ready then
+		model = ready
+		model:PivotTo(cf)
+	else
+		model = Instance.new("Model")
+	end
 	model.Name = `Pet_{kind}_{island}`
 	model:SetAttribute("PetKind", kind)
 	model:SetAttribute("PetIsland", island)
 	model:SetAttribute("PetHome", cf)
+	if ready then
+		local readyRoot = ready:FindFirstChild("Root")
+		if readyRoot and readyRoot:IsA("BasePart") then
+			ready.PrimaryPart = readyRoot
+			CollectionService:AddTag(ready, "PetFigure")
+			ready.Parent = parent
+			return
+		end
+		ready:Destroy()
+		model = Instance.new("Model")
+		model.Name = `Pet_{kind}_{island}`
+		model:SetAttribute("PetKind", kind)
+		model:SetAttribute("PetIsland", island)
+		model:SetAttribute("PetHome", cf)
+	end
 	local root = piece(model, "Root", Vector3.one * 0.2, cf, Color3.new(), Enum.Material.SmoothPlastic)
 	root.Transparency = 1
 	model.PrimaryPart = root
