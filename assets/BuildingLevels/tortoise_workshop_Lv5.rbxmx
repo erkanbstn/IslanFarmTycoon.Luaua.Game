@@ -290,16 +290,16 @@
         <bool name="CastShadow">true</bool>
         <token name="Material">1568</token>
         <token name="Shape">1</token>
-        <float name="Transparency">0.18</float>
+        <float name="Transparency">0.58</float>
         <Vector3 name="Size">
           <X>0.14</X>
           <Y>1.9</Y>
           <Z>2.2</Z>
         </Vector3>
         <Color3 name="Color">
-          <R>0.403921568627451</R>
-          <G>0.5882352941176471</G>
-          <B>0.615686274509804</B>
+          <R>0.7254901960784313</R>
+          <G>0.8352941176470589</G>
+          <B>0.8588235294117647</B>
         </Color3>
         <CoordinateFrame name="CFrame">
           <X>1055.05</X>
@@ -315,6 +315,7 @@
           <R21>0.0</R21>
           <R22>1.0</R22>
         </CoordinateFrame>
+        <float name="Reflectance">0</float>
       </Properties>
     </Item>
     <Item class="Part" referent="RBX_tortoise_workshop_Lv5_9">
@@ -327,16 +328,16 @@
         <bool name="CastShadow">true</bool>
         <token name="Material">1568</token>
         <token name="Shape">1</token>
-        <float name="Transparency">0.18</float>
+        <float name="Transparency">0.58</float>
         <Vector3 name="Size">
           <X>0.14</X>
           <Y>1.9</Y>
           <Z>2.2</Z>
         </Vector3>
         <Color3 name="Color">
-          <R>0.403921568627451</R>
-          <G>0.5882352941176471</G>
-          <B>0.615686274509804</B>
+          <R>0.7254901960784313</R>
+          <G>0.8352941176470589</G>
+          <B>0.8588235294117647</B>
         </Color3>
         <CoordinateFrame name="CFrame">
           <X>1064.95</X>
@@ -352,6 +353,7 @@
           <R21>0.0</R21>
           <R22>1.0</R22>
         </CoordinateFrame>
+        <float name="Reflectance">0</float>
       </Properties>
     </Item>
     <Item class="Part" referent="RBX_tortoise_workshop_Lv5_10">

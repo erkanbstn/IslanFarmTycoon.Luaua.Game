@@ -798,16 +798,16 @@
         <bool name="CastShadow">true</bool>
         <token name="Material">1568</token>
         <token name="Shape">1</token>
-        <float name="Transparency">.22</float>
+        <float name="Transparency">0.58</float>
         <Vector3 name="Size">
           <X>1.4000000000000454</X>
           <Y>1.7</Y>
           <Z>0.12</Z>
         </Vector3>
         <Color3 name="Color">
-          <R>0.6666666666666666</R>
-          <G>0.8313725490196079</G>
-          <B>0.8784313725490196</B>
+          <R>0.7254901960784313</R>
+          <G>0.8352941176470589</G>
+          <B>0.8588235294117647</B>
         </Color3>
         <CoordinateFrame name="CFrame">
           <X>1056.55</X>
@@ -823,6 +823,7 @@
           <R21>0</R21>
           <R22>1</R22>
         </CoordinateFrame>
+        <float name="Reflectance">0</float>
       </Properties>
     </Item>
     <Item class="Part" referent="RBX_fill_camel_dairy_6">
@@ -1020,16 +1021,16 @@
         <bool name="CastShadow">true</bool>
         <token name="Material">1568</token>
         <token name="Shape">1</token>
-        <float name="Transparency">.22</float>
+        <float name="Transparency">0.58</float>
         <Vector3 name="Size">
           <X>1.4000000000000454</X>
           <Y>1.7</Y>
           <Z>0.12</Z>
         </Vector3>
         <Color3 name="Color">
-          <R>0.6666666666666666</R>
-          <G>0.8313725490196079</G>
-          <B>0.8784313725490196</B>
+          <R>0.7254901960784313</R>
+          <G>0.8352941176470589</G>
+          <B>0.8588235294117647</B>
         </Color3>
         <CoordinateFrame name="CFrame">
           <X>1063.45</X>
@@ -1045,6 +1046,7 @@
           <R21>0</R21>
           <R22>1</R22>
         </CoordinateFrame>
+        <float name="Reflectance">0</float>
       </Properties>
     </Item>
     <Item class="Part" referent="RBX_fill_camel_dairy_12">

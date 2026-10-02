@@ -325,9 +325,9 @@
           <Z>0.16</Z>
         </Vector3>
         <Color3 name="Color">
-          <R>0.6039215686274509</R>
-          <G>0.7843137254901961</G>
-          <B>0.7607843137254902</B>
+          <R>0.7254901960784313</R>
+          <G>0.8352941176470589</G>
+          <B>0.8588235294117647</B>
         </Color3>
         <CoordinateFrame name="CFrame">
           <X>1056.5</X>
@@ -343,7 +343,8 @@
           <R21>0</R21>
           <R22>1</R22>
         </CoordinateFrame>
-        <float name="Transparency">0.22</float>
+        <float name="Transparency">0.58</float>
+        <float name="Reflectance">0</float>
       </Properties>
     </Item>
     <Item class="Part" referent="RBX_tortoise_vault_Lv4_10">
@@ -362,9 +363,9 @@
           <Z>0.16</Z>
         </Vector3>
         <Color3 name="Color">
-          <R>0.6039215686274509</R>
-          <G>0.7843137254901961</G>
-          <B>0.7607843137254902</B>
+          <R>0.7254901960784313</R>
+          <G>0.8352941176470589</G>
+          <B>0.8588235294117647</B>
         </Color3>
         <CoordinateFrame name="CFrame">
           <X>1063.5</X>
@@ -380,7 +381,8 @@
           <R21>0</R21>
           <R22>1</R22>
         </CoordinateFrame>
-        <float name="Transparency">0.22</float>
+        <float name="Transparency">0.58</float>
+        <float name="Reflectance">0</float>
       </Properties>
     </Item>
     <Item class="Part" referent="RBX_tortoise_vault_Lv4_11">

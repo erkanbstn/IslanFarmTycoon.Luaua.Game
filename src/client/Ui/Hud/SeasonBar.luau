@@ -71,7 +71,7 @@ function SeasonBar.create(stats: Instance): Bar
 	local toggle = UiKit.button(seasonBar, "Etkileri göster", "secondary")
 	toggle.Name = "EffectsToggle"
 	toggle.Size = UDim2.new(1, 0, 0, 26)
-	toggle.TextSize = 12
+	toggle.TextSize = UiKit.TextSize.Caption
 	toggle.LayoutOrder = 6
 	-- Uzun listeler küçük ekranlarda paneli taşırmasın: sabit yükseklikte kaydırılır
 	local details = Instance.new("ScrollingFrame")

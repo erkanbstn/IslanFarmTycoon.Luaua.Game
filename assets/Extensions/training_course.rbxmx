@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
 <roblox version="4">
   <Meta name="ExplicitAutoJoints">true</Meta>
   <Item class="Model" referent="RBXMODEL">
@@ -50,7 +51,7 @@
         <token name="Material">1296</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
-        <bool name="CanCollide">false</bool>
+        <bool name="CanCollide">true</bool>
         <bool name="CanTouch">false</bool>
         <bool name="CanQuery">true</bool>
         <float name="Transparency">0</float>
@@ -87,7 +88,7 @@
         <token name="Material">1296</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
-        <bool name="CanCollide">false</bool>
+        <bool name="CanCollide">true</bool>
         <bool name="CanTouch">false</bool>
         <bool name="CanQuery">true</bool>
         <float name="Transparency">0</float>
@@ -124,7 +125,7 @@
         <token name="Material">1296</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
-        <bool name="CanCollide">false</bool>
+        <bool name="CanCollide">true</bool>
         <bool name="CanTouch">false</bool>
         <bool name="CanQuery">true</bool>
         <float name="Transparency">0</float>
@@ -161,7 +162,7 @@
         <token name="Material">1296</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
-        <bool name="CanCollide">false</bool>
+        <bool name="CanCollide">true</bool>
         <bool name="CanTouch">false</bool>
         <bool name="CanQuery">true</bool>
         <float name="Transparency">0</float>
@@ -198,7 +199,7 @@
         <token name="Material">1296</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
-        <bool name="CanCollide">false</bool>
+        <bool name="CanCollide">true</bool>
         <bool name="CanTouch">false</bool>
         <bool name="CanQuery">true</bool>
         <float name="Transparency">0</float>
@@ -235,7 +236,7 @@
         <token name="Material">1296</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
-        <bool name="CanCollide">false</bool>
+        <bool name="CanCollide">true</bool>
         <bool name="CanTouch">false</bool>
         <bool name="CanQuery">true</bool>
         <float name="Transparency">0</float>
@@ -272,7 +273,7 @@
         <token name="Material">1296</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
-        <bool name="CanCollide">false</bool>
+        <bool name="CanCollide">true</bool>
         <bool name="CanTouch">false</bool>
         <bool name="CanQuery">true</bool>
         <float name="Transparency">0</float>
@@ -309,7 +310,7 @@
         <token name="Material">1296</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
-        <bool name="CanCollide">false</bool>
+        <bool name="CanCollide">true</bool>
         <bool name="CanTouch">false</bool>
         <bool name="CanQuery">true</bool>
         <float name="Transparency">0</float>
@@ -346,7 +347,7 @@
         <token name="Material">1296</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
-        <bool name="CanCollide">false</bool>
+        <bool name="CanCollide">true</bool>
         <bool name="CanTouch">false</bool>
         <bool name="CanQuery">true</bool>
         <float name="Transparency">0</float>
@@ -383,7 +384,7 @@
         <token name="Material">1296</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
-        <bool name="CanCollide">false</bool>
+        <bool name="CanCollide">true</bool>
         <bool name="CanTouch">false</bool>
         <bool name="CanQuery">true</bool>
         <float name="Transparency">0</float>
@@ -420,7 +421,7 @@
         <token name="Material">1296</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
-        <bool name="CanCollide">false</bool>
+        <bool name="CanCollide">true</bool>
         <bool name="CanTouch">false</bool>
         <bool name="CanQuery">true</bool>
         <float name="Transparency">0</float>
@@ -457,7 +458,7 @@
         <token name="Material">1296</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
-        <bool name="CanCollide">false</bool>
+        <bool name="CanCollide">true</bool>
         <bool name="CanTouch">false</bool>
         <bool name="CanQuery">true</bool>
         <float name="Transparency">0</float>
@@ -494,7 +495,7 @@
         <token name="Material">1296</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
-        <bool name="CanCollide">false</bool>
+        <bool name="CanCollide">true</bool>
         <bool name="CanTouch">false</bool>
         <bool name="CanQuery">true</bool>
         <float name="Transparency">0</float>
@@ -531,7 +532,7 @@
         <token name="Material">1296</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
-        <bool name="CanCollide">false</bool>
+        <bool name="CanCollide">true</bool>
         <bool name="CanTouch">false</bool>
         <bool name="CanQuery">true</bool>
         <float name="Transparency">0</float>
@@ -568,7 +569,7 @@
         <token name="Material">1296</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
-        <bool name="CanCollide">false</bool>
+        <bool name="CanCollide">true</bool>
         <bool name="CanTouch">false</bool>
         <bool name="CanQuery">true</bool>
         <float name="Transparency">0</float>
@@ -605,7 +606,7 @@
         <token name="Material">1296</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
-        <bool name="CanCollide">false</bool>
+        <bool name="CanCollide">true</bool>
         <bool name="CanTouch">false</bool>
         <bool name="CanQuery">true</bool>
         <float name="Transparency">0</float>
@@ -642,7 +643,7 @@
         <token name="Material">1296</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
-        <bool name="CanCollide">false</bool>
+        <bool name="CanCollide">true</bool>
         <bool name="CanTouch">false</bool>
         <bool name="CanQuery">true</bool>
         <float name="Transparency">0</float>
@@ -679,7 +680,7 @@
         <token name="Material">1296</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
-        <bool name="CanCollide">false</bool>
+        <bool name="CanCollide">true</bool>
         <bool name="CanTouch">false</bool>
         <bool name="CanQuery">true</bool>
         <float name="Transparency">0</float>
@@ -716,7 +717,7 @@
         <token name="Material">1296</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
-        <bool name="CanCollide">false</bool>
+        <bool name="CanCollide">true</bool>
         <bool name="CanTouch">false</bool>
         <bool name="CanQuery">true</bool>
         <float name="Transparency">0</float>
@@ -753,7 +754,7 @@
         <token name="Material">1296</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
-        <bool name="CanCollide">false</bool>
+        <bool name="CanCollide">true</bool>
         <bool name="CanTouch">false</bool>
         <bool name="CanQuery">true</bool>
         <float name="Transparency">0</float>
@@ -790,7 +791,7 @@
         <token name="Material">1296</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
-        <bool name="CanCollide">false</bool>
+        <bool name="CanCollide">true</bool>
         <bool name="CanTouch">false</bool>
         <bool name="CanQuery">true</bool>
         <float name="Transparency">0</float>
@@ -827,7 +828,7 @@
         <token name="Material">1296</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
-        <bool name="CanCollide">false</bool>
+        <bool name="CanCollide">true</bool>
         <bool name="CanTouch">false</bool>
         <bool name="CanQuery">true</bool>
         <float name="Transparency">0</float>
@@ -864,7 +865,7 @@
         <token name="Material">1296</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
-        <bool name="CanCollide">false</bool>
+        <bool name="CanCollide">true</bool>
         <bool name="CanTouch">false</bool>
         <bool name="CanQuery">true</bool>
         <float name="Transparency">0</float>
@@ -901,7 +902,7 @@
         <token name="Material">1296</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
-        <bool name="CanCollide">false</bool>
+        <bool name="CanCollide">true</bool>
         <bool name="CanTouch">false</bool>
         <bool name="CanQuery">true</bool>
         <float name="Transparency">0</float>

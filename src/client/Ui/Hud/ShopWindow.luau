@@ -105,7 +105,7 @@ function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 		-- Ürünle satın al: depodaki ürünlerin değeri (GOODS_BARTER.rate) hayvanın fiyatını karşılıyorsa tek hayvan takasla alınır
 		local barterButton = UiKit.button(card.frame, "", "secondary")
 		barterButton.Size = UDim2.new(1, 0, 0, 30)
-		barterButton.TextSize = 13
+		barterButton.TextSize = UiKit.TextSize.Button
 		barterButton.LayoutOrder = 5
 		barterButton.Visible = false
 		barterButtons[animalId] = barterButton

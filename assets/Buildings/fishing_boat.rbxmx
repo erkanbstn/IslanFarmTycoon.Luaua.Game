@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
 <roblox version="4">
   <Meta name="ExplicitAutoJoints">true</Meta>
   <Item class="Model" referent="RBXMODEL">
@@ -710,8 +711,8 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>0</X>
-          <Y>3.05</Y>
-          <Z>1</Z>
+          <Y>2.85</Y>
+          <Z>.97</Z>
           <R00>1</R00>
           <R01>0</R01>
           <R02>0</R02>
@@ -723,9 +724,9 @@
           <R22>1</R22>
         </CoordinateFrame>
         <Color3 name="Color">
-          <R>0.49019608</R>
-          <G>0.69019608</G>
-          <B>0.68235294</B>
+          <R>0.7254901960784313</R>
+          <G>0.8352941176470589</G>
+          <B>0.8588235294117647</B>
         </Color3>
         <token name="Material">1568</token>
         <token name="Shape">1</token>
@@ -734,7 +735,7 @@
         <bool name="CanTouch">false</bool>
         <bool name="CanQuery">false</bool>
         <bool name="CastShadow">false</bool>
-        <float name="Transparency">0.15</float>
+        <float name="Transparency">0.58</float>
         <float name="Reflectance">0</float>
       </Properties>
     </Item>
@@ -748,8 +749,8 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>0</X>
-          <Y>3.05</Y>
-          <Z>0.91</Z>
+          <Y>2.85</Y>
+          <Z>.80</Z>
           <R00>1</R00>
           <R01>0</R01>
           <R02>0</R02>
@@ -786,7 +787,7 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>-1.76</X>
-          <Y>3.05</Y>
+          <Y>2.85</Y>
           <Z>2.5</Z>
           <R00>1</R00>
           <R01>0</R01>
@@ -799,9 +800,9 @@
           <R22>1</R22>
         </CoordinateFrame>
         <Color3 name="Color">
-          <R>0.49019608</R>
-          <G>0.69019608</G>
-          <B>0.68235294</B>
+          <R>0.7254901960784313</R>
+          <G>0.8352941176470589</G>
+          <B>0.8588235294117647</B>
         </Color3>
         <token name="Material">1568</token>
         <token name="Shape">1</token>
@@ -810,7 +811,7 @@
         <bool name="CanTouch">false</bool>
         <bool name="CanQuery">false</bool>
         <bool name="CastShadow">false</bool>
-        <float name="Transparency">0.15</float>
+        <float name="Transparency">0.58</float>
         <float name="Reflectance">0</float>
       </Properties>
     </Item>
@@ -862,7 +863,7 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1.76</X>
-          <Y>3.05</Y>
+          <Y>2.85</Y>
           <Z>2.5</Z>
           <R00>1</R00>
           <R01>0</R01>
@@ -875,9 +876,9 @@
           <R22>1</R22>
         </CoordinateFrame>
         <Color3 name="Color">
-          <R>0.49019608</R>
-          <G>0.69019608</G>
-          <B>0.68235294</B>
+          <R>0.7254901960784313</R>
+          <G>0.8352941176470589</G>
+          <B>0.8588235294117647</B>
         </Color3>
         <token name="Material">1568</token>
         <token name="Shape">1</token>
@@ -886,7 +887,7 @@
         <bool name="CanTouch">false</bool>
         <bool name="CanQuery">false</bool>
         <bool name="CastShadow">false</bool>
-        <float name="Transparency">0.15</float>
+        <float name="Transparency">0.58</float>
         <float name="Reflectance">0</float>
       </Properties>
     </Item>

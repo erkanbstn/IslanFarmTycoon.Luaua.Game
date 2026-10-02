@@ -340,9 +340,9 @@
           <R22>1</R22>
         </CoordinateFrame>
         <Color3 name="Color">
-          <R>0.5372549</R>
-          <G>0.72156863</G>
-          <B>0.74509804</B>
+          <R>0.7254901960784313</R>
+          <G>0.8352941176470589</G>
+          <B>0.8588235294117647</B>
         </Color3>
         <token name="Material">1568</token>
         <token name="Shape">1</token>
@@ -351,7 +351,8 @@
         <bool name="CanTouch">false</bool>
         <bool name="CanQuery">false</bool>
         <bool name="CastShadow">false</bool>
-        <float name="Transparency">.32</float>
+        <float name="Transparency">0.58</float>
+        <float name="Reflectance">0</float>
       </Properties>
     </Item>
     <Item class="Part" referent="honey_extractor_Lv3_10">
@@ -562,9 +563,9 @@
           <R22>1</R22>
         </CoordinateFrame>
         <Color3 name="Color">
-          <R>0.5372549</R>
-          <G>0.72156863</G>
-          <B>0.74509804</B>
+          <R>0.7254901960784313</R>
+          <G>0.8352941176470589</G>
+          <B>0.8588235294117647</B>
         </Color3>
         <token name="Material">1568</token>
         <token name="Shape">1</token>
@@ -573,7 +574,8 @@
         <bool name="CanTouch">false</bool>
         <bool name="CanQuery">false</bool>
         <bool name="CastShadow">false</bool>
-        <float name="Transparency">.32</float>
+        <float name="Transparency">0.58</float>
+        <float name="Reflectance">0</float>
       </Properties>
     </Item>
     <Item class="Part" referent="honey_extractor_Lv3_16">

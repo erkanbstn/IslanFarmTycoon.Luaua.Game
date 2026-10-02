@@ -98,7 +98,7 @@ local function create(parent: Instance): UiKit.Window
 		local button = UiKit.button(choices, option.title, "secondary")
 		button.Size = UDim2.new(1 / 4, -5, 1, 0)
 		button.TextScaled = false
-		button.TextSize = 14
+		button.TextSize = UiKit.TextSize.Button
 		button.LayoutOrder = index
 		buttons[option.id] = button
 		button.Activated:Connect(function()

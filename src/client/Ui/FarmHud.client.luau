@@ -77,16 +77,10 @@ local rewardsWindow = UiKit.window(hudRoot, {
 	position = UDim2.fromScale(0.5, 0.5),
 })
 
--- Ortadaki pencereler aynı yerde açılır: biri açılınca diğerleri kapanır (üst üste binmesin)
-local centerWindows: { UiKit.Window } = {}
-local function openCenter(window: UiKit.Window)
-	for _, other in centerWindows do
-		if other ~= window then
-			other.close()
-		end
-	end
-	window.open()
-end
+-- Tüm ana pencereler tek kuralla yönetilir (Ui/Kit/Windows): aynı anda biri açık olur, yenisi açılınca öbürleri kapanır.
+-- Menü karosu ve kısayollar `toggleWindow` (açıksa kapatır), dünya etkileşimleri `showWindow` (açıksa dokunmaz) kullanır.
+local toggleWindow = UiKit.toggleWindow
+local showWindow = UiKit.showWindow
 
 -- Sipariş panosu ve destek dükkânı kendi pencerelerinde (Ödüller'e karışmaz)
 local boardWindow = UiKit.window(hudRoot, {
@@ -107,14 +101,9 @@ local storeWindow = UiKit.window(hudRoot, {
 	anchor = Vector2.new(0.5, 0.5),
 	position = UDim2.fromScale(0.5, 0.5),
 })
-table.insert(centerWindows, rewardsWindow)
-table.insert(centerWindows, boardWindow)
-table.insert(centerWindows, storeWindow)
--- Eşya Dükkânı (meydandaki satıcı) ve Envanter: ortadaki pencereler, birbirini kapatır
+-- Eşya Dükkânı (meydandaki satıcı) ve Envanter
 local itemShop = ItemShopWindow.create(hudRoot)
 local inventoryPanel = InventoryWindow.create(hudRoot)
-table.insert(centerWindows, itemShop.window)
-table.insert(centerWindows, inventoryPanel.window)
 
 ---------------------------------------------------------------------------
 -- Sol panel, menü ve hedef kartları (oluşturma sırası ekrandaki üst üste binmeyi belirler)
@@ -139,27 +128,15 @@ local goal = GoalCard.create(statsHud.frame, onboarding)
 local celebrate = Celebration.create(hudRoot)
 
 menu.rewardsButton.Activated:Connect(function()
-	if rewardsWindow.isOpen() then
-		rewardsWindow.close()
-	else
-		openCenter(rewardsWindow)
-	end
+	toggleWindow(rewardsWindow)
 end)
 if storeForSale then
 	menu.storeButton.Activated:Connect(function()
-		if storeWindow.isOpen() then
-			storeWindow.close()
-		else
-			openCenter(storeWindow)
-		end
+		toggleWindow(storeWindow)
 	end)
 end
 menu.inventoryButton.Activated:Connect(function()
-	if inventoryPanel.window.isOpen() then
-		inventoryPanel.window.close()
-	else
-		openCenter(inventoryPanel.window)
-	end
+	toggleWindow(inventoryPanel.window)
 end)
 
 ---------------------------------------------------------------------------
@@ -209,15 +186,6 @@ local roadmapWindow = roadmap.window
 local upgradesHud = UpgradesWindow.create(hudRoot, WINDOW_POSITION)
 local upgradesWindow = upgradesHud.window
 
-local function toggleWindow(window: UiKit.Window)
-	local wasOpen = window.isOpen()
-	shopWindow.close()
-	roadmapWindow.close()
-	upgradesWindow.close()
-	if not wasOpen then
-		window.open()
-	end
-end
 menu.shopButton.Activated:Connect(function()
 	toggleWindow(shopWindow)
 end)
@@ -232,15 +200,13 @@ end)
 -- Meydandaki satıcı NPC'ler: mevcut pencereleri açar (satın alma yine sunucuda doğrulanır)
 local vendorActions: { [string]: () -> () } = {
 	orders = function()
-		openCenter(boardWindow)
+		showWindow(boardWindow)
 	end,
 	store = function()
-		openCenter(itemShop.window)
+		showWindow(itemShop.window)
 	end,
 	roadmap = function()
-		if not roadmapWindow.isOpen() then
-			toggleWindow(roadmapWindow)
-		end
+		showWindow(roadmapWindow)
 	end,
 	travel = IslandManager.open,
 }
@@ -250,16 +216,12 @@ ProximityPromptService.PromptTriggered:Connect(function(prompt: ProximityPrompt,
 	end
 	-- Adadaki pazar tezgâhı: hayvan pazarını açar (sağ menüdeki "Pazar" ile aynı)
 	if prompt.Name == "MarketPrompt" then
-		if not shopWindow.isOpen() then
-			toggleWindow(shopWindow)
-		end
+		showWindow(shopWindow)
 		return
 	end
 	-- Ahırdaki sandık: envanter penceresi (Ahır Deposu bölümü üstte) açılır
 	if prompt.Name == "BarnChestPrompt" then
-		if not inventoryPanel.window.isOpen() then
-			openCenter(inventoryPanel.window)
-		end
+		showWindow(inventoryPanel.window)
 		return
 	end
 	if prompt.Name ~= "VendorPrompt" then
@@ -285,11 +247,7 @@ UserInputService.InputBegan:Connect(function(input: InputObject, gameProcessed: 
 	elseif input.KeyCode == Enum.KeyCode.I then
 		IslandManager.toggle()
 	elseif input.KeyCode == Enum.KeyCode.B then
-		if inventoryPanel.window.isOpen() then
-			inventoryPanel.window.close()
-		else
-			openCenter(inventoryPanel.window)
-		end
+		toggleWindow(inventoryPanel.window)
 	end
 end)
 -- Gamepad: DPad Yukarı = Pazar, Sağ = Yükseltmeler, Sol = Adalar, Aşağı = Envanter (klavye kısayollarının karşılığı).
@@ -304,11 +262,7 @@ local gamepadMenu: { [Enum.KeyCode]: () -> () } = {
 	end,
 	[Enum.KeyCode.DPadLeft] = IslandManager.toggle,
 	[Enum.KeyCode.DPadDown] = function()
-		if inventoryPanel.window.isOpen() then
-			inventoryPanel.window.close()
-		else
-			openCenter(inventoryPanel.window)
-		end
+		toggleWindow(inventoryPanel.window)
 	end,
 }
 ContextActionService:BindActionAtPriority(
@@ -353,9 +307,7 @@ local seasonBar = SeasonBar.create(statsHud.frame)
 
 -- Altın hayvan belirdiğinde bir kez haber ver (hayvan çiftlikte parlar); tüccar için kalıcı rozet var
 local merchantBadge = MerchantBadge.create(hudRoot, function()
-	if not shopWindow.isOpen() then
-		toggleWindow(shopWindow)
-	end
+	showWindow(shopWindow)
 end, showToast)
 local lastGoldenCycle = -1
 local function goldenNotice(state: PlayerSave?)

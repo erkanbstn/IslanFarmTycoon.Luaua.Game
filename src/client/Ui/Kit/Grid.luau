@@ -79,7 +79,7 @@ function Grid.tile(
 	local detail = caption(frame, detailHeight or (if compact then 30 else 88), 12, false, 3)
 	local action = Controls.button(frame, "", "primary")
 	action.Size = UDim2.new(1, 0, 0, 30)
-	action.TextSize = 13
+	action.TextSize = Tokens.TextSize.Button
 	action.LayoutOrder = 4
 	return { frame = frame, icon = chip, title = title, detail = detail, action = action, status = status }
 end
@@ -148,7 +148,7 @@ function Grid.autoTile(grid: Frame, order: number, icon: string): Controls.Card
 	local detail = autoCaption(frame, 12, false, 3)
 	local action = Controls.button(frame, "", "primary")
 	action.Size = UDim2.new(1, 0, 0, 30)
-	action.TextSize = 13
+	action.TextSize = Tokens.TextSize.Button
 	action.LayoutOrder = 4
 	return { frame = frame, icon = chip, title = title, detail = detail, action = action, status = status }
 end
@@ -183,7 +183,7 @@ function Grid.tabs(
 		local button = Instance.new("TextButton")
 		button.Text = entry.label
 		button.FontFace = Tokens.Font.Bold
-		button.TextSize = 13
+		button.TextSize = Tokens.TextSize.Button
 		button.AutoButtonColor = true
 		button.AutomaticSize = Enum.AutomaticSize.X
 		button.Size = UDim2.fromOffset(0, 30)

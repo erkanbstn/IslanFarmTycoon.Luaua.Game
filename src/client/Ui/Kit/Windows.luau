@@ -36,6 +36,8 @@ export type WindowOptions = {
 -- Sağ kenardaki pencerelerin üstten bırakacağı gerçek piksel: Roblox üst çubuğu + sağ üst oyuncu listesi (6 oyuncuya kadar)
 local TOP_RESERVE = 190
 local SLIDE_TWEEN = TweenInfo.new(0.22, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+local CLOSE_TWEEN = TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+local SLIDE_DISTANCE = 20 -- açılış/kapanışta kayma payı (px)
 
 local openWindows: { Window } = {}
 
@@ -95,6 +97,10 @@ function Windows.window(parent: Instance, options: WindowOptions): Window
 	listPad.Parent = list
 
 	local window: Window
+	-- Pencerenin mantıksal durumu: `opened` hemen değişir, çerçeve kapanış animasyonu bitince gizlenir (animasyon sırasında yeniden
+	-- aç/kapa tutarlı kalır). `token` eski kapanış animasyonunun yeni açılışı gizlemesini engeller.
+	local opened = false
+	local token = 0
 	local selectedBefore: GuiObject? = nil
 	local close: TextButton? = nil
 	local targetPosition = options.position
@@ -134,9 +140,12 @@ function Windows.window(parent: Instance, options: WindowOptions): Window
 		frame = frame,
 		list = list,
 		open = function()
-			if frame.Visible then
+			if opened then
 				return
 			end
+			opened = true
+			token += 1
+			-- Aynı anda tek ana pencere açık: yeni pencere açılırken öbürleri kapanır (her açma yolu için aynı kural)
 			for _, other in openWindows do
 				if other ~= window then
 					other.close()
@@ -150,21 +159,43 @@ function Windows.window(parent: Instance, options: WindowOptions): Window
 				GuiService.SelectedObject = close
 			end
 			if Players.LocalPlayer:GetAttribute("ReducedMotion") ~= true then
-				frame.Position = targetPosition + UDim2.fromOffset(20, 0)
+				frame.Position = targetPosition + UDim2.fromOffset(SLIDE_DISTANCE, 0)
 				TweenService:Create(frame, SLIDE_TWEEN, { Position = targetPosition }):Play()
+			else
+				frame.Position = targetPosition
 			end
 		end,
 		close = function()
-			if frame.Visible and GuiService.SelectedObject and GuiService.SelectedObject:IsDescendantOf(frame) then
+			if not opened then
+				return
+			end
+			opened = false
+			token += 1
+			local mine = token
+			if GuiService.SelectedObject and GuiService.SelectedObject:IsDescendantOf(frame) then
 				GuiService.SelectedObject = if selectedBefore and selectedBefore.Parent then selectedBefore else nil
 			end
-			if frame.Visible then
-				Sfx.play("ui_close", 0.04)
+			Sfx.play("ui_close", 0.04)
+			if Players.LocalPlayer:GetAttribute("ReducedMotion") == true then
+				frame.Visible = false
+				return
 			end
-			frame.Visible = false
+			-- Açılışın tersi: kısa bir kayma, sonra gizlenir
+			local tween = TweenService:Create(
+				frame,
+				CLOSE_TWEEN,
+				{ Position = targetPosition + UDim2.fromOffset(SLIDE_DISTANCE, 0) }
+			)
+			tween.Completed:Connect(function()
+				if token == mine and not opened then
+					frame.Visible = false
+					frame.Position = targetPosition
+				end
+			end)
+			tween:Play()
 		end,
 		isOpen = function()
-			return frame.Visible
+			return opened
 		end,
 	}
 
@@ -176,7 +207,7 @@ function Windows.window(parent: Instance, options: WindowOptions): Window
 	local inputConnection = UserInputService.InputBegan:Connect(function(input, processed)
 		if
 			not processed
-			and frame.Visible
+			and opened
 			and (input.KeyCode == Enum.KeyCode.Escape or input.KeyCode == Enum.KeyCode.ButtonB)
 		then
 			window.close()
@@ -194,6 +225,23 @@ function Windows.window(parent: Instance, options: WindowOptions): Window
 		end
 	end)
 	return window
+end
+
+-- Ortak açma yolları (menü karosu, kısayol, gamepad, dünya etkileşimi aynı kuralı kullanır):
+--   toggle: açıksa kapatır, kapalıysa açar (menü karosu, klavye/gamepad kısayolu)
+--   show:   açıksa dokunmaz, kapalıysa açar (pazar tezgâhı, satıcı, sandık gibi dünya etkileşimleri)
+function Windows.toggle(target: Window)
+	if target.isOpen() then
+		target.close()
+	else
+		target.open()
+	end
+end
+
+function Windows.show(target: Window)
+	if not target.isOpen() then
+		target.open()
+	end
 end
 
 return Windows

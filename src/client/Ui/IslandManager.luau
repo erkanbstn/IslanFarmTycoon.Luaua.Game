@@ -435,7 +435,7 @@ local function create(): UiKit.Window
 			if owner then
 				local give = UiKit.button(card.frame, "Para gönder", "secondary")
 				give.Size = UDim2.new(1, 0, 0, 30)
-				give.TextSize = 13
+				give.TextSize = UiKit.TextSize.Button
 				give.LayoutOrder = 5
 				give.Activated:Connect(function()
 					if blocked() then

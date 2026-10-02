@@ -105,12 +105,12 @@ function InventoryWindow.create(screenGui: Instance): Panel
 		UiKit.list(row, 4, true)
 		local halfButton = UiKit.button(row, "", "secondary")
 		halfButton.Size = UDim2.new(0.5, -2, 1, 0)
-		halfButton.TextSize = 12
+		halfButton.TextSize = UiKit.TextSize.Caption
 		halfButton.LayoutOrder = 1
 		halfButtons[goodId] = halfButton
 		local allButton = UiKit.button(row, "", "secondary")
 		allButton.Size = UDim2.new(0.5, -2, 1, 0)
-		allButton.TextSize = 12
+		allButton.TextSize = UiKit.TextSize.Caption
 		allButton.LayoutOrder = 2
 		allButtons[goodId] = allButton
 		halfButton.Activated:Connect(function()
@@ -160,7 +160,7 @@ function InventoryWindow.create(screenGui: Instance): Panel
 		button.Size = UDim2.new(1 / POWER_BUTTONS, -4, 1, 0)
 		button.TextScaled = true
 		local fit = Instance.new("UITextSizeConstraint")
-		fit.MaxTextSize = 13
+		fit.MaxTextSize = UiKit.TextSize.Button
 		fit.MinTextSize = UiKit.MinTextSize
 		fit.Parent = button
 		powerButtons[index] = button

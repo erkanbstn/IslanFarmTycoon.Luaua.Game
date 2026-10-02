@@ -150,7 +150,7 @@ local function create(parent: Instance): UiKit.Window
 		button.TextScaled = true
 		local limit = Instance.new("UITextSizeConstraint")
 		limit.MaxTextSize = button.TextSize
-		limit.MinTextSize = 9
+		limit.MinTextSize = 10
 		limit.Parent = button
 		local padding = Instance.new("UIPadding")
 		padding.PaddingLeft = UDim.new(0, 6)

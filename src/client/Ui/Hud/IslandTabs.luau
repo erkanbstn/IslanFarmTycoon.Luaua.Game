@@ -35,7 +35,7 @@ function IslandTabs.add(window: UiKit.Window)
 		button.Size = UDim2.new(1 / 4, -3, 1, 0)
 		-- Her sekmede aynı yazı boyutu; uzun ad kesilir, boyut oynamaz.
 		button.TextScaled = false
-		button.TextSize = 14
+		button.TextSize = UiKit.TextSize.Button
 		button.TextTruncate = Enum.TextTruncate.AtEnd
 		buttons[islandId] = button
 		button.Activated:Connect(function()
