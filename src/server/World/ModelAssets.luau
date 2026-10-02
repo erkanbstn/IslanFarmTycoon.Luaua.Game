@@ -32,6 +32,7 @@ function ModelAssets.clone(folderName: string, name: string): Model?
 		return nil
 	end
 	local model = template:Clone()
+	model:SetAttribute("ModelAsset", `{folderName}/{name}`) -- hazır modelden geldiğini gösterir (Studio denetimi/hata ayıklama)
 	for _, descendant in model:GetDescendants() do
 		if descendant:IsA("LuaSourceContainer") then
 			descendant:Destroy()
