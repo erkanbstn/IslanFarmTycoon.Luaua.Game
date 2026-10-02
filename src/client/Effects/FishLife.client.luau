@@ -8,6 +8,7 @@ local localPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 local StartupGate = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("StartupGate"))
+local ClientModelAssets = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("ClientModelAssets"))
 StartupGate.wait(2.5)
 
 local WATER_Y = 0 -- Deniz yüzeyi (MapBuilder: su bloğunun üstü)
@@ -22,9 +23,12 @@ local FISH_COLORS = {
 	Color3.fromRGB(245, 205, 70), -- sarı
 }
 
+type ModelPart = { part: BasePart, rel: CFrame }
 type Fish = {
+	model: Model,
 	body: BasePart,
-	tail: BasePart,
+	tail: BasePart?,
+	parts: { ModelPart }, -- gövdeye göre sabit ofsetler (kuyruk ayrıca sallanır)
 	offset: Vector3, -- Sürü merkezine göre
 	phase: number,
 	jumping: boolean,
@@ -46,56 +50,98 @@ local folder = Instance.new("Folder")
 folder.Name = "FishLife"
 folder.Parent = Workspace
 
-local function makeFish(color: Color3, size: number): (BasePart, BasePart)
-	local body = Instance.new("Part")
-	body.Name = "Fish"
-	body.Size = Vector3.new(0.55, 0.5, 1.4) * size
-	body.Color = color
-	body.Material = Enum.Material.SmoothPlastic
-	body.Anchored = true
-	body.CanCollide = false
-	body.CanQuery = false
-	body.CanTouch = false
-	body.CastShadow = false
-	local mesh = Instance.new("SpecialMesh")
-	mesh.MeshType = Enum.MeshType.Sphere
-	mesh.Parent = body
-	body.Transparency = 1
-	body.Parent = folder
+-- Balık: client-assets/Fish/ShoreFish_A|B (Body PrimaryPart, Tail, Snout, Eye, Tint, PectoralFin, Stripe); tüm parçalar gövdeyle birlikte taşınır.
+local missingWarned: { [string]: boolean } = {}
+local FISH_MODELS = { "ShoreFish_A", "ShoreFish_B" }
 
-	local tail = Instance.new("WedgePart")
-	tail.Name = "Tail"
-	tail.Size = Vector3.new(0.08, 0.55, 0.5) * size
-	tail.Color = color
-	tail.Material = Enum.Material.SmoothPlastic
-	tail.Anchored = true
-	tail.CanCollide = false
-	tail.CanQuery = false
-	tail.CanTouch = false
-	tail.CastShadow = false
-	tail.Transparency = 1
-	tail.Parent = folder
-	return body, tail
+local function warnMissing(name: string)
+	if not missingWarned[name] then
+		missingWarned[name] = true
+		warn(`[FishLife] client-assets/Fish|Sea/{name}.rbxmx bulunamadı; çizilmedi`)
+	end
 end
 
+local function makeFish(color: Color3, size: number): Fish?
+	local name = FISH_MODELS[random:NextInteger(1, #FISH_MODELS)]
+	local model = ClientModelAssets.clone("Fish", name)
+	local body = if model then model:FindFirstChild("Body") else nil
+	if not (model and body and body:IsA("BasePart")) then
+		if model then
+			model:Destroy()
+		end
+		warnMissing(name)
+		return nil
+	end
+	model:ScaleTo(size)
+	local parts: { ModelPart } = {}
+	local tail: BasePart? = nil
+	for _, descendant in model:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			if
+				descendant.Name == "Body"
+				or descendant.Name == "Tail"
+				or descendant.Name == "Snout"
+				or descendant.Name == "PectoralFin"
+			then
+				descendant.Color = color
+			elseif descendant.Name == "Tint" then
+				descendant.Color = color:Lerp(Color3.new(1, 1, 1), 0.25)
+			end
+			descendant.Transparency = 1
+			table.insert(parts, { part = descendant, rel = body.CFrame:ToObjectSpace(descendant.CFrame) })
+			if descendant.Name == "Tail" then
+				tail = descendant
+			end
+		end
+	end
+	model.Parent = folder
+	return {
+		model = model,
+		body = body,
+		tail = tail,
+		parts = parts,
+		offset = Vector3.zero,
+		phase = 0,
+		jumping = false,
+		center = Vector3.zero,
+		heading = Vector3.zero,
+	}
+end
+
+-- Balığın bütün parçalarını `cf` pivotuna yerleştirir; kuyruk `tailAngle` kadar sallanır
+local function placeFish(fish: Fish, cf: CFrame, tailAngle: number)
+	for _, entry in fish.parts do
+		if entry.part == fish.tail then
+			entry.part.CFrame = cf * entry.rel * CFrame.Angles(0, tailAngle, 0)
+		else
+			entry.part.CFrame = cf * entry.rel
+		end
+	end
+end
+
+local function setFishVisible(fish: Fish, transparency: number)
+	for _, entry in fish.parts do
+		entry.part.Transparency = transparency
+	end
+end
+
+-- Sıçrama sıçraması: client-assets/Sea/Splash (görünmez parça + kapalı "Drops" ParticleEmitter şablonu); kod yalnızca konumlar ve Emit eder
 local function splash(position: Vector3)
-	local attachment = Instance.new("Attachment")
-	attachment.WorldPosition = Vector3.new(position.X, WATER_Y + 0.1, position.Z)
-	attachment.Parent = Workspace.Terrain
-	local emitter = Instance.new("ParticleEmitter")
-	emitter.Color = ColorSequence.new(Color3.fromRGB(220, 240, 255))
-	emitter.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.35), NumberSequenceKeypoint.new(1, 0) })
-	emitter.Transparency = NumberSequence.new(0.2)
-	emitter.Lifetime = NumberRange.new(0.4, 0.7)
-	emitter.Speed = NumberRange.new(4, 7)
-	emitter.SpreadAngle = Vector2.new(35, 35)
-	emitter.EmissionDirection = Enum.NormalId.Top
-	emitter.Acceleration = Vector3.new(0, -25, 0)
-	emitter.Rate = 0
-	emitter.Parent = attachment
+	local model = ClientModelAssets.clone("Sea", "Splash")
+	local emitter = if model then model:FindFirstChildWhichIsA("ParticleEmitter", true) else nil
+	local anchor = if model then model:FindFirstChildWhichIsA("BasePart") else nil
+	if not (model and emitter and anchor) then
+		if model then
+			model:Destroy()
+		end
+		warnMissing("Splash")
+		return
+	end
+	model:PivotTo(CFrame.new(position.X, WATER_Y + 0.1, position.Z))
+	model.Parent = folder
 	emitter:Emit(18)
 	task.delay(1, function()
-		attachment:Destroy()
+		model:Destroy()
 	end)
 end
 
@@ -140,14 +186,13 @@ local function createSchool(anchor: Vector3)
 	local color = FISH_COLORS[random:NextInteger(1, #FISH_COLORS)]
 	local size = random:NextNumber(0.8, 1.3)
 	for _ = 1, FISH_PER_SCHOOL do
-		local body, tail = makeFish(color, size * random:NextNumber(0.85, 1.1))
-		table.insert(fish, {
-			body = body,
-			tail = tail,
-			offset = Vector3.new(random:NextNumber(-2, 2), random:NextNumber(-0.4, 0.4), random:NextNumber(-2, 2)),
-			phase = random:NextNumber(0, math.pi * 2),
-			jumping = false,
-		})
+		local member = makeFish(color, size * random:NextNumber(0.85, 1.1))
+		if member then
+			member.offset =
+				Vector3.new(random:NextNumber(-2, 2), random:NextNumber(-0.4, 0.4), random:NextNumber(-2, 2))
+			member.phase = random:NextNumber(0, math.pi * 2)
+			table.insert(fish, member)
+		end
 	end
 	table.insert(schools, {
 		anchor = anchor,
@@ -210,8 +255,7 @@ local function jump(school: School, fish: Fish)
 		local position = Vector3.new(start.X, 0, start.Z) + forward * (length * t) + Vector3.new(0, y, 0)
 		local pitch = math.rad(-60 + 120 * t) -- burun önce yukarı, sonra aşağı
 		local cf = CFrame.lookAt(position, position + forward) * CFrame.Angles(-pitch, 0, 0)
-		fish.body.CFrame = cf
-		fish.tail.CFrame = cf * CFrame.new(0, 0, fish.body.Size.Z / 2 + fish.tail.Size.Z / 2 - 0.1)
+		placeFish(fish, cf, 0)
 
 		if not splashedOut and y > WATER_Y then
 			splashedOut = true
@@ -269,8 +313,7 @@ local function update(dt: number)
 				and index <= (if quality == "low" then 2 elseif quality == "high" then FISH_PER_SCHOOL else 3)
 			local transparency = if showFish then 0 else 1
 			if fish.body.Transparency ~= transparency then
-				fish.body.Transparency = transparency
-				fish.tail.Transparency = transparency
+				setFishVisible(fish, transparency)
 			end
 		end
 		if not visible then
@@ -294,11 +337,8 @@ local function update(dt: number)
 			position = Vector3.new(position.X, WATER_Y - school.depth + fish.offset.Y, position.Z)
 			local cf = CFrame.lookAt(position, position + tangent)
 				* CFrame.Angles(0, math.sin(now * 3 + fish.phase) * 0.15, 0)
-			fish.body.CFrame = cf
 			-- Kuyruk sallanır
-			fish.tail.CFrame = cf
-				* CFrame.new(0, 0, fish.body.Size.Z / 2 + fish.tail.Size.Z / 2 - 0.1)
-				* CFrame.Angles(0, math.sin(now * 12 + fish.phase) * 0.5, 0)
+			placeFish(fish, cf, math.sin(now * 12 + fish.phase) * 0.5)
 		end
 	end
 

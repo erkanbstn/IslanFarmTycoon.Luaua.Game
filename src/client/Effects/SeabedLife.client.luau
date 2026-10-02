@@ -62,31 +62,6 @@ rayParams.FilterType = Enum.RaycastFilterType.Include
 rayParams.FilterDescendantsInstances = { Workspace.Terrain }
 rayParams.IgnoreWater = true
 
-local function newPart(
-	parent: Instance,
-	name: string,
-	size: Vector3,
-	cf: CFrame,
-	color: Color3,
-	material: Enum.Material,
-	shape: Enum.PartType?
-): Part
-	local p = Instance.new("Part")
-	p.Name = name
-	p.Size = size
-	p.CFrame = cf
-	p.Color = color
-	p.Material = material
-	p.Anchored = true
-	p.CanCollide, p.CanQuery, p.CanTouch, p.CastShadow = false, false, false, false
-	p.TopSurface, p.BottomSurface = Enum.SurfaceType.Smooth, Enum.SurfaceType.Smooth
-	if shape then
-		p.Shape = shape
-	end
-	p.Parent = parent
-	return p
-end
-
 -- Deniz canlısı/süsü modeli: client-assets/<klasör>/<ad>; yoksa bir kez uyarır ve nil döner (o süs çizilmez).
 local missingWarned: { [string]: boolean } = {}
 local function cloneSea(folderName: string, name: string): Model?
@@ -177,23 +152,63 @@ end
 -- Dip dekoru hücreleri
 ---------------------------------------------------------------------------
 
-type Blade = { lower: Part, upper: Part, base: CFrame, height: number, phase: number, amplitude: number }
-type Bubble = { part: Part, x: number, z: number, floorY: number, speed: number, offset: number, wobble: number }
+type Blade = {
+	lower: { ModelPart },
+	upper: { ModelPart },
+	base: CFrame,
+	height: number,
+	phase: number,
+	amplitude: number,
+}
+type Bubble = { part: BasePart, x: number, z: number, floorY: number, speed: number, offset: number, wobble: number }
 type Cell = { model: Model, center: Vector3, blades: { Blade }, bubbles: { Bubble } }
 local cells: { [string]: Cell } = {}
 
+local KELP_MODELS = { "KelpBlade_A", "KelpBlade_B", "KelpBlade_C" }
+local KELP_SEGMENT = 4 -- modelde alt ve üst bölüm 4'er stud (toplam 8)
+
+-- Grubun parçalarını kendi pivotuna göre kaydeder (hareket her karede pivot * ofset olarak uygulanır)
+local function captureGroup(group: Instance): { ModelPart }
+	local list: { ModelPart } = {}
+	local pivot = (group :: Model):GetPivot()
+	for _, descendant in group:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			table.insert(list, { part = descendant, rel = pivot:ToObjectSpace(descendant.CFrame) })
+		end
+	end
+	return list
+end
+
+-- Yosun: client-assets/Sea/KelpBlade_A–C (8 stud; Lower/Upper alt modelleri, alt pivot 0, üst pivot y=4). Boy `height / 8` ölçeğiyle ayarlanır.
 local function buildKelp(cell: Cell, x: number, z: number, y: number, rng: Random)
 	local count = rng:NextInteger(4, 7)
 	local color = KELP_COLORS[rng:NextInteger(1, #KELP_COLORS)]
 	for _ = 1, count do
 		local height = rng:NextNumber(6, 13)
-		local half = height / 2
 		local offset = Vector3.new(rng:NextNumber(-2, 2), 0, rng:NextNumber(-2, 2))
 		local base = CFrame.new(x + offset.X, y - 0.3, z + offset.Z) * CFrame.Angles(0, rng:NextNumber(0, math.pi), 0)
 		local shade = color:Lerp(Color3.fromRGB(120, 190, 80), rng:NextNumber(0, 0.35))
+		local model = placeSea(
+			cell.model,
+			"Sea",
+			KELP_MODELS[rng:NextInteger(1, #KELP_MODELS)],
+			base,
+			height / (KELP_SEGMENT * 2),
+			function()
+				return shade
+			end
+		)
+		local lower = if model then model:FindFirstChild("Lower") else nil
+		local upper = if model then model:FindFirstChild("Upper") else nil
+		if not (model and lower and upper) then
+			if model then
+				model:Destroy()
+			end
+			return
+		end
 		table.insert(cell.blades, {
-			lower = newPart(cell.model, "Kelp", Vector3.new(0.35, half, 1.1), base, shade, Enum.Material.Grass),
-			upper = newPart(cell.model, "Kelp", Vector3.new(0.3, half, 0.75), base, shade, Enum.Material.Grass),
+			lower = captureGroup(lower),
+			upper = captureGroup(upper),
 			base = base,
 			height = height,
 			phase = rng:NextNumber(0, math.pi * 2),
@@ -251,19 +266,18 @@ local function buildStarfish(cell: Cell, x: number, z: number, y: number, rng: R
 	)
 end
 
+-- Kabarcık: client-assets/Sea/Bubble (1 stud'luk Glass top); `size` ölçeğiyle büyür, hareket kodda
 local function addBubbles(cell: Cell, x: number, z: number, y: number, rng: Random)
 	for index = 1, 4 do
 		local size = rng:NextNumber(0.3, 0.6)
-		local bubble = newPart(
-			cell.model,
-			"Bubble",
-			Vector3.one * size,
-			CFrame.new(x, y, z),
-			Color3.fromRGB(225, 245, 255),
-			Enum.Material.Glass,
-			Enum.PartType.Ball
-		)
-		bubble.Transparency = 0.45
+		local model = placeSea(cell.model, "Sea", "Bubble", CFrame.new(x, y, z), size, nil)
+		local bubble = if model then model:FindFirstChildWhichIsA("BasePart", true) else nil
+		if not bubble then
+			if model then
+				model:Destroy()
+			end
+			return
+		end
 		table.insert(cell.bubbles, {
 			part = bubble,
 			x = x,
@@ -273,6 +287,39 @@ local function addBubbles(cell: Cell, x: number, z: number, y: number, rng: Rand
 			offset = index / 4 * 100,
 			wobble = rng:NextNumber(0.2, 0.5),
 		})
+	end
+end
+
+-- Deniz çimi, deniz gülü ve kabuk kümeleri: sabit dip süsü (client-assets/Sea)
+local SEAGRASS_MODELS = { "Seagrass_A", "Seagrass_B", "Seagrass_C" }
+local SEAGRASS_COLORS = {
+	Color3.fromRGB(70, 160, 90),
+	Color3.fromRGB(100, 175, 80),
+	Color3.fromRGB(55, 140, 100),
+}
+local ANEMONE_COLORS = { Color3.fromRGB(170, 100, 220), Color3.fromRGB(90, 200, 200), Color3.fromRGB(235, 120, 160) }
+
+local function buildSeabedDecor(cell: Cell, kind: string, x: number, z: number, y: number, rng: Random)
+	local origin = CFrame.new(x, y, z) * CFrame.Angles(0, rng:NextNumber(0, math.pi * 2), 0)
+	if kind == "seagrass" then
+		local color = SEAGRASS_COLORS[rng:NextInteger(1, #SEAGRASS_COLORS)]
+		placeSea(
+			cell.model,
+			"Sea",
+			SEAGRASS_MODELS[rng:NextInteger(1, #SEAGRASS_MODELS)],
+			origin,
+			rng:NextNumber(0.9, 1.5),
+			function()
+				return color
+			end
+		)
+	elseif kind == "anemone" then
+		local color = ANEMONE_COLORS[rng:NextInteger(1, #ANEMONE_COLORS)]
+		placeSea(cell.model, "Sea", "SeaAnemone", origin, rng:NextNumber(0.9, 1.3), function()
+			return color
+		end)
+	else
+		placeSea(cell.model, "Sea", "ShellCluster", origin, rng:NextNumber(0.9, 1.3), nil)
 	end
 end
 
@@ -331,6 +378,24 @@ local function createCell(cx: number, cz: number, withBubbles: boolean, withKelp
 		local x, z, y = spot()
 		if x and z and y then
 			buildStarfish(cell, x, z, y, rng)
+		end
+	end
+	for _ = 1, rng:NextInteger(1, 2) do
+		local x, z, y = spot()
+		if x and z and y then
+			buildSeabedDecor(cell, "seagrass", x, z, y, rng)
+		end
+	end
+	local extras: { { kind: string, chance: number } } = {
+		{ kind = "anemone", chance = 0.35 },
+		{ kind = "shell", chance = 0.45 },
+	}
+	for _, extra in extras do
+		if rng:NextNumber() < extra.chance then
+			local x, z, y = spot()
+			if x and z and y then
+				buildSeabedDecor(cell, extra.kind, x, z, y, rng)
+			end
 		end
 	end
 	model.Parent = folder
@@ -583,8 +648,12 @@ local function update(frameDt: number)
 				local b = math.sin(now * 1.5 + blade.phase + 1.2) * blade.amplitude * 1.5
 				local pivot = blade.base * CFrame.Angles(a * 0.4, 0, a)
 				local pivotTop = pivot * CFrame.new(0, segment, 0) * CFrame.Angles(b * 0.4, 0, b)
-				queueMove(blade.lower, pivot * CFrame.new(0, segment / 2, 0))
-				queueMove(blade.upper, pivotTop * CFrame.new(0, segment / 2, 0))
+				for _, entry in blade.lower do
+					queueMove(entry.part, pivot * entry.rel)
+				end
+				for _, entry in blade.upper do
+					queueMove(entry.part, pivotTop * entry.rel)
+				end
 			end
 			for _, bubble in cell.bubbles do
 				local rise = (now * bubble.speed + bubble.offset) % (WATER_Y - 1 - bubble.floorY)

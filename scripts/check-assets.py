@@ -113,6 +113,19 @@ def expected() -> dict[str, set[str]]:
     return exp
 
 
+# İstemci efekt modelleri (client-assets/<klasör>/<ad>): kodda ClientModelAssets ile klonlanır.
+CLIENT_EXPECTED: dict[str, set[str]] = {
+    "Birds": {"Gull", "Songbird"},
+    "Fish": {"ReefFish", "ShoreFish_A", "ShoreFish_B"},
+    "Sea": {
+        "BranchCoral", "BrainCoral", "FanCoral", "SeaRock_A", "SeaRock_B", "SeaRock_C", "Starfish", "Jellyfish",
+        "KelpBlade_A", "KelpBlade_B", "KelpBlade_C", "Seagrass_A", "Seagrass_B", "Seagrass_C", "SeaAnemone",
+        "ShellCluster", "Bubble", "SurfaceWake", "BoatFoam", "AmbientBubbles", "VentBubbles", "EntryBubbles",
+        "SwimBubbles", "Splash", "UnderwaterAtmosphere",
+    },
+}
+
+
 def inspect(path: Path, folder: str) -> list[str]:
     problems: list[str] = []
     try:
@@ -183,6 +196,18 @@ def main() -> int:
         for m in allowed:
             print(f"         ~ izinli boşluk: {m} ({ALLOWED_MISSING[f'{folder}/{m}']})")
         for m in extra:
+            print(f"         ? koda karşılığı bulunamayan asset: {m}")
+    client_root = ROOT / "client-assets"
+    for folder, need in sorted(CLIENT_EXPECTED.items()):
+        have = {p.stem for p in (client_root / folder).glob("*.rbxmx")} if (client_root / folder).is_dir() else set()
+        missing = sorted(need - have)
+        total_expected += len(need)
+        total_missing += len(missing)
+        print(f"{'OK' if not missing else 'EKSİK':6} client/{folder:12} beklenen {len(need):3} hazır {len(need & have):3}")
+        for m in missing:
+            print(f"         - eksik: {m}")
+            failed = True
+        for m in sorted(have - need):
             print(f"         ? koda karşılığı bulunamayan asset: {m}")
     print()
     bad = 0

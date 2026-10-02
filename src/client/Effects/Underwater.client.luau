@@ -13,14 +13,13 @@ local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local player = Players.LocalPlayer
+local ClientModelAssets = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("ClientModelAssets"))
 
 local WATER_LEVEL = 0 -- MapBuilder.WATER_Y: deniz yüzeyi
 local ENTER_MARGIN = -0.3 -- Kamera bu kadar altına inince su altı sayılır (dalga payı)
 local EXIT_MARGIN = 0.3
 local FADE_SPEED = 3 -- saniyede (1 = tam su altı)
-local BUBBLE_TEXTURE = "rbxasset://textures/smallWhiteCircle.png"
 
-local WATER_TINT = Color3.fromRGB(185, 238, 246)
 local BUBBLES = {
 	low = { ambient = 4, burst = 6, swim = 3 },
 	medium = { ambient = 10, burst = 14, swim = 6 },
@@ -40,30 +39,77 @@ local function reduced(): boolean
 	return player:GetAttribute("ReducedMotion") == true
 end
 
+-- Hazır su altı görünümü (client-assets/Sea/*): atmosfer (renk düzeltmesi + bulanıklık), baloncuk/sıçrama parçacık şablonları,
+-- yüzme izi. Değerler modellerdedir; kod yalnızca klonlar, konumlar, Enabled/Rate/ömür ve güce göre yumuşak geçişi yönetir.
+local missingWarned: { [string]: boolean } = {}
+local function warnMissing(name: string)
+	if not missingWarned[name] then
+		missingWarned[name] = true
+		warn(`[Underwater] client-assets/Sea/{name}.rbxmx bulunamadı; çizilmedi`)
+	end
+end
+
+local function templateModel(name: string): Model?
+	local model = ClientModelAssets.clone("Sea", name)
+	if not model then
+		warnMissing(name)
+	end
+	return model
+end
+
+-- Şablonun ilk ParticleEmitter'ının kopyası `parent`e konur (şablon yoksa nil)
+local function cloneEmitter(name: string, parent: Instance): ParticleEmitter?
+	local template = ClientModelAssets.find("Sea", name)
+	local emitter = if template then template:FindFirstChildWhichIsA("ParticleEmitter", true) else nil
+	if not emitter then
+		warnMissing(name)
+		return nil
+	end
+	local copy = emitter:Clone()
+	copy.Parent = parent
+	return copy
+end
+
 -- Sadece bu client'ta var olan renk düzeltmesi ve bulanıklık (DayNight/WeatherEffects kendi efektlerine dokunur)
-local grade = Instance.new("ColorCorrectionEffect")
+local atmosphere = ClientModelAssets.find("Sea", "UnderwaterAtmosphere")
+local gradeTemplate = if atmosphere then atmosphere:FindFirstChild("UnderwaterGrade") else nil
+local blurTemplate = if atmosphere then atmosphere:FindFirstChild("UnderwaterBlur") else nil
+if not (gradeTemplate and blurTemplate) then
+	warnMissing("UnderwaterAtmosphere")
+end
+local grade: ColorCorrectionEffect = if gradeTemplate and gradeTemplate:IsA("ColorCorrectionEffect")
+	then gradeTemplate:Clone()
+	else Instance.new("ColorCorrectionEffect")
 grade.Name = "UnderwaterGrade"
-grade.Enabled = false
-grade.Parent = Lighting
-local blur = Instance.new("BlurEffect")
+local blur: BlurEffect = if blurTemplate and blurTemplate:IsA("BlurEffect")
+	then blurTemplate:Clone()
+	else Instance.new("BlurEffect")
 blur.Name = "UnderwaterBlur"
+-- Tam güç (strength 1) değerleri şablondan okunur; güç 0..1 ile ölçeklenir
+local FULL_TINT = grade.TintColor
+local FULL_BRIGHTNESS, FULL_CONTRAST, FULL_SATURATION = grade.Brightness, grade.Contrast, grade.Saturation
+local FULL_BLUR = blur.Size
+grade.TintColor = Color3.new(1, 1, 1)
+grade.Brightness, grade.Contrast, grade.Saturation = 0, 0, 0
 blur.Size = 0
+grade.Enabled = false
 blur.Enabled = false
+grade.Parent = Lighting
 blur.Parent = Lighting
 
 local folder = Instance.new("Folder")
 folder.Name = "LocalUnderwater"
 folder.Parent = Workspace
 
--- Kameranın çevresinde yükselen baloncuk hacmi
-local volume = Instance.new("Part")
-volume.Name = "BubbleVolume"
-volume.Anchored = true
-volume.CanCollide, volume.CanTouch, volume.CanQuery = false, false, false
-volume.CastShadow = false
-volume.Transparency = 1
-volume.Size = Vector3.new(30, 1, 30)
-volume.Parent = folder
+-- Kameranın çevresinde yükselen baloncuk hacmi (şablon: BubbleVolume parçası + "Bubbles" emitter'ı)
+local ambientModel = templateModel("AmbientBubbles")
+local volume: BasePart? = if ambientModel then ambientModel:FindFirstChild("BubbleVolume") :: BasePart? else nil
+local ambient: ParticleEmitter? = if ambientModel
+	then ambientModel:FindFirstChildWhichIsA("ParticleEmitter", true)
+	else nil
+if ambientModel then
+	ambientModel.Parent = folder
+end
 
 -- Baloncuğun yaşam süresi su yüzeyine kalan mesafeye sığdırılır (s = v*t + a*t^2/2 denkleminden): baloncuk suyun dışına çıkmaz.
 local function lifetimeToSurface(depth: number, speed: number, acceleration: number): number
@@ -82,82 +128,36 @@ local function fitLifetime(emitter: ParticleEmitter, depth: number, speed: numbe
 	emitter.Lifetime = NumberRange.new(seconds * 0.6, seconds)
 end
 
-local function newBubbleEmitter(parent: Instance): ParticleEmitter
-	local emitter = Instance.new("ParticleEmitter")
-	emitter.Name = "Bubbles"
-	emitter.Texture = BUBBLE_TEXTURE
-	emitter.Orientation = Enum.ParticleOrientation.FacingCamera
-	emitter.EmissionDirection = Enum.NormalId.Top
-	emitter.Speed = NumberRange.new(1.5, 3)
-	emitter.SpreadAngle = Vector2.new(12, 12)
-	emitter.Acceleration = Vector3.new(0, 1.2, 0)
-	emitter.Lifetime = NumberRange.new(3, 5)
-	emitter.Size = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 0.12, 0.05),
-		NumberSequenceKeypoint.new(1, 0.3, 0.12),
-	})
-	emitter.Color = ColorSequence.new(Color3.fromRGB(200, 235, 255))
-	emitter.Transparency = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 1),
-		NumberSequenceKeypoint.new(0.12, 0.55),
-		NumberSequenceKeypoint.new(0.8, 0.7),
-		NumberSequenceKeypoint.new(1, 1),
-	})
-	emitter.LightEmission = 0.35
-	emitter.LightInfluence = 0.3
-	emitter.Rate = 0
-	emitter.Enabled = false
-	emitter.Parent = parent
-	return emitter
+if ambient then
+	ambient.Shape = Enum.ParticleEmitterShape.Box
+	ambient.ShapeStyle = Enum.ParticleEmitterShapeStyle.Volume
 end
-
-local ambient = newBubbleEmitter(volume)
-ambient.Shape = Enum.ParticleEmitterShape.Box
-ambient.ShapeStyle = Enum.ParticleEmitterShapeStyle.Volume
-ambient.Lifetime = NumberRange.new(5, 8)
 
 -- Sıçrama: su yüzeyinde kısa, küçük damlalar (karakter girerken ve çıkarken)
 local function splash(position: Vector3)
-	local anchor = Instance.new("Part")
-	anchor.Name = "Splash"
-	anchor.Anchored = true
-	anchor.CanCollide, anchor.CanTouch, anchor.CanQuery = false, false, false
-	anchor.CastShadow = false
-	anchor.Transparency = 1
-	anchor.Size = Vector3.one
-	anchor.Position = Vector3.new(position.X, WATER_LEVEL + 0.2, position.Z)
-	anchor.Parent = folder
-	local drops = Instance.new("ParticleEmitter")
-	drops.Texture = BUBBLE_TEXTURE
-	drops.Orientation = Enum.ParticleOrientation.FacingCamera
-	drops.EmissionDirection = Enum.NormalId.Top
-	drops.Speed = NumberRange.new(8, 14)
-	drops.SpreadAngle = Vector2.new(35, 35)
-	drops.Acceleration = Vector3.new(0, -38, 0)
-	drops.Lifetime = NumberRange.new(0.6, 0.9)
-	drops.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.3), NumberSequenceKeypoint.new(1, 0.08) })
-	drops.Color = ColorSequence.new(Color3.fromRGB(225, 242, 255))
-	drops.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.2), NumberSequenceKeypoint.new(1, 1) })
-	drops.LightEmission = 0.2
-	drops.Rate = 0
-	drops.Parent = anchor
+	local model = templateModel("Splash")
+	local drops = if model then model:FindFirstChildWhichIsA("ParticleEmitter", true) else nil
+	if not (model and drops) then
+		if model then
+			model:Destroy()
+		end
+		return
+	end
+	model:PivotTo(CFrame.new(position.X, WATER_LEVEL + 0.2, position.Z))
+	model.Parent = folder
 	drops:Emit(math.floor(budget().burst * 0.8))
-	Debris:AddItem(anchor, 2)
+	Debris:AddItem(model, 2)
 end
 
 local function bubbleBurst(head: BasePart, depth: number)
 	local found = head:FindFirstChild("EntryBubbles")
-	local emitter: ParticleEmitter
-	if found and found:IsA("ParticleEmitter") then
-		emitter = found
-	else
-		emitter = newBubbleEmitter(head)
-		emitter.Name = "EntryBubbles"
-		emitter.Speed = NumberRange.new(1.5, 2.5)
-		emitter.SpreadAngle = Vector2.new(25, 25)
-		emitter.Acceleration = Vector3.zero
-		emitter.Enabled = true -- Enabled true, Rate 0: yalnızca Emit ile salınır
+	local emitter: ParticleEmitter? = if found and found:IsA("ParticleEmitter")
+		then found
+		else cloneEmitter("EntryBubbles", head)
+	if not emitter then
+		return
 	end
+	emitter.Enabled = true -- Enabled true, Rate 0: yalnızca Emit ile salınır
 	fitLifetime(emitter, depth - 0.2, 2, 0)
 	emitter:Emit(budget().burst)
 end
@@ -171,11 +171,10 @@ local function swimEmitter(character: Model): ParticleEmitter?
 	if existing and existing:IsA("ParticleEmitter") then
 		return existing
 	end
-	local emitter = newBubbleEmitter(head)
-	emitter.Name = "SwimBubbles"
-	emitter.Speed = NumberRange.new(1.2, 1.8)
-	emitter.Acceleration = Vector3.zero
-	emitter.Enabled = true
+	local emitter = cloneEmitter("SwimBubbles", head)
+	if emitter then
+		emitter.Enabled = true
+	end
 	return emitter
 end
 
@@ -188,7 +187,7 @@ local ventFolder = Instance.new("Folder")
 ventFolder.Name = "Vents"
 ventFolder.Parent = folder
 local ventEmitters: { ParticleEmitter } = {}
-local ventAnchors: { Part } = {}
+local ventAnchors: { BasePart } = {}
 local floorParams = RaycastParams.new()
 floorParams.FilterType = Enum.RaycastFilterType.Exclude
 floorParams.IgnoreWater = true
@@ -201,20 +200,16 @@ end
 
 local function ensureVents(count: number)
 	while #ventEmitters < count do
-		local anchor = Instance.new("Part")
-		anchor.Name = "VentAnchor"
-		anchor.Anchored = true
-		anchor.CanCollide, anchor.CanTouch, anchor.CanQuery = false, false, false
-		anchor.CastShadow = false
-		anchor.Transparency = 1
-		anchor.Size = Vector3.one
-		anchor.Parent = ventFolder
-		local emitter = newBubbleEmitter(anchor)
-		emitter.Name = "VentBubbles"
-		emitter.Speed = NumberRange.new(3, 5)
-		emitter.SpreadAngle = Vector2.new(5, 5)
-		emitter.Lifetime = NumberRange.new(3, 4.5)
-		emitter.Acceleration = Vector3.new(0, 0.8, 0)
+		local model = templateModel("VentBubbles")
+		local anchor = if model then model:FindFirstChild("VentAnchor") else nil
+		local emitter = if model then model:FindFirstChildWhichIsA("ParticleEmitter", true) else nil
+		if not (model and anchor and anchor:IsA("BasePart") and emitter) then
+			if model then
+				model:Destroy()
+			end
+			return
+		end
+		model.Parent = ventFolder
 		table.insert(ventEmitters, emitter)
 		table.insert(ventAnchors, anchor)
 	end
@@ -251,6 +246,7 @@ local function refreshVents(cameraPosition: Vector3)
 			if hit and hit.Position.Y < WATER_LEVEL - 6 then
 				used += 1
 				ventAnchors[used].Position = hit.Position + Vector3.new(0, 0.3, 0)
+				ventEmitters[used].Enabled = true -- şablon kapalı gelir; kullanılan sütun açılır
 				ventEmitters[used].Rate = 5
 				fitLifetime(ventEmitters[used], WATER_LEVEL - hit.Position.Y - 0.3, 4, 0.8)
 			end
@@ -258,36 +254,36 @@ local function refreshVents(cameraPosition: Vector3)
 	end
 	for index = used + 1, #ventEmitters do
 		ventEmitters[index].Rate = 0
+		ventEmitters[index].Enabled = false
 	end
 end
 
 local function stopVents()
 	for _, emitter in ventEmitters do
 		emitter.Rate = 0
+		emitter.Enabled = false
 	end
 end
 
 -- Yüzme izi: yüzeyde genişleyip sönen halka (yalnızca hareket ederken, düşük kalitede yok)
 local lastWake = 0
 local function wake(position: Vector3)
-	local ring = Instance.new("Part")
-	ring.Name = "WakeRing"
-	ring.Shape = Enum.PartType.Cylinder
-	ring.Anchored = true
-	ring.CanCollide, ring.CanTouch, ring.CanQuery = false, false, false
-	ring.CastShadow = false
-	ring.Material = Enum.Material.SmoothPlastic
-	ring.Color = Color3.fromRGB(225, 242, 255)
-	ring.Transparency = 0.55
-	ring.Size = Vector3.new(0.05, 1.5, 1.5)
-	ring.CFrame = CFrame.new(position.X, WATER_LEVEL + 0.12, position.Z) * CFrame.Angles(0, 0, math.rad(90))
-	ring.Parent = folder
+	local model = templateModel("SurfaceWake")
+	local ring = if model then model:FindFirstChild("WakeRing") else nil
+	if not (model and ring and ring:IsA("BasePart")) then
+		if model then
+			model:Destroy()
+		end
+		return
+	end
+	model:PivotTo(CFrame.new(position.X, WATER_LEVEL + 0.12, position.Z))
+	model.Parent = folder
 	TweenService:Create(
 		ring,
 		TweenInfo.new(1.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
 		{ Size = Vector3.new(0.05, 7, 7), Transparency = 1 }
 	):Play()
-	Debris:AddItem(ring, 1.3)
+	Debris:AddItem(model, 1.3)
 end
 
 local strength = 0 -- 0 = su üstü, 1 = tam su altı (yumuşak geçiş)
@@ -309,7 +305,9 @@ local function setSubmerged(value: boolean)
 	else
 		SoundService.AmbientReverb = savedReverb
 	end
-	ambient.Enabled = value
+	if ambient then
+		ambient.Enabled = value
+	end
 end
 
 local gradeShown = false
@@ -337,13 +335,13 @@ RunService.RenderStepped:Connect(function(dt: number)
 		blur.Enabled = active
 	end
 	if active then
-		grade.TintColor = Color3.new(1, 1, 1):Lerp(WATER_TINT, strength * 0.55)
-		grade.Saturation = 0.08 * strength
-		grade.Brightness = 0.06 * strength
-		grade.Contrast = 0.025 * strength
-		blur.Size = 1.3 * strength
+		grade.TintColor = Color3.new(1, 1, 1):Lerp(FULL_TINT, strength)
+		grade.Saturation = FULL_SATURATION * strength
+		grade.Brightness = FULL_BRIGHTNESS * strength
+		grade.Contrast = FULL_CONTRAST * strength
+		blur.Size = FULL_BLUR * strength
 	end
-	if submerged then
+	if submerged and volume and ambient then
 		volume.CFrame = CFrame.new(position.X, position.Y - 2, position.Z)
 		local depth = WATER_LEVEL - (position.Y - 2)
 		-- Kamera yüzeye çok yakınken baloncuk çıkmaz; aksi halde yüzeyde biter
@@ -424,7 +422,7 @@ RunService.Heartbeat:Connect(function(dt: number)
 end)
 
 player:GetAttributeChangedSignal("EffectsQuality"):Connect(function()
-	if submerged then
+	if submerged and ambient then
 		ambient.Rate = budget().ambient
 	end
 end)

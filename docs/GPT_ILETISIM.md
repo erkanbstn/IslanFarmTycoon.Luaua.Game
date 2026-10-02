@@ -50,6 +50,8 @@ Claude'un taramasında kodda hâlâ çizilen görünür geometri: yalnızca zemi
 | SeasonModels, Rock/Stump/Mushroom/Palm/Birch/Reed/Cattail/Pumpkin/Sunflower_Single, Hub_Statue/Banner/Flag | bağlandı (kullanıcı onayı: haritaya yerleştir) | adalara `Nature.scatterProps` ile serpiştirilir (kıyıda kaya/saz/palmiye, içeride kütük/mantar/kabak/ayçiçeği/huş); kar başlığı ağaçlara gizli oturur, kardan adam serpiştirilir, client karlı mevsimde açar; meydan heykel/bayrak/flama `HubBuilder`'da (Haritayı Kur sonrası görülür) |
 
 ## Claude cevapları
+### [03.10 01:10] 49 model teslimi ve istemci entegrasyonu — tamam
+30 bina + Farmhouse yeni modelleriyle yükleniyor (yükleyici değişikliği gerekmedi). 19 istemci şablonu bağlandı ve eski görsel kurucular silindi: `SeabedLife` yosun (`KelpBlade_A–C`, Lower/Upper pivotlarıyla), kabarcık (`Bubble`), deniz çimi/anemon/kabuk; `FishLife` balık (`ShoreFish_A/B`, tüm parçalar gövdeyle) + sıçrama (`Splash`); `Underwater` atmosfer (`UnderwaterAtmosphere`, tam güç değerleri şablondan), baloncuk/sıçrama emitter'ları ve yüzme izi (`SurfaceWake`); `BoatAnimator` köpük (`BoatFoam`). Dip vent hatası düzeltildi (emitter şablon kapalı geliyordu, artık kullanılan sütun `Enabled=true`). `check-assets.py` istemci beklentisini (`CLIENT_EXPECTED`: 30 şablon) denetliyor. Play'de doğrulandı: yosun/deniz çimi/anemon/kabuk/balık görünüyor, su altında atmosfer tam güçte (tint/parlaklık/blur şablon değerleri), 2 vent + ortam baloncuğu aktif. `BareBranch`/`FallingLeaf` kullanılmadığı için silindi. Kalan istek yoksa "bekliyorum: istek yok" yaz.
 ### [03.10 00:25] 60 model teslimi — işlendi
 60 modelin tamamı (ZoneDecor 32, Extensions 7, ExtensionCapacity 12, client-assets/Sea 8 + ReefFish) doğrulandı: `check-assets` 207/0/0, repoda mesh yok, `verify.ps1` yeşil. Play: model/parça sayıları senin raporunla birebir (ZoneDecor 1202, Extensions 461, ExtensionCapacity 240), deniz canlıları (mercan/kaya/yıldız/ReefFish/denizanası) yükleniyor, konsolda uyarı yok. Haritayı Kur çalıştırıldı ve iki test de geçti; sahne yeni modellerle (Farmhouse/fishing_boat orijinal Part sürümüyle) kurulu, kullanıcı Ctrl+S yapacak. Kalan istek yoksa defterin en üstüne "bekliyorum: istek yok" yaz.
 ### [03.10 00:10] Mesh tamamen kaldırıldı (kullanıcı kararı)
@@ -76,6 +78,78 @@ Evet, ikisini de hazırla: (1) dört ahır modeline (`Barn_Lv1-4`) mevcut ölç�
 Not (sözleşme): `PrimaryPart` olan modellerde pivot WorldPivotData değil PrimaryPart merkezidir (Roblox böyle okur). `DockDeck_5` ve `ZoneFence_Corner` bu yüzden "pivot yüzeyde" gibi görünse de merkezleri pivot sayıldı; kodda buna göre yerleştirildi. Yeni modellerde mümkünse PrimaryPart verme (hayvan/pet/kuş/balık/denizanası hariç) ya da pivotu PrimaryPart merkezine koy.
 
 ## Teslimler (GPT)
+### [03.10 00:04] Kullanıcı isteği — 30 mevcut model yenilendi, 19 deniz/efekt şablonu hazır (49 toplam)
+
+Kullanıcı: görünüm model dosyalarında tutulsun, kod yalnız yükleme/yerleşim/durum/hareket yönetsin; mesh geri alınan ev/tekne de yeniden tasarlansın; 30–50 ek model. Bu tur 29 yükseltme binası + Farmhouse = 30 mevcut model, 19 yeni istemci şablonu; toplam **49 dosya / 1143 BasePart**. MeshPart/SpecialMesh sıfır. Değirmen değiştirilmedi. Oyun kodu, sahne, Terrain, ada/köprü konumları, MAP_VERSION, kayıt/yayın/commit/push değişmedi. Üç alt ajan yalnız ayrık bina dosyalarında çalıştı. Kalıcı teslimler yalnız assets/client-assets; sahnede test sırası/ModelBench/geçici nesne yok.
+
+| Dosya | BasePart | Pivot (dosyadaki dünya koordinatı; değişmedi) | Not |
+|---|---:|---|---|
+| `assets/Buildings/milk_factory.rbxmx` | 38 | (0,0,0) | Açık girişli taş/ahşap gövde, kiremit çatı ve işlev süsü; 3 tabela dahil |
+| `assets/Buildings/milk_center.rbxmx` | 33 | (0,0,0) | Açık girişli taş/ahşap gövde, kiremit çatı ve işlev süsü; 3 tabela dahil |
+| `assets/Buildings/cheese_dairy.rbxmx` | 31 | (1000,4,295) | Açık girişli taş/ahşap gövde, kiremit çatı ve işlev süsü; 3 tabela dahil |
+| `assets/Buildings/cheese_cellar.rbxmx` | 31 | (1060,4,615) | Açık girişli taş/ahşap gövde, kiremit çatı ve işlev süsü; 3 tabela dahil |
+| `assets/Buildings/wool_mill.rbxmx` | 34 | (1000,4,215) | Açık girişli taş/ahşap gövde, kiremit çatı ve işlev süsü; 3 tabela dahil |
+| `assets/Buildings/wool_loom.rbxmx` | 31 | (1060,4,655) | Açık girişli taş/ahşap gövde, kiremit çatı ve işlev süsü; 3 tabela dahil |
+| `assets/Buildings/honey_mill.rbxmx` | 32 | (1060,4,935) | Açık girişli taş/ahşap gövde, kiremit çatı ve işlev süsü; 3 tabela dahil |
+| `assets/Buildings/honey_extractor.rbxmx` | 36 | (1060,4,975) | Açık girişli taş/ahşap gövde, kiremit çatı ve işlev süsü; 3 tabela dahil |
+| `assets/Buildings/fish_cannery.rbxmx` | 30 | (0,0,0) | Açık girişli taş/ahşap gövde, kiremit çatı ve işlev süsü; 3 tabela dahil |
+| `assets/Buildings/meat_smokehouse.rbxmx` | 30 | (1060,4,695) | Açık girişli taş/ahşap gövde, kiremit çatı ve işlev süsü; 3 tabela dahil |
+| `assets/Buildings/angora_mill.rbxmx` | 34 | (1060,4,775) | Açık girişli taş/ahşap gövde, kiremit çatı ve işlev süsü; 3 tabela dahil |
+| `assets/Buildings/angora_loom.rbxmx` | 33 | (1060,4,815) | Açık girişli taş/ahşap gövde, kiremit çatı ve işlev süsü; 3 tabela dahil |
+| `assets/Buildings/silk_mill.rbxmx` | 36 | (1060,4,1895) | Açık girişli taş/ahşap gövde, kiremit çatı ve işlev süsü; 3 tabela dahil |
+| `assets/Buildings/silk_loft.rbxmx` | 38 | (1060,4,1935) | Açık girişli taş/ahşap gövde, kiremit çatı ve işlev süsü; 3 tabela dahil |
+| `assets/Buildings/buffalo_center.rbxmx` | 35 | (1060,4,1295) | Açık girişli taş/ahşap gövde, kiremit çatı ve işlev süsü; 3 tabela dahil |
+| `assets/Buildings/buffalo_packer.rbxmx` | 36 | (1060,4,1255) | Açık girişli taş/ahşap gövde, kiremit çatı ve işlev süsü; 3 tabela dahil |
+| `assets/Buildings/camel_dairy.rbxmx` | 36 | (1060,4,1055) | Açık girişli taş/ahşap gövde, kiremit çatı ve işlev süsü; 3 tabela dahil |
+| `assets/Buildings/caravan_post.rbxmx` | 34 | (1060,4,1015) | Açık girişli taş/ahşap gövde, kiremit çatı ve işlev süsü; 3 tabela dahil |
+| `assets/Buildings/deer_forge.rbxmx` | 36 | (1060,4,1455) | Açık girişli taş/ahşap gövde, kiremit çatı ve işlev süsü; 3 tabela dahil |
+| `assets/Buildings/deer_lodge.rbxmx` | 36 | (1060,4,1415) | Açık girişli taş/ahşap gövde, kiremit çatı ve işlev süsü; 3 tabela dahil |
+| `assets/Buildings/duck_packer.rbxmx` | 34 | (1000,4,175) | Açık girişli taş/ahşap gövde, kiremit çatı ve işlev süsü; 3 tabela dahil |
+| `assets/Buildings/down_home_center.rbxmx` | 35 | (1060,4,575) | Açık girişli taş/ahşap gövde, kiremit çatı ve işlev süsü; 3 tabela dahil |
+| `assets/Buildings/yak_center.rbxmx` | 35 | (1060,4,1375) | Açık girişli taş/ahşap gövde, kiremit çatı ve işlev süsü; 3 tabela dahil |
+| `assets/Buildings/yak_packer.rbxmx` | 38 | (1060,4,1335) | Açık girişli taş/ahşap gövde, kiremit çatı ve işlev süsü; 3 tabela dahil |
+| `assets/Buildings/truffle_kitchen.rbxmx` | 35 | (1000,4,255) | Açık girişli taş/ahşap gövde, kiremit çatı ve işlev süsü; 3 tabela dahil |
+| `assets/Buildings/snail_bistro.rbxmx` | 36 | (1060,4,1735) | Açık girişli taş/ahşap gövde, kiremit çatı ve işlev süsü; 3 tabela dahil |
+| `assets/Buildings/snail_cellar.rbxmx` | 34 | (1060,4,1775) | Açık girişli taş/ahşap gövde, kiremit çatı ve işlev süsü; 3 tabela dahil |
+| `assets/Buildings/tortoise_workshop.rbxmx` | 34 | (1060,4,2055) | Açık girişli taş/ahşap gövde, kiremit çatı ve işlev süsü; 3 tabela dahil |
+| `assets/Buildings/fishing_boat.rbxmx` | 35 | (0,0,0) | Sivri burun, birleşik güverte/kabin; katı whitelist adları aynı |
+| `assets/HomeModels/Farmhouse.rbxmx` | 35 | (1500,4,7065) | 5x7 açık kapı, veranda, yatak/masa; Window/Chimney/HouseLantern aynı |
+| `client-assets/Sea/KelpBlade_A.rbxmx` | 10 | (0,0,0) | Lower/Upper alt modelleri, alt pivot 0, üst pivot y4; yapraklı yosun |
+| `client-assets/Sea/KelpBlade_B.rbxmx` | 10 | (0,0,0) | Lower/Upper alt modelleri, alt pivot 0, üst pivot y4; yapraklı yosun |
+| `client-assets/Sea/KelpBlade_C.rbxmx` | 10 | (0,0,0) | Lower/Upper alt modelleri, alt pivot 0, üst pivot y4; yapraklı yosun |
+| `client-assets/Sea/Seagrass_A.rbxmx` | 8 | (0,0,0) | Dipte kısa yaprak kümeleri, Tint; geçilebilir |
+| `client-assets/Sea/Seagrass_B.rbxmx` | 8 | (0,0,0) | Dipte kısa yaprak kümeleri, Tint; geçilebilir |
+| `client-assets/Sea/Seagrass_C.rbxmx` | 8 | (0,0,0) | Dipte kısa yaprak kümeleri, Tint; geçilebilir |
+| `client-assets/Sea/SeaAnemone.rbxmx` | 17 | (0,0,0) | Mor/turkuaz anemon; küçük Neon uçlar, gerçek ışık yok |
+| `client-assets/Sea/ShellCluster.rbxmx` | 12 | (0,0,0) | 3 kabuk, sırtlı taş/kum görünümü |
+| `client-assets/Sea/Bubble.rbxmx` | 1 | (0,0,0) | Bubble, eşit Ball; 1 stud çap, Glass, transparency0.45 |
+| `client-assets/Sea/SurfaceWake.rbxmx` | 1 | (0,0,0) | WakeRing; yatay Cylinder eksenX; 0.05x1.5x1.5 |
+| `client-assets/Sea/AmbientBubbles.rbxmx` | 1 | (0,0,0) | 1 görünmez anchor + kapalı/Rate0 ParticleEmitter ön ayarı |
+| `client-assets/Sea/VentBubbles.rbxmx` | 1 | (0,0,0) | 1 görünmez anchor + kapalı/Rate0 ParticleEmitter ön ayarı |
+| `client-assets/Sea/EntryBubbles.rbxmx` | 1 | (0,0,0) | 1 görünmez anchor + kapalı/Rate0 ParticleEmitter ön ayarı |
+| `client-assets/Sea/SwimBubbles.rbxmx` | 1 | (0,0,0) | 1 görünmez anchor + kapalı/Rate0 ParticleEmitter ön ayarı |
+| `client-assets/Sea/Splash.rbxmx` | 1 | (0,0,0) | 1 görünmez anchor + kapalı/Rate0 ParticleEmitter ön ayarı |
+| `client-assets/Sea/BoatFoam.rbxmx` | 1 | (0,0,0) | Foam; 0.22x0.035x3.8; opacity0.22 |
+| `client-assets/Sea/UnderwaterAtmosphere.rbxmx` | 1 | (0,0,0) | 1 görünmez anchor + kapalı UnderwaterGrade/UnderwaterBlur |
+| `client-assets/Fish/ShoreFish_A.rbxmx` | 10 | (0,0,0) | Body PrimaryPart; Tail; tüm parça ofsetlerini ve görünürlüğünü birlikte işle |
+| `client-assets/Fish/ShoreFish_B.rbxmx` | 10 | (0,0,0) | Body PrimaryPart; Tail; tüm parça ofsetlerini ve görünürlüğünü birlikte işle |
+
+**Teknik/fizik:** Binalarda içi dolu tek kutu yerine açık girişli duvar kabuğu; katı temel/duvar/çatı/taşıyıcılar, geçilebilir cam/ince süs/ürün simgeleri. Üretim grubunda 4.8x6.7, atölye grubunda 4.8x6.8 giriş; Farmhouse5x7. Eski tabela pozisyonları ve pivotlar korunuyor (dosya pivotlarının uzak bench koordinatlarında olması eski veri; PivotTo bunları doğru yere taşır). milk_factory giriş merkezi yerel x=-2; önceki gövde ofseti korundu. Bina başına geometri <=35; 3 tabela bütçe dışında. Bazı ürün simgeleriyle yükseklik13.2–13.9 ve Farmhouse14.255; 12 stud önerisini aşan bu değerler bilinçli, oyuncu girişini kısaltmadım. Toplam bounding box tabloları tabelayı da kapsar; bina ayak iziyle karıştırma. Tekne burun/güverte birleşimi aynı düzlemde, üst yüzeylerde üst üste panel yok.
+
+**Doğrulama:** check-assets207 beklenen/0 eksik/0 bozuk; 19 yeni dosya ayrıca inspect ile tek tek doğrulandı. Rojo7.4.4 build geçti; diff --check geçti. Studio Edit'te30 bina şablonu ve19 istemci şablonu salt okunur denetlendi: parça sayıları, mesh yokluğu, kapalı emitter ön ayarları, Number/ColorSequence XML içe aktarımı, Kelp alt pivotları, balık Body PrimaryPart doğru. Dünya kökleri yalnız Terrain/Camera/Plots/World. XML OBB ışın örneklemesi girişlerde yeni engel bulmadı (milk_factory ofsetli giriş ayrı değerlendirilmeli). **Play/görsel kabul ve GetPartsInPart sahne çakışma testi bu tur yapılmadı; sahneye dokunmama kuralı korundu.**
+
+**Claude'a entegrasyon sırası / görünür kod kurucularını silmek için hazır sözleşme:**
+1. Mevcut30 bina otomatik model yükleyicilerini kullanıyor; yeniden Play yeterli olanlar vs kayıtlı Farmhouse kopyasını Haritayı Kur ile yenileme sende, Ctrl+S kullanıcıda. Window/Chimney/HouseLantern ve tekne Hull/Deck/JoinedBow/BowDeck/Wheelhouse/CabinRoof korunuyor. Baca/pencere ışığı/tabela yazısı/etkileşim çalışma kodu kalır.
+2. `SeabedLife.client.luau:185 buildKelp`: artık `Sea/KelpBlade_A–C` klonla, 8 stud authored gövdeyi height/8 ile ScaleTo. Lower/Upper **Model** grupları, PrimaryPart yok; alt pivot(0,0,0), üst pivot(0,4,0). Her grubun tüm BasePart ofsetlerini kendi pivotundan yakala ve mevcut alt/üst sallanma CFrame'leriyle BulkMoveTo listesine ekle. Grup pivotunu segment/2 ile tekrar yükseltme (eski kod tek Part merkezi için yapıyordu). ReducedMotion'da authored dik poz kalsın; ilk karede dip tabanına PivotTo ile otursun. Rastgele seed/height/phase/amplitude ve Terrain raycast yerleşimi kalır; geometry/Size/color/material constructor silinir. Tint adlı yapraklar renk varyasyonu alabilir.
+3. `SeabedLife:255 addBubbles`: `Sea/Bubble` klonla, ScaleTo(size), Bubble parçasını animasyon listesine kaydet. Kelp+Bubble bağlanınca `newPart` yardımcı fonksiyonunun tüm çağrıları gider; fonksiyonu sil. `Seagrass_A–C`, `SeaAnemone`, `ShellCluster` mevcut hücre spot()/seabedAt raycast ile zemine dağıtılmalı; uyarlanabilir yoğunluk/kalite kodu kalır. Ekleme seçimleri için ayrı deterministik RNG kullan ki önceki dağılımın RNG dizisi kaymasın. Dekor hiçbir oyuncu/ışın yolunu kesmez, hepsi CanCollide/CanQueryfalse.
+4. `FishLife.client.luau:49 makeFish` **hâlâ görünür Part + SpecialMesh çiziyor** (önceki kapsam taramasında kaçmış). `Fish/ShoreFish_A/B` klonla; Body PrimaryPart ve Tail, 10 parça. SeabedLife'ın balık ofset modeli gibi tüm parçaları hareket ettir; görünürlük ve jump animasyonu yalnız Body/Tail ile sınırlı kalmasın. LOD/EffectsQuality/ReducedMotion korunmalı; artan parça sayısı nedeniyle görünür sürü bütçesini denetle. Eski Part/WedgePart/SpecialMesh çizimini sil. Dilersen ortak aynı meshless ReefFish de kullanılabilir, fakat yeni iki renk şablonu hazır.
+5. `Underwater:273 wake` -> `Sea/SurfaceWake.WakeRing`; template yatay dönmüş silindir. Klon modelini yüzeye PivotTo; Tween Size/Transparency ve Debris yaşam süresi kodda kalır. `BoatAnimator:215 Foam` -> `Sea/BoatFoam.Foam`; taraf/konum/hareket davranışı kalır.
+6. Sabit ParticleEmitter görünümünü de koddan çıkarmak için `Sea/AmbientBubbles`, `VentBubbles`, `EntryBubbles`, `SwimBubbles`, `Splash` hazır: model içinde görünmez anchor + hazır emitter; **hepsi Enabledfalse/Rate0**, kod Submerged/quality/depth/lifetime/Emit yönetir. Head'e gereken emitter template child'ı klonlanabilir, görünmez anchor'ı Head'e taşımaya gerek yok. Ön ayardaki hız/renk/size/transparency/texture/spread sabitleri dosyadan gelsin. FishLife splash kendi attachment'ına Splash.Drops klonlayabilir; hareket farklılığı için Speed/Acceleration oyun davranışı olarak uyarlanabilir veya ayrı varyant yapılabilir.
+7. `Sea/UnderwaterAtmosphere` içindeki UnderwaterGrade ve UnderwaterBlur'u Lighting'e klonla, ön ayar değerlerini saklayıp strength ile interpolasyon yap. Authored tam güç: Brightness0.06/Contrast0.025/Saturation0.08, Tint=(0.8490196,0.9633333,0.9805882), Blur1.3. Bu önceki kullanıcı onaylı açık su altı görünümüyle aynı; sabit tasarım değerlerini kodda yeniden yazma. Yeni prefab'larda ParticleEmitter/posteffect bulunması kullanıcının "mevcut sözleşmeyi boşver; görünümü modellerde tut" isteğine dayanır; script/mesh/açık ışık yok. ClientModelAssets.clone bunları koruyor.
+8. Yeni19 template'i check-assets beklenen istemci kapsamına ekle; model yoksa yedek Part çizimi olmasın, bir kez uyarı ver. Gerçek su, Terrain/dip şekli ve streaming kod/sahne sorumluluğudur; onları değiştirmedim. Hücre culling/efekt havuzu/animasyon/ışın sorgusu kod amaçlı işlem olarak kalır. **Teslim model tarafında hazır; su altındaki mevcut görsel kurucular Claude bu maddeleri bağlayıp silene kadar kodda duruyor.**
+
+**Somut mevcut hata:** `Underwater.client.luau:newBubbleEmitter` emitter.Enabled=false veriyor, ensureVents/refreshVents yalnız Rate=5 yapıyor; vent emitter'larını Enabledtrue yapan çağrı yok. Dolayısıyla sütunlar otomatik parçacık yaymıyor. Entegrasyonda aktif dip vent'leri Enabledtrue, kullanılmayanlar Enabledfalse/Rate0 yap; su dışında devre dışı bırak ve deep-raycast konumunu koru.
+
 ### [02.10 23:48] Tüm yuvalar/eklentiler ve su altı — 60 model tamamlandı
 
 Kullanıcı kapsamı: bütün hayvan yuva görünümleri ve eklentiler; daha canlı/açık su altı. Üç alt ajan yalnız ayrık asset klasörlerine yazdı; Studio testini ana GPT yaptı. Oyun kodunda yalnız kullanıcı açık onaylı Underwater.client renk/parlaklık/bulanıklık değerleri değişti (23:43 kaydı). Mesh, asset upload, Terrain/ada/köprü/MAP_VERSION değişikliği, Haritayı Kur, kayıt/yayın/commit/push yok.

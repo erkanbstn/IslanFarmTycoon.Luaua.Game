@@ -1,260 +1,1347 @@
+<?xml version='1.0' encoding='utf-8'?>
 <roblox version="4">
-<Meta name="ExplicitAutoJoints">true</Meta>
-<Item class="Model" referent="RBXMODEL"><Properties>
-<string name="Name">deer_lodge</string>
-<OptionalCoordinateFrame name="WorldPivotData"><CFrame><X>1060</X><Y>4</Y><Z>1415</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CFrame></OptionalCoordinateFrame>
-</Properties>
-<Item class="Part" referent="RBXPART1"><Properties>
-<string name="Name">Building</string>
-<Vector3 name="Size"><X>10</X><Y>6</Y><Z>8</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1060</X><Y>7</Y><Z>1415</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.45098039507865906</R><G>0.3137255012989044</G><B>0.19607843458652496</B></Color3>
-<token name="Material">528</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-</Properties></Item>
-<Item class="Part" referent="RBXPART2"><Properties>
-<string name="Name">Roof</string>
-<Vector3 name="Size"><X>6.599999904632568</X><Y>0.699999988079071</Y><Z>9.600000381469727</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1057.0999755859375</X><Y>11.300000190734863</Y><Z>1415</Z><R00>0.9271838665008545</R00><R01>-0.37460657954216003</R01><R02>0</R02><R10>0.37460657954216003</R10><R11>0.9271838665008545</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.2549019753932953</R><G>0.3921568691730499</G><B>0.27450981736183167</B></Color3>
-<token name="Material">800</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-</Properties></Item>
-<Item class="Part" referent="RBXPART3"><Properties>
-<string name="Name">Roof</string>
-<Vector3 name="Size"><X>6.599999904632568</X><Y>0.699999988079071</Y><Z>9.600000381469727</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1062.9000244140625</X><Y>11.300000190734863</Y><Z>1415</Z><R00>0.9271838665008545</R00><R01>0.37460657954216003</R01><R02>0</R02><R10>-0.37460657954216003</R10><R11>0.9271838665008545</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.2549019753932953</R><G>0.3921568691730499</G><B>0.27450981736183167</B></Color3>
-<token name="Material">800</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-</Properties></Item>
-<Item class="Part" referent="RBXPART4"><Properties>
-<string name="Name">RoofRidge</string>
-<Vector3 name="Size"><X>0.800000011920929</X><Y>0.6000000238418579</Y><Z>9.800000190734863</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1060</X><Y>12.5</Y><Z>1415</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.21568627655506134</R><G>0.3137255012989044</G><B>0.21568627655506134</B></Color3>
-<token name="Material">800</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-</Properties></Item>
-<Item class="Part" referent="RBXPART5"><Properties>
-<string name="Name">Door</string>
-<Vector3 name="Size"><X>2.799999952316284</X><Y>4.400000095367432</Y><Z>0.30000001192092896</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1060</X><Y>6.199999809265137</Y><Z>1410.9000244140625</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.3137255012989044</R><G>0.21568627655506134</G><B>0.13725490868091583</B></Color3>
-<token name="Material">512</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-</Properties></Item>
-<Item class="Part" referent="RBXPART6"><Properties>
-<string name="Name">Window</string>
-<Vector3 name="Size"><X>1.7999999523162842</X><Y>1.600000023841858</Y><Z>0.20000000298023224</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1056.800048828125</X><Y>7.599999904632568</Y><Z>1410.949951171875</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>1</R><G>0.843137264251709</G><B>0.5490196347236633</B></Color3>
-<token name="Material">1568</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">false</bool>
-</Properties></Item>
-<Item class="Part" referent="RBXPART7"><Properties>
-<string name="Name">Window</string>
-<Vector3 name="Size"><X>1.7999999523162842</X><Y>1.600000023841858</Y><Z>0.20000000298023224</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1063.199951171875</X><Y>7.599999904632568</Y><Z>1410.949951171875</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>1</R><G>0.843137264251709</G><B>0.5490196347236633</B></Color3>
-<token name="Material">1568</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">false</bool>
-</Properties></Item>
-<Item class="Part" referent="RBXPART8"><Properties>
-<string name="Name">Plaque</string>
-<Vector3 name="Size"><X>2.200000047683716</X><Y>1.600000023841858</Y><Z>0.4000000059604645</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1060</X><Y>13.300000190734863</Y><Z>1414.800048828125</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.37254902720451355</R><G>0.2549019753932953</G><B>0.1568627506494522</B></Color3>
-<token name="Material">512</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-</Properties></Item>
-<Item class="Part" referent="RBXPART9"><Properties>
-<string name="Name">Antler</string>
-<Vector3 name="Size"><X>0.3499999940395355</X><Y>3.4000000953674316</Y><Z>0.3499999940395355</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1058.5</X><Y>15.600000381469727</Y><Z>1414.800048828125</Z><R00>0.882947564125061</R00><R01>-0.4694715738296509</R01><R02>0</R02><R10>0.4694715738296509</R10><R11>0.882947564125061</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.8823529481887817</R><G>0.8235294222831726</G><B>0.686274528503418</B></Color3>
-<token name="Material">272</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-</Properties></Item>
-<Item class="Part" referent="RBXPART10"><Properties>
-<string name="Name">Antler</string>
-<Vector3 name="Size"><X>0.30000001192092896</X><Y>1.5</Y><Z>0.30000001192092896</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1058.9000244140625</X><Y>15.899999618530273</Y><Z>1414.800048828125</Z><R00>0.9848077297210693</R00><R01>0.1736481785774231</R01><R02>0</R02><R10>-0.1736481785774231</R10><R11>0.9848077297210693</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.8823529481887817</R><G>0.8235294222831726</G><B>0.686274528503418</B></Color3>
-<token name="Material">272</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-</Properties></Item>
-<Item class="Part" referent="RBXPART11"><Properties>
-<string name="Name">Antler</string>
-<Vector3 name="Size"><X>0.30000001192092896</X><Y>1.7000000476837158</Y><Z>0.30000001192092896</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1057.4000244140625</X><Y>16.5</Y><Z>1414.800048828125</Z><R00>0.9848077297210693</R00><R01>-0.1736481785774231</R01><R02>0</R02><R10>0.1736481785774231</R10><R11>0.9848077297210693</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.8823529481887817</R><G>0.8235294222831726</G><B>0.686274528503418</B></Color3>
-<token name="Material">272</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-</Properties></Item>
-<Item class="Part" referent="RBXPART12"><Properties>
-<string name="Name">Antler</string>
-<Vector3 name="Size"><X>0.3499999940395355</X><Y>3.4000000953674316</Y><Z>0.3499999940395355</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1061.5</X><Y>15.600000381469727</Y><Z>1414.800048828125</Z><R00>0.882947564125061</R00><R01>0.4694715738296509</R01><R02>0</R02><R10>-0.4694715738296509</R10><R11>0.882947564125061</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.8823529481887817</R><G>0.8235294222831726</G><B>0.686274528503418</B></Color3>
-<token name="Material">272</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-</Properties></Item>
-<Item class="Part" referent="RBXPART13"><Properties>
-<string name="Name">Antler</string>
-<Vector3 name="Size"><X>0.30000001192092896</X><Y>1.5</Y><Z>0.30000001192092896</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1061.0999755859375</X><Y>15.899999618530273</Y><Z>1414.800048828125</Z><R00>0.9848077297210693</R00><R01>-0.1736481785774231</R01><R02>0</R02><R10>0.1736481785774231</R10><R11>0.9848077297210693</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.8823529481887817</R><G>0.8235294222831726</G><B>0.686274528503418</B></Color3>
-<token name="Material">272</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-</Properties></Item>
-<Item class="Part" referent="RBXPART14"><Properties>
-<string name="Name">Antler</string>
-<Vector3 name="Size"><X>0.30000001192092896</X><Y>1.7000000476837158</Y><Z>0.30000001192092896</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1062.5999755859375</X><Y>16.5</Y><Z>1414.800048828125</Z><R00>0.9848077297210693</R00><R01>0.1736481785774231</R01><R02>0</R02><R10>-0.1736481785774231</R10><R11>0.9848077297210693</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.8823529481887817</R><G>0.8235294222831726</G><B>0.686274528503418</B></Color3>
-<token name="Material">272</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-</Properties></Item>
-<Item class="Part" referent="RBXPART15"><Properties>
-<string name="Name">Chimney</string>
-<Vector3 name="Size"><X>1.399999976158142</X><Y>3.200000047683716</Y><Z>1.399999976158142</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1063.4000244140625</X><Y>12.300000190734863</Y><Z>1416.800048828125</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.5490196347236633</R><G>0.29411765933036804</G><B>0.21568627655506134</B></Color3>
-<token name="Material">848</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-</Properties></Item>
-<Item class="Part" referent="RBXPART16"><Properties>
-<string name="Name">Log</string>
-<Vector3 name="Size"><X>2.4000000953674316</X><Y>1</Y><Z>1</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1054.0999755859375</X><Y>4.5</Y><Z>1414.0999755859375</Z><R00>-4.371138828673793e-8</R00><R01>0</R01><R02>1</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>-1</R20><R21>0</R21><R22>-4.371138828673793e-8</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.47058823704719543</R><G>0.3333333432674408</G><B>0.21568627655506134</B></Color3>
-<token name="Material">512</token>
-<token name="Shape">2</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-</Properties></Item>
-<Item class="Part" referent="RBXPART17"><Properties>
-<string name="Name">Log</string>
-<Vector3 name="Size"><X>2.4000000953674316</X><Y>1</Y><Z>1</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1054.0999755859375</X><Y>4.5</Y><Z>1415.300048828125</Z><R00>-4.371138828673793e-8</R00><R01>0</R01><R02>1</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>-1</R20><R21>0</R21><R22>-4.371138828673793e-8</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.4313725531101227</R><G>0.29411765933036804</G><B>0.19607843458652496</B></Color3>
-<token name="Material">512</token>
-<token name="Shape">2</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-</Properties></Item>
-<Item class="Part" referent="RBXPART18"><Properties>
-<string name="Name">Log</string>
-<Vector3 name="Size"><X>2.4000000953674316</X><Y>1</Y><Z>1</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1054.0999755859375</X><Y>5.349999904632568</Y><Z>1414.699951171875</Z><R00>-4.371138828673793e-8</R00><R01>0</R01><R02>1</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>-1</R20><R21>0</R21><R22>-4.371138828673793e-8</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.4901960790157318</R><G>0.3529411852359772</G><B>0.22745098173618317</B></Color3>
-<token name="Material">512</token>
-<token name="Shape">2</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-</Properties></Item>
-<Item class="Part" referent="RBXPART19"><Properties>
-<string name="Name">SignBoard</string>
-<Vector3 name="Size"><X>6.0</X><Y>1.7</Y><Z>0.16</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1069.4</X><Y>7.3</Y><Z>1409.0999999046326</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.15294117647058825</R><G>0.25882352941176473</G><B>0.30196078431372547</B></Color3>
-<token name="Material">1088</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">false</bool>
-</Properties></Item>
-<Item class="Part" referent="RBXPART20"><Properties>
-<string name="Name">SignPost</string>
-<Vector3 name="Size"><X>0.25</X><Y>2.45</Y><Z>0.25</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1066.9</X><Y>5.225</Y><Z>1409.0999999046326</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.43137254901960786</R><G>0.3137254901960784</G><B>0.19607843137254902</B></Color3>
-<token name="Material">512</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-</Properties></Item>
-<Item class="Part" referent="RBXPART21"><Properties>
-<string name="Name">SignPost</string>
-<Vector3 name="Size"><X>0.25</X><Y>2.45</Y><Z>0.25</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1071.9</X><Y>5.225</Y><Z>1409.0999999046326</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.43137254901960786</R><G>0.3137254901960784</G><B>0.19607843137254902</B></Color3>
-<token name="Material">512</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-</Properties></Item>
-</Item>
+  <Meta name="ExplicitAutoJoints">true</Meta>
+  <Item class="Model" referent="RBXMODEL">
+    <Properties>
+      <string name="Name">deer_lodge</string>
+      <OptionalCoordinateFrame name="WorldPivotData">
+        <CFrame>
+          <X>1060</X>
+          <Y>4</Y>
+          <Z>1415</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CFrame>
+      </OptionalCoordinateFrame>
+    </Properties>
+    <Item class="Part" referent="RBX_deer_lodge_1">
+      <Properties>
+        <string name="Name">Foundation</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">880</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>10</X>
+          <Y>0.4</Y>
+          <Z>8</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.611764705882353</R>
+          <G>0.5607843137254902</G>
+          <B>0.4666666666666667</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1060.0</X>
+          <Y>4.2</Y>
+          <Z>1415.0</Z>
+          <R00>1.0</R00>
+          <R01>-0.0</R01>
+          <R02>0.0</R02>
+          <R10>0.0</R10>
+          <R11>1.0</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0.0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_deer_lodge_2">
+      <Properties>
+        <string name="Name">WallLeft</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">816</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>0.6</X>
+          <Y>7.2</Y>
+          <Z>7.4</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.7215686274509804</R>
+          <G>0.6274509803921569</G>
+          <B>0.4745098039215686</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1055.3</X>
+          <Y>8.0</Y>
+          <Z>1415.0</Z>
+          <R00>1.0</R00>
+          <R01>-0.0</R01>
+          <R02>0.0</R02>
+          <R10>0.0</R10>
+          <R11>1.0</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0.0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_deer_lodge_3">
+      <Properties>
+        <string name="Name">WallRight</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">816</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>0.6</X>
+          <Y>7.2</Y>
+          <Z>7.4</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.7215686274509804</R>
+          <G>0.6274509803921569</G>
+          <B>0.4745098039215686</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1064.7</X>
+          <Y>8.0</Y>
+          <Z>1415.0</Z>
+          <R00>1.0</R00>
+          <R01>-0.0</R01>
+          <R02>0.0</R02>
+          <R10>0.0</R10>
+          <R11>1.0</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0.0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_deer_lodge_4">
+      <Properties>
+        <string name="Name">WallBack</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">816</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>8.8</X>
+          <Y>7.2</Y>
+          <Z>0.6</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.7215686274509804</R>
+          <G>0.6274509803921569</G>
+          <B>0.4745098039215686</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1060.0</X>
+          <Y>8.0</Y>
+          <Z>1418.7</Z>
+          <R00>1.0</R00>
+          <R01>-0.0</R01>
+          <R02>0.0</R02>
+          <R10>0.0</R10>
+          <R11>1.0</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0.0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_deer_lodge_5">
+      <Properties>
+        <string name="Name">FrontPier</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">816</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>2.6</X>
+          <Y>7.2</Y>
+          <Z>0.6</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.7215686274509804</R>
+          <G>0.6274509803921569</G>
+          <B>0.4745098039215686</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1056.3</X>
+          <Y>8.0</Y>
+          <Z>1411.3</Z>
+          <R00>1.0</R00>
+          <R01>-0.0</R01>
+          <R02>0.0</R02>
+          <R10>0.0</R10>
+          <R11>1.0</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0.0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_deer_lodge_6">
+      <Properties>
+        <string name="Name">FrontPier</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">816</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>2.6</X>
+          <Y>7.2</Y>
+          <Z>0.6</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.7215686274509804</R>
+          <G>0.6274509803921569</G>
+          <B>0.4745098039215686</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1063.7</X>
+          <Y>8.0</Y>
+          <Z>1411.3</Z>
+          <R00>1.0</R00>
+          <R01>-0.0</R01>
+          <R02>0.0</R02>
+          <R10>0.0</R10>
+          <R11>1.0</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0.0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_deer_lodge_7">
+      <Properties>
+        <string name="Name">FrontLintel</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>4.8</X>
+          <Y>0.5</Y>
+          <Z>0.6</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.3607843137254902</R>
+          <G>0.2549019607843137</G>
+          <B>0.16862745098039217</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1060.0</X>
+          <Y>11.85</Y>
+          <Z>1411.3</Z>
+          <R00>1.0</R00>
+          <R01>-0.0</R01>
+          <R02>0.0</R02>
+          <R10>0.0</R10>
+          <R11>1.0</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0.0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_deer_lodge_8">
+      <Properties>
+        <string name="Name">CornerPost</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>0.35</X>
+          <Y>7.5</Y>
+          <Z>0.35</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.3607843137254902</R>
+          <G>0.2549019607843137</G>
+          <B>0.16862745098039217</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1055.23</X>
+          <Y>8.15</Y>
+          <Z>1411.23</Z>
+          <R00>1.0</R00>
+          <R01>-0.0</R01>
+          <R02>0.0</R02>
+          <R10>0.0</R10>
+          <R11>1.0</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0.0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_deer_lodge_10">
+      <Properties>
+        <string name="Name">CornerPost</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>0.35</X>
+          <Y>7.5</Y>
+          <Z>0.35</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.3607843137254902</R>
+          <G>0.2549019607843137</G>
+          <B>0.16862745098039217</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1064.77</X>
+          <Y>8.15</Y>
+          <Z>1411.23</Z>
+          <R00>1.0</R00>
+          <R01>-0.0</R01>
+          <R02>0.0</R02>
+          <R10>0.0</R10>
+          <R11>1.0</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0.0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_deer_lodge_12">
+      <Properties>
+        <string name="Name">RoofLeft</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>5.965767717857955</X>
+          <Y>0.45</Y>
+          <Z>8.8</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.6313725490196078</R>
+          <G>0.3254901960784314</G>
+          <B>0.21176470588235294</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1057.5</X>
+          <Y>13.26307171327134</Y>
+          <Z>1415.0</Z>
+          <R00>0.9135454576426009</R00>
+          <R01>-0.4067366430758002</R01>
+          <R02>0.0</R02>
+          <R10>0.4067366430758002</R10>
+          <R11>0.9135454576426009</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0.0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_deer_lodge_13">
+      <Properties>
+        <string name="Name">RoofRight</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>5.965767717857955</X>
+          <Y>0.45</Y>
+          <Z>8.8</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.6313725490196078</R>
+          <G>0.3254901960784314</G>
+          <B>0.21176470588235294</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1062.5</X>
+          <Y>13.26307171327134</Y>
+          <Z>1415.0</Z>
+          <R00>0.9135454576426009</R00>
+          <R01>0.4067366430758002</R01>
+          <R02>0.0</R02>
+          <R10>-0.4067366430758002</R10>
+          <R11>0.9135454576426009</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>-0.0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_deer_lodge_14">
+      <Properties>
+        <string name="Name">RoofRidge</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>0.4</X>
+          <Y>0.42</Y>
+          <Z>8.8</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.3607843137254902</R>
+          <G>0.2549019607843137</G>
+          <B>0.16862745098039217</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1060.0</X>
+          <Y>14.376143426542681</Y>
+          <Z>1415.0</Z>
+          <R00>1.0</R00>
+          <R01>-0.0</R01>
+          <R02>0.0</R02>
+          <R10>0.0</R10>
+          <R11>1.0</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0.0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_deer_lodge_15">
+      <Properties>
+        <string name="Name">WindowLeft</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">1568</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0.18</float>
+        <Vector3 name="Size">
+          <X>0.14</X>
+          <Y>1.9</Y>
+          <Z>2.2</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.403921568627451</R>
+          <G>0.5882352941176471</G>
+          <B>0.615686274509804</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1054.97</X>
+          <Y>8.5</Y>
+          <Z>1415.25</Z>
+          <R00>1.0</R00>
+          <R01>-0.0</R01>
+          <R02>0.0</R02>
+          <R10>0.0</R10>
+          <R11>1.0</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0.0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_deer_lodge_16">
+      <Properties>
+        <string name="Name">WindowSill</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>0.4</X>
+          <Y>0.22</Y>
+          <Z>2.5</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.3607843137254902</R>
+          <G>0.2549019607843137</G>
+          <B>0.16862745098039217</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1054.91</X>
+          <Y>7.42</Y>
+          <Z>1415.25</Z>
+          <R00>1.0</R00>
+          <R01>-0.0</R01>
+          <R02>0.0</R02>
+          <R10>0.0</R10>
+          <R11>1.0</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0.0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_deer_lodge_17">
+      <Properties>
+        <string name="Name">DoorFrame</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>0.18</X>
+          <Y>6.8</Y>
+          <Z>0.2</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.3607843137254902</R>
+          <G>0.2549019607843137</G>
+          <B>0.16862745098039217</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1057.52</X>
+          <Y>7.8</Y>
+          <Z>1410.92</Z>
+          <R00>1.0</R00>
+          <R01>-0.0</R01>
+          <R02>0.0</R02>
+          <R10>0.0</R10>
+          <R11>1.0</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0.0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_deer_lodge_18">
+      <Properties>
+        <string name="Name">WindowRight</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">1568</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0.18</float>
+        <Vector3 name="Size">
+          <X>0.14</X>
+          <Y>1.9</Y>
+          <Z>2.2</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.403921568627451</R>
+          <G>0.5882352941176471</G>
+          <B>0.615686274509804</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1065.03</X>
+          <Y>8.5</Y>
+          <Z>1415.25</Z>
+          <R00>1.0</R00>
+          <R01>-0.0</R01>
+          <R02>0.0</R02>
+          <R10>0.0</R10>
+          <R11>1.0</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0.0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_deer_lodge_19">
+      <Properties>
+        <string name="Name">WindowSill</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>0.4</X>
+          <Y>0.22</Y>
+          <Z>2.5</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.3607843137254902</R>
+          <G>0.2549019607843137</G>
+          <B>0.16862745098039217</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1065.09</X>
+          <Y>7.42</Y>
+          <Z>1415.25</Z>
+          <R00>1.0</R00>
+          <R01>-0.0</R01>
+          <R02>0.0</R02>
+          <R10>0.0</R10>
+          <R11>1.0</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0.0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_deer_lodge_20">
+      <Properties>
+        <string name="Name">DoorFrame</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>0.18</X>
+          <Y>6.8</Y>
+          <Z>0.2</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.3607843137254902</R>
+          <G>0.2549019607843137</G>
+          <B>0.16862745098039217</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1062.48</X>
+          <Y>7.8</Y>
+          <Z>1410.92</Z>
+          <R00>1.0</R00>
+          <R01>-0.0</R01>
+          <R02>0.0</R02>
+          <R10>0.0</R10>
+          <R11>1.0</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0.0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_deer_lodge_21">
+      <Properties>
+        <string name="Name">Chimney</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">848</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>1.1</X>
+          <Y>2.4</Y>
+          <Z>1.1</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.611764705882353</R>
+          <G>0.5607843137254902</G>
+          <B>0.4666666666666667</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1056.1</X>
+          <Y>14.676143426542682</Y>
+          <Z>1417.85</Z>
+          <R00>1.0</R00>
+          <R01>-0.0</R01>
+          <R02>0.0</R02>
+          <R10>0.0</R10>
+          <R11>1.0</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0.0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_deer_lodge_22">
+      <Properties>
+        <string name="Name">ChimneyCap</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">800</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>1.4</X>
+          <Y>0.25</Y>
+          <Z>1.4</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.3607843137254902</R>
+          <G>0.2549019607843137</G>
+          <B>0.16862745098039217</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1056.1</X>
+          <Y>15.97614342654268</Y>
+          <Z>1417.85</Z>
+          <R00>1.0</R00>
+          <R01>-0.0</R01>
+          <R02>0.0</R02>
+          <R10>0.0</R10>
+          <R11>1.0</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0.0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_deer_lodge_23">
+      <Properties>
+        <string name="Name">HeraldicPlaque</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>2.7</X>
+          <Y>1.1</Y>
+          <Z>0.25</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.3607843137254902</R>
+          <G>0.2549019607843137</G>
+          <B>0.16862745098039217</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1060.0</X>
+          <Y>12.8</Y>
+          <Z>1410.9</Z>
+          <R00>1.0</R00>
+          <R01>-0.0</R01>
+          <R02>0.0</R02>
+          <R10>0.0</R10>
+          <R11>1.0</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0.0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_deer_lodge_24">
+      <Properties>
+        <string name="Name">Antler</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">912</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>0.24</X>
+          <Y>1.25</Y>
+          <Z>0.24</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.8980392156862745</R>
+          <G>0.8274509803921568</G>
+          <B>0.6627450980392157</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1059.15</X>
+          <Y>13.0</Y>
+          <Z>1410.71</Z>
+          <R00>0.766044443118978</R00>
+          <R01>0.6427876096865393</R01>
+          <R02>0.0</R02>
+          <R10>-0.6427876096865393</R10>
+          <R11>0.766044443118978</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>-0.0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_deer_lodge_25">
+      <Properties>
+        <string name="Name">AntlerTip</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">912</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>0.18</X>
+          <Y>0.7</Y>
+          <Z>0.18</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.8980392156862745</R>
+          <G>0.8274509803921568</G>
+          <B>0.6627450980392157</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1058.65</X>
+          <Y>13.4</Y>
+          <Z>1410.71</Z>
+          <R00>0.9396926207859084</R00>
+          <R01>-0.3420201433256687</R01>
+          <R02>0.0</R02>
+          <R10>0.3420201433256687</R10>
+          <R11>0.9396926207859084</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0.0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_deer_lodge_26">
+      <Properties>
+        <string name="Name">Antler</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">912</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>0.24</X>
+          <Y>1.25</Y>
+          <Z>0.24</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.8980392156862745</R>
+          <G>0.8274509803921568</G>
+          <B>0.6627450980392157</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1060.85</X>
+          <Y>13.0</Y>
+          <Z>1410.71</Z>
+          <R00>0.766044443118978</R00>
+          <R01>-0.6427876096865393</R01>
+          <R02>0.0</R02>
+          <R10>0.6427876096865393</R10>
+          <R11>0.766044443118978</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0.0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_deer_lodge_27">
+      <Properties>
+        <string name="Name">AntlerTip</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">912</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>0.18</X>
+          <Y>0.7</Y>
+          <Z>0.18</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.8980392156862745</R>
+          <G>0.8274509803921568</G>
+          <B>0.6627450980392157</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1061.35</X>
+          <Y>13.4</Y>
+          <Z>1410.71</Z>
+          <R00>0.9396926207859084</R00>
+          <R01>0.3420201433256687</R01>
+          <R02>0.0</R02>
+          <R10>-0.3420201433256687</R10>
+          <R11>0.9396926207859084</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>-0.0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_deer_lodge_28">
+      <Properties>
+        <string name="Name">Log</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>2</X>
+          <Y>1.1</Y>
+          <Z>1.2</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.3607843137254902</R>
+          <G>0.2549019607843137</G>
+          <B>0.16862745098039217</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1063.5</X>
+          <Y>5.0</Y>
+          <Z>1414.0</Z>
+          <R00>1.0</R00>
+          <R01>-0.0</R01>
+          <R02>0.0</R02>
+          <R10>0.0</R10>
+          <R11>1.0</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0.0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_deer_lodge_29">
+      <Properties>
+        <string name="Name">Log</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>2</X>
+          <Y>1.1</Y>
+          <Z>1.2</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.3607843137254902</R>
+          <G>0.2549019607843137</G>
+          <B>0.16862745098039217</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1063.5</X>
+          <Y>5.0</Y>
+          <Z>1416.0</Z>
+          <R00>1.0</R00>
+          <R01>-0.0</R01>
+          <R02>0.0</R02>
+          <R10>0.0</R10>
+          <R11>1.0</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0.0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART19">
+      <Properties>
+        <string name="Name">SignBoard</string>
+        <Vector3 name="Size">
+          <X>6.0</X>
+          <Y>1.7</Y>
+          <Z>0.16</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1069.4</X>
+          <Y>7.3</Y>
+          <Z>1409.0999999046326</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.15294117647058825</R>
+          <G>0.25882352941176473</G>
+          <B>0.30196078431372547</B>
+        </Color3>
+        <token name="Material">1088</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART20">
+      <Properties>
+        <string name="Name">SignPost</string>
+        <Vector3 name="Size">
+          <X>0.25</X>
+          <Y>2.45</Y>
+          <Z>0.25</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1066.9</X>
+          <Y>5.225</Y>
+          <Z>1409.0999999046326</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.43137254901960786</R>
+          <G>0.3137254901960784</G>
+          <B>0.19607843137254902</B>
+        </Color3>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART21">
+      <Properties>
+        <string name="Name">SignPost</string>
+        <Vector3 name="Size">
+          <X>0.25</X>
+          <Y>2.45</Y>
+          <Z>0.25</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1071.9</X>
+          <Y>5.225</Y>
+          <Z>1409.0999999046326</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.43137254901960786</R>
+          <G>0.3137254901960784</G>
+          <B>0.19607843137254902</B>
+        </Color3>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_deer_lodge_EavesBeam_30">
+      <Properties>
+        <string name="Name">EavesBeam</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">816</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>10.0</X>
+          <Y>0.3</Y>
+          <Z>0.6</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.7215686274509804</R>
+          <G>0.6274509803921569</G>
+          <B>0.4745098039215686</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1060.0</X>
+          <Y>11.75</Y>
+          <Z>1411.3</Z>
+          <R00>1.0</R00>
+          <R01>0</R01>
+          <R02>0.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBX_deer_lodge_GableLeft_31">
+      <Properties>
+        <string name="Name">GableLeft</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">816</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>0.6</X>
+          <Y>2.4761434265426807</Y>
+          <Z>5.0</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.7215686274509804</R>
+          <G>0.6274509803921569</G>
+          <B>0.4745098039215686</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1057.5</X>
+          <Y>13.13807171327134</Y>
+          <Z>1411.3</Z>
+          <R00>6.123233995736766e-17</R00>
+          <R01>0</R01>
+          <R02>1.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1.0</R20>
+          <R21>0</R21>
+          <R22>6.123233995736766e-17</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBX_deer_lodge_GableRight_32">
+      <Properties>
+        <string name="Name">GableRight</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">816</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>0.6</X>
+          <Y>2.4761434265426807</Y>
+          <Z>5.0</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.7215686274509804</R>
+          <G>0.6274509803921569</G>
+          <B>0.4745098039215686</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1062.5</X>
+          <Y>13.13807171327134</Y>
+          <Z>1411.3</Z>
+          <R00>6.123233995736766e-17</R00>
+          <R01>0</R01>
+          <R02>-1.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1.0</R20>
+          <R21>0</R21>
+          <R22>6.123233995736766e-17</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_deer_lodge_EavesBeam_33">
+      <Properties>
+        <string name="Name">EavesBeam</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">816</token>
+        <token name="Shape">1</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>10.0</X>
+          <Y>0.3</Y>
+          <Z>0.6</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.7215686274509804</R>
+          <G>0.6274509803921569</G>
+          <B>0.4745098039215686</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1060.0</X>
+          <Y>11.75</Y>
+          <Z>1418.7</Z>
+          <R00>1.0</R00>
+          <R01>0</R01>
+          <R02>0.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBX_deer_lodge_GableLeft_34">
+      <Properties>
+        <string name="Name">GableLeft</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">816</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>0.6</X>
+          <Y>2.4761434265426807</Y>
+          <Z>5.0</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.7215686274509804</R>
+          <G>0.6274509803921569</G>
+          <B>0.4745098039215686</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1057.5</X>
+          <Y>13.13807171327134</Y>
+          <Z>1418.7</Z>
+          <R00>6.123233995736766e-17</R00>
+          <R01>0</R01>
+          <R02>1.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1.0</R20>
+          <R21>0</R21>
+          <R22>6.123233995736766e-17</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBX_deer_lodge_GableRight_35">
+      <Properties>
+        <string name="Name">GableRight</string>
+        <bool name="Anchored">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CastShadow">true</bool>
+        <token name="Material">816</token>
+        <float name="Transparency">0</float>
+        <Vector3 name="Size">
+          <X>0.6</X>
+          <Y>2.4761434265426807</Y>
+          <Z>5.0</Z>
+        </Vector3>
+        <Color3 name="Color">
+          <R>0.7215686274509804</R>
+          <G>0.6274509803921569</G>
+          <B>0.4745098039215686</B>
+        </Color3>
+        <CoordinateFrame name="CFrame">
+          <X>1062.5</X>
+          <Y>13.13807171327134</Y>
+          <Z>1418.7</Z>
+          <R00>6.123233995736766e-17</R00>
+          <R01>0</R01>
+          <R02>-1.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1.0</R20>
+          <R21>0</R21>
+          <R22>6.123233995736766e-17</R22>
+        </CoordinateFrame>
+      </Properties>
+    </Item>
+  </Item>
 </roblox>

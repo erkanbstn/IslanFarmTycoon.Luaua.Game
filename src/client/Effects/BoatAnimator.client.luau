@@ -5,6 +5,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local EffectSettings = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("EffectSettings"))
+local ClientModelAssets = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("ClientModelAssets"))
 local player = Players.LocalPlayer
 
 type Boat = {
@@ -17,7 +18,7 @@ type Boat = {
 	clear: boolean,
 	resumeAt: number?,
 	from: CFrame?,
-	wakes: { Part },
+	wakes: { BasePart },
 	atHome: boolean,
 }
 local boats: { [Model]: Boat } = {}
@@ -206,21 +207,30 @@ local function selectNearby(now: number)
 	end
 end
 
+local foamWarned = false
+
 local function wake(boat: Boat, pivot: CFrame)
 	if player:GetAttribute("EffectsQuality") == "low" or not boat.clear then
 		hideWake(boat)
 		return
 	end
+	-- Köpük izi: client-assets/Sea/BoatFoam ("Foam" parçası; görünür saydamlığı modelden gelir)
 	while #boat.wakes < 2 do
-		local part = Instance.new("Part")
-		part.Name = "Foam"
-		part.Size = Vector3.new(0.22, 0.035, 3.8)
-		part.Color = Color3.fromRGB(221, 238, 234)
-		part.Material = Enum.Material.SmoothPlastic
-		part.Anchored = true
-		part.CanCollide, part.CanTouch, part.CanQuery = false, false, false
-		part.CastShadow = false
+		local model = ClientModelAssets.clone("Sea", "BoatFoam")
+		local part = if model then model:FindFirstChild("Foam") else nil
+		if not (model and part and part:IsA("BasePart")) then
+			if model then
+				model:Destroy()
+			end
+			if not foamWarned then
+				foamWarned = true
+				warn("[BoatAnimator] client-assets/Sea/BoatFoam.rbxmx bulunamadı; köpük çizilmedi")
+			end
+			return
+		end
+		part:SetAttribute("ShownTransparency", part.Transparency)
 		part.Parent = wakesFolder
+		model:Destroy()
 		table.insert(boat.wakes, part)
 	end
 	local forward = Vector3.new(pivot.LookVector.X, 0, pivot.LookVector.Z)
@@ -229,7 +239,7 @@ local function wake(boat: Boat, pivot: CFrame)
 		local position = pivot:PointToWorldSpace(Vector3.new(side * 2.55, 0, 7.1))
 		position = Vector3.new(position.X, 0.07, position.Z)
 		part.CFrame = CFrame.lookAt(position, position + forward) * CFrame.Angles(0, side * 0.17, 0)
-		part.Transparency = 0.78
+		part.Transparency = part:GetAttribute("ShownTransparency") :: number
 	end
 end
 

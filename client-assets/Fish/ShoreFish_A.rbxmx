@@ -1,0 +1,371 @@
+<?xml version='1.0' encoding='utf-8'?>
+<roblox version="4">
+  <Meta name="ExplicitAutoJoints">true</Meta>
+  <Item class="Model" referent="RBXMODEL">
+    <Properties>
+      <string name="Name">ShoreFish_A</string>
+      <OptionalCoordinateFrame name="WorldPivotData">
+        <CFrame>
+          <X>0</X>
+          <Y>0</Y>
+          <Z>0</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>-0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CFrame>
+      </OptionalCoordinateFrame>
+      <Ref name="PrimaryPart">RBXPART1</Ref>
+    </Properties>
+    <Item class="Part" referent="RBXPART1">
+      <Properties>
+        <string name="Name">Body</string>
+        <Vector3 name="Size">
+          <X>0.32140625</X>
+          <Y>0.33087123256000006</Y>
+          <Z>0.8568000000000001</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.0</X>
+          <Y>0.0</Y>
+          <Z>0.0</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>-0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.8941176470588236</R>
+          <G>0.6313725490196078</G>
+          <B>0.23921568627450981</B>
+        </Color3>
+        <token name="Material">272</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXPART2">
+      <Properties>
+        <string name="Name">Tail</string>
+        <Vector3 name="Size">
+          <X>0.04675000000000001</X>
+          <Y>0.37912328796</Y>
+          <Z>0.34</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.0</X>
+          <Y>0.0</Y>
+          <Z>0.476</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>-0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.8941176470588236</R>
+          <G>0.6313725490196078</G>
+          <B>0.23921568627450981</B>
+        </Color3>
+        <token name="Material">272</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXPART3">
+      <Properties>
+        <string name="Name">Snout</string>
+        <Vector3 name="Size">
+          <X>0.2688125</X>
+          <Y>0.29640547948</Y>
+          <Z>0.23120000000000004</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.0</X>
+          <Y>-0.010339726060000002</Y>
+          <Z>-0.5168</Z>
+          <R00>-1</R00>
+          <R01>0</R01>
+          <R02>1.2246468e-16</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1.2246468e-16</R20>
+          <R21>0</R21>
+          <R22>-1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.97254902</R>
+          <G>0.82745098</G>
+          <B>0.568627451</B>
+        </Color3>
+        <token name="Material">272</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART4">
+      <Properties>
+        <string name="Name">Eye</string>
+        <Vector3 name="Size">
+          <X>0.06135937500000001</X>
+          <Y>0.06135937500000001</Y>
+          <Z>0.06135937500000001</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.14025</X>
+          <Y>0.06893150684</Y>
+          <Z>-0.3196</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>-0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.0862745098</R>
+          <G>0.149019608</G>
+          <B>0.180392157</B>
+        </Color3>
+        <token name="Material">272</token>
+        <token name="Shape">0</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART5">
+      <Properties>
+        <string name="Name">Eye</string>
+        <Vector3 name="Size">
+          <X>0.06135937500000001</X>
+          <Y>0.06135937500000001</Y>
+          <Z>0.06135937500000001</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.14025</X>
+          <Y>0.06893150684</Y>
+          <Z>-0.3196</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>-0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.0862745098</R>
+          <G>0.149019608</G>
+          <B>0.180392157</B>
+        </Color3>
+        <token name="Material">272</token>
+        <token name="Shape">0</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXPART6">
+      <Properties>
+        <string name="Name">Tint</string>
+        <Vector3 name="Size">
+          <X>0.0584375</X>
+          <Y>0.213687671</Y>
+          <Z>0.42840000000000006</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.0</X>
+          <Y>0.20679452052000002</Y>
+          <Z>0.0204</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>-0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.8941176470588236</R>
+          <G>0.6313725490196078</G>
+          <B>0.23921568627450981</B>
+        </Color3>
+        <token name="Material">272</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXPART7">
+      <Properties>
+        <string name="Name">PectoralFin</string>
+        <Vector3 name="Size">
+          <X>0.07596875000000002</X>
+          <Y>0.11718356156000001</Y>
+          <Z>0.24480000000000002</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.149015625</X>
+          <Y>-0.08271780848000002</Y>
+          <Z>-0.068</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>-0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.505882353</R>
+          <G>0.823529412</G>
+          <B>0.796078431</B>
+        </Color3>
+        <token name="Material">272</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXPART8">
+      <Properties>
+        <string name="Name">PectoralFin</string>
+        <Vector3 name="Size">
+          <X>0.07596875000000002</X>
+          <Y>0.11718356156000001</Y>
+          <Z>0.24480000000000002</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.149015625</X>
+          <Y>-0.08271780848000002</Y>
+          <Z>-0.068</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>-0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.505882353</R>
+          <G>0.823529412</G>
+          <B>0.796078431</B>
+        </Color3>
+        <token name="Material">272</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXSTRIPE-1">
+      <Properties>
+        <string name="Name">Stripe</string>
+        <Vector3 name="Size">
+          <X>0.0102</X>
+          <Y>0.20400000000000001</Y>
+          <Z>0.04760000000000001</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.1632</X>
+          <Y>0.0</Y>
+          <Z>-0.0884</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>-0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.9725490196078431</R>
+          <G>0.9254901960784314</G>
+          <B>0.7490196078431373</B>
+        </Color3>
+        <token name="Material">272</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXSTRIPE1">
+      <Properties>
+        <string name="Name">Stripe</string>
+        <Vector3 name="Size">
+          <X>0.0102</X>
+          <Y>0.20400000000000001</Y>
+          <Z>0.04760000000000001</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.1632</X>
+          <Y>0.0</Y>
+          <Z>-0.0884</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>-0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.9725490196078431</R>
+          <G>0.9254901960784314</G>
+          <B>0.7490196078431373</B>
+        </Color3>
+        <token name="Material">272</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+      </Properties>
+    </Item>
+  </Item>
+</roblox>
