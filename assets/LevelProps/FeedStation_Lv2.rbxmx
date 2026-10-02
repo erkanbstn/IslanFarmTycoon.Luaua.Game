@@ -1,0 +1,64 @@
+<roblox version="4">
+<Meta name="ExplicitAutoJoints">true</Meta>
+<Item class="Model" referent="RBXMODEL"><Properties>
+<string name="Name">FeedStation_Lv2</string>
+<OptionalCoordinateFrame name="WorldPivotData"><CFrame><X>1200</X><Y>4</Y><Z>1044</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CFrame></OptionalCoordinateFrame>
+</Properties>
+<Item class="Part" referent="RBXPART1"><Properties>
+<string name="Name">FeedBowl</string>
+<Vector3 name="Size"><X>3</X><Y>0.8999999761581421</Y><Z>1.600000023841858</Z></Vector3>
+<CoordinateFrame name="CFrame"><X>1200</X><Y>4.449999809265137</Y><Z>1044</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+<Color3 name="Color"><R>0.3921568691730499</R><G>0.27450981736183167</G><B>0.1764705926179886</B></Color3>
+<token name="Material">512</token>
+<token name="Shape">1</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">true</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">true</bool>
+<float name="Transparency">0</float>
+<float name="Reflectance">0</float>
+</Properties></Item>
+<Item class="Part" referent="RBXPART2"><Properties>
+<string name="Name">Feed</string>
+<Vector3 name="Size"><X>2.5999999046325684</X><Y>0.15000000596046448</Y><Z>1.2000000476837158</Z></Vector3>
+<CoordinateFrame name="CFrame"><X>1200</X><Y>4.949999809265137</Y><Z>1044</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+<Color3 name="Color"><R>0.8823529481887817</R><G>0.7647058963775635</G><B>0.4313725531101227</B></Color3>
+<token name="Material">1280</token>
+<token name="Shape">1</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+<float name="Transparency">0</float>
+<float name="Reflectance">0</float>
+</Properties></Item>
+<Item class="Part" referent="RBXPART3"><Properties>
+<string name="Name">GrainSack</string>
+<Vector3 name="Size"><X>1.2000000476837158</X><Y>1.399999976158142</Y><Z>1</Z></Vector3>
+<CoordinateFrame name="CFrame"><X>1202.199951171875</X><Y>4.699999809265137</Y><Z>1044.300048828125</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+<Color3 name="Color"><R>0.843137264251709</R><G>0.7647058963775635</G><B>0.5882353186607361</B></Color3>
+<token name="Material">1312</token>
+<token name="Shape">1</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">true</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">true</bool>
+<float name="Transparency">0</float>
+<float name="Reflectance">0</float>
+</Properties></Item>
+<Item class="Part" referent="RBXPART4"><Properties>
+<string name="Name">GrainTie</string>
+<Vector3 name="Size"><X>0.8999999761581421</X><Y>0.20000000298023224</Y><Z>0.800000011920929</Z></Vector3>
+<CoordinateFrame name="CFrame"><X>1202.199951171875</X><Y>5.449999809265137</Y><Z>1044.300048828125</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+<Color3 name="Color"><R>0.3921568691730499</R><G>0.27450981736183167</G><B>0.1764705926179886</B></Color3>
+<token name="Material">1312</token>
+<token name="Shape">1</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+<float name="Transparency">0</float>
+<float name="Reflectance">0</float>
+</Properties></Item>
+</Item>
+</roblox>

@@ -1,0 +1,50 @@
+<roblox version="4">
+<Meta name="ExplicitAutoJoints">true</Meta>
+<Item class="Model" referent="RBXMODEL"><Properties>
+<string name="Name">FacilityRings_Lv3</string>
+<OptionalCoordinateFrame name="WorldPivotData"><CFrame><X>1200</X><Y>4</Y><Z>2060</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CFrame></OptionalCoordinateFrame>
+</Properties>
+<Item class="Part" referent="RBXPART1"><Properties>
+<string name="Name">LevelRing</string>
+<Vector3 name="Size"><X>0.11999999731779099</X><Y>10.399999618530273</Y><Z>10.399999618530273</Z></Vector3>
+<CoordinateFrame name="CFrame"><X>1200</X><Y>4.099999904632568</Y><Z>2060</Z><R00>-4.371138828673793e-8</R00><R01>-1</R01><R02>0</R02><R10>1</R10><R11>-4.371138828673793e-8</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+<Color3 name="Color"><R>1</R><G>0.7843137383460999</G><B>0.23529411852359772</B></Color3>
+<token name="Material">288</token>
+<token name="Shape">2</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+<float name="Transparency">0.6499999761581421</float>
+<float name="Reflectance">0</float>
+</Properties></Item>
+<Item class="Part" referent="RBXPART2"><Properties>
+<string name="Name">LevelRing</string>
+<Vector3 name="Size"><X>0.11999999731779099</X><Y>11.800000190734863</Y><Z>11.800000190734863</Z></Vector3>
+<CoordinateFrame name="CFrame"><X>1200</X><Y>4.119999885559082</Y><Z>2060</Z><R00>-4.371138828673793e-8</R00><R01>-1</R01><R02>0</R02><R10>1</R10><R11>-4.371138828673793e-8</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+<Color3 name="Color"><R>1</R><G>0.7843137383460999</G><B>0.23529411852359772</B></Color3>
+<token name="Material">288</token>
+<token name="Shape">2</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+<float name="Transparency">0.6000000238418579</float>
+<float name="Reflectance">0</float>
+</Properties></Item>
+<Item class="Part" referent="RBXPART3"><Properties>
+<string name="Name">LevelRing</string>
+<Vector3 name="Size"><X>0.11999999731779099</X><Y>13.199999809265137</Y><Z>13.199999809265137</Z></Vector3>
+<CoordinateFrame name="CFrame"><X>1200</X><Y>4.139999866485596</Y><Z>2060</Z><R00>-4.371138828673793e-8</R00><R01>-1</R01><R02>0</R02><R10>1</R10><R11>-4.371138828673793e-8</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+<Color3 name="Color"><R>1</R><G>0.7843137383460999</G><B>0.23529411852359772</B></Color3>
+<token name="Material">288</token>
+<token name="Shape">2</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+<float name="Transparency">0.550000011920929</float>
+<float name="Reflectance">0</float>
+</Properties></Item>
+</Item>
+</roblox>

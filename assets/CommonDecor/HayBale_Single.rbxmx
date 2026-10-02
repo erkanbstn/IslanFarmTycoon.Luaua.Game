@@ -1,0 +1,50 @@
+<roblox version="4">
+<Meta name="ExplicitAutoJoints">true</Meta>
+<Item class="Model" referent="RBXMODEL"><Properties>
+<string name="Name">HayBale_Single</string>
+<OptionalCoordinateFrame name="WorldPivotData"><CFrame><X>1600</X><Y>4</Y><Z>8150</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CFrame></OptionalCoordinateFrame>
+</Properties>
+<Item class="Part" referent="RBXPART1"><Properties>
+<string name="Name">Bale</string>
+<Vector3 name="Size"><X>2.5999999046325684</X><Y>2.200000047683716</Y><Z>2.200000047683716</Z></Vector3>
+<CoordinateFrame name="CFrame"><X>1600</X><Y>5.099999904632568</Y><Z>8150</Z><R00>-4.371138828673793e-8</R00><R01>-1</R01><R02>0</R02><R10>-4.371138828673793e-8</R10><R11>1.910685465164705e-15</R11><R12>-1</R12><R20>1</R20><R21>-4.371138828673793e-8</R21><R22>-4.371138828673793e-8</R22></CoordinateFrame>
+<Color3 name="Color"><R>0.886274516582489</R><G>0.7450980544090271</G><B>0.3764705955982208</B></Color3>
+<token name="Material">1312</token>
+<token name="Shape">2</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">true</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">true</bool>
+<float name="Transparency">0</float>
+<float name="Reflectance">0</float>
+</Properties></Item>
+<Item class="Part" referent="RBXPART2"><Properties>
+<string name="Name">Twine</string>
+<Vector3 name="Size"><X>2.299999952316284</X><Y>0.07999999821186066</Y><Z>0.10000000149011612</Z></Vector3>
+<CoordinateFrame name="CFrame"><X>1600</X><Y>5.099999904632568</Y><Z>8149.4501953125</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+<Color3 name="Color"><R>0.5882353186607361</R><G>0.4313725531101227</G><B>0.23529411852359772</B></Color3>
+<token name="Material">1312</token>
+<token name="Shape">1</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">true</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">true</bool>
+<float name="Transparency">0</float>
+<float name="Reflectance">0</float>
+</Properties></Item>
+<Item class="Part" referent="RBXPART3"><Properties>
+<string name="Name">Twine</string>
+<Vector3 name="Size"><X>2.299999952316284</X><Y>0.07999999821186066</Y><Z>0.10000000149011612</Z></Vector3>
+<CoordinateFrame name="CFrame"><X>1600</X><Y>5.099999904632568</Y><Z>8150.5498046875</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+<Color3 name="Color"><R>0.5882353186607361</R><G>0.4313725531101227</G><B>0.23529411852359772</B></Color3>
+<token name="Material">1312</token>
+<token name="Shape">1</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">true</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">true</bool>
+<float name="Transparency">0</float>
+<float name="Reflectance">0</float>
+</Properties></Item>
+</Item>
+</roblox>
