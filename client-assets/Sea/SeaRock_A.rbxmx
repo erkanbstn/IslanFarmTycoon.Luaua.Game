@@ -1,0 +1,129 @@
+<roblox version="4">
+<Meta name="ExplicitAutoJoints">true</Meta>
+<Item class="Model" referent="RBXMODEL">
+<Properties>
+<string name="Name">SeaRock_A</string>
+<OptionalCoordinateFrame name="WorldPivotData">
+<CFrame>
+<X>0</X>
+<Y>0</Y>
+<Z>0</Z>
+<R00>1</R00>
+<R01>-0</R01>
+<R02>0</R02>
+<R10>0</R10>
+<R11>1</R11>
+<R12>-0</R12>
+<R20>0</R20>
+<R21>0</R21>
+<R22>1</R22>
+</CFrame>
+</OptionalCoordinateFrame>
+</Properties>
+<Item class="Part" referent="RBXPART1">
+<Properties>
+<string name="Name">Tint</string>
+<Vector3 name="Size">
+<X>1.97454099</X>
+<Y>2</Y>
+<Z>2.43576341</Z>
+</Vector3>
+<CoordinateFrame name="CFrame">
+<X>0</X>
+<Y>1</Y>
+<Z>0</Z>
+<R00>0.955336489</R00>
+<R01>-0</R01>
+<R02>0.295520207</R02>
+<R10>0</R10>
+<R11>1</R11>
+<R12>-0</R12>
+<R20>-0.295520207</R20>
+<R21>0</R21>
+<R22>0.955336489</R22>
+</CoordinateFrame>
+<Color3 name="Color">
+<R>0.431372549</R>
+<G>0.439215686</G>
+<B>0.462745098</B>
+</Color3>
+<token name="Material">800</token>
+<token name="Shape">1</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+</Properties>
+</Item>
+<Item class="Part" referent="RBXPART2">
+<Properties>
+<string name="Name">Tint</string>
+<Vector3 name="Size">
+<X>1.33759228</X>
+<Y>1.70588235</Y>
+<Z>1.5658479</Z>
+</Vector3>
+<CoordinateFrame name="CFrame">
+<X>-0.636948707</X>
+<Y>0.852941176</Y>
+<Z>0.521949301</Z>
+<R00>0.949235418</R00>
+<R01>-0</R01>
+<R02>-0.314566561</R02>
+<R10>0</R10>
+<R11>1</R11>
+<R12>-0</R12>
+<R20>0.314566561</R20>
+<R21>0</R21>
+<R22>0.949235418</R22>
+</CoordinateFrame>
+<Color3 name="Color">
+<R>0.384313725</R>
+<G>0.411764706</G>
+<B>0.439215686</B>
+</Color3>
+<token name="Material">800</token>
+<token name="Shape">1</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+</Properties>
+</Item>
+<Item class="Part" referent="RBXPART3">
+<Properties>
+<string name="Name">Tint</string>
+<Vector3 name="Size">
+<X>1.27389741</X>
+<Y>1.26470588</Y>
+<Z>1.80942424</Z>
+</Vector3>
+<CoordinateFrame name="CFrame">
+<X>0.509558965</X>
+<Y>0.632352941</Y>
+<Z>-0.365364511</Z>
+<R00>0.825335615</R00>
+<R01>-0</R01>
+<R02>0.564642473</R02>
+<R10>0</R10>
+<R11>1</R11>
+<R12>-0</R12>
+<R20>-0.564642473</R20>
+<R21>0</R21>
+<R22>0.825335615</R22>
+</CoordinateFrame>
+<Color3 name="Color">
+<R>0.470588235</R>
+<G>0.474509804</G>
+<B>0.48627451</B>
+</Color3>
+<token name="Material">800</token>
+<token name="Shape">1</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+</Properties>
+</Item>
+</Item>
+</roblox>

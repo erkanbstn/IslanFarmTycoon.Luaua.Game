@@ -70,96 +70,112 @@
 <CoordinateFrame name="CFrame"><X>1060</X><Y>13.300000190734863</Y><Z>1175</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
 <Color3 name="Color"><R>0.9607843160629272</R><G>0.9215686321258545</G><B>0.8235294222831726</B></Color3>
 <token name="Material">272</token>
-<token name="Shape">0</token>
+<token name="Shape">1</token>
 <bool name="Anchored">true</bool>
 <bool name="CanCollide">true</bool>
 <bool name="CanTouch">false</bool>
 <bool name="CanQuery">true</bool>
-</Properties></Item>
+</Properties><Item class="SpecialMesh" referent="RBXPART6_MESH"><Properties>
+<token name="MeshType">3</token>
+</Properties></Item></Item>
 <Item class="Part" referent="RBXPART7"><Properties>
 <string name="Name">EggSpeck</string>
 <Vector3 name="Size"><X>0.699999988079071</X><Y>0.699999988079071</Y><Z>0.4000000059604645</Z></Vector3>
 <CoordinateFrame name="CFrame"><X>1059.199951171875</X><Y>14</Y><Z>1173</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
 <Color3 name="Color"><R>0.47058823704719543</R><G>0.3137255012989044</G><B>0.19607843458652496</B></Color3>
 <token name="Material">272</token>
-<token name="Shape">0</token>
+<token name="Shape">1</token>
 <bool name="Anchored">true</bool>
 <bool name="CanCollide">true</bool>
 <bool name="CanTouch">false</bool>
 <bool name="CanQuery">true</bool>
-</Properties></Item>
+</Properties><Item class="SpecialMesh" referent="RBXPART7_MESH"><Properties>
+<token name="MeshType">3</token>
+</Properties></Item></Item>
 <Item class="Part" referent="RBXPART8"><Properties>
 <string name="Name">EggSpeck</string>
 <Vector3 name="Size"><X>0.699999988079071</X><Y>0.699999988079071</Y><Z>0.4000000059604645</Z></Vector3>
 <CoordinateFrame name="CFrame"><X>1060.9000244140625</X><Y>13.199999809265137</Y><Z>1172.949951171875</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
 <Color3 name="Color"><R>0.47058823704719543</R><G>0.3137255012989044</G><B>0.19607843458652496</B></Color3>
 <token name="Material">272</token>
-<token name="Shape">0</token>
+<token name="Shape">1</token>
 <bool name="Anchored">true</bool>
 <bool name="CanCollide">true</bool>
 <bool name="CanTouch">false</bool>
 <bool name="CanQuery">true</bool>
-</Properties></Item>
+</Properties><Item class="SpecialMesh" referent="RBXPART8_MESH"><Properties>
+<token name="MeshType">3</token>
+</Properties></Item></Item>
 <Item class="Part" referent="RBXPART9"><Properties>
 <string name="Name">EggSpeck</string>
 <Vector3 name="Size"><X>0.699999988079071</X><Y>0.699999988079071</Y><Z>0.4000000059604645</Z></Vector3>
 <CoordinateFrame name="CFrame"><X>1059.699951171875</X><Y>12.399999618530273</Y><Z>1172.9000244140625</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
 <Color3 name="Color"><R>0.47058823704719543</R><G>0.3137255012989044</G><B>0.19607843458652496</B></Color3>
 <token name="Material">272</token>
-<token name="Shape">0</token>
+<token name="Shape">1</token>
 <bool name="Anchored">true</bool>
 <bool name="CanCollide">true</bool>
 <bool name="CanTouch">false</bool>
 <bool name="CanQuery">true</bool>
-</Properties></Item>
+</Properties><Item class="SpecialMesh" referent="RBXPART9_MESH"><Properties>
+<token name="MeshType">3</token>
+</Properties></Item></Item>
 <Item class="Part" referent="RBXPART10"><Properties>
 <string name="Name">EggSpeck</string>
 <Vector3 name="Size"><X>0.699999988079071</X><Y>0.699999988079071</Y><Z>0.4000000059604645</Z></Vector3>
 <CoordinateFrame name="CFrame"><X>1061</X><Y>14.399999618530273</Y><Z>1173.300048828125</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
 <Color3 name="Color"><R>0.47058823704719543</R><G>0.3137255012989044</G><B>0.19607843458652496</B></Color3>
 <token name="Material">272</token>
-<token name="Shape">0</token>
+<token name="Shape">1</token>
 <bool name="Anchored">true</bool>
 <bool name="CanCollide">true</bool>
 <bool name="CanTouch">false</bool>
 <bool name="CanQuery">true</bool>
-</Properties></Item>
+</Properties><Item class="SpecialMesh" referent="RBXPART10_MESH"><Properties>
+<token name="MeshType">3</token>
+</Properties></Item></Item>
 <Item class="Part" referent="RBXPART11"><Properties>
 <string name="Name">EggSpeck</string>
 <Vector3 name="Size"><X>0.699999988079071</X><Y>0.699999988079071</Y><Z>0.4000000059604645</Z></Vector3>
 <CoordinateFrame name="CFrame"><X>1058.800048828125</X><Y>13</Y><Z>1172.949951171875</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
 <Color3 name="Color"><R>0.47058823704719543</R><G>0.3137255012989044</G><B>0.19607843458652496</B></Color3>
 <token name="Material">272</token>
-<token name="Shape">0</token>
+<token name="Shape">1</token>
 <bool name="Anchored">true</bool>
 <bool name="CanCollide">true</bool>
 <bool name="CanTouch">false</bool>
 <bool name="CanQuery">true</bool>
-</Properties></Item>
+</Properties><Item class="SpecialMesh" referent="RBXPART11_MESH"><Properties>
+<token name="MeshType">3</token>
+</Properties></Item></Item>
 <Item class="Part" referent="RBXPART12"><Properties>
 <string name="Name">SmallEgg</string>
 <Vector3 name="Size"><X>1.2000000476837158</X><Y>1.600000023841858</Y><Z>1.2000000476837158</Z></Vector3>
 <CoordinateFrame name="CFrame"><X>1054</X><Y>4.800000190734863</Y><Z>1173</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
 <Color3 name="Color"><R>0.9215686321258545</R><G>0.8627451062202454</G><B>0.7450980544090271</B></Color3>
 <token name="Material">272</token>
-<token name="Shape">0</token>
+<token name="Shape">1</token>
 <bool name="Anchored">true</bool>
 <bool name="CanCollide">true</bool>
 <bool name="CanTouch">false</bool>
 <bool name="CanQuery">true</bool>
-</Properties></Item>
+</Properties><Item class="SpecialMesh" referent="RBXPART12_MESH"><Properties>
+<token name="MeshType">3</token>
+</Properties></Item></Item>
 <Item class="Part" referent="RBXPART13"><Properties>
 <string name="Name">SmallEgg</string>
 <Vector3 name="Size"><X>1.2000000476837158</X><Y>1.600000023841858</Y><Z>1.2000000476837158</Z></Vector3>
 <CoordinateFrame name="CFrame"><X>1066</X><Y>4.800000190734863</Y><Z>1173</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
 <Color3 name="Color"><R>0.9215686321258545</R><G>0.8627451062202454</G><B>0.7450980544090271</B></Color3>
 <token name="Material">272</token>
-<token name="Shape">0</token>
+<token name="Shape">1</token>
 <bool name="Anchored">true</bool>
 <bool name="CanCollide">true</bool>
 <bool name="CanTouch">false</bool>
 <bool name="CanQuery">true</bool>
-</Properties></Item>
+</Properties><Item class="SpecialMesh" referent="RBXPART13_MESH"><Properties>
+<token name="MeshType">3</token>
+</Properties></Item></Item>
 <Item class="Part" referent="RBXPART14"><Properties>
 <string name="Name">SignBoard</string>
 <Vector3 name="Size"><X>6.0</X><Y>1.7</Y><Z>0.16</Z></Vector3>

@@ -178,70 +178,80 @@
 <CoordinateFrame name="CFrame"><X>1291</X><Y>8.785728454589844</Y><Z>4392</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
 <Color3 name="Color"><R>0.14901961386203766</R><G>0.3450980484485626</G><B>0.20392157137393951</B></Color3>
 <token name="Material">1284</token>
-<token name="Shape">0</token>
+<token name="Shape">1</token>
 <bool name="Anchored">true</bool>
 <bool name="CanCollide">false</bool>
 <bool name="CanTouch">false</bool>
 <bool name="CanQuery">true</bool>
 <float name="Transparency">0</float>
 <float name="Reflectance">0</float>
-</Properties></Item>
+</Properties><Item class="SpecialMesh" referent="RBXPART13_MESH"><Properties>
+<token name="MeshType">3</token>
+</Properties></Item></Item>
 <Item class="Part" referent="RBXPART14"><Properties>
 <string name="Name">Needles</string>
 <Vector3 name="Size"><X>8.37502384185791</X><Y>2.871436834335327</Y><Z>8.37502384185791</Z></Vector3>
 <CoordinateFrame name="CFrame"><X>1291</X><Y>11.657164573669434</Y><Z>4392</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
 <Color3 name="Color"><R>0.1764705926179886</R><G>0.3921568691730499</G><B>0.23529411852359772</B></Color3>
 <token name="Material">1284</token>
-<token name="Shape">0</token>
+<token name="Shape">1</token>
 <bool name="Anchored">true</bool>
 <bool name="CanCollide">false</bool>
 <bool name="CanTouch">false</bool>
 <bool name="CanQuery">true</bool>
 <float name="Transparency">0</float>
 <float name="Reflectance">0</float>
-</Properties></Item>
+</Properties><Item class="SpecialMesh" referent="RBXPART14_MESH"><Properties>
+<token name="MeshType">3</token>
+</Properties></Item></Item>
 <Item class="Part" referent="RBXPART15"><Properties>
 <string name="Name">Needles</string>
 <Vector3 name="Size"><X>6.460732936859131</X><Y>2.871436834335327</Y><Z>6.460732936859131</Z></Vector3>
 <CoordinateFrame name="CFrame"><X>1291</X><Y>14.289315223693848</Y><Z>4392</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
 <Color3 name="Color"><R>0.14901961386203766</R><G>0.3450980484485626</G><B>0.20392157137393951</B></Color3>
 <token name="Material">1284</token>
-<token name="Shape">0</token>
+<token name="Shape">1</token>
 <bool name="Anchored">true</bool>
 <bool name="CanCollide">false</bool>
 <bool name="CanTouch">false</bool>
 <bool name="CanQuery">true</bool>
 <float name="Transparency">0</float>
 <float name="Reflectance">0</float>
-</Properties></Item>
+</Properties><Item class="SpecialMesh" referent="RBXPART15_MESH"><Properties>
+<token name="MeshType">3</token>
+</Properties></Item></Item>
 <Item class="Part" referent="RBXPART16"><Properties>
 <string name="Name">Needles</string>
 <Vector3 name="Size"><X>4.546441555023193</X><Y>2.871436834335327</Y><Z>4.546441555023193</Z></Vector3>
 <CoordinateFrame name="CFrame"><X>1291</X><Y>16.682178497314453</Y><Z>4392</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
 <Color3 name="Color"><R>0.1764705926179886</R><G>0.3921568691730499</G><B>0.23529411852359772</B></Color3>
 <token name="Material">1284</token>
-<token name="Shape">0</token>
+<token name="Shape">1</token>
 <bool name="Anchored">true</bool>
 <bool name="CanCollide">false</bool>
 <bool name="CanTouch">false</bool>
 <bool name="CanQuery">true</bool>
 <float name="Transparency">0</float>
 <float name="Reflectance">0</float>
-</Properties></Item>
+</Properties><Item class="SpecialMesh" referent="RBXPART16_MESH"><Properties>
+<token name="MeshType">3</token>
+</Properties></Item></Item>
 <Item class="Part" referent="RBXPART17"><Properties>
 <string name="Name">Needles</string>
 <Vector3 name="Size"><X>2.632150411605835</X><Y>2.871436834335327</Y><Z>2.632150411605835</Z></Vector3>
 <CoordinateFrame name="CFrame"><X>1291</X><Y>18.716114044189453</Y><Z>4392</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
 <Color3 name="Color"><R>0.14901961386203766</R><G>0.3450980484485626</G><B>0.20392157137393951</B></Color3>
 <token name="Material">1284</token>
-<token name="Shape">0</token>
+<token name="Shape">1</token>
 <bool name="Anchored">true</bool>
 <bool name="CanCollide">false</bool>
 <bool name="CanTouch">false</bool>
 <bool name="CanQuery">true</bool>
 <float name="Transparency">0</float>
 <float name="Reflectance">0</float>
-</Properties></Item>
+</Properties><Item class="SpecialMesh" referent="RBXPART17_MESH"><Properties>
+<token name="MeshType">3</token>
+</Properties></Item></Item>
 <Item class="Part" referent="RBXPART18"><Properties>
 <string name="Name">Trunk</string>
 <Vector3 name="Size"><X>11.070449829101562</X><Y>1.2076854705810547</Y><Z>1.2076854705810547</Z></Vector3>
@@ -262,70 +272,80 @@
 <CoordinateFrame name="CFrame"><X>1288</X><Y>8.025617599487305</Y><Z>4400</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
 <Color3 name="Color"><R>0.14901961386203766</R><G>0.3450980484485626</G><B>0.20392157137393951</B></Color3>
 <token name="Material">1284</token>
-<token name="Shape">0</token>
+<token name="Shape">1</token>
 <bool name="Anchored">true</bool>
 <bool name="CanCollide">false</bool>
 <bool name="CanTouch">false</bool>
 <bool name="CanQuery">true</bool>
 <float name="Transparency">0</float>
 <float name="Reflectance">0</float>
-</Properties></Item>
+</Properties><Item class="SpecialMesh" referent="RBXPART19_MESH"><Properties>
+<token name="MeshType">3</token>
+</Properties></Item></Item>
 <Item class="Part" referent="RBXPART20"><Properties>
 <string name="Name">Needles</string>
 <Vector3 name="Size"><X>7.0448317527771</X><Y>2.4153709411621094</Y><Z>7.0448317527771</Z></Vector3>
 <CoordinateFrame name="CFrame"><X>1288</X><Y>10.440988540649414</Y><Z>4400</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
 <Color3 name="Color"><R>0.1764705926179886</R><G>0.3921568691730499</G><B>0.23529411852359772</B></Color3>
 <token name="Material">1284</token>
-<token name="Shape">0</token>
+<token name="Shape">1</token>
 <bool name="Anchored">true</bool>
 <bool name="CanCollide">false</bool>
 <bool name="CanTouch">false</bool>
 <bool name="CanQuery">true</bool>
 <float name="Transparency">0</float>
 <float name="Reflectance">0</float>
-</Properties></Item>
+</Properties><Item class="SpecialMesh" referent="RBXPART20_MESH"><Properties>
+<token name="MeshType">3</token>
+</Properties></Item></Item>
 <Item class="Part" referent="RBXPART21"><Properties>
 <string name="Name">Needles</string>
 <Vector3 name="Size"><X>5.434584617614746</X><Y>2.4153709411621094</Y><Z>5.434584617614746</Z></Vector3>
 <CoordinateFrame name="CFrame"><X>1288</X><Y>12.655078887939453</Y><Z>4400</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
 <Color3 name="Color"><R>0.14901961386203766</R><G>0.3450980484485626</G><B>0.20392157137393951</B></Color3>
 <token name="Material">1284</token>
-<token name="Shape">0</token>
+<token name="Shape">1</token>
 <bool name="Anchored">true</bool>
 <bool name="CanCollide">false</bool>
 <bool name="CanTouch">false</bool>
 <bool name="CanQuery">true</bool>
 <float name="Transparency">0</float>
 <float name="Reflectance">0</float>
-</Properties></Item>
+</Properties><Item class="SpecialMesh" referent="RBXPART21_MESH"><Properties>
+<token name="MeshType">3</token>
+</Properties></Item></Item>
 <Item class="Part" referent="RBXPART22"><Properties>
 <string name="Name">Needles</string>
 <Vector3 name="Size"><X>3.8243370056152344</X><Y>2.4153709411621094</Y><Z>3.8243370056152344</Z></Vector3>
 <CoordinateFrame name="CFrame"><X>1288</X><Y>14.667888641357422</Y><Z>4400</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
 <Color3 name="Color"><R>0.1764705926179886</R><G>0.3921568691730499</G><B>0.23529411852359772</B></Color3>
 <token name="Material">1284</token>
-<token name="Shape">0</token>
+<token name="Shape">1</token>
 <bool name="Anchored">true</bool>
 <bool name="CanCollide">false</bool>
 <bool name="CanTouch">false</bool>
 <bool name="CanQuery">true</bool>
 <float name="Transparency">0</float>
 <float name="Reflectance">0</float>
-</Properties></Item>
+</Properties><Item class="SpecialMesh" referent="RBXPART22_MESH"><Properties>
+<token name="MeshType">3</token>
+</Properties></Item></Item>
 <Item class="Part" referent="RBXPART23"><Properties>
 <string name="Name">Needles</string>
 <Vector3 name="Size"><X>2.21409010887146</X><Y>2.4153709411621094</Y><Z>2.21409010887146</Z></Vector3>
 <CoordinateFrame name="CFrame"><X>1288</X><Y>16.37877655029297</Y><Z>4400</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
 <Color3 name="Color"><R>0.14901961386203766</R><G>0.3450980484485626</G><B>0.20392157137393951</B></Color3>
 <token name="Material">1284</token>
-<token name="Shape">0</token>
+<token name="Shape">1</token>
 <bool name="Anchored">true</bool>
 <bool name="CanCollide">false</bool>
 <bool name="CanTouch">false</bool>
 <bool name="CanQuery">true</bool>
 <float name="Transparency">0</float>
 <float name="Reflectance">0</float>
-</Properties></Item>
+</Properties><Item class="SpecialMesh" referent="RBXPART23_MESH"><Properties>
+<token name="MeshType">3</token>
+</Properties></Item></Item>
 <Item class="Part" referent="RBXPART24"><Properties>
 <string name="Name">Rock</string>
 <Vector3 name="Size"><X>2.4000000953674316</X><Y>1.600000023841858</Y><Z>2</Z></Vector3>

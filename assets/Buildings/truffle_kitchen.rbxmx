@@ -202,36 +202,42 @@
 <CoordinateFrame name="CFrame"><X>997.0999755859375</X><Y>15.449999809265137</Y><Z>253.9499969482422</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
 <Color3 name="Color"><R>0.9803921580314636</R><G>0.9607843160629272</G><B>0.9215686321258545</B></Color3>
 <token name="Material">272</token>
-<token name="Shape">0</token>
+<token name="Shape">1</token>
 <bool name="Anchored">true</bool>
 <bool name="CanCollide">true</bool>
 <bool name="CanTouch">false</bool>
 <bool name="CanQuery">true</bool>
-</Properties></Item>
+</Properties><Item class="SpecialMesh" referent="RBXPART17_MESH"><Properties>
+<token name="MeshType">3</token>
+</Properties></Item></Item>
 <Item class="Part" referent="RBXPART18"><Properties>
 <string name="Name">MushroomDot</string>
 <Vector3 name="Size"><X>0.6499999761581421</X><Y>0.25</Y><Z>0.6499999761581421</Z></Vector3>
 <CoordinateFrame name="CFrame"><X>999.2999877929688</X><Y>15.449999809265137</Y><Z>255.39999389648438</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
 <Color3 name="Color"><R>0.9803921580314636</R><G>0.9607843160629272</G><B>0.9215686321258545</B></Color3>
 <token name="Material">272</token>
-<token name="Shape">0</token>
+<token name="Shape">1</token>
 <bool name="Anchored">true</bool>
 <bool name="CanCollide">true</bool>
 <bool name="CanTouch">false</bool>
 <bool name="CanQuery">true</bool>
-</Properties></Item>
+</Properties><Item class="SpecialMesh" referent="RBXPART18_MESH"><Properties>
+<token name="MeshType">3</token>
+</Properties></Item></Item>
 <Item class="Part" referent="RBXPART19"><Properties>
 <string name="Name">MushroomDot</string>
 <Vector3 name="Size"><X>0.6499999761581421</X><Y>0.25</Y><Z>0.6499999761581421</Z></Vector3>
 <CoordinateFrame name="CFrame"><X>998.2000122070312</X><Y>15.479999542236328</Y><Z>256.29998779296875</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
 <Color3 name="Color"><R>0.9803921580314636</R><G>0.9607843160629272</G><B>0.9215686321258545</B></Color3>
 <token name="Material">272</token>
-<token name="Shape">0</token>
+<token name="Shape">1</token>
 <bool name="Anchored">true</bool>
 <bool name="CanCollide">true</bool>
 <bool name="CanTouch">false</bool>
 <bool name="CanQuery">true</bool>
-</Properties></Item>
+</Properties><Item class="SpecialMesh" referent="RBXPART19_MESH"><Properties>
+<token name="MeshType">3</token>
+</Properties></Item></Item>
 <Item class="Part" referent="RBXPART20"><Properties>
 <string name="Name">MushroomDot</string>
 <Vector3 name="Size"><X>0.6499999761581421</X><Y>0.6499999761581421</Y><Z>0.6499999761581421</Z></Vector3>
