@@ -1,50 +1,364 @@
 <roblox version="4">
-<Meta name="ExplicitAutoJoints">true</Meta>
-<Item class="Model" referent="RBXMODEL"><Properties>
-<string name="Name">GrowthBeacon_Lv2</string>
-<OptionalCoordinateFrame name="WorldPivotData"><CFrame><X>1200</X><Y>4</Y><Z>1154</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CFrame></OptionalCoordinateFrame>
-</Properties>
-<Item class="Part" referent="RBXPART1"><Properties>
-<string name="Name">BeaconPost</string>
-<Vector3 name="Size"><X>0.44999998807907104</X><Y>3.4000000953674316</Y><Z>0.44999998807907104</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1200</X><Y>5.699999809265137</Y><Z>1154</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.5882353186607361</R><G>0.4313725531101227</G><B>0.27450981736183167</B></Color3>
-<token name="Material">512</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART2"><Properties>
-<string name="Name">BeaconCrystal</string>
-<Vector3 name="Size"><X>1</X><Y>1</Y><Z>1</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1200</X><Y>7.900000095367432</Y><Z>1154</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.4313725531101227</R><G>0.9215686321258545</G><B>0.5490196347236633</B></Color3>
-<token name="Material">288</token>
-<token name="Shape">0</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">false</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART3"><Properties>
-<string name="Name">BeaconRing</string>
-<Vector3 name="Size"><X>0.15000000596046448</X><Y>2.5999999046325684</Y><Z>2.5999999046325684</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1200</X><Y>7.900000095367432</Y><Z>1154</Z><R00>-4.371138828673793e-8</R00><R01>-1</R01><R02>0</R02><R10>1</R10><R11>-4.371138828673793e-8</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.4313725531101227</R><G>0.9215686321258545</G><B>0.5490196347236633</B></Color3>
-<token name="Material">288</token>
-<token name="Shape">2</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">false</bool>
-<float name="Transparency">0.5</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-</Item>
+  <Meta name="ExplicitAutoJoints">true</Meta>
+  <Item class="Model" referent="RBXMODEL">
+    <Properties>
+      <string name="Name">GrowthBeacon_Lv2</string>
+      <OptionalCoordinateFrame name="WorldPivotData">
+        <CFrame>
+          <X>1200</X>
+          <Y>4</Y>
+          <Z>1154</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CFrame>
+      </OptionalCoordinateFrame>
+    </Properties>
+    <Item class="Part" referent="RBXR101">
+      <Properties>
+        <string name="Name">BeaconFoot</string>
+        <Vector3 name="Size">
+          <X>0.8</X>
+          <Y>0.217284</Y>
+          <Z>0.8</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1200.0</X>
+          <Y>4.108642</Y>
+          <Z>1154.0</Z>
+          <R00>1.0</R00>
+          <R01>-0.0</R01>
+          <R02>0</R02>
+          <R10>0.0</R10>
+          <R11>1.0</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.8823529411764706</R>
+          <G>0.8156862745098039</G>
+          <B>0.6901960784313725</B>
+        </Color3>
+        <token name="Material">912</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">false</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXR102">
+      <Properties>
+        <string name="Name">BeaconPost</string>
+        <Vector3 name="Size">
+          <X>0.32</X>
+          <Y>3.209877</Y>
+          <Z>0.32</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1200.0</X>
+          <Y>5.817284</Y>
+          <Z>1154.0</Z>
+          <R00>1.0</R00>
+          <R01>-0.0</R01>
+          <R02>0</R02>
+          <R10>0.0</R10>
+          <R11>1.0</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.4196078431372549</R>
+          <G>0.28627450980392155</G>
+          <B>0.1843137254901961</B>
+        </Color3>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">false</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXR103">
+      <Properties>
+        <string name="Name">BeaconCollar</string>
+        <Vector3 name="Size">
+          <X>0.54</X>
+          <Y>0.167901</Y>
+          <Z>0.54</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1200.0</X>
+          <Y>7.437037</Y>
+          <Z>1154.0</Z>
+          <R00>1.0</R00>
+          <R01>-0.0</R01>
+          <R02>0</R02>
+          <R10>0.0</R10>
+          <R11>1.0</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.25882352941176473</R>
+          <G>0.28627450980392155</G>
+          <B>0.29411764705882354</B>
+        </Color3>
+        <token name="Material">1088</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">false</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXR104">
+      <Properties>
+        <string name="Name">BeaconCrystal</string>
+        <Vector3 name="Size">
+          <X>0.62</X>
+          <Y>0.987654</Y>
+          <Z>0.62</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1200.0</X>
+          <Y>7.851852</Y>
+          <Z>1154.0</Z>
+          <R00>1.0</R00>
+          <R01>-0.0</R01>
+          <R02>0</R02>
+          <R10>0.0</R10>
+          <R11>1.0</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.5176470588235295</R>
+          <G>0.8235294117647058</G>
+          <B>0.7450980392156863</B>
+        </Color3>
+        <token name="Material">1568</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">false</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXR105">
+      <Properties>
+        <string name="Name">CrystalFacet</string>
+        <Vector3 name="Size">
+          <X>0.62</X>
+          <Y>0.987654</Y>
+          <Z>0.62</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1200.0</X>
+          <Y>7.851852</Y>
+          <Z>1154.0</Z>
+          <R00>-1.0</R00>
+          <R01>-0.0</R01>
+          <R02>0</R02>
+          <R10>0.0</R10>
+          <R11>-1.0</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.4117647058823529</R>
+          <G>0.7019607843137254</G>
+          <B>0.6666666666666666</B>
+        </Color3>
+        <token name="Material">1568</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">false</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXR106">
+      <Properties>
+        <string name="Name">BeaconRing</string>
+        <Vector3 name="Size">
+          <X>0.18</X>
+          <Y>0.888889</Y>
+          <Z>0.2</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1198.87</X>
+          <Y>7.851852</Y>
+          <Z>1154.0</Z>
+          <R00>1.0</R00>
+          <R01>-0.0</R01>
+          <R02>0</R02>
+          <R10>0.0</R10>
+          <R11>1.0</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.9215686274509803</R>
+          <G>0.7058823529411765</G>
+          <B>0.21568627450980393</B>
+        </Color3>
+        <token name="Material">1088</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">false</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXR107">
+      <Properties>
+        <string name="Name">BeaconRing</string>
+        <Vector3 name="Size">
+          <X>0.18</X>
+          <Y>0.888889</Y>
+          <Z>0.2</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1201.13</X>
+          <Y>7.851852</Y>
+          <Z>1154.0</Z>
+          <R00>1.0</R00>
+          <R01>-0.0</R01>
+          <R02>0</R02>
+          <R10>0.0</R10>
+          <R11>1.0</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.9215686274509803</R>
+          <G>0.7058823529411765</G>
+          <B>0.21568627450980393</B>
+        </Color3>
+        <token name="Material">1088</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">false</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXR108">
+      <Properties>
+        <string name="Name">BeaconRing</string>
+        <Vector3 name="Size">
+          <X>2.3</X>
+          <Y>0.148148</Y>
+          <Z>0.2</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1200.0</X>
+          <Y>7.377778</Y>
+          <Z>1154.0</Z>
+          <R00>1.0</R00>
+          <R01>-0.0</R01>
+          <R02>0</R02>
+          <R10>0.0</R10>
+          <R11>1.0</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.9215686274509803</R>
+          <G>0.7058823529411765</G>
+          <B>0.21568627450980393</B>
+        </Color3>
+        <token name="Material">1088</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">false</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXR109">
+      <Properties>
+        <string name="Name">BeaconRing</string>
+        <Vector3 name="Size">
+          <X>2.3</X>
+          <Y>0.148148</Y>
+          <Z>0.2</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1200.0</X>
+          <Y>8.325926</Y>
+          <Z>1154.0</Z>
+          <R00>1.0</R00>
+          <R01>-0.0</R01>
+          <R02>0</R02>
+          <R10>0.0</R10>
+          <R11>1.0</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.9215686274509803</R>
+          <G>0.7058823529411765</G>
+          <B>0.21568627450980393</B>
+        </Color3>
+        <token name="Material">1088</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">false</bool>
+      </Properties>
+    </Item>
+  </Item>
 </roblox>

@@ -1,148 +1,838 @@
 <roblox version="4">
-<Meta name="ExplicitAutoJoints">true</Meta>
-<Item class="Model" referent="RBXMODEL"><Properties>
-<string name="Name">Planter_seed2</string>
-<OptionalCoordinateFrame name="WorldPivotData"><CFrame><X>1700</X><Y>4</Y><Z>9280</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CFrame></OptionalCoordinateFrame>
-</Properties>
-<Item class="Part" referent="RBXPART1"><Properties>
-<string name="Name">Box</string>
-<Vector3 name="Size"><X>3.4000000953674316</X><Y>1.2000000476837158</Y><Z>1.399999976158142</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1700</X><Y>4.599999904632568</Y><Z>9280</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.5882353186607361</R><G>0.4313725531101227</G><B>0.27450981736183167</B></Color3>
-<token name="Material">528</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART2"><Properties>
-<string name="Name">Soil</string>
-<Vector3 name="Size"><X>3</X><Y>0.20000000298023224</Y><Z>1</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1700</X><Y>5.25</Y><Z>9280</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.3333333432674408</R><G>0.23529411852359772</G><B>0.1568627506494522</B></Color3>
-<token name="Material">1360</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART3"><Properties>
-<string name="Name">Stem</string>
-<Vector3 name="Size"><X>0.15000000596046448</X><Y>0.800000011920929</Y><Z>0.15000000596046448</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1698.800048828125</X><Y>5.599999904632568</Y><Z>9280</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.27450981736183167</R><G>0.5098039507865906</G><B>0.23529411852359772</B></Color3>
-<token name="Material">1280</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART4"><Properties>
-<string name="Name">Bloom</string>
-<Vector3 name="Size"><X>0.6000000238418579</X><Y>0.6000000238418579</Y><Z>0.6000000238418579</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1698.800048828125</X><Y>6.099999904632568</Y><Z>9280</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.9607843160629272</R><G>0.9607843160629272</G><B>0.9803921580314636</B></Color3>
-<token name="Material">272</token>
-<token name="Shape">0</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART5"><Properties>
-<string name="Name">Stem</string>
-<Vector3 name="Size"><X>0.15000000596046448</X><Y>0.800000011920929</Y><Z>0.15000000596046448</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1699.5999755859375</X><Y>5.599999904632568</Y><Z>9280</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.27450981736183167</R><G>0.5098039507865906</G><B>0.23529411852359772</B></Color3>
-<token name="Material">1280</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART6"><Properties>
-<string name="Name">Bloom</string>
-<Vector3 name="Size"><X>0.6000000238418579</X><Y>0.6000000238418579</Y><Z>0.6000000238418579</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1699.5999755859375</X><Y>6.099999904632568</Y><Z>9280</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.7450980544090271</R><G>0.4313725531101227</G><B>0.8627451062202454</B></Color3>
-<token name="Material">272</token>
-<token name="Shape">0</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART7"><Properties>
-<string name="Name">Stem</string>
-<Vector3 name="Size"><X>0.15000000596046448</X><Y>0.800000011920929</Y><Z>0.15000000596046448</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1700.4000244140625</X><Y>5.599999904632568</Y><Z>9280</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.27450981736183167</R><G>0.5098039507865906</G><B>0.23529411852359772</B></Color3>
-<token name="Material">1280</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART8"><Properties>
-<string name="Name">Bloom</string>
-<Vector3 name="Size"><X>0.6000000238418579</X><Y>0.6000000238418579</Y><Z>0.6000000238418579</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1700.4000244140625</X><Y>6.099999904632568</Y><Z>9280</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.9411764740943909</R><G>0.3529411852359772</G><B>0.47058823704719543</B></Color3>
-<token name="Material">272</token>
-<token name="Shape">0</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART9"><Properties>
-<string name="Name">Stem</string>
-<Vector3 name="Size"><X>0.15000000596046448</X><Y>0.800000011920929</Y><Z>0.15000000596046448</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1701.199951171875</X><Y>5.599999904632568</Y><Z>9280</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.27450981736183167</R><G>0.5098039507865906</G><B>0.23529411852359772</B></Color3>
-<token name="Material">1280</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART10"><Properties>
-<string name="Name">Bloom</string>
-<Vector3 name="Size"><X>0.6000000238418579</X><Y>0.6000000238418579</Y><Z>0.6000000238418579</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1701.199951171875</X><Y>6.099999904632568</Y><Z>9280</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.9803921580314636</R><G>0.8235294222831726</G><B>0.27450981736183167</B></Color3>
-<token name="Material">272</token>
-<token name="Shape">0</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-</Item>
+  <Meta name="ExplicitAutoJoints">true</Meta>
+  <Item class="Model" referent="RBXMODEL">
+    <Properties>
+      <string name="Name">Planter_seed2</string>
+      <OptionalCoordinateFrame name="WorldPivotData">
+        <CFrame>
+          <X>1700</X>
+          <Y>4</Y>
+          <Z>9280</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CFrame>
+      </OptionalCoordinateFrame>
+    </Properties>
+    <Item class="Part" referent="RBXPART1">
+      <Properties>
+        <string name="Name">Box</string>
+        <Vector3 name="Size">
+          <X>3.4000000953674316</X>
+          <Y>1.2000000476837158</Y>
+          <Z>1.399999976158142</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1700</X>
+          <Y>4.599999904632568</Y>
+          <Z>9280</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.866667</R>
+          <G>0.807843</G>
+          <B>0.662745</B>
+        </Color3>
+        <token name="Material">912</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART2">
+      <Properties>
+        <string name="Name">Soil</string>
+        <Vector3 name="Size">
+          <X>3</X>
+          <Y>0.20000000298023224</Y>
+          <Z>1</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1700</X>
+          <Y>5.25</Y>
+          <Z>9280</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.321569</R>
+          <G>0.235294</G>
+          <B>0.156863</B>
+        </Color3>
+        <token name="Material">1296</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART3">
+      <Properties>
+        <string name="Name">Stem</string>
+        <Vector3 name="Size">
+          <X>0.15000000596046448</X>
+          <Y>0.800000011920929</Y>
+          <Z>0.15000000596046448</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1698.800048828125</X>
+          <Y>5.599999904632568</Y>
+          <Z>9280</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.27450981736183167</R>
+          <G>0.5098039507865906</G>
+          <B>0.23529411852359772</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART4">
+      <Properties>
+        <string name="Name">Bloom</string>
+        <Vector3 name="Size">
+          <X>0.58</X>
+          <Y>0.18</Y>
+          <Z>0.58</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1698.800048828125</X>
+          <Y>6.099999904632568</Y>
+          <Z>9280</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.9607843160629272</R>
+          <G>0.9607843160629272</G>
+          <B>0.9803921580314636</B>
+        </Color3>
+        <token name="Material">272</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART5">
+      <Properties>
+        <string name="Name">Stem</string>
+        <Vector3 name="Size">
+          <X>0.15000000596046448</X>
+          <Y>0.800000011920929</Y>
+          <Z>0.15000000596046448</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1699.5999755859375</X>
+          <Y>5.599999904632568</Y>
+          <Z>9280</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.27450981736183167</R>
+          <G>0.5098039507865906</G>
+          <B>0.23529411852359772</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART6">
+      <Properties>
+        <string name="Name">Bloom</string>
+        <Vector3 name="Size">
+          <X>0.58</X>
+          <Y>0.18</Y>
+          <Z>0.58</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1699.5999755859375</X>
+          <Y>6.099999904632568</Y>
+          <Z>9280</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.7450980544090271</R>
+          <G>0.4313725531101227</G>
+          <B>0.8627451062202454</B>
+        </Color3>
+        <token name="Material">272</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART7">
+      <Properties>
+        <string name="Name">Stem</string>
+        <Vector3 name="Size">
+          <X>0.15000000596046448</X>
+          <Y>0.800000011920929</Y>
+          <Z>0.15000000596046448</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1700.4000244140625</X>
+          <Y>5.599999904632568</Y>
+          <Z>9280</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.27450981736183167</R>
+          <G>0.5098039507865906</G>
+          <B>0.23529411852359772</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART8">
+      <Properties>
+        <string name="Name">Bloom</string>
+        <Vector3 name="Size">
+          <X>0.58</X>
+          <Y>0.18</Y>
+          <Z>0.58</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1700.4000244140625</X>
+          <Y>6.099999904632568</Y>
+          <Z>9280</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.9411764740943909</R>
+          <G>0.3529411852359772</G>
+          <B>0.47058823704719543</B>
+        </Color3>
+        <token name="Material">272</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART9">
+      <Properties>
+        <string name="Name">Stem</string>
+        <Vector3 name="Size">
+          <X>0.15000000596046448</X>
+          <Y>0.800000011920929</Y>
+          <Z>0.15000000596046448</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1701.199951171875</X>
+          <Y>5.599999904632568</Y>
+          <Z>9280</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.27450981736183167</R>
+          <G>0.5098039507865906</G>
+          <B>0.23529411852359772</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART10">
+      <Properties>
+        <string name="Name">Bloom</string>
+        <Vector3 name="Size">
+          <X>0.58</X>
+          <Y>0.18</Y>
+          <Z>0.58</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1701.199951171875</X>
+          <Y>6.099999904632568</Y>
+          <Z>9280</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.9803921580314636</R>
+          <G>0.8235294222831726</G>
+          <B>0.27450981736183167</B>
+        </Color3>
+        <token name="Material">272</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="REFRESH_Planter_seed2_1">
+      <Properties>
+        <string name="Name">Coping</string>
+        <Vector3 name="Size">
+          <X>0.18</X>
+          <Y>0.2</Y>
+          <Z>1.35</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1698.4</X>
+          <Y>5.22</Y>
+          <Z>9280.0</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.643137</R>
+          <G>0.305882</G>
+          <B>0.2</B>
+        </Color3>
+        <token name="Shape">1</token>
+        <token name="Material">848</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">false</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="REFRESH_Planter_seed2_2">
+      <Properties>
+        <string name="Name">Coping</string>
+        <Vector3 name="Size">
+          <X>0.18</X>
+          <Y>0.2</Y>
+          <Z>1.35</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1701.6</X>
+          <Y>5.22</Y>
+          <Z>9280.0</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.643137</R>
+          <G>0.305882</G>
+          <B>0.2</B>
+        </Color3>
+        <token name="Shape">1</token>
+        <token name="Material">848</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">false</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="REFRESH_Planter_seed2_3">
+      <Properties>
+        <string name="Name">Coping</string>
+        <Vector3 name="Size">
+          <X>3.2</X>
+          <Y>0.2</Y>
+          <Z>0.18</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1700.0</X>
+          <Y>5.22</Y>
+          <Z>9279.39</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.643137</R>
+          <G>0.305882</G>
+          <B>0.2</B>
+        </Color3>
+        <token name="Shape">1</token>
+        <token name="Material">848</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">true</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="REFRESH_Planter_seed2_4">
+      <Properties>
+        <string name="Name">Coping</string>
+        <Vector3 name="Size">
+          <X>3.2</X>
+          <Y>0.2</Y>
+          <Z>0.18</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1700.0</X>
+          <Y>5.22</Y>
+          <Z>9280.61</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.643137</R>
+          <G>0.305882</G>
+          <B>0.2</B>
+        </Color3>
+        <token name="Shape">1</token>
+        <token name="Material">848</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanQuery">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">true</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="REFRESH_Planter_seed2_5">
+      <Properties>
+        <string name="Name">Leaf</string>
+        <Vector3 name="Size">
+          <X>0.38</X>
+          <Y>0.08</Y>
+          <Z>0.2</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1698.950049</X>
+          <Y>5.55</Y>
+          <Z>9280.05</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.278431</R>
+          <G>0.47451</G>
+          <B>0.235294</B>
+        </Color3>
+        <token name="Shape">1</token>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">false</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="REFRESH_Planter_seed2_6">
+      <Properties>
+        <string name="Name">Bloom</string>
+        <Vector3 name="Size">
+          <X>0.18</X>
+          <Y>0.3</Y>
+          <Z>0.52</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1698.800049</X>
+          <Y>6.1</Y>
+          <Z>9280.0</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.941176</R>
+          <G>0.686275</G>
+          <B>0.254902</B>
+        </Color3>
+        <token name="Shape">1</token>
+        <token name="Material">272</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">false</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="REFRESH_Planter_seed2_7">
+      <Properties>
+        <string name="Name">Leaf</string>
+        <Vector3 name="Size">
+          <X>0.38</X>
+          <Y>0.08</Y>
+          <Z>0.2</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1699.749976</X>
+          <Y>5.55</Y>
+          <Z>9280.05</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.278431</R>
+          <G>0.47451</G>
+          <B>0.235294</B>
+        </Color3>
+        <token name="Shape">1</token>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">false</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="REFRESH_Planter_seed2_8">
+      <Properties>
+        <string name="Name">Bloom</string>
+        <Vector3 name="Size">
+          <X>0.18</X>
+          <Y>0.3</Y>
+          <Z>0.52</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1699.599976</X>
+          <Y>6.1</Y>
+          <Z>9280.0</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.941176</R>
+          <G>0.686275</G>
+          <B>0.254902</B>
+        </Color3>
+        <token name="Shape">1</token>
+        <token name="Material">272</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">false</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="REFRESH_Planter_seed2_9">
+      <Properties>
+        <string name="Name">Leaf</string>
+        <Vector3 name="Size">
+          <X>0.38</X>
+          <Y>0.08</Y>
+          <Z>0.2</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1700.550024</X>
+          <Y>5.55</Y>
+          <Z>9280.05</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.278431</R>
+          <G>0.47451</G>
+          <B>0.235294</B>
+        </Color3>
+        <token name="Shape">1</token>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">false</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="REFRESH_Planter_seed2_10">
+      <Properties>
+        <string name="Name">Bloom</string>
+        <Vector3 name="Size">
+          <X>0.18</X>
+          <Y>0.3</Y>
+          <Z>0.52</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1700.400024</X>
+          <Y>6.1</Y>
+          <Z>9280.0</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.941176</R>
+          <G>0.686275</G>
+          <B>0.254902</B>
+        </Color3>
+        <token name="Shape">1</token>
+        <token name="Material">272</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">false</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="REFRESH_Planter_seed2_11">
+      <Properties>
+        <string name="Name">Leaf</string>
+        <Vector3 name="Size">
+          <X>0.38</X>
+          <Y>0.08</Y>
+          <Z>0.2</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1701.349951</X>
+          <Y>5.55</Y>
+          <Z>9280.05</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.278431</R>
+          <G>0.47451</G>
+          <B>0.235294</B>
+        </Color3>
+        <token name="Shape">1</token>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">false</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="REFRESH_Planter_seed2_12">
+      <Properties>
+        <string name="Name">Bloom</string>
+        <Vector3 name="Size">
+          <X>0.18</X>
+          <Y>0.3</Y>
+          <Z>0.52</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1701.199951</X>
+          <Y>6.1</Y>
+          <Z>9280.0</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.941176</R>
+          <G>0.686275</G>
+          <B>0.254902</B>
+        </Color3>
+        <token name="Shape">1</token>
+        <token name="Material">272</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">false</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+  </Item>
 </roblox>

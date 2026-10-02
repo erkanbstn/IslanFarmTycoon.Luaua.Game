@@ -110,6 +110,30 @@ def expected() -> dict[str, set[str]]:
     exp["ExtensionCapacity"] = {f"CapacityProps_{e}_Cap{c}" for e in ext_ids for c in (3, 4)}
     sites_block = layout[layout.index("IslandLayout.SITES"):]
     exp["ProductionSites"] = {f"ProductionSite_{s}" for s in re.findall(r"^\t(\w+) = \{", sites_block, re.M)}
+
+    # Harita/meydan/süs modelleri: kodda adla yerleştirilenler (World/Home*, HubNpcs, DecorNature/Props/Lights/Shore, MapParts, SatelliteBuilder...)
+    exp["HomeModels"] = {
+        "Beehives", "Farmhouse", "Granary", "MarketStall", "Orchard", "VegetableGarden", "Well", "Windmill",
+    } | {f"Landmark_{kind}" for kind in ("cherry", "daisy", "pine", "rose", "sunflower", "tulip")}
+    exp["HubProps"] = {"Bench", "Fountain", "Planter_seed2"} | {f"Vendor_{a}" for a in ("orders", "roadmap", "store", "travel")}
+    exp["HubModels"] = {"HubTitleBoard", "HubTravelBoard", "HubPlayerBoard", "Hub_Statue", "Hub_Banner", "Hub_Flag"}
+    exp["BridgeModels"] = {"BridgeModule_2", "BridgeModule_8"}
+    exp["SignModels"] = {"IslandSign", "PlotSign", "SaleMarker", "Signpost_Direction", "SpecialtySign"}
+    exp["ShoreModels"] = {"DockDeck_5", "DockTip", "FishCrates", "FisherHut_Lv1", "NetDryingRack", "Pile"}
+    exp["ZoneBases"] = {"CollectorPad", "FishWalkway_Module", "ZoneFence_Corner", "ZoneFence_Segment_4"}
+    exp["SeasonModels"] = {"SnowCap_Bush", "SnowCap_Oak", "SnowCap_Pine", "Snowman"}
+    exp["CommonDecor"] = (
+        {f"OakTree_{c}" for c in "ABCD"}
+        | {f"PineTree_{c}" for c in "ABC"}
+        | {f"BirchTree_{c}" for c in "AB"}
+        | {"Bush_A", "Bush_B", "Bush_Berry"}
+        | {f"FlowerPatch_{c}" for c in ("Yellow", "Pink", "White", "Purple", "Orange")}
+        | {"Crate_16", "Crate_20", "Crate_24", "Barrel", "Lamp", "SmallLamp", "Mailbox", "Fence_8", "HayBale_Single", "HayBale_Stack"}
+        | {"Scarecrow", "Wheelbarrow", "GrassTuft", "GrassTuft_Flower", "LogPile", "Pumpkin", "Sunflower_Single", "Cattail"}
+        | {f"Rock_{c}" for c in "ABC"}
+        | {"Stump_A", "Stump_B", "Reed_A", "Reed_B", "PalmTree_A", "PalmTree_B"}
+        | {f"Mushroom_{c}" for c in "ABC"}
+    )
     return exp
 
 
@@ -121,8 +145,9 @@ CLIENT_EXPECTED: dict[str, set[str]] = {
         "BranchCoral", "BrainCoral", "FanCoral", "SeaRock_A", "SeaRock_B", "SeaRock_C", "Starfish", "Jellyfish",
         "KelpBlade_A", "KelpBlade_B", "KelpBlade_C", "Seagrass_A", "Seagrass_B", "Seagrass_C", "SeaAnemone",
         "ShellCluster", "Bubble", "SurfaceWake", "BoatFoam", "AmbientBubbles", "VentBubbles", "EntryBubbles",
-        "SwimBubbles", "Splash", "UnderwaterAtmosphere",
+        "SwimBubbles", "Splash", "UnderwaterAtmosphere", "DiverChest", "ReefArch",
     },
+    "PetProps": {"CarryAnimal", "CarryCrate", "CarryCoins"},
 }
 
 

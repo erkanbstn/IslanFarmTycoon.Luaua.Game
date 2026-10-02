@@ -1,332 +1,1326 @@
 <roblox version="4">
-<Meta name="ExplicitAutoJoints">true</Meta>
-<Item class="Model" referent="RBXMODEL"><Properties>
-<string name="Name">Landmark_pine</string>
-<OptionalCoordinateFrame name="WorldPivotData"><CFrame><X>1500</X><Y>4</Y><Z>7845</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CFrame></OptionalCoordinateFrame>
-</Properties>
-<Item class="Part" referent="RBXPART1"><Properties>
-<string name="Name">Trunk</string>
-<Vector3 name="Size"><X>10.868035316467285</X><Y>1.1856038570404053</Y><Z>1.1856038570404053</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1496.5</X><Y>9.434017181396484</Y><Z>7842</Z><R00>-4.371138828673793e-8</R00><R01>-1</R01><R02>0</R02><R10>1</R10><R11>-4.371138828673793e-8</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.3529411852359772</R><G>0.23529411852359772</G><B>0.1568627506494522</B></Color3>
-<token name="Material">512</token>
-<token name="Shape">2</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART2"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>8.398027420043945</X><Y>2.3712077140808105</Y><Z>8.398027420043945</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1496.5</X><Y>7.95201301574707</Y><Z>7842</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.14901961386203766</R><G>0.3450980484485626</G><B>0.20392157137393951</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART2_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART3"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>6.916022300720215</X><Y>2.3712077140808105</Y><Z>6.916022300720215</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1496.5</X><Y>10.323220252990723</Y><Z>7842</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.1764705926179886</R><G>0.3921568691730499</G><B>0.23529411852359772</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART3_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART4"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>5.335217475891113</X><Y>2.3712077140808105</Y><Z>5.335217475891113</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1496.5</X><Y>12.496827125549316</Y><Z>7842</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.14901961386203766</R><G>0.3450980484485626</G><B>0.20392157137393951</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART4_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART5"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>3.7544121742248535</X><Y>2.3712077140808105</Y><Z>3.7544121742248535</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1496.5</X><Y>14.472833633422852</Y><Z>7842</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.1764705926179886</R><G>0.3921568691730499</G><B>0.23529411852359772</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART5_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART6"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>2.173607110977173</X><Y>2.3712077140808105</Y><Z>2.173607110977173</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1496.5</X><Y>16.15243911743164</Y><Z>7842</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.14901961386203766</R><G>0.3450980484485626</G><B>0.20392157137393951</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART6_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART7"><Properties>
-<string name="Name">Trunk</string>
-<Vector3 name="Size"><X>10.749810218811035</X><Y>1.1727066040039062</Y><Z>1.1727066040039062</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1503</X><Y>9.37490463256836</Y><Z>7844</Z><R00>-4.371138828673793e-8</R00><R01>-1</R01><R02>0</R02><R10>1</R10><R11>-4.371138828673793e-8</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.3529411852359772</R><G>0.23529411852359772</G><B>0.1568627506494522</B></Color3>
-<token name="Material">512</token>
-<token name="Shape">2</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART8"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>8.306671142578125</X><Y>2.3454132080078125</Y><Z>8.306671142578125</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1503</X><Y>7.909021854400635</Y><Z>7844</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.14901961386203766</R><G>0.3450980484485626</G><B>0.20392157137393951</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART8_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART9"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>6.8407883644104</X><Y>2.3454132080078125</Y><Z>6.8407883644104</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1503</X><Y>10.254434585571289</Y><Z>7844</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.1764705926179886</R><G>0.3921568691730499</G><B>0.23529411852359772</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART9_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART10"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>5.277179718017578</X><Y>2.3454132080078125</Y><Z>5.277179718017578</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1503</X><Y>12.404397010803223</Y><Z>7844</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.14901961386203766</R><G>0.3450980484485626</G><B>0.20392157137393951</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART10_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART11"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>3.7135708332061768</X><Y>2.3454132080078125</Y><Z>3.7135708332061768</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1503</X><Y>14.358907699584961</Y><Z>7844</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.1764705926179886</R><G>0.3921568691730499</G><B>0.23529411852359772</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART11_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART12"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>2.1499619483947754</X><Y>2.3454132080078125</Y><Z>2.1499619483947754</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1503</X><Y>16.02024269104004</Y><Z>7844</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.14901961386203766</R><G>0.3450980484485626</G><B>0.20392157137393951</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART12_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART13"><Properties>
-<string name="Name">Trunk</string>
-<Vector3 name="Size"><X>9.902365684509277</X><Y>1.0802581310272217</Y><Z>1.0802581310272217</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1499</X><Y>8.951183319091797</Y><Z>7849.5</Z><R00>-4.371138828673793e-8</R00><R01>-1</R01><R02>0</R02><R10>1</R10><R11>-4.371138828673793e-8</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.3529411852359772</R><G>0.23529411852359772</G><B>0.1568627506494522</B></Color3>
-<token name="Material">512</token>
-<token name="Shape">2</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART14"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>7.651828289031982</X><Y>2.1605162620544434</Y><Z>7.651828289031982</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1499</X><Y>7.600860595703125</Y><Z>7849.5</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.14901961386203766</R><G>0.3450980484485626</G><B>0.20392157137393951</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART14_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART15"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>6.3015055656433105</X><Y>2.1605162620544434</Y><Z>6.3015055656433105</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1499</X><Y>9.761377334594727</Y><Z>7849.5</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.1764705926179886</R><G>0.3921568691730499</G><B>0.23529411852359772</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART15_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART16"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>4.861161708831787</X><Y>2.1605162620544434</Y><Z>4.861161708831787</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1499</X><Y>11.741849899291992</Y><Z>7849.5</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.14901961386203766</R><G>0.3450980484485626</G><B>0.20392157137393951</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART16_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART17"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>3.4208173751831055</X><Y>2.1605162620544434</Y><Z>3.4208173751831055</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1499</X><Y>13.542280197143555</Y><Z>7849.5</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.1764705926179886</R><G>0.3921568691730499</G><B>0.23529411852359772</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART17_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART18"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>1.980473279953003</X><Y>2.1605162620544434</Y><Z>1.980473279953003</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1499</X><Y>15.072646141052246</Y><Z>7849.5</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.14901961386203766</R><G>0.3450980484485626</G><B>0.20392157137393951</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART18_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART19"><Properties>
-<string name="Name">Rock</string>
-<Vector3 name="Size"><X>3.509999990463257</X><Y>2.700000047683716</Y><Z>2.9700000286102295</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1505.5</X><Y>5.349999904632568</Y><Z>7849</Z><R00>0.539330005645752</R00><R01>-0.03239868953824043</R01><R02>0.8414709568023682</R02><R10>0.14352020621299744</R10><R11>0.9881763458251953</R11><R12>-0.05394022539258003</R12><R20>-0.8297740817070007</R20><R21>0.14985966682434082</R21><R22>0.5376030206680298</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.501960813999176</R><G>0.4941176474094391</G><B>0.4627451002597809</B></Color3>
-<token name="Material">800</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART20"><Properties>
-<string name="Name">Rock</string>
-<Vector3 name="Size"><X>4.159999847412109</X><Y>3.200000047683716</Y><Z>3.5199999809265137</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1494</X><Y>5.599999904632568</Y><Z>7846</Z><R00>-0.4153980016708374</R00><R01>0.024953830987215042</R01><R02>0.9092974066734314</R02><R10>0.23909315466880798</R10><R11>0.9674705266952515</R11><R12>0.08267561346292496</R12><R20>-0.8776553869247437</R20><R21>0.25175008177757263</R21><R22>-0.4078516364097595</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.501960813999176</R><G>0.4941176474094391</G><B>0.4627451002597809</B></Color3>
-<token name="Material">800</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART21"><Properties>
-<string name="Name">Rock</string>
-<Vector3 name="Size"><X>4.809999942779541</X><Y>3.700000047683716</Y><Z>4.070000171661377</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1501.5</X><Y>5.849999904632568</Y><Z>7838.5</Z><R00>-0.9882110357284546</R00><R01>0.059363916516304016</R01><R02>0.14112000167369843</R02><R10>0.09891457110643387</R10><R11>0.951116681098938</R11><R12>0.2925627827644348</R12><R20>-0.11685390770435333</R20><R21>0.30307260155677795</R21><R22>-0.9457759857177734</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.501960813999176</R><G>0.4941176474094391</G><B>0.4627451002597809</B></Color3>
-<token name="Material">800</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-</Item>
+  <Meta name="ExplicitAutoJoints">true</Meta>
+  <Item class="Model" referent="RBXMODEL">
+    <Properties>
+      <string name="Name">Landmark_pine</string>
+      <OptionalCoordinateFrame name="WorldPivotData">
+        <CFrame>
+          <X>1500</X>
+          <Y>4</Y>
+          <Z>7845</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CFrame>
+      </OptionalCoordinateFrame>
+    </Properties>
+    <Item class="Part" referent="RBXPART1">
+      <Properties>
+        <string name="Name">Trunk</string>
+        <Vector3 name="Size">
+          <X>10.868035316467285</X>
+          <Y>1.1856038570404053</Y>
+          <Z>1.1856038570404053</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1496.5</X>
+          <Y>9.434017181396484</Y>
+          <Z>7842</Z>
+          <R00>-4.371138828673793e-8</R00>
+          <R01>-1</R01>
+          <R02>0</R02>
+          <R10>1</R10>
+          <R11>-4.371138828673793e-8</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.356863</R>
+          <G>0.235294</G>
+          <B>0.152941</B>
+        </Color3>
+        <token name="Material">528</token>
+        <token name="Shape">2</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART7">
+      <Properties>
+        <string name="Name">Trunk</string>
+        <Vector3 name="Size">
+          <X>10.749810218811035</X>
+          <Y>1.1727066040039062</Y>
+          <Z>1.1727066040039062</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1503</X>
+          <Y>9.37490463256836</Y>
+          <Z>7844</Z>
+          <R00>-4.371138828673793e-8</R00>
+          <R01>-1</R01>
+          <R02>0</R02>
+          <R10>1</R10>
+          <R11>-4.371138828673793e-8</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.356863</R>
+          <G>0.235294</G>
+          <B>0.152941</B>
+        </Color3>
+        <token name="Material">528</token>
+        <token name="Shape">2</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART13">
+      <Properties>
+        <string name="Name">Trunk</string>
+        <Vector3 name="Size">
+          <X>9.902365684509277</X>
+          <Y>1.0802581310272217</Y>
+          <Z>1.0802581310272217</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1499</X>
+          <Y>8.951183319091797</Y>
+          <Z>7849.5</Z>
+          <R00>-4.371138828673793e-8</R00>
+          <R01>-1</R01>
+          <R02>0</R02>
+          <R10>1</R10>
+          <R11>-4.371138828673793e-8</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.356863</R>
+          <G>0.235294</G>
+          <B>0.152941</B>
+        </Color3>
+        <token name="Material">528</token>
+        <token name="Shape">2</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART19">
+      <Properties>
+        <string name="Name">Rock</string>
+        <Vector3 name="Size">
+          <X>3.509999990463257</X>
+          <Y>2.700000047683716</Y>
+          <Z>2.9700000286102295</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1505.5</X>
+          <Y>5.349999904632568</Y>
+          <Z>7849</Z>
+          <R00>0.539330005645752</R00>
+          <R01>-0.03239868953824043</R01>
+          <R02>0.8414709568023682</R02>
+          <R10>0.14352020621299744</R10>
+          <R11>0.9881763458251953</R11>
+          <R12>-0.05394022539258003</R12>
+          <R20>-0.8297740817070007</R20>
+          <R21>0.14985966682434082</R21>
+          <R22>0.5376030206680298</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.643137</R>
+          <G>0.611765</G>
+          <B>0.517647</B>
+        </Color3>
+        <token name="Material">800</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART20">
+      <Properties>
+        <string name="Name">Rock</string>
+        <Vector3 name="Size">
+          <X>4.159999847412109</X>
+          <Y>3.200000047683716</Y>
+          <Z>3.5199999809265137</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1494</X>
+          <Y>5.599999904632568</Y>
+          <Z>7846</Z>
+          <R00>-0.4153980016708374</R00>
+          <R01>0.024953830987215042</R01>
+          <R02>0.9092974066734314</R02>
+          <R10>0.23909315466880798</R10>
+          <R11>0.9674705266952515</R11>
+          <R12>0.08267561346292496</R12>
+          <R20>-0.8776553869247437</R20>
+          <R21>0.25175008177757263</R21>
+          <R22>-0.4078516364097595</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.643137</R>
+          <G>0.611765</G>
+          <B>0.517647</B>
+        </Color3>
+        <token name="Material">800</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART21">
+      <Properties>
+        <string name="Name">Rock</string>
+        <Vector3 name="Size">
+          <X>4.809999942779541</X>
+          <Y>3.700000047683716</Y>
+          <Z>4.070000171661377</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1501.5</X>
+          <Y>5.849999904632568</Y>
+          <Z>7838.5</Z>
+          <R00>-0.9882110357284546</R00>
+          <R01>0.059363916516304016</R01>
+          <R02>0.14112000167369843</R02>
+          <R10>0.09891457110643387</R10>
+          <R11>0.951116681098938</R11>
+          <R12>0.2925627827644348</R12>
+          <R20>-0.11685390770435333</R20>
+          <R21>0.30307260155677795</R21>
+          <R22>-0.9457759857177734</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.643137</R>
+          <G>0.611765</G>
+          <B>0.517647</B>
+        </Color3>
+        <token name="Material">800</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="REFRESH_Landmark_pine_1">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>8.398027</X>
+          <Y>2.371208</Y>
+          <Z>4.199014</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1496.5</X>
+          <Y>7.952013</Y>
+          <Z>7839.900493</Z>
+          <R00>1.0</R00>
+          <R01>0</R01>
+          <R02>0.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.278431</R>
+          <G>0.47451</G>
+          <B>0.235294</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">true</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="REFRESH_Landmark_pine_2">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>8.398027</X>
+          <Y>2.371208</Y>
+          <Z>4.199014</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1496.5</X>
+          <Y>7.952013</Y>
+          <Z>7844.099507</Z>
+          <R00>-1.0</R00>
+          <R01>0</R01>
+          <R02>0.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0</R21>
+          <R22>-1.0</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.278431</R>
+          <G>0.47451</G>
+          <B>0.235294</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">true</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="REFRESH_Landmark_pine_3">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>6.916022</X>
+          <Y>2.371208</Y>
+          <Z>3.458011</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1496.5</X>
+          <Y>10.32322</Y>
+          <Z>7840.270994</Z>
+          <R00>1.0</R00>
+          <R01>0</R01>
+          <R02>0.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.278431</R>
+          <G>0.47451</G>
+          <B>0.235294</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">true</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="REFRESH_Landmark_pine_4">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>6.916022</X>
+          <Y>2.371208</Y>
+          <Z>3.458011</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1496.5</X>
+          <Y>10.32322</Y>
+          <Z>7843.729006</Z>
+          <R00>-1.0</R00>
+          <R01>0</R01>
+          <R02>0.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0</R21>
+          <R22>-1.0</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.278431</R>
+          <G>0.47451</G>
+          <B>0.235294</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">true</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="REFRESH_Landmark_pine_5">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>5.335217</X>
+          <Y>2.371208</Y>
+          <Z>2.667609</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1496.5</X>
+          <Y>12.496827</Y>
+          <Z>7840.666196</Z>
+          <R00>1.0</R00>
+          <R01>0</R01>
+          <R02>0.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.278431</R>
+          <G>0.47451</G>
+          <B>0.235294</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">true</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="REFRESH_Landmark_pine_6">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>5.335217</X>
+          <Y>2.371208</Y>
+          <Z>2.667609</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1496.5</X>
+          <Y>12.496827</Y>
+          <Z>7843.333804</Z>
+          <R00>-1.0</R00>
+          <R01>0</R01>
+          <R02>0.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0</R21>
+          <R22>-1.0</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.278431</R>
+          <G>0.47451</G>
+          <B>0.235294</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">true</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="REFRESH_Landmark_pine_7">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>3.754412</X>
+          <Y>2.371208</Y>
+          <Z>1.877206</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1496.5</X>
+          <Y>14.472834</Y>
+          <Z>7841.061397</Z>
+          <R00>1.0</R00>
+          <R01>0</R01>
+          <R02>0.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.278431</R>
+          <G>0.47451</G>
+          <B>0.235294</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">true</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="REFRESH_Landmark_pine_8">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>3.754412</X>
+          <Y>2.371208</Y>
+          <Z>1.877206</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1496.5</X>
+          <Y>14.472834</Y>
+          <Z>7842.938603</Z>
+          <R00>-1.0</R00>
+          <R01>0</R01>
+          <R02>0.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0</R21>
+          <R22>-1.0</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.278431</R>
+          <G>0.47451</G>
+          <B>0.235294</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">true</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="REFRESH_Landmark_pine_9">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>2.173607</X>
+          <Y>2.371208</Y>
+          <Z>1.086804</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1496.5</X>
+          <Y>16.152439</Y>
+          <Z>7841.456598</Z>
+          <R00>1.0</R00>
+          <R01>0</R01>
+          <R02>0.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.278431</R>
+          <G>0.47451</G>
+          <B>0.235294</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">true</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="REFRESH_Landmark_pine_10">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>2.173607</X>
+          <Y>2.371208</Y>
+          <Z>1.086804</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1496.5</X>
+          <Y>16.152439</Y>
+          <Z>7842.543402</Z>
+          <R00>-1.0</R00>
+          <R01>0</R01>
+          <R02>0.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0</R21>
+          <R22>-1.0</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.278431</R>
+          <G>0.47451</G>
+          <B>0.235294</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">true</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="REFRESH_Landmark_pine_11">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>8.306671</X>
+          <Y>2.345413</Y>
+          <Z>4.153336</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1503.0</X>
+          <Y>7.909022</Y>
+          <Z>7841.923332</Z>
+          <R00>1.0</R00>
+          <R01>0</R01>
+          <R02>0.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.278431</R>
+          <G>0.47451</G>
+          <B>0.235294</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">true</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="REFRESH_Landmark_pine_12">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>8.306671</X>
+          <Y>2.345413</Y>
+          <Z>4.153336</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1503.0</X>
+          <Y>7.909022</Y>
+          <Z>7846.076668</Z>
+          <R00>-1.0</R00>
+          <R01>0</R01>
+          <R02>0.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0</R21>
+          <R22>-1.0</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.278431</R>
+          <G>0.47451</G>
+          <B>0.235294</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">true</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="REFRESH_Landmark_pine_13">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>6.840788</X>
+          <Y>2.345413</Y>
+          <Z>3.420394</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1503.0</X>
+          <Y>10.254435</Y>
+          <Z>7842.289803</Z>
+          <R00>1.0</R00>
+          <R01>0</R01>
+          <R02>0.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.278431</R>
+          <G>0.47451</G>
+          <B>0.235294</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">true</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="REFRESH_Landmark_pine_14">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>6.840788</X>
+          <Y>2.345413</Y>
+          <Z>3.420394</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1503.0</X>
+          <Y>10.254435</Y>
+          <Z>7845.710197</Z>
+          <R00>-1.0</R00>
+          <R01>0</R01>
+          <R02>0.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0</R21>
+          <R22>-1.0</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.278431</R>
+          <G>0.47451</G>
+          <B>0.235294</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">true</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="REFRESH_Landmark_pine_15">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>5.27718</X>
+          <Y>2.345413</Y>
+          <Z>2.63859</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1503.0</X>
+          <Y>12.404397</Y>
+          <Z>7842.680705</Z>
+          <R00>1.0</R00>
+          <R01>0</R01>
+          <R02>0.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.278431</R>
+          <G>0.47451</G>
+          <B>0.235294</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">true</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="REFRESH_Landmark_pine_16">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>5.27718</X>
+          <Y>2.345413</Y>
+          <Z>2.63859</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1503.0</X>
+          <Y>12.404397</Y>
+          <Z>7845.319295</Z>
+          <R00>-1.0</R00>
+          <R01>0</R01>
+          <R02>0.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0</R21>
+          <R22>-1.0</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.278431</R>
+          <G>0.47451</G>
+          <B>0.235294</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">true</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="REFRESH_Landmark_pine_17">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>3.713571</X>
+          <Y>2.345413</Y>
+          <Z>1.856785</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1503.0</X>
+          <Y>14.358908</Y>
+          <Z>7843.071607</Z>
+          <R00>1.0</R00>
+          <R01>0</R01>
+          <R02>0.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.278431</R>
+          <G>0.47451</G>
+          <B>0.235294</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">true</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="REFRESH_Landmark_pine_18">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>3.713571</X>
+          <Y>2.345413</Y>
+          <Z>1.856785</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1503.0</X>
+          <Y>14.358908</Y>
+          <Z>7844.928393</Z>
+          <R00>-1.0</R00>
+          <R01>0</R01>
+          <R02>0.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0</R21>
+          <R22>-1.0</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.278431</R>
+          <G>0.47451</G>
+          <B>0.235294</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">true</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="REFRESH_Landmark_pine_19">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>2.149962</X>
+          <Y>2.345413</Y>
+          <Z>1.074981</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1503.0</X>
+          <Y>16.020243</Y>
+          <Z>7843.46251</Z>
+          <R00>1.0</R00>
+          <R01>0</R01>
+          <R02>0.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.278431</R>
+          <G>0.47451</G>
+          <B>0.235294</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">true</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="REFRESH_Landmark_pine_20">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>2.149962</X>
+          <Y>2.345413</Y>
+          <Z>1.074981</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1503.0</X>
+          <Y>16.020243</Y>
+          <Z>7844.53749</Z>
+          <R00>-1.0</R00>
+          <R01>0</R01>
+          <R02>0.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0</R21>
+          <R22>-1.0</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.278431</R>
+          <G>0.47451</G>
+          <B>0.235294</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">true</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="REFRESH_Landmark_pine_21">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>7.651828</X>
+          <Y>2.160516</Y>
+          <Z>3.825914</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1499.0</X>
+          <Y>7.600861</Y>
+          <Z>7847.587043</Z>
+          <R00>1.0</R00>
+          <R01>0</R01>
+          <R02>0.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.278431</R>
+          <G>0.47451</G>
+          <B>0.235294</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">true</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="REFRESH_Landmark_pine_22">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>7.651828</X>
+          <Y>2.160516</Y>
+          <Z>3.825914</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1499.0</X>
+          <Y>7.600861</Y>
+          <Z>7851.412957</Z>
+          <R00>-1.0</R00>
+          <R01>0</R01>
+          <R02>0.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0</R21>
+          <R22>-1.0</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.278431</R>
+          <G>0.47451</G>
+          <B>0.235294</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">true</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="REFRESH_Landmark_pine_23">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>6.301506</X>
+          <Y>2.160516</Y>
+          <Z>3.150753</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1499.0</X>
+          <Y>9.761377</Y>
+          <Z>7847.924624</Z>
+          <R00>1.0</R00>
+          <R01>0</R01>
+          <R02>0.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.278431</R>
+          <G>0.47451</G>
+          <B>0.235294</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">true</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="REFRESH_Landmark_pine_24">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>6.301506</X>
+          <Y>2.160516</Y>
+          <Z>3.150753</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1499.0</X>
+          <Y>9.761377</Y>
+          <Z>7851.075376</Z>
+          <R00>-1.0</R00>
+          <R01>0</R01>
+          <R02>0.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0</R21>
+          <R22>-1.0</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.278431</R>
+          <G>0.47451</G>
+          <B>0.235294</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">true</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="REFRESH_Landmark_pine_25">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>4.861162</X>
+          <Y>2.160516</Y>
+          <Z>2.430581</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1499.0</X>
+          <Y>11.74185</Y>
+          <Z>7848.28471</Z>
+          <R00>1.0</R00>
+          <R01>0</R01>
+          <R02>0.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.278431</R>
+          <G>0.47451</G>
+          <B>0.235294</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">true</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="REFRESH_Landmark_pine_26">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>4.861162</X>
+          <Y>2.160516</Y>
+          <Z>2.430581</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1499.0</X>
+          <Y>11.74185</Y>
+          <Z>7850.71529</Z>
+          <R00>-1.0</R00>
+          <R01>0</R01>
+          <R02>0.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0</R21>
+          <R22>-1.0</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.278431</R>
+          <G>0.47451</G>
+          <B>0.235294</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">true</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="REFRESH_Landmark_pine_27">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>3.420817</X>
+          <Y>2.160516</Y>
+          <Z>1.710409</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1499.0</X>
+          <Y>13.54228</Y>
+          <Z>7848.644796</Z>
+          <R00>1.0</R00>
+          <R01>0</R01>
+          <R02>0.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.278431</R>
+          <G>0.47451</G>
+          <B>0.235294</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">true</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="REFRESH_Landmark_pine_28">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>3.420817</X>
+          <Y>2.160516</Y>
+          <Z>1.710409</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1499.0</X>
+          <Y>13.54228</Y>
+          <Z>7850.355204</Z>
+          <R00>-1.0</R00>
+          <R01>0</R01>
+          <R02>0.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0</R21>
+          <R22>-1.0</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.278431</R>
+          <G>0.47451</G>
+          <B>0.235294</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">true</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="REFRESH_Landmark_pine_29">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>1.980473</X>
+          <Y>2.160516</Y>
+          <Z>0.990237</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1499.0</X>
+          <Y>15.072646</Y>
+          <Z>7849.004882</Z>
+          <R00>1.0</R00>
+          <R01>0</R01>
+          <R02>0.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0</R21>
+          <R22>1.0</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.278431</R>
+          <G>0.47451</G>
+          <B>0.235294</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">true</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="REFRESH_Landmark_pine_30">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>1.980473</X>
+          <Y>2.160516</Y>
+          <Z>0.990237</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1499.0</X>
+          <Y>15.072646</Y>
+          <Z>7849.995118</Z>
+          <R00>-1.0</R00>
+          <R01>0</R01>
+          <R02>0.0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.0</R20>
+          <R21>0</R21>
+          <R22>-1.0</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.278431</R>
+          <G>0.47451</G>
+          <B>0.235294</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">true</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+  </Item>
 </roblox>

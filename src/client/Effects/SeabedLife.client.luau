@@ -338,9 +338,10 @@ local function createCell(cx: number, cz: number, withBubbles: boolean, withKelp
 		blades = {},
 		bubbles = {},
 	}
-	local function spot(): (number?, number?, number?)
-		local x = (cx + rng:NextNumber(0.08, 0.92)) * CELL
-		local z = (cz + rng:NextNumber(0.08, 0.92)) * CELL
+	local function spot(source: Random?): (number?, number?, number?)
+		local r = source or rng
+		local x = (cx + r:NextNumber(0.08, 0.92)) * CELL
+		local z = (cz + r:NextNumber(0.08, 0.92)) * CELL
 		if not isOpenWater(x, z) then
 			return nil, nil, nil
 		end
@@ -395,6 +396,25 @@ local function createCell(cx: number, cz: number, withBubbles: boolean, withKelp
 			local x, z, y = spot()
 			if x and z and y then
 				buildSeabedDecor(cell, extra.kind, x, z, y, rng)
+			end
+		end
+	end
+	-- Seyrek dip yapıları (dalgıç sandığı, kaya kemeri): ayrı tohumlu RNG, yukarıdaki süs akışı bozulmaz; yalnızca orta/yüksek kalitede
+	if withBubbles then
+		local rare = Random.new(math.abs(cx * 19349663 + cz * 83492791) % 2147483646 + 1)
+		for _, entry in { { name = "DiverChest", chance = 0.12 }, { name = "ReefArch", chance = 0.1 } } do
+			if rare:NextNumber() < entry.chance then
+				local x, z, y = spot(rare)
+				if x and z and y then
+					placeSea(
+						model,
+						"Sea",
+						entry.name,
+						CFrame.new(x, y, z) * CFrame.Angles(0, rare:NextNumber(0, math.pi * 2), 0),
+						rare:NextNumber(0.9, 1.3),
+						nil
+					)
+				end
 			end
 		end
 	end

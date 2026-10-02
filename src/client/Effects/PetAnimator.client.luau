@@ -17,6 +17,7 @@ local Config = require(Shared:WaitForChild("Config"))
 local MapPaths = require(Shared:WaitForChild("MapPaths"))
 local PetMotion = require(Shared:WaitForChild("Modules"):WaitForChild("PetMotion"))
 local EffectSettings = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("EffectSettings"))
+local ClientModelAssets = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("ClientModelAssets"))
 
 local TAG = "PetFigure"
 local SPEED = 15
@@ -25,7 +26,7 @@ local IDLE_SLEEP_DISTANCE = 120 -- bu uzaklıktan ötede (ya da düşük kalited
 local IDLE_SLEEP_SECONDS = 0.5
 local FACILITY_OFFSET = CFrame.new(0, 0, -8)
 
-type Prop = { part: Part, offset: CFrame }
+type Prop = { part: BasePart, offset: CFrame }
 type Actor = {
 	model: Model,
 	plot: Model,
@@ -36,6 +37,7 @@ type Actor = {
 	t: number,
 	island: string,
 	props: { Prop },
+	propModel: Model?, -- taşınan nesnenin (client-assets/PetProps) sarmalayıcısı
 }
 
 local function alive(actor: Actor): boolean
@@ -51,83 +53,45 @@ local function place(actor: Actor, cf: CFrame)
 end
 
 local function clearProps(actor: Actor)
-	for _, prop in actor.props do
-		prop.part:Destroy()
+	if actor.propModel then
+		actor.propModel:Destroy()
+		actor.propModel = nil
 	end
 	table.clear(actor.props)
 end
 
-local function addProp(
-	actor: Actor,
-	name: string,
-	size: Vector3,
-	offset: CFrame,
-	color: Color3,
-	material: Enum.Material,
-	shape: Enum.PartType?
-)
-	local part = Instance.new("Part")
-	part.Name = name
-	part.Size = size
-	part.Color = color
-	part.Material = material
-	part.Anchored = true
-	part.CanCollide, part.CanTouch, part.CanQuery = false, false, false
-	part.CastShadow = false
-	if shape then
-		part.Shape = shape
+local missingWarned: { [string]: boolean } = {}
+
+-- Taşınan nesne: client-assets/PetProps/<ad> modeli (pivot yardımcı Root koordinatında (0,0,0); taşıma yüksekliği modelde yazılıdır).
+-- Her parçanın ofseti yardımcının CFrame'inden bir kez yakalanır ve her adımda `actor.cf * ofset` uygulanır.
+local function addProp(actor: Actor, modelName: string)
+	local model = ClientModelAssets.clone("PetProps", modelName)
+	if not model then
+		if not missingWarned[modelName] then
+			missingWarned[modelName] = true
+			warn(`[PetAnimator] client-assets/PetProps/{modelName}.rbxmx bulunamadı; taşınan nesne çizilmedi`)
+		end
+		return
 	end
-	part.CFrame = actor.cf * offset
-	part.Parent = actor.model
-	table.insert(actor.props, { part = part, offset = offset })
+	local pivot = model:GetPivot()
+	for _, descendant in model:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			table.insert(actor.props, { part = descendant, offset = pivot:ToObjectSpace(descendant.CFrame) })
+		end
+	end
+	model:PivotTo(actor.cf)
+	model.Parent = actor.model
+	actor.propModel = model
 end
 
 local function carry(actor: Actor, what: string)
 	clearProps(actor)
 	if what == "animal" then
-		addProp(
-			actor,
-			"CarriedBody",
-			Vector3.new(1.6, 1.1, 2.2),
-			CFrame.new(0, 3.7, 0.2),
-			Color3.fromRGB(240, 240, 235),
-			Enum.Material.Fabric
-		)
-		addProp(
-			actor,
-			"CarriedPatch",
-			Vector3.new(1.7, 0.6, 0.9),
-			CFrame.new(0, 3.9, 0.6),
-			Color3.fromRGB(60, 50, 45),
-			Enum.Material.Fabric
-		)
-		addProp(
-			actor,
-			"CarriedHead",
-			Vector3.new(1, 1, 1),
-			CFrame.new(0, 4.1, -1.3),
-			Color3.fromRGB(235, 225, 215),
-			Enum.Material.Fabric
-		)
+		addProp(actor, "CarryAnimal")
 	elseif what == "crate" then
-		addProp(
-			actor,
-			"CarriedCrate",
-			Vector3.new(1.8, 1.5, 1.8),
-			CFrame.new(0, 3.5, 0),
-			Color3.fromRGB(170, 125, 75),
-			Enum.Material.WoodPlanks
-		)
+		addProp(actor, "CarryCrate")
 	elseif what == "coins" then
-		addProp(
-			actor,
-			"CarriedCoins",
-			Vector3.new(1.6, 1.6, 1.6),
-			CFrame.new(0, 3.5, 0),
-			Color3.fromRGB(255, 200, 60),
-			Enum.Material.Neon,
-			Enum.PartType.Ball
-		)
+		addProp(actor, "CarryCoins")
 	end
 end
 
@@ -518,6 +482,7 @@ local function track(instance: Instance)
 			t = 0,
 			island = island,
 			props = {},
+			propModel = nil,
 		}
 		local ok, err = pcall(function()
 			run(actor)

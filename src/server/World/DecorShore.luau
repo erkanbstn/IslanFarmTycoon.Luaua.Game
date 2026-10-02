@@ -167,6 +167,21 @@ function Shore.dock(parent: Instance, start: CFrame, length: number, surfaceY: n
 		warnMissing("FisherHut_Lv1")
 	end
 
+	-- İskele kenarında (kulübenin karşı yanında, yürüyüş yolunu açık bırakarak) ağ askısı ve balık sandıkları: yalnızca süs
+	local function placeDeckProp(name: string, offset: CFrame)
+		local prop = ModelAssets.clone(FOLDER, name)
+		if not prop then
+			warnMissing(name)
+			return
+		end
+		prop:PivotTo(at(offset, surfaceY))
+		prop.Parent = model
+	end
+	if length > 18 then
+		placeDeckProp("NetDryingRack", CFrame.new(-2.45, 0, -11) * CFrame.Angles(0, math.rad(90), 0))
+		placeDeckProp("FishCrates", CFrame.new(2.0, 0, -16.5) * CFrame.Angles(0, math.rad(90), 0))
+	end
+
 	-- İskele ucu: fıçı ve olta
 	local tip = ModelAssets.clone(FOLDER, "DockTip")
 	if tip then
