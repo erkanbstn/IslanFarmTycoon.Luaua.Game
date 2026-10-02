@@ -22,67 +22,16 @@
 </Properties>
 <Item class="Part" referent="RBXPART1">
 <Properties>
-<string name="Name">Tint</string>
-<Vector3 name="Size">
-<X>1.7</X>
-<Y>3.9</Y>
-<Z>0.2</Z>
-</Vector3>
-<CoordinateFrame name="CFrame">
-<X>-1.35</X>
-<Y>2</Y>
-<Z>-0.32</Z>
-<R00>0.991561894</R00>
-<R01>-0</R01>
-<R02>-0.129634143</R02>
-<R10>0</R10>
-<R11>1</R11>
-<R12>-0</R12>
-<R20>0.129634143</R20>
-<R21>0</R21>
-<R22>0.991561894</R22>
-</CoordinateFrame>
-<Color3 name="Color">
-<R>0.62745098</R>
-<G>0.509803922</G>
-<B>0.862745098</B>
-</Color3>
-<token name="Material">800</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">false</bool>
-</Properties>
-<Item class="SpecialMesh" referent="RBXMESH1">
-<Properties>
-<string name="Name">SpecialMesh</string>
-<token name="MeshType">3</token>
-<Vector3 name="Scale">
-<X>1</X>
-<Y>1</Y>
-<Z>1</Z>
-</Vector3>
-<Vector3 name="Offset">
-<X>0</X>
-<Y>0</Y>
-<Z>0</Z>
-</Vector3>
-</Properties>
-</Item>
-</Item>
-<Item class="Part" referent="RBXPART2">
-<Properties>
 <string name="Name">Stem</string>
 <Vector3 name="Size">
-<X>0.18</X>
-<Y>0.9</Y>
-<Z>0.18</Z>
+<X>0.158153474</X>
+<Y>2.33986748</Y>
+<Z>0.230150092</Z>
 </Vector3>
 <CoordinateFrame name="CFrame">
-<X>-1.35</X>
-<Y>0.45</Y>
-<Z>-0.32</Z>
+<X>-1.20592024</X>
+<Y>1.16993374</Y>
+<Z>0</Z>
 <R00>1</R00>
 <R01>-0</R01>
 <R02>0</R02>
@@ -94,12 +43,46 @@
 <R22>1</R22>
 </CoordinateFrame>
 <Color3 name="Color">
-<R>0.509803922</R>
-<G>0.392156863</G>
-<B>0.666666667</B>
+<R>0.662745098</R>
+<G>0.501960784</G>
+<B>0.356862745</B>
 </Color3>
 <token name="Material">800</token>
 <token name="Shape">1</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+</Properties>
+</Item>
+<Item class="WedgePart" referent="RBXPART2">
+<Properties>
+<string name="Name">Tint</string>
+<Vector3 name="Size">
+<X>1.502458</X>
+<Y>2.47750675</Y>
+<Z>0.27618011</Z>
+</Vector3>
+<CoordinateFrame name="CFrame">
+<X>-1.20592024</X>
+<Y>2.20222822</Y>
+<Z>0</Z>
+<R00>0.975897449</R00>
+<R01>-0.218229623</R01>
+<R02>0</R02>
+<R10>0.218229623</R10>
+<R11>0.975897449</R11>
+<R12>-0</R12>
+<R20>0</R20>
+<R21>0</R21>
+<R22>1</R22>
+</CoordinateFrame>
+<Color3 name="Color">
+<R>0.439215686</R>
+<G>0.796078431</G>
+<B>0.839215686</B>
+</Color3>
+<token name="Material">272</token>
 <bool name="Anchored">true</bool>
 <bool name="CanCollide">false</bool>
 <bool name="CanTouch">false</bool>
@@ -108,15 +91,15 @@
 </Item>
 <Item class="Part" referent="RBXPART3">
 <Properties>
-<string name="Name">Tint</string>
+<string name="Name">Polyp</string>
 <Vector3 name="Size">
-<X>1.8</X>
-<Y>3.9</Y>
-<Z>0.2</Z>
+<X>0.207576434</X>
+<Y>0.207576434</Y>
+<Z>0.207576434</Z>
 </Vector3>
 <CoordinateFrame name="CFrame">
-<X>0</X>
-<Y>2.15</Y>
+<X>-1.20592024</X>
+<Y>3.39067485</Y>
 <Z>0</Z>
 <R00>1</R00>
 <R01>-0</R01>
@@ -129,45 +112,29 @@
 <R22>1</R22>
 </CoordinateFrame>
 <Color3 name="Color">
-<R>0.62745098</R>
-<G>0.509803922</G>
-<B>0.862745098</B>
+<R>0.949019608</R>
+<G>0.858823529</G>
+<B>0.607843137</B>
 </Color3>
-<token name="Material">800</token>
-<token name="Shape">1</token>
+<token name="Material">288</token>
+<token name="Shape">0</token>
 <bool name="Anchored">true</bool>
 <bool name="CanCollide">false</bool>
 <bool name="CanTouch">false</bool>
 <bool name="CanQuery">false</bool>
 </Properties>
-<Item class="SpecialMesh" referent="RBXMESH3">
-<Properties>
-<string name="Name">SpecialMesh</string>
-<token name="MeshType">3</token>
-<Vector3 name="Scale">
-<X>1</X>
-<Y>1</Y>
-<Z>1</Z>
-</Vector3>
-<Vector3 name="Offset">
-<X>0</X>
-<Y>0</Y>
-<Z>0</Z>
-</Vector3>
-</Properties>
-</Item>
 </Item>
 <Item class="Part" referent="RBXPART4">
 <Properties>
 <string name="Name">Stem</string>
 <Vector3 name="Size">
-<X>0.18</X>
-<Y>0.9</Y>
-<Z>0.18</Z>
+<X>0.158153474</X>
+<Y>2.75037055</Y>
+<Z>0.230150092</Z>
 </Vector3>
 <CoordinateFrame name="CFrame">
 <X>0</X>
-<Y>0.45</Y>
+<Y>1.37518528</Y>
 <Z>0</Z>
 <R00>1</R00>
 <R01>-0</R01>
@@ -180,9 +147,9 @@
 <R22>1</R22>
 </CoordinateFrame>
 <Color3 name="Color">
-<R>0.509803922</R>
-<G>0.392156863</G>
-<B>0.666666667</B>
+<R>0.662745098</R>
+<G>0.501960784</G>
+<B>0.356862745</B>
 </Color3>
 <token name="Material">800</token>
 <token name="Shape">1</token>
@@ -192,69 +159,18 @@
 <bool name="CanQuery">false</bool>
 </Properties>
 </Item>
-<Item class="Part" referent="RBXPART5">
+<Item class="WedgePart" referent="RBXPART5">
 <Properties>
 <string name="Name">Tint</string>
 <Vector3 name="Size">
-<X>1.7</X>
-<Y>3.9</Y>
-<Z>0.2</Z>
+<X>1.502458</X>
+<Y>2.91215706</Y>
+<Z>0.27618011</Z>
 </Vector3>
 <CoordinateFrame name="CFrame">
-<X>1.35</X>
-<Y>2</Y>
-<Z>0.32</Z>
-<R00>0.991561894</R00>
-<R01>-0</R01>
-<R02>0.129634143</R02>
-<R10>0</R10>
-<R11>1</R11>
-<R12>-0</R12>
-<R20>-0.129634143</R20>
-<R21>0</R21>
-<R22>0.991561894</R22>
-</CoordinateFrame>
-<Color3 name="Color">
-<R>0.62745098</R>
-<G>0.509803922</G>
-<B>0.862745098</B>
-</Color3>
-<token name="Material">800</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">false</bool>
-</Properties>
-<Item class="SpecialMesh" referent="RBXMESH5">
-<Properties>
-<string name="Name">SpecialMesh</string>
-<token name="MeshType">3</token>
-<Vector3 name="Scale">
-<X>1</X>
-<Y>1</Y>
-<Z>1</Z>
-</Vector3>
-<Vector3 name="Offset">
 <X>0</X>
-<Y>0</Y>
+<Y>2.58858405</Y>
 <Z>0</Z>
-</Vector3>
-</Properties>
-</Item>
-</Item>
-<Item class="Part" referent="RBXPART6">
-<Properties>
-<string name="Name">Stem</string>
-<Vector3 name="Size">
-<X>0.18</X>
-<Y>0.9</Y>
-<Z>0.18</Z>
-</Vector3>
-<CoordinateFrame name="CFrame">
-<X>1.35</X>
-<Y>0.45</Y>
-<Z>0.32</Z>
 <R00>1</R00>
 <R01>-0</R01>
 <R02>0</R02>
@@ -266,11 +182,184 @@
 <R22>1</R22>
 </CoordinateFrame>
 <Color3 name="Color">
-<R>0.509803922</R>
-<G>0.392156863</G>
-<B>0.666666667</B>
+<R>0.439215686</R>
+<G>0.796078431</G>
+<B>0.839215686</B>
+</Color3>
+<token name="Material">272</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+</Properties>
+</Item>
+<Item class="Part" referent="RBXPART6">
+<Properties>
+<string name="Name">Polyp</string>
+<Vector3 name="Size">
+<X>0.207576434</X>
+<Y>0.207576434</Y>
+<Z>0.207576434</Z>
+</Vector3>
+<CoordinateFrame name="CFrame">
+<X>0</X>
+<Y>3.99435583</Y>
+<Z>0</Z>
+<R00>1</R00>
+<R01>-0</R01>
+<R02>0</R02>
+<R10>0</R10>
+<R11>1</R11>
+<R12>-0</R12>
+<R20>0</R20>
+<R21>0</R21>
+<R22>1</R22>
+</CoordinateFrame>
+<Color3 name="Color">
+<R>0.949019608</R>
+<G>0.858823529</G>
+<B>0.607843137</B>
+</Color3>
+<token name="Material">288</token>
+<token name="Shape">0</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+</Properties>
+</Item>
+<Item class="Part" referent="RBXPART7">
+<Properties>
+<string name="Name">Stem</string>
+<Vector3 name="Size">
+<X>0.158153474</X>
+<Y>2.36039264</Y>
+<Z>0.230150092</Z>
+</Vector3>
+<CoordinateFrame name="CFrame">
+<X>1.20592024</X>
+<Y>1.18019632</Y>
+<Z>0</Z>
+<R00>1</R00>
+<R01>-0</R01>
+<R02>0</R02>
+<R10>0</R10>
+<R11>1</R11>
+<R12>-0</R12>
+<R20>0</R20>
+<R21>0</R21>
+<R22>1</R22>
+</CoordinateFrame>
+<Color3 name="Color">
+<R>0.662745098</R>
+<G>0.501960784</G>
+<B>0.356862745</B>
 </Color3>
 <token name="Material">800</token>
+<token name="Shape">1</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+</Properties>
+</Item>
+<Item class="WedgePart" referent="RBXPART8">
+<Properties>
+<string name="Name">Tint</string>
+<Vector3 name="Size">
+<X>1.502458</X>
+<Y>2.49923926</Y>
+<Z>0.27618011</Z>
+</Vector3>
+<CoordinateFrame name="CFrame">
+<X>1.20592024</X>
+<Y>2.22154601</Y>
+<Z>0</Z>
+<R00>0.975897449</R00>
+<R01>0.218229623</R01>
+<R02>0</R02>
+<R10>-0.218229623</R10>
+<R11>0.975897449</R11>
+<R12>-0</R12>
+<R20>-0</R20>
+<R21>0</R21>
+<R22>1</R22>
+</CoordinateFrame>
+<Color3 name="Color">
+<R>0.439215686</R>
+<G>0.796078431</G>
+<B>0.839215686</B>
+</Color3>
+<token name="Material">272</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+</Properties>
+</Item>
+<Item class="Part" referent="RBXPART9">
+<Properties>
+<string name="Name">Polyp</string>
+<Vector3 name="Size">
+<X>0.207576434</X>
+<Y>0.207576434</Y>
+<Z>0.207576434</Z>
+</Vector3>
+<CoordinateFrame name="CFrame">
+<X>1.20592024</X>
+<Y>3.4208589</Y>
+<Z>0</Z>
+<R00>1</R00>
+<R01>-0</R01>
+<R02>0</R02>
+<R10>0</R10>
+<R11>1</R11>
+<R12>-0</R12>
+<R20>0</R20>
+<R21>0</R21>
+<R22>1</R22>
+</CoordinateFrame>
+<Color3 name="Color">
+<R>0.949019608</R>
+<G>0.858823529</G>
+<B>0.607843137</B>
+</Color3>
+<token name="Material">288</token>
+<token name="Shape">0</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+</Properties>
+</Item>
+<Item class="Part" referent="RBXPART10">
+<Properties>
+<string name="Name">Base</string>
+<Vector3 name="Size">
+<X>3.21249243</X>
+<Y>0.150920245</Y>
+<Z>1.05869042</Z>
+</Vector3>
+<CoordinateFrame name="CFrame">
+<X>0</X>
+<Y>0.0754601227</Y>
+<Z>0</Z>
+<R00>1</R00>
+<R01>-0</R01>
+<R02>0</R02>
+<R10>0</R10>
+<R11>1</R11>
+<R12>-0</R12>
+<R20>0</R20>
+<R21>0</R21>
+<R22>1</R22>
+</CoordinateFrame>
+<Color3 name="Color">
+<R>0.552941176</R>
+<G>0.654901961</G>
+<B>0.607843137</B>
+</Color3>
+<token name="Material">896</token>
 <token name="Shape">1</token>
 <bool name="Anchored">true</bool>
 <bool name="CanCollide">false</bool>

@@ -1,540 +1,1880 @@
 <roblox version="4">
-<Meta name="ExplicitAutoJoints">true</Meta>
-<Item class="Model" referent="RBXMODEL"><Properties>
-<string name="Name">rocky_terraces</string>
-<OptionalCoordinateFrame name="WorldPivotData"><CFrame><X>1400</X><Y>4</Y><Z>5390</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CFrame></OptionalCoordinateFrame>
-</Properties>
-<Item class="Part" referent="RBXPART1"><Properties>
-<string name="Name">RetainingRock</string>
-<Vector3 name="Size"><X>14</X><Y>1.2000000476837158</Y><Z>8</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1374</X><Y>4.599999904632568</Y><Z>5378</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.4745098054409027</R><G>0.4745098054409027</G><B>0.4431372582912445</B></Color3>
-<token name="Material">896</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART2"><Properties>
-<string name="Name">TerraceGrass</string>
-<Vector3 name="Size"><X>13.699999809265137</X><Y>0.15000000596046448</Y><Z>7.699999809265137</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1374</X><Y>5.275000095367432</Y><Z>5378</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.45098039507865906</R><G>0.5411764979362488</G><B>0.30980393290519714</B></Color3>
-<token name="Material">1280</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART3"><Properties>
-<string name="Name">TerraceStep</string>
-<Vector3 name="Size"><X>4</X><Y>0.4000000059604645</Y><Z>0.8999999761581421</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1376.5</X><Y>4.199999809265137</Y><Z>5372.5</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.4745098054409027</R><G>0.4745098054409027</G><B>0.4431372582912445</B></Color3>
-<token name="Material">800</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART4"><Properties>
-<string name="Name">TerraceStep</string>
-<Vector3 name="Size"><X>4</X><Y>0.800000011920929</Y><Z>0.8999999761581421</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1376.5</X><Y>4.400000095367432</Y><Z>5373.2998046875</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.4745098054409027</R><G>0.4745098054409027</G><B>0.4431372582912445</B></Color3>
-<token name="Material">800</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART5"><Properties>
-<string name="Name">TerraceStep</string>
-<Vector3 name="Size"><X>4</X><Y>1.2000000476837158</Y><Z>0.8999999761581421</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1376.5</X><Y>4.599999904632568</Y><Z>5374.10009765625</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.4745098054409027</R><G>0.4745098054409027</G><B>0.4431372582912445</B></Color3>
-<token name="Material">800</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART6"><Properties>
-<string name="Name">Leaves</string>
-<Vector3 name="Size"><X>2.9028139114379883</X><Y>2.9028139114379883</Y><Z>2.9028139114379883</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1371.61181640625</X><Y>6.365984916687012</Y><Z>5379.74267578125</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.23529411852359772</R><G>0.4901960790157318</G><B>0.21568627655506134</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">0</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART7"><Properties>
-<string name="Name">Leaves</string>
-<Vector3 name="Size"><X>2.4657769203186035</X><Y>2.4657769203186035</Y><Z>2.4657769203186035</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1372.0106201171875</X><Y>6.213021755218506</Y><Z>5379.3671875</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.3921568691730499</R><G>0.6274510025978088</G><B>0.27450981736183167</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">0</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART8"><Properties>
-<string name="Name">Leaves</string>
-<Vector3 name="Size"><X>2.5205774307250977</X><Y>2.5205774307250977</Y><Z>2.5205774307250977</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1372.1064453125</X><Y>6.232202053070068</Y><Z>5379.03271484375</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.27450981736183167</R><G>0.5490196347236633</G><B>0.23529411852359772</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">0</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART9"><Properties>
-<string name="Name">RetainingRock</string>
-<Vector3 name="Size"><X>13</X><Y>2.4000000953674316</Y><Z>8</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1374</X><Y>5.199999809265137</Y><Z>5388</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.4745098054409027</R><G>0.4745098054409027</G><B>0.4431372582912445</B></Color3>
-<token name="Material">896</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART10"><Properties>
-<string name="Name">TerraceGrass</string>
-<Vector3 name="Size"><X>12.699999809265137</X><Y>0.15000000596046448</Y><Z>7.699999809265137</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1374</X><Y>6.474999904632568</Y><Z>5388</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.45098039507865906</R><G>0.5411764979362488</G><B>0.30980393290519714</B></Color3>
-<token name="Material">1280</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART11"><Properties>
-<string name="Name">TerraceStep</string>
-<Vector3 name="Size"><X>4</X><Y>1.600000023841858</Y><Z>0.8999999761581421</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1376.5</X><Y>4.800000190734863</Y><Z>5382.5</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.4745098054409027</R><G>0.4745098054409027</G><B>0.4431372582912445</B></Color3>
-<token name="Material">800</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART12"><Properties>
-<string name="Name">TerraceStep</string>
-<Vector3 name="Size"><X>4</X><Y>2</Y><Z>0.8999999761581421</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1376.5</X><Y>5</Y><Z>5383.2998046875</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.4745098054409027</R><G>0.4745098054409027</G><B>0.4431372582912445</B></Color3>
-<token name="Material">800</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART13"><Properties>
-<string name="Name">TerraceStep</string>
-<Vector3 name="Size"><X>4</X><Y>2.4000000953674316</Y><Z>0.8999999761581421</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1376.5</X><Y>5.199999809265137</Y><Z>5384.10009765625</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.4745098054409027</R><G>0.4745098054409027</G><B>0.4431372582912445</B></Color3>
-<token name="Material">800</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART14"><Properties>
-<string name="Name">Leaves</string>
-<Vector3 name="Size"><X>2.249215602874756</X><Y>2.249215602874756</Y><Z>2.249215602874756</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1369.9698486328125</X><Y>7.337225914001465</Y><Z>5388.841796875</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.3921568691730499</R><G>0.6274510025978088</G><B>0.27450981736183167</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">0</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART15"><Properties>
-<string name="Name">Leaves</string>
-<Vector3 name="Size"><X>3.3776142597198486</X><Y>3.3776142597198486</Y><Z>3.3776142597198486</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1370.5631103515625</X><Y>7.732165336608887</Y><Z>5390.54833984375</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.27450981736183167</R><G>0.5490196347236633</G><B>0.23529411852359772</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">0</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART16"><Properties>
-<string name="Name">Leaves</string>
-<Vector3 name="Size"><X>2.723275899887085</X><Y>2.723275899887085</Y><Z>2.723275899887085</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1370.306884765625</X><Y>7.503146648406982</Y><Z>5389.48193359375</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.3333333432674408</R><G>0.6078431606292725</G><B>0.2549019753932953</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">0</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART17"><Properties>
-<string name="Name">Berry</string>
-<Vector3 name="Size"><X>0.44999998807907104</X><Y>0.44999998807907104</Y><Z>0.44999998807907104</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1370.1529541015625</X><Y>7.791388511657715</Y><Z>5388.1103515625</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.8627451062202454</R><G>0.23529411852359772</G><B>0.27450981736183167</B></Color3>
-<token name="Material">272</token>
-<token name="Shape">0</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART18"><Properties>
-<string name="Name">Berry</string>
-<Vector3 name="Size"><X>0.44999998807907104</X><Y>0.44999998807907104</Y><Z>0.44999998807907104</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1371.190673828125</X><Y>7.784592628479004</Y><Z>5388.69091796875</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.8627451062202454</R><G>0.23529411852359772</G><B>0.27450981736183167</B></Color3>
-<token name="Material">272</token>
-<token name="Shape">0</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART19"><Properties>
-<string name="Name">Berry</string>
-<Vector3 name="Size"><X>0.44999998807907104</X><Y>0.44999998807907104</Y><Z>0.44999998807907104</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1369.7652587890625</X><Y>7.59126091003418</Y><Z>5389.55126953125</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.8627451062202454</R><G>0.23529411852359772</G><B>0.27450981736183167</B></Color3>
-<token name="Material">272</token>
-<token name="Shape">0</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART20"><Properties>
-<string name="Name">Berry</string>
-<Vector3 name="Size"><X>0.44999998807907104</X><Y>0.44999998807907104</Y><Z>0.44999998807907104</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1369.804931640625</X><Y>8.106925964355469</Y><Z>5388.193359375</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.8627451062202454</R><G>0.23529411852359772</G><B>0.27450981736183167</B></Color3>
-<token name="Material">272</token>
-<token name="Shape">0</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART21"><Properties>
-<string name="Name">RetainingRock</string>
-<Vector3 name="Size"><X>12</X><Y>3.5999999046325684</Y><Z>8</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1374</X><Y>5.800000190734863</Y><Z>5398</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.4745098054409027</R><G>0.4745098054409027</G><B>0.4431372582912445</B></Color3>
-<token name="Material">896</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART22"><Properties>
-<string name="Name">TerraceGrass</string>
-<Vector3 name="Size"><X>11.699999809265137</X><Y>0.15000000596046448</Y><Z>7.699999809265137</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1374</X><Y>7.675000190734863</Y><Z>5398</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.45098039507865906</R><G>0.5411764979362488</G><B>0.30980393290519714</B></Color3>
-<token name="Material">1280</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART23"><Properties>
-<string name="Name">TerraceStep</string>
-<Vector3 name="Size"><X>4</X><Y>2.799999952316284</Y><Z>0.8999999761581421</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1376.5</X><Y>5.400000095367432</Y><Z>5392.5</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.4745098054409027</R><G>0.4745098054409027</G><B>0.4431372582912445</B></Color3>
-<token name="Material">800</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART24"><Properties>
-<string name="Name">TerraceStep</string>
-<Vector3 name="Size"><X>4</X><Y>3.200000047683716</Y><Z>0.8999999761581421</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1376.5</X><Y>5.599999904632568</Y><Z>5393.2998046875</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.4745098054409027</R><G>0.4745098054409027</G><B>0.4431372582912445</B></Color3>
-<token name="Material">800</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART25"><Properties>
-<string name="Name">TerraceStep</string>
-<Vector3 name="Size"><X>4</X><Y>3.5999999046325684</Y><Z>0.8999999761581421</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1376.5</X><Y>5.800000190734863</Y><Z>5394.10009765625</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.4745098054409027</R><G>0.4745098054409027</G><B>0.4431372582912445</B></Color3>
-<token name="Material">800</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART26"><Properties>
-<string name="Name">Leaves</string>
-<Vector3 name="Size"><X>3.329355001449585</X><Y>3.329355001449585</Y><Z>3.329355001449585</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1371.9437255859375</X><Y>8.915274620056152</Y><Z>5399.4990234375</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.27450981736183167</R><G>0.5490196347236633</G><B>0.23529411852359772</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">0</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART27"><Properties>
-<string name="Name">Leaves</string>
-<Vector3 name="Size"><X>3.3555710315704346</X><Y>3.3555710315704346</Y><Z>3.3555710315704346</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1371.158935546875</X><Y>8.924449920654297</Y><Z>5399.2021484375</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.3333333432674408</R><G>0.6078431606292725</G><B>0.2549019753932953</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">0</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART28"><Properties>
-<string name="Name">Leaves</string>
-<Vector3 name="Size"><X>2.6625006198883057</X><Y>2.6625006198883057</Y><Z>2.6625006198883057</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1370.854248046875</X><Y>8.681875228881836</Y><Z>5399.80419921875</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.23529411852359772</R><G>0.4901960790157318</G><B>0.21568627655506134</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">0</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART29"><Properties>
-<string name="Name">Path</string>
-<Vector3 name="Size"><X>3</X><Y>0.1599999964237213</Y><Z>21.899749755859375</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1387</X><Y>4.110000133514404</Y><Z>5366</Z><R00>-0.09950372576713562</R00><R01>0</R01><R02>0.9950372576713562</R02><R10>0</R10><R11>1.0000001192092896</R11><R12>0</R12><R20>-0.9950372576713562</R20><R21>0</R21><R22>-0.09950372576713562</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.5882353186607361</R><G>0.5686274766921997</G><B>0.529411792755127</B></Color3>
-<token name="Material">880</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART30"><Properties>
-<string name="Name">DairyApron</string>
-<Vector3 name="Size"><X>15</X><Y>0.11999999731779099</Y><Z>13</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1400</X><Y>4.070000171661377</Y><Z>5416</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.6941176652908325</R><G>0.6627451181411743</G><B>0.572549045085907</B></Color3>
-<token name="Material">880</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART31"><Properties>
-<string name="Name">Path</string>
-<Vector3 name="Size"><X>3</X><Y>0.1599999964237213</Y><Z>40.81281661987305</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1422.5</X><Y>4.139999866485596</Y><Z>5392.5</Z><R00>-0.999671459197998</R00><R01>0</R01><R02>-0.025632601231336594</R02><R10>0</R10><R11>1.0000001192092896</R11><R12>0</R12><R20>0.025632601231336594</R20><R21>0</R21><R22>-0.999671459197998</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.5882353186607361</R><G>0.5686274766921997</G><B>0.529411792755127</B></Color3>
-<token name="Material">880</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART32"><Properties>
-<string name="Name">Path</string>
-<Vector3 name="Size"><X>3</X><Y>0.1599999964237213</Y><Z>16.117820739746094</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1416</X><Y>4.170000076293945</Y><Z>5413.5</Z><R00>-0.2095291018486023</R00><R01>0</R01><R02>0.9778023362159729</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>-0.9778024554252625</R20><R21>0</R21><R22>-0.2095290720462799</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.5882353186607361</R><G>0.5686274766921997</G><B>0.529411792755127</B></Color3>
-<token name="Material">880</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART33"><Properties>
-<string name="Name">Body</string>
-<Vector3 name="Size"><X>2.5999999046325684</X><Y>2</Y><Z>2</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1410</X><Y>5.300000190734863</Y><Z>5418</Z><R00>-4.371138828673793e-8</R00><R01>-1</R01><R02>0</R02><R10>1</R10><R11>-4.371138828673793e-8</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.529411792755127</R><G>0.3529411852359772</G><B>0.21568627655506134</B></Color3>
-<token name="Material">528</token>
-<token name="Shape">2</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART34"><Properties>
-<string name="Name">Hoop</string>
-<Vector3 name="Size"><X>0.20000000298023224</X><Y>2.0999999046325684</Y><Z>2.0999999046325684</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1410</X><Y>4.5</Y><Z>5418</Z><R00>-4.371138828673793e-8</R00><R01>-1</R01><R02>0</R02><R10>1</R10><R11>-4.371138828673793e-8</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.27450981736183167</R><G>0.27450981736183167</G><B>0.29411765933036804</B></Color3>
-<token name="Material">1088</token>
-<token name="Shape">2</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART35"><Properties>
-<string name="Name">Hoop</string>
-<Vector3 name="Size"><X>0.20000000298023224</X><Y>2.0999999046325684</Y><Z>2.0999999046325684</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1410</X><Y>6.099999904632568</Y><Z>5418</Z><R00>-4.371138828673793e-8</R00><R01>-1</R01><R02>0</R02><R10>1</R10><R11>-4.371138828673793e-8</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.27450981736183167</R><G>0.27450981736183167</G><B>0.29411765933036804</B></Color3>
-<token name="Material">1088</token>
-<token name="Shape">2</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART36"><Properties>
-<string name="Name">Body</string>
-<Vector3 name="Size"><X>2.5999999046325684</X><Y>2</Y><Z>2</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1413</X><Y>5.300000190734863</Y><Z>5416</Z><R00>-4.371138828673793e-8</R00><R01>-1</R01><R02>0</R02><R10>1</R10><R11>-4.371138828673793e-8</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.529411792755127</R><G>0.3529411852359772</G><B>0.21568627655506134</B></Color3>
-<token name="Material">528</token>
-<token name="Shape">2</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART37"><Properties>
-<string name="Name">Hoop</string>
-<Vector3 name="Size"><X>0.20000000298023224</X><Y>2.0999999046325684</Y><Z>2.0999999046325684</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1413</X><Y>4.5</Y><Z>5416</Z><R00>-4.371138828673793e-8</R00><R01>-1</R01><R02>0</R02><R10>1</R10><R11>-4.371138828673793e-8</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.27450981736183167</R><G>0.27450981736183167</G><B>0.29411765933036804</B></Color3>
-<token name="Material">1088</token>
-<token name="Shape">2</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART38"><Properties>
-<string name="Name">Hoop</string>
-<Vector3 name="Size"><X>0.20000000298023224</X><Y>2.0999999046325684</Y><Z>2.0999999046325684</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1413</X><Y>6.099999904632568</Y><Z>5416</Z><R00>-4.371138828673793e-8</R00><R01>-1</R01><R02>0</R02><R10>1</R10><R11>-4.371138828673793e-8</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.27450981736183167</R><G>0.27450981736183167</G><B>0.29411765933036804</B></Color3>
-<token name="Material">1088</token>
-<token name="Shape">2</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-</Item>
+  <Meta name="ExplicitAutoJoints">true</Meta>
+  <Item class="Model" referent="RBXMODEL">
+    <Properties>
+      <string name="Name">rocky_terraces</string>
+      <OptionalCoordinateFrame name="WorldPivotData">
+        <CFrame>
+          <X>1400</X>
+          <Y>4</Y>
+          <Z>5390</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CFrame>
+      </OptionalCoordinateFrame>
+    </Properties>
+    <Item class="Part" referent="RBXPART1">
+      <Properties>
+        <string name="Name">RetainingRock</string>
+        <Vector3 name="Size">
+          <X>14</X>
+          <Y>1.2000000476837158</Y>
+          <Z>8</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1374</X>
+          <Y>4.599999904632568</Y>
+          <Z>5378</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.50196078</R>
+          <G>0.4745098</G>
+          <B>0.41176471</B>
+        </Color3>
+        <token name="Material">896</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART2">
+      <Properties>
+        <string name="Name">TerraceGrass</string>
+        <Vector3 name="Size">
+          <X>13.699999809265137</X>
+          <Y>0.15000000596046448</Y>
+          <Z>7.699999809265137</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1374</X>
+          <Y>5.275000095367432</Y>
+          <Z>5378</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.42745098</R>
+          <G>0.55686275</G>
+          <B>0.28235294</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART3">
+      <Properties>
+        <string name="Name">TerraceStep</string>
+        <Vector3 name="Size">
+          <X>4</X>
+          <Y>0.4000000059604645</Y>
+          <Z>0.8999999761581421</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1376.5</X>
+          <Y>4.199999809265137</Y>
+          <Z>5372.5</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.62745098</R>
+          <G>0.59215686</G>
+          <B>0.49019608</B>
+        </Color3>
+        <token name="Material">912</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART4">
+      <Properties>
+        <string name="Name">TerraceStep</string>
+        <Vector3 name="Size">
+          <X>4</X>
+          <Y>0.800000011920929</Y>
+          <Z>0.8999999761581421</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1376.5</X>
+          <Y>4.400000095367432</Y>
+          <Z>5373.2998046875</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.62745098</R>
+          <G>0.59215686</G>
+          <B>0.49019608</B>
+        </Color3>
+        <token name="Material">912</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART5">
+      <Properties>
+        <string name="Name">TerraceStep</string>
+        <Vector3 name="Size">
+          <X>4</X>
+          <Y>1.2000000476837158</Y>
+          <Z>0.8999999761581421</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1376.5</X>
+          <Y>4.599999904632568</Y>
+          <Z>5374.10009765625</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.62745098</R>
+          <G>0.59215686</G>
+          <B>0.49019608</B>
+        </Color3>
+        <token name="Material">912</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART6">
+      <Properties>
+        <string name="Name">Leaves</string>
+        <Vector3 name="Size">
+          <X>2.9028139114379883</X>
+          <Y>2.9028139114379883</Y>
+          <Z>2.9028139114379883</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1371.61181640625</X>
+          <Y>6.365984916687012</Y>
+          <Z>5379.74267578125</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <token name="Shape">0</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART7">
+      <Properties>
+        <string name="Name">Leaves</string>
+        <Vector3 name="Size">
+          <X>2.4657769203186035</X>
+          <Y>2.4657769203186035</Y>
+          <Z>2.4657769203186035</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1372.0106201171875</X>
+          <Y>6.213021755218506</Y>
+          <Z>5379.3671875</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <token name="Shape">0</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART8">
+      <Properties>
+        <string name="Name">Leaves</string>
+        <Vector3 name="Size">
+          <X>2.5205774307250977</X>
+          <Y>2.5205774307250977</Y>
+          <Z>2.5205774307250977</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1372.1064453125</X>
+          <Y>6.232202053070068</Y>
+          <Z>5379.03271484375</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <token name="Shape">0</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART9">
+      <Properties>
+        <string name="Name">RetainingRock</string>
+        <Vector3 name="Size">
+          <X>13</X>
+          <Y>2.4000000953674316</Y>
+          <Z>8</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1374</X>
+          <Y>5.199999809265137</Y>
+          <Z>5388</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.50196078</R>
+          <G>0.4745098</G>
+          <B>0.41176471</B>
+        </Color3>
+        <token name="Material">896</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART10">
+      <Properties>
+        <string name="Name">TerraceGrass</string>
+        <Vector3 name="Size">
+          <X>12.699999809265137</X>
+          <Y>0.15000000596046448</Y>
+          <Z>7.699999809265137</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1374</X>
+          <Y>6.474999904632568</Y>
+          <Z>5388</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.42745098</R>
+          <G>0.55686275</G>
+          <B>0.28235294</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART11">
+      <Properties>
+        <string name="Name">TerraceStep</string>
+        <Vector3 name="Size">
+          <X>4</X>
+          <Y>1.600000023841858</Y>
+          <Z>0.8999999761581421</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1376.5</X>
+          <Y>4.800000190734863</Y>
+          <Z>5382.5</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.62745098</R>
+          <G>0.59215686</G>
+          <B>0.49019608</B>
+        </Color3>
+        <token name="Material">912</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART12">
+      <Properties>
+        <string name="Name">TerraceStep</string>
+        <Vector3 name="Size">
+          <X>4</X>
+          <Y>2</Y>
+          <Z>0.8999999761581421</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1376.5</X>
+          <Y>5</Y>
+          <Z>5383.2998046875</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.62745098</R>
+          <G>0.59215686</G>
+          <B>0.49019608</B>
+        </Color3>
+        <token name="Material">912</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART13">
+      <Properties>
+        <string name="Name">TerraceStep</string>
+        <Vector3 name="Size">
+          <X>4</X>
+          <Y>2.4000000953674316</Y>
+          <Z>0.8999999761581421</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1376.5</X>
+          <Y>5.199999809265137</Y>
+          <Z>5384.10009765625</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.62745098</R>
+          <G>0.59215686</G>
+          <B>0.49019608</B>
+        </Color3>
+        <token name="Material">912</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART14">
+      <Properties>
+        <string name="Name">Leaves</string>
+        <Vector3 name="Size">
+          <X>2.249215602874756</X>
+          <Y>2.249215602874756</Y>
+          <Z>2.249215602874756</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1369.9698486328125</X>
+          <Y>7.337225914001465</Y>
+          <Z>5388.841796875</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <token name="Shape">0</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART15">
+      <Properties>
+        <string name="Name">Leaves</string>
+        <Vector3 name="Size">
+          <X>3.3776142597198486</X>
+          <Y>3.3776142597198486</Y>
+          <Z>3.3776142597198486</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1370.5631103515625</X>
+          <Y>7.732165336608887</Y>
+          <Z>5390.54833984375</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <token name="Shape">0</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART16">
+      <Properties>
+        <string name="Name">Leaves</string>
+        <Vector3 name="Size">
+          <X>2.723275899887085</X>
+          <Y>2.723275899887085</Y>
+          <Z>2.723275899887085</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1370.306884765625</X>
+          <Y>7.503146648406982</Y>
+          <Z>5389.48193359375</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <token name="Shape">0</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART17">
+      <Properties>
+        <string name="Name">Berry</string>
+        <Vector3 name="Size">
+          <X>0.44999998807907104</X>
+          <Y>0.44999998807907104</Y>
+          <Z>0.44999998807907104</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1370.1529541015625</X>
+          <Y>7.791388511657715</Y>
+          <Z>5388.1103515625</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.8627451062202454</R>
+          <G>0.23529411852359772</G>
+          <B>0.27450981736183167</B>
+        </Color3>
+        <token name="Material">272</token>
+        <token name="Shape">0</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART18">
+      <Properties>
+        <string name="Name">Berry</string>
+        <Vector3 name="Size">
+          <X>0.44999998807907104</X>
+          <Y>0.44999998807907104</Y>
+          <Z>0.44999998807907104</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1371.190673828125</X>
+          <Y>7.784592628479004</Y>
+          <Z>5388.69091796875</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.8627451062202454</R>
+          <G>0.23529411852359772</G>
+          <B>0.27450981736183167</B>
+        </Color3>
+        <token name="Material">272</token>
+        <token name="Shape">0</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART19">
+      <Properties>
+        <string name="Name">Berry</string>
+        <Vector3 name="Size">
+          <X>0.44999998807907104</X>
+          <Y>0.44999998807907104</Y>
+          <Z>0.44999998807907104</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1369.7652587890625</X>
+          <Y>7.59126091003418</Y>
+          <Z>5389.55126953125</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.8627451062202454</R>
+          <G>0.23529411852359772</G>
+          <B>0.27450981736183167</B>
+        </Color3>
+        <token name="Material">272</token>
+        <token name="Shape">0</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART20">
+      <Properties>
+        <string name="Name">Berry</string>
+        <Vector3 name="Size">
+          <X>0.44999998807907104</X>
+          <Y>0.44999998807907104</Y>
+          <Z>0.44999998807907104</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1369.804931640625</X>
+          <Y>8.106925964355469</Y>
+          <Z>5388.193359375</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.8627451062202454</R>
+          <G>0.23529411852359772</G>
+          <B>0.27450981736183167</B>
+        </Color3>
+        <token name="Material">272</token>
+        <token name="Shape">0</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART21">
+      <Properties>
+        <string name="Name">RetainingRock</string>
+        <Vector3 name="Size">
+          <X>12</X>
+          <Y>3.5999999046325684</Y>
+          <Z>8</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1374</X>
+          <Y>5.800000190734863</Y>
+          <Z>5398</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.50196078</R>
+          <G>0.4745098</G>
+          <B>0.41176471</B>
+        </Color3>
+        <token name="Material">896</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART22">
+      <Properties>
+        <string name="Name">TerraceGrass</string>
+        <Vector3 name="Size">
+          <X>11.699999809265137</X>
+          <Y>0.15000000596046448</Y>
+          <Z>7.699999809265137</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1374</X>
+          <Y>7.675000190734863</Y>
+          <Z>5398</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.42745098</R>
+          <G>0.55686275</G>
+          <B>0.28235294</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART23">
+      <Properties>
+        <string name="Name">TerraceStep</string>
+        <Vector3 name="Size">
+          <X>4</X>
+          <Y>2.799999952316284</Y>
+          <Z>0.8999999761581421</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1376.5</X>
+          <Y>5.400000095367432</Y>
+          <Z>5392.5</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.62745098</R>
+          <G>0.59215686</G>
+          <B>0.49019608</B>
+        </Color3>
+        <token name="Material">912</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART24">
+      <Properties>
+        <string name="Name">TerraceStep</string>
+        <Vector3 name="Size">
+          <X>4</X>
+          <Y>3.200000047683716</Y>
+          <Z>0.8999999761581421</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1376.5</X>
+          <Y>5.599999904632568</Y>
+          <Z>5393.2998046875</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.62745098</R>
+          <G>0.59215686</G>
+          <B>0.49019608</B>
+        </Color3>
+        <token name="Material">912</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART25">
+      <Properties>
+        <string name="Name">TerraceStep</string>
+        <Vector3 name="Size">
+          <X>4</X>
+          <Y>3.5999999046325684</Y>
+          <Z>0.8999999761581421</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1376.5</X>
+          <Y>5.800000190734863</Y>
+          <Z>5394.10009765625</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.62745098</R>
+          <G>0.59215686</G>
+          <B>0.49019608</B>
+        </Color3>
+        <token name="Material">912</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART26">
+      <Properties>
+        <string name="Name">Leaves</string>
+        <Vector3 name="Size">
+          <X>3.329355001449585</X>
+          <Y>3.329355001449585</Y>
+          <Z>3.329355001449585</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1371.9437255859375</X>
+          <Y>8.915274620056152</Y>
+          <Z>5399.4990234375</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <token name="Shape">0</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART27">
+      <Properties>
+        <string name="Name">Leaves</string>
+        <Vector3 name="Size">
+          <X>3.3555710315704346</X>
+          <Y>3.3555710315704346</Y>
+          <Z>3.3555710315704346</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1371.158935546875</X>
+          <Y>8.924449920654297</Y>
+          <Z>5399.2021484375</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <token name="Shape">0</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART28">
+      <Properties>
+        <string name="Name">Leaves</string>
+        <Vector3 name="Size">
+          <X>2.6625006198883057</X>
+          <Y>2.6625006198883057</Y>
+          <Z>2.6625006198883057</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1370.854248046875</X>
+          <Y>8.681875228881836</Y>
+          <Z>5399.80419921875</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <token name="Shape">0</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART29">
+      <Properties>
+        <string name="Name">Path</string>
+        <Vector3 name="Size">
+          <X>3</X>
+          <Y>0.1599999964237213</Y>
+          <Z>21.899749755859375</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1387</X>
+          <Y>4.110000133514404</Y>
+          <Z>5366</Z>
+          <R00>-0.09950372576713562</R00>
+          <R01>0</R01>
+          <R02>0.9950372576713562</R02>
+          <R10>0</R10>
+          <R11>1.0000001192092896</R11>
+          <R12>0</R12>
+          <R20>-0.9950372576713562</R20>
+          <R21>0</R21>
+          <R22>-0.09950372576713562</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.5882353186607361</R>
+          <G>0.5686274766921997</G>
+          <B>0.529411792755127</B>
+        </Color3>
+        <token name="Material">880</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART30">
+      <Properties>
+        <string name="Name">DairyApron</string>
+        <Vector3 name="Size">
+          <X>15</X>
+          <Y>0.11999999731779099</Y>
+          <Z>13</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1400</X>
+          <Y>4.070000171661377</Y>
+          <Z>5416</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.6941176652908325</R>
+          <G>0.6627451181411743</G>
+          <B>0.572549045085907</B>
+        </Color3>
+        <token name="Material">880</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART31">
+      <Properties>
+        <string name="Name">Path</string>
+        <Vector3 name="Size">
+          <X>3</X>
+          <Y>0.1599999964237213</Y>
+          <Z>40.81281661987305</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1422.5</X>
+          <Y>4.139999866485596</Y>
+          <Z>5392.5</Z>
+          <R00>-0.999671459197998</R00>
+          <R01>0</R01>
+          <R02>-0.025632601231336594</R02>
+          <R10>0</R10>
+          <R11>1.0000001192092896</R11>
+          <R12>0</R12>
+          <R20>0.025632601231336594</R20>
+          <R21>0</R21>
+          <R22>-0.999671459197998</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.5882353186607361</R>
+          <G>0.5686274766921997</G>
+          <B>0.529411792755127</B>
+        </Color3>
+        <token name="Material">880</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART32">
+      <Properties>
+        <string name="Name">Path</string>
+        <Vector3 name="Size">
+          <X>3</X>
+          <Y>0.1599999964237213</Y>
+          <Z>16.117820739746094</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1416</X>
+          <Y>4.170000076293945</Y>
+          <Z>5413.5</Z>
+          <R00>-0.2095291018486023</R00>
+          <R01>0</R01>
+          <R02>0.9778023362159729</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0.9778024554252625</R20>
+          <R21>0</R21>
+          <R22>-0.2095290720462799</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.5882353186607361</R>
+          <G>0.5686274766921997</G>
+          <B>0.529411792755127</B>
+        </Color3>
+        <token name="Material">880</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART33">
+      <Properties>
+        <string name="Name">Body</string>
+        <Vector3 name="Size">
+          <X>2.5999999046325684</X>
+          <Y>2</Y>
+          <Z>2</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1410</X>
+          <Y>5.300000190734863</Y>
+          <Z>5418</Z>
+          <R00>-4.371138828673793e-8</R00>
+          <R01>-1</R01>
+          <R02>0</R02>
+          <R10>1</R10>
+          <R11>-4.371138828673793e-8</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.59215686</R>
+          <G>0.42745098</G>
+          <B>0.24705882</B>
+        </Color3>
+        <token name="Material">512</token>
+        <token name="Shape">2</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART34">
+      <Properties>
+        <string name="Name">Hoop</string>
+        <Vector3 name="Size">
+          <X>0.20000000298023224</X>
+          <Y>2.0999999046325684</Y>
+          <Z>2.0999999046325684</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1410</X>
+          <Y>4.5</Y>
+          <Z>5418</Z>
+          <R00>-4.371138828673793e-8</R00>
+          <R01>-1</R01>
+          <R02>0</R02>
+          <R10>1</R10>
+          <R11>-4.371138828673793e-8</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.29803922</R>
+          <G>0.28235294</G>
+          <B>0.25490196</B>
+        </Color3>
+        <token name="Material">1088</token>
+        <token name="Shape">2</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART35">
+      <Properties>
+        <string name="Name">Hoop</string>
+        <Vector3 name="Size">
+          <X>0.20000000298023224</X>
+          <Y>2.0999999046325684</Y>
+          <Z>2.0999999046325684</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1410</X>
+          <Y>6.099999904632568</Y>
+          <Z>5418</Z>
+          <R00>-4.371138828673793e-8</R00>
+          <R01>-1</R01>
+          <R02>0</R02>
+          <R10>1</R10>
+          <R11>-4.371138828673793e-8</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.29803922</R>
+          <G>0.28235294</G>
+          <B>0.25490196</B>
+        </Color3>
+        <token name="Material">1088</token>
+        <token name="Shape">2</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART36">
+      <Properties>
+        <string name="Name">Body</string>
+        <Vector3 name="Size">
+          <X>2.5999999046325684</X>
+          <Y>2</Y>
+          <Z>2</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1413</X>
+          <Y>5.300000190734863</Y>
+          <Z>5416</Z>
+          <R00>-4.371138828673793e-8</R00>
+          <R01>-1</R01>
+          <R02>0</R02>
+          <R10>1</R10>
+          <R11>-4.371138828673793e-8</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.59215686</R>
+          <G>0.42745098</G>
+          <B>0.24705882</B>
+        </Color3>
+        <token name="Material">512</token>
+        <token name="Shape">2</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART37">
+      <Properties>
+        <string name="Name">Hoop</string>
+        <Vector3 name="Size">
+          <X>0.20000000298023224</X>
+          <Y>2.0999999046325684</Y>
+          <Z>2.0999999046325684</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1413</X>
+          <Y>4.5</Y>
+          <Z>5416</Z>
+          <R00>-4.371138828673793e-8</R00>
+          <R01>-1</R01>
+          <R02>0</R02>
+          <R10>1</R10>
+          <R11>-4.371138828673793e-8</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.29803922</R>
+          <G>0.28235294</G>
+          <B>0.25490196</B>
+        </Color3>
+        <token name="Material">1088</token>
+        <token name="Shape">2</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART38">
+      <Properties>
+        <string name="Name">Hoop</string>
+        <Vector3 name="Size">
+          <X>0.20000000298023224</X>
+          <Y>2.0999999046325684</Y>
+          <Z>2.0999999046325684</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1413</X>
+          <Y>6.099999904632568</Y>
+          <Z>5416</Z>
+          <R00>-4.371138828673793e-8</R00>
+          <R01>-1</R01>
+          <R02>0</R02>
+          <R10>1</R10>
+          <R11>-4.371138828673793e-8</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.29803922</R>
+          <G>0.28235294</G>
+          <B>0.25490196</B>
+        </Color3>
+        <token name="Material">1088</token>
+        <token name="Shape">2</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_rocky_terraces_1">
+      <Properties>
+        <string name="Name">RockFacet</string>
+        <Vector3 name="Size">
+          <X>7.04</X>
+          <Y>0.38999994</Y>
+          <Z>3.08</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1368.96</X>
+          <Y>4.32999995</Y>
+          <Z>5378</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.56470588</R>
+          <G>0.5372549</G>
+          <B>0.45490196</B>
+        </Color3>
+        <token name="Material">896</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_rocky_terraces_2">
+      <Properties>
+        <string name="Name">RockFacet</string>
+        <Vector3 name="Size">
+          <X>7.04</X>
+          <Y>0.38999994</Y>
+          <Z>3.08</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1379.04</X>
+          <Y>4.32999995</Y>
+          <Z>5378</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.56470588</R>
+          <G>0.5372549</G>
+          <B>0.45490196</B>
+        </Color3>
+        <token name="Material">896</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RUSTIC_rocky_terraces_3">
+      <Properties>
+        <string name="Name">RockStratum</string>
+        <Vector3 name="Size">
+          <X>10.92</X>
+          <Y>0.15</Y>
+          <Z>0.14</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1374</X>
+          <Y>4.92999985</Y>
+          <Z>5374.24</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.40784314</R>
+          <G>0.39607843</G>
+          <B>0.34117647</B>
+        </Color3>
+        <token name="Material">896</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RUSTIC_rocky_terraces_4">
+      <Properties>
+        <string name="Name">RockStratum</string>
+        <Vector3 name="Size">
+          <X>10.92</X>
+          <Y>0.15</Y>
+          <Z>0.14</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1374</X>
+          <Y>4.92999985</Y>
+          <Z>5381.76</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.40784314</R>
+          <G>0.39607843</G>
+          <B>0.34117647</B>
+        </Color3>
+        <token name="Material">896</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_rocky_terraces_5">
+      <Properties>
+        <string name="Name">RockFacet</string>
+        <Vector3 name="Size">
+          <X>7.04</X>
+          <Y>0.77999988</Y>
+          <Z>2.86</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1369.32</X>
+          <Y>4.6599999</Y>
+          <Z>5388</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.56470588</R>
+          <G>0.5372549</G>
+          <B>0.45490196</B>
+        </Color3>
+        <token name="Material">896</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_rocky_terraces_6">
+      <Properties>
+        <string name="Name">RockFacet</string>
+        <Vector3 name="Size">
+          <X>7.04</X>
+          <Y>0.77999988</Y>
+          <Z>2.86</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1378.68</X>
+          <Y>4.6599999</Y>
+          <Z>5388</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.56470588</R>
+          <G>0.5372549</G>
+          <B>0.45490196</B>
+        </Color3>
+        <token name="Material">896</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RUSTIC_rocky_terraces_7">
+      <Properties>
+        <string name="Name">RockStratum</string>
+        <Vector3 name="Size">
+          <X>10.14</X>
+          <Y>0.15</Y>
+          <Z>0.14</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1374</X>
+          <Y>5.8599997</Y>
+          <Z>5384.24</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.40784314</R>
+          <G>0.39607843</G>
+          <B>0.34117647</B>
+        </Color3>
+        <token name="Material">896</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RUSTIC_rocky_terraces_8">
+      <Properties>
+        <string name="Name">RockStratum</string>
+        <Vector3 name="Size">
+          <X>10.14</X>
+          <Y>0.15</Y>
+          <Z>0.14</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1374</X>
+          <Y>5.8599997</Y>
+          <Z>5391.76</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.40784314</R>
+          <G>0.39607843</G>
+          <B>0.34117647</B>
+        </Color3>
+        <token name="Material">896</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_rocky_terraces_9">
+      <Properties>
+        <string name="Name">RockFacet</string>
+        <Vector3 name="Size">
+          <X>7.04</X>
+          <Y>1.1700001</Y>
+          <Z>2.64</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1369.68</X>
+          <Y>4.9900001</Y>
+          <Z>5398</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.56470588</R>
+          <G>0.5372549</G>
+          <B>0.45490196</B>
+        </Color3>
+        <token name="Material">896</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_rocky_terraces_10">
+      <Properties>
+        <string name="Name">RockFacet</string>
+        <Vector3 name="Size">
+          <X>7.04</X>
+          <Y>1.1700001</Y>
+          <Z>2.64</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1378.32</X>
+          <Y>4.9900001</Y>
+          <Z>5398</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.56470588</R>
+          <G>0.5372549</G>
+          <B>0.45490196</B>
+        </Color3>
+        <token name="Material">896</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RUSTIC_rocky_terraces_11">
+      <Properties>
+        <string name="Name">RockStratum</string>
+        <Vector3 name="Size">
+          <X>9.36</X>
+          <Y>0.15</Y>
+          <Z>0.14</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1374</X>
+          <Y>6.7900003</Y>
+          <Z>5394.24</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.40784314</R>
+          <G>0.39607843</G>
+          <B>0.34117647</B>
+        </Color3>
+        <token name="Material">896</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RUSTIC_rocky_terraces_12">
+      <Properties>
+        <string name="Name">RockStratum</string>
+        <Vector3 name="Size">
+          <X>9.36</X>
+          <Y>0.15</Y>
+          <Z>0.14</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1374</X>
+          <Y>6.7900003</Y>
+          <Z>5401.76</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.40784314</R>
+          <G>0.39607843</G>
+          <B>0.34117647</B>
+        </Color3>
+        <token name="Material">896</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+  </Item>
 </roblox>

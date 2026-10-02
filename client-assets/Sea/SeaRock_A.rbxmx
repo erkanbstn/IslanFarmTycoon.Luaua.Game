@@ -24,30 +24,30 @@
 <Properties>
 <string name="Name">Tint</string>
 <Vector3 name="Size">
-<X>1.97454099</X>
-<Y>2</Y>
-<Z>2.43576341</Z>
+<X>2.09851431</X>
+<Y>1.17021277</Y>
+<Z>1.96545659</Z>
 </Vector3>
 <CoordinateFrame name="CFrame">
 <X>0</X>
-<Y>1</Y>
+<Y>0.585106383</Y>
 <Z>0</Z>
-<R00>0.955336489</R00>
+<R00>1</R00>
 <R01>-0</R01>
-<R02>0.295520207</R02>
+<R02>0</R02>
 <R10>0</R10>
 <R11>1</R11>
 <R12>-0</R12>
-<R20>-0.295520207</R20>
+<R20>0</R20>
 <R21>0</R21>
-<R22>0.955336489</R22>
+<R22>1</R22>
 </CoordinateFrame>
 <Color3 name="Color">
 <R>0.431372549</R>
-<G>0.439215686</G>
-<B>0.462745098</B>
+<G>0.482352941</G>
+<B>0.509803922</B>
 </Color3>
-<token name="Material">800</token>
+<token name="Material">896</token>
 <token name="Shape">1</token>
 <bool name="Anchored">true</bool>
 <bool name="CanCollide">false</bool>
@@ -55,32 +55,135 @@
 <bool name="CanQuery">false</bool>
 </Properties>
 </Item>
-<Item class="Part" referent="RBXPART2">
+<Item class="WedgePart" referent="RBXPART2">
 <Properties>
 <string name="Name">Tint</string>
 <Vector3 name="Size">
-<X>1.33759228</X>
-<Y>1.70588235</Y>
-<Z>1.5658479</Z>
+<X>1.58733774</X>
+<Y>1.70212766</Y>
+<Z>1.65915167</Z>
 </Vector3>
 <CoordinateFrame name="CFrame">
-<X>-0.636948707</X>
-<Y>0.852941176</Y>
-<Z>0.521949301</Z>
-<R00>0.949235418</R00>
+<X>-0.403560444</X>
+<Y>1.14893617</Y>
+<Z>-0.331830333</Z>
+<R00>0.939372713</R00>
 <R01>-0</R01>
-<R02>-0.314566561</R02>
+<R02>0.342897807</R02>
 <R10>0</R10>
 <R11>1</R11>
 <R12>-0</R12>
-<R20>0.314566561</R20>
+<R20>-0.342897807</R20>
 <R21>0</R21>
-<R22>0.949235418</R22>
+<R22>0.939372713</R22>
+</CoordinateFrame>
+<Color3 name="Color">
+<R>0.37254902</R>
+<G>0.435294118</G>
+<B>0.482352941</B>
+</Color3>
+<token name="Material">800</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+</Properties>
+</Item>
+<Item class="WedgePart" referent="RBXPART3">
+<Properties>
+<string name="Name">Tint</string>
+<Vector3 name="Size">
+<X>1.50662566</X>
+<Y>1.0212766</Y>
+<Z>1.40389756</Z>
+</Vector3>
+<CoordinateFrame name="CFrame">
+<X>0.61879268</X>
+<Y>0.808510638</Y>
+<Z>0.561559025</Z>
+<R00>-0.547357665</R00>
+<R01>0</R01>
+<R02>0.836898791</R02>
+<R10>0</R10>
+<R11>1</R11>
+<R12>0</R12>
+<R20>-0.836898791</R20>
+<R21>0</R21>
+<R22>-0.547357665</R22>
+</CoordinateFrame>
+<Color3 name="Color">
+<R>0.498039216</R>
+<G>0.529411765</G>
+<B>0.568627451</B>
+</Color3>
+<token name="Material">896</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+</Properties>
+</Item>
+<Item class="Part" referent="RBXPART4">
+<Properties>
+<string name="Name">SandDeposit</string>
+<Vector3 name="Size">
+<X>1.04925715</X>
+<Y>0.138297872</Y>
+<Z>0.893389358</Z>
+</Vector3>
+<CoordinateFrame name="CFrame">
+<X>-0.484272532</X>
+<Y>0.0691489362</Y>
+<Z>0.765762307</Z>
+<R00>1</R00>
+<R01>-0</R01>
+<R02>0</R02>
+<R10>0</R10>
+<R11>1</R11>
+<R12>-0</R12>
+<R20>0</R20>
+<R21>0</R21>
+<R22>1</R22>
+</CoordinateFrame>
+<Color3 name="Color">
+<R>0.709803922</R>
+<G>0.749019608</G>
+<B>0.596078431</B>
+</Color3>
+<token name="Material">1296</token>
+<token name="Shape">1</token>
+<bool name="Anchored">true</bool>
+<bool name="CanCollide">false</bool>
+<bool name="CanTouch">false</bool>
+<bool name="CanQuery">false</bool>
+</Properties>
+</Item>
+<Item class="Part" referent="RBXPART5">
+<Properties>
+<string name="Name">EncrustingCoral</string>
+<Vector3 name="Size">
+<X>0.591888651</X>
+<Y>0.14893617</Y>
+<Z>0.587084436</Z>
+</Vector3>
+<CoordinateFrame name="CFrame">
+<X>0.484272532</X>
+<Y>1.08510638</Y>
+<Z>-0.484982795</Z>
+<R00>1</R00>
+<R01>-0</R01>
+<R02>0</R02>
+<R10>0</R10>
+<R11>1</R11>
+<R12>-0</R12>
+<R20>0</R20>
+<R21>0</R21>
+<R22>1</R22>
 </CoordinateFrame>
 <Color3 name="Color">
 <R>0.384313725</R>
-<G>0.411764706</G>
-<B>0.439215686</B>
+<G>0.77254902</G>
+<B>0.639215686</B>
 </Color3>
 <token name="Material">800</token>
 <token name="Shape">1</token>
@@ -90,35 +193,35 @@
 <bool name="CanQuery">false</bool>
 </Properties>
 </Item>
-<Item class="Part" referent="RBXPART3">
+<Item class="Part" referent="RBXPART6">
 <Properties>
-<string name="Name">Tint</string>
+<string name="Name">Shell</string>
 <Vector3 name="Size">
-<X>1.27389741</X>
-<Y>1.26470588</Y>
-<Z>1.80942424</Z>
+<X>0.138573807</X>
+<Y>0.138573807</Y>
+<Z>0.138573807</Z>
 </Vector3>
 <CoordinateFrame name="CFrame">
-<X>0.509558965</X>
-<Y>0.632352941</Y>
-<Z>-0.365364511</Z>
-<R00>0.825335615</R00>
+<X>0.834024917</X>
+<Y>0.14893617</Y>
+<Z>-0.918914769</Z>
+<R00>1</R00>
 <R01>-0</R01>
-<R02>0.564642473</R02>
+<R02>0</R02>
 <R10>0</R10>
 <R11>1</R11>
 <R12>-0</R12>
-<R20>-0.564642473</R20>
+<R20>0</R20>
 <R21>0</R21>
-<R22>0.825335615</R22>
+<R22>1</R22>
 </CoordinateFrame>
 <Color3 name="Color">
-<R>0.470588235</R>
-<G>0.474509804</G>
-<B>0.48627451</B>
+<R>0.960784314</R>
+<G>0.854901961</G>
+<B>0.670588235</B>
 </Color3>
-<token name="Material">800</token>
-<token name="Shape">1</token>
+<token name="Material">272</token>
+<token name="Shape">0</token>
 <bool name="Anchored">true</bool>
 <bool name="CanCollide">false</bool>
 <bool name="CanTouch">false</bool>

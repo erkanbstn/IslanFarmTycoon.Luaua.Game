@@ -20,7 +20,7 @@ local EXIT_MARGIN = 0.3
 local FADE_SPEED = 3 -- saniyede (1 = tam su altı)
 local BUBBLE_TEXTURE = "rbxasset://textures/smallWhiteCircle.png"
 
-local WATER_TINT = Color3.fromRGB(150, 226, 240)
+local WATER_TINT = Color3.fromRGB(185, 238, 246)
 local BUBBLES = {
 	low = { ambient = 4, burst = 6, swim = 3 },
 	medium = { ambient = 10, burst = 14, swim = 6 },
@@ -337,11 +337,11 @@ RunService.RenderStepped:Connect(function(dt: number)
 		blur.Enabled = active
 	end
 	if active then
-		grade.TintColor = Color3.new(1, 1, 1):Lerp(WATER_TINT, strength * 0.85)
-		grade.Saturation = 0.12 * strength
-		grade.Brightness = -0.05 * strength
-		grade.Contrast = 0.06 * strength
-		blur.Size = 3 * strength
+		grade.TintColor = Color3.new(1, 1, 1):Lerp(WATER_TINT, strength * 0.55)
+		grade.Saturation = 0.08 * strength
+		grade.Brightness = 0.06 * strength
+		grade.Contrast = 0.025 * strength
+		blur.Size = 1.3 * strength
 	end
 	if submerged then
 		volume.CFrame = CFrame.new(position.X, position.Y - 2, position.Z)

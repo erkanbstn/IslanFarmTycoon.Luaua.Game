@@ -1,764 +1,3563 @@
 <roblox version="4">
-<Meta name="ExplicitAutoJoints">true</Meta>
-<Item class="Model" referent="RBXMODEL"><Properties>
-<string name="Name">truffle_grove</string>
-<OptionalCoordinateFrame name="WorldPivotData"><CFrame><X>1400</X><Y>4</Y><Z>5780</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CFrame></OptionalCoordinateFrame>
-</Properties>
-<Item class="Part" referent="RBXPART1"><Properties>
-<string name="Name">GroveSoil</string>
-<Vector3 name="Size"><X>16</X><Y>0.20000000298023224</Y><Z>26</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1374</X><Y>4.119999885559082</Y><Z>5780</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.33725491166114807</R><G>0.250980406999588</G><B>0.18039216101169586</B></Color3>
-<token name="Material">1360</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART2"><Properties>
-<string name="Name">Trunk</string>
-<Vector3 name="Size"><X>11.781907081604004</X><Y>1.2852989435195923</Y><Z>1.2852989435195923</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1365</X><Y>9.890953063964844</Y><Z>5766</Z><R00>-4.371138828673793e-8</R00><R01>-1</R01><R02>0</R02><R10>1</R10><R11>-4.371138828673793e-8</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.3529411852359772</R><G>0.23529411852359772</G><B>0.1568627506494522</B></Color3>
-<token name="Material">512</token>
-<token name="Shape">2</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART3"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>9.104201316833496</X><Y>2.5705981254577637</Y><Z>9.104201316833496</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1365</X><Y>8.284330368041992</Y><Z>5766</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.14901961386203766</R><G>0.3450980484485626</G><B>0.20392157137393951</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART3_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART4"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>7.49757719039917</X><Y>2.5705981254577637</Y><Z>7.49757719039917</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1365</X><Y>10.854927062988281</Y><Z>5766</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.1764705926179886</R><G>0.3921568691730499</G><B>0.23529411852359772</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART4_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART5"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>5.7838454246521</X><Y>2.5705981254577637</Y><Z>5.7838454246521</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1365</X><Y>13.211308479309082</Y><Z>5766</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.14901961386203766</R><G>0.3450980484485626</G><B>0.20392157137393951</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART5_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART6"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>4.070113182067871</X><Y>2.5705981254577637</Y><Z>4.070113182067871</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1365</X><Y>15.353473663330078</Y><Z>5766</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.1764705926179886</R><G>0.3921568691730499</G><B>0.23529411852359772</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART6_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART7"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>2.356381416320801</X><Y>2.5705981254577637</Y><Z>2.356381416320801</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1365</X><Y>17.174312591552734</Y><Z>5766</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.14901961386203766</R><G>0.3450980484485626</G><B>0.20392157137393951</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART7_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART8"><Properties>
-<string name="Name">Trunk</string>
-<Vector3 name="Size"><X>12.6083345413208</X><Y>1.3754546642303467</Y><Z>1.3754546642303467</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1365</X><Y>10.304166793823242</Y><Z>5780</Z><R00>-4.371138828673793e-8</R00><R01>-1</R01><R02>0</R02><R10>1</R10><R11>-4.371138828673793e-8</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.3529411852359772</R><G>0.23529411852359772</G><B>0.1568627506494522</B></Color3>
-<token name="Material">512</token>
-<token name="Shape">2</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART9"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>9.742803573608398</X><Y>2.7509093284606934</Y><Z>9.742803573608398</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1365</X><Y>8.584848403930664</Y><Z>5780</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.14901961386203766</R><G>0.3450980484485626</G><B>0.20392157137393951</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART9_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART10"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>8.02348518371582</X><Y>2.7509093284606934</Y><Z>8.02348518371582</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1365</X><Y>11.335758209228516</Y><Z>5780</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.1764705926179886</R><G>0.3921568691730499</G><B>0.23529411852359772</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART10_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART11"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>6.18954610824585</X><Y>2.7509093284606934</Y><Z>6.18954610824585</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1365</X><Y>13.85742473602295</Y><Z>5780</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.14901961386203766</R><G>0.3450980484485626</G><B>0.20392157137393951</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART11_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART12"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>4.355606555938721</X><Y>2.7509093284606934</Y><Z>4.355606555938721</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1365</X><Y>16.14984893798828</Y><Z>5780</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.1764705926179886</R><G>0.3921568691730499</G><B>0.23529411852359772</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART12_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART13"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>2.521667003631592</X><Y>2.7509093284606934</Y><Z>2.521667003631592</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1365</X><Y>18.09840965270996</Y><Z>5780</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.14901961386203766</R><G>0.3450980484485626</G><B>0.20392157137393951</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART13_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART14"><Properties>
-<string name="Name">Trunk</string>
-<Vector3 name="Size"><X>10.403501510620117</X><Y>1.1349273920059204</Y><Z>1.1349273920059204</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1365</X><Y>9.201750755310059</Y><Z>5794</Z><R00>-4.371138828673793e-8</R00><R01>-1</R01><R02>0</R02><R10>1</R10><R11>-4.371138828673793e-8</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.3529411852359772</R><G>0.23529411852359772</G><B>0.1568627506494522</B></Color3>
-<token name="Material">512</token>
-<token name="Shape">2</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART15"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>8.039069175720215</X><Y>2.269854784011841</Y><Z>8.039069175720215</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1365</X><Y>7.7830915451049805</Y><Z>5794</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.14901961386203766</R><G>0.3450980484485626</G><B>0.20392157137393951</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART15_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART16"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>6.620409965515137</X><Y>2.269854784011841</Y><Z>6.620409965515137</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1365</X><Y>10.052946090698242</Y><Z>5794</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.1764705926179886</R><G>0.3921568691730499</G><B>0.23529411852359772</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART16_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART17"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>5.107173442840576</X><Y>2.269854784011841</Y><Z>5.107173442840576</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1365</X><Y>12.133646011352539</Y><Z>5794</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.14901961386203766</R><G>0.3450980484485626</G><B>0.20392157137393951</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART17_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART18"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>3.5939366817474365</X><Y>2.269854784011841</Y><Z>3.5939366817474365</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1365</X><Y>14.025192260742188</Y><Z>5794</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.1764705926179886</R><G>0.3921568691730499</G><B>0.23529411852359772</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART18_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART19"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>2.080700159072876</X><Y>2.269854784011841</Y><Z>2.080700159072876</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1365</X><Y>15.63300609588623</Y><Z>5794</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.14901961386203766</R><G>0.3450980484485626</G><B>0.20392157137393951</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART19_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART20"><Properties>
-<string name="Name">Trunk</string>
-<Vector3 name="Size"><X>12.093353271484375</X><Y>1.31927490234375</Y><Z>1.31927490234375</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1383</X><Y>10.046676635742188</Y><Z>5766</Z><R00>-4.371138828673793e-8</R00><R01>-1</R01><R02>0</R02><R10>1</R10><R11>-4.371138828673793e-8</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.3529411852359772</R><G>0.23529411852359772</G><B>0.1568627506494522</B></Color3>
-<token name="Material">512</token>
-<token name="Shape">2</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART21"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>9.344863891601562</X><Y>2.6385498046875</Y><Z>9.344863891601562</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1383</X><Y>8.3975830078125</Y><Z>5766</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.14901961386203766</R><G>0.3450980484485626</G><B>0.20392157137393951</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART21_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART22"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>7.695770263671875</X><Y>2.6385498046875</Y><Z>7.695770263671875</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1383</X><Y>11.0361328125</Y><Z>5766</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.1764705926179886</R><G>0.3921568691730499</G><B>0.23529411852359772</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART22_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART23"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>5.936737060546875</X><Y>2.6385498046875</Y><Z>5.936737060546875</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1383</X><Y>13.454803466796875</Y><Z>5766</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.14901961386203766</R><G>0.3450980484485626</G><B>0.20392157137393951</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART23_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART24"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>4.177703857421875</X><Y>2.6385498046875</Y><Z>4.177703857421875</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1383</X><Y>15.653594970703125</Y><Z>5766</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.1764705926179886</R><G>0.3921568691730499</G><B>0.23529411852359772</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART24_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART25"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>2.418670654296875</X><Y>2.6385498046875</Y><Z>2.418670654296875</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1383</X><Y>17.522567749023438</Y><Z>5766</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.14901961386203766</R><G>0.3450980484485626</G><B>0.20392157137393951</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART25_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART26"><Properties>
-<string name="Name">Trunk</string>
-<Vector3 name="Size"><X>11.983311653137207</X><Y>1.3072704076766968</Y><Z>1.3072704076766968</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1383</X><Y>9.991655349731445</Y><Z>5794</Z><R00>-4.371138828673793e-8</R00><R01>-1</R01><R02>0</R02><R10>1</R10><R11>-4.371138828673793e-8</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.3529411852359772</R><G>0.23529411852359772</G><B>0.1568627506494522</B></Color3>
-<token name="Material">512</token>
-<token name="Shape">2</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART27"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>9.259832382202148</X><Y>2.6145410537719727</Y><Z>9.259832382202148</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1383</X><Y>8.357568740844727</Y><Z>5794</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.14901961386203766</R><G>0.3450980484485626</G><B>0.20392157137393951</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART27_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART28"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>7.625744342803955</X><Y>2.6145410537719727</Y><Z>7.625744342803955</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1383</X><Y>10.972108840942383</Y><Z>5794</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.1764705926179886</R><G>0.3921568691730499</G><B>0.23529411852359772</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART28_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART29"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>5.882717132568359</X><Y>2.6145410537719727</Y><Z>5.882717132568359</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1383</X><Y>13.36877155303955</Y><Z>5794</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.14901961386203766</R><G>0.3450980484485626</G><B>0.20392157137393951</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART29_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART30"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>4.139689922332764</X><Y>2.6145410537719727</Y><Z>4.139689922332764</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1383</X><Y>15.547554969787598</Y><Z>5794</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.1764705926179886</R><G>0.3921568691730499</G><B>0.23529411852359772</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART30_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART31"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>2.396662712097168</X><Y>2.6145410537719727</Y><Z>2.396662712097168</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1383</X><Y>17.399520874023438</Y><Z>5794</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.14901961386203766</R><G>0.3450980484485626</G><B>0.20392157137393951</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART31_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART32"><Properties>
-<string name="Name">Trunk</string>
-<Vector3 name="Size"><X>12.384988784790039</X><Y>1.3510897159576416</Y><Z>1.3510897159576416</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1374</X><Y>10.19249439239502</Y><Z>5795.5</Z><R00>-4.371138828673793e-8</R00><R01>-1</R01><R02>0</R02><R10>1</R10><R11>-4.371138828673793e-8</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.3529411852359772</R><G>0.23529411852359772</G><B>0.1568627506494522</B></Color3>
-<token name="Material">512</token>
-<token name="Shape">2</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART33"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>9.570219039916992</X><Y>2.7021796703338623</Y><Z>9.570219039916992</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1374</X><Y>8.503632545471191</Y><Z>5795.5</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.14901961386203766</R><G>0.3450980484485626</G><B>0.20392157137393951</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART33_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART34"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>7.881357192993164</X><Y>2.7021796703338623</Y><Z>7.881357192993164</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1374</X><Y>11.205812454223633</Y><Z>5795.5</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.1764705926179886</R><G>0.3921568691730499</G><B>0.23529411852359772</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART34_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART35"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>6.079904079437256</X><Y>2.7021796703338623</Y><Z>6.079904079437256</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1374</X><Y>13.682809829711914</Y><Z>5795.5</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.14901961386203766</R><G>0.3450980484485626</G><B>0.20392157137393951</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART35_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART36"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>4.278450965881348</X><Y>2.7021796703338623</Y><Z>4.278450965881348</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1374</X><Y>15.934625625610352</Y><Z>5795.5</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.1764705926179886</R><G>0.3921568691730499</G><B>0.23529411852359772</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART36_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART37"><Properties>
-<string name="Name">Needles</string>
-<Vector3 name="Size"><X>2.4769978523254395</X><Y>2.7021796703338623</Y><Z>2.4769978523254395</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1374</X><Y>17.848670959472656</Y><Z>5795.5</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.14901961386203766</R><G>0.3450980484485626</G><B>0.20392157137393951</B></Color3>
-<token name="Material">1284</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART37_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART38"><Properties>
-<string name="Name">MushroomStem</string>
-<Vector3 name="Size"><X>0.4000000059604645</X><Y>0.8999999761581421</Y><Z>0.4000000059604645</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1369</X><Y>4.550000190734863</Y><Z>5774</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.9411764740943909</R><G>0.9019607901573181</G><B>0.8235294222831726</B></Color3>
-<token name="Material">272</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART39"><Properties>
-<string name="Name">MushroomCap</string>
-<Vector3 name="Size"><X>1.2999999523162842</X><Y>0.699999988079071</Y><Z>1.2999999523162842</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1369</X><Y>5.099999904632568</Y><Z>5774</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.7686274647712708</R><G>0.23529411852359772</G><B>0.20392157137393951</B></Color3>
-<token name="Material">272</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART39_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART40"><Properties>
-<string name="Name">MushroomStem</string>
-<Vector3 name="Size"><X>0.4000000059604645</X><Y>0.8999999761581421</Y><Z>0.4000000059604645</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1378</X><Y>4.550000190734863</Y><Z>5771</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.9411764740943909</R><G>0.9019607901573181</G><B>0.8235294222831726</B></Color3>
-<token name="Material">272</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART41"><Properties>
-<string name="Name">MushroomCap</string>
-<Vector3 name="Size"><X>1.2999999523162842</X><Y>0.699999988079071</Y><Z>1.2999999523162842</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1378</X><Y>5.099999904632568</Y><Z>5771</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.7686274647712708</R><G>0.23529411852359772</G><B>0.20392157137393951</B></Color3>
-<token name="Material">272</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART41_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART42"><Properties>
-<string name="Name">MushroomStem</string>
-<Vector3 name="Size"><X>0.4000000059604645</X><Y>0.8999999761581421</Y><Z>0.4000000059604645</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1371</X><Y>4.550000190734863</Y><Z>5785</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.9411764740943909</R><G>0.9019607901573181</G><B>0.8235294222831726</B></Color3>
-<token name="Material">272</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART43"><Properties>
-<string name="Name">MushroomCap</string>
-<Vector3 name="Size"><X>1.2999999523162842</X><Y>0.699999988079071</Y><Z>1.2999999523162842</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1371</X><Y>5.099999904632568</Y><Z>5785</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.7686274647712708</R><G>0.23529411852359772</G><B>0.20392157137393951</B></Color3>
-<token name="Material">272</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART43_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART44"><Properties>
-<string name="Name">MushroomStem</string>
-<Vector3 name="Size"><X>0.4000000059604645</X><Y>0.8999999761581421</Y><Z>0.4000000059604645</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1379</X><Y>4.550000190734863</Y><Z>5787</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.9411764740943909</R><G>0.9019607901573181</G><B>0.8235294222831726</B></Color3>
-<token name="Material">272</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART45"><Properties>
-<string name="Name">MushroomCap</string>
-<Vector3 name="Size"><X>1.2999999523162842</X><Y>0.699999988079071</Y><Z>1.2999999523162842</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1379</X><Y>5.099999904632568</Y><Z>5787</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.7686274647712708</R><G>0.23529411852359772</G><B>0.20392157137393951</B></Color3>
-<token name="Material">272</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART45_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART46"><Properties>
-<string name="Name">MushroomStem</string>
-<Vector3 name="Size"><X>0.4000000059604645</X><Y>0.8999999761581421</Y><Z>0.4000000059604645</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1374</X><Y>4.550000190734863</Y><Z>5779</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.9411764740943909</R><G>0.9019607901573181</G><B>0.8235294222831726</B></Color3>
-<token name="Material">272</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART47"><Properties>
-<string name="Name">MushroomCap</string>
-<Vector3 name="Size"><X>1.2999999523162842</X><Y>0.699999988079071</Y><Z>1.2999999523162842</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1374</X><Y>5.099999904632568</Y><Z>5779</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.7686274647712708</R><G>0.23529411852359772</G><B>0.20392157137393951</B></Color3>
-<token name="Material">272</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties><Item class="SpecialMesh" referent="RBXPART47_MESH"><Properties>
-<token name="MeshType">3</token>
-</Properties></Item></Item>
-<Item class="Part" referent="RBXPART48"><Properties>
-<string name="Name">GroveLog</string>
-<Vector3 name="Size"><X>0.800000011920929</X><Y>0.800000011920929</Y><Z>5</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1382.199951171875</X><Y>4.5</Y><Z>5770</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.4313725531101227</R><G>0.30588236451148987</G><B>0.19607843458652496</B></Color3>
-<token name="Material">512</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-<Item class="Part" referent="RBXPART49"><Properties>
-<string name="Name">GroveLog</string>
-<Vector3 name="Size"><X>0.800000011920929</X><Y>0.800000011920929</Y><Z>5</Z></Vector3>
-<CoordinateFrame name="CFrame"><X>1382.199951171875</X><Y>4.5</Y><Z>5775</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
-<Color3 name="Color"><R>0.4313725531101227</R><G>0.30588236451148987</G><B>0.19607843458652496</B></Color3>
-<token name="Material">512</token>
-<token name="Shape">1</token>
-<bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
-<bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
-<float name="Transparency">0</float>
-<float name="Reflectance">0</float>
-</Properties></Item>
-</Item>
+  <Meta name="ExplicitAutoJoints">true</Meta>
+  <Item class="Model" referent="RBXMODEL">
+    <Properties>
+      <string name="Name">truffle_grove</string>
+      <OptionalCoordinateFrame name="WorldPivotData">
+        <CFrame>
+          <X>1400</X>
+          <Y>4</Y>
+          <Z>5780</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CFrame>
+      </OptionalCoordinateFrame>
+    </Properties>
+    <Item class="Part" referent="RBXPART1">
+      <Properties>
+        <string name="Name">GroveSoil</string>
+        <Vector3 name="Size">
+          <X>16</X>
+          <Y>0.20000000298023224</Y>
+          <Z>26</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1374</X>
+          <Y>4.119999885559082</Y>
+          <Z>5780</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.33725491166114807</R>
+          <G>0.250980406999588</G>
+          <B>0.18039216101169586</B>
+        </Color3>
+        <token name="Material">1360</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART2">
+      <Properties>
+        <string name="Name">Trunk</string>
+        <Vector3 name="Size">
+          <X>11.781907081604004</X>
+          <Y>1.2852989435195923</Y>
+          <Z>1.2852989435195923</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1365</X>
+          <Y>9.890953063964844</Y>
+          <Z>5766</Z>
+          <R00>-4.371138828673793e-8</R00>
+          <R01>-1</R01>
+          <R02>0</R02>
+          <R10>1</R10>
+          <R11>-4.371138828673793e-8</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.3529411852359772</R>
+          <G>0.23529411852359772</G>
+          <B>0.1568627506494522</B>
+        </Color3>
+        <token name="Material">512</token>
+        <token name="Shape">2</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXPART3">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>9.1042013</X>
+          <Y>2.5705981</Y>
+          <Z>4.5521007</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1362.72395</X>
+          <Y>8.28433037</Y>
+          <Z>5766</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXPART4">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>7.4975772</X>
+          <Y>2.5705981</Y>
+          <Z>3.7487886</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1363.12561</X>
+          <Y>10.8549271</Y>
+          <Z>5766</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXPART5">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>5.7838454</X>
+          <Y>2.5705981</Y>
+          <Z>2.8919227</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1363.55404</X>
+          <Y>13.2113085</Y>
+          <Z>5766</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXPART6">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>4.0701132</X>
+          <Y>2.5705981</Y>
+          <Z>2.0350566</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1363.98247</X>
+          <Y>15.3534737</Y>
+          <Z>5766</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXPART7">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>2.3563814</X>
+          <Y>2.5705981</Y>
+          <Z>1.1781907</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1364.4109</X>
+          <Y>17.1743126</Y>
+          <Z>5766</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART8">
+      <Properties>
+        <string name="Name">Trunk</string>
+        <Vector3 name="Size">
+          <X>12.6083345413208</X>
+          <Y>1.3754546642303467</Y>
+          <Z>1.3754546642303467</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1365</X>
+          <Y>10.304166793823242</Y>
+          <Z>5780</Z>
+          <R00>-4.371138828673793e-8</R00>
+          <R01>-1</R01>
+          <R02>0</R02>
+          <R10>1</R10>
+          <R11>-4.371138828673793e-8</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.3529411852359772</R>
+          <G>0.23529411852359772</G>
+          <B>0.1568627506494522</B>
+        </Color3>
+        <token name="Material">512</token>
+        <token name="Shape">2</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXPART9">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>9.7428036</X>
+          <Y>2.7509093</Y>
+          <Z>4.8714018</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1362.5643</X>
+          <Y>8.5848484</Y>
+          <Z>5780</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXPART10">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>8.0234852</X>
+          <Y>2.7509093</Y>
+          <Z>4.0117426</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1362.99413</X>
+          <Y>11.3357582</Y>
+          <Z>5780</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXPART11">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>6.1895461</X>
+          <Y>2.7509093</Y>
+          <Z>3.0947731</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1363.45261</X>
+          <Y>13.8574247</Y>
+          <Z>5780</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXPART12">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>4.3556066</X>
+          <Y>2.7509093</Y>
+          <Z>2.1778033</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1363.9111</X>
+          <Y>16.1498489</Y>
+          <Z>5780</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXPART13">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>2.521667</X>
+          <Y>2.7509093</Y>
+          <Z>1.2608335</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1364.36958</X>
+          <Y>18.0984097</Y>
+          <Z>5780</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART14">
+      <Properties>
+        <string name="Name">Trunk</string>
+        <Vector3 name="Size">
+          <X>10.403501510620117</X>
+          <Y>1.1349273920059204</Y>
+          <Z>1.1349273920059204</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1365</X>
+          <Y>9.201750755310059</Y>
+          <Z>5794</Z>
+          <R00>-4.371138828673793e-8</R00>
+          <R01>-1</R01>
+          <R02>0</R02>
+          <R10>1</R10>
+          <R11>-4.371138828673793e-8</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.3529411852359772</R>
+          <G>0.23529411852359772</G>
+          <B>0.1568627506494522</B>
+        </Color3>
+        <token name="Material">512</token>
+        <token name="Shape">2</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXPART15">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>8.0390692</X>
+          <Y>2.2698548</Y>
+          <Z>4.0195346</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1362.99023</X>
+          <Y>7.78309155</Y>
+          <Z>5794</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXPART16">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>6.62041</X>
+          <Y>2.2698548</Y>
+          <Z>3.310205</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1363.3449</X>
+          <Y>10.0529461</Y>
+          <Z>5794</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXPART17">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>5.1071734</X>
+          <Y>2.2698548</Y>
+          <Z>2.5535867</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1363.72321</X>
+          <Y>12.133646</Y>
+          <Z>5794</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXPART18">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>3.5939367</X>
+          <Y>2.2698548</Y>
+          <Z>1.7969683</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1364.10152</X>
+          <Y>14.0251923</Y>
+          <Z>5794</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXPART19">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>2.0807002</X>
+          <Y>2.2698548</Y>
+          <Z>1.0403501</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1364.47982</X>
+          <Y>15.6330061</Y>
+          <Z>5794</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART20">
+      <Properties>
+        <string name="Name">Trunk</string>
+        <Vector3 name="Size">
+          <X>12.093353271484375</X>
+          <Y>1.31927490234375</Y>
+          <Z>1.31927490234375</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1383</X>
+          <Y>10.046676635742188</Y>
+          <Z>5766</Z>
+          <R00>-4.371138828673793e-8</R00>
+          <R01>-1</R01>
+          <R02>0</R02>
+          <R10>1</R10>
+          <R11>-4.371138828673793e-8</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.3529411852359772</R>
+          <G>0.23529411852359772</G>
+          <B>0.1568627506494522</B>
+        </Color3>
+        <token name="Material">512</token>
+        <token name="Shape">2</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXPART21">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>9.3448639</X>
+          <Y>2.6385498</Y>
+          <Z>4.6724319</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1380.66378</X>
+          <Y>8.39758301</Y>
+          <Z>5766</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXPART22">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>7.6957703</X>
+          <Y>2.6385498</Y>
+          <Z>3.8478851</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1381.07606</X>
+          <Y>11.0361328</Y>
+          <Z>5766</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXPART23">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>5.9367371</X>
+          <Y>2.6385498</Y>
+          <Z>2.9683685</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1381.51582</X>
+          <Y>13.4548035</Y>
+          <Z>5766</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXPART24">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>4.1777039</X>
+          <Y>2.6385498</Y>
+          <Z>2.0888519</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1381.95557</X>
+          <Y>15.653595</Y>
+          <Z>5766</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXPART25">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>2.4186707</X>
+          <Y>2.6385498</Y>
+          <Z>1.2093353</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1382.39533</X>
+          <Y>17.5225677</Y>
+          <Z>5766</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART26">
+      <Properties>
+        <string name="Name">Trunk</string>
+        <Vector3 name="Size">
+          <X>11.983311653137207</X>
+          <Y>1.3072704076766968</Y>
+          <Z>1.3072704076766968</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1383</X>
+          <Y>9.991655349731445</Y>
+          <Z>5794</Z>
+          <R00>-4.371138828673793e-8</R00>
+          <R01>-1</R01>
+          <R02>0</R02>
+          <R10>1</R10>
+          <R11>-4.371138828673793e-8</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.3529411852359772</R>
+          <G>0.23529411852359772</G>
+          <B>0.1568627506494522</B>
+        </Color3>
+        <token name="Material">512</token>
+        <token name="Shape">2</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXPART27">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>9.2598324</X>
+          <Y>2.6145411</Y>
+          <Z>4.6299162</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1380.68504</X>
+          <Y>8.35756874</Y>
+          <Z>5794</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXPART28">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>7.6257443</X>
+          <Y>2.6145411</Y>
+          <Z>3.8128722</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1381.09356</X>
+          <Y>10.9721088</Y>
+          <Z>5794</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXPART29">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>5.8827171</X>
+          <Y>2.6145411</Y>
+          <Z>2.9413586</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1381.52932</X>
+          <Y>13.3687716</Y>
+          <Z>5794</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXPART30">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>4.1396899</X>
+          <Y>2.6145411</Y>
+          <Z>2.069845</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1381.96508</X>
+          <Y>15.547555</Y>
+          <Z>5794</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXPART31">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>2.3966627</X>
+          <Y>2.6145411</Y>
+          <Z>1.1983314</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1382.40083</X>
+          <Y>17.3995209</Y>
+          <Z>5794</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART32">
+      <Properties>
+        <string name="Name">Trunk</string>
+        <Vector3 name="Size">
+          <X>12.384988784790039</X>
+          <Y>1.3510897159576416</Y>
+          <Z>1.3510897159576416</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1374</X>
+          <Y>10.19249439239502</Y>
+          <Z>5795.5</Z>
+          <R00>-4.371138828673793e-8</R00>
+          <R01>-1</R01>
+          <R02>0</R02>
+          <R10>1</R10>
+          <R11>-4.371138828673793e-8</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.3529411852359772</R>
+          <G>0.23529411852359772</G>
+          <B>0.1568627506494522</B>
+        </Color3>
+        <token name="Material">512</token>
+        <token name="Shape">2</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXPART33">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>9.570219</X>
+          <Y>2.7021797</Y>
+          <Z>4.7851095</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1371.60745</X>
+          <Y>8.50363255</Y>
+          <Z>5795.5</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXPART34">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>7.8813572</X>
+          <Y>2.7021797</Y>
+          <Z>3.9406786</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1372.02966</X>
+          <Y>11.2058125</Y>
+          <Z>5795.5</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXPART35">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>6.0799041</X>
+          <Y>2.7021797</Y>
+          <Z>3.039952</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1372.48002</X>
+          <Y>13.6828098</Y>
+          <Z>5795.5</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXPART36">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>4.278451</X>
+          <Y>2.7021797</Y>
+          <Z>2.1392255</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1372.93039</X>
+          <Y>15.9346256</Y>
+          <Z>5795.5</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBXPART37">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>2.4769979</X>
+          <Y>2.7021797</Y>
+          <Z>1.2384989</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1373.38075</X>
+          <Y>17.848671</Y>
+          <Z>5795.5</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-1</R20>
+          <R21>0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART38">
+      <Properties>
+        <string name="Name">MushroomStem</string>
+        <Vector3 name="Size">
+          <X>0.4000000059604645</X>
+          <Y>0.8999999761581421</Y>
+          <Z>0.4000000059604645</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1369</X>
+          <Y>4.550000190734863</Y>
+          <Z>5774</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.9411764740943909</R>
+          <G>0.9019607901573181</G>
+          <B>0.8235294222831726</B>
+        </Color3>
+        <token name="Material">272</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART39">
+      <Properties>
+        <string name="Name">MushroomCap</string>
+        <Vector3 name="Size">
+          <X>1.15</X>
+          <Y>0.38</Y>
+          <Z>1.15</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1369</X>
+          <Y>4.98</Y>
+          <Z>5774</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.56078431</R>
+          <G>0.31372549</G>
+          <B>0.16862745</B>
+        </Color3>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART40">
+      <Properties>
+        <string name="Name">MushroomStem</string>
+        <Vector3 name="Size">
+          <X>0.4000000059604645</X>
+          <Y>0.8999999761581421</Y>
+          <Z>0.4000000059604645</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1378</X>
+          <Y>4.550000190734863</Y>
+          <Z>5771</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.9411764740943909</R>
+          <G>0.9019607901573181</G>
+          <B>0.8235294222831726</B>
+        </Color3>
+        <token name="Material">272</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART41">
+      <Properties>
+        <string name="Name">MushroomCap</string>
+        <Vector3 name="Size">
+          <X>1.15</X>
+          <Y>0.38</Y>
+          <Z>1.15</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1378</X>
+          <Y>4.98</Y>
+          <Z>5771</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.56078431</R>
+          <G>0.31372549</G>
+          <B>0.16862745</B>
+        </Color3>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART42">
+      <Properties>
+        <string name="Name">MushroomStem</string>
+        <Vector3 name="Size">
+          <X>0.4000000059604645</X>
+          <Y>0.8999999761581421</Y>
+          <Z>0.4000000059604645</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1371</X>
+          <Y>4.550000190734863</Y>
+          <Z>5785</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.9411764740943909</R>
+          <G>0.9019607901573181</G>
+          <B>0.8235294222831726</B>
+        </Color3>
+        <token name="Material">272</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART43">
+      <Properties>
+        <string name="Name">MushroomCap</string>
+        <Vector3 name="Size">
+          <X>1.15</X>
+          <Y>0.38</Y>
+          <Z>1.15</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1371</X>
+          <Y>4.98</Y>
+          <Z>5785</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.56078431</R>
+          <G>0.31372549</G>
+          <B>0.16862745</B>
+        </Color3>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART44">
+      <Properties>
+        <string name="Name">MushroomStem</string>
+        <Vector3 name="Size">
+          <X>0.4000000059604645</X>
+          <Y>0.8999999761581421</Y>
+          <Z>0.4000000059604645</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1379</X>
+          <Y>4.550000190734863</Y>
+          <Z>5787</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.9411764740943909</R>
+          <G>0.9019607901573181</G>
+          <B>0.8235294222831726</B>
+        </Color3>
+        <token name="Material">272</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART45">
+      <Properties>
+        <string name="Name">MushroomCap</string>
+        <Vector3 name="Size">
+          <X>1.15</X>
+          <Y>0.38</Y>
+          <Z>1.15</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1379</X>
+          <Y>4.98</Y>
+          <Z>5787</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.56078431</R>
+          <G>0.31372549</G>
+          <B>0.16862745</B>
+        </Color3>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART46">
+      <Properties>
+        <string name="Name">MushroomStem</string>
+        <Vector3 name="Size">
+          <X>0.4000000059604645</X>
+          <Y>0.8999999761581421</Y>
+          <Z>0.4000000059604645</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1374</X>
+          <Y>4.550000190734863</Y>
+          <Z>5779</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.9411764740943909</R>
+          <G>0.9019607901573181</G>
+          <B>0.8235294222831726</B>
+        </Color3>
+        <token name="Material">272</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART47">
+      <Properties>
+        <string name="Name">MushroomCap</string>
+        <Vector3 name="Size">
+          <X>1.15</X>
+          <Y>0.38</Y>
+          <Z>1.15</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1374</X>
+          <Y>4.98</Y>
+          <Z>5779</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.56078431</R>
+          <G>0.31372549</G>
+          <B>0.16862745</B>
+        </Color3>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART48">
+      <Properties>
+        <string name="Name">GroveLog</string>
+        <Vector3 name="Size">
+          <X>0.800000011920929</X>
+          <Y>0.800000011920929</Y>
+          <Z>5</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1382.199951171875</X>
+          <Y>4.5</Y>
+          <Z>5770</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.4</R>
+          <G>0.26666667</G>
+          <B>0.16862745</B>
+        </Color3>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXPART49">
+      <Properties>
+        <string name="Name">GroveLog</string>
+        <Vector3 name="Size">
+          <X>0.800000011920929</X>
+          <Y>0.800000011920929</Y>
+          <Z>5</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1382.199951171875</X>
+          <Y>4.5</Y>
+          <Z>5775</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.4</R>
+          <G>0.26666667</G>
+          <B>0.16862745</B>
+        </Color3>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_truffle_grove_1">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>9.1042013</X>
+          <Y>2.5705981</Y>
+          <Z>4.5521007</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1367.27605</X>
+          <Y>8.28433037</Y>
+          <Z>5766</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_truffle_grove_2">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>7.4975772</X>
+          <Y>2.5705981</Y>
+          <Z>3.7487886</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1366.87439</X>
+          <Y>10.8549271</Y>
+          <Z>5766</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_truffle_grove_3">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>5.7838454</X>
+          <Y>2.5705981</Y>
+          <Z>2.8919227</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1366.44596</X>
+          <Y>13.2113085</Y>
+          <Z>5766</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_truffle_grove_4">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>4.0701132</X>
+          <Y>2.5705981</Y>
+          <Z>2.0350566</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1366.01753</X>
+          <Y>15.3534737</Y>
+          <Z>5766</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_truffle_grove_5">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>2.3563814</X>
+          <Y>2.5705981</Y>
+          <Z>1.1781907</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1365.5891</X>
+          <Y>17.1743126</Y>
+          <Z>5766</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_truffle_grove_6">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>9.7428036</X>
+          <Y>2.7509093</Y>
+          <Z>4.8714018</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1367.4357</X>
+          <Y>8.5848484</Y>
+          <Z>5780</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_truffle_grove_7">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>8.0234852</X>
+          <Y>2.7509093</Y>
+          <Z>4.0117426</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1367.00587</X>
+          <Y>11.3357582</Y>
+          <Z>5780</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_truffle_grove_8">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>6.1895461</X>
+          <Y>2.7509093</Y>
+          <Z>3.0947731</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1366.54739</X>
+          <Y>13.8574247</Y>
+          <Z>5780</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_truffle_grove_9">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>4.3556066</X>
+          <Y>2.7509093</Y>
+          <Z>2.1778033</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1366.0889</X>
+          <Y>16.1498489</Y>
+          <Z>5780</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_truffle_grove_10">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>2.521667</X>
+          <Y>2.7509093</Y>
+          <Z>1.2608335</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1365.63042</X>
+          <Y>18.0984097</Y>
+          <Z>5780</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_truffle_grove_11">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>8.0390692</X>
+          <Y>2.2698548</Y>
+          <Z>4.0195346</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1367.00977</X>
+          <Y>7.78309155</Y>
+          <Z>5794</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_truffle_grove_12">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>6.62041</X>
+          <Y>2.2698548</Y>
+          <Z>3.310205</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1366.6551</X>
+          <Y>10.0529461</Y>
+          <Z>5794</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_truffle_grove_13">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>5.1071734</X>
+          <Y>2.2698548</Y>
+          <Z>2.5535867</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1366.27679</X>
+          <Y>12.133646</Y>
+          <Z>5794</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_truffle_grove_14">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>3.5939367</X>
+          <Y>2.2698548</Y>
+          <Z>1.7969683</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1365.89848</X>
+          <Y>14.0251923</Y>
+          <Z>5794</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_truffle_grove_15">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>2.0807002</X>
+          <Y>2.2698548</Y>
+          <Z>1.0403501</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1365.52018</X>
+          <Y>15.6330061</Y>
+          <Z>5794</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_truffle_grove_16">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>9.3448639</X>
+          <Y>2.6385498</Y>
+          <Z>4.6724319</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1385.33622</X>
+          <Y>8.39758301</Y>
+          <Z>5766</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_truffle_grove_17">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>7.6957703</X>
+          <Y>2.6385498</Y>
+          <Z>3.8478851</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1384.92394</X>
+          <Y>11.0361328</Y>
+          <Z>5766</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_truffle_grove_18">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>5.9367371</X>
+          <Y>2.6385498</Y>
+          <Z>2.9683685</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1384.48418</X>
+          <Y>13.4548035</Y>
+          <Z>5766</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_truffle_grove_19">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>4.1777039</X>
+          <Y>2.6385498</Y>
+          <Z>2.0888519</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1384.04443</X>
+          <Y>15.653595</Y>
+          <Z>5766</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_truffle_grove_20">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>2.4186707</X>
+          <Y>2.6385498</Y>
+          <Z>1.2093353</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1383.60467</X>
+          <Y>17.5225677</Y>
+          <Z>5766</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_truffle_grove_21">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>9.2598324</X>
+          <Y>2.6145411</Y>
+          <Z>4.6299162</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1385.31496</X>
+          <Y>8.35756874</Y>
+          <Z>5794</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_truffle_grove_22">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>7.6257443</X>
+          <Y>2.6145411</Y>
+          <Z>3.8128722</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1384.90644</X>
+          <Y>10.9721088</Y>
+          <Z>5794</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_truffle_grove_23">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>5.8827171</X>
+          <Y>2.6145411</Y>
+          <Z>2.9413586</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1384.47068</X>
+          <Y>13.3687716</Y>
+          <Z>5794</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_truffle_grove_24">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>4.1396899</X>
+          <Y>2.6145411</Y>
+          <Z>2.069845</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1384.03492</X>
+          <Y>15.547555</Y>
+          <Z>5794</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_truffle_grove_25">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>2.3966627</X>
+          <Y>2.6145411</Y>
+          <Z>1.1983314</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1383.59917</X>
+          <Y>17.3995209</Y>
+          <Z>5794</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_truffle_grove_26">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>9.570219</X>
+          <Y>2.7021797</Y>
+          <Z>4.7851095</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1376.39255</X>
+          <Y>8.50363255</Y>
+          <Z>5795.5</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_truffle_grove_27">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>7.8813572</X>
+          <Y>2.7021797</Y>
+          <Z>3.9406786</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1375.97034</X>
+          <Y>11.2058125</Y>
+          <Z>5795.5</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_truffle_grove_28">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>6.0799041</X>
+          <Y>2.7021797</Y>
+          <Z>3.039952</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1375.51998</X>
+          <Y>13.6828098</Y>
+          <Z>5795.5</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_truffle_grove_29">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>4.278451</X>
+          <Y>2.7021797</Y>
+          <Z>2.1392255</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1375.06961</X>
+          <Y>15.9346256</Y>
+          <Z>5795.5</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RUSTIC_truffle_grove_30">
+      <Properties>
+        <string name="Name">Needles</string>
+        <Vector3 name="Size">
+          <X>2.4769979</X>
+          <Y>2.7021797</Y>
+          <Z>1.2384989</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1374.61925</X>
+          <Y>17.848671</Y>
+          <Z>5795.5</Z>
+          <R00>6.123234e-17</R00>
+          <R01>-0</R01>
+          <R02>-1</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>1</R20>
+          <R21>-0</R21>
+          <R22>6.123234e-17</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.24705882</R>
+          <G>0.43137255</G>
+          <B>0.23137255</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RUSTIC_truffle_grove_31">
+      <Properties>
+        <string name="Name">MushroomCrown</string>
+        <Vector3 name="Size">
+          <X>0.68</X>
+          <Y>0.12</Y>
+          <Z>0.68</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1369</X>
+          <Y>5.22</Y>
+          <Z>5774</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.70196078</R>
+          <G>0.43921569</G>
+          <B>0.22745098</B>
+        </Color3>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RUSTIC_truffle_grove_32">
+      <Properties>
+        <string name="Name">MushroomSpot</string>
+        <Vector3 name="Size">
+          <X>0.16</X>
+          <Y>0.08</Y>
+          <Z>0.16</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1368.77</X>
+          <Y>5.19</Y>
+          <Z>5774.23</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.8745098</R>
+          <G>0.82352941</G>
+          <B>0.68235294</B>
+        </Color3>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RUSTIC_truffle_grove_33">
+      <Properties>
+        <string name="Name">MushroomCrown</string>
+        <Vector3 name="Size">
+          <X>0.68</X>
+          <Y>0.12</Y>
+          <Z>0.68</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1378</X>
+          <Y>5.22</Y>
+          <Z>5771</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.70196078</R>
+          <G>0.43921569</G>
+          <B>0.22745098</B>
+        </Color3>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RUSTIC_truffle_grove_34">
+      <Properties>
+        <string name="Name">MushroomSpot</string>
+        <Vector3 name="Size">
+          <X>0.16</X>
+          <Y>0.08</Y>
+          <Z>0.16</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1377.77</X>
+          <Y>5.19</Y>
+          <Z>5771.23</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.8745098</R>
+          <G>0.82352941</G>
+          <B>0.68235294</B>
+        </Color3>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RUSTIC_truffle_grove_35">
+      <Properties>
+        <string name="Name">MushroomCrown</string>
+        <Vector3 name="Size">
+          <X>0.68</X>
+          <Y>0.12</Y>
+          <Z>0.68</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1371</X>
+          <Y>5.22</Y>
+          <Z>5785</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.70196078</R>
+          <G>0.43921569</G>
+          <B>0.22745098</B>
+        </Color3>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RUSTIC_truffle_grove_36">
+      <Properties>
+        <string name="Name">MushroomSpot</string>
+        <Vector3 name="Size">
+          <X>0.16</X>
+          <Y>0.08</Y>
+          <Z>0.16</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1370.77</X>
+          <Y>5.19</Y>
+          <Z>5785.23</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.8745098</R>
+          <G>0.82352941</G>
+          <B>0.68235294</B>
+        </Color3>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RUSTIC_truffle_grove_37">
+      <Properties>
+        <string name="Name">MushroomCrown</string>
+        <Vector3 name="Size">
+          <X>0.68</X>
+          <Y>0.12</Y>
+          <Z>0.68</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1379</X>
+          <Y>5.22</Y>
+          <Z>5787</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.70196078</R>
+          <G>0.43921569</G>
+          <B>0.22745098</B>
+        </Color3>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RUSTIC_truffle_grove_38">
+      <Properties>
+        <string name="Name">MushroomSpot</string>
+        <Vector3 name="Size">
+          <X>0.16</X>
+          <Y>0.08</Y>
+          <Z>0.16</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1378.77</X>
+          <Y>5.19</Y>
+          <Z>5787.23</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.8745098</R>
+          <G>0.82352941</G>
+          <B>0.68235294</B>
+        </Color3>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RUSTIC_truffle_grove_39">
+      <Properties>
+        <string name="Name">MushroomCrown</string>
+        <Vector3 name="Size">
+          <X>0.68</X>
+          <Y>0.12</Y>
+          <Z>0.68</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1374</X>
+          <Y>5.22</Y>
+          <Z>5779</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.70196078</R>
+          <G>0.43921569</G>
+          <B>0.22745098</B>
+        </Color3>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RUSTIC_truffle_grove_40">
+      <Properties>
+        <string name="Name">MushroomSpot</string>
+        <Vector3 name="Size">
+          <X>0.16</X>
+          <Y>0.08</Y>
+          <Z>0.16</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1373.77</X>
+          <Y>5.19</Y>
+          <Z>5779.23</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.8745098</R>
+          <G>0.82352941</G>
+          <B>0.68235294</B>
+        </Color3>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RUSTIC_truffle_grove_41">
+      <Properties>
+        <string name="Name">LogEnd</string>
+        <Vector3 name="Size">
+          <X>0.73</X>
+          <Y>0.73</Y>
+          <Z>0.12</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1382.19995</X>
+          <Y>4.5</Y>
+          <Z>5767.65</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.70980392</R>
+          <G>0.56078431</G>
+          <B>0.34901961</B>
+        </Color3>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RUSTIC_truffle_grove_42">
+      <Properties>
+        <string name="Name">LogEnd</string>
+        <Vector3 name="Size">
+          <X>0.73</X>
+          <Y>0.73</Y>
+          <Z>0.12</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1382.19995</X>
+          <Y>4.5</Y>
+          <Z>5772.35</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.70980392</R>
+          <G>0.56078431</G>
+          <B>0.34901961</B>
+        </Color3>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RUSTIC_truffle_grove_43">
+      <Properties>
+        <string name="Name">LogEnd</string>
+        <Vector3 name="Size">
+          <X>0.73</X>
+          <Y>0.73</Y>
+          <Z>0.12</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1382.19995</X>
+          <Y>4.5</Y>
+          <Z>5772.65</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.70980392</R>
+          <G>0.56078431</G>
+          <B>0.34901961</B>
+        </Color3>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RUSTIC_truffle_grove_44">
+      <Properties>
+        <string name="Name">LogEnd</string>
+        <Vector3 name="Size">
+          <X>0.73</X>
+          <Y>0.73</Y>
+          <Z>0.12</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1382.19995</X>
+          <Y>4.5</Y>
+          <Z>5777.35</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.70980392</R>
+          <G>0.56078431</G>
+          <B>0.34901961</B>
+        </Color3>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RUSTIC_truffle_grove_45">
+      <Properties>
+        <string name="Name">LeafLitter</string>
+        <Vector3 name="Size">
+          <X>1.7</X>
+          <Y>0.07</Y>
+          <Z>1.3</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1369</X>
+          <Y>4.24</Y>
+          <Z>5777</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.54509804</R>
+          <G>0.4</G>
+          <B>0.22745098</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RUSTIC_truffle_grove_46">
+      <Properties>
+        <string name="Name">LeafLitter</string>
+        <Vector3 name="Size">
+          <X>1.7</X>
+          <Y>0.07</Y>
+          <Z>1.3</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1380</X>
+          <Y>4.24</Y>
+          <Z>5783</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.54509804</R>
+          <G>0.4</G>
+          <B>0.22745098</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RUSTIC_truffle_grove_47">
+      <Properties>
+        <string name="Name">LeafLitter</string>
+        <Vector3 name="Size">
+          <X>1.7</X>
+          <Y>0.07</Y>
+          <Z>1.3</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1375</X>
+          <Y>4.24</Y>
+          <Z>5770</Z>
+          <R00>1</R00>
+          <R01>-0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>-0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.54509804</R>
+          <G>0.4</G>
+          <B>0.22745098</B>
+        </Color3>
+        <token name="Material">1280</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+        <bool name="CastShadow">true</bool>
+      </Properties>
+    </Item>
+  </Item>
 </roblox>
