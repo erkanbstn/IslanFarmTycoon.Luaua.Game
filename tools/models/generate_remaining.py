@@ -160,7 +160,7 @@ def common_variants() -> None:
         ((-1.2, 10.8, -0.4), (1.25, 10.0, 0.6), (0, 11.55, 1.0), (-0.3, 11.5, -1.0)),
     )
     for index, locations in enumerate(crowns):
-        trunk = vertical_cylinder("Trunk", 1.8, 8, (0, 4, 0), (110, 78, 51))
+        trunk = replace(vertical_cylinder("Trunk", 1.8, 8, (0, 4, 0), (110, 78, 51)), collide=True)
         branch = Piece("Branch", (3.2, 0.55, 0.55), (0.3 if index % 2 else -0.3, 7.5, 0),
                        (110, 78, 51), WOOD, angles=(0, 0, 0.17 * (index - 1)))
         leaves = [ball("Leaves", 5.4 + (j % 2) * 0.6, p, crown_colors[(index + j) % 4], GRASS)
@@ -169,7 +169,7 @@ def common_variants() -> None:
             note="Trunk silindir; 4 mevsimlik Leaves")
 
     for index in range(3):
-        trunk = vertical_cylinder("Trunk", 1.2, 11, (0, 5.5, 0), (95, 68, 46))
+        trunk = replace(vertical_cylinder("Trunk", 1.2, 11, (0, 5.5, 0), (95, 68, 46)), collide=True)
         needles = []
         for layer, width in enumerate((8.5, 6.9, 5.3, 3.8, 2.2)):
             shift_x = (index - 1) * 0.18 * (layer % 2)
@@ -323,7 +323,7 @@ def extras() -> None:
             x = (index * 2 - 1) * section * 0.15
             palm.append(Piece("Trunk", (0.75 - section * 0.08, 2.25, 0.75 - section * 0.08),
                               (x, y, 0), (135, 97, 55), WOOD,
-                              angles=(0, 0, (index * 2 - 1) * 0.07)))
+                              angles=(0, 0, (index * 2 - 1) * 0.07), collide=True))
         crown_x = (index * 2 - 1) * 0.45
         for leaf in range(6):
             angle = leaf * math.tau / 6 + index * 0.2
@@ -334,8 +334,8 @@ def extras() -> None:
         add("CommonDecor", name, palm, 12, note="4 gövde + 6 palmiye yaprağı")
 
     for index, name in enumerate(("BirchTree_A", "BirchTree_B")):
-        birch = [vertical_cylinder("Trunk", 1.1, 9.5, (0, 4.75, 0),
-                                   (224, 219, 201), WOOD)]
+        birch = [replace(vertical_cylinder("Trunk", 1.1, 9.5, (0, 4.75, 0),
+                                           (224, 219, 201), WOOD), collide=True)]
         for stripe in range(3):
             birch.append(Piece("BarkMark", (0.12, 0.25, 0.45),
                                ((-0.05 if stripe % 2 else 0.05), 2.1 + stripe * 2.25, -0.54),

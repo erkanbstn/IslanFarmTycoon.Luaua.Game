@@ -141,6 +141,9 @@ function SeasonalScenery.start(): () -> ()
 				-- Parçanın kendi Transparency'si sunucuda 1'dir; karlı mevsimde 0 olur, yaprak dökülmeden önce görünmez
 				part.Transparency = if sample.snow >= 0.45 then 0 else 1
 				continue
+			elseif source.kind == "snowcapDeciduous" then
+				part.Transparency = if sample.snow >= 0.45 and sample.foliage >= 0.5 then 0 else 1
+				continue
 			end
 			if source.kind == "ground" or source.kind == "zoneground" then
 				if part:GetAttribute("Locked") == true then
@@ -247,15 +250,21 @@ function SeasonalScenery.start(): () -> ()
 		if not parent then
 			return
 		end
-		if instance.Name == "Trunk" and parent.Name == "OakTree" then
+		if instance.Name == "Trunk" and (parent.Name == "OakTree" or parent.Name == "BirchTree") then
 			trunks[instance] = true
 			scheduleRefresh()
 			return
 		end
 		local kind: string? = nil
 		if parent.Name == "SnowCap" or parent.Name == "Snowman" then
-			-- Kar başlığı ve kardan adam (SeasonModels): sunucu gizli kurar, karlı mevsimde burada açılır
-			kind = "snowprop"
+			-- Kar başlığı ve kardan adam (SeasonModels): sunucu gizli kurar, karlı mevsimde burada açılır.
+			-- Meşe/huş başlığı yalnızca yapraklar yerindeyse açılır (yaprak dökülünce havada kalan taç karı olmaz).
+			local tree = parent.Parent
+			kind = if parent.Name == "SnowCap"
+					and tree
+					and (tree.Name == "OakTree" or tree.Name == "BirchTree")
+				then "snowcapDeciduous"
+				else "snowprop"
 		elseif instance.Name == "PlotBase" or instance.Name == "IslandBase" then
 			kind = "ground"
 		elseif
@@ -273,11 +282,25 @@ function SeasonalScenery.start(): () -> ()
 			kind = "zoneground"
 		elseif instance.Name == "Needles" and parent.Name == "PineTree" then
 			kind = "evergreen"
-		elseif instance.Name == "Leaves" and parent.Name == "OakTree" then
+		elseif
+			(
+				instance.Name == "Leaves"
+				and (parent.Name == "OakTree" or parent.Name == "BirchTree" or parent.Name == "Orchard")
+			)
+			-- kiraz anıtı: çiçekler yaprak gibi dökülür/geri gelir
+			or (
+				(instance.Name == "Blossom" or instance.Name == "Petals")
+				and parent.Name == "Landmark"
+				and parent:GetAttribute("Kind") == "cherry"
+			)
+		then
 			kind = "deciduous"
 		elseif instance.Name == "Leaves" and parent.Name == "Bush" then
 			kind = "bush"
-		elseif instance.Name == "Berry" and parent.Name == "Bush" then
+		elseif
+			(instance.Name == "Berry" and parent.Name == "Bush") -- çalı meyvesi
+			or (instance.Name == "Fruit" and parent.Name == "Orchard") -- meyve bahçesi
+		then
 			kind = "berry"
 		elseif (instance.Name == "Bloom" or instance.Name == "Stem") and parent.Name == "Flowers" then
 			kind = "flower"
