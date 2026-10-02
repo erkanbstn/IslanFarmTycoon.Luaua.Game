@@ -50,9 +50,9 @@
 <token name="Material">512</token>
 <token name="Shape">2</token>
 <bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
+<bool name="CanCollide">true</bool>
 <bool name="CanTouch">false</bool>
-<bool name="CanQuery">false</bool>
+<bool name="CanQuery">true</bool>
 </Properties>
 </Item>
 <Item class="Part" referent="RBXPART2">
@@ -85,9 +85,9 @@
 <token name="Material">512</token>
 <token name="Shape">2</token>
 <bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
+<bool name="CanCollide">true</bool>
 <bool name="CanTouch">false</bool>
-<bool name="CanQuery">false</bool>
+<bool name="CanQuery">true</bool>
 </Properties>
 </Item>
 <Item class="Part" referent="RBXPART3">
@@ -120,9 +120,9 @@
 <token name="Material">512</token>
 <token name="Shape">2</token>
 <bool name="Anchored">true</bool>
-<bool name="CanCollide">false</bool>
+<bool name="CanCollide">true</bool>
 <bool name="CanTouch">false</bool>
-<bool name="CanQuery">false</bool>
+<bool name="CanQuery">true</bool>
 </Properties>
 </Item>
 </Item>

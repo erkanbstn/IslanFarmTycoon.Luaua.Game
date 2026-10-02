@@ -26,9 +26,9 @@
 <token name="Material">272</token>
 <token name="Shape">1</token>
 <bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
+<bool name="CanCollide">false</bool>
 <bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
+<bool name="CanQuery">false</bool>
 <float name="Transparency">0</float>
 <float name="Reflectance">0</float>
 </Properties></Item>
@@ -40,9 +40,9 @@
 <token name="Material">1088</token>
 <token name="Shape">1</token>
 <bool name="Anchored">true</bool>
-<bool name="CanCollide">true</bool>
+<bool name="CanCollide">false</bool>
 <bool name="CanTouch">false</bool>
-<bool name="CanQuery">true</bool>
+<bool name="CanQuery">false</bool>
 <float name="Transparency">0</float>
 <float name="Reflectance">0</float>
 </Properties></Item>

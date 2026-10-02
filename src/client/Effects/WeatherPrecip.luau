@@ -15,7 +15,7 @@ local Environment =
 
 local WeatherPrecip = {}
 -- Player/Studio içeriğinde doğrulanmış 64px daire, 44 alfa seviyesi ve şeffaf köşeler.
--- İki yağış da yuvarlaktır; yağmur daha küçük ve çok daha hızlı düşer.
+-- Kar yuvarlaktır; yağmur aynı dokuyla ama düşey daraltılmış (Squash) ince iz olarak çizilir ve çok daha hızlı düşer.
 local RAIN_TEXTURE = "rbxasset://textures/smallWhiteCircle.png"
 local SNOW_TEXTURE = "rbxasset://textures/smallWhiteCircle.png"
 type Budget = { rain: number, storm: number, snow: number }
@@ -79,15 +79,15 @@ function WeatherPrecip.start(): () -> ()
 		rain.Shape = Enum.ParticleEmitterShape.Box
 		rain.ShapeStyle = Enum.ParticleEmitterShapeStyle.Volume
 		rain.EmissionDirection = Enum.NormalId.Bottom
-		rain.Orientation = Enum.ParticleOrientation.FacingCamera
+		rain.Orientation = Enum.ParticleOrientation.FacingCameraWorldUp
 		rain.Speed = NumberRange.new(speed * 0.92, speed * 1.08)
 		rain.Lifetime = NumberRange.new(lifetime * 0.92, lifetime)
 		rain.Size = NumberSequence.new({
 			NumberSequenceKeypoint.new(0, size, size * 0.15),
 			NumberSequenceKeypoint.new(1, size * 0.85, size * 0.1),
 		})
-		-- Kamera yönüne bakan daire: açıya bağlı yatay levha veya uzun çizgi oluşmaz.
-		rain.Squash = NumberSequence.new(0)
+		-- Yağmur düşey ince bir iz çizer (kameraya dönük ama dünya yukarısına hizalı, yatayda daraltılmış daire); kar yuvarlak kalır.
+		rain.Squash = NumberSequence.new(0.7)
 		rain.Rotation = NumberRange.new(0)
 		rain.RotSpeed = NumberRange.new(0)
 		rain.SpreadAngle = Vector2.new(2, 2)
@@ -159,19 +159,19 @@ function WeatherPrecip.start(): () -> ()
 		near = {
 			name = "near",
 			part = nearPart,
-			rain = makeRain(nearPart, 0.14, 0.55, 76, 0.3),
+			rain = makeRain(nearPart, 0.12, 0.55, 76, 0.3),
 			snow = makeSnow(nearPart, 0.2, 5, 5, 0.05),
 		},
 		mid = {
 			name = "mid",
 			part = midPart,
-			rain = makeRain(midPart, 0.5, (MID_SLAB_Y - GROUND_Y) / RAIN_FALL_SPEED, RAIN_FALL_SPEED, 0.5),
+			rain = makeRain(midPart, 0.25, (MID_SLAB_Y - GROUND_Y) / RAIN_FALL_SPEED, RAIN_FALL_SPEED, 0.5),
 			snow = makeSnow(midPart, 0.5, (MID_SLAB_Y - GROUND_Y) / SNOW_FALL_SPEED, SNOW_FALL_SPEED, 0.3),
 		},
 		far = {
 			name = "far",
 			part = farPart,
-			rain = makeRain(farPart, 1.8, (FAR_SLAB_Y - GROUND_Y) / RAIN_FALL_SPEED, RAIN_FALL_SPEED, 0.62),
+			rain = makeRain(farPart, 0.5, (FAR_SLAB_Y - GROUND_Y) / RAIN_FALL_SPEED, RAIN_FALL_SPEED, 0.62),
 			snow = makeSnow(farPart, 1.6, (FAR_SLAB_Y - GROUND_Y) / SNOW_FALL_SPEED, SNOW_FALL_SPEED, 0.45),
 		},
 	}

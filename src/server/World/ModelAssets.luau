@@ -25,7 +25,7 @@ function ModelAssets.find(folderName: string, name: string): Model?
 end
 
 -- Şablonun temiz kopyası: çalışabilir içerik atılır, parçalar sabitlenir; çarpışma/sorgu değerleri modeldekiyle kalır
--- (AssetSanitizer.clone tüm parçaları çarpışır yapar; süs parçaları için fazla ağır ve yanlış).
+-- (AssetSanitizer.clone zorla çarpışır/çarpışmaz yapar; modeldeki ince süs parçaları için yanlış, o yüzden yalnızca hayvan modelleri onu kullanır).
 function ModelAssets.clone(folderName: string, name: string): Model?
 	local template = ModelAssets.find(folderName, name)
 	if not template then

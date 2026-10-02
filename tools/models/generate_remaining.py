@@ -216,7 +216,8 @@ def common_variants() -> None:
         add("CommonDecor", f"FlowerPatch_{name}", parts, 14, note="7 Stem + 7 Bloom")
 
     for size, suffix in ((1.6, "16"), (2.0, "20"), (2.4, "24")):
-        parts = [Piece("Box", (size, size, size), (0, size / 2, 0), (170, 125, 75), PLANKS)]
+        parts = [Piece("Box", (size, size, size), (0, size / 2, 0), (170, 125, 75), PLANKS,
+                       collide=True)]
         for y in (size * 0.3, size * 0.7):
             parts.append(Piece("Slat", (size, 0.2, 0.2), (0, y, -size / 2 - 0.05),
                                (170, 125, 75), PLANKS))
@@ -271,15 +272,15 @@ def extras() -> None:
                                          (1.5, 1.2, 1.1)[j] * scale),
                                (x * scale, height / 2, z * scale),
                                ((115, 116, 120), (100, 104, 108), (128, 128, 130))[j],
-                               SLATE, angles=(0, (j - 1) * 0.24, 0)))
+                               SLATE, angles=(0, (j - 1) * 0.24, 0), collide=j == 0))
         add("CommonDecor", name, parts, 12, note="kara kayası")
 
     for index, name in enumerate(("Stump_A", "Stump_B")):
         height = 1.5 + index * 0.45
         diameter = 1.55 + index * 0.35
         parts = [
-            vertical_cylinder("Trunk", diameter, height, (0, height / 2, 0),
-                              (120, 82, 48), WOOD),
+            replace(vertical_cylinder("Trunk", diameter, height, (0, height / 2, 0),
+                                      (120, 82, 48), WOOD), collide=True),
             vertical_cylinder("CutFace", diameter * 0.94, 0.12, (0, height + 0.04, 0),
                               (178, 137, 86), PLANKS),
             Piece("Root", (0.7, 0.3, 0.5), (0.6, 0.15, 0.2),
@@ -290,7 +291,7 @@ def extras() -> None:
     logs = []
     for x, y, z, length in ((-0.65, 0.45, 0, 2.8), (0.65, 0.45, 0.1, 2.7), (0, 1.25, 0.05, 2.6)):
         logs.append(Piece("Log", (length, 0.9, 0.9), (x, y, z),
-                          (125, 84, 52), WOOD, shape=2))
+                          (125, 84, 52), WOOD, shape=2, collide=True))
     add("CommonDecor", "LogPile", logs, 12, note="3 yatay silindir")
 
     for index, name in enumerate(("Reed_A", "Reed_B")):

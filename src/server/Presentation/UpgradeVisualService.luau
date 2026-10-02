@@ -13,8 +13,8 @@ local Config = require(Shared:WaitForChild("Config"))
 local GameTypes = require(Shared:WaitForChild("GameTypes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 local WorldUi = require(Shared:WaitForChild("WorldUi"))
-local AssetSanitizer = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("AssetSanitizer"))
 local InstanceUtil = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("InstanceUtil"))
+local ModelAssets = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("ModelAssets"))
 local WorldDecor = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("WorldDecor"))
 local UpgradeParts = require(script.Parent:WaitForChild("UpgradeParts"))
 local UpgradeSites = require(script.Parent:WaitForChild("UpgradeSites"))
@@ -33,14 +33,9 @@ local makePart = UpgradeParts.makePart
 local buildSite = UpgradeSites.buildSite
 local applyLevelMarks = UpgradeSites.applyLevelMarks
 
+-- Hazır bina modeli (assets/Buildings): çarpışma/sorgu değerleri modeldeki gibi kalır (ince süs ve cam parçaları modelde geçilebilir yapılır)
 local function cloneAsset(upgradeId: string): Model?
-	local assets = ServerStorage:FindFirstChild("Assets") or ReplicatedStorage:FindFirstChild("Assets")
-	local folder = assets and assets:FindFirstChild("Buildings")
-	local template = folder and folder:FindFirstChild(upgradeId)
-	if template and template:IsA("Model") then
-		return AssetSanitizer.clone(template, true)
-	end
-	return nil
+	return ModelAssets.clone("Buildings", upgradeId)
 end
 
 local missingWarned: { [string]: boolean } = {}

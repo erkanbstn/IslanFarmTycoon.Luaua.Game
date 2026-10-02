@@ -24,11 +24,11 @@ def main() -> None:
             Piece("Body", (2.6, 2, 2), (-1.8, 1.3, 0), (135, 90, 55), PLANKS,
                   shape=2, collide=True, angles=(0, 0, math.pi / 2)),
             Piece("HoopLower", (.2, 2.1, 2.1), (-1.8, .5, 0), (70, 70, 75), METAL,
-                  shape=2, collide=True, angles=(0, 0, math.pi / 2)),
+                  shape=2, angles=(0, 0, math.pi / 2)),
             Piece("HoopUpper", (.2, 2.1, 2.1), (-1.8, 2.1, 0), (70, 70, 75), METAL,
-                  shape=2, collide=True, angles=(0, 0, math.pi / 2)),
+                  shape=2, angles=(0, 0, math.pi / 2)),
             Piece("FishingRod", (.15, .15, 6), (1.8, 1.3, -2), (80, 60, 40), WOOD,
-                  collide=True, angles=(math.radians(25), 0, 0)),
+                  angles=(math.radians(25), 0, 0)),
         ], 8)))
 
     # Fence modules run from local x=0 to x=4. The starting post belongs to
