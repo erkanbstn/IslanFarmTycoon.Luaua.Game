@@ -103,6 +103,14 @@ local function applyLevelMarks(plot: Model, spots: Instance, save: PlayerSave?)
 			ModelAssets.eachNamed(mark, { "LampGlow" }, function(glow: BasePart)
 				ModelAssets.markLantern(glow)
 			end)
+			-- Sv.N etiketi binanın üstünde durur (yükseklik binanın sınır kutusundan): çatıyı/kuleyi kapatmaz, iş çubuğuyla (bina üstü +6) çakışmaz
+			local tagHeight = 13
+			local upgrades = plot:FindFirstChild("Upgrades")
+			local building = if upgrades then upgrades:FindFirstChild(upgradeId) else nil
+			if building and building:IsA("Model") then
+				local boxCf, boxSize = building:GetBoundingBox()
+				tagHeight = math.clamp(boxCf.Position.Y + boxSize.Y / 2 - (ground + 1) + 1.4, 6, 24)
+			end
 			local anchor = Instance.new("Part")
 			anchor.Name = "LevelTagAnchor"
 			anchor.Size = Vector3.one
@@ -119,7 +127,7 @@ local function applyLevelMarks(plot: Model, spots: Instance, save: PlayerSave?)
 				tint = GOLD,
 				widthStuds = 5,
 				heightStuds = 1.6,
-				worldOffset = Vector3.new(0, 13, 0),
+				worldOffset = Vector3.new(0, tagHeight, 0),
 				maxDistance = 70,
 			})
 			mark.Parent = marksFolder

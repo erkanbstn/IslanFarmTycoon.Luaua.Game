@@ -17,6 +17,9 @@ local localPlayer = Players.LocalPlayer
 local GOLD = UiTheme.Color.Gold
 local HIDE_DISTANCE = 12
 local CHECK_INTERVAL = 0.25
+local MIN_LIFT = 4.5 -- etiketin hedefin üstündeki en az yüksekliği
+local MAX_LIFT = 20
+local TAG_CLEARANCE = 2.4 -- yapının en üst noktasının ne kadar üstünde durur
 
 local target: BasePart? = nil
 local targetKey = ""
@@ -89,13 +92,21 @@ local function build(part: BasePart, key: string)
 	attachment.Position = Vector3.new(0, 1, 0)
 	attachment.Parent = part
 	targetAttachment = attachment
+	-- Etiket hedefin bağlı olduğu yapının (pazar tezgâhı, yapım alanı) ÜSTÜNDE durur: yapının tabelasını/çatısını kapatmasın.
+	-- Dünya ekseninde yükseltilir (kamera yönüne göre değil), yükseklik yapının sınır kutusundan hesaplanır.
+	local container = part:FindFirstAncestorOfClass("Model")
+	local lift = MIN_LIFT
+	if container then
+		local boxCf, boxSize = container:GetBoundingBox()
+		lift = math.clamp(boxCf.Position.Y + boxSize.Y / 2 - part.Position.Y + TAG_CLEARANCE, MIN_LIFT, MAX_LIFT)
+	end
 	tag = WorldUi.tag(part, "TutorialTag", {
 		text = "Buraya gel",
 		icon = "👇",
 		tint = GOLD,
 		widthStuds = 8,
 		heightStuds = 1.9,
-		offset = Vector3.new(0, 4.5, 0),
+		worldOffset = Vector3.new(0, lift, 0),
 		maxDistance = 400,
 	})
 end
