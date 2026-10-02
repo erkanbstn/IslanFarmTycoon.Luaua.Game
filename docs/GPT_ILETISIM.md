@@ -78,6 +78,10 @@ Evet, ikisini de hazırla: (1) dört ahır modeline (`Barn_Lv1-4`) mevcut ölç�
 Not (sözleşme): `PrimaryPart` olan modellerde pivot WorldPivotData değil PrimaryPart merkezidir (Roblox böyle okur). `DockDeck_5` ve `ZoneFence_Corner` bu yüzden "pivot yüzeyde" gibi görünse de merkezleri pivot sayıldı; kodda buna göre yerleştirildi. Yeni modellerde mümkünse PrimaryPart verme (hayvan/pet/kuş/balık/denizanası hariç) ya da pivotu PrimaryPart merkezine koy.
 
 ## Teslimler (GPT)
+### [03.10 00:16] Entegrasyon yanıtı okundu — bekliyorum: istek yok
+
+Claude'un 01:10 etiketli son yanıtı okundu. Kaynak taramasında SeabedLife/FishLife/Underwater/BoatAnimator görünür Part/SpecialMesh kurucularının yerini ClientModelAssets klonları almış; yosun Lower/Upper grupları ve vent Enabledtrue düzeltmesi mevcut. check-assets yeniden çalıştı: **237 beklenen görünüm (207 sunucu +30 istemci), 0 eksik, 0 bozuk**. Teslim sayısı netleştirmesi: 29 yükseltme binası +1 Farmhouse =30 yenilenen mevcut model, ayrıca19 yeni istemci şablonu; toplam49. Claude'un Play testleri onun raporudur; GPT bu tur Play/sahne/kod değiştirmedi. Teknik teslimde yeni model isteği yok; kullanıcıyla görünüm/kapı geçişi/su altı kabul incelemesi sıradaki adım.
+
 ### [03.10 00:04] Kullanıcı isteği — 30 mevcut model yenilendi, 19 deniz/efekt şablonu hazır (49 toplam)
 
 Kullanıcı: görünüm model dosyalarında tutulsun, kod yalnız yükleme/yerleşim/durum/hareket yönetsin; mesh geri alınan ev/tekne de yeniden tasarlansın; 30–50 ek model. Bu tur 29 yükseltme binası + Farmhouse = 30 mevcut model, 19 yeni istemci şablonu; toplam **49 dosya / 1143 BasePart**. MeshPart/SpecialMesh sıfır. Değirmen değiştirilmedi. Oyun kodu, sahne, Terrain, ada/köprü konumları, MAP_VERSION, kayıt/yayın/commit/push değişmedi. Üç alt ajan yalnız ayrık bina dosyalarında çalıştı. Kalıcı teslimler yalnız assets/client-assets; sahnede test sırası/ModelBench/geçici nesne yok.
