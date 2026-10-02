@@ -64,14 +64,7 @@ end
 
 -- Hazır model (assets/<klasör>/<ad>, pivot = kurucunun taban çerçevesi) varsa kopyasını `cf` noktasına koyar; yoksa false (kod kurucusu çalışır)
 local function placeAsset(model: Model, folder: string, name: string, cf: CFrame): boolean
-	local clone = ModelAssets.clone(folder, name)
-	if not clone then
-		return false
-	end
-	clone:PivotTo(cf)
-	clone.Name = name
-	clone.Parent = model
-	return true
+	return ModelAssets.place(model, folder, name, cf)
 end
 
 local SOLID = { solid = true }

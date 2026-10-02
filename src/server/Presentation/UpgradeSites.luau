@@ -10,6 +10,7 @@ local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath")
 local WorldUi = require(Shared:WaitForChild("WorldUi"))
 local InstanceUtil = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("InstanceUtil"))
 local UpgradeParts = require(script.Parent:WaitForChild("UpgradeParts"))
+local ModelAssets = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("ModelAssets"))
 
 type PlayerSave = GameTypes.PlayerSave
 
@@ -33,40 +34,43 @@ local function buildSite(upgrade: Config.UpgradeConfig, spot: BasePart, parent: 
 		p.CanQuery = false
 		return p
 	end
-	piece(
-		"Dirt",
-		Vector3.new(SITE_HALF * 2, 0.3, SITE_HALF * 2),
-		CFrame.new(0, 0.15, 0),
-		Color3.fromRGB(128, 96, 66),
-		Enum.Material.Ground
-	)
-	local tape = Color3.fromRGB(245, 205, 60)
-	for _, corner in { Vector2.new(-1, -1), Vector2.new(1, -1), Vector2.new(1, 1), Vector2.new(-1, 1) } do
-		local stake = piece(
-			"Stake",
-			Vector3.new(0.35, 2.6, 0.35),
-			CFrame.new(corner.X * SITE_HALF, 1.3, corner.Y * SITE_HALF),
-			Color3.fromRGB(150, 110, 70),
-			Enum.Material.Wood
-		)
-		stake.CanCollide = true
-	end
-	-- Şeritler: dört kenar boyunca gerilmiş sarı bant
-	for _, side in { -1, 1 } do
+	-- Hazır model (assets/FacilityProps/BuildSite_Unbuilt: toprak, kazıklar, şeritler); tabela, direk ve satın alma istemi her zaman kodla eklenir
+	if not ModelAssets.place(site, "FacilityProps", "BuildSite_Unbuilt", base) then
 		piece(
-			"TapeX",
-			Vector3.new(SITE_HALF * 2, 0.12, 0.06),
-			CFrame.new(0, 2.2, side * SITE_HALF),
-			tape,
-			Enum.Material.Fabric
+			"Dirt",
+			Vector3.new(SITE_HALF * 2, 0.3, SITE_HALF * 2),
+			CFrame.new(0, 0.15, 0),
+			Color3.fromRGB(128, 96, 66),
+			Enum.Material.Ground
 		)
-		piece(
-			"TapeZ",
-			Vector3.new(0.06, 0.12, SITE_HALF * 2),
-			CFrame.new(side * SITE_HALF, 2.2, 0),
-			tape,
-			Enum.Material.Fabric
-		)
+		local tape = Color3.fromRGB(245, 205, 60)
+		for _, corner in { Vector2.new(-1, -1), Vector2.new(1, -1), Vector2.new(1, 1), Vector2.new(-1, 1) } do
+			local stake = piece(
+				"Stake",
+				Vector3.new(0.35, 2.6, 0.35),
+				CFrame.new(corner.X * SITE_HALF, 1.3, corner.Y * SITE_HALF),
+				Color3.fromRGB(150, 110, 70),
+				Enum.Material.Wood
+			)
+			stake.CanCollide = true
+		end
+		-- Şeritler: dört kenar boyunca gerilmiş sarı bant
+		for _, side in { -1, 1 } do
+			piece(
+				"TapeX",
+				Vector3.new(SITE_HALF * 2, 0.12, 0.06),
+				CFrame.new(0, 2.2, side * SITE_HALF),
+				tape,
+				Enum.Material.Fabric
+			)
+			piece(
+				"TapeZ",
+				Vector3.new(0.06, 0.12, SITE_HALF * 2),
+				CFrame.new(side * SITE_HALF, 2.2, 0),
+				tape,
+				Enum.Material.Fabric
+			)
+		end
 	end
 	-- Fiyat tabelası: ön köşede (yürüme yolunu kapatmaz: tahta yüksekte, direk ince)
 	local pole = piece(
@@ -227,7 +231,11 @@ local function applyLevelMarks(plot: Model, spots: Instance, save: PlayerSave?)
 			mark.Name = upgradeId
 			mark:SetAttribute("Level", level)
 			local ground = spot.Position.Y - spot.Size.Y / 2
-			for ring = 1, level do
+			local groundCf = CFrame.new(spot.Position.X, ground, spot.Position.Z)
+			-- Hazır halkalar (assets/FacilityProps/FacilityRings_Lv<1-5>, pivot = bina zemini); yoksa kod
+			local ringsReady =
+				ModelAssets.place(mark, "FacilityProps", `FacilityRings_Lv{math.min(level, 5)}`, groundCf)
+			for ring = 1, if ringsReady then 0 else level do
 				local disc = Instance.new("Part")
 				disc.Name = "LevelRing"
 				disc.Shape = Enum.PartType.Cylinder
@@ -244,7 +252,10 @@ local function applyLevelMarks(plot: Model, spots: Instance, save: PlayerSave?)
 				disc.CastShadow = false
 				disc.Parent = mark
 			end
-			addFacilityProps(mark, CFrame.new(spot.Position.X, ground, spot.Position.Z) * spot.CFrame.Rotation, level)
+			local propsCf = groundCf * spot.CFrame.Rotation
+			if not ModelAssets.place(mark, "FacilityProps", `FacilityProps_Lv{math.min(level, 5)}`, propsCf) then
+				addFacilityProps(mark, propsCf, level)
+			end
 			local anchor = Instance.new("Part")
 			anchor.Name = "LevelTagAnchor"
 			anchor.Size = Vector3.one

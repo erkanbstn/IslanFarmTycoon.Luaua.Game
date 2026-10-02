@@ -43,6 +43,17 @@ function ModelAssets.clone(folderName: string, name: string): Model?
 	return model
 end
 
+-- Şablonun kopyasını `cf` pivotuyla `parent` içine koyar (adı şablon adı kalır); şablon yoksa false
+function ModelAssets.place(parent: Instance, folderName: string, name: string, cf: CFrame): boolean
+	local model = ModelAssets.clone(folderName, name)
+	if not model then
+		return false
+	end
+	model:PivotTo(cf)
+	model.Parent = parent
+	return true
+end
+
 function ModelAssets.partCount(model: Instance): number
 	local count = 0
 	for _, descendant in model:GetDescendants() do
