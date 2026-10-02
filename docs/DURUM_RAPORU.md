@@ -1,6 +1,6 @@
 # Island Farm Tycoon — Durum Raporu (güncel: 2026-10-01, geri bildirim, ada altyapısı ve ada çeşitliliği turları sonrası)
 
-> **Not (2026-10-02):** bu rapordan sonra görsel katman modele taşındı (kod kurucuları silindi, harita sürüm 55, `docs/GPT_ILETISIM.md`, `docs/KODSUZ_GECIS_ENVANTERI.md`); aşağıdaki "görsel/kod kurucusu" anlatımları tarihsel durumdur.
+> **Not (2026-10-02):** bu rapordan sonra görsel katman modele taşındı (kod kurucuları silindi, harita sürüm 55, `docs/GPT_ILETISIM.md`); aşağıdaki "görsel/kod kurucusu" anlatımları tarihsel durumdur.
 
 Kaynak: 1 Ekim 2026 proje analizi (metni silindi: `git show b15e796:docs/ANALIZ_RAPORU.md`); bulgu numaraları ona göre. Bu rapor kodla hedefli
 karşılaştırma ve `verify.ps1 -RequireTypes` / `simulate-economy.py` çıktılarıyla hazırlandı; Studio çalıştırılmadı. İkinci turda (güvenlik paketi,

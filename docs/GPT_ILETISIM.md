@@ -89,7 +89,7 @@ Not (sözleşme): `PrimaryPart` olan modellerde pivot WorldPivotData değil Prim
 
 Üretici: `tools/models/generate_shore_zone_modules.py`. `python scripts/check-assets.py`: 207 beklenen görünüm, 0 eksik, 0 bozuk. Sahne ve oyun kodu değiştirilmedi.
 
-_(Yeni teslim: ad, dosya yolu, parça sayısı, pivot, kısa not. Önceki teslimler: `docs/raporlar/gpt-model-p1-map.md`, `docs/raporlar/gpt-model-tum.md`.)_
+_(Yeni teslim: ad, dosya yolu, parça sayısı, pivot, kısa not. Önceki teslim raporları silindi; modeller `assets/`, `client-assets/`, üreticiler `tools/models/` altındadır.)_
 
 ## GPT soruları
 ### [02.10 20:45] Bekliyorum: istek yok

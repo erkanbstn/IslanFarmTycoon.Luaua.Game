@@ -442,45 +442,7 @@ def main() -> None:
     extras()
     assert len(records) == 62, len(records)
     assert len({record[1] for record in records}) == len(records)
-    report = ROOT / "docs" / "raporlar" / "gpt-model-tum.md"
-    lines = [
-        "# GPT model iş listesi — tamamlama raporu",
-        "",
-        "P1 harita grubunun 5 modeli için [ayrı rapor](gpt-model-p1-map.md). "
-        "Bu dosya kalan 62 modeli listeler; 356 BasePart. Önceki grupla toplam 67 model / 374 BasePart.",
-        "",
-        "Üreticiler: `tools/models/generate_p1_map.py`, "
-        "`tools/models/generate_remaining.py`, `tools/models/model_xml.py`. "
-        "Her model yazıldıktan hemen sonra XML, ad, pivot, Shape, parça sayısı ve PrimaryPart kontrol edildi.",
-        "",
-        "| Ad | Dosya | Parça | Kutu X×Y×Z | Pivot | Not |",
-        "|---|---|---:|---|---|---|",
-    ]
-    for name, path, count, box, note in records:
-        pivot = "Body merkezi" if name in ("Gull", "Songbird", "ReefFish") else (
-            "JellyBell merkezi" if name == "Jellyfish" else (
-                "merkez" if name == "FallingLeaf" else "zemin"))
-        lines.append(
-            f"| {name} | `{path}` | {count} | "
-            f"{box[0]:.2f}×{box[1]:.2f}×{box[2]:.2f} | {pivot} | {note} |"
-        )
-    lines += [
-        "",
-        "Doğrulama: `python scripts/check-assets.py` ve Rojo 7.4.4 `build` geçti. "
-        "Studio Edit'te altı temsilî model `Workspace.ModelBench.GPT_Review` altında görsel kontrol edildi; "
-        "kalan modellerin tek tek görsel incelemesi bekliyor. Studio Save/Publish yapılmadı.",
-        "",
-        "Oyun kodu, yerleşim, köprü/Terrain ve MAP_VERSION değiştirilmedi. "
-        "Model dosyaları tek başına oyundaki yordamsal çizimi değiştirmez; "
-        "yükleyici bağlantısı ve Play doğrulaması entegrasyon aşamasındadır.",
-        "",
-        "At adasındaki yuva konumu ve değirmenin kayıtlı sahnedeki kapısı bu "
-        "model listesi dışında bekleyen sorunlardır.",
-        "",
-    ]
-    report.write_text("\n".join(lines), encoding="utf-8")
-    print(f"Report: {report.relative_to(ROOT)}; {len(records)} models")
-
+    print(f"{len(records)} models")
 
 if __name__ == "__main__":
     main()

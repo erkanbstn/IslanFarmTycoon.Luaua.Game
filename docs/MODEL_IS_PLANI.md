@@ -103,7 +103,7 @@ Kurallar:
 - Sonra Play'de doğrula: plan §4 ölçütleri 1-8 (bina) ya da 1, 2, 6, 8 (hayvan). Gece için ClockTime=22.
 - Kod dosyası değiştirme, commit/push yapma, soru sorma; takılırsan raporda yaz.
 
-Rapor (docs/raporlar/model-<id>.md, ≤ 25 satır): kontrol listesi (✓/✗ + ölçülen değer), parça sayısı, kutu ölçüsü,
+Rapor (sohbette ya da `docs/GPT_ILETISIM.md` "Teslimler"de, ≤ 25 satır): kontrol listesi (✓/✗ + ölçülen değer), parça sayısı, kutu ölçüsü,
 dosya yolu, açık sorunlar, kod tarafına önerilen değişiklik (varsa K1-K5 numarasıyla).
 ```
 
