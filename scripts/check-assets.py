@@ -24,7 +24,7 @@ ALLOWED_MISSING: dict[str, str] = {}
 # Koda bağlanmamış (harita kurucuları) klasörler: bilgi amaçlı, hata sayılmaz.
 UNWIRED_FOLDERS: set[str] = set()
 FORBIDDEN_CLASSES = {
-    "Script", "LocalScript", "ModuleScript", "ProximityPrompt", "SurfaceGui", "BillboardGui", "PointLight", "SpotLight",
+    "Script", "LocalScript", "ModuleScript", "ProximityPrompt", "SurfaceGui", "BillboardGui", "PointLight", "SpotLight", "MeshPart",
 }
 MAX_PARTS_BUILDING = 35
 # Üretim yapmayan (tabelasız) binalar; diğer bütün binalarda SignBoard + 2 SignPost zorunlu.
@@ -113,29 +113,6 @@ def expected() -> dict[str, set[str]]:
     return exp
 
 
-# Kullanıcı onaylı mesh ikameleri (FileMesh = SpecialMesh MeshType=5): yeni modellerde mesh yok, yalnızca bu ikisi.
-ALLOWED_FILEMESH = {"Farmhouse", "fishing_boat"}
-ASSET_ID = re.compile(r"^rbxassetid://\d+$")
-
-
-def file_mesh_problems(part: ET.Element, mesh: ET.Element) -> list[str]:
-    """FileMesh sağlığı: sayısal MeshId, (varsa) sayısal TextureId, pozitif ölçek, parça görsel (çarpışmaz)."""
-    problems: list[str] = []
-    mesh_id = mesh.find("Properties/Content[@name='MeshId']/url")
-    if mesh_id is None or not ASSET_ID.match((mesh_id.text or "").strip()):
-        problems.append("FileMesh MeshId sayısal rbxassetid:// olmalı")
-    texture = mesh.find("Properties/Content[@name='TextureId']/url")
-    if texture is not None and (texture.text or "").strip() and not ASSET_ID.match(texture.text.strip()):
-        problems.append("FileMesh TextureId sayısal rbxassetid:// olmalı")
-    scale = mesh.find("Properties/Vector3[@name='Scale']")
-    if scale is None or any(float(scale.find(axis).text) <= 0 for axis in "XYZ"):
-        problems.append("FileMesh Scale pozitif olmalı")
-    collide = part.find("Properties/bool[@name='CanCollide']")
-    if collide is None or collide.text != "false":
-        problems.append("FileMesh taşıyan görsel parça çarpışmamalı (CanCollide=false)")
-    return problems
-
-
 def inspect(path: Path, folder: str) -> list[str]:
     problems: list[str] = []
     try:
@@ -164,17 +141,10 @@ def inspect(path: Path, folder: str) -> list[str]:
                 dims = [float(size.find(c).text) for c in "XYZ"]
                 if max(dims) - min(dims) > 0.011:
                     problems.append(f"eşit olmayan Ball ({dims}); elips için Block + SpecialMesh Sphere kullan")
-        if cls == "Part":
-            for child in item.findall("Item"):
-                if child.get("class") != "SpecialMesh":
-                    continue
-                kind = child.find("Properties/token[@name='MeshType']")
-                if kind is not None and kind.text == "3":
-                    continue
-                if kind is not None and kind.text == "5" and path.stem in ALLOWED_FILEMESH:
-                    problems.extend(file_mesh_problems(item, child))
-                else:
-                    problems.append("SpecialMesh yalnızca MeshType=3 (Sphere) olabilir (FileMesh yalnızca ALLOWED_FILEMESH'te)")
+        if cls == "SpecialMesh":
+            mesh = item.find("Properties/token[@name='MeshType']")
+            if mesh is None or mesh.text != "3":
+                problems.append("SpecialMesh yalnızca MeshType=3 (Sphere) olabilir; mesh dosyası (FileMesh/MeshPart) yasak")
     if parts == 0:
         problems.append("hiç parça yok")
     sign_parts = sum(
