@@ -13,6 +13,7 @@ local JobMarks = require(script.Parent:WaitForChild("JobMarks"))
 local WorldUi = require(Shared:WaitForChild("WorldUi"))
 
 local IslandSpecialization = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("IslandSpecialization"))
+local ModelAssets = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("ModelAssets"))
 local ExtensionAreas = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("ExtensionAreas"))
 
 local function plotService()
@@ -175,6 +176,14 @@ end
 local function addCapacityProps(parent: Instance, surfaceCf: CFrame, layout: any, capacity: number)
 	local extra = capacity - 2
 	if extra <= 0 then
+		return
+	end
+	-- Hazır kapasite süsü (assets/ExtensionCapacity/CapacityProps_<eklentiId>_Cap3|Cap4, pivot = ada yüzeyi); yoksa kod
+	local ready = ModelAssets.clone("ExtensionCapacity", `CapacityProps_{layout.id}_Cap{math.min(capacity, 4)}`)
+	if ready then
+		ready:PivotTo(surfaceCf)
+		ready.Name = "CapacityProps"
+		ready.Parent = parent
 		return
 	end
 	local model = Instance.new("Model")

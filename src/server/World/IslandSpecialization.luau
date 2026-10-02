@@ -6,6 +6,7 @@ local WorldUi = require(Shared:WaitForChild("WorldUi"))
 local IslandLayout = require(script.Parent:WaitForChild("IslandLayout"))
 local IslandSiteParts = require(script.Parent:WaitForChild("IslandSiteParts"))
 local IslandSiteBuilders = require(script.Parent:WaitForChild("IslandSiteBuilders"))
+local ModelAssets = require(script.Parent:WaitForChild("ModelAssets"))
 
 local IslandSpecialization = {}
 
@@ -31,9 +32,24 @@ local home = IslandSiteBuilders.home
 
 local function productionSite(parent: Instance, cf: CFrame, id: string, site: Site)
 	local base = cf * CFrame.new(site.offset)
-	local pad =
-		surface(parent, "ProductionPad", base, site.footprint, Color3.fromRGB(168, 165, 150), Enum.Material.Concrete)
-	pad:SetAttribute("ProductionSiteId", id)
+	-- Hazır zemin (assets/ProductionSites/ProductionSite_<id>, pivot = ada yüzeyi); yoksa kod. Tabela her zaman kodla eklenir.
+	local ready = ModelAssets.clone("ProductionSites", `ProductionSite_{id}`)
+	local readyPad = if ready then ready:FindFirstChild("ProductionPad") else nil
+	if ready and readyPad then
+		ready:PivotTo(cf)
+		ready.Parent = parent
+		readyPad:SetAttribute("ProductionSiteId", id)
+	else
+		local pad = surface(
+			parent,
+			"ProductionPad",
+			base,
+			site.footprint,
+			Color3.fromRGB(168, 165, 150),
+			Enum.Material.Concrete
+		)
+		pad:SetAttribute("ProductionSiteId", id)
+	end
 	local front = site.footprint.Y / 2 + 2.5
 	-- Tabela kapının tam önünde değil, yükleme alanının kenarında durur.
 	sign(parent, base * CFrame.new(site.footprint.X / 2 - 2, 0, -front), site.title, site.icon)
@@ -57,6 +73,15 @@ local function createExtensionSlot(parent: Instance, surfaceCf: CFrame, layout: 
 	anchor:SetAttribute("MovementStyle", layout.movement)
 end
 
+local EXTENSION_BUILDERS: { [string]: (Instance, CFrame) -> () } = {
+	folluk_garden = poultry,
+	training_course = horse,
+	rocky_terraces = goat,
+	goat_cliffs = goatCliffs,
+	hillside_pasture = sheepHill,
+	truffle_grove = truffleGrove,
+}
+
 function IslandSpecialization.buildExtensionVisual(parent: Instance, surfaceCf: CFrame, extensionId: string): Model?
 	local layout = IslandSpecialization.EXTENSIONS[extensionId]
 	if not layout then
@@ -65,18 +90,11 @@ function IslandSpecialization.buildExtensionVisual(parent: Instance, surfaceCf: 
 	local wrapper = Instance.new("Model")
 	wrapper.Name = extensionId
 	wrapper.Parent = parent
-	if extensionId == "folluk_garden" then
-		poultry(wrapper, surfaceCf)
-	elseif extensionId == "training_course" then
-		horse(wrapper, surfaceCf)
-	elseif extensionId == "rocky_terraces" then
-		goat(wrapper, surfaceCf)
-	elseif extensionId == "goat_cliffs" then
-		goatCliffs(wrapper, surfaceCf)
-	elseif extensionId == "hillside_pasture" then
-		sheepHill(wrapper, surfaceCf)
-	elseif extensionId == "truffle_grove" then
-		truffleGrove(wrapper, surfaceCf)
+	-- Hazır yapı (assets/Extensions/<eklentiId>, pivot = ada yüzeyi); yoksa kod kurucusu
+	local placed = ModelAssets.place(wrapper, "Extensions", extensionId, surfaceCf)
+	local codeBuilder = EXTENSION_BUILDERS[extensionId]
+	if not placed and codeBuilder then
+		codeBuilder(wrapper, surfaceCf)
 	end
 	-- Satın alınan eklentide de tabela olsun: etkileşim balonları rastgele bir yapı parçasına değil buna bağlanır.
 	sign(wrapper, surfaceCf * CFrame.new(layout.signOffset.X, 0, layout.signOffset.Z), layout.title, layout.icon)
@@ -165,7 +183,9 @@ function IslandSpecialization.syncMilkLoadingDecor(parent: Instance, surfaceCf: 
 	local created = Instance.new("Folder")
 	created.Name = "MilkLoadingDecor"
 	created.Parent = parent
-	home(created, surfaceCf)
+	if not ModelAssets.place(created, "Extensions", "MilkLoadingDecor", surfaceCf) then
+		home(created, surfaceCf)
+	end
 end
 
 -- İlgili yol haritası öğesi alındığında üretim tabelası + zemin (ada açık olmalı).
