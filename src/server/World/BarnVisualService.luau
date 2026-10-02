@@ -12,20 +12,6 @@ local ModelAssets = require(script.Parent:WaitForChild("ModelAssets"))
 
 local BarnVisualService = {}
 
-local function makePart(name: string, size: Vector3, cframe: CFrame, color: Color3, parent: Instance): Part
-	local part = Instance.new("Part")
-	part.Name = name
-	part.Size = size
-	part.CFrame = cframe
-	part.Color = color
-	part.Anchored = true
-	part.Material = Enum.Material.WoodPlanks
-	part.TopSurface = Enum.SurfaceType.Smooth
-	part.BottomSurface = Enum.SurfaceType.Smooth
-	part.Parent = parent
-	return part
-end
-
 local function getBarnFrame(plot: Model): CFrame?
 	local spot = plot:FindFirstChild("BarnSpot")
 	if spot and spot:IsA("BasePart") then
@@ -86,18 +72,8 @@ local function buildBarn(parent: Instance, frame: CFrame, barnLevel: number)
 		if chest and chest:IsA("BasePart") then
 			attachChestInteraction(chest)
 		end
-		-- Seviye tabelası modelde yoktur (SurfaceGui modelde saklanmaz): kapı üstüne kodla konur (kod kurucusuyla aynı ölçü ve yer)
+		-- Seviye tabelası modelde "LevelSign" parçasıdır (SurfaceGui modelde saklanmaz): yazı burada eklenir
 		local sign = modelBarn:FindFirstChild("LevelSign")
-		if not sign then
-			local aboveDoorH = 11 - 8.5 -- duvar yüksekliği - kapı yüksekliği
-			sign = makePart(
-				"LevelSign",
-				Vector3.new(8 + 2, aboveDoorH * 0.8, 0.4),
-				frame * CFrame.new(0, 1 + 8.5 + aboveDoorH / 2, -(12 / 2) - 0.3),
-				Color3.fromRGB(40, 30, 25),
-				modelBarn
-			)
-		end
 		if sign and sign:IsA("BasePart") then
 			WorldUi.sign(sign, Enum.NormalId.Front, {
 				title = `Seviye {barnLevel}`,

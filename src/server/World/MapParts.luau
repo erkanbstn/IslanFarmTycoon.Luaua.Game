@@ -356,6 +356,14 @@ local function addIslandGrass(
 		maxRadius = radius - 9,
 		avoid = avoid,
 	})
+	-- Kaya, kütük, mantar, kabak, saz, palmiye... (assets/CommonDecor): yaklaşık her 7 çim tutamı için 1 süs
+	WorldDecor.scatterProps(parent, surfaceCf, {
+		count = math.floor(count / 7),
+		seed = seed + 2,
+		minRadius = 10,
+		maxRadius = radius - 6,
+		avoid = avoid,
+	})
 end
 
 -- Bir yol boyunca eşit aralıklı, iki yanda dönüşümlü fener direkleri; kollar yolun ortasına uzanır.

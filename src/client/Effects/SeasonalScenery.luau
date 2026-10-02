@@ -137,6 +137,11 @@ function SeasonalScenery.start(): () -> ()
 			local color = source.color
 			local visible = true
 			local size: Vector3? = nil
+			if source.kind == "snowprop" then
+				-- Parçanın kendi Transparency'si sunucuda 1'dir; karlı mevsimde 0 olur, yaprak dökülmeden önce görünmez
+				part.Transparency = if sample.snow >= 0.45 then 0 else 1
+				continue
+			end
 			if source.kind == "ground" or source.kind == "zoneground" then
 				if part:GetAttribute("Locked") == true then
 					if source.tween then
@@ -248,7 +253,10 @@ function SeasonalScenery.start(): () -> ()
 			return
 		end
 		local kind: string? = nil
-		if instance.Name == "PlotBase" or instance.Name == "IslandBase" then
+		if parent.Name == "SnowCap" or parent.Name == "Snowman" then
+			-- Kar başlığı ve kardan adam (SeasonModels): sunucu gizli kurar, karlı mevsimde burada açılır
+			kind = "snowprop"
+		elseif instance.Name == "PlotBase" or instance.Name == "IslandBase" then
 			kind = "ground"
 		elseif
 			instance.Name == "Ground"

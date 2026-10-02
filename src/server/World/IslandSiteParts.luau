@@ -6,6 +6,7 @@ local CollectionService = game:GetService("CollectionService")
 -- Studio harita eklentisi modülleri kopyalayıp çalıştırır; Shared araması SharedRef'te (kopyadaki Shared'ı bulur).
 local Shared = require(script.Parent:WaitForChild("SharedRef")) :: typeof(game.ReplicatedStorage.Shared)
 local WorldUi = require(Shared:WaitForChild("WorldUi"))
+local ModelAssets = require(script.Parent:WaitForChild("ModelAssets"))
 
 local WOOD = Color3.fromRGB(131, 93, 58)
 local CREAM = Color3.fromRGB(235, 224, 192)
@@ -28,18 +29,34 @@ local function part(
 	return p
 end
 
-local function sign(parent: Instance, cf: CFrame, title: string, icon: string)
-	local board = part(
-		parent,
-		"SpecialtySign",
-		Vector3.new(7, 2, 0.35),
-		cf * CFrame.new(0, 9.6, 0),
-		WOOD,
-		Enum.Material.WoodPlanks
-	)
-	board.CanCollide = false
-	part(parent, "SignPost", Vector3.new(0.5, 8.6, 0.5), cf * CFrame.new(0, 4.3, 0), WOOD, Enum.Material.Wood)
-	WorldUi.sign(board, Enum.NormalId.Front, { text = title, icon = icon })
+-- Tabela: hazır model (assets/SignModels/SpecialtySign: SpecialtySign tahtası + SpecialtyPost direği), parçalar doğrudan `parent`
+-- içine konur. Yazı ve ikon kodla eklenir; `boardName` verilirse tahtanın adı o olur (ör. satılık eklenti tabelası).
+local signWarned = false
+local function sign(parent: Instance, cf: CFrame, title: string, icon: string, boardName: string?, text: string?)
+	local model = ModelAssets.clone("SignModels", "SpecialtySign")
+	if not model then
+		if not signWarned then
+			signWarned = true
+			warn("[IslandSiteParts] assets/SignModels/SpecialtySign.rbxmx bulunamadı; tabela çizilmedi")
+		end
+		return
+	end
+	model:PivotTo(cf)
+	local board = model:FindFirstChild("SpecialtySign")
+	if board and board:IsA("BasePart") then
+		if boardName then
+			board.Name = boardName
+		end
+		WorldUi.sign(
+			board,
+			Enum.NormalId.Front,
+			{ title = if text then title else nil, text = text or title, icon = icon }
+		)
+	end
+	for _, child in model:GetChildren() do
+		child.Parent = parent
+	end
+	model:Destroy()
 end
 
 -- Hayvanların içinden geçmemesi gereken katı küçük dekor parçaları ("AnimalObstacle" etiketi); AnimalAnimator hedef seçerken bunları atlar.

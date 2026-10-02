@@ -372,60 +372,45 @@ local function buildIsland(plotIndex: number, islandCf: CFrame, theme: number?):
 	spawnPad.TopSurface = Enum.SurfaceType.Smooth
 	spawnPad.Parent = plotModel
 
-	-- Para toplama platformu: altın çerçeve + parlayan yeşil yüzey
-	local collectorCf = islandCf * CFrame.new(14, SURFACE_Y, -40)
-	local rim = makePart(
-		"CollectorRim",
-		Vector3.new(7.4, 0.5, 7.4),
-		collectorCf * CFrame.new(0, 0.25, 0),
-		Color3.fromRGB(230, 180, 50),
-		plotModel
-	)
-	rim.Material = Enum.Material.Metal
-	local collector = makePart(
-		"Collector",
-		Vector3.new(6, 0.3, 6),
-		collectorCf * CFrame.new(0, 0.6, 0) * CFrame.Angles(0, math.pi, 0),
-		Color3.fromRGB(60, 220, 90),
-		plotModel
-	)
-	collector.Material = Enum.Material.Neon
-	WorldUi.sign(collector, Enum.NormalId.Top, { text = "TOPLA", textColor = Color3.fromRGB(20, 90, 35) })
-	WorldUi.tag(collector, "CollectorBillboard", {
-		text = "Depo",
-		icon = "💰",
-		tint = UiTheme.Color.Green,
-		widthStuds = 7,
-		heightStuds = 1.6,
-		offset = Vector3.new(0, 3.5, 0),
-	})
+	-- Hazır modelin parçalarını doğrudan plot modelinin çocuğu yapar (servisler/testler adlarıyla plot altında arar)
+	local function placeFlat(folderName: string, name: string, cf: CFrame)
+		local model = ModelAssets.clone(folderName, name)
+		if not model then
+			warn(`[IslandBuilder] assets/{folderName}/{name}.rbxmx bulunamadı; çizilmedi`)
+			return
+		end
+		model:PivotTo(cf)
+		for _, child in model:GetChildren() do
+			child.Parent = plotModel
+		end
+		model:Destroy()
+	end
 
-	-- Ada tabelası: üstte ada adı, altta sahibi. Yaklaşınca "Adalar" menüsü açılır (TravelMenu).
+	-- Para toplama platformu (assets/ZoneBases/CollectorPad: altın çerçeve + parlayan yeşil yüzey)
+	placeFlat("ZoneBases", "CollectorPad", islandCf * CFrame.new(14, SURFACE_Y, -40))
+	local collector = plotModel:FindFirstChild("Collector")
+	if collector and collector:IsA("BasePart") then
+		WorldUi.sign(collector, Enum.NormalId.Top, { text = "TOPLA", textColor = Color3.fromRGB(20, 90, 35) })
+		WorldUi.tag(collector, "CollectorBillboard", {
+			text = "Depo",
+			icon = "💰",
+			tint = UiTheme.Color.Green,
+			widthStuds = 7,
+			heightStuds = 1.6,
+			offset = Vector3.new(0, 3.5, 0),
+		})
+	end
+
+	-- Ada tabelası (assets/SignModels/PlotSign): üstte ada adı, altta sahibi. Yaklaşınca "Adalar" menüsü açılır (TravelMenu).
 	-- Tabela yolun üstünde durur ama alt kenarı karakter boyunun çok üstünde; direkler yolun dışında.
-	local signCf = islandCf * CFrame.new(0, SURFACE_Y + 16, -56)
-	local frameColor = Color3.fromRGB(140, 100, 60)
-	local sign = makePart("PlotSign", Vector3.new(9, 2.8, 0.5), signCf, Color3.fromRGB(85, 60, 40), plotModel)
-	sign.Material = Enum.Material.WoodPlanks
-	for _, face in { Enum.NormalId.Front, Enum.NormalId.Back } do
-		WorldUi.sign(sign, face, { icon = islandIcon, title = islandName, text = "Boş Ada" })
+	placeFlat("SignModels", "PlotSign", islandCf * CFrame.new(0, SURFACE_Y, -56))
+	local sign = plotModel:FindFirstChild("PlotSign")
+	if sign and sign:IsA("BasePart") then
+		for _, face in { Enum.NormalId.Front, Enum.NormalId.Back } do
+			WorldUi.sign(sign, face, { icon = islandIcon, title = islandName, text = "Boş Ada" })
+		end
+		addTravelPrompt(sign, islandName)
 	end
-	for _, y in { -1.55, 1.55 } do
-		local frame =
-			makePart("SignFrame", Vector3.new(9.4, 0.3, 0.7), signCf * CFrame.new(0, y, 0), frameColor, plotModel)
-		frame.Material = Enum.Material.Wood
-	end
-	sign.CanCollide = false
-	for _, x in { -5.4, 5.4 } do
-		local post = makePart(
-			"SignPost",
-			Vector3.new(0.7, 18, 0.7),
-			islandCf * CFrame.new(x, SURFACE_Y + 9, -56),
-			frameColor,
-			plotModel
-		)
-		post.Material = Enum.Material.Wood
-	end
-	addTravelPrompt(sign, islandName)
 
 	-- Uzaktan (diğer adalardan) görünen ada adı
 	local nameAnchor = makePart(

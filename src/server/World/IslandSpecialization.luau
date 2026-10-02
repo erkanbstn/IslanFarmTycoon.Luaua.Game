@@ -1,8 +1,6 @@
 --!strict
 -- Mevcut dört adanın boş kenarlarını uzmanlaştırır; hayvan bölgelerine ve köprü girişlerine dokunmaz.
 -- Parçalar: IslandLayout (veri), IslandSiteParts (yapı taşları). Yapılar hazır modellerdir (assets/Extensions, ProductionSites).
-local Shared = require(script.Parent:WaitForChild("SharedRef")) :: typeof(game.ReplicatedStorage.Shared)
-local WorldUi = require(Shared:WaitForChild("WorldUi"))
 local IslandLayout = require(script.Parent:WaitForChild("IslandLayout"))
 local IslandSiteParts = require(script.Parent:WaitForChild("IslandSiteParts"))
 local ModelAssets = require(script.Parent:WaitForChild("ModelAssets"))
@@ -16,7 +14,6 @@ IslandSpecialization.EXTENSIONS = IslandLayout.EXTENSIONS
 IslandSpecialization.SITES = IslandLayout.SITES
 IslandSpecialization.SITE_UPGRADE_ID = IslandLayout.SITE_UPGRADE_ID
 
-local WOOD = IslandSiteParts.WOOD
 local part = IslandSiteParts.part
 local sign = IslandSiteParts.sign
 IslandSpecialization.markObstacles = IslandSiteParts.markObstacles
@@ -96,21 +93,7 @@ function IslandSpecialization.buildForSaleSign(
 	wrapper.Parent = parent
 	if layout then
 		local cf = surfaceCf * CFrame.new(layout.signOffset.X, 0, layout.signOffset.Z)
-		local board = part(
-			wrapper,
-			"ForSaleSign",
-			Vector3.new(7, 2, 0.35),
-			cf * CFrame.new(0, 9.6, 0),
-			WOOD,
-			Enum.Material.WoodPlanks
-		)
-		board.CanCollide = false
-		part(wrapper, "SignPost", Vector3.new(0.5, 8.6, 0.5), cf * CFrame.new(0, 4.3, 0), WOOD, Enum.Material.Wood)
-		WorldUi.sign(board, Enum.NormalId.Front, {
-			title = layout.title,
-			text = `Satılık · {priceText}`,
-			icon = layout.icon,
-		})
+		sign(wrapper, cf, layout.title, layout.icon, "ForSaleSign", `Satılık · {priceText}`)
 		createExtensionSlot(wrapper, surfaceCf, layout)
 	end
 	wrapper:SetAttribute("ExtensionId", extensionId)
@@ -133,6 +116,7 @@ local function stripLegacyProductionDecor(parent: Instance)
 				child.Name == "ProductionPad"
 				or child.Name == "SpecialtySign"
 				or child.Name == "SignPost"
+				or child.Name == "SpecialtyPost"
 				or child.Name == "LoadingBayStripe"
 			)
 		local legacyModel = child:IsA("Model") and (child.Name == "Crate" or child.Name:find("Path") ~= nil)

@@ -115,7 +115,7 @@ export type SatelliteLayout = {
 -- Üç yuva her ana adada aynıdır; yuvaya hangi ada türünün konacağını ana çiftlik numarasının teması belirler
 -- (Config.THEMES). Ada türünün zemini, bölgesi ve yapı noktası burada tanımlıdır.
 -- Komşu çiftliklerin adalarına en az ~24 stud su kalacak biçimde hesaplandı (6 ada halkası, yarıçap 175).
-local SATELLITE_SLOTS = { Vector3.new(-85, 0, 105), Vector3.new(85, 0, 105), Vector3.new(0, 0, 200) }
+local SATELLITE_SLOTS = { Vector3.new(-100, 0, 125), Vector3.new(100, 0, 125), Vector3.new(0, 0, 200) }
 
 export type SatelliteType = {
 	groundColor: Color3,

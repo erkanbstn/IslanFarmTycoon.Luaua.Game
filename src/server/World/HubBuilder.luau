@@ -106,6 +106,26 @@ local function buildHub(parent: Instance)
 		end
 	end
 
+	-- Meydan süsleri (assets/HubModels): heykel, bayraklar köprü girişlerinin iki yanında, flama doğma noktasının arkasında.
+	-- Yüzleri meydanın ortasına dönüktür.
+	local function placeHubDecor(name: string, pos: Vector3)
+		local model = ModelAssets.clone("HubModels", name)
+		if not model then
+			warn(`[HubBuilder] assets/HubModels/{name}.rbxmx bulunamadı; çizilmedi`)
+			return
+		end
+		model:PivotTo(CFrame.lookAt(pos, center))
+		model.Parent = hub
+	end
+	placeHubDecor("Hub_Statue", onRing(300, 14))
+	placeHubDecor("Hub_Banner", onRing(330, 33))
+	for bridge = 0, Config.MAP_PLOT_COUNT - 1 do
+		local angle = bridge * 360 / Config.MAP_PLOT_COUNT
+		for _, side in { -8, 8 } do
+			placeHubDecor("Hub_Flag", onRing(angle + side, HUB_RADIUS - 6))
+		end
+	end
+
 	local spawn = Instance.new("SpawnLocation")
 	spawn.Name = "HubSpawn"
 	spawn.Size = Vector3.new(10, 0.4, 10)
