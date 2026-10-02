@@ -54,7 +54,7 @@ local data = {
 		birds = { id = "rbxassetid://127027242520219", volume = 0.04 }, -- ilkbahar/yaz gündüz
 		wind = { id = "rbxassetid://125057374855022", volume = 0.08 }, -- sonbahar/kış
 		rain = { id = "rbxassetid://133112480071276", volume = 0.1 }, -- yağmur
-		storm = { id = "rbxassetid://92368104922736", volume = 0.12 }, -- fırtına
+		storm = { id = "rbxassetid://134519304498687", volume = 0.12 }, -- fırtına
 		night = { id = "rbxassetid://133269110109074", volume = 0.08 }, -- gece (cırcır böceği)
 	} :: { [string]: Types.SoundConfig },
 
