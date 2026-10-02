@@ -99,12 +99,17 @@ export type BarnLevelConfig = {
 -- ve her biri yeni bir hayvanı + kendine özel bir bonusu getirir.
 -- Ada teması: her ana çiftlik numarasının (= fiziksel ada numarası) kendi 3 küçük adası vardır.
 -- satellites sırası = harita yuvası sırası (erken, orta, geç); hepsi FARM_ISLANDS'ta tanımlı olmalıdır.
+-- Balık görünümü (çiftliğe göre değişir): oyun mantığı/fiyat `anchovy` (küçük) ve `seabass` (büyük) kimliklerinde kalır, görünen ad/simge/ürün
+-- adı ve model çiftlik temasına göre değişir. id = model dosyası (assets/Animals/<id>.rbxmx).
+export type FishSkin = { id: string, displayName: string, icon: string, product: string }
+
 export type ThemeConfig = {
 	id: string,
 	displayName: string,
 	homeAnimal: string, -- Ana adanın ağıl ve otlağında yaşayan hayvan
 	landmark: string, -- Ana adada doğu kıyıdaki tema işaret yapısı (HomeBuildings.landmark türü)
 	satellites: { string }, -- Çiftliğin 3 küçük adası (FARM_ISLANDS id); her adada tek hayvan yaşar (FARM_ISLANDS[ada].animalId)
+	fish: { [string]: FishSkin }?, -- anchovy (küçük) / seabass (büyük) balığın bu çiftlikteki görünümü; yoksa ANIMALS'taki varsayılan (Hamsi/Levrek)
 }
 
 -- Çiftlik zorluğu (Config/Difficulty.luau): tier = çiftliğin alım sırası (1..MAIN_FARM_LIMIT).

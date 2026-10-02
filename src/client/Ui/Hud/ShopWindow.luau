@@ -1,5 +1,5 @@
 --!strict
--- Hayvan Pazarı penceresi: hayvan listesi, toplu alım çarpanı ve hamsi-levrek değişimi.
+-- Hayvan Pazarı penceresi: hayvan listesi, toplu alım çarpanı ve küçük-büyük balık değişimi.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -137,10 +137,10 @@ function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 		if not offer then
 			return
 		end
-		local animal = Config.ANIMALS[offer.animalId]
+		local look = Config.getAnimalLook(offer.animalId, state.activeMainFarmId)
 		local left = math.max(0, offer.endsAt - Workspace:GetServerTimeNow())
-		merchantCard.icon.Text = animal.icon
-		merchantCard.title.Text = animal.displayName
+		merchantCard.icon.Text = look.icon
+		merchantCard.title.Text = look.displayName
 		merchantCard.detail.Text =
 			`Gezgin tüccar · x{offer.count} · %{math.round(Config.MERCHANT.discount * 100)} indirim · Normal fiyat: {FarmMath.formatMoney(
 				offer.fullPrice
@@ -162,7 +162,7 @@ function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 	end)
 
 	local replacementCard = UiKit.card(shopWindow.list, 3 * #Config.ANIMAL_ORDER + 2, Config.ANIMALS.seabass.icon)
-	replacementCard.title.Text = "Hamsiyi levrekle değiştir"
+	replacementCard.title.Text = "Küçük balığı büyük balıkla değiştir"
 	replacementCard.action.Activated:Connect(function()
 		local state = ClientState.get()
 		local fish = state and FarmMath.findReplaceableFish(state)
@@ -188,7 +188,8 @@ function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 			if not relevant then
 				continue
 			end
-			local animalConfig = Config.ANIMALS[animalId]
+			local animalConfig = Config.getAnimalLook(animalId, state.activeMainFarmId)
+			card.icon.Text = animalConfig.icon
 			local lineageLevel = FarmMath.getLineageLevel(state, animalId)
 			local lineageStatus, _, lineageCost = FarmMath.getLineageStatus(state, animalId)
 			lineageRows[animalId].Visible = FarmMath.countAnimals(state, animalId) > 0
@@ -273,7 +274,7 @@ function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 		if fish then
 			local price = FarmMath.getFishReplacementPrice(state)
 			replacementCard.detail.Text =
-				"Bir hamsi çıkar, yerine yavru levrek gelir. Hamsinin temel fiyatının yarısı bedelden düşülür."
+				"Küçük bir balık çıkar, yerine yavru büyük balık gelir. Küçük balığın temel fiyatının yarısı bedelden düşülür."
 			setPurchaseButton(
 				replacementCard.action,
 				`Değiştir · {FarmMath.formatMoney(price)}`,

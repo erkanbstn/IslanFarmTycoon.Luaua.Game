@@ -106,7 +106,7 @@ local function buildHub(parent: Instance)
 		end
 	end
 
-	-- Meydan süsleri (assets/HubModels): heykel, bayraklar köprü girişlerinin iki yanında, flama doğma noktasının arkasında.
+	-- Meydan süsleri (assets/HubModels): heykel ve flama (doğma noktasının arkasında). Köprü girişlerinin bayrakları kullanıcı isteğiyle kaldırıldı.
 	-- Yüzleri meydanın ortasına dönüktür.
 	local function placeHubDecor(name: string, pos: Vector3)
 		local model = ModelAssets.clone("HubModels", name)
@@ -119,12 +119,6 @@ local function buildHub(parent: Instance)
 	end
 	placeHubDecor("Hub_Statue", onRing(300, 14))
 	placeHubDecor("Hub_Banner", onRing(330, 33))
-	for bridge = 0, Config.MAP_PLOT_COUNT - 1 do
-		local angle = bridge * 360 / Config.MAP_PLOT_COUNT
-		for _, side in { -8, 8 } do
-			placeHubDecor("Hub_Flag", onRing(angle + side, HUB_RADIUS - 6))
-		end
-	end
 
 	local spawn = Instance.new("SpawnLocation")
 	spawn.Name = "HubSpawn"

@@ -133,6 +133,10 @@ local data = {
 			displayName = "Göl ve Yün",
 			homeAnimal = "duck",
 			satellites = { "rabbit", "sheep", "pig" },
+			fish = {
+				anchovy = { id = "red_mullet", displayName = "Barbun", icon = "🐟", product = "Taze barbun" },
+				seabass = { id = "sea_bream", displayName = "Çipura", icon = "🐠", product = "Çipura" },
+			},
 		},
 		{
 			id = "aycicegi",
@@ -140,6 +144,10 @@ local data = {
 			displayName = "Güneşli Tarla",
 			homeAnimal = "turkey",
 			satellites = { "bee", "camel", "peacock" },
+			fish = {
+				anchovy = { id = "sardine", displayName = "Sardalya", icon = "🐟", product = "Taze sardalya" },
+				seabass = { id = "bluefish", displayName = "Lüfer", icon = "🐠", product = "Lüfer" },
+			},
 		},
 		{
 			id = "gul",
@@ -147,6 +155,10 @@ local data = {
 			displayName = "Gül Vadisi",
 			homeAnimal = "buffalo",
 			satellites = { "quail", "pigeon", "snail" },
+			fish = {
+				anchovy = { id = "whiting", displayName = "Mezgit", icon = "🐟", product = "Taze mezgit" },
+				seabass = { id = "turbot", displayName = "Kalkan", icon = "🐠", product = "Kalkan" },
+			},
 		},
 		{
 			id = "yonca",
@@ -154,6 +166,10 @@ local data = {
 			displayName = "Dağ ve Orman",
 			homeAnimal = "yak",
 			satellites = { "llama", "deer", "falcon" },
+			fish = {
+				anchovy = { id = "trout", displayName = "Alabalık", icon = "🐟", product = "Taze alabalık" },
+				seabass = { id = "salmon", displayName = "Somon", icon = "🐠", product = "Somon" },
+			},
 		},
 		{
 			id = "kiraz",
@@ -161,13 +177,17 @@ local data = {
 			displayName = "Meyve Bahçesi",
 			homeAnimal = "squirrel",
 			satellites = { "silkworm", "parrot", "tortoise" },
+			fish = {
+				anchovy = { id = "koi", displayName = "Koi", icon = "🎏", product = "Koi" },
+				seabass = { id = "tuna", displayName = "Orkinos", icon = "🐠", product = "Orkinos" },
+			},
 		},
 	} :: { Types.ThemeConfig },
 
 	-- Yol haritası aşamaları: adalar + onlarla paralel ilerleyen Deniz dalı
 	ROADMAP_STAGES = {
 		{ name = "Ana Ada", island = "home" },
-		{ name = "Deniz", description = "Balık kafesinde hamsi ve levrek yetiştir" },
+		{ name = "Deniz", description = "Balık kafesinde küçük ve büyük balık yetiştir" },
 		{ name = "Tavuk Adası", island = "poultry" },
 		{ name = "At Adası", island = "horse" },
 		{ name = "Keçi Adası", island = "goat" },

@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
 <roblox version="4">
   <Meta name="ExplicitAutoJoints">true</Meta>
   <Item class="Model" referent="RBXMODEL">
@@ -173,12 +174,12 @@
         <string name="Name">ShelterPost</string>
         <Vector3 name="Size">
           <X>0.4</X>
-          <Y>6.6</Y>
+          <Y>7.3999999999999995</Y>
           <Z>0.4</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1424.19995</X>
-          <Y>7.3</Y>
+          <Y>7.7</Y>
           <Z>6355.6001</Z>
           <R00>1</R00>
           <R01>-0</R01>
@@ -210,12 +211,12 @@
         <string name="Name">ShelterPost</string>
         <Vector3 name="Size">
           <X>0.4</X>
-          <Y>6.6</Y>
+          <Y>7.3999999999999995</Y>
           <Z>0.4</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1424.19995</X>
-          <Y>7.3</Y>
+          <Y>7.7</Y>
           <Z>6358.80029</Z>
           <R00>1</R00>
           <R01>-0</R01>
@@ -247,12 +248,12 @@
         <string name="Name">ShelterPost</string>
         <Vector3 name="Size">
           <X>0.4</X>
-          <Y>6.6</Y>
+          <Y>7.3999999999999995</Y>
           <Z>0.4</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1427.80005</X>
-          <Y>7.3</Y>
+          <Y>7.7</Y>
           <Z>6355.6001</Z>
           <R00>1</R00>
           <R01>-0</R01>
@@ -284,12 +285,12 @@
         <string name="Name">ShelterPost</string>
         <Vector3 name="Size">
           <X>0.4</X>
-          <Y>6.6</Y>
+          <Y>7.3999999999999995</Y>
           <Z>0.4</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1427.80005</X>
-          <Y>7.3</Y>
+          <Y>7.7</Y>
           <Z>6358.80029</Z>
           <R00>1</R00>
           <R01>-0</R01>
@@ -326,7 +327,7 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1424.85</X>
-          <Y>11.1</Y>
+          <Y>11.9</Y>
           <Z>6357.2002</Z>
           <R00>0.973666395</R00>
           <R01>-0.227977524</R01>
@@ -363,7 +364,7 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1426</X>
-          <Y>10.1</Y>
+          <Y>10.9</Y>
           <Z>6357.2002</Z>
           <R00>1</R00>
           <R01>-0</R01>
@@ -704,7 +705,7 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1427.15</X>
-          <Y>11.1</Y>
+          <Y>11.9</Y>
           <Z>6357.2002</Z>
           <R00>0.973666395</R00>
           <R01>0.227977524</R01>
@@ -780,7 +781,7 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1426</X>
-          <Y>10.48</Y>
+          <Y>11.280000000000001</Y>
           <Z>6355.6002</Z>
           <R00>1</R00>
           <R01>-0</R01>
@@ -818,7 +819,7 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1424.55</X>
-          <Y>10</Y>
+          <Y>10.8</Y>
           <Z>6355.6002</Z>
           <R00>0.825335615</R00>
           <R01>0.564642473</R01>
@@ -856,7 +857,7 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1427.45</X>
-          <Y>10</Y>
+          <Y>10.8</Y>
           <Z>6355.6002</Z>
           <R00>0.825335615</R00>
           <R01>-0.564642473</R01>
@@ -894,7 +895,7 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1426</X>
-          <Y>10.48</Y>
+          <Y>11.280000000000001</Y>
           <Z>6358.8002</Z>
           <R00>1</R00>
           <R01>-0</R01>
@@ -932,7 +933,7 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1424.55</X>
-          <Y>10</Y>
+          <Y>10.8</Y>
           <Z>6358.8002</Z>
           <R00>0.825335615</R00>
           <R01>0.564642473</R01>
@@ -970,7 +971,7 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1427.45</X>
-          <Y>10</Y>
+          <Y>10.8</Y>
           <Z>6358.8002</Z>
           <R00>0.825335615</R00>
           <R01>-0.564642473</R01>

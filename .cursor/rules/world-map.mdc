@@ -39,7 +39,7 @@ alwaysApply: false
 - `HomeBuildings.luau` (geometri `assets/HomeModels` modellerinden gelir; kod yalnızca gece ışığı, duman, değirmen kanatları ve pazar etkileşimini ekler): pazar tezgâhı (`MarketPrompt` → Hayvan Pazarı penceresi), çiftlik evi, yel değirmeni
   (kanatlar `Windmill` etiketi, döndürme `Windmill.client`), kuyu, sebze bahçesi, meyve bahçesi, arı kovanları, ambar.
   `IslandBuilder` (`decorateHome`) çağırır; yerleri `addIslandGrass` kaçınma listesinde de tutulur. Kapılar >= 4.6 x 6.6 stud.
-- Meydan (`HubBuilder.buildHub`; modeller `assets/HubProps` + `assets/HubModels`: satıcı tezgâhları, çeşme, bank, çiçeklik, karşılama/sıralama/adalar tahtaları, heykel, bayraklar, flama): doğma noktası, Adalar tabelası ve `HubNpcs.vendor` ile 4 satıcı (`VendorPrompt`, `Action`:
+- Meydan (`HubBuilder.buildHub`; modeller `assets/HubProps` + `assets/HubModels`: satıcı tezgâhları, çeşme, bank, çiçeklik, karşılama/sıralama/adalar tahtaları, heykel, flama): doğma noktası, Adalar tabelası ve `HubNpcs.vendor` ile 4 satıcı (`VendorPrompt`, `Action`:
   `orders`/`store`/`roadmap`/`travel`; client `FarmHud.client` ilgili pencereyi açar). Satıcı doğma noktasından >= 15 stud uzakta durur.
 - Ana ada avlusu (`IslandBuilder.decorateHome`): ana yolu çerçeveleyen çitler, saman balyaları, korkuluk, el arabası, kavşak yön tabelası (`buildSignpost`, ok yönleri `yaw` ile).
   Yeni avlu parçası bir `assets/CommonDecor` modeli olarak eklenir ve `WorldDecor` yardımcısıyla (`fenceRun/hayBale/scarecrow/wheelbarrow/barrel/crate/mailbox`, hepsi `DecorProps.placeDecor`) yerleştirilir; çarpışma modeldeki `CanCollide` değerinden gelir (çit/dekor çarpışmaz).

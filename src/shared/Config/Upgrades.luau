@@ -55,7 +55,7 @@ local UPGRADES = {
 	{
 		id = "fish_farm",
 		displayName = "Balık Kafesi",
-		description = "Denizde 10 balık yeri: hamsi ve levrek",
+		description = "Denizde 10 balık yeri: küçük ve büyük balık",
 		icon = "🐟",
 		stage = 2,
 		cost = 1000,

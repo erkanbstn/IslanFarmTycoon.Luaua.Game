@@ -27,7 +27,7 @@
         <string name="Name">Post</string>
         <Vector3 name="Size">
           <X>0.7</X>
-          <Y>3.4</Y>
+          <Y>4.2</Y>
           <Z>0.7</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
@@ -45,9 +45,9 @@
           <R22>1</R22>
         </CoordinateFrame>
         <Color3 name="Color">
-          <R>0.4666666666666667</R>
-          <G>0.30196078431372547</G>
-          <B>0.17254901960784313</B>
+          <R>0.4117647058823529</R>
+          <G>0.28627450980392155</G>
+          <B>0.1803921568627451</B>
         </Color3>
         <token name="Material">512</token>
         <token name="Shape">1</token>
@@ -66,7 +66,7 @@
           </Vector3>
           <CoordinateFrame name="CFrame">
             <X>0</X>
-            <Y>3.48</Y>
+            <Y>3.88</Y>
             <Z>0</Z>
             <R00>1</R00>
             <R01>0</R01>
@@ -79,9 +79,9 @@
             <R22>1</R22>
           </CoordinateFrame>
           <Color3 name="Color">
-            <R>0.6235294117647059</R>
-            <G>0.43529411764705883</G>
-            <B>0.2549019607843137</B>
+            <R>0.33725490196078434</R>
+            <G>0.37254901960784315</G>
+            <B>0.3215686274509804</B>
           </Color3>
           <token name="Material">512</token>
           <token name="Shape">1</token>
@@ -117,9 +117,9 @@
             <R22>1</R22>
           </CoordinateFrame>
           <Color3 name="Color">
-            <R>0.2235294117647059</R>
-            <G>0.2627450980392157</G>
-            <B>0.25882352941176473</B>
+            <R>0.33725490196078434</R>
+            <G>0.37254901960784315</G>
+            <B>0.3215686274509804</B>
           </Color3>
           <token name="Material">1088</token>
           <token name="Shape">1</token>

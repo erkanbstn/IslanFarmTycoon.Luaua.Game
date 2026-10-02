@@ -565,5 +565,44 @@ return function(Config: any, FarmMath: any)
 			end
 		end
 	end
+	-- Balık çeşitliliği: Çiftlik 1 Hamsi/Levrek; diğer her çiftlik kendi küçük (anchovy) ve büyük (seabass) balığını taşır.
+	-- Kimlik/fiyat aynı kalır (yalnızca görünüm değişir); model dosya kimlikleri benzersizdir ve ANIMALS ile çakışmaz.
+	do
+		local seenModels: { [string]: string } = {}
+		for index, theme in Config.THEMES do
+			local farmId = tostring(index)
+			local small = Config.getAnimalLook("anchovy", farmId)
+			local large = Config.getAnimalLook("seabass", farmId)
+			if index == 1 then
+				assert(theme.fish == nil, "theme 1 keeps the default Hamsi/Levrek")
+				assert(
+					small.modelId == "anchovy" and large.modelId == "seabass",
+					"theme 1 fish models are anchovy/seabass"
+				)
+			else
+				assert(
+					theme.fish and theme.fish.anchovy and theme.fish.seabass,
+					`theme {index}: needs a small and a large fish skin`
+				)
+				assert(
+					small.modelId ~= "anchovy" and large.modelId ~= "seabass" and small.modelId ~= large.modelId,
+					`theme {index}: fish skins must be new fish`
+				)
+				for _, look in { small, large } do
+					assert(
+						Config.ANIMALS[look.modelId] == nil,
+						`theme {index}: fish skin {look.modelId} collides with an ANIMALS id`
+					)
+					assert(
+						look.displayName ~= "" and look.product ~= "" and look.icon ~= "",
+						`theme {index}: incomplete fish skin`
+					)
+					assert(not seenModels[look.modelId], `fish model {look.modelId} is used by two themes`)
+					seenModels[look.modelId] = farmId
+				end
+			end
+		end
+		assert(Config.getAnimalLook("cow", "2").modelId == "cow", "non-fish animals keep their own model")
+	end
 	print("PASS config: cross-references, prerequisite graph, seasonal goals and start state")
 end

@@ -26,12 +26,12 @@
         <string name="Name">Net</string>
         <Vector3 name="Size">
           <X>20</X>
-          <Y>3.5999999046325684</Y>
-          <Z>0.10000000149011612</Z>
+          <Y>4.1999999</Y>
+          <Z>0.100000001</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1300</X>
-          <Y>2.799999952316284</Y>
+          <Y>2.49999995</Y>
           <Z>3810</Z>
           <R00>1</R00>
           <R01>0</R01>
@@ -63,12 +63,12 @@
         <string name="Name">Net</string>
         <Vector3 name="Size">
           <X>20</X>
-          <Y>3.5999999046325684</Y>
-          <Z>0.10000000149011612</Z>
+          <Y>4.1999999</Y>
+          <Z>0.100000001</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1300</X>
-          <Y>2.799999952316284</Y>
+          <Y>2.49999995</Y>
           <Z>3790</Z>
           <R00>1</R00>
           <R01>0</R01>
@@ -99,13 +99,13 @@
       <Properties>
         <string name="Name">Net</string>
         <Vector3 name="Size">
-          <X>0.10000000149011612</X>
-          <Y>3.5999999046325684</Y>
+          <X>0.100000001</X>
+          <Y>4.1999999</Y>
           <Z>20</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1310</X>
-          <Y>2.799999952316284</Y>
+          <Y>2.49999995</Y>
           <Z>3800</Z>
           <R00>1</R00>
           <R01>0</R01>
@@ -136,13 +136,13 @@
       <Properties>
         <string name="Name">Net</string>
         <Vector3 name="Size">
-          <X>0.10000000149011612</X>
-          <Y>3.5999999046325684</Y>
+          <X>0.100000001</X>
+          <Y>4.1999999</Y>
           <Z>20</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1290</X>
-          <Y>2.799999952316284</Y>
+          <Y>2.49999995</Y>
           <Z>3800</Z>
           <R00>1</R00>
           <R01>0</R01>

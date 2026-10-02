@@ -26,13 +26,13 @@
         <string name="Name">BackWall</string>
         <Vector3 name="Size">
           <X>28</X>
-          <Y>8</Y>
-          <Z>0.800000011920929</Z>
+          <Y>8.8</Y>
+          <Z>0.800000012</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1300</X>
-          <Y>8</Y>
-          <Z>3611.199951171875</Z>
+          <Y>8.4</Y>
+          <Z>3611.19995</Z>
           <R00>1</R00>
           <R01>0</R01>
           <R02>0</R02>
@@ -62,13 +62,13 @@
       <Properties>
         <string name="Name">Post</string>
         <Vector3 name="Size">
-          <X>0.800000011920929</X>
-          <Y>7.199999809265137</Y>
-          <Z>0.800000011920929</Z>
+          <X>0.800000012</X>
+          <Y>7.99999981</Y>
+          <Z>0.800000012</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1286</X>
-          <Y>7.599999904632568</Y>
+          <Y>7.9999999</Y>
           <Z>3607</Z>
           <R00>1</R00>
           <R01>0</R01>
@@ -99,13 +99,13 @@
       <Properties>
         <string name="Name">Post</string>
         <Vector3 name="Size">
-          <X>0.800000011920929</X>
-          <Y>7.199999809265137</Y>
-          <Z>0.800000011920929</Z>
+          <X>0.800000012</X>
+          <Y>7.99999981</Y>
+          <Z>0.800000012</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1314</X>
-          <Y>7.599999904632568</Y>
+          <Y>7.9999999</Y>
           <Z>3607</Z>
           <R00>1</R00>
           <R01>0</R01>
@@ -142,8 +142,8 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1300</X>
-          <Y>11.949999809265137</Y>
-          <Z>3609.14990234375</Z>
+          <Y>12.7499998</Y>
+          <Z>3609.1499</Z>
           <R00>1</R00>
           <R01>0</R01>
           <R02>0</R02>
@@ -253,8 +253,8 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1302</X>
-          <Y>5.239999771118164</Y>
-          <Z>3609.89990234375</Z>
+          <Y>5.08</Y>
+          <Z>3609.8999</Z>
           <R00>1</R00>
           <R01>0</R01>
           <R02>0</R02>
@@ -327,7 +327,7 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1287.5</X>
-          <Y>5.239999771118164</Y>
+          <Y>5.08</Y>
           <Z>3609</Z>
           <R00>1</R00>
           <R01>0</R01>
@@ -359,13 +359,13 @@
         <string name="Name">TimberFrame</string>
         <Vector3 name="Size">
           <X>0.26</X>
-          <Y>8.0</Y>
+          <Y>8.8</Y>
           <Z>0.18</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1286.15</X>
-          <Y>8.0</Y>
-          <Z>3610.739951</Z>
+          <Y>8.4</Y>
+          <Z>3610.73995</Z>
           <R00>1.0</R00>
           <R01>0.0</R01>
           <R02>0.0</R02>
@@ -397,13 +397,13 @@
         <string name="Name">TimberFrame</string>
         <Vector3 name="Size">
           <X>0.26</X>
-          <Y>8.0</Y>
+          <Y>8.8</Y>
           <Z>0.18</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1313.85</X>
-          <Y>8.0</Y>
-          <Z>3610.739951</Z>
+          <Y>8.4</Y>
+          <Z>3610.73995</Z>
           <R00>1.0</R00>
           <R01>0.0</R01>
           <R02>0.0</R02>
@@ -477,9 +477,9 @@
           <Z>0.18</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1300.0</X>
-          <Y>11.85</Y>
-          <Z>3610.739951</Z>
+          <X>1300</X>
+          <Y>12.65</Y>
+          <Z>3610.73995</Z>
           <R00>1.0</R00>
           <R01>0.0</R01>
           <R02>0.0</R02>
@@ -515,9 +515,9 @@
           <Z>0.16</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1300.0</X>
-          <Y>12.236507</Y>
-          <Z>3609.079627</Z>
+          <X>1300</X>
+          <Y>13.036507</Y>
+          <Z>3609.07963</Z>
           <R00>1.0</R00>
           <R01>0.0</R01>
           <R02>0.0</R02>
@@ -553,9 +553,9 @@
           <Z>0.24</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1300.0</X>
-          <Y>10.864696</Y>
-          <Z>3606.215411</Z>
+          <X>1300</X>
+          <Y>11.664696</Y>
+          <Z>3606.21541</Z>
           <R00>1.0</R00>
           <R01>0.0</R01>
           <R02>0.0</R02>
@@ -586,14 +586,14 @@
       <Properties>
         <string name="Name">TroughRim</string>
         <Vector3 name="Size">
-          <X>18.0</X>
+          <X>18</X>
           <Y>0.95</Y>
           <Z>0.18</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1302.0</X>
-          <Y>4.475</Y>
-          <Z>3609.189902</Z>
+          <X>1302</X>
+          <Y>4.755</Y>
+          <Z>3609.1899</Z>
           <R00>1.0</R00>
           <R01>0.0</R01>
           <R02>0.0</R02>
@@ -630,8 +630,8 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1293.09</X>
-          <Y>4.475</Y>
-          <Z>3609.899902</Z>
+          <Y>4.755</Y>
+          <Z>3609.8999</Z>
           <R00>1.0</R00>
           <R01>0.0</R01>
           <R02>0.0</R02>
@@ -662,14 +662,14 @@
       <Properties>
         <string name="Name">TroughRim</string>
         <Vector3 name="Size">
-          <X>18.0</X>
+          <X>18</X>
           <Y>0.95</Y>
           <Z>0.18</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1302.0</X>
-          <Y>4.475</Y>
-          <Z>3610.609902</Z>
+          <X>1302</X>
+          <Y>4.755</Y>
+          <Z>3610.6099</Z>
           <R00>1.0</R00>
           <R01>0.0</R01>
           <R02>0.0</R02>
@@ -706,8 +706,8 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1310.91</X>
-          <Y>4.475</Y>
-          <Z>3609.899902</Z>
+          <Y>4.755</Y>
+          <Z>3609.8999</Z>
           <R00>1.0</R00>
           <R01>0.0</R01>
           <R02>0.0</R02>
@@ -738,14 +738,14 @@
       <Properties>
         <string name="Name">TroughRim</string>
         <Vector3 name="Size">
-          <X>1.8</X>
+          <X>0.18</X>
           <Y>0.95</Y>
-          <Z>0.18</Z>
+          <Z>2.64</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1287.5</X>
-          <Y>4.475</Y>
-          <Z>3607.59</Z>
+          <X>1286.69</X>
+          <Y>4.755</Y>
+          <Z>3609</Z>
           <R00>1.0</R00>
           <R01>0.0</R01>
           <R02>0.0</R02>
@@ -776,14 +776,14 @@
       <Properties>
         <string name="Name">TroughRim</string>
         <Vector3 name="Size">
-          <X>0.18</X>
+          <X>1.8</X>
           <Y>0.95</Y>
-          <Z>2.64</Z>
+          <Z>0.18</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1286.69</X>
-          <Y>4.475</Y>
-          <Z>3609.0</Z>
+          <X>1287.5</X>
+          <Y>4.755</Y>
+          <Z>3607.59</Z>
           <R00>1.0</R00>
           <R01>0.0</R01>
           <R02>0.0</R02>
@@ -814,14 +814,14 @@
       <Properties>
         <string name="Name">TroughRim</string>
         <Vector3 name="Size">
-          <X>1.8</X>
+          <X>0.18</X>
           <Y>0.95</Y>
-          <Z>0.18</Z>
+          <Z>2.64</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1287.5</X>
-          <Y>4.475</Y>
-          <Z>3610.41</Z>
+          <X>1288.31</X>
+          <Y>4.755</Y>
+          <Z>3609</Z>
           <R00>1.0</R00>
           <R01>0.0</R01>
           <R02>0.0</R02>
@@ -852,14 +852,14 @@
       <Properties>
         <string name="Name">TroughRim</string>
         <Vector3 name="Size">
-          <X>0.18</X>
+          <X>1.8</X>
           <Y>0.95</Y>
-          <Z>2.64</Z>
+          <Z>0.18</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1288.31</X>
-          <Y>4.475</Y>
-          <Z>3609.0</Z>
+          <X>1287.5</X>
+          <Y>4.755</Y>
+          <Z>3610.41</Z>
           <R00>1.0</R00>
           <R01>0.0</R01>
           <R02>0.0</R02>
@@ -895,9 +895,9 @@
           <Z>0.4</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1300.0</X>
-          <Y>10.95</Y>
-          <Z>3607.0</Z>
+          <X>1300</X>
+          <Y>11.75</Y>
+          <Z>3607</Z>
           <R00>1</R00>
           <R01>0</R01>
           <R02>0</R02>
@@ -934,8 +934,8 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1286.52</X>
-          <Y>10.47</Y>
-          <Z>3607.0</Z>
+          <Y>11.27</Y>
+          <Z>3607</Z>
           <R00>0.707107</R00>
           <R01>-0.707107</R01>
           <R02>0</R02>
@@ -972,8 +972,8 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1313.48</X>
-          <Y>10.47</Y>
-          <Z>3607.0</Z>
+          <Y>11.27</Y>
+          <Z>3607</Z>
           <R00>0.707107</R00>
           <R01>0.707107</R01>
           <R02>0</R02>

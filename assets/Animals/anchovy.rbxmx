@@ -27,7 +27,7 @@
         <Vector3 name="Size">
           <X>0.552</X>
           <Y>0.5244</Y>
-          <Z>0.34224</Z>
+          <Z>0.3901536</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>0</X>
@@ -95,14 +95,14 @@
       <Properties>
         <string name="Name">Eye</string>
         <Vector3 name="Size">
-          <X>0.108</X>
-          <Y>0.108</Y>
-          <Z>0.108</Z>
+          <X>0.1</X>
+          <Y>0.1</Y>
+          <Z>0.1</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>-0.192</X>
-          <Y>0.084</Y>
-          <Z>-0.495</Z>
+          <X>-0.24628</X>
+          <Y>0.0813548</Y>
+          <Z>-0.36875</Z>
           <R00>1</R00>
           <R01>0</R01>
           <R02>0</R02>
@@ -114,9 +114,9 @@
           <R22>1</R22>
         </CoordinateFrame>
         <Color3 name="Color">
-          <R>0.047058823529411764</R>
-          <G>0.047058823529411764</G>
-          <B>0.047058823529411764</B>
+          <R>0.07</R>
+          <G>0.065</G>
+          <B>0.055</B>
         </Color3>
         <token name="Material">272</token>
         <token name="Shape">0</token>
@@ -130,14 +130,14 @@
       <Properties>
         <string name="Name">Eye</string>
         <Vector3 name="Size">
-          <X>0.108</X>
-          <Y>0.108</Y>
-          <Z>0.108</Z>
+          <X>0.1</X>
+          <Y>0.1</Y>
+          <Z>0.1</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.192</X>
-          <Y>0.084</Y>
-          <Z>-0.495</Z>
+          <X>0.24628</X>
+          <Y>0.0813548</Y>
+          <Z>-0.36875</Z>
           <R00>1</R00>
           <R01>0</R01>
           <R02>0</R02>
@@ -149,9 +149,9 @@
           <R22>1</R22>
         </CoordinateFrame>
         <Color3 name="Color">
-          <R>0.047058823529411764</R>
-          <G>0.047058823529411764</G>
-          <B>0.047058823529411764</B>
+          <R>0.07</R>
+          <G>0.065</G>
+          <B>0.055</B>
         </Color3>
         <token name="Material">272</token>
         <token name="Shape">0</token>
@@ -267,8 +267,8 @@
       <Properties>
         <string name="Name">ChestSlope</string>
         <Vector3 name="Size">
-          <X>0.52992</X>
-          <Y>0.503424</Y>
+          <X>0.5193216</X>
+          <Y>0.48832128</Y>
           <Z>0.138</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
@@ -301,8 +301,8 @@
       <Properties>
         <string name="Name">HaunchSlope</string>
         <Vector3 name="Size">
-          <X>0.52992</X>
-          <Y>0.503424</Y>
+          <X>0.5193216</X>
+          <Y>0.48832128</Y>
           <Z>0.138</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
@@ -335,14 +335,14 @@
       <Properties>
         <string name="Name">Snout</string>
         <Vector3 name="Size">
-          <X>0.43056000000000005</X>
+          <X>0.43056</X>
           <Y>0.409032</Y>
-          <Z>0.38499999999999995</Z>
+          <Z>0.385</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.0</X>
+          <X>0</X>
           <Y>0.02</Y>
-          <Z>-0.27249999999999996</Z>
+          <Z>-0.2725</Z>
           <R00>1</R00>
           <R01>0</R01>
           <R02>0</R02>
@@ -375,7 +375,7 @@
           <Z>0.5264</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.0</X>
+          <X>0</X>
           <Y>0.02</Y>
           <Z>0.1832</Z>
           <R00>1</R00>

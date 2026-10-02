@@ -33,6 +33,7 @@ type AnimalState = {
 	parts: { BasePart }?, -- BulkMoveTo için model parçaları (nil = yeniden kurulacak)
 	offsets: { CFrame }, -- parça CFrame'i, model pivotuna göre
 	slot: number, -- Duran hayvanların yazım kareleri dağılsın diye
+	radius: number, -- Yatay ayak izi yarıçapı (model sınır kutusundan): hayvanlar birbirinden bu kadar uzak hedef seçer
 }
 
 local states: { [Model]: AnimalState } = {}
@@ -89,23 +90,54 @@ local function pathBlocked(state: AnimalState, from: Vector3, to: Vector3, obsta
 	return false
 end
 
+-- Aynı alandaki diğer hayvanların şu anki yeri ve hedefi: yeni hedef onların ayak izlerine (yarıçaplar toplamı + pay) girmez.
+local ANIMAL_GAP = 0.6
+local function crowdedAt(state: AnimalState, point: Vector3): boolean
+	for other, otherState in states do
+		if other ~= state.model and (otherState.area.Position - state.area.Position).Magnitude < 1 then
+			local limit = state.radius + otherState.radius + ANIMAL_GAP
+			local flat = point - otherState.position
+			if flat.X * flat.X + flat.Z * flat.Z < limit * limit then
+				return true
+			end
+			local target = otherState.target
+			if target then
+				local toTarget = point - target
+				if toTarget.X * toTarget.X + toTarget.Z * toTarget.Z < limit * limit then
+					return true
+				end
+			end
+		end
+	end
+	return false
+end
+
 local function randomPoint(state: AnimalState): Vector3
 	local obstacles = obstaclesNear(state)
 	local fallback = state.position
-	for _ = 1, 8 do
+	for _ = 1, 12 do
 		local point = Vector3.new(
 			random:NextNumber(-state.halfSize.X, state.halfSize.X),
 			0,
 			random:NextNumber(-state.halfSize.Z, state.halfSize.Z)
 		)
 		if
-			#obstacles == 0
-			or (not blockedAt(state, point, obstacles) and not pathBlocked(state, state.position, point, obstacles))
+			not crowdedAt(state, point)
+			and (
+				#obstacles == 0
+				or (not blockedAt(state, point, obstacles) and not pathBlocked(state, state.position, point, obstacles))
+			)
 		then
 			return point
 		end
 	end
-	return fallback -- uygun nokta bulunamadı: yerinde bekler (üst üste biner, ama dekora girmez)
+	return fallback -- uygun nokta bulunamadı (kalabalık/engel): yerinde bekler
+end
+
+-- Hayvanın yatay ayak izi yarıçapı: model sınır kutusunun uzun yatay kenarının yarısı (kuyruk/kanat payıyla %75)
+local function footprintRadius(model: Model): number
+	local size = model:GetExtentsSize()
+	return math.max(0.8, math.max(size.X, size.Z) * 0.5 * 0.75)
 end
 
 local function trackReady(instance: Instance)
@@ -152,6 +184,7 @@ local function trackReady(instance: Instance)
 		parts = nil,
 		offsets = {},
 		slot = random:NextInteger(0, 1),
+		radius = footprintRadius(instance),
 	}
 	-- İlk karede doğru yerde görünsün
 	instance:PivotTo(area * CFrame.new(position.X, heightOffset, position.Z) * CFrame.Angles(0, yaw, 0))

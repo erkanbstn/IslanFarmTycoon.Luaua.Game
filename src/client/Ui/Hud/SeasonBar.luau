@@ -125,7 +125,9 @@ function SeasonBar.create(stats: Instance): Bar
 			local animal = Config.ANIMALS[animalId]
 			if value and value ~= 0 and animal then
 				count += 1
-				addRow(animal.icon, animal.displayName, value, order + count)
+				local current = ClientState.get()
+				local look = Config.getAnimalLook(animalId, if current then current.activeMainFarmId else nil)
+				addRow(look.icon, look.displayName, value, order + count)
 			end
 		end
 		return count

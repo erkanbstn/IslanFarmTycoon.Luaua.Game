@@ -99,14 +99,14 @@
       <Properties>
         <string name="Name">Hutch</string>
         <Vector3 name="Size">
-          <X>4.199999809265137</X>
-          <Y>1.7999999523162842</Y>
-          <Z>2.5999999046325684</Z>
+          <X>4.19999981</X>
+          <Y>4.79999995</Y>
+          <Z>0.2</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1289.5</X>
-          <Y>6.300000190734863</Y>
-          <Z>3049.39990234375</Z>
+          <Y>7.80000019</Y>
+          <Z>3050.5999</Z>
           <R00>1</R00>
           <R01>0</R01>
           <R02>0</R02>
@@ -136,14 +136,14 @@
       <Properties>
         <string name="Name">Wire</string>
         <Vector3 name="Size">
-          <X>3.200000047683716</X>
-          <Y>1.2000000476837158</Y>
-          <Z>0.15000000596046448</Z>
+          <X>0.9</X>
+          <Y>4.20000005</Y>
+          <Z>0.150000006</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1289.199951171875</X>
-          <Y>6.300000190734863</Y>
-          <Z>3048.050048828125</Z>
+          <X>1288.09995</X>
+          <Y>7.80000019</Y>
+          <Z>3048.05005</Z>
           <R00>1</R00>
           <R01>0</R01>
           <R02>0</R02>
@@ -164,7 +164,7 @@
         <bool name="Anchored">true</bool>
         <bool name="CanCollide">false</bool>
         <bool name="CanTouch">false</bool>
-        <bool name="CanQuery">true</bool>
+        <bool name="CanQuery">false</bool>
         <float name="Transparency">.55</float>
         <float name="Reflectance">0</float>
       </Properties>
@@ -179,8 +179,8 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1288.3</X>
-          <Y>7.7</Y>
-          <Z>3049.399902</Z>
+          <Y>10.7</Y>
+          <Z>3049.3999</Z>
           <R00>0.96</R00>
           <R01>-0.28</R01>
           <R02>0</R02>
@@ -284,14 +284,14 @@
       <Properties>
         <string name="Name">Hutch</string>
         <Vector3 name="Size">
-          <X>4.199999809265137</X>
-          <Y>1.7999999523162842</Y>
-          <Z>2.5999999046325684</Z>
+          <X>4.19999981</X>
+          <Y>4.79999995</Y>
+          <Z>0.2</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1296.5</X>
-          <Y>6.300000190734863</Y>
-          <Z>3049.39990234375</Z>
+          <Y>7.80000019</Y>
+          <Z>3050.5999</Z>
           <R00>1</R00>
           <R01>0</R01>
           <R02>0</R02>
@@ -321,14 +321,14 @@
       <Properties>
         <string name="Name">Wire</string>
         <Vector3 name="Size">
-          <X>3.200000047683716</X>
-          <Y>1.2000000476837158</Y>
-          <Z>0.15000000596046448</Z>
+          <X>0.9</X>
+          <Y>4.20000005</Y>
+          <Z>0.150000006</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1296.199951171875</X>
-          <Y>6.300000190734863</Y>
-          <Z>3048.050048828125</Z>
+          <X>1295.09995</X>
+          <Y>7.80000019</Y>
+          <Z>3048.05005</Z>
           <R00>1</R00>
           <R01>0</R01>
           <R02>0</R02>
@@ -349,7 +349,7 @@
         <bool name="Anchored">true</bool>
         <bool name="CanCollide">false</bool>
         <bool name="CanTouch">false</bool>
-        <bool name="CanQuery">true</bool>
+        <bool name="CanQuery">false</bool>
         <float name="Transparency">.55</float>
         <float name="Reflectance">0</float>
       </Properties>
@@ -364,8 +364,8 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1295.3</X>
-          <Y>7.7</Y>
-          <Z>3049.399902</Z>
+          <Y>10.7</Y>
+          <Z>3049.3999</Z>
           <R00>0.96</R00>
           <R01>-0.28</R01>
           <R02>0</R02>
@@ -469,14 +469,14 @@
       <Properties>
         <string name="Name">Hutch</string>
         <Vector3 name="Size">
-          <X>4.199999809265137</X>
-          <Y>1.7999999523162842</Y>
-          <Z>2.5999999046325684</Z>
+          <X>4.19999981</X>
+          <Y>4.79999995</Y>
+          <Z>0.2</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1303.5</X>
-          <Y>6.300000190734863</Y>
-          <Z>3049.39990234375</Z>
+          <Y>7.80000019</Y>
+          <Z>3050.5999</Z>
           <R00>1</R00>
           <R01>0</R01>
           <R02>0</R02>
@@ -506,14 +506,14 @@
       <Properties>
         <string name="Name">Wire</string>
         <Vector3 name="Size">
-          <X>3.200000047683716</X>
-          <Y>1.2000000476837158</Y>
-          <Z>0.15000000596046448</Z>
+          <X>0.9</X>
+          <Y>4.20000005</Y>
+          <Z>0.150000006</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1303.199951171875</X>
-          <Y>6.300000190734863</Y>
-          <Z>3048.050048828125</Z>
+          <X>1302.09995</X>
+          <Y>7.80000019</Y>
+          <Z>3048.05005</Z>
           <R00>1</R00>
           <R01>0</R01>
           <R02>0</R02>
@@ -534,7 +534,7 @@
         <bool name="Anchored">true</bool>
         <bool name="CanCollide">false</bool>
         <bool name="CanTouch">false</bool>
-        <bool name="CanQuery">true</bool>
+        <bool name="CanQuery">false</bool>
         <float name="Transparency">.55</float>
         <float name="Reflectance">0</float>
       </Properties>
@@ -549,8 +549,8 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1302.3</X>
-          <Y>7.7</Y>
-          <Z>3049.399902</Z>
+          <Y>10.7</Y>
+          <Z>3049.3999</Z>
           <R00>0.96</R00>
           <R01>-0.28</R01>
           <R02>0</R02>
@@ -654,14 +654,14 @@
       <Properties>
         <string name="Name">Hutch</string>
         <Vector3 name="Size">
-          <X>4.199999809265137</X>
-          <Y>1.7999999523162842</Y>
-          <Z>2.5999999046325684</Z>
+          <X>4.19999981</X>
+          <Y>4.79999995</Y>
+          <Z>0.2</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1310.5</X>
-          <Y>6.300000190734863</Y>
-          <Z>3049.39990234375</Z>
+          <Y>7.80000019</Y>
+          <Z>3050.5999</Z>
           <R00>1</R00>
           <R01>0</R01>
           <R02>0</R02>
@@ -691,14 +691,14 @@
       <Properties>
         <string name="Name">Wire</string>
         <Vector3 name="Size">
-          <X>3.200000047683716</X>
-          <Y>1.2000000476837158</Y>
-          <Z>0.15000000596046448</Z>
+          <X>0.9</X>
+          <Y>4.20000005</Y>
+          <Z>0.150000006</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1310.199951171875</X>
-          <Y>6.300000190734863</Y>
-          <Z>3048.050048828125</Z>
+          <X>1309.09995</X>
+          <Y>7.80000019</Y>
+          <Z>3048.05005</Z>
           <R00>1</R00>
           <R01>0</R01>
           <R02>0</R02>
@@ -719,7 +719,7 @@
         <bool name="Anchored">true</bool>
         <bool name="CanCollide">false</bool>
         <bool name="CanTouch">false</bool>
-        <bool name="CanQuery">true</bool>
+        <bool name="CanQuery">false</bool>
         <float name="Transparency">.55</float>
         <float name="Reflectance">0</float>
       </Properties>
@@ -734,8 +734,8 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1309.3</X>
-          <Y>7.7</Y>
-          <Z>3049.399902</Z>
+          <Y>10.7</Y>
+          <Z>3049.3999</Z>
           <R00>0.96</R00>
           <R01>-0.28</R01>
           <R02>0</R02>
@@ -808,8 +808,8 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1300</X>
-          <Y>5.239999771118164</Y>
-          <Z>3046.39990234375</Z>
+          <Y>5.08</Y>
+          <Z>3046.3999</Z>
           <R00>1</R00>
           <R01>0</R01>
           <R02>0</R02>
@@ -1321,13 +1321,13 @@
         <string name="Name">HutchFrame</string>
         <Vector3 name="Size">
           <X>0.2</X>
-          <Y>1.8</Y>
+          <Y>4.8</Y>
           <Z>0.16</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1287.52</X>
-          <Y>6.3</Y>
-          <Z>3048.009902</Z>
+          <Y>7.8</Y>
+          <Z>3048.0099</Z>
           <R00>1.0</R00>
           <R01>0.0</R01>
           <R02>0.0</R02>
@@ -1359,13 +1359,13 @@
         <string name="Name">HutchFrame</string>
         <Vector3 name="Size">
           <X>0.2</X>
-          <Y>1.8</Y>
+          <Y>4.8</Y>
           <Z>0.16</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1291.48</X>
-          <Y>6.3</Y>
-          <Z>3048.009902</Z>
+          <Y>7.8</Y>
+          <Z>3048.0099</Z>
           <R00>1.0</R00>
           <R01>0.0</R01>
           <R02>0.0</R02>
@@ -1402,8 +1402,8 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1290.7</X>
-          <Y>7.7</Y>
-          <Z>3049.399902</Z>
+          <Y>10.7</Y>
+          <Z>3049.3999</Z>
           <R00>0.96</R00>
           <R01>0.28</R01>
           <R02>0</R02>
@@ -1440,8 +1440,8 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1289.5</X>
-          <Y>8.13</Y>
-          <Z>3049.399902</Z>
+          <Y>11.13</Y>
+          <Z>3049.3999</Z>
           <R00>1</R00>
           <R01>0</R01>
           <R02>0</R02>
@@ -1473,13 +1473,13 @@
         <string name="Name">HutchFrame</string>
         <Vector3 name="Size">
           <X>0.2</X>
-          <Y>1.8</Y>
+          <Y>4.8</Y>
           <Z>0.16</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1294.52</X>
-          <Y>6.3</Y>
-          <Z>3048.009902</Z>
+          <Y>7.8</Y>
+          <Z>3048.0099</Z>
           <R00>1.0</R00>
           <R01>0.0</R01>
           <R02>0.0</R02>
@@ -1511,13 +1511,13 @@
         <string name="Name">HutchFrame</string>
         <Vector3 name="Size">
           <X>0.2</X>
-          <Y>1.8</Y>
+          <Y>4.8</Y>
           <Z>0.16</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1298.48</X>
-          <Y>6.3</Y>
-          <Z>3048.009902</Z>
+          <Y>7.8</Y>
+          <Z>3048.0099</Z>
           <R00>1.0</R00>
           <R01>0.0</R01>
           <R02>0.0</R02>
@@ -1554,8 +1554,8 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1297.7</X>
-          <Y>7.7</Y>
-          <Z>3049.399902</Z>
+          <Y>10.7</Y>
+          <Z>3049.3999</Z>
           <R00>0.96</R00>
           <R01>0.28</R01>
           <R02>0</R02>
@@ -1592,8 +1592,8 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1296.5</X>
-          <Y>8.13</Y>
-          <Z>3049.399902</Z>
+          <Y>11.13</Y>
+          <Z>3049.3999</Z>
           <R00>1</R00>
           <R01>0</R01>
           <R02>0</R02>
@@ -1625,13 +1625,13 @@
         <string name="Name">HutchFrame</string>
         <Vector3 name="Size">
           <X>0.2</X>
-          <Y>1.8</Y>
+          <Y>4.8</Y>
           <Z>0.16</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1301.52</X>
-          <Y>6.3</Y>
-          <Z>3048.009902</Z>
+          <Y>7.8</Y>
+          <Z>3048.0099</Z>
           <R00>1.0</R00>
           <R01>0.0</R01>
           <R02>0.0</R02>
@@ -1663,13 +1663,13 @@
         <string name="Name">HutchFrame</string>
         <Vector3 name="Size">
           <X>0.2</X>
-          <Y>1.8</Y>
+          <Y>4.8</Y>
           <Z>0.16</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1305.48</X>
-          <Y>6.3</Y>
-          <Z>3048.009902</Z>
+          <Y>7.8</Y>
+          <Z>3048.0099</Z>
           <R00>1.0</R00>
           <R01>0.0</R01>
           <R02>0.0</R02>
@@ -1706,8 +1706,8 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1304.7</X>
-          <Y>7.7</Y>
-          <Z>3049.399902</Z>
+          <Y>10.7</Y>
+          <Z>3049.3999</Z>
           <R00>0.96</R00>
           <R01>0.28</R01>
           <R02>0</R02>
@@ -1744,8 +1744,8 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1303.5</X>
-          <Y>8.13</Y>
-          <Z>3049.399902</Z>
+          <Y>11.13</Y>
+          <Z>3049.3999</Z>
           <R00>1</R00>
           <R01>0</R01>
           <R02>0</R02>
@@ -1777,13 +1777,13 @@
         <string name="Name">HutchFrame</string>
         <Vector3 name="Size">
           <X>0.2</X>
-          <Y>1.8</Y>
+          <Y>4.8</Y>
           <Z>0.16</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1308.52</X>
-          <Y>6.3</Y>
-          <Z>3048.009902</Z>
+          <Y>7.8</Y>
+          <Z>3048.0099</Z>
           <R00>1.0</R00>
           <R01>0.0</R01>
           <R02>0.0</R02>
@@ -1815,13 +1815,13 @@
         <string name="Name">HutchFrame</string>
         <Vector3 name="Size">
           <X>0.2</X>
-          <Y>1.8</Y>
+          <Y>4.8</Y>
           <Z>0.16</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1312.48</X>
-          <Y>6.3</Y>
-          <Z>3048.009902</Z>
+          <Y>7.8</Y>
+          <Z>3048.0099</Z>
           <R00>1.0</R00>
           <R01>0.0</R01>
           <R02>0.0</R02>
@@ -1858,8 +1858,8 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1311.7</X>
-          <Y>7.7</Y>
-          <Z>3049.399902</Z>
+          <Y>10.7</Y>
+          <Z>3049.3999</Z>
           <R00>0.96</R00>
           <R01>0.28</R01>
           <R02>0</R02>
@@ -1896,8 +1896,8 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1310.5</X>
-          <Y>8.13</Y>
-          <Z>3049.399902</Z>
+          <Y>11.13</Y>
+          <Z>3049.3999</Z>
           <R00>1</R00>
           <R01>0</R01>
           <R02>0</R02>
@@ -1928,14 +1928,14 @@
       <Properties>
         <string name="Name">TroughRim</string>
         <Vector3 name="Size">
-          <X>5.0</X>
+          <X>5</X>
           <Y>0.95</Y>
           <Z>0.18</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1300.0</X>
-          <Y>4.475</Y>
-          <Z>3045.689902</Z>
+          <X>1300</X>
+          <Y>4.755</Y>
+          <Z>3045.6899</Z>
           <R00>1.0</R00>
           <R01>0.0</R01>
           <R02>0.0</R02>
@@ -1972,8 +1972,8 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1297.59</X>
-          <Y>4.475</Y>
-          <Z>3046.399902</Z>
+          <Y>4.755</Y>
+          <Z>3046.3999</Z>
           <R00>1.0</R00>
           <R01>0.0</R01>
           <R02>0.0</R02>
@@ -2004,14 +2004,14 @@
       <Properties>
         <string name="Name">TroughRim</string>
         <Vector3 name="Size">
-          <X>5.0</X>
+          <X>5</X>
           <Y>0.95</Y>
           <Z>0.18</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1300.0</X>
-          <Y>4.475</Y>
-          <Z>3047.109902</Z>
+          <X>1300</X>
+          <Y>4.755</Y>
+          <Z>3047.1099</Z>
           <R00>1.0</R00>
           <R01>0.0</R01>
           <R02>0.0</R02>
@@ -2048,8 +2048,8 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1302.41</X>
-          <Y>4.475</Y>
-          <Z>3046.399902</Z>
+          <Y>4.755</Y>
+          <Z>3046.3999</Z>
           <R00>1.0</R00>
           <R01>0.0</R01>
           <R02>0.0</R02>
@@ -2074,6 +2074,450 @@
         <float name="Transparency">0</float>
         <float name="Reflectance">0</float>
         <bool name="CastShadow">false</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXf3f1f522f22d4e84bab2ef28ee41a3a1">
+      <Properties>
+        <string name="Name">HutchSide</string>
+        <Vector3 name="Size">
+          <X>0.2</X>
+          <Y>4.79999995</Y>
+          <Z>2.5999999</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1287.5</X>
+          <Y>7.80000019</Y>
+          <Z>3049.3999</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.862745</R>
+          <G>0.811765</G>
+          <B>0.698039</B>
+        </Color3>
+        <token name="Material">816</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX3c2e53a4213c4aa7a917ab2ec6cb7e55">
+      <Properties>
+        <string name="Name">HutchSide</string>
+        <Vector3 name="Size">
+          <X>0.2</X>
+          <Y>4.79999995</Y>
+          <Z>2.5999999</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1291.5</X>
+          <Y>7.80000019</Y>
+          <Z>3049.3999</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.862745</R>
+          <G>0.811765</G>
+          <B>0.698039</B>
+        </Color3>
+        <token name="Material">816</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX8c6f0e2d5b9e449bafefbf3a66a10b3d">
+      <Properties>
+        <string name="Name">HutchFloor</string>
+        <Vector3 name="Size">
+          <X>4.19999981</X>
+          <Y>0.2</Y>
+          <Z>2.5999999</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1289.5</X>
+          <Y>5.50000021</Y>
+          <Z>3049.3999</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.862745</R>
+          <G>0.811765</G>
+          <B>0.698039</B>
+        </Color3>
+        <token name="Material">816</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXdea79e0c7e2047e997f7c577eaa322a4">
+      <Properties>
+        <string name="Name">HutchSide</string>
+        <Vector3 name="Size">
+          <X>0.2</X>
+          <Y>4.79999995</Y>
+          <Z>2.5999999</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1294.5</X>
+          <Y>7.80000019</Y>
+          <Z>3049.3999</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.862745</R>
+          <G>0.811765</G>
+          <B>0.698039</B>
+        </Color3>
+        <token name="Material">816</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX5189153a57cb4249a6f56860e7ded480">
+      <Properties>
+        <string name="Name">HutchSide</string>
+        <Vector3 name="Size">
+          <X>0.2</X>
+          <Y>4.79999995</Y>
+          <Z>2.5999999</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1298.5</X>
+          <Y>7.80000019</Y>
+          <Z>3049.3999</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.862745</R>
+          <G>0.811765</G>
+          <B>0.698039</B>
+        </Color3>
+        <token name="Material">816</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX8147d46406684bc0aa12b2326165f4a1">
+      <Properties>
+        <string name="Name">HutchFloor</string>
+        <Vector3 name="Size">
+          <X>4.19999981</X>
+          <Y>0.2</Y>
+          <Z>2.5999999</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1296.5</X>
+          <Y>5.50000021</Y>
+          <Z>3049.3999</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.862745</R>
+          <G>0.811765</G>
+          <B>0.698039</B>
+        </Color3>
+        <token name="Material">816</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXb0f4ce815f0e4648b96dba5f7113de88">
+      <Properties>
+        <string name="Name">HutchSide</string>
+        <Vector3 name="Size">
+          <X>0.2</X>
+          <Y>4.79999995</Y>
+          <Z>2.5999999</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1301.5</X>
+          <Y>7.80000019</Y>
+          <Z>3049.3999</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.862745</R>
+          <G>0.811765</G>
+          <B>0.698039</B>
+        </Color3>
+        <token name="Material">816</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXd497b5a11e054512912ad1ec09cf7494">
+      <Properties>
+        <string name="Name">HutchSide</string>
+        <Vector3 name="Size">
+          <X>0.2</X>
+          <Y>4.79999995</Y>
+          <Z>2.5999999</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1305.5</X>
+          <Y>7.80000019</Y>
+          <Z>3049.3999</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.862745</R>
+          <G>0.811765</G>
+          <B>0.698039</B>
+        </Color3>
+        <token name="Material">816</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX2665927348a94aec8a2fa69577f80b12">
+      <Properties>
+        <string name="Name">HutchFloor</string>
+        <Vector3 name="Size">
+          <X>4.19999981</X>
+          <Y>0.2</Y>
+          <Z>2.5999999</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1303.5</X>
+          <Y>5.50000021</Y>
+          <Z>3049.3999</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.862745</R>
+          <G>0.811765</G>
+          <B>0.698039</B>
+        </Color3>
+        <token name="Material">816</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXbe191b356d274a77b5ffcaab02098d83">
+      <Properties>
+        <string name="Name">HutchSide</string>
+        <Vector3 name="Size">
+          <X>0.2</X>
+          <Y>4.79999995</Y>
+          <Z>2.5999999</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1308.5</X>
+          <Y>7.80000019</Y>
+          <Z>3049.3999</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.862745</R>
+          <G>0.811765</G>
+          <B>0.698039</B>
+        </Color3>
+        <token name="Material">816</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX61049a14960342d09ce78944bb4bc74e">
+      <Properties>
+        <string name="Name">HutchSide</string>
+        <Vector3 name="Size">
+          <X>0.2</X>
+          <Y>4.79999995</Y>
+          <Z>2.5999999</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1312.5</X>
+          <Y>7.80000019</Y>
+          <Z>3049.3999</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.862745</R>
+          <G>0.811765</G>
+          <B>0.698039</B>
+        </Color3>
+        <token name="Material">816</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX92ba85c2cf77411ea9b303a1f1c54d12">
+      <Properties>
+        <string name="Name">HutchFloor</string>
+        <Vector3 name="Size">
+          <X>4.19999981</X>
+          <Y>0.2</Y>
+          <Z>2.5999999</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1310.5</X>
+          <Y>5.50000021</Y>
+          <Z>3049.3999</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.862745</R>
+          <G>0.811765</G>
+          <B>0.698039</B>
+        </Color3>
+        <token name="Material">816</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
       </Properties>
     </Item>
   </Item>

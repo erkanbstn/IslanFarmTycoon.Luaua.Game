@@ -20,7 +20,18 @@ SRC = ROOT / "src"
 ASSETS = ROOT / "assets"
 
 # Bilinçli olarak asset'siz kalanlar (kodda kalacak): gerekçe zorunlu.
-ALLOWED_MISSING: dict[str, str] = {}
+ALLOWED_MISSING: dict[str, str] = {
+    "Animals/red_mullet": "İstek 5 (balık çeşitliliği): GPT teslimi bekleniyor; gelince bu satırı sil",
+    "Animals/sea_bream": "İstek 5 (balık çeşitliliği): GPT teslimi bekleniyor; gelince bu satırı sil",
+    "Animals/sardine": "İstek 5 (balık çeşitliliği): GPT teslimi bekleniyor; gelince bu satırı sil",
+    "Animals/bluefish": "İstek 5 (balık çeşitliliği): GPT teslimi bekleniyor; gelince bu satırı sil",
+    "Animals/whiting": "İstek 5 (balık çeşitliliği): GPT teslimi bekleniyor; gelince bu satırı sil",
+    "Animals/turbot": "İstek 5 (balık çeşitliliği): GPT teslimi bekleniyor; gelince bu satırı sil",
+    "Animals/trout": "İstek 5 (balık çeşitliliği): GPT teslimi bekleniyor; gelince bu satırı sil",
+    "Animals/salmon": "İstek 5 (balık çeşitliliği): GPT teslimi bekleniyor; gelince bu satırı sil",
+    "Animals/koi": "İstek 5 (balık çeşitliliği): GPT teslimi bekleniyor; gelince bu satırı sil",
+    "Animals/tuna": "İstek 5 (balık çeşitliliği): GPT teslimi bekleniyor; gelince bu satırı sil",
+}
 # Koda bağlanmamış (harita kurucuları) klasörler: bilgi amaçlı, hata sayılmaz.
 UNWIRED_FOLDERS: set[str] = set()
 FORBIDDEN_CLASSES = {
@@ -48,6 +59,8 @@ def expected() -> dict[str, set[str]]:
     order = re.search(r"ANIMAL_ORDER = \{([^}]*)\}", animals_cfg)
     animals = set(re.findall(r'"(\w+)"', order.group(1))) if order else set()
     animals |= set(re.findall(r'id = "(\w+)",\s*slot =', read(SRC / "shared/Config/Species.luau")))
+    # Çiftlik temalarının balık görünümleri (Config/Islands THEMES[n].fish: id = model dosyası)
+    animals |= set(re.findall(r'\{ id = "(\w+)", displayName = "[^"]*", icon = "[^"]*", product = "[^"]*" \}', read(SRC / "shared/Config/Islands.luau")))
     exp["Animals"] = animals
 
     # Binalar: üretim tarifleri (Production.luau + Species fabrikası/merkezi) + üretimsiz binalar
@@ -116,7 +129,7 @@ def expected() -> dict[str, set[str]]:
         "Beehives", "Farmhouse", "Granary", "MarketStall", "Orchard", "VegetableGarden", "Well", "Windmill",
     } | {f"Landmark_{kind}" for kind in ("cherry", "daisy", "pine", "rose", "sunflower", "tulip")}
     exp["HubProps"] = {"Bench", "Fountain", "Planter_seed2"} | {f"Vendor_{a}" for a in ("orders", "roadmap", "store", "travel")}
-    exp["HubModels"] = {"HubTitleBoard", "HubTravelBoard", "HubPlayerBoard", "Hub_Statue", "Hub_Banner", "Hub_Flag"}
+    exp["HubModels"] = {"HubTitleBoard", "HubTravelBoard", "HubPlayerBoard", "Hub_Statue", "Hub_Banner"}
     exp["BridgeModels"] = {"BridgeModule_2", "BridgeModule_8"}
     exp["SignModels"] = {"IslandSign", "PlotSign", "SaleMarker", "Signpost_Direction", "SpecialtySign"}
     exp["ShoreModels"] = {"DockDeck_5", "DockTip", "FishCrates", "FisherHut_Lv1", "NetDryingRack", "Pile"}

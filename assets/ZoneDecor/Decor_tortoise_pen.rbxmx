@@ -470,8 +470,8 @@
         <string name="Name">BaskingRock</string>
         <Vector3 name="Size">
           <X>0.6000000238418579</X>
-          <Y>2.5999999046325684</Y>
-          <Z>2.5999999046325684</Z>
+          <Y>2.0</Y>
+          <Z>2.0</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1311</X>
@@ -1134,6 +1134,191 @@
         <float name="Transparency">0</float>
         <float name="Reflectance">0</float>
         <bool name="CastShadow">false</bool>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXeb9190fecbe84a87b2b98c2c02f9a9eb">
+      <Properties>
+        <string name="Name">ShelterRoof</string>
+        <Vector3 name="Size">
+          <X>9</X>
+          <Y>0.3</Y>
+          <Z>3.8</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1308</X>
+          <Y>8.2</Y>
+          <Z>3529.25</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.32</R>
+          <G>0.24</G>
+          <B>0.17</B>
+        </Color3>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX0b74a48ad1ed479aaf15efef068d6529">
+      <Properties>
+        <string name="Name">ShelterPost</string>
+        <Vector3 name="Size">
+          <X>0.35</X>
+          <Y>4.05</Y>
+          <Z>0.35</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1303.8</X>
+          <Y>6.025</Y>
+          <Z>3527.65</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.32</R>
+          <G>0.24</G>
+          <B>0.17</B>
+        </Color3>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX73ca500c20e448d687edf92d564b9895">
+      <Properties>
+        <string name="Name">ShelterPost</string>
+        <Vector3 name="Size">
+          <X>0.35</X>
+          <Y>4.05</Y>
+          <Z>0.35</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1303.8</X>
+          <Y>6.025</Y>
+          <Z>3530.85</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.32</R>
+          <G>0.24</G>
+          <B>0.17</B>
+        </Color3>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX1a0ed6a6ca03407990ee01db4482c8e1">
+      <Properties>
+        <string name="Name">ShelterPost</string>
+        <Vector3 name="Size">
+          <X>0.35</X>
+          <Y>4.05</Y>
+          <Z>0.35</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1312.2</X>
+          <Y>6.025</Y>
+          <Z>3527.65</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.32</R>
+          <G>0.24</G>
+          <B>0.17</B>
+        </Color3>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBXea1548eec31645ceab5202e79d0d5f7e">
+      <Properties>
+        <string name="Name">ShelterPost</string>
+        <Vector3 name="Size">
+          <X>0.35</X>
+          <Y>4.05</Y>
+          <Z>0.35</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1312.2</X>
+          <Y>6.025</Y>
+          <Z>3530.85</Z>
+          <R00>1</R00>
+          <R01>0</R01>
+          <R02>0</R02>
+          <R10>0</R10>
+          <R11>1</R11>
+          <R12>0</R12>
+          <R20>0</R20>
+          <R21>0</R21>
+          <R22>1</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.32</R>
+          <G>0.24</G>
+          <B>0.17</B>
+        </Color3>
+        <token name="Material">528</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">true</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">true</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
       </Properties>
     </Item>
   </Item>

@@ -25,13 +25,13 @@
       <Properties>
         <string name="Name">Post</string>
         <Vector3 name="Size">
-          <X>0.699999988079071</X>
-          <Y>7</Y>
-          <Z>0.699999988079071</Z>
+          <X>0.699999988</X>
+          <Y>7.8</Y>
+          <Z>0.699999988</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1292</X>
-          <Y>7.5</Y>
+          <Y>7.9</Y>
           <Z>3489</Z>
           <R00>1</R00>
           <R01>0</R01>
@@ -62,13 +62,13 @@
       <Properties>
         <string name="Name">Post</string>
         <Vector3 name="Size">
-          <X>0.699999988079071</X>
-          <Y>7</Y>
-          <Z>0.699999988079071</Z>
+          <X>0.699999988</X>
+          <Y>7.8</Y>
+          <Z>0.699999988</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1302</X>
-          <Y>7.5</Y>
+          <Y>7.9</Y>
           <Z>3489</Z>
           <R00>1</R00>
           <R01>0</R01>
@@ -105,7 +105,7 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1297</X>
-          <Y>11.100000381469727</Y>
+          <Y>11.9000004</Y>
           <Z>3489</Z>
           <R00>1</R00>
           <R01>0</R01>
@@ -142,7 +142,7 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1297</X>
-          <Y>8.199999809265137</Y>
+          <Y>8.99999981</Y>
           <Z>3489</Z>
           <R00>1</R00>
           <R01>0</R01>
@@ -216,7 +216,7 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1294</X>
-          <Y>9.800000190734863</Y>
+          <Y>10.6000002</Y>
           <Z>3489</Z>
           <R00>1</R00>
           <R01>0</R01>
@@ -253,7 +253,7 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1294</X>
-          <Y>8.399999618530273</Y>
+          <Y>9.19999962</Y>
           <Z>3489</Z>
           <R00>1</R00>
           <R01>0</R01>
@@ -290,7 +290,7 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1294.5</X>
-          <Y>8.899999618530273</Y>
+          <Y>9.69999962</Y>
           <Z>3489</Z>
           <R00>1</R00>
           <R01>0</R01>
@@ -327,7 +327,7 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1297</X>
-          <Y>9.800000190734863</Y>
+          <Y>10.6000002</Y>
           <Z>3489</Z>
           <R00>1</R00>
           <R01>0</R01>
@@ -364,7 +364,7 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1297</X>
-          <Y>8.399999618530273</Y>
+          <Y>9.19999962</Y>
           <Z>3489</Z>
           <R00>1</R00>
           <R01>0</R01>
@@ -401,7 +401,7 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1297.5</X>
-          <Y>8.899999618530273</Y>
+          <Y>9.69999962</Y>
           <Z>3489</Z>
           <R00>1</R00>
           <R01>0</R01>
@@ -438,7 +438,7 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1300</X>
-          <Y>9.800000190734863</Y>
+          <Y>10.6000002</Y>
           <Z>3489</Z>
           <R00>1</R00>
           <R01>0</R01>
@@ -475,7 +475,7 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1300</X>
-          <Y>8.399999618530273</Y>
+          <Y>9.19999962</Y>
           <Z>3489</Z>
           <R00>1</R00>
           <R01>0</R01>
@@ -512,7 +512,7 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1300.5</X>
-          <Y>8.899999618530273</Y>
+          <Y>9.69999962</Y>
           <Z>3489</Z>
           <R00>1</R00>
           <R01>0</R01>
@@ -1177,9 +1177,9 @@
           <Z>2.2</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1297.0</X>
-          <Y>11.57</Y>
-          <Z>3489.0</Z>
+          <X>1297</X>
+          <Y>12.37</Y>
+          <Z>3489</Z>
           <R00>1.0</R00>
           <R01>0.0</R01>
           <R02>0.0</R02>
@@ -1215,8 +1215,8 @@
           <Z>0.2</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1297.0</X>
-          <Y>11.36</Y>
+          <X>1297</X>
+          <Y>12.16</Y>
           <Z>3487.98</Z>
           <R00>1.0</R00>
           <R01>0.0</R01>
@@ -1254,8 +1254,8 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1293.08</X>
-          <Y>8.53</Y>
-          <Z>3489.0</Z>
+          <Y>9.33</Y>
+          <Z>3489</Z>
           <R00>1.0</R00>
           <R01>0.0</R01>
           <R02>0.0</R02>
@@ -1292,8 +1292,8 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1296.08</X>
-          <Y>8.53</Y>
-          <Z>3489.0</Z>
+          <Y>9.33</Y>
+          <Z>3489</Z>
           <R00>1.0</R00>
           <R01>0.0</R01>
           <R02>0.0</R02>
@@ -1330,8 +1330,8 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1299.08</X>
-          <Y>8.53</Y>
-          <Z>3489.0</Z>
+          <Y>9.33</Y>
+          <Z>3489</Z>
           <R00>1.0</R00>
           <R01>0.0</R01>
           <R02>0.0</R02>

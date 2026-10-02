@@ -430,6 +430,22 @@ function Config.getStartingCash(farmId: string?): number
 	return if animal then animal.price else Config.STARTING_CASH
 end
 
+-- Hayvanın bu çiftlikteki görünümü: balıklarda (anchovy/seabass) çiftlik temasının balığı (THEMES[n].fish), diğerlerinde ANIMALS satırı.
+-- modelId = assets/Animals/<modelId>.rbxmx. Fiyat/gelir/kayıt kimliği değişmez (animalId aynı kalır).
+export type AnimalLook = { displayName: string, icon: string, product: string, modelId: string }
+function Config.getAnimalLook(animalId: string, farmId: string?): AnimalLook
+	local skins = Config.getTheme(farmId).fish
+	local skin = if skins then skins[animalId] else nil
+	if skin then
+		return { displayName = skin.displayName, icon = skin.icon, product = skin.product, modelId = skin.id }
+	end
+	local animal = Config.ANIMALS[animalId]
+	if animal then
+		return { displayName = animal.displayName, icon = animal.icon, product = animal.product, modelId = animalId }
+	end
+	return { displayName = animalId, icon = "🐾", product = "", modelId = animalId }
+end
+
 function Config.getHomeAnimalIcon(farmId: string?): string
 	local animal = Config.ANIMALS[Config.getHomeAnimal(farmId)]
 	return if animal then animal.icon else "🐾"

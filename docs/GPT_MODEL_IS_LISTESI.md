@@ -266,7 +266,7 @@ Aşağıdakiler **kodda şu an yok**; modeller gelirse ben yerleştirme kodunu e
 | `assets/CommonDecor/` | `Mushroom_A..C`, `Pumpkin`, `Sunflower_Single` | Küçük süs, tohumla serpiştirilir |
 | `assets/ShoreModels/` | `Pile.rbxmx` (tek kazık 0.7 çap, h 12) | Yükseklik kodla `ScaleTo` (Y) ayarlanır |
 | `assets/SeasonModels/` | `SnowCap_Oak`, `SnowCap_Pine`, `SnowCap_Bush`, `Snowman` | Kış süsü; kod sadece görünür yapar |
-| `assets/HubModels/` | `Hub_Statue`, `Hub_Banner`, `Hub_Flag` | Meydan süsü |
+| `assets/HubModels/` | `Hub_Statue`, `Hub_Banner` | Meydan süsü |
 
 Her biri için kural aynı: ölçek 1'de çiz, pivot zeminde, `Tint` adlı parçalar kod renklendirsin, parça sınırı ≤ 12.
 

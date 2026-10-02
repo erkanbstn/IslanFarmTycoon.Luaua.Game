@@ -187,7 +187,7 @@ function AnimalService.tryReplaceFish(player: Player, uid: unknown): (boolean, s
 			or not data.unlockedZones[animal.zoneId]
 			or not table.find(zone.allowedAnimals, "seabass")
 		then
-			return false, "Bu balık levrekle değiştirilemez"
+			return false, "Bu balık büyük balıkla değiştirilemez"
 		end
 		local price = FarmMath.getFishReplacementPrice(data)
 		EconomyService.settlePlayer(player)
@@ -322,7 +322,10 @@ function AnimalService.init()
 			end
 			local ok, err = AnimalService.tryBarter(player, animalId)
 			if ok then
-				err = `Ürünlerle takas edildi · Yeni {Config.ANIMALS[animalId :: string].displayName} geldi!`
+				err = `Ürünlerle takas edildi · Yeni {Config.getAnimalLook(
+					animalId :: string,
+					if typeof(expectedFarmId) == "string" then expectedFarmId else nil
+				).displayName} geldi!`
 			end
 			reply(player, requestId, ok, err)
 		end)
@@ -353,7 +356,7 @@ function AnimalService.init()
 				return
 			end
 			local ok, err = AnimalService.tryReplaceFish(player, uid)
-			reply(player, requestId, ok, if ok then "Hamsi yavru levrekle değiştirildi!" else err)
+			reply(player, requestId, ok, if ok then "Küçük balık yavru büyük balıkla değiştirildi!" else err)
 		end)
 
 	task.spawn(function()

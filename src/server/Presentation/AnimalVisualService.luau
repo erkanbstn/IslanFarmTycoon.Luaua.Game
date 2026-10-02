@@ -43,9 +43,11 @@ local function buildAnimal(
 	slot: number,
 	capacity: number,
 	movementStyle: string?,
-	lineageLevel: number
+	lineageLevel: number,
+	themeKey: string
 ): Model
-	local visual = createAnimalVisual(animal.animalId, animal.stage)
+	local look = Config.getAnimalLook(animal.animalId, themeKey)
+	local visual = createAnimalVisual(look.modelId, animal.stage)
 	visual.Name = `{animal.animalId}_{animal.uid}`
 	-- Parçalar birlikte akar: istemcideki AnimalAnimator parça listesini bir kez çıkarıp topluca taşır; streaming parçaları ayrı
 	-- getirirse geç gelen parça (baş, kanat, bacak) hayvanın yerinde kalıp kopuk görünür.
@@ -72,8 +74,7 @@ local function buildAnimal(
 	end
 	CollectionService:AddTag(visual, "Animal")
 
-	local animalConfig = Config.ANIMALS[animal.animalId]
-	local name = if animalConfig then animalConfig.displayName else animal.animalId
+	local name = look.displayName
 	-- Yetişkinlerde sadece ad; büyüyenlerde evre de yazsın
 	local tag = if animal.stage == "adult"
 		then name
@@ -99,7 +100,8 @@ local function buildAnimalInArea(
 	slot: number,
 	capacity: number,
 	movementStyle: string?,
-	lineageLevel: number
+	lineageLevel: number,
+	themeKey: string
 ): Model
 	local ground = Instance.new("Part")
 	ground.Size = Vector3.new(areaSize.X, 1, areaSize.Z)
@@ -108,7 +110,7 @@ local function buildAnimalInArea(
 	ground.Transparency = 1
 	ground.CanCollide = false
 	ground.CanQuery = false
-	local visual = buildAnimal(animal, ground, slot, capacity, movementStyle, lineageLevel)
+	local visual = buildAnimal(animal, ground, slot, capacity, movementStyle, lineageLevel, themeKey)
 	ground:Destroy()
 	return visual
 end
@@ -117,6 +119,7 @@ end
 -- yenilenir, gidenler silinir. Değişmeyenlere dokunulmaz, böylece gezinirken yerlerine zıplamazlar.
 function AnimalVisualService.refresh(plot: Model, data: PlayerSave)
 	local animalsFolder = InstanceUtil.getOrCreateFolder(plot, "Animals")
+	local themeKey = tostring(plot:GetAttribute("ThemeIndex") or "1")
 
 	local existingByUid: { [string]: Model } = {}
 	for _, child in animalsFolder:GetChildren() do
@@ -183,7 +186,8 @@ function AnimalVisualService.refresh(plot: Model, data: PlayerSave)
 				slot,
 				FarmMath.getExtensionCapacity(data, extensionId),
 				movement,
-				lineageLevel
+				lineageLevel,
+				themeKey
 			)
 		else
 			local ground = findZoneGround(plot, animal.zoneId)
@@ -191,7 +195,15 @@ function AnimalVisualService.refresh(plot: Model, data: PlayerSave)
 			if not ground or not zoneConfig then
 				continue
 			end
-			visual = buildAnimal(animal, ground, slot, FarmMath.getZoneCapacity(data, animal.zoneId), nil, lineageLevel)
+			visual = buildAnimal(
+				animal,
+				ground,
+				slot,
+				FarmMath.getZoneCapacity(data, animal.zoneId),
+				nil,
+				lineageLevel,
+				themeKey
+			)
 		end
 		if existing then
 			existing:Destroy()

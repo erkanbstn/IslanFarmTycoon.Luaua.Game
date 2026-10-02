@@ -203,9 +203,10 @@ function GoalCard.create(stats: Frame, onboarding: Onboarding.Hud): Hud
 			if status == "available" and cost < lateCost then
 				lateCost = cost
 				lateLabel =
-					`{Config.ANIMALS[animalId].displayName} · Irk Sv.{FarmMath.getLineageLevel(state, animalId) + 1} · {FarmMath.formatMoney(
-						cost
-					)}`
+					`{Config.getAnimalLook(animalId, state.activeMainFarmId).displayName} · Irk Sv.{FarmMath.getLineageLevel(
+						state,
+						animalId
+					) + 1} · {FarmMath.formatMoney(cost)}`
 			end
 		end
 		local lateIslands = FarmMath.themeIslands(state)
@@ -245,7 +246,7 @@ function GoalCard.create(stats: Frame, onboarding: Onboarding.Hud): Hud
 			`Ustalık: {adults}/{capacity} yetişkin · {FarmMath.countAnimals(state, "seabass")}/{FarmMath.getZoneCapacity(
 				state,
 				"fishpen"
-			)} levrek`
+			)} büyük balık`
 		local delivered = if state.contracts then state.contracts.completed else 0
 		goalDetail.Text = `Ahır siparişi: ürün merkezlerinde üret, depodan teslim et · Teslim edilen: {delivered}`
 	end

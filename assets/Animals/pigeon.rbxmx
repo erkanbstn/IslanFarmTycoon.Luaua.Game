@@ -27,11 +27,11 @@
         <Vector3 name="Size">
           <X>1.1</X>
           <Y>1</Y>
-          <Z>1.116</Z>
+          <Z>1.27224</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1018</X>
-          <Y>4.900000095367432</Y>
+          <Y>4.900000095</Y>
           <Z>735</Z>
           <R00>1</R00>
           <R01>0</R01>
@@ -60,14 +60,14 @@
       <Properties>
         <string name="Name">Leg</string>
         <Vector3 name="Size">
-          <X>0.20000000298023224</X>
+          <X>0.200000003</X>
           <Y>0.5</Y>
-          <Z>0.20000000298023224</Z>
+          <Z>0.200000003</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1017.75</X>
           <Y>4.25</Y>
-          <Z>735.0499877929688</Z>
+          <Z>735.0499878</Z>
           <R00>1</R00>
           <R01>0</R01>
           <R02>0</R02>
@@ -95,14 +95,14 @@
       <Properties>
         <string name="Name">Leg</string>
         <Vector3 name="Size">
-          <X>0.20000000298023224</X>
+          <X>0.200000003</X>
           <Y>0.5</Y>
-          <Z>0.20000000298023224</Z>
+          <Z>0.200000003</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1018.25</X>
           <Y>4.25</Y>
-          <Z>735.0499877929688</Z>
+          <Z>735.0499878</Z>
           <R00>1</R00>
           <R01>0</R01>
           <R02>0</R02>
@@ -130,14 +130,14 @@
       <Properties>
         <string name="Name">Wing</string>
         <Vector3 name="Size">
-          <X>0.15000000596046448</X>
-          <Y>0.699999988079071</Y>
-          <Z>1.2000000476837158</Z>
+          <X>0.150000006</X>
+          <Y>0.6999999881</Y>
+          <Z>1.200000048</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1017.4199829101562</X>
-          <Y>4.949999809265137</Y>
-          <Z>735.2000122070312</Z>
+          <X>1017.419983</X>
+          <Y>4.949999809</Y>
+          <Z>735.2000122</Z>
           <R00>1</R00>
           <R01>0</R01>
           <R02>0</R02>
@@ -164,14 +164,14 @@
       <Properties>
         <string name="Name">Wing</string>
         <Vector3 name="Size">
-          <X>0.15000000596046448</X>
-          <Y>0.699999988079071</Y>
-          <Z>1.2000000476837158</Z>
+          <X>0.150000006</X>
+          <Y>0.6999999881</Y>
+          <Z>1.200000048</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1018.5800170898438</X>
-          <Y>4.949999809265137</Y>
-          <Z>735.2000122070312</Z>
+          <X>1018.580017</X>
+          <Y>4.949999809</Y>
+          <Z>735.2000122</Z>
           <R00>1</R00>
           <R01>0</R01>
           <R02>0</R02>
@@ -198,14 +198,14 @@
       <Properties>
         <string name="Name">Rump</string>
         <Vector3 name="Size">
-          <X>0.800000011920929</X>
-          <Y>0.30000001192092896</Y>
+          <X>0.8000000119</X>
+          <Y>0.3000000119</Y>
           <Z>0.5</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1018</X>
-          <Y>5.199999809265137</Y>
-          <Z>735.7999877929688</Z>
+          <Y>5.199999809</Y>
+          <Z>735.7999878</Z>
           <R00>1</R00>
           <R01>0</R01>
           <R02>0</R02>
@@ -233,13 +233,13 @@
       <Properties>
         <string name="Name">Tail</string>
         <Vector3 name="Size">
-          <X>0.800000011920929</X>
-          <Y>0.15000000596046448</Y>
-          <Z>0.8999999761581421</Z>
+          <X>0.8000000119</X>
+          <Y>0.150000006</Y>
+          <Z>0.8999999762</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1018</X>
-          <Y>4.900000095367432</Y>
+          <Y>4.900000095</Y>
           <Z>736.5</Z>
           <R00>1</R00>
           <R01>0</R01>
@@ -268,14 +268,14 @@
       <Properties>
         <string name="Name">Neck</string>
         <Vector3 name="Size">
-          <X>0.6499999761581421</X>
-          <Y>0.550000011920929</Y>
-          <Z>0.6000000238418579</Z>
+          <X>0.6499999762</X>
+          <Y>0.5500000119</Y>
+          <Z>0.6000000238</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1018</X>
-          <Y>5.599999904632568</Y>
-          <Z>734.2000122070312</Z>
+          <Y>5.599999905</Y>
+          <Z>734.2000122</Z>
           <R00>1</R00>
           <R01>0</R01>
           <R02>0</R02>
@@ -309,7 +309,7 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1018</X>
-          <Y>5.900000095367432</Y>
+          <Y>5.900000095</Y>
           <Z>734</Z>
           <R00>1</R00>
           <R01>0</R01>
@@ -338,14 +338,14 @@
       <Properties>
         <string name="Name">Beak</string>
         <Vector3 name="Size">
-          <X>0.14000000059604645</X>
-          <Y>0.11999999731779099</Y>
+          <X>0.1400000006</X>
+          <Y>0.1199999973</Y>
           <Z>0.25</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1018</X>
-          <Y>5.849999904632568</Y>
-          <Z>733.5999755859375</Z>
+          <Y>5.849999905</Y>
+          <Z>733.5999756</Z>
           <R00>1</R00>
           <R01>0</R01>
           <R02>0</R02>
@@ -372,14 +372,14 @@
       <Properties>
         <string name="Name">Cere</string>
         <Vector3 name="Size">
-          <X>0.1599999964237213</X>
-          <Y>0.07999999821186066</Y>
-          <Z>0.07999999821186066</Z>
+          <X>0.1599999964</X>
+          <Y>0.07999999821</Y>
+          <Z>0.07999999821</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1018</X>
-          <Y>5.929999828338623</Y>
-          <Z>733.7000122070312</Z>
+          <Y>5.929999828</Y>
+          <Z>733.7000122</Z>
           <R00>1</R00>
           <R01>0</R01>
           <R02>0</R02>
@@ -407,14 +407,14 @@
       <Properties>
         <string name="Name">Eye</string>
         <Vector3 name="Size">
-          <X>0.1599999964237213</X>
-          <Y>0.1599999964237213</Y>
-          <Z>0.1599999964237213</Z>
+          <X>0.1117200038</X>
+          <Y>0.1117200038</Y>
+          <Z>0.1117200038</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1017.760009765625</X>
-          <Y>5.980000019073486</Y>
-          <Z>733.7999877929688</Z>
+          <X>1017.671367</X>
+          <Y>5.986400098</Y>
+          <Z>733.85</Z>
           <R00>1</R00>
           <R01>0</R01>
           <R02>0</R02>
@@ -426,9 +426,9 @@
           <R22>1</R22>
         </CoordinateFrame>
         <Color3 name="Color">
-          <R>0.9215686321258545</R>
-          <G>0.5098039507865906</G>
-          <B>0.1568627506494522</B>
+          <R>0.07</R>
+          <G>0.065</G>
+          <B>0.055</B>
         </Color3>
         <token name="Material">272</token>
         <token name="Shape">0</token>
@@ -442,14 +442,14 @@
       <Properties>
         <string name="Name">Eye</string>
         <Vector3 name="Size">
-          <X>0.1599999964237213</X>
-          <Y>0.1599999964237213</Y>
-          <Z>0.1599999964237213</Z>
+          <X>0.1117200038</X>
+          <Y>0.1117200038</Y>
+          <Z>0.1117200038</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1018.239990234375</X>
-          <Y>5.980000019073486</Y>
-          <Z>733.7999877929688</Z>
+          <X>1018.328633</X>
+          <Y>5.986400098</Y>
+          <Z>733.85</Z>
           <R00>1</R00>
           <R01>0</R01>
           <R02>0</R02>
@@ -461,9 +461,9 @@
           <R22>1</R22>
         </CoordinateFrame>
         <Color3 name="Color">
-          <R>0.9215686321258545</R>
-          <G>0.5098039507865906</G>
-          <B>0.1568627506494522</B>
+          <R>0.07</R>
+          <G>0.065</G>
+          <B>0.055</B>
         </Color3>
         <token name="Material">272</token>
         <token name="Shape">0</token>
@@ -477,8 +477,8 @@
       <Properties>
         <string name="Name">ChestSlope</string>
         <Vector3 name="Size">
-          <X>1.056</X>
-          <Y>0.96</Y>
+          <X>1.03488</X>
+          <Y>0.9312</Y>
           <Z>0.44999999</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
@@ -511,8 +511,8 @@
       <Properties>
         <string name="Name">HaunchSlope</string>
         <Vector3 name="Size">
-          <X>1.056</X>
-          <Y>0.96</Y>
+          <X>1.03488</X>
+          <Y>0.9312</Y>
           <Z>0.44999999</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
