@@ -178,7 +178,7 @@ local function addCapacityProps(parent: Instance, surfaceCf: CFrame, layout: any
 	if extra <= 0 then
 		return
 	end
-	-- Hazır kapasite süsü (assets/ExtensionCapacity/CapacityProps_<eklentiId>_Cap3|Cap4, pivot = ada yüzeyi); yoksa kod
+	-- Hazır kapasite süsü (assets/ExtensionCapacity/CapacityProps_<eklentiId>_Cap3|Cap4, pivot = ada yüzeyi)
 	local ready = ModelAssets.clone("ExtensionCapacity", `CapacityProps_{layout.id}_Cap{math.min(capacity, 4)}`)
 	if ready then
 		ready:PivotTo(surfaceCf)
@@ -186,90 +186,9 @@ local function addCapacityProps(parent: Instance, surfaceCf: CFrame, layout: any
 		ready.Parent = parent
 		return
 	end
-	local model = Instance.new("Model")
-	model.Name = "CapacityProps"
-	model.Parent = parent
-	local back = surfaceCf * CFrame.new(layout.areaOffset.X, 0, layout.areaOffset.Z + layout.areaSize.Z / 2 - 2.4)
-	local function piece(
-		name: string,
-		size: Vector3,
-		offset: CFrame,
-		color: Color3,
-		material: Enum.Material,
-		solid: boolean
+	warn(
+		`[ExtensionVisual] assets/ExtensionCapacity/CapacityProps_{layout.id}_Cap{math.min(capacity, 4)}.rbxmx bulunamadı`
 	)
-		local p = Instance.new("Part")
-		p.Name = name
-		p.Size = size
-		p.CFrame = back * offset
-		p.Color = color
-		p.Material = material
-		p.Anchored = true
-		p.CanCollide, p.CanTouch, p.CanQuery = solid, false, solid
-		p.Parent = model
-		return p
-	end
-	local wood = Color3.fromRGB(150, 110, 70)
-	local halfX = layout.areaSize.X / 4
-	if extra >= 1 then
-		piece(
-			"WaterTrough",
-			Vector3.new(3.4, 1, 1.5),
-			CFrame.new(-halfX, 0.5, 0),
-			Color3.fromRGB(150, 155, 160),
-			Enum.Material.Metal,
-			true
-		)
-		local water = piece(
-			"Water",
-			Vector3.new(3, 0.1, 1.1),
-			CFrame.new(-halfX, 1.02, 0),
-			Color3.fromRGB(70, 160, 220),
-			Enum.Material.Glass,
-			false
-		)
-		water.Transparency = 0.2
-		for index = 0, 1 do
-			piece(
-				"HayBale",
-				Vector3.new(2.4, 1.5, 1.5),
-				CFrame.new(halfX + index * 2.6, 0.75, 0),
-				Color3.fromRGB(225, 195, 110),
-				Enum.Material.Fabric,
-				true
-			)
-		end
-	end
-	if extra >= 2 then
-		for _, x in { -1.8, 1.8 } do
-			for _, z in { -1.6, 1.6 } do
-				piece(
-					"ShelterPost",
-					Vector3.new(0.4, 4, 0.4),
-					CFrame.new(x, 2, z - 3.4),
-					wood,
-					Enum.Material.Wood,
-					true
-				)
-			end
-		end
-		piece(
-			"ShelterRoof",
-			Vector3.new(5, 0.4, 4.6),
-			CFrame.new(0, 4.2, -3.4),
-			Color3.fromRGB(150, 70, 60),
-			Enum.Material.Slate,
-			false
-		)
-		piece(
-			"ShelterLantern",
-			Vector3.new(0.8, 0.8, 0.8),
-			CFrame.new(0, 3.6, -3.4),
-			Color3.fromRGB(255, 226, 150),
-			Enum.Material.Neon,
-			false
-		)
-	end
 end
 
 function ExtensionVisualService.apply(plot: Model, save: PlayerSave?)

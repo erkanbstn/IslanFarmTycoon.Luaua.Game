@@ -2,33 +2,18 @@
 -- Bölgelerin içindeki yapılar: inek barınağı, tavuk kümesi, at bölmeleri, yemlik, saman balyaları...
 -- Bölge açılınca kurulur, kapanınca (ada boşalınca) silinir; kilitli bölge çıplak toprak görünür.
 -- Koordinatlar bölge zemininin merkezine göre: -Z ön (doğma noktası), +Z arka.
--- Parçalar: ZoneParts (ortak yapı taşları), ZoneBuildersHome/Pens/Water (bölge görselleri).
+-- Görseller hazır modellerdir (assets/ZoneDecor, ZoneFlags, ZoneLevels; kural docs/MODEL_SOZLESMESI.md); burada yalnızca yerleşim, tema seçimi ve çim tutamı vardır.
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 local WorldDecor = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("WorldDecor"))
 local ModelAssets = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("ModelAssets"))
-local ZoneParts = require(script.Parent:WaitForChild("ZoneParts"))
-local ZoneLevelDecor = require(script.Parent:WaitForChild("ZoneLevelDecor"))
-local BuildersHome = require(script.Parent:WaitForChild("ZoneBuildersHome"))
-local BuildersPens = require(script.Parent:WaitForChild("ZoneBuildersPens"))
-local BuildersWater = require(script.Parent:WaitForChild("ZoneBuildersWater"))
-local BuildersSpecies = require(script.Parent:WaitForChild("ZoneBuildersSpecies"))
 
 local ZoneVisualService = {}
 
-type Builder = ZoneParts.Builder
-local part = ZoneParts.part
-local THEME_LOOKS = ZoneParts.THEME_LOOKS
-local Look = ZoneParts.Look
+local THEME_COUNT = Config.MAIN_FARM_LIMIT -- ana ada süsü çiftlik numarasına (tema) göre değişir: Decor_pasture_T<1-N>
 
 local LOCKED_GROUND = Color3.fromRGB(150, 120, 90)
-
--- Bölge id -> görsel kurucu (gruplar ayrı dosyalarda)
-local BUILDERS: { [string]: Builder } = {}
-for _, group in { BuildersHome, BuildersPens, BuildersWater, BuildersSpecies } do
-	for id, builder in group do
-		BUILDERS[id] = builder
-	end
-end
 
 local function getGround(zone: Instance): BasePart?
 	local ground = zone:FindFirstChild("Ground")
@@ -40,12 +25,6 @@ end
 
 -- Bölge geliştirme bayrakları: her seviye için bölgenin ön kenarında bir flama (renk = o seviyenin türü).
 -- Seviye değişince yenilenir; kinds boşsa kaldırılır.
-local FLAG_COLORS: { [string]: Color3 } = {
-	growth = Color3.fromRGB(96, 190, 110),
-	income = Color3.fromRGB(245, 195, 70),
-	season = Color3.fromRGB(96, 170, 230),
-	capacity = Color3.fromRGB(235, 232, 220),
-}
 -- withProps: seviye süsleri (yemlik, gölgelik...) de kurulsun (denizdeki bölgede kurulmaz)
 function ZoneVisualService.applyLevelFlags(zone: Instance, kinds: { string }, withProps: boolean?)
 	local signature = table.concat(kinds, ",") .. (if withProps == false then "|flags" else "")
@@ -67,43 +46,22 @@ function ZoneVisualService.applyLevelFlags(zone: Instance, kinds: { string }, wi
 	for index, kind in kinds do
 		local x = -ground.Size.X / 2 + 2.2 + (index - 1) * 2.4
 		local z = -ground.Size.Z / 2 + 1.4
-		-- Hazır bayrak (assets/ZoneFlags/ZoneFlag_<tür>, pivot = direk dibi); yoksa kod
+		-- Hazır bayrak (assets/ZoneFlags/ZoneFlag_<tür>, pivot = direk dibi)
 		local flag = ModelAssets.clone("ZoneFlags", `ZoneFlag_{kind}`)
 		if flag then
 			flag:PivotTo(top * CFrame.new(x, 0, z))
 			flag.Name = "FlagSet"
 			flag.Parent = model
-		else
-			local pole = part(
-				model,
-				"FlagPole",
-				Vector3.new(0.25, 5, 0.25),
-				top * CFrame.new(x, 2.5, z),
-				Color3.fromRGB(235, 235, 235),
-				Enum.Material.Metal
-			)
-			pole.CanCollide = false
-			local cloth = part(
-				model,
-				"Flag",
-				Vector3.new(1.7, 1.05, 0.08),
-				top * CFrame.new(x + 0.95, 4.4, z),
-				FLAG_COLORS[kind] or FLAG_COLORS.capacity,
-				Enum.Material.Fabric
-			)
-			cloth.CanCollide = false
 		end
 	end
 	if withProps ~= false then
-		-- Hazır seviye süsü (assets/ZoneLevels/ZoneLevel_<X>x<Z>_Lv<1-5>, pivot = zemin üst yüzü); yoksa kod
+		-- Hazır seviye süsü (assets/ZoneLevels/ZoneLevel_<X>x<Z>_Lv<1-5>, pivot = zemin üst yüzü)
 		local sizeKey = `{math.floor(ground.Size.X + 0.5)}x{math.floor(ground.Size.Z + 0.5)}`
 		local levelProps = ModelAssets.clone("ZoneLevels", `ZoneLevel_{sizeKey}_Lv{math.clamp(#kinds, 1, 5)}`)
 		if levelProps then
 			levelProps:PivotTo(top)
 			levelProps.Name = "LevelProps"
 			levelProps.Parent = model
-		else
-			ZoneLevelDecor.build(model, top, ground.Size, #kinds)
 		end
 	end
 	model.Parent = zone
@@ -132,35 +90,29 @@ function ZoneVisualService.apply(zone: Instance, zoneId: string, unlocked: boole
 		end
 		return
 	end
-	local builder = BUILDERS[zoneId]
-	if existing or not builder then
+	if existing then
 		return
 	end
 
 	local origin = ground.CFrame * CFrame.new(0, ground.Size.Y / 2, 0)
 	local plot = zone.Parent and zone.Parent.Parent
 	local farmIndex = tonumber(plot and (plot:GetAttribute("ThemeIndex") or plot:GetAttribute("PlotId"))) or 1
-	local themeIndex = ((farmIndex - 1) % #THEME_LOOKS) + 1
-	Look.current = THEME_LOOKS[themeIndex]
-	Look.barnColor = Look.current.barn
-	-- Hazır bölge dekoru (assets/ZoneDecor/Decor_<bölge>; ana ada başlangıç/otlakta tema eki _T<1-6>, pivot = zemin üst yüzü); yoksa kod kurucusu
+	local themeIndex = ((farmIndex - 1) % THEME_COUNT) + 1
+	-- Hazır bölge dekoru (assets/ZoneDecor/Decor_<bölge>; ana ada başlangıç/otlakta tema eki _T<1-6>, pivot = zemin üst yüzü) kurucusu
 	local assetName = if zoneId == "starter" or zoneId == "pasture"
 		then `Decor_{zoneId}_T{themeIndex}`
 		else `Decor_{zoneId}`
-	local decor: Model
-	local modelDecor = ModelAssets.clone("ZoneDecor", assetName)
-	if modelDecor then
-		decor = modelDecor
-		decor:PivotTo(origin)
-		ModelAssets.eachNamed(decor, { "Window" }, function(window: BasePart)
-			if window.Material == Enum.Material.Glass then
-				WorldDecor.markNightWindow(window)
-			end
-		end)
-	else
-		decor = Instance.new("Model")
-		builder(decor, origin, ground.Size)
+	local decor = ModelAssets.clone("ZoneDecor", assetName)
+	if not decor then
+		-- Bu bölge türünün dekoru yok (ör. suyun üstündeki bölge); yalnızca zemin görünür
+		return
 	end
+	decor:PivotTo(origin)
+	ModelAssets.eachNamed(decor, { "Window" }, function(window: BasePart)
+		if window.Material == Enum.Material.Glass then
+			WorldDecor.markNightWindow(window)
+		end
+	end)
 	decor.Name = "Decor"
 	decor:SetAttribute("VisualCreatedAt", game:GetService("Workspace"):GetServerTimeNow())
 	-- Çimenli zeminlere çim tutamı ve çiçek (ön/orta şerit; arkadaki barınak ve yemlikler hariç)

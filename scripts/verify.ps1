@@ -73,6 +73,7 @@ try {
 	Invoke-Check "Locale key parity and UI literal coverage" { & $Python scripts/check-locales.py --strict-literals }
 	Invoke-Check "Config text translation coverage" { & $Python scripts/check-config-locales.py }
 	Invoke-Check "AI guide consistency" { & $Python scripts/check-ai-docs.py }
+	Invoke-Check "Model asset coverage" { & $Python scripts/check-assets.py }
 	Invoke-Check "Pure helper type analysis (SessionLock, SeasonVisuals only)" {
 		& $analyzer src/server/Modules/SessionLock.luau src/shared/Modules/SeasonVisuals.luau
 	}

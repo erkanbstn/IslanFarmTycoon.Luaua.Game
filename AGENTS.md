@@ -11,6 +11,7 @@ Bu dosya Claude, Cursor, Copilot, Codex gibi AI araçlarının projeyi doğru an
   ekonomi/kayıt, client performansı, testler.
 - `.cursor/skills/<ad>/SKILL.md`: adım adım iş akışları — remote ekleme, UI ekleme, içerik/denge,
   harita değişikliği, çeviri, kayıt şeması, doğrulama. `.claude/skills/` bunlara yönlendirir.
+- `docs/GPT_MODEL_IS_LISTESI.md`: model üreten yapay zekâya verilen iş listesi (kodla çizilen görselleri modele çevirme: ölçü/renk/parça adı şartnameleri, teslim yolu, doğrulama).
 - Kural değişirse önce ilgili `.mdc`/`SKILL.md`'yi güncelle; aynı bilgiyi iki yere kopyalama.
 - Kural/skill/yönlendirme dosyalarının tutarlılığı `python scripts/check-ai-docs.py`, katman bağımlılıkları `python scripts/check-architecture.py` ile denetlenir (`verify.ps1` ikisini de çalıştırır).
 
@@ -136,5 +137,5 @@ Yeni dosya eklerken `docs/MIMARI.md`'deki "Yeni şey nereye?" tablosuna bak.
 - Lint: `selene src plugin tests` · Format: `stylua src tests plugin` · Senkronizasyon: `rojo serve`
 - Testler: `python scripts/run-tests.py` · Çeviri kapsamı: `python scripts/check-locales.py --strict-literals`
 - Çiftlik kademeleri/zorluk: `python scripts/simulate-tiers.py` (`docs/ZORLUK_VE_FIYAT.md`)
-- Mimari kuralları: `python scripts/check-architecture.py` · Tip analizi (yeni bulgu = hata): `python scripts/check-types.py` (araçları `powershell scripts/setup-types.ps1` `.tools/luau-lsp` altına kurar; yoksa `verify.ps1` adımı atlar, `-RequireTypes` ile hata sayar)
+- Model kapsamı (her kod görünümünün `assets/` karşılığı var mı): `python scripts/check-assets.py` (eksik = kod kurucusu silinemez; `verify.ps1` çalıştırır) · Mimari kuralları: `python scripts/check-architecture.py` · Tip analizi (yeni bulgu = hata): `python scripts/check-types.py` (araçları `powershell scripts/setup-types.ps1` `.tools/luau-lsp` altına kurar; yoksa `verify.ps1` adımı atlar, `-RequireTypes` ile hata sayar)
 - Tam doğrulama: `powershell -ExecutionPolicy Bypass -File scripts/verify.ps1`

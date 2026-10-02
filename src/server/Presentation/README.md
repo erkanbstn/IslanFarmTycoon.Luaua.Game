@@ -1,3 +1,3 @@
 # Server/Presentation
 
-Oyuncu durumunu (kayıt nesnesi) okuyup dünyayı günceller; para/kayıt yazmaz. Bina görselleri `UpgradeBuilders*` dosyalarındadır (id → kurucu), `UpgradeVisualService` bunları birleştirir; bölge görselleri `ZoneBuilders*` (+ `ZoneParts`), birleştirme `ZoneVisualService`. Kurallar: docs/MIMARI.md.
+Oyuncu durumunu (kayıt nesnesi) okuyup dünyayı günceller; para/kayıt yazmaz. Bina, hayvan, bölge ve süs geometrisi hazır modellerdir (`assets/`); bu klasördeki servisler modelleri klonlayıp yerleştirir, durum/tabela/istem ekler. Kurallar: docs/MIMARI.md.

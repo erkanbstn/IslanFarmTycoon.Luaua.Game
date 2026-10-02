@@ -11,6 +11,7 @@ local MapPaths = require(Shared:WaitForChild("MapPaths"))
 local WorldUi = require(Shared:WaitForChild("WorldUi"))
 local BarnVisualService = require(script.Parent:WaitForChild("BarnVisualService"))
 local WorldDecor = require(script.Parent:WaitForChild("WorldDecor"))
+local ModelAssets = require(script.Parent:WaitForChild("ModelAssets"))
 local IslandSpecialization = require(script.Parent:WaitForChild("IslandSpecialization"))
 local HomeBuildings = require(script.Parent:WaitForChild("HomeBuildings"))
 local MapLayout = require(script.Parent:WaitForChild("MapLayout"))
@@ -43,29 +44,45 @@ local addIslandGrass = MapParts.addIslandGrass
 local lampsAlong = MapParts.lampsAlong
 local buildSatellite = SatelliteBuilder.buildSatellite
 
--- Kavşak yön tabelası: direğe çakılı okları olan tahtalar (her biri bir yere gider)
+-- Kavşak yön tabelası: hazır model (assets/SignModels/Signpost_Direction), direğe çakılı üç ok tahtası.
+-- Tahtalar yukarıdan aşağı sıralanır; her biri bir yöne bakar (yaw) ve yazısını kod ekler.
+local signpostWarned = false
 local function buildSignpost(parent: Instance, base: CFrame, arrows: { { label: string, icon: string, yaw: number } })
-	local model = Instance.new("Model")
+	local model = ModelAssets.clone("SignModels", "Signpost_Direction")
+	if not model then
+		if not signpostWarned then
+			signpostWarned = true
+			warn("[IslandBuilder] assets/SignModels/Signpost_Direction.rbxmx bulunamadı; yön tabelası çizilmedi")
+		end
+		return
+	end
 	model.Name = "Signpost"
-	model.Parent = parent
-	local post =
-		makePart("Post", Vector3.new(0.6, 7, 0.6), base * CFrame.new(0, 3.5, 0), Color3.fromRGB(110, 80, 50), model)
-	post.Material = Enum.Material.Wood
-	post.CanCollide = false
-	for index, arrow in arrows do
-		local board = makePart(
-			"Board",
-			Vector3.new(5.4, 1.3, 0.3),
-			base * CFrame.Angles(0, math.rad(arrow.yaw), 0) * CFrame.new(2.4, 6.2 - (index - 1) * 1.5, 0),
-			Color3.fromRGB(150, 110, 70),
-			model
-		)
-		board.Material = Enum.Material.WoodPlanks
-		board.CanCollide = false
+	-- Modeldeki tahtalar yukarıdan aşağıya (y 5.6, 4.0, 2.4); sıralı kullanılır
+	local boards: { BasePart } = {}
+	for _, child in model:GetChildren() do
+		if child.Name == "Board" and child:IsA("BasePart") then
+			table.insert(boards, child)
+		end
+	end
+	table.sort(boards, function(left, right)
+		return left.Position.Y > right.Position.Y
+	end)
+	local pivot = model:GetPivot()
+	for index, board in boards do
+		local arrow = arrows[index]
+		if not arrow then
+			board:Destroy()
+			continue
+		end
+		-- Tahta direğin yanına 2.4 stud kayar ve direğin etrafında yaw kadar döner (ok o yönü gösterir)
+		local local_ = pivot:ToObjectSpace(board.CFrame)
+		board.CFrame = pivot * CFrame.Angles(0, math.rad(arrow.yaw), 0) * CFrame.new(2.4, 0, 0) * local_
 		for _, face in { Enum.NormalId.Front, Enum.NormalId.Back } do
 			WorldUi.sign(board, face, { icon = arrow.icon, text = arrow.label })
 		end
 	end
+	model:PivotTo(base)
+	model.Parent = parent
 end
 
 local function decorateHome(decor: Instance, islandCf: CFrame, plotIndex: number)

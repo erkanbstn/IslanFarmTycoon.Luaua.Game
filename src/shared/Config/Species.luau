@@ -1,6 +1,6 @@
 --!strict
 -- Hayvan türü tablosu (veri odaklı): her satır bir hayvanın bütün içeriğini üretir (hayvan, ürün, ada, bölge, yükseltmeler, tarifler,
--- yol haritası aşaması, mevsim/hava etkisi). Yeni hayvan = bu tabloya bir satır + görsel şablon (`Presentation/SpeciesLooks`, `World/IslandLooks`).
+-- yol haritası aşaması, mevsim/hava etkisi). Yeni hayvan = bu tabloya bir satır + görsel modeller (`assets/Animals`, `assets/Buildings`, `assets/ZoneDecor`; `scripts/check-assets.py`) + `World/IslandLooks`.
 -- Rakamlar Çiftlik 1 ölçeğindedir ve ada sırasının PROFİLİNDEN gelir (home/early/mid/late): mevcut hayvanlarla aynı bantta durur, böylece
 -- sim ayarı bozulmaz; çiftlik çarpanı `FarmMath.getPrice` ile uygulanır (elle çarpma yok). Tasarım: docs/ADA_TASARIMI.md.
 -- Elle yazılan eski türler (inek, tavuk, at, keçi, ördek, koyun, domuz, balık) kendi dosyalarındadır; hayvan -> ada -> çiftlik eşlemesi THEMES + FARM_ISLANDS.animalId.

@@ -8,15 +8,16 @@ local UiTheme = require(Shared:WaitForChild("UiTheme"))
 local WorldUi = require(Shared:WaitForChild("WorldUi"))
 local WorldDecor = require(script.Parent:WaitForChild("WorldDecor"))
 local HubNpcs = require(script.Parent:WaitForChild("HubNpcs"))
+local ModelAssets = require(script.Parent:WaitForChild("ModelAssets"))
 local MapLayout = require(script.Parent:WaitForChild("MapLayout"))
 local MapParts = require(script.Parent:WaitForChild("MapParts"))
 
 local SURFACE_Y = MapLayout.SURFACE_Y
 local ISLAND_RADIUS = MapLayout.ISLAND_RADIUS
 local HUB_RADIUS = MapLayout.HUB_RADIUS
-local makePart = MapParts.makePart
 local makeDisc = MapParts.makeDisc
 local addTravelPrompt = MapParts.addTravelPrompt
+local buildBridgeBetween = MapParts.buildBridgeBetween
 
 local function buildHub(parent: Instance)
 	local hub = Instance.new("Model")
@@ -45,9 +46,6 @@ local function buildHub(parent: Instance)
 				action = "orders",
 				blurb = "Ödüllü görevler",
 				prompt = "Siparişlere bak",
-				shirt = Color3.fromRGB(70, 130, 90),
-				hat = Color3.fromRGB(120, 85, 50),
-				awning = Color3.fromRGB(190, 70, 55),
 			},
 		},
 		{
@@ -59,9 +57,6 @@ local function buildHub(parent: Instance)
 				action = "store",
 				blurb = "Kalıcı eşyalar",
 				prompt = "Eşyalara bak",
-				shirt = Color3.fromRGB(150, 90, 170),
-				hat = Color3.fromRGB(60, 50, 90),
-				awning = Color3.fromRGB(120, 80, 170),
 			},
 		},
 		{
@@ -73,9 +68,6 @@ local function buildHub(parent: Instance)
 				action = "roadmap",
 				blurb = "Sıradaki adımlar",
 				prompt = "Konuş",
-				shirt = Color3.fromRGB(60, 120, 190),
-				hat = Color3.fromRGB(230, 200, 90),
-				awning = Color3.fromRGB(60, 120, 190),
 			},
 		},
 		{
@@ -87,9 +79,6 @@ local function buildHub(parent: Instance)
 				action = "travel",
 				blurb = "Adalara yolculuk",
 				prompt = "Adalara Git",
-				shirt = Color3.fromRGB(235, 235, 240),
-				hat = Color3.fromRGB(30, 50, 100),
-				awning = Color3.fromRGB(240, 240, 245),
 			},
 		},
 	}
@@ -130,69 +119,57 @@ local function buildHub(parent: Instance)
 	-- Tabela iki köprünün arasına, meydanın ortasına bakacak şekilde
 	local betweenBridges = math.pi / Config.MAP_PLOT_COUNT
 	local signPos = Vector3.new(math.sin(betweenBridges), 0, math.cos(betweenBridges)) * (HUB_RADIUS - 8)
-	local signCf = CFrame.lookAt(signPos, Vector3.zero)
-	local sign = makePart(
-		"Title",
-		Vector3.new(20, 6, 1),
-		signCf + Vector3.new(0, SURFACE_Y + 14.5, 0),
-		Color3.fromRGB(150, 45, 40),
-		hub
-	)
-	sign.Material = Enum.Material.Wood
-	for _, face in { Enum.NormalId.Front, Enum.NormalId.Back } do
-		WorldUi.sign(sign, face, { icon = "🐄", title = "Hoş geldin", text = Config.GAME_NAME })
-	end
-	makePart("Pole", Vector3.new(1, 18, 1), signCf * CFrame.new(0, SURFACE_Y + 9, 0.9), Color3.fromRGB(80, 60, 40), hub)
+	local signCf = CFrame.lookAt(signPos, Vector3.zero) + Vector3.new(0, SURFACE_Y, 0)
 
-	-- Direğin önünde yön tabelası: adalara ışınlanma menüsü
-	local board = makePart(
-		"TravelBoard",
-		Vector3.new(6, 2.4, 0.4),
-		signCf * CFrame.new(0, SURFACE_Y + 1.9, 0.2),
-		Color3.fromRGB(85, 60, 40),
-		hub
-	)
-	board.Material = Enum.Material.WoodPlanks
-	WorldUi.sign(board, Enum.NormalId.Front, { icon = "🧭", text = "Adalar", tint = UiTheme.Color.Blue })
-	addTravelPrompt(board, "Meydan")
+	-- Hazır model (assets/HubModels); parçalar doğrudan meydan modelinin çocuğu olur (HubBoardService "PlayerBoard" parçasını
+	-- burada arar). Yerel -Z meydanın ortasına bakar.
+	local function placeBoardModel(name: string, offset: CFrame): Model?
+		local model = ModelAssets.clone("HubModels", name)
+		if not model then
+			warn(`[HubBuilder] assets/HubModels/{name}.rbxmx bulunamadı; çizilmedi`)
+			return nil
+		end
+		model:PivotTo(signCf * offset)
+		for _, child in model:GetChildren() do
+			child.Parent = hub
+		end
+		model:Destroy()
+		return model
+	end
+
+	-- Karşılama tabelası (direk + tahta)
+	placeBoardModel("HubTitleBoard", CFrame.new())
+	local title = hub:FindFirstChild("Title")
+	if title and title:IsA("BasePart") then
+		for _, face in { Enum.NormalId.Front, Enum.NormalId.Back } do
+			WorldUi.sign(title, face, { icon = "🐄", title = "Hoş geldin", text = Config.GAME_NAME })
+		end
+	end
 
 	-- Sunucudaki oyuncuların para ve ada durumu (HubBoardService satırları günceller); yürümeyi engellemez
-	local ranking = makePart(
-		"PlayerBoard",
-		Vector3.new(16, 7.5, 0.4),
-		signCf * CFrame.new(0, SURFACE_Y + 7.3, 0),
-		Color3.fromRGB(60, 42, 30),
-		hub
-	)
-	ranking.Material = Enum.Material.WoodPlanks
-	ranking.CanCollide = false
-	WorldUi.board(
-		ranking,
-		Enum.NormalId.Front,
-		{ title = "Sunucu Sıralaması", icon = "🏆", rows = Config.MAP_PLOT_COUNT }
-	)
+	placeBoardModel("HubPlayerBoard", CFrame.new(0, 0, -2))
+	local ranking = hub:FindFirstChild("PlayerBoard")
+	if ranking and ranking:IsA("BasePart") then
+		WorldUi.board(
+			ranking,
+			Enum.NormalId.Front,
+			{ title = "Sunucu Sıralaması", icon = "🏆", rows = Config.MAP_PLOT_COUNT }
+		)
+	end
+
+	-- Yön tabelası, sıralamanın sağında: adalara ışınlanma menüsü
+	placeBoardModel("HubTravelBoard", CFrame.new(-13, 0, -2))
+	local board = hub:FindFirstChild("TravelBoard")
+	if board and board:IsA("BasePart") then
+		WorldUi.sign(board, Enum.NormalId.Front, { icon = "🧭", text = "Adalar", tint = UiTheme.Color.Blue })
+		addTravelPrompt(board, "Meydan")
+	end
 end
 
 local function buildBridge(parent: Instance, direction: Vector3)
 	local startDist = HUB_RADIUS - 2
 	local endDist = Config.ISLAND_RING_RADIUS - ISLAND_RADIUS + 2
-	local length = endDist - startDist
-	local mid = direction * (startDist + length / 2)
-	-- Üst yüzey, ada/meydan zemininin 0.05 altında: uçlar zeminle aynı düzlemde çakışıp titremesin
-	local y = SURFACE_Y - 0.55
-	local cf = CFrame.lookAt(Vector3.new(mid.X, y, mid.Z), Vector3.new(0, y, 0))
-	local bridge = makePart("Bridge", Vector3.new(8, 1, length), cf, Color3.fromRGB(140, 100, 60), parent)
-	bridge.Material = Enum.Material.WoodPlanks
-	for _, side in { -4, 4 } do
-		local rail = makePart(
-			"Rail",
-			Vector3.new(0.5, 2, length),
-			cf * CFrame.new(side, 1.5, 0),
-			Color3.fromRGB(110, 80, 50),
-			parent
-		)
-		rail.Material = Enum.Material.Wood
-	end
+	buildBridgeBetween(parent, direction * startDist, direction * endDist)
 end
 
 return {

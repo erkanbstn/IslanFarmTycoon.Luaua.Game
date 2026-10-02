@@ -37,6 +37,7 @@ WorldDecor.dock = Shore.dock
 -- DecorNature
 WorldDecor.oakTree = Nature.oakTree
 WorldDecor.pineTree = Nature.pineTree
+WorldDecor.birchTree = Nature.birchTree
 WorldDecor.bush = Nature.bush
 WorldDecor.flowerPatch = Nature.flowerPatch
 WorldDecor.grassTufts = Nature.grassTufts

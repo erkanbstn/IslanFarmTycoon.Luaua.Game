@@ -8,6 +8,7 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 local StartupGate = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("StartupGate"))
+local ClientModelAssets = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("ClientModelAssets"))
 StartupGate.wait(3.5)
 
 local localPlayer = Players.LocalPlayer
@@ -86,6 +87,47 @@ local function newPart(
 	return p
 end
 
+-- Deniz canlısı/süsü modeli: client-assets/<klasör>/<ad>; yoksa bir kez uyarır ve nil döner (o süs çizilmez).
+local missingWarned: { [string]: boolean } = {}
+local function cloneSea(folderName: string, name: string): Model?
+	local model = ClientModelAssets.clone(folderName, name)
+	if not model and not missingWarned[name] then
+		missingWarned[name] = true
+		warn(`[SeabedLife] client-assets/{folderName}/{name}.rbxmx bulunamadı; çizilmedi`)
+	end
+	return model
+end
+
+-- Modeli `cf` pivotuyla `parent` içine koyar; "Tint" parçalarına `tint(index)` rengini verir
+local function placeSea(
+	parent: Instance,
+	folderName: string,
+	name: string,
+	cf: CFrame,
+	scale: number,
+	tint: ((index: number) -> Color3)?
+): Model?
+	local model = cloneSea(folderName, name)
+	if not model then
+		return nil
+	end
+	if scale ~= 1 then
+		model:ScaleTo(scale)
+	end
+	if tint then
+		local index = 0
+		for _, descendant in model:GetDescendants() do
+			if descendant:IsA("BasePart") and descendant.Name == "Tint" then
+				index += 1
+				descendant.Color = tint(index)
+			end
+		end
+	end
+	model:PivotTo(cf)
+	model.Parent = parent
+	return model
+end
+
 ---------------------------------------------------------------------------
 -- Adalar / açık su
 ---------------------------------------------------------------------------
@@ -160,101 +202,53 @@ local function buildKelp(cell: Cell, x: number, z: number, y: number, rng: Rando
 	end
 end
 
+local CORAL_MODELS = { "BranchCoral", "BrainCoral", "FanCoral" }
+local ROCK_MODELS = { "SeaRock_A", "SeaRock_B", "SeaRock_C" }
+local SAND = Color3.fromRGB(200, 170, 120)
+
 local function buildCoral(cell: Cell, x: number, z: number, y: number, rng: Random)
 	local color = CORAL_COLORS[rng:NextInteger(1, #CORAL_COLORS)]
 	local kind = rng:NextInteger(1, 3)
 	local origin = CFrame.new(x, y, z) * CFrame.Angles(0, rng:NextNumber(0, math.pi * 2), 0)
-	if kind == 1 then
-		-- Dallı mercan
-		for _ = 1, rng:NextInteger(4, 6) do
-			local height = rng:NextNumber(2.2, 4.4)
-			local tilt =
-				CFrame.Angles(rng:NextNumber(-0.5, 0.5), rng:NextNumber(0, math.pi * 2), rng:NextNumber(-0.5, 0.5))
-			local branch = newPart(
-				cell.model,
-				"Coral",
-				Vector3.new(height, 0.6, 0.6),
-				origin
-					* CFrame.new(rng:NextNumber(-0.9, 0.9), 0, rng:NextNumber(-0.9, 0.9))
-					* tilt
-					* CFrame.new(0, height / 2, 0)
-					* CFrame.Angles(0, 0, math.rad(90)),
-				color,
-				Enum.Material.SmoothPlastic,
-				Enum.PartType.Cylinder
-			)
-			newPart(
-				cell.model,
-				"CoralTip",
-				Vector3.one * 0.9,
-				branch.CFrame * CFrame.new(0, 0, 0) * CFrame.new(-height / 2, 0, 0),
-				color:Lerp(Color3.new(1, 1, 1), 0.25),
-				Enum.Material.SmoothPlastic,
-				Enum.PartType.Ball
-			)
-		end
-	elseif kind == 2 then
-		-- Beyin mercanı: yassı yarım küre kümesi
-		for i = 1, 3 do
-			local size = rng:NextNumber(1.8, 3.2)
-			newPart(
-				cell.model,
-				"Coral",
-				Vector3.new(size, size * 0.6, size),
-				origin * CFrame.new((i - 2) * 1.6, size * 0.15, rng:NextNumber(-0.7, 0.7)),
-				color:Lerp(Color3.fromRGB(200, 170, 120), 0.2 * i),
-				Enum.Material.Slate,
-				Enum.PartType.Ball
-			)
-		end
-	else
-		-- Yelpaze mercanı: dik, geniş, ince disk
-		for i = 1, 3 do
-			local size = rng:NextNumber(2.6, 4.2)
-			newPart(
-				cell.model,
-				"Coral",
-				Vector3.new(0.2, size, size),
-				origin
-					* CFrame.new(i * 1.3 - 2.6, size / 2 - 0.3, rng:NextNumber(-0.6, 0.6))
-					* CFrame.Angles(0, rng:NextNumber(-0.5, 0.5), math.rad(90)),
-				color,
-				Enum.Material.Neon,
-				Enum.PartType.Cylinder
-			).Transparency =
-				0.15
-		end
-	end
+	placeSea(cell.model, "Sea", CORAL_MODELS[kind], origin, rng:NextNumber(0.85, 1.25), function(index: number)
+		-- Beyin mercanı kümesinin parçaları kumla karışarak solar; diğerleri tek renk
+		return if kind == 2 then color:Lerp(SAND, 0.2 * index) else color
+	end)
 end
 
 local function buildRocks(cell: Cell, x: number, z: number, y: number, rng: Random)
 	for _ = 1, rng:NextInteger(2, 4) do
-		local size = Vector3.new(rng:NextNumber(1.5, 4.5), rng:NextNumber(1, 3), rng:NextNumber(1.5, 4.5))
-		newPart(
+		local tone = Color3.fromRGB(110, 112, 118):Lerp(Color3.fromRGB(70, 95, 90), rng:NextNumber(0, 0.6))
+		placeSea(
 			cell.model,
-			"Rock",
-			size,
-			CFrame.new(x + rng:NextNumber(-3, 3), y + size.Y * 0.25, z + rng:NextNumber(-3, 3))
-				* CFrame.Angles(rng:NextNumber(-0.3, 0.3), rng:NextNumber(0, math.pi * 2), rng:NextNumber(-0.3, 0.3)),
-			Color3.fromRGB(110, 112, 118):Lerp(Color3.fromRGB(70, 95, 90), rng:NextNumber(0, 0.6)),
-			Enum.Material.Slate
+			"Sea",
+			ROCK_MODELS[rng:NextInteger(1, #ROCK_MODELS)],
+			CFrame.new(x + rng:NextNumber(-3, 3), y, z + rng:NextNumber(-3, 3))
+				* CFrame.Angles(
+					rng:NextNumber(-0.15, 0.15),
+					rng:NextNumber(0, math.pi * 2),
+					rng:NextNumber(-0.15, 0.15)
+				),
+			rng:NextNumber(0.8, 1.4),
+			function()
+				return tone
+			end
 		)
 	end
 end
 
 local function buildStarfish(cell: Cell, x: number, z: number, y: number, rng: Random)
 	local color = Color3.fromRGB(240, 120, 70):Lerp(Color3.fromRGB(230, 90, 120), rng:NextNumber())
-	local origin = CFrame.new(x, y + 0.12, z) * CFrame.Angles(0, rng:NextNumber(0, math.pi * 2), 0)
-	for arm = 0, 4 do
-		newPart(
-			cell.model,
-			"Starfish",
-			Vector3.new(0.5, 0.25, 1.5),
-			origin * CFrame.Angles(0, arm * math.pi * 2 / 5, 0) * CFrame.new(0, 0, 0.7),
-			color,
-			Enum.Material.SmoothPlastic
-		)
-	end
+	placeSea(
+		cell.model,
+		"Sea",
+		"Starfish",
+		CFrame.new(x, y, z) * CFrame.Angles(0, rng:NextNumber(0, math.pi * 2), 0),
+		1,
+		function()
+			return color
+		end
+	)
 end
 
 local function addBubbles(cell: Cell, x: number, z: number, y: number, rng: Random)
@@ -354,38 +348,51 @@ end
 -- Balıklar ve denizanaları
 ---------------------------------------------------------------------------
 
-type Fish = { body: Part, tail: Part, offset: Vector3, phase: number }
+type ModelPart = { part: BasePart, rel: CFrame }
+type Fish = { model: Model, body: BasePart, tail: BasePart?, parts: { ModelPart }, offset: Vector3, phase: number }
 type School = { fish: { Fish }, center: Vector3, angle: number, speed: number, turn: number, seed: number }
-type Jelly = { bell: Part, tentacles: { Part }, center: Vector3, phase: number, drift: Vector3 }
+type Jelly = {
+	model: Model,
+	bell: BasePart,
+	bellSize: Vector3,
+	tentacles: { ModelPart },
+	center: Vector3,
+	phase: number,
+	drift: Vector3,
+}
 local schools: { School } = {}
 local jellies: { Jelly } = {}
 local creatures = Instance.new("Folder")
 creatures.Name = "Creatures"
 creatures.Parent = folder
 
-local function makeFish(color: Color3, size: number): Fish
-	local body = newPart(
-		creatures,
-		"Fish",
-		Vector3.new(0.55, 0.55, 1.5) * size,
-		CFrame.new(),
-		color,
-		Enum.Material.SmoothPlastic
-	)
-	local mesh = Instance.new("SpecialMesh")
-	mesh.MeshType = Enum.MeshType.Sphere
-	mesh.Parent = body
-	local tail = Instance.new("WedgePart")
-	tail.Name = "Tail"
-	tail.Size = Vector3.new(0.08, 0.6, 0.55) * size
-	tail.Color = color:Lerp(Color3.new(1, 1, 1), 0.2)
-	tail.Material = Enum.Material.SmoothPlastic
-	tail.Anchored = true
-	tail.CanCollide, tail.CanQuery, tail.CanTouch, tail.CastShadow = false, false, false, false
-	tail.Parent = creatures
+-- Balık: client-assets/Fish/ReefFish (Body, Tail, Eye, Tint, Snout); parçalar gövdeye göre sabit durur, kuyruk ayrıca sallanır
+local function makeFish(color: Color3, size: number, at: Vector3): Fish?
+	local model = placeSea(creatures, "Fish", "ReefFish", CFrame.new(at), size * 0.85, function()
+		return color
+	end)
+	local body = if model then model:FindFirstChild("Body") else nil
+	if not (model and body and body:IsA("BasePart")) then
+		if model then
+			model:Destroy()
+		end
+		return nil
+	end
+	local parts: { ModelPart } = {}
+	local tail: BasePart? = nil
+	for _, descendant in model:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			table.insert(parts, { part = descendant, rel = body.CFrame:ToObjectSpace(descendant.CFrame) })
+			if descendant.Name == "Tail" then
+				tail = descendant
+			end
+		end
+	end
 	return {
+		model = model,
 		body = body,
 		tail = tail,
+		parts = parts,
 		offset = Vector3.new(random:NextNumber(-2.5, 2.5), random:NextNumber(-1, 1), random:NextNumber(-2.5, 2.5)),
 		phase = random:NextNumber(0, math.pi * 2),
 	}
@@ -413,7 +420,10 @@ local function spawnSchool(cameraPos: Vector3)
 	local size = random:NextNumber(0.8, 1.5)
 	local fish: { Fish } = {}
 	for _ = 1, random:NextInteger(5, 8) do
-		table.insert(fish, makeFish(color, size * random:NextNumber(0.85, 1.1)))
+		local member = makeFish(color, size * random:NextNumber(0.85, 1.1), point)
+		if member then
+			table.insert(fish, member)
+		end
 	end
 	table.insert(schools, {
 		fish = fish,
@@ -428,8 +438,7 @@ end
 local function destroySchool(index: number)
 	local school = schools[index]
 	for _, fish in school.fish do
-		fish.body:Destroy()
-		fish.tail:Destroy()
+		fish.model:Destroy()
 	end
 	table.remove(schools, index)
 end
@@ -440,25 +449,28 @@ local function spawnJelly(cameraPos: Vector3)
 		return
 	end
 	local color = Color3.fromRGB(240, 150, 220):Lerp(Color3.fromRGB(150, 190, 255), random:NextNumber())
-	local bell = newPart(
-		creatures,
-		"JellyBell",
-		Vector3.new(2.4, 1.8, 2.4),
-		CFrame.new(),
-		color,
-		Enum.Material.Neon,
-		Enum.PartType.Ball
-	)
-	bell.Transparency = 0.45
-	local tentacles = {}
-	for _ = 1, 5 do
-		local t =
-			newPart(creatures, "JellyTentacle", Vector3.new(0.12, 2.6, 0.12), CFrame.new(), color, Enum.Material.Neon)
-		t.Transparency = 0.55
-		table.insert(tentacles, t)
+	local model = placeSea(creatures, "Sea", "Jellyfish", CFrame.new(point), 1, nil)
+	local bell = if model then model:FindFirstChild("JellyBell") else nil
+	if not (model and bell and bell:IsA("BasePart")) then
+		if model then
+			model:Destroy()
+		end
+		return
+	end
+	-- Çan ve dokunaçlar (neon) rastgele pastel renk alır; dokunaçlar çana göre sabit durur, ayrıca sallanır
+	local tentacles: { ModelPart } = {}
+	for _, descendant in model:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			descendant.Color = color
+			if descendant.Name == "JellyTentacle" then
+				table.insert(tentacles, { part = descendant, rel = bell.CFrame:ToObjectSpace(descendant.CFrame) })
+			end
+		end
 	end
 	table.insert(jellies, {
+		model = model,
 		bell = bell,
+		bellSize = bell.Size,
 		tentacles = tentacles,
 		center = Vector3.new(point.X, random:NextNumber(SEABED_Y + 5, -4), point.Z),
 		phase = random:NextNumber(0, math.pi * 2),
@@ -468,10 +480,7 @@ end
 
 local function destroyJelly(index: number)
 	local jelly = jellies[index]
-	jelly.bell:Destroy()
-	for _, t in jelly.tentacles do
-		t:Destroy()
-	end
+	jelly.model:Destroy()
 	table.remove(jellies, index)
 end
 
@@ -618,13 +627,16 @@ local function update(frameDt: number)
 				local cf = base
 					* CFrame.new(fish.offset.X + wobble, fish.offset.Y, fish.offset.Z)
 					* CFrame.Angles(0, math.sin(now * 3 + fish.phase) * 0.18, 0)
-				queueMove(fish.body, cf)
-				queueMove(
-					fish.tail,
-					cf
-						* CFrame.new(0, 0, fish.body.Size.Z / 2 + fish.tail.Size.Z / 2 - 0.1)
-						* CFrame.Angles(0, math.sin(now * 12 + fish.phase) * 0.55, 0)
-				)
+				for _, entry in fish.parts do
+					if entry.part == fish.tail then
+						queueMove(
+							entry.part,
+							cf * entry.rel * CFrame.Angles(0, math.sin(now * 12 + fish.phase) * 0.55, 0)
+						)
+					else
+						queueMove(entry.part, cf * entry.rel)
+					end
+				end
 			end
 		end
 
@@ -647,17 +659,15 @@ local function update(frameDt: number)
 			jelly.center += jelly.drift * dt + Vector3.new(0, pulse * 0.6 * dt, 0)
 			jelly.center = Vector3.new(jelly.center.X, math.clamp(jelly.center.Y, SEABED_Y + 4, -3), jelly.center.Z)
 			if config.jellyPulse then
-				jelly.bell.Size = Vector3.new(2.4 - pulse * 0.25, 1.8 + pulse * 0.3, 2.4 - pulse * 0.25)
+				local base = jelly.bellSize
+				jelly.bell.Size =
+					Vector3.new(base.X * (1 - pulse * 0.1), base.Y * (1 + pulse * 0.16), base.Z * (1 - pulse * 0.1))
 			end
 			queueMove(jelly.bell, CFrame.new(jelly.center))
-			for i, tentacle in jelly.tentacles do
-				local angle = i / #jelly.tentacles * math.pi * 2
+			local bellCf = CFrame.new(jelly.center)
+			for i, entry in jelly.tentacles do
 				local sway = math.sin(now * 2 + i + jelly.phase) * 0.25
-				queueMove(
-					tentacle,
-					CFrame.new(jelly.center + Vector3.new(math.cos(angle) * 0.7, -1.9, math.sin(angle) * 0.7))
-						* CFrame.Angles(sway, 0, sway * 0.6)
-				)
+				queueMove(entry.part, bellCf * entry.rel * CFrame.Angles(sway, 0, sway * 0.6))
 			end
 		end
 	else

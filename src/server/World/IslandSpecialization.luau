@@ -1,11 +1,10 @@
 --!strict
 -- Mevcut dört adanın boş kenarlarını uzmanlaştırır; hayvan bölgelerine ve köprü girişlerine dokunmaz.
--- Parçalar: IslandLayout (veri), IslandSiteParts (yapı taşları), IslandSiteBuilders (ada yapıları).
+-- Parçalar: IslandLayout (veri), IslandSiteParts (yapı taşları). Yapılar hazır modellerdir (assets/Extensions, ProductionSites).
 local Shared = require(script.Parent:WaitForChild("SharedRef")) :: typeof(game.ReplicatedStorage.Shared)
 local WorldUi = require(Shared:WaitForChild("WorldUi"))
 local IslandLayout = require(script.Parent:WaitForChild("IslandLayout"))
 local IslandSiteParts = require(script.Parent:WaitForChild("IslandSiteParts"))
-local IslandSiteBuilders = require(script.Parent:WaitForChild("IslandSiteBuilders"))
 local ModelAssets = require(script.Parent:WaitForChild("ModelAssets"))
 
 local IslandSpecialization = {}
@@ -21,18 +20,10 @@ local WOOD = IslandSiteParts.WOOD
 local part = IslandSiteParts.part
 local sign = IslandSiteParts.sign
 IslandSpecialization.markObstacles = IslandSiteParts.markObstacles
-local surface = IslandSiteParts.surface
-local horse = IslandSiteBuilders.horse
-local poultry = IslandSiteBuilders.poultry
-local goat = IslandSiteBuilders.goat
-local goatCliffs = IslandSiteBuilders.goatCliffs
-local sheepHill = IslandSiteBuilders.sheepHill
-local truffleGrove = IslandSiteBuilders.truffleGrove
-local home = IslandSiteBuilders.home
 
 local function productionSite(parent: Instance, cf: CFrame, id: string, site: Site)
 	local base = cf * CFrame.new(site.offset)
-	-- Hazır zemin (assets/ProductionSites/ProductionSite_<id>, pivot = ada yüzeyi); yoksa kod. Tabela her zaman kodla eklenir.
+	-- Hazır zemin (assets/ProductionSites/ProductionSite_<id>, pivot = ada yüzeyi). Tabela her zaman kodla eklenir.
 	local ready = ModelAssets.clone("ProductionSites", `ProductionSite_{id}`)
 	local readyPad = if ready then ready:FindFirstChild("ProductionPad") else nil
 	if ready and readyPad then
@@ -40,15 +31,12 @@ local function productionSite(parent: Instance, cf: CFrame, id: string, site: Si
 		ready.Parent = parent
 		readyPad:SetAttribute("ProductionSiteId", id)
 	else
-		local pad = surface(
-			parent,
-			"ProductionPad",
-			base,
-			site.footprint,
-			Color3.fromRGB(168, 165, 150),
-			Enum.Material.Concrete
+		warn(
+			`[IslandSpecialization] assets/ProductionSites/ProductionSite_{id}.rbxmx bulunamadı ya da ProductionPad yok`
 		)
-		pad:SetAttribute("ProductionSiteId", id)
+		if ready then
+			ready:Destroy()
+		end
 	end
 	local front = site.footprint.Y / 2 + 2.5
 	-- Tabela kapının tam önünde değil, yükleme alanının kenarında durur.
@@ -73,15 +61,6 @@ local function createExtensionSlot(parent: Instance, surfaceCf: CFrame, layout: 
 	anchor:SetAttribute("MovementStyle", layout.movement)
 end
 
-local EXTENSION_BUILDERS: { [string]: (Instance, CFrame) -> () } = {
-	folluk_garden = poultry,
-	training_course = horse,
-	rocky_terraces = goat,
-	goat_cliffs = goatCliffs,
-	hillside_pasture = sheepHill,
-	truffle_grove = truffleGrove,
-}
-
 function IslandSpecialization.buildExtensionVisual(parent: Instance, surfaceCf: CFrame, extensionId: string): Model?
 	local layout = IslandSpecialization.EXTENSIONS[extensionId]
 	if not layout then
@@ -90,11 +69,9 @@ function IslandSpecialization.buildExtensionVisual(parent: Instance, surfaceCf: 
 	local wrapper = Instance.new("Model")
 	wrapper.Name = extensionId
 	wrapper.Parent = parent
-	-- Hazır yapı (assets/Extensions/<eklentiId>, pivot = ada yüzeyi); yoksa kod kurucusu
-	local placed = ModelAssets.place(wrapper, "Extensions", extensionId, surfaceCf)
-	local codeBuilder = EXTENSION_BUILDERS[extensionId]
-	if not placed and codeBuilder then
-		codeBuilder(wrapper, surfaceCf)
+	-- Hazır yapı (assets/Extensions/<eklentiId>, pivot = ada yüzeyi)
+	if not ModelAssets.place(wrapper, "Extensions", extensionId, surfaceCf) then
+		warn(`[IslandSpecialization] assets/Extensions/{extensionId}.rbxmx bulunamadı`)
 	end
 	-- Satın alınan eklentide de tabela olsun: etkileşim balonları rastgele bir yapı parçasına değil buna bağlanır.
 	sign(wrapper, surfaceCf * CFrame.new(layout.signOffset.X, 0, layout.signOffset.Z), layout.title, layout.icon)
@@ -184,7 +161,7 @@ function IslandSpecialization.syncMilkLoadingDecor(parent: Instance, surfaceCf: 
 	created.Name = "MilkLoadingDecor"
 	created.Parent = parent
 	if not ModelAssets.place(created, "Extensions", "MilkLoadingDecor", surfaceCf) then
-		home(created, surfaceCf)
+		warn("[IslandSpecialization] assets/Extensions/MilkLoadingDecor.rbxmx bulunamadı")
 	end
 end
 

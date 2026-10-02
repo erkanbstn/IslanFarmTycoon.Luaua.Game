@@ -28,6 +28,7 @@ alwaysApply: false
 - Hızlı döngü: `stylua src tests plugin` → `selene src` → `python scripts/run-tests.py`.
 - Tam doğrulama: `powershell -ExecutionPolicy Bypass -File scripts/verify.ps1` (adımların listesi ve çıktısı `scripts/verify.ps1`'dedir; `-RequireTypes` tip analizi araçları yoksa hata sayar).
 - `python scripts/check-ai-docs.py`: kural/skill/yönlendirme tutarlılığı (AGENTS.md tablosu, glob eşleşmesi, metindeki repo yolları gerçekten var mı).
+- `python scripts/check-assets.py`: kodun beklediği her hayvan/bina/bölge/eklenti/seviye görünümü için `assets/` modeli var mı, XML sağlıklı mı (ad, yasak sınıf, PrimaryPart, bina ≤35 parça). Bilinçli boşluklar betikteki `ALLOWED_MISSING`'e gerekçesiyle girer; kod kurucusu silmeden önce yeşil olmalı.
 - `python scripts/check-architecture.py`: katmanlar yalnızca izinli katmanlara `require` eder (`docs/MIMARI.md`); bilinçli istisna gerekçesiyle `ALLOW` listesine girer.
 - `python scripts/check-locales.py --strict-literals`: çeviri anahtarı eşitliği ve arayüz metni kapsamı.
 

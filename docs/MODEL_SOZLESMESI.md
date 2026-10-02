@@ -18,14 +18,13 @@ Kural dili: **ZORUNLU** (ihlal = hata/bozuk görünüm), **YASAK**, **ÖNERİ** 
 | Yem/büyüme/depo yığını, soy anıtı, yardımcı | `Assets.LevelProps`, `Lineage`, `Pets.Pet_<tür>_<cash\|goods>` | aynı | `UpgradeLevelProps.luau` | Var (yardımcı öznitelik/etiketi kodla) |
 | Yapım alanı, tesis süsü/halkası | `Assets.FacilityProps.BuildSite_Unbuilt`, `FacilityProps_Lv<1-5>`, `FacilityRings_Lv<1-5>` | aynı | `UpgradeSites.luau` | Var (fiyat tabelası, direk ve satın alma istemi kodla) |
 | Eklenti yapısı, kapasite süsü, üretim zemini, süt yükleme dekoru | `Assets.Extensions.<id>`, `ExtensionCapacity.CapacityProps_<id>_Cap3\|4`, `ProductionSites.ProductionSite_<id>`, `Extensions.MilkLoadingDecor` | aynı | `World/IslandSpecialization.luau`, `ExtensionVisualService.luau` | Var (tabela/istem kodla) |
-| Bina tabelası | binada `SignBoard` (tahta) + 2 `SignPost` (direk) parçası | tahta çarpışmaz (kodda kapatılır) | `UpgradeVisualService.luau` `signSpecFor`, `UpgradeParts.faceSign` | Var: tahta/direk modelde (46 üretim binası), yazı (`WorldUi.sign`) tarif adından kodla eklenir. Tahtası olmayan 3 bina (`milk_factory`, `hatchery`, `horse_training`) eski kod tabelasını kullanır |
+| Bina tabelası | binada `SignBoard` (tahta) + 2 `SignPost` (direk) parçası | tahta çarpışmaz (kodda kapatılır) | `UpgradeVisualService.luau` `signSpecFor`, `UpgradeParts.faceSign` | Var: tahta/direk modelde (46 üretim binası), yazı (`WorldUi.sign`) tarif adından kodla eklenir. Üretim yapmayan binalar (`silo`, `milk_machine`, `auto_collector`, `egg_factory`, `golden_horseshoe`) tabelasızdır; `check-assets.py` diğerlerinde tahta + 2 direği zorunlu tutar |
 | Bölge zemini + çit, ana ada/meydan dekoru (`HomeModels`, `HubProps`, `CommonDecor`, `ShoreModels`) | `assets/` dosyaları var | — | `World/MapParts.luau`, `Home*`, `Hub*`, `Decor*` | **Bağlanmadı**: harita yalnızca "Haritayı Kur" ile kurulur, Studio'daki kayıtlı harita zaten modeldir |
 
 
-- Model yoksa kod kurucusu çalışır (`UpgradeVisualService.luau:78-86`, `AnimalModels.luau:421-431`). Kod kurucuları **silinmez**:
-  yapım alanı (`BuildSite`) yalnızca `BUILDERS[id]` tanımlıysa kurulur (`UpgradeVisualService.luau:157-164` `hasBuildSite`).
-- Takma ad (`BUILDER_ALIASES`, `UpgradeVisualService.luau:52-58`: `duck_packer → duck_house`, `down_home_center → down_workshop`)
-  **yalnızca kod kurucularına** uygulanır; asset araması tam kimlikle yapılır (`:64`). Aynı görünüm için iki ad gerekir.
+- **Kod kurucuları kaldırıldı:** model yoksa o görünüm çizilmez (hayvan için pembe yer tutucu kutu; diğerlerinde konsola bir kez uyarı).
+  `scripts/check-assets.py` her görünüm için modelin varlığını `verify.ps1`'de denetler. Yapım alanı (`BuildSite`) yalnızca `assets/Buildings/<id>` varsa kurulur (`UpgradeVisualService.hasAsset`).
+- Asset araması tam kimlikle yapılır (takma ad yok): `duck_packer` ve `down_home_center` kendi dosyalarıdır.
 - Rojo: `ServerStorage.Assets` → `assets/` (`default.project.json:12-16`; içinde yalnızca `Animals/.gitkeep`, `Buildings/.gitkeep`).
 
 ## 2. Ortak teknik kurallar (temizleyici ve servisler ne yapıyor?)
@@ -41,7 +40,7 @@ Kural dili: **ZORUNLU** (ihlal = hata/bozuk görünüm), **YASAK**, **ÖNERİ** 
 | Gece ışığını yalnızca `DayNight.client` yakar; etiketsiz ışık sürülmez | `DayNight.client.luau:229-235`, `world-map.mdc:49-53` | Modele açık `PointLight`/`SpotLight` koyma (YASAK); lamba gerekiyorsa `NightLight` + `NightColor` + `Enabled=false` |
 | Bina sonrası öznitelikler: `UpgradeVisualVersion`, `PartCount`, `VisualCreatedAt`; ad = `upgradeId` | `UpgradeVisualService.luau:87-88,143-153` | Modelde bu adlarla öznitelik bırakma |
 | Hayvan sonrası: ad `{id}_{uid}`, `ModelStreamingMode=Atomic`, `Animal` etiketi, `AreaCFrame/AreaSize/HeightOffset/Uid/Stage/ZoneId/PartCount...` | `AnimalVisualService.luau:49-90` | Hiçbirini modele koyma; servis yazar |
-| StreamingEnabled açık (Min 160 / Target 448) | `default.project.json:62-69` | Bina şablonunda `ModelStreamingMode` ayarlanmaz (koddaki binalar da Default; yalnızca tekne Atomic `:116`) |
+| StreamingEnabled açık (Min 160 / Target 1024: uzaklaştırınca deniz Terrain'i de yüklü olsun) | `default.project.json:62-69` | Bina şablonunda `ModelStreamingMode` ayarlanmaz (koddaki binalar da Default; yalnızca tekne Atomic `:116`) |
 
 ## 3. Tür bazında sözleşme
 
@@ -51,15 +50,15 @@ Kural dili: **ZORUNLU** (ihlal = hata/bozuk görünüm), **YASAK**, **ÖNERİ** 
 |---|---|---|
 | Ad | Tam yükseltme kimliği (`duck_packer`, `silo`, `wool_mill`...). Tür fabrikaları `Config/Species.luau`'dan türer | `UpgradeVisualService.luau:64` |
 | Pivot | ZORUNLU: zemin ortası, y=0 = ada yüzeyi. `PivotTo(spot.CFrame)` yapılır; spot ada yüzeyinde | `:76`, `MapLayout.luau:10`, `MapParts.luau:224-230` |
-| Yön | ZORUNLU: kapı/ön yüz **-Z** | `UpgradeBuildersSpecies.luau:3`, `UpgradeSites.luau:111` |
+| Yön | ZORUNLU: kapı/ön yüz **-Z** | `UpgradeSites.luau` |
 | Gövde kutusu | ZORUNLU: gövde 10 x 8 (X x Z), çatı taşması dahil ≤ 11.4 x 9.4. Seviye süsleri bu kutunun dışına (x ±7.2, z 5-8.2, z -5.6) kurulur, taşan model süsle iç içe girer | `UpgradeSites.luau:111-211`, `UpgradeBuildersGoods.luau:26` |
-| Yükseklik | ÖNERİ: ≤ 12 stud (ör. ördek evinin çatı heykeli ~y12). İş çubuğu kutunun 6 üstüne kurulur | `UpgradeBuildersWorkshops.luau:15-78`, `UpgradeVisualService.luau:141` |
+| Yükseklik | ÖNERİ: ≤ 12 stud (ör. ördek evinin çatı heykeli ~y12). İş çubuğu kutunun 6 üstüne kurulur | `UpgradeVisualService.luau` |
 | Kapı | ZORUNLU: ≥ 4.6 x 6.6 açıklık; kapı önü (-Z) boş | `world-map.mdc:22` |
 | Üretim prompt'u | YASAK: modele `ProductionPromptAnchor`/`ProductionPrompt` koyma; servis her zaman `base * (0, 2.5, -6)`'ya ekler (çift olur). ZORUNLU: o nokta duvar içinde kalmasın (gövde z ≥ -4) | `UpgradeVisualService.luau:122-139` |
 | `JobAnchor` | İSTEĞE BAĞLI: modelde bu adda parça varsa iş çubuğu ona bağlanır; yoksa kutu üstü +6 | `JobMarks.luau:17-36` |
 | Tabela | ÖNERİ (üretim binaları): ön sağ dışta, zeminde iki direkli `SignBoard` (6 x 1.7 x 0.16, ön yüz -Z; merkez x 9.4, z = en öndeki parça - 1, alt kenar y 2.45) + 2 `SignPost` (0.25 x 2.45 x 0.25). Kapı önü (|x| < 5.6) boş kalır; seviye süsleri sol-ön köşe (x -6.4) ve fener direkleri (x ±4.4) ile çakışmaz. Yazıyı kod ekler (`UpgradeParts.faceSign`); tahta adı koddan sonra `ProductionSign` olur, `CanCollide` kapatılır | `UpgradeVisualService.luau`, `UpgradeParts.luau` |
 | Pencere | `Window*` + Glass (bkz. §2). Cam olmayan "Window" ışık almaz | `:89-97` |
-| Parça bütçesi | ZORUNLU: ≤ 35 BasePart (kod binalarının sınırı) | `UpgradeBuildersSpecies.luau:4` |
+| Parça bütçesi | ZORUNLU: ≤ 35 BasePart (kod binalarının sınırı) | `scripts/check-assets.py` |
 | Seviye (Sv.1-5) | Modelde varyant YOK; seviye süsleri (`addFacilityProps`) ve altın halkalar ayrı modellerde (`LevelMarks/<id>`) koddan gelir | `UpgradeSites.luau:113-270` |
 | Özel: `fishing_boat` | Pilot dışı: servis `Hull/Deck/JoinedBow/BowDeck/Wheelhouse/CabinRoof` adlarını katı sayar, `BoatRoot` ekler, istemci oynatır | `UpgradeVisualService.luau:99-121` |
 | Özel: büyük alanlar | `milk_factory` 20x14, `hatchery` 14x16, `horse_training` 14x18 ayak izi | `IslandLayout.luau:84-107` |
@@ -85,15 +84,15 @@ uydu fabrika (18,0,37) / merkez (-18,0,37) `MapLayout.luau:158-159`.
 
 | Tür | Bugün | Model yapılacaksa önce gereken kod (plan K4) |
 |---|---|---|
-| Ağıl dekoru (`Decor`) | `ZoneBuilders*` `(decor, origin, size)`; origin = zemin üst ortası, -Z ön | `ZoneVisualService.luau:117-130`'a `Assets/Zones/<zoneId>` araması + `IslandSiteParts.markObstacles` |
-| Bölge seviye süsleri (Sv.1-5) | `ZoneLevelDecor.luau:29-110` (yalak, saman, gölgelik, çiçek, altın) | Model değil kod kalsın (konumları zemin boyuna bağlı) |
-| Eklenti yapıları | `IslandSiteBuilders`, prompt ilk `ForSaleSign`/`SpecialtySign`'a bağlanır | `ExtensionVisualService.luau:73-75`, `:334` |
+| Ağıl dekoru (`Decor`) | assets/ZoneDecor/Decor_<bölge>; pivot = zemin üst ortası, -Z ön | `ZoneVisualService.luau:117-130`'a `Assets/Zones/<zoneId>` araması + `IslandSiteParts.markObstacles` |
+| Bölge seviye süsleri (Sv.1-5) | assets/ZoneLevels/ZoneLevel_<X>x<Z>_Lv<1-5> (yalak, saman, gölgelik, çiçek, altın) | Model |
+| Eklenti yapıları | assets/Extensions/<eklenti>, prompt ilk `ForSaleSign`/`SpecialtySign`'a bağlanır | `ExtensionVisualService.luau:73-75`, `:334` |
 | Bina seviye süsleri | `UpgradeSites.addFacilityProps` | Kod kalsın |
 
 ## 4. Renk ve malzeme paleti
 
 - Stil: blok/voxel (düz renkli kutu, top, kama); kullanılan malzemeler WoodPlanks, Brick, Slate, Metal, Glass, Fabric, Neon (yalnızca süs/altın).
 - Ortak sabitler: `METAL (190,195,200)`, `GOLD (255,200,60)` (`UpgradeParts.luau:15-16`). Bina renkleri bina başına yazılmış;
-  örnek ördek evi duvar (88,150,175) / çatı (130,85,55) (`UpgradeBuildersWorkshops.luau:15-78`). Ekran renkleri `UiTheme.luau:10-25` dünyaya değil UI'a aittir.
-- ÖNERİ: yeni model aynı binanın kod kurucusundaki renkleri kullansın (oyuncu tanıdığı rengi görür); `generate_mesh` dokulu mesh bu stile uymaz (plan R1).
+  örnek ördek evi duvar (88,150,175) / çatı (130,85,55) (assets/Buildings/duck_packer). Ekran renkleri `UiTheme.luau:10-25` dünyaya değil UI'a aittir.
+- ÖNERİ: yeni model aynı binanın mevcut asset'indeki renkleri kullansın (oyuncu tanıdığı rengi görür); `generate_mesh` dokulu mesh bu stile uymaz (plan R1).
 - Neon yalnızca gece/altın vurgusu; büyük Neon yüzey YASAK (DayNight NightLight için Neon kullanır, `DayNight.client.luau:199-201`).

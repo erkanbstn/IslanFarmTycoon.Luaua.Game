@@ -42,20 +42,6 @@ local function sign(parent: Instance, cf: CFrame, title: string, icon: string)
 	WorldUi.sign(board, Enum.NormalId.Front, { text = title, icon = icon })
 end
 
-local function surface(
-	parent: Instance,
-	name: string,
-	cf: CFrame,
-	size: Vector2,
-	color: Color3,
-	material: Enum.Material
-): Part
-	local p = part(parent, name, Vector3.new(size.X, 0.12, size.Y), cf * CFrame.new(0, 0.07, 0), color, material)
-	p.CanCollide = false
-	p.CastShadow = false
-	return p
-end
-
 -- Hayvanların içinden geçmemesi gereken katı küçük dekor parçaları ("AnimalObstacle" etiketi); AnimalAnimator hedef seçerken bunları atlar.
 -- Zemin kaplamaları, yollar, teraslar ve çatılar (hayvan altından geçer) etiketlenmez.
 local OBSTACLE_NAMES = {
@@ -91,5 +77,4 @@ return {
 	ROCK = ROCK,
 	part = part,
 	sign = sign,
-	surface = surface,
 }

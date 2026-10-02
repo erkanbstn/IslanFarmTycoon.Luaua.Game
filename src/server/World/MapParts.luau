@@ -10,6 +10,7 @@ local WorldUi = require(Shared:WaitForChild("WorldUi"))
 local WorldDecor = require(script.Parent:WaitForChild("WorldDecor"))
 local IslandSpecialization = require(script.Parent:WaitForChild("IslandSpecialization"))
 local MapLayout = require(script.Parent:WaitForChild("MapLayout"))
+local ModelAssets = require(script.Parent:WaitForChild("ModelAssets"))
 
 local SURFACE_Y = MapLayout.SURFACE_Y
 local WATER_Y = MapLayout.WATER_Y
@@ -107,12 +108,20 @@ local function addZoneLabel(zoneModel: Model, center: CFrame, zoneConfig: Config
 	})
 end
 
--- Balık kafesinin çevresindeki kazıklı yürüme yolu (iskeleyle aynı yükseklikte)
+local zoneBaseWarned: { [string]: boolean } = {}
+local function warnZoneBase(name: string)
+	if not zoneBaseWarned[name] then
+		zoneBaseWarned[name] = true
+		warn(`[MapParts] assets/ZoneBases/{name}.rbxmx bulunamadı; çizilmedi`)
+	end
+end
+
+-- Balık kafesinin çevresindeki kazıklı yürüme yolu (iskeleyle aynı yükseklikte).
+-- Tahtalar hazır modelden (ZoneBases/FishWalkway_Module: tek "Deck" parçası) alınır; boyu kafesin ölçüsüne göre ayarlanır.
 local function buildFloatingWalkway(zoneModel: Model, center: CFrame, size: Vector3)
 	local walkway = Instance.new("Model")
 	walkway.Name = "Walkway"
 	walkway.Parent = zoneModel
-	local wood = Color3.fromRGB(125, 90, 60)
 	local deckY = SURFACE_Y - 0.3
 	local frame = CFrame.new(center.Position.X, deckY, center.Position.Z) * center.Rotation
 	local width = FISH_WALKWAY_WIDTH
@@ -124,10 +133,17 @@ local function buildFloatingWalkway(zoneModel: Model, center: CFrame, size: Vect
 		{ Vector3.new(width, 0.6, size.Z), Vector3.new(-hx, 0, 0) },
 	}
 	for _, plank in planks do
-		local p = makePart("Deck", plank[1], frame * CFrame.new(plank[2]), wood, walkway)
-		p.Material = Enum.Material.WoodPlanks
-		p.CanTouch = false
-		p:SetAttribute("WalkSurfaceY", SURFACE_Y)
+		local template = ModelAssets.clone("ZoneBases", "FishWalkway_Module")
+		local deck = if template then template:FindFirstChild("Deck") else nil
+		if not (template and deck and deck:IsA("BasePart")) then
+			warnZoneBase("FishWalkway_Module")
+			break
+		end
+		deck.Size = plank[1]
+		deck.CFrame = frame * CFrame.new(plank[2])
+		deck:SetAttribute("WalkSurfaceY", SURFACE_Y)
+		deck.Parent = walkway
+		template:Destroy()
 	end
 	for _, x in { -hx, 0, hx } do
 		for _, z in { -hz, 0, hz } do
@@ -172,43 +188,73 @@ local function buildZone(plotModel: Model, islandCf: CFrame, layout: ZoneLayout)
 		return
 	end
 
-	-- Direkli çit; ön tarafta (-Z, doğma noktası yönü) giriş boşluğu
+	-- Direkli çit; ön tarafta (-Z, doğma noktası yönü) giriş boşluğu.
+	-- Hazır modüller: ZoneBases/ZoneFence_Segment_4 (başlangıç direği + iki ray, +X'te 4 stud) uç uca dizilir, ray boyu
+	-- bölüme göre ayarlanır; bitiş direği ZoneFence_Corner'dır.
 	local fence = Instance.new("Model")
 	fence.Name = "Fence"
 	fence.Parent = zoneModel
-	local postColor = Color3.fromRGB(120, 85, 55)
-	local railColor = Color3.fromRGB(165, 125, 80)
 	local hx, hz = layout.size.X / 2, layout.size.Z / 2
 	local gap = 6
 	local top = layout.size.Y / 2
 
 	-- Köşe direkleri iki segmentte de oluşmasın: üst üste binen parçalar yürürken titrer (z-fighting)
 	local placedPosts: { [string]: boolean } = {}
+	local function postKey(p: Vector3): string
+		return `{math.round(p.X * 10)},{math.round(p.Z * 10)}`
+	end
 	local function fenceSegment(from: Vector3, to: Vector3)
 		local length = (to - from).Magnitude
-		local posts = math.max(1, math.round(length / 4))
-		for i = 0, posts do
-			local p = from:Lerp(to, i / posts)
-			local key = `{math.round(p.X * 10)},{math.round(p.Z * 10)}`
-			if placedPosts[key] then
-				continue
+		local direction = (to - from).Unit
+		local count = math.max(1, math.round(length / 4))
+		local step = length / count
+		local rotation = CFrame.fromMatrix(Vector3.zero, direction, Vector3.yAxis)
+		for i = 0, count - 1 do
+			local startPoint = from + direction * (step * i)
+			local cf = center * CFrame.new(startPoint.X, top, startPoint.Z) * rotation
+			local segment = ModelAssets.clone("ZoneBases", "ZoneFence_Segment_4")
+			if not segment then
+				warnZoneBase("ZoneFence_Segment_4")
+				return
 			end
-			placedPosts[key] = true
-			local post =
-				makePart("Post", Vector3.new(0.7, 3.4, 0.7), center * CFrame.new(p.X, top + 1.7, p.Z), postColor, fence)
-			post.Material = Enum.Material.Wood
+			local pivot = segment:GetPivot()
+			for _, child in segment:GetChildren() do
+				if not child:IsA("BasePart") then
+					continue
+				end
+				if child.Name == "Post" then
+					-- Bu noktada direk zaten varsa (önceki segmentin bitişi) tekrar konmaz
+					if placedPosts[postKey(startPoint)] then
+						child:Destroy()
+					else
+						placedPosts[postKey(startPoint)] = true
+					end
+				else
+					-- Ray: modeldeki 4 stud'luk boy bölümün gerçek boyuna uzar (başlangıç direğinden itibaren)
+					local rel = pivot:ToObjectSpace(child.CFrame)
+					child.Size = Vector3.new(step, child.Size.Y, child.Size.Z)
+					child.CFrame = pivot * CFrame.new(step / 2, rel.Y, rel.Z)
+				end
+			end
+			segment:PivotTo(cf)
+			for _, child in segment:GetChildren() do
+				child.Parent = fence
+			end
+			segment:Destroy()
 		end
-		local mid = (from + to) / 2
-		local rotation = if math.abs(to.X - from.X) > 0.01 then CFrame.new() else CFrame.Angles(0, math.rad(90), 0)
-		for _, height in { 1.3, 2.6 } do
-			local rail = makePart(
-				"Rail",
-				Vector3.new(length, 0.45, 0.3),
-				center * CFrame.new(mid.X, top + height, mid.Z) * rotation,
-				railColor,
-				fence
-			)
-			rail.Material = Enum.Material.Wood
+		-- Bitiş direği
+		if not placedPosts[postKey(to)] then
+			placedPosts[postKey(to)] = true
+			local corner = ModelAssets.clone("ZoneBases", "ZoneFence_Corner")
+			if corner then
+				corner:PivotTo(center * CFrame.new(to.X, top + 1.7, to.Z) * rotation) -- PrimaryPart (Post) merkezi pivottur
+				for _, child in corner:GetChildren() do
+					child.Parent = fence
+				end
+				corner:Destroy()
+			else
+				warnZoneBase("ZoneFence_Corner")
+			end
 		end
 	end
 
@@ -230,24 +276,34 @@ local function addBuildSpot(folder: Instance, upgradeId: string, cf: CFrame): Pa
 	return marker
 end
 
--- İki nokta arasında tahta köprü (uçları ada zemininin 0.05 altında: çakışıp titremesin)
+-- İki nokta arasında tahta köprü: hazır modüllerden (assets/BridgeModels: 8 ve 2 stud'luk) uç uca dizilir.
+-- Uçlar ada zemininin 0.05 altında biter (çakışıp titremesin); artan uzunluk ortalanır (en çok 1 stud taşar).
+local bridgeWarned = false
 local function buildBridgeBetween(parent: Instance, from: Vector3, to: Vector3)
-	local y = SURFACE_Y - 0.55
+	local y = SURFACE_Y - 0.05 -- modül pivotu güverte üstündedir
 	local a = Vector3.new(from.X, y, from.Z)
 	local b = Vector3.new(to.X, y, to.Z)
 	local length = (b - a).Magnitude
-	local cf = CFrame.lookAt((a + b) / 2, b)
-	local bridge = makePart("Bridge", Vector3.new(8, 1, length), cf, Color3.fromRGB(140, 100, 60), parent)
-	bridge.Material = Enum.Material.WoodPlanks
-	for _, side in { -4, 4 } do
-		local rail = makePart(
-			"Rail",
-			Vector3.new(0.5, 2, length),
-			cf * CFrame.new(side, 1.5, 0),
-			Color3.fromRGB(110, 80, 50),
-			parent
-		)
-		rail.Material = Enum.Material.Wood
+	local dir = (b - a).Unit
+	local long = math.floor(length / 8)
+	local short = math.ceil((length - long * 8) / 2 - 0.01)
+	local cursor = (length - (long * 8 + short * 2)) / 2 -- negatifse iki uçtan eşit taşar
+	local function lay(name: string, size: number)
+		local center = a + dir * (cursor + size / 2)
+		if
+			not ModelAssets.place(parent, "BridgeModels", name, CFrame.lookAt(center, center + dir))
+			and not bridgeWarned
+		then
+			bridgeWarned = true
+			warn(`[MapParts] assets/BridgeModels/{name}.rbxmx bulunamadı; köprü çizilmedi`)
+		end
+		cursor += size
+	end
+	for _ = 1, long do
+		lay("BridgeModule_8", 8)
+	end
+	for _ = 1, short do
+		lay("BridgeModule_2", 2)
 	end
 end
 

@@ -34,44 +34,8 @@ local function buildSite(upgrade: Config.UpgradeConfig, spot: BasePart, parent: 
 		p.CanQuery = false
 		return p
 	end
-	-- Hazır model (assets/FacilityProps/BuildSite_Unbuilt: toprak, kazıklar, şeritler); tabela, direk ve satın alma istemi her zaman kodla eklenir
-	if not ModelAssets.place(site, "FacilityProps", "BuildSite_Unbuilt", base) then
-		piece(
-			"Dirt",
-			Vector3.new(SITE_HALF * 2, 0.3, SITE_HALF * 2),
-			CFrame.new(0, 0.15, 0),
-			Color3.fromRGB(128, 96, 66),
-			Enum.Material.Ground
-		)
-		local tape = Color3.fromRGB(245, 205, 60)
-		for _, corner in { Vector2.new(-1, -1), Vector2.new(1, -1), Vector2.new(1, 1), Vector2.new(-1, 1) } do
-			local stake = piece(
-				"Stake",
-				Vector3.new(0.35, 2.6, 0.35),
-				CFrame.new(corner.X * SITE_HALF, 1.3, corner.Y * SITE_HALF),
-				Color3.fromRGB(150, 110, 70),
-				Enum.Material.Wood
-			)
-			stake.CanCollide = true
-		end
-		-- Şeritler: dört kenar boyunca gerilmiş sarı bant
-		for _, side in { -1, 1 } do
-			piece(
-				"TapeX",
-				Vector3.new(SITE_HALF * 2, 0.12, 0.06),
-				CFrame.new(0, 2.2, side * SITE_HALF),
-				tape,
-				Enum.Material.Fabric
-			)
-			piece(
-				"TapeZ",
-				Vector3.new(0.06, 0.12, SITE_HALF * 2),
-				CFrame.new(side * SITE_HALF, 2.2, 0),
-				tape,
-				Enum.Material.Fabric
-			)
-		end
-	end
+	-- Hazır model (assets/FacilityProps/BuildSite_Unbuilt: toprak, kazıklar, şeritler); tabela, direk ve satın alma istemi kodla eklenir
+	ModelAssets.place(site, "FacilityProps", "BuildSite_Unbuilt", base)
 	-- Fiyat tabelası: ön köşede (yürüme yolunu kapatmaz: tahta yüksekte, direk ince)
 	local pole = piece(
 		"SignPole",
@@ -112,108 +76,6 @@ local function buildSite(upgrade: Config.UpgradeConfig, spot: BasePart, parent: 
 	site.Parent = parent
 end
 
--- Tesis seviyesine göre binanın çevresine eklenen süsler (her seviye yenisini ekler; alttakiler kalır).
--- Bina 10 x 8 stud, kapısı -Z yönünde; süsler yürüme yolunu kapatmaz (kapı önü boş, parçalar yan köşelerde).
-local function addFacilityProps(mark: Model, spotCf: CFrame, level: number)
-	local function prop(
-		name: string,
-		size: Vector3,
-		offset: CFrame,
-		color: Color3,
-		material: Enum.Material,
-		shape: Enum.PartType?
-	)
-		local p = Instance.new("Part")
-		p.Name = name
-		p.Size = size
-		p.CFrame = spotCf * offset
-		p.Color = color
-		p.Material = material
-		p.Anchored = true
-		p.CanCollide = name == "Crate" or name == "Counter" or name == "AwningPost" or name == "LampPost"
-		p.CanTouch = false
-		p.CanQuery = p.CanCollide
-		if shape then
-			p.Shape = shape
-		end
-		p.Parent = mark
-		return p
-	end
-	local wood = Color3.fromRGB(150, 110, 70)
-	if level >= 1 then
-		-- Arka yanda kasa yığını
-		for index, x in { -2.2, 0, 2.2 } do
-			prop("Crate", Vector3.new(1.8, 1.6, 1.8), CFrame.new(x, 0.8, 6.4), wood, Enum.Material.WoodPlanks)
-			if index == 2 then
-				prop(
-					"Crate",
-					Vector3.new(1.8, 1.6, 1.8),
-					CFrame.new(x, 2.4, 6.4),
-					Color3.fromRGB(170, 130, 85),
-					Enum.Material.WoodPlanks
-				)
-			end
-		end
-	end
-	if level >= 2 then
-		-- Ön sol köşede bayrak
-		prop(
-			"FlagPole",
-			Vector3.new(0.25, 7, 0.25),
-			CFrame.new(-6.4, 3.5, -5.6),
-			Color3.fromRGB(235, 235, 235),
-			Enum.Material.Metal
-		)
-		prop("Flag", Vector3.new(2.2, 1.3, 0.1), CFrame.new(-5.3, 6.3, -5.6), GOLD, Enum.Material.Fabric)
-	end
-	if level >= 3 then
-		-- Kapının iki yanında fener direkleri
-		for _, x in { -4.4, 4.4 } do
-			prop(
-				"LampPost",
-				Vector3.new(0.3, 4, 0.3),
-				CFrame.new(x, 2, -5.6),
-				Color3.fromRGB(70, 65, 60),
-				Enum.Material.Metal
-			)
-			prop(
-				"LampGlow",
-				Vector3.new(0.8, 0.8, 0.8),
-				CFrame.new(x, 4.3, -5.6),
-				Color3.fromRGB(255, 226, 150),
-				Enum.Material.Neon,
-				Enum.PartType.Ball
-			)
-		end
-	end
-	if level >= 4 then
-		-- Arka sağ yanda gölgelik ve tezgâh
-		for _, z in { 5, 8.2 } do
-			prop("AwningPost", Vector3.new(0.35, 3.6, 0.35), CFrame.new(7.2, 1.8, z), wood, Enum.Material.Wood)
-		end
-		prop(
-			"AwningRoof",
-			Vector3.new(2.6, 0.3, 4.2),
-			CFrame.new(7.2, 3.7, 6.6),
-			Color3.fromRGB(196, 70, 60),
-			Enum.Material.Fabric
-		)
-		prop("Counter", Vector3.new(1.6, 1.1, 3), CFrame.new(7.2, 0.55, 6.6), wood, Enum.Material.WoodPlanks)
-	end
-	if level >= 5 then
-		-- Altın çatı kenarı ve tepe küresi
-		prop("GoldTrim", Vector3.new(11.8, 0.25, 9.8), CFrame.new(0, 6.45, 0), GOLD, Enum.Material.Metal)
-		prop(
-			"GoldOrb",
-			Vector3.new(1.8, 1.8, 1.8),
-			CFrame.new(0, 7.3, 3),
-			GOLD,
-			Enum.Material.Metal,
-			Enum.PartType.Ball
-		)
-	end
-end
-
 -- Tesis geliştirme seviyesi dünyada görünür: binanın dibinde seviye kadar altın halka ve üstünde "Sv.N" etiketi.
 -- Kurulu değilse ya da seviye 0 ise çizilmez; seviye değişince yenilenir.
 local function applyLevelMarks(plot: Model, spots: Instance, save: PlayerSave?)
@@ -232,30 +94,10 @@ local function applyLevelMarks(plot: Model, spots: Instance, save: PlayerSave?)
 			mark:SetAttribute("Level", level)
 			local ground = spot.Position.Y - spot.Size.Y / 2
 			local groundCf = CFrame.new(spot.Position.X, ground, spot.Position.Z)
-			-- Hazır halkalar (assets/FacilityProps/FacilityRings_Lv<1-5>, pivot = bina zemini); yoksa kod
-			local ringsReady =
-				ModelAssets.place(mark, "FacilityProps", `FacilityRings_Lv{math.min(level, 5)}`, groundCf)
-			for ring = 1, if ringsReady then 0 else level do
-				local disc = Instance.new("Part")
-				disc.Name = "LevelRing"
-				disc.Shape = Enum.PartType.Cylinder
-				disc.Size = Vector3.new(0.12, 9 + ring * 1.4, 9 + ring * 1.4)
-				disc.CFrame = CFrame.new(spot.Position.X, ground + 0.08 + ring * 0.02, spot.Position.Z)
-					* CFrame.Angles(0, 0, math.rad(90))
-				disc.Color = GOLD
-				disc.Material = Enum.Material.Neon
-				disc.Transparency = 0.55 + (level - ring) * 0.05
-				disc.Anchored = true
-				disc.CanCollide = false
-				disc.CanTouch = false
-				disc.CanQuery = false
-				disc.CastShadow = false
-				disc.Parent = mark
-			end
-			local propsCf = groundCf * spot.CFrame.Rotation
-			if not ModelAssets.place(mark, "FacilityProps", `FacilityProps_Lv{math.min(level, 5)}`, propsCf) then
-				addFacilityProps(mark, propsCf, level)
-			end
+			-- Hazır halkalar ve süsler (assets/FacilityProps/FacilityRings_Lv<1-5>, FacilityProps_Lv<1-5>; pivot = bina zemini)
+			local levelKey = math.min(level, 5)
+			ModelAssets.place(mark, "FacilityProps", `FacilityRings_Lv{levelKey}`, groundCf)
+			ModelAssets.place(mark, "FacilityProps", `FacilityProps_Lv{levelKey}`, groundCf * spot.CFrame.Rotation)
 			local anchor = Instance.new("Part")
 			anchor.Name = "LevelTagAnchor"
 			anchor.Size = Vector3.one

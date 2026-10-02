@@ -11,6 +11,7 @@ local IslandSpecialization = require(script.Parent:WaitForChild("IslandSpecializ
 local MapLayout = require(script.Parent:WaitForChild("MapLayout"))
 local IslandLooks = require(script.Parent:WaitForChild("IslandLooks"))
 local MapParts = require(script.Parent:WaitForChild("MapParts"))
+local ModelAssets = require(script.Parent:WaitForChild("ModelAssets"))
 
 local SURFACE_Y = MapLayout.SURFACE_Y
 local ISLAND_RADIUS = MapLayout.ISLAND_RADIUS
@@ -28,6 +29,14 @@ local addIslandGrass = MapParts.addIslandGrass
 local lampsAlong = MapParts.lampsAlong
 
 -- Adaya özel süsler ve yollar (açık/kilitli fark etmez; adanın karakterini gösterir)
+local warned: { [string]: boolean } = {}
+local function warnMissing(name: string)
+	if not warned[name] then
+		warned[name] = true
+		warn(`[SatelliteBuilder] assets/SignModels/{name}.rbxmx bulunamadı; çizilmedi`)
+	end
+end
+
 local function buildSatelliteDecor(islandId: string, parent: Instance, cf: CFrame)
 	local function at(x: number, z: number): CFrame
 		return cf * CFrame.new(x, SURFACE_Y, z)
@@ -182,68 +191,44 @@ local function buildSatellite(
 	forSale.Parent = islandModel
 	for index, spot in { Vector2.new(-35, -14), Vector2.new(35, -14), Vector2.new(-34, 30), Vector2.new(34, 30) } do
 		local saleBase = cf * CFrame.new(spot.X, SURFACE_Y, spot.Y) * CFrame.Angles(0, math.rad(index * 40), 0)
-		local pole = makePart(
-			"SalePole",
-			Vector3.new(0.45, 10, 0.45),
-			saleBase * CFrame.new(0, 5, 0),
-			Color3.fromRGB(120, 85, 55),
-			forSale
-		)
-		pole.Material = Enum.Material.Wood
-		local banner = makePart(
-			"SaleBanner",
-			Vector3.new(4.2, 2.4, 0.2),
-			saleBase * CFrame.new(2.3, 8.6, 0),
-			Color3.fromRGB(196, 60, 52),
-			forSale
-		)
-		banner.Material = Enum.Material.Fabric
-		for _, face in { Enum.NormalId.Front, Enum.NormalId.Back } do
-			WorldUi.sign(banner, face, { text = "SATILIK", textColor = Color3.fromRGB(255, 240, 210) })
-		end
-		for rock = 1, 3 do
-			local stone = makePart(
-				"SaleStone",
-				Vector3.new(1.6 + rock * 0.5, 1.2 + rock * 0.2, 1.8 + rock * 0.4),
-				saleBase * CFrame.new(rock * 1.3 - 3.4, 0.5, 1.6 + rock * 0.5) * CFrame.Angles(0.1 * rock, rock, 0.05),
-				Color3.fromRGB(120, 118, 110),
-				forSale
-			)
-			stone.Material = Enum.Material.Slate
+		local marker = ModelAssets.clone("SignModels", "SaleMarker")
+		if marker then
+			local banner = marker:FindFirstChild("SaleBanner")
+			if banner and banner:IsA("BasePart") then
+				for _, face in { Enum.NormalId.Front, Enum.NormalId.Back } do
+					WorldUi.sign(banner, face, { text = "SATILIK", textColor = Color3.fromRGB(255, 240, 210) })
+				end
+			end
+			marker:PivotTo(saleBase)
+			marker.Parent = forSale
+		else
+			warnMissing("SaleMarker")
 		end
 	end
 
 	-- Köprü girişinin yanında, yolun dışında tek direkli küçük ada tabelası: ad + özellik;
 	-- kilitliyken "Satın Al" düğmesi. Alt kenarı karakter boyunun üstünde, yürümeye engel olmaz.
 	local signX, signZ = 9.5, -(SATELLITE_RADIUS - 8)
-	local frameColor = Color3.fromRGB(140, 100, 60)
-	local boardWidth = 6.4
-	-- İki yan direk tabelanın DIŞINDA durur; tahta direklerin içine girmez, yolun ortası boş kalır.
-	for _, side in { -1, 1 } do
-		local post = makePart(
-			"SignPost",
-			Vector3.new(0.5, 15.4, 0.5),
-			cf * CFrame.new(signX + side * (boardWidth / 2 + 0.35), SURFACE_Y + 7.7, signZ),
-			frameColor,
-			islandModel
-		)
-		post.Material = Enum.Material.Wood
-	end
-	local sign = makePart(
-		"IslandSign",
-		Vector3.new(boardWidth, 2.2, 0.35),
-		cf * CFrame.new(signX, SURFACE_Y + 13.6, signZ),
-		Color3.fromRGB(85, 60, 40),
-		islandModel
-	)
-	sign.Material = Enum.Material.WoodPlanks
-	sign.CanCollide = false
-	for _, face in { Enum.NormalId.Front, Enum.NormalId.Back } do
-		WorldUi.sign(
-			sign,
-			face,
-			{ icon = islandConfig.icon, title = islandConfig.displayName, text = islandConfig.trait }
-		)
+	local signModel = ModelAssets.clone("SignModels", "IslandSign")
+	if signModel then
+		local sign = signModel:FindFirstChild("IslandSign")
+		if sign and sign:IsA("BasePart") then
+			for _, face in { Enum.NormalId.Front, Enum.NormalId.Back } do
+				WorldUi.sign(
+					sign,
+					face,
+					{ icon = islandConfig.icon, title = islandConfig.displayName, text = islandConfig.trait }
+				)
+			end
+		end
+		signModel:PivotTo(cf * CFrame.new(signX, SURFACE_Y, signZ))
+		-- Direkler ve tahta doğrudan ada modelinin çocuğu olur (PlotService "IslandSign" parçasını burada arar)
+		for _, child in signModel:GetChildren() do
+			child.Parent = islandModel
+		end
+		signModel:Destroy()
+	else
+		warnMissing("IslandSign")
 	end
 	local promptAnchor = makePromptAnchor(islandModel, (cf * CFrame.new(signX, SURFACE_Y + 2, signZ - 1.5)).Position)
 	if upgrade then

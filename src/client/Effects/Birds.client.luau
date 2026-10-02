@@ -9,6 +9,7 @@ local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local EffectSettings = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("EffectSettings"))
+local ClientModelAssets = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("ClientModelAssets"))
 local Environment = require(Shared:WaitForChild("Modules"):WaitForChild("Environment"))
 local StartupGate = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("StartupGate"))
 StartupGate.wait(1.5)
@@ -19,6 +20,7 @@ local MAP_RADIUS = 380
 
 type Bird = {
 	model: Model,
+	parts: { BasePart },
 	body: BasePart,
 	leftWing: BasePart,
 	rightWing: BasePart,
@@ -42,42 +44,40 @@ local folder = Instance.new("Folder")
 folder.Name = "Birds"
 folder.Parent = Workspace
 
-local function part(model: Model, name: string, size: Vector3, color: Color3): Part
-	local p = Instance.new("Part")
-	p.Name = name
-	p.Size = size
-	p.Color = color
-	p.Material = Enum.Material.SmoothPlastic
-	p.Anchored = true
-	p.CanCollide = false
-	p.CanQuery = false
-	p.CanTouch = false
-	p.CastShadow = false
-	p.Transparency = 1
-	p.Parent = model
-	return p
-end
-
-local function makeBird(gull: boolean): Bird
-	local model = Instance.new("Model")
-	model.Name = if gull then "Gull" else "Bird"
+-- Kuş modeli: client-assets/Birds/Gull | Songbird (Body, LeftWing, RightWing, Head, Beak, Tail); boyut/renk modelden gelir.
+-- Hareket kodda: gövde modelle birlikte taşınır, kanatlar ayrıca çırpılır.
+local missingWarned = false
+local function makeBird(gull: boolean): Bird?
+	local model = ClientModelAssets.clone("Birds", if gull then "Gull" else "Songbird")
+	local body = if model then model:FindFirstChild("Body") else nil
+	local leftWing = if model then model:FindFirstChild("LeftWing") else nil
+	local rightWing = if model then model:FindFirstChild("RightWing") else nil
+	if not (model and body and leftWing and rightWing) then
+		if not missingWarned then
+			missingWarned = true
+			warn(
+				"[Birds] client-assets/Birds/Gull|Songbird.rbxmx bulunamadı ya da Body/LeftWing/RightWing eksik; kuşlar çizilmedi"
+			)
+		end
+		return nil
+	end
 	local scale = if gull then random:NextNumber(1.2, 1.5) else random:NextNumber(0.7, 0.9)
-	local bodyColor = if gull then Color3.fromRGB(245, 245, 245) else Color3.fromRGB(80, 70, 65)
-	local wingColor = if gull then Color3.fromRGB(190, 195, 205) else Color3.fromRGB(60, 52, 48)
-
-	local body = part(model, "Body", Vector3.new(0.5, 0.45, 1.6) * scale, bodyColor)
-	local mesh = Instance.new("SpecialMesh")
-	mesh.MeshType = Enum.MeshType.Sphere
-	mesh.Parent = body
-	local leftWing = part(model, "LeftWing", Vector3.new(2.2, 0.08, 0.7) * scale, wingColor)
-	local rightWing = part(model, "RightWing", Vector3.new(2.2, 0.08, 0.7) * scale, wingColor)
+	model:ScaleTo(scale)
+	local parts: { BasePart } = {}
+	for _, descendant in model:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			descendant.Transparency = 1
+			table.insert(parts, descendant)
+		end
+	end
 	model.Parent = folder
 
 	return {
 		model = model,
-		body = body,
-		leftWing = leftWing,
-		rightWing = rightWing,
+		parts = parts,
+		body = body :: BasePart,
+		leftWing = leftWing :: BasePart,
+		rightWing = rightWing :: BasePart,
 		offset = Vector3.new(random:NextNumber(-5, 5), random:NextNumber(-1.5, 1.5), random:NextNumber(-5, 5)),
 		phase = random:NextNumber(0, math.pi * 2),
 		flapSpeed = if gull then random:NextNumber(5, 7) else random:NextNumber(10, 14),
@@ -93,7 +93,10 @@ for i = 1, FLOCK_COUNT do
 	local distance = if gull then random:NextNumber(200, MAP_RADIUS) else random:NextNumber(40, 260)
 	local birds: { Bird } = {}
 	for _ = 1, if gull then random:NextInteger(2, 4) else random:NextInteger(4, 7) do
-		table.insert(birds, makeBird(gull))
+		local bird = makeBird(gull)
+		if bird then
+			table.insert(birds, bird)
+		end
 	end
 	table.insert(flocks, {
 		center = Vector3.new(math.sin(angle) * distance, 0, math.cos(angle) * distance),
@@ -110,9 +113,9 @@ local function setVisible(flock: Flock, visible: boolean)
 	for _, bird in flock.birds do
 		local transparency = if visible then 0 else 1
 		if bird.body.Transparency ~= transparency then
-			bird.body.Transparency = transparency
-			bird.leftWing.Transparency = transparency
-			bird.rightWing.Transparency = transparency
+			for _, part in bird.parts do
+				part.Transparency = transparency
+			end
 		end
 	end
 end
@@ -153,7 +156,7 @@ RunService.Heartbeat:Connect(function(dt: number)
 		for _, bird in flock.birds do
 			local bob = math.sin(now * 0.8 + bird.phase) * 0.8
 			local cf = base * CFrame.new(bird.offset + Vector3.new(0, bob, 0))
-			bird.body.CFrame = cf
+			bird.model:PivotTo(cf)
 			-- Çırp–süzül döngüsü: bir süre çırpar, bir süre kanatlar açık süzülür
 			local gliding = math.sin(now * 0.5 + bird.phase) > 0.3
 			local flap = if gliding then 0.1 else math.sin(now * bird.flapSpeed + bird.phase) * 0.6

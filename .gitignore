@@ -10,6 +10,8 @@ sourcemap.json
 build/
 !assets/**/*.rbxm
 !assets/**/*.rbxmx
+!client-assets/**/*.rbxm
+!client-assets/**/*.rbxmx
 !src/lighting/*.rbxmx
 
 # Editör / sistem

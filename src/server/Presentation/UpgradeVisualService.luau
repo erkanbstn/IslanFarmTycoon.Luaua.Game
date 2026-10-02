@@ -22,14 +22,8 @@ local UpgradeSites = require(script.Parent:WaitForChild("UpgradeSites"))
 local JobMarks = require(script.Parent:WaitForChild("JobMarks"))
 local DecorReveal = require(script.Parent:WaitForChild("DecorReveal"))
 local UpgradeLevelProps = require(script.Parent:WaitForChild("UpgradeLevelProps"))
-local BuildersGoods = require(script.Parent:WaitForChild("UpgradeBuildersGoods"))
-local BuildersHome = require(script.Parent:WaitForChild("UpgradeBuildersHome"))
-local BuildersBarnyard = require(script.Parent:WaitForChild("UpgradeBuildersBarnyard"))
-local BuildersWorkshops = require(script.Parent:WaitForChild("UpgradeBuildersWorkshops"))
-local BuildersSpecies = require(script.Parent:WaitForChild("UpgradeBuildersSpecies"))
 
 type PlayerSave = GameTypes.PlayerSave
-type Builder = UpgradeParts.Builder
 
 local UpgradeVisualService = {}
 
@@ -39,24 +33,6 @@ local PRODUCTION_RECIPES = UpgradeParts.PRODUCTION_RECIPES
 local makePart = UpgradeParts.makePart
 local buildSite = UpgradeSites.buildSite
 local applyLevelMarks = UpgradeSites.applyLevelMarks
-
--- Bina id -> görsel kurucu (gruplar ayrı dosyalarda)
-local BUILDERS: { [string]: Builder } = {}
-for _, group in { BuildersHome, BuildersBarnyard, BuildersWorkshops, BuildersGoods, BuildersSpecies } do
-	for id, builder in group do
-		BUILDERS[id] = builder
-	end
-end
-
--- Ana adadaki ördek fabrikası ve ürün merkezi, ördek adası binalarının görünümünü paylaşır (yeni görsel: ilgili Builders dosyasına kendi kurucusunu yazıp
--- buradaki eşlemeyi sil). Diğer ana hayvanların ve bütün hayvan türlerinin fabrika/ürün merkezi görünümleri UpgradeBuildersSpecies'tedir.
-local BUILDER_ALIASES: { [string]: string } = {
-	duck_packer = "duck_house",
-	down_home_center = "down_workshop",
-}
-for aliasId, sourceId in BUILDER_ALIASES do
-	BUILDERS[aliasId] = BUILDERS[sourceId]
-end
 
 local function cloneAsset(upgradeId: string): Model?
 	local assets = ServerStorage:FindFirstChild("Assets") or ReplicatedStorage:FindFirstChild("Assets")
@@ -68,66 +44,27 @@ local function cloneAsset(upgradeId: string): Model?
 	return nil
 end
 
--- Hazır modelde (assets/Buildings) tabela tahtası ve direkleri "SignBoard"/"SignPost" olarak vardır (üretim binaları); SurfaceGui modelde saklanmaz, yazı burada eklenir.
--- Tahtası olmayan model (milk_factory, hatchery, horse_training) eski yerde kodla eklenen tabelayı kullanır.
--- Kaynak: UpgradeBuildersGoods.house (merkezler), UpgradeBuildersHome.milk_factory, UpgradeBuildersBarnyard (hatchery, horse_training).
--- Kod kurucuları silinirse bu tablo tek kaynak olur.
-type SignSpec = { offset: CFrame, title: string, text: string, icon: string, width: number }
-local HOUSE_SIGN = CFrame.new(0, 7.5, -4.3)
-local function houseSign(title: string, text: string, icon: string): SignSpec
-	return { offset = HOUSE_SIGN, title = title, text = text, icon = icon, width = 8 }
-end
-local ASSET_SIGNS: { [string]: SignSpec } = {
-	milk_factory = {
-		offset = CFrame.new(-2, 5.65, -5.2),
-		title = "Süt Fabrikası",
-		text = "İşleme ve paketleme",
-		icon = "🥛",
-		width = 8,
-	},
-	hatchery = {
-		offset = CFrame.new(0, 5, -2.2),
-		title = "Kuluçkahane",
-		text = "Yumurta ve civciv",
-		icon = "🐣",
-		width = 8,
-	},
-	horse_training = {
-		offset = CFrame.new(0, 3.15, 5.05),
-		title = "At Eğitim Alanı",
-		text = "Antrenman istasyonu",
-		icon = "🏇",
-		width = 6.4,
-	},
-	milk_center = houseSign("Süt Merkezi", "Süt depoya gider", "🥛"),
-	egg_center = houseSign("Yumurta Merkezi", "Yumurta depoya gider", "🥚"),
-	down_home_center = houseSign("Tüy Atölyesi", "Tüy depoya gider", "🪶"),
-	cheese_cellar = houseSign("Peynir Mahzeni", "Peynir depoya gider", "🧀"),
-	wool_loom = houseSign("Yün Atölyesi", "Yün depoya gider", "🧶"),
-	meat_smokehouse = houseSign("Tütsühane", "Et depoya gider", "🥩"),
-	horseshoe_forge = houseSign("Nal Demirhanesi", "Nal depoya gider", "🧲"),
-	fish_cannery = houseSign("Balık Merkezi", "Balık depoya gider", "🐟"),
-}
+local missingWarned: { [string]: boolean } = {}
 
--- Tabela yazısı: elle yazılan tablo (ASSET_SIGNS) önce; yoksa binanın üretim tarifinden (bina adı + tarif adı + tarif simgesi).
-local function signSpecFor(upgradeId: string): SignSpec?
-	local fixed = ASSET_SIGNS[upgradeId]
-	if fixed then
-		return fixed
-	end
+-- Bu bina için hazır model var mı? (Yapım alanı ve görsel yalnızca modeli olan binalar için kurulur.)
+local function hasAsset(upgradeId: string): boolean
+	local assets = ServerStorage:FindFirstChild("Assets") or ReplicatedStorage:FindFirstChild("Assets")
+	local folder = assets and assets:FindFirstChild("Buildings")
+	local template = folder and folder:FindFirstChild(upgradeId)
+	return template ~= nil and template:IsA("Model")
+end
+
+-- Hazır modelde (assets/Buildings) tabela tahtası ve direkleri "SignBoard"/"SignPost" olarak vardır (SurfaceGui modelde saklanmaz).
+-- Yazı binanın üretim tarifinden gelir: bina adı + tarif adı + tarif simgesi (Config).
+type SignText = { title: string, text: string, icon: string }
+local function signTextFor(upgradeId: string): SignText?
 	local upgrade = Config.getUpgrade(upgradeId)
 	if not upgrade then
 		return nil
 	end
 	for _, recipe in Config.PRODUCTION_RECIPES do
 		if recipe.upgradeId == upgradeId then
-			return {
-				offset = HOUSE_SIGN,
-				title = upgrade.displayName,
-				text = recipe.displayName,
-				icon = recipe.icon,
-				width = 8,
-			}
+			return { title = upgrade.displayName, text = recipe.displayName, icon = recipe.icon }
 		end
 	end
 	return nil
@@ -135,39 +72,19 @@ end
 
 local function buildUpgrade(upgradeId: string, spot: BasePart, parent: Instance)
 	local base = spot.CFrame
-	local cloned = cloneAsset(upgradeId)
-	local built: Model
-	if cloned then
-		cloned:PivotTo(base)
-		built = cloned
-		local board = built:FindFirstChild("SignBoard")
-		if board and board:IsA("BasePart") then
-			-- Tahta ve direkleri modelde (SignBoard/SignPost); yazı üretim tarifinden (Config) gelir.
-			local spec = signSpecFor(upgradeId)
-			if spec then
-				UpgradeParts.faceSign(board, spec.title, spec.text, spec.icon)
-			end
-		else
-			local signSpec = ASSET_SIGNS[upgradeId]
-			if signSpec then
-				UpgradeParts.sign(
-					built,
-					base * signSpec.offset,
-					signSpec.title,
-					signSpec.text,
-					signSpec.icon,
-					signSpec.width
-				)
-			end
+	local built = cloneAsset(upgradeId)
+	if not built then
+		if not missingWarned[upgradeId] then
+			missingWarned[upgradeId] = true
+			warn(`[UpgradeVisual] assets/Buildings/{upgradeId}.rbxmx bulunamadı; bina çizilmedi`)
 		end
-	else
-		local builder = BUILDERS[upgradeId]
-		if not builder then
-			return
-		end
-		local fresh = Instance.new("Model")
-		builder(fresh, base)
-		built = fresh
+		return
+	end
+	built:PivotTo(base)
+	local board = built:FindFirstChild("SignBoard")
+	local sign = signTextFor(upgradeId)
+	if board and board:IsA("BasePart") and sign then
+		UpgradeParts.faceSign(board, sign.title, sign.text, sign.icon)
 	end
 	built.Name = upgradeId
 	built:SetAttribute("UpgradeVisualVersion", VISUAL_VERSION)
@@ -242,10 +159,7 @@ end
 function UpgradeVisualService.hasBuildSite(plot: Model, upgradeId: string): boolean
 	local spots = plot:FindFirstChild("BuildSpots")
 	local spot = if spots then spots:FindFirstChild(upgradeId) else nil
-	return spot ~= nil
-		and spot:IsA("BasePart")
-		and spot:GetAttribute("BoatPatrolX") == nil
-		and BUILDERS[upgradeId] ~= nil
+	return spot ~= nil and spot:IsA("BasePart") and spot:GetAttribute("BoatPatrolX") == nil and hasAsset(upgradeId)
 end
 
 function UpgradeVisualService.apply(plot: Model, save: PlayerSave?)
@@ -288,7 +202,7 @@ function UpgradeVisualService.apply(plot: Model, save: PlayerSave?)
 			and spot ~= nil
 			and spot:IsA("BasePart")
 			and spot:GetAttribute("BoatPatrolX") == nil
-			and BUILDERS[upgrade.id] ~= nil
+			and hasAsset(upgrade.id)
 			and FarmMath.getUpgradeStatus(save, upgrade.id) == "available"
 		if wantSite and not site then
 			buildSite(upgrade, spot :: BasePart, sitesFolder :: Instance, FarmMath.formatUpgradePrice(save, upgrade))

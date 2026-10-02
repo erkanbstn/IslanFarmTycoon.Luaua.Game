@@ -2,130 +2,16 @@
 -- Bitki örtüsü: ağaç çeşitleri, çalı, çiçek, çim tutamları ve çim yamaları.
 -- WorldDecor cephesi bunları birleştirir; her zaman `WorldDecor.<ad>` ile kullan.
 
+local ModelAssets = require(script.Parent:WaitForChild("ModelAssets"))
 local Parts = require(script.Parent:WaitForChild("DecorParts"))
 
 local part = Parts.part
-local ball = Parts.ball
-local column = Parts.column
 
 local Nature = {}
 
 ---------------------------------------------------------------------------
 -- Bitki örtüsü
 ---------------------------------------------------------------------------
-
-local LEAF_COLORS = {
-	Color3.fromRGB(70, 140, 60),
-	Color3.fromRGB(85, 155, 65),
-	Color3.fromRGB(60, 125, 55),
-	Color3.fromRGB(100, 160, 70),
-}
-
--- Yuvarlak taçlı ağaç: gövde + dal + birkaç farklı tonda yaprak kümesi
-function Nature.oakTree(parent: Instance, base: CFrame, seed: number)
-	local random = Random.new(seed)
-	local scale = random:NextNumber(0.85, 1.2)
-	local model = Instance.new("Model")
-	model.Name = "OakTree"
-	model.Parent = parent
-
-	local bark = Color3.fromRGB(100, 70, 45)
-	column(model, "Trunk", 1.8 * scale, 8 * scale, base * CFrame.new(0, 4 * scale, 0), bark, Enum.Material.Wood)
-	part(
-		model,
-		"Branch",
-		Vector3.new(0.7, 3.5, 0.7) * scale,
-		base * CFrame.new(1 * scale, 6.5 * scale, 0) * CFrame.Angles(0, 0, math.rad(-40)),
-		bark,
-		Enum.Material.Wood
-	)
-	local crown: { { offset: Vector3, size: number } } = {
-		{ offset = Vector3.new(0, 10, 0), size = 8 },
-		{ offset = Vector3.new(2.6, 9, 1.2), size = 6 },
-		{ offset = Vector3.new(-2.4, 9.2, -1), size = 6.2 },
-		{ offset = Vector3.new(0.6, 12, -1.6), size = 5.5 },
-		{ offset = Vector3.new(-1, 8.6, 2.6), size = 5 },
-	}
-	for i, leaf in crown do
-		local p = ball(
-			model,
-			"Leaves",
-			leaf.size * scale,
-			base * CFrame.new(leaf.offset * scale),
-			LEAF_COLORS[(i + seed) % #LEAF_COLORS + 1],
-			Enum.Material.LeafyGrass
-		)
-		p.CanCollide = false
-	end
-end
-
--- Çam: ince uzun gövde + yukarı doğru küçülen koyu yaprak katmanları
-function Nature.pineTree(parent: Instance, base: CFrame, seed: number)
-	local random = Random.new(seed)
-	local scale = random:NextNumber(0.9, 1.25)
-	local model = Instance.new("Model")
-	model.Name = "PineTree"
-	model.Parent = parent
-
-	column(
-		model,
-		"Trunk",
-		1.2 * scale,
-		11 * scale,
-		base * CFrame.new(0, 5.5 * scale, 0),
-		Color3.fromRGB(90, 60, 40),
-		Enum.Material.Wood
-	)
-	-- Aşağıdan yukarı daralan yassı katmanlar (koni silueti)
-	local layers = { { 4, 8.5 }, { 6.4, 7 }, { 8.6, 5.4 }, { 10.6, 3.8 }, { 12.3, 2.2 } }
-	for index, layer in layers do
-		local p = part(
-			model,
-			"Needles",
-			Vector3.new(layer[2], 2.4, layer[2]) * scale,
-			base * CFrame.new(0, layer[1] * scale, 0),
-			if index % 2 == 0 then Color3.fromRGB(45, 100, 60) else Color3.fromRGB(38, 88, 52),
-			Enum.Material.LeafyGrass
-		)
-		p.CanCollide = false
-		local mesh = Instance.new("SpecialMesh")
-		mesh.MeshType = Enum.MeshType.Sphere
-		mesh.Parent = p
-	end
-end
-
-function Nature.bush(parent: Instance, base: CFrame, seed: number)
-	local random = Random.new(seed)
-	local model = Instance.new("Model")
-	model.Name = "Bush"
-	model.Parent = parent
-	for i = 1, 3 do
-		local size = random:NextNumber(2.2, 3.4)
-		local p = ball(
-			model,
-			"Leaves",
-			size,
-			base * CFrame.new(random:NextNumber(-1.2, 1.2), size * 0.35, random:NextNumber(-1.2, 1.2)),
-			LEAF_COLORS[(i + seed) % #LEAF_COLORS + 1],
-			Enum.Material.LeafyGrass
-		)
-		p.CanCollide = false
-	end
-	-- Bazı çalılarda küçük çiçekler/meyveler
-	if seed % 2 == 0 then
-		for _ = 1, 4 do
-			local p = ball(
-				model,
-				"Berry",
-				0.45,
-				base * CFrame.new(random:NextNumber(-1.4, 1.4), random:NextNumber(1, 2), random:NextNumber(-1.4, 1.4)),
-				Color3.fromRGB(220, 60, 70),
-				Enum.Material.SmoothPlastic
-			)
-			p.CanCollide = false
-		end
-	end
-end
 
 local FLOWER_COLORS = {
 	Color3.fromRGB(250, 220, 80),
@@ -135,29 +21,67 @@ local FLOWER_COLORS = {
 	Color3.fromRGB(245, 140, 60),
 }
 
--- Küçük çiçek tarhı: saplı, renkli çiçekler
-function Nature.flowerPatch(parent: Instance, base: CFrame, seed: number)
+-- Ağaçlar, çalı ve çiçek tarhı hazır modellerden gelir (assets/CommonDecor); her tür birkaç varyanttır, tohum varyantı,
+-- ölçeği ve dönüşü seçer. Yerleşen modelin adı türün adıdır (OakTree, PineTree, Bush, Flowers): SeasonalScenery (client)
+-- mevsim rengini bu ad + parça adlarıyla (Trunk, Leaves, Needles, Berry, Bloom, Stem) bulur.
+local FOLDER = "CommonDecor"
+local missingWarned: { [string]: boolean } = {}
+
+local OAK_VARIANTS = { "OakTree_A", "OakTree_B", "OakTree_C", "OakTree_D" }
+local PINE_VARIANTS = { "PineTree_A", "PineTree_B", "PineTree_C" }
+local BIRCH_VARIANTS = { "BirchTree_A", "BirchTree_B" }
+local BUSH_VARIANTS = { "Bush_A", "Bush_B", "Bush_Berry" }
+local FLOWER_VARIANTS =
+	{ "FlowerPatch_Yellow", "FlowerPatch_Pink", "FlowerPatch_White", "FlowerPatch_Purple", "FlowerPatch_Orange" }
+
+local function placeVaried(
+	parent: Instance,
+	variants: { string },
+	displayName: string,
+	base: CFrame,
+	seed: number,
+	minScale: number,
+	maxScale: number
+): Model?
 	local random = Random.new(seed)
-	local model = Instance.new("Model")
-	model.Name = "Flowers"
-	model.Parent = parent
-	local color = FLOWER_COLORS[seed % #FLOWER_COLORS + 1]
-	for _ = 1, 7 do
-		local offset = CFrame.new(random:NextNumber(-2, 2), 0, random:NextNumber(-2, 2))
-		local height = random:NextNumber(0.6, 1.1)
-		local stem = part(
-			model,
-			"Stem",
-			Vector3.new(0.12, height, 0.12),
-			base * offset * CFrame.new(0, height / 2, 0),
-			Color3.fromRGB(70, 130, 60),
-			Enum.Material.SmoothPlastic
-		)
-		stem.CanCollide = false
-		local bloom =
-			ball(model, "Bloom", 0.45, base * offset * CFrame.new(0, height, 0), color, Enum.Material.SmoothPlastic)
-		bloom.CanCollide = false
+	local name = variants[random:NextInteger(1, #variants)]
+	local model = ModelAssets.clone(FOLDER, name)
+	if not model then
+		if not missingWarned[name] then
+			missingWarned[name] = true
+			warn(`[DecorNature] assets/{FOLDER}/{name}.rbxmx bulunamadı; süs çizilmedi`)
+		end
+		return nil
 	end
+	model.Name = displayName
+	model:ScaleTo(random:NextNumber(minScale, maxScale))
+	model:PivotTo(base * CFrame.Angles(0, random:NextNumber(0, math.pi * 2), 0))
+	model.Parent = parent
+	return model
+end
+
+-- Yuvarlak taçlı ağaç (meşe)
+function Nature.oakTree(parent: Instance, base: CFrame, seed: number)
+	placeVaried(parent, OAK_VARIANTS, "OakTree", base, seed, 0.85, 1.2)
+end
+
+-- Çam
+function Nature.pineTree(parent: Instance, base: CFrame, seed: number)
+	placeVaried(parent, PINE_VARIANTS, "PineTree", base, seed, 0.9, 1.25)
+end
+
+-- Huş (mevsim rengi şimdilik yok: yaprakları "Leaves" adını taşımıyorsa SeasonalScenery dokunmaz)
+function Nature.birchTree(parent: Instance, base: CFrame, seed: number)
+	placeVaried(parent, BIRCH_VARIANTS, "BirchTree", base, seed, 0.9, 1.2)
+end
+
+function Nature.bush(parent: Instance, base: CFrame, seed: number)
+	placeVaried(parent, BUSH_VARIANTS, "Bush", base, seed, 0.85, 1.25)
+end
+
+-- Küçük çiçek tarhı: varyant (çiçek rengi) tohuma göre seçilir
+function Nature.flowerPatch(parent: Instance, base: CFrame, seed: number)
+	placeVaried(parent, FLOWER_VARIANTS, "Flowers", base, seed, 0.9, 1.15)
 end
 
 local GRASS_COLORS = {
@@ -218,42 +142,27 @@ function Nature.grassTufts(parent: Instance, base: CFrame, spec: GrassSpec): Fol
 		local yaw = random:NextNumber(0, math.pi)
 		local height = random:NextNumber(0.7, 1.3)
 		local color = GRASS_COLORS[random:NextInteger(1, #GRASS_COLORS)]
-		local origin = base * CFrame.new(x, 0, z) * CFrame.Angles(0, yaw, 0)
-		for blade = 0, 1 do
-			local p = part(
-				folder,
-				"Tuft",
-				Vector3.new(0.14, height, random:NextNumber(0.9, 1.5)),
-				origin
-					* CFrame.Angles(0, blade * math.pi / 2, random:NextNumber(-0.12, 0.12))
-					* CFrame.new(0, height / 2 - 0.05, 0),
-				color,
-				Enum.Material.Grass
-			)
-			p.CanCollide, p.CanQuery, p.CastShadow = false, false, false
-		end
-		if random:NextNumber() < flowerChance then
-			local stemH = random:NextNumber(0.9, 1.4)
-			local stem = part(
-				folder,
-				"Stem",
-				Vector3.new(0.12, stemH, 0.12),
-				origin * CFrame.new(0.5, stemH / 2, 0.4),
-				Color3.fromRGB(70, 130, 60),
-				Enum.Material.SmoothPlastic
-			)
-			local bloom = ball(
-				folder,
-				"Bloom",
-				0.5,
-				origin * CFrame.new(0.5, stemH, 0.4),
-				FLOWER_COLORS[random:NextInteger(1, #FLOWER_COLORS)],
-				Enum.Material.SmoothPlastic
-			)
-			for _, p in { stem, bloom } do
-				p.CanCollide, p.CanQuery, p.CastShadow = false, false, false
+		local withFlower = random:NextNumber() < flowerChance
+		local tuft = ModelAssets.clone(FOLDER, if withFlower then "GrassTuft_Flower" else "GrassTuft")
+		if not tuft then
+			if not missingWarned.GrassTuft then
+				missingWarned.GrassTuft = true
+				warn(`[DecorNature] assets/{FOLDER}/GrassTuft.rbxmx bulunamadı; çim çizilmedi`)
 			end
+			break
 		end
+		ModelAssets.eachNamed(tuft, { "Tuft" }, function(blade: BasePart)
+			blade.Color = color
+		end)
+		if withFlower then
+			local bloomColor = FLOWER_COLORS[random:NextInteger(1, #FLOWER_COLORS)]
+			ModelAssets.eachNamed(tuft, { "Bloom" }, function(bloom: BasePart)
+				bloom.Color = bloomColor
+			end)
+		end
+		tuft:ScaleTo(height)
+		tuft:PivotTo(base * CFrame.new(x, 0, z) * CFrame.Angles(0, yaw, 0))
+		tuft.Parent = folder
 	end
 	return folder
 end

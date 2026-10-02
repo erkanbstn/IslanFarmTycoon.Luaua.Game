@@ -85,8 +85,15 @@ local function addNightLight(
 end
 
 -- Fener gövdesi (geceleri DayNight yakar): kod kurucusundaki değerlerle aynı
-function ModelAssets.markLantern(part: BasePart)
-	addNightLight(part, "NightLight", Color3.fromRGB(255, 214, 130), Color3.fromRGB(255, 205, 130), 26, 2.5)
+function ModelAssets.markLantern(part: BasePart, range: number?, brightness: number?)
+	addNightLight(
+		part,
+		"NightLight",
+		Color3.fromRGB(255, 214, 130),
+		Color3.fromRGB(255, 205, 130),
+		range or 26,
+		brightness or 2.5
+	)
 end
 
 -- Pencere (geceleri DayNight parlatır)
