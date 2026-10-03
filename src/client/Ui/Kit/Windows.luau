@@ -58,6 +58,18 @@ function Windows.window(parent: Instance, options: WindowOptions): Window
 	limit.MaxSize = Vector2.new(options.width, options.maxHeight)
 	limit.Parent = frame
 
+	-- Başlık bandı: pencerenin vurgu renginden aşağı doğru sönen renkli şerit
+	local band = Instance.new("Frame")
+	band.BackgroundColor3 = options.tint or Tokens.Color.Gold
+	band.BorderSizePixel = 0
+	band.Size = UDim2.new(1, 0, 0, 60)
+	band.Parent = frame
+	Base.corner(band, Tokens.Radius.Panel)
+	local bandFade = Instance.new("UIGradient")
+	bandFade.Rotation = 90
+	bandFade.Transparency = NumberSequence.new(0.4, 1)
+	bandFade.Parent = band
+
 	local header = Instance.new("Frame")
 	header.BackgroundTransparency = 1
 	header.Position = UDim2.fromOffset(14, 12)

@@ -1,0 +1,595 @@
+<?xml version='1.0' encoding='utf-8'?>
+<roblox version="4">
+  <Item class="Model" referent="straw_hat">
+    <Properties>
+      <string name="Name">straw_hat</string>
+      <BinaryString name="AttributesSerialize">AQAAAAYAAABBdHRhY2gCBAAAAGhlYWQ=</BinaryString>
+      <OptionalCoordinateFrame name="WorldPivotData">
+        <CFrame>
+          <X>0.00000000</X>
+          <Y>0.00000000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CFrame>
+      </OptionalCoordinateFrame>
+    </Properties>
+    <Item class="Part" referent="straw_hat_0">
+      <Properties>
+        <string name="Name">FrontBrim</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.9098039215686274</R>
+          <G>0.803921568627451</G>
+          <B>0.47058823529411764</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>3.25</X>
+          <Y>0.12</Y>
+          <Z>1.125</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.57000000</Y>
+          <Z>-1.23750000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="straw_hat_1">
+      <Properties>
+        <string name="Name">RearBrim</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.9098039215686274</R>
+          <G>0.803921568627451</G>
+          <B>0.47058823529411764</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>3.25</X>
+          <Y>0.12</Y>
+          <Z>1.125</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.57000000</Y>
+          <Z>1.23750000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="straw_hat_2">
+      <Properties>
+        <string name="Name">SideBrim</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.9098039215686274</R>
+          <G>0.803921568627451</G>
+          <B>0.47058823529411764</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.875</X>
+          <Y>0.14</Y>
+          <Z>3.6</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-1.36250000</X>
+          <Y>0.57000000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="straw_hat_3">
+      <Properties>
+        <string name="Name">SideBrim</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.9098039215686274</R>
+          <G>0.803921568627451</G>
+          <B>0.47058823529411764</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.875</X>
+          <Y>0.14</Y>
+          <Z>3.6</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1.36250000</X>
+          <Y>0.57000000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="straw_hat_4">
+      <Properties>
+        <string name="Name">HollowCrownFront</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.9098039215686274</R>
+          <G>0.803921568627451</G>
+          <B>0.47058823529411764</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>1.85</X>
+          <Y>0.85</Y>
+          <Z>0.13</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>1.06500000</Y>
+          <Z>-0.78500000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="straw_hat_5">
+      <Properties>
+        <string name="Name">HollowCrownBack</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.9098039215686274</R>
+          <G>0.803921568627451</G>
+          <B>0.47058823529411764</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>1.85</X>
+          <Y>0.85</Y>
+          <Z>0.13</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>1.06500000</Y>
+          <Z>0.78500000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="straw_hat_6">
+      <Properties>
+        <string name="Name">HollowCrownLeft</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.9098039215686274</R>
+          <G>0.803921568627451</G>
+          <B>0.47058823529411764</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.13</X>
+          <Y>0.85</Y>
+          <Z>1.44</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.86000000</X>
+          <Y>1.06500000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="straw_hat_7">
+      <Properties>
+        <string name="Name">HollowCrownRight</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.9098039215686274</R>
+          <G>0.803921568627451</G>
+          <B>0.47058823529411764</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.13</X>
+          <Y>0.85</Y>
+          <Z>1.44</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.86000000</X>
+          <Y>1.06500000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="straw_hat_8">
+      <Properties>
+        <string name="Name">RibbonFront</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.43137254901960786</R>
+          <G>0.5882352941176471</G>
+          <B>0.3137254901960784</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>1.89</X>
+          <Y>0.18</Y>
+          <Z>0.14</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.76000000</Y>
+          <Z>-0.80000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="straw_hat_9">
+      <Properties>
+        <string name="Name">RibbonBack</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.43137254901960786</R>
+          <G>0.5882352941176471</G>
+          <B>0.3137254901960784</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>1.89</X>
+          <Y>0.18</Y>
+          <Z>0.14</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.76000000</Y>
+          <Z>0.80000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="straw_hat_10">
+      <Properties>
+        <string name="Name">RibbonLeft</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.43137254901960786</R>
+          <G>0.5882352941176471</G>
+          <B>0.3137254901960784</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.14</X>
+          <Y>0.18</Y>
+          <Z>1.46</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.87500000</X>
+          <Y>0.76000000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="straw_hat_11">
+      <Properties>
+        <string name="Name">RibbonRight</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.43137254901960786</R>
+          <G>0.5882352941176471</G>
+          <B>0.3137254901960784</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.14</X>
+          <Y>0.18</Y>
+          <Z>1.46</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.87500000</X>
+          <Y>0.76000000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="straw_hat_12">
+      <Properties>
+        <string name="Name">WovenCrownTop</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.9098039215686274</R>
+          <G>0.803921568627451</G>
+          <B>0.47058823529411764</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>1.85</X>
+          <Y>0.16</Y>
+          <Z>1.7</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>1.52000000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="straw_hat_13">
+      <Properties>
+        <string name="Name">RaisedWeave</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.9607843137254902</R>
+          <G>0.8666666666666667</G>
+          <B>0.5882352941176471</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>1.45</X>
+          <Y>0.11</Y>
+          <Z>1.35</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>1.65500000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="straw_hat_14">
+      <Properties>
+        <string name="Name">RibbonBuckle</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.7647058823529411</R>
+          <G>0.6039215686274509</G>
+          <B>0.2549019607843137</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.27</X>
+          <Y>0.23</Y>
+          <Z>0.08</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.42000000</X>
+          <Y>0.76000000</Y>
+          <Z>-0.91000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+  </Item>
+</roblox>

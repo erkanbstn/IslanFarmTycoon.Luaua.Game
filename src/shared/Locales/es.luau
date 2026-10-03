@@ -667,6 +667,7 @@ return {
 	["Takılı eşyalar"] = "Objetos equipados",
 	["Asa gücü"] = "Poder del bastón",
 	["Eşyalarım"] = "Mis objetos",
+	["Bu kategoride henüz eşyan yok."] = "Aún no tienes objetos de esta categoría.",
 	["Henüz eşyan yok. Meydandaki Usta Ömer'den eşya alabilirsin."] = "Aún no tienes objetos. Compra algunos al Maestro Ömer en la plaza.",
 	["Çıkar"] = "Quitar",
 	["Tak"] = "Equipar",

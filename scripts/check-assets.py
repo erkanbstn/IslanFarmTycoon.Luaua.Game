@@ -111,6 +111,10 @@ def expected() -> dict[str, set[str]]:
         pets |= {f"Pet_{spec}_cash", f"Pet_{spec}_goods"}
     exp["Pets"] = pets
 
+    # Dükkân eşyaları (karakterde görünen model): Config/Items.luau'daki her eşya kimliği
+    items_src = read(SRC / "shared/Config/Items.luau")
+    exp["Items"] = set(re.findall(r'id = "(\w+)"', items_src))
+
     # Eklentiler ve üretim zeminleri (IslandLayout)
     layout = read(SRC / "server/World/IslandLayout.luau")
     ext_block = layout[layout.index("IslandLayout.EXTENSIONS"): layout.index("IslandLayout.SITES")]

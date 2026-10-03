@@ -667,6 +667,7 @@ return {
 	["Takılı eşyalar"] = "Equipped items",
 	["Asa gücü"] = "Staff power",
 	["Eşyalarım"] = "My items",
+	["Bu kategoride henüz eşyan yok."] = "You do not own any items in this category yet.",
 	["Henüz eşyan yok. Meydandaki Usta Ömer'den eşya alabilirsin."] = "You have no items yet. Buy some from Master Ömer in the plaza.",
 	["Çıkar"] = "Remove",
 	["Tak"] = "Equip",

@@ -12,6 +12,7 @@ local UiKit = require(script.Parent.Parent:WaitForChild("UiKit"))
 local PurchaseController = require(script.Parent.Parent.Parent:WaitForChild("Core"):WaitForChild("PurchaseController"))
 local HudCommon = require(script.Parent:WaitForChild("HudCommon"))
 local ItemText = require(script.Parent:WaitForChild("ItemText"))
+local ItemPreview = require(script.Parent:WaitForChild("ItemPreview"))
 
 type PlayerSave = GameTypes.PlayerSave
 
@@ -49,11 +50,12 @@ function ItemShopWindow.create(screenGui: Instance): Shop
 	for slotIndex, slotId in Config.ITEM_SLOT_ORDER do
 		local slot = Config.ITEM_SLOTS[slotId]
 		table.insert(tabEntries, { id = slotId, label = slot.displayName })
-		local grid = UiKit.grid(window.list, 10)
+		local grid = UiKit.autoGrid(window.list, 10, 2)
 		grid.Visible = slotIndex == 1
 		grids[slotId] = grid
 		for position, item in ItemText.itemsOfSlot(slotId) do
-			local card = UiKit.tile(grid, position, item.icon)
+			local card = UiKit.autoTile(grid, position, item.icon, { compact = true })
+			ItemPreview.mount(card.icon, item.id)
 			card.title.Text = item.displayName
 			card.detail.Text = ItemText.describe(item)
 			cards[item.id] = card
@@ -73,6 +75,7 @@ function ItemShopWindow.create(screenGui: Instance): Shop
 	local function update(state: PlayerSave)
 		for itemId, card in cards do
 			local item = Config.ITEMS[itemId]
+			ItemPreview.mount(card.icon, itemId)
 			if Inventory.owns(state, itemId) then
 				setPurchaseButton(card.action, "Sahipsin", "owned")
 			else

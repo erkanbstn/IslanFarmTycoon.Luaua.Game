@@ -25,14 +25,11 @@ return function(Inventory: any, Config: any, FarmMath: any, SaveCodec: any, Sess
 		else
 			assert(item.power == nil and effectCount == 0, `cosmetic {itemId} must not carry effects`)
 		end
-		assert(item.look and #item.look.parts > 0, `item {itemId} needs a visible look`)
+		assert(item.look, `item {itemId} needs a visible look`)
 		assert(
 			table.find({ "head", "back", "hip", "chest", "hand" }, item.look.attach),
 			`item {itemId} has an unknown attach point`
 		)
-		for _, part in item.look.parts do
-			assert(#part.size == 3 and #part.offset == 3, `item {itemId} has a malformed part`)
-		end
 	end
 	for itemId in Config.ITEMS do
 		assert(seen[itemId], `item {itemId} is missing from ITEM_ORDER`)

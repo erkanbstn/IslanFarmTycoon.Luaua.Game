@@ -667,6 +667,7 @@ return {
 	["Takılı eşyalar"] = "Angelegte Gegenstände",
 	["Asa gücü"] = "Stabkraft",
 	["Eşyalarım"] = "Meine Gegenstände",
+	["Bu kategoride henüz eşyan yok."] = "Du besitzt noch keine Gegenstände in dieser Kategorie.",
 	["Henüz eşyan yok. Meydandaki Usta Ömer'den eşya alabilirsin."] = "Du hast noch keine Gegenstände. Kaufe welche bei Meister Ömer auf dem Platz.",
 	["Çıkar"] = "Ablegen",
 	["Tak"] = "Anlegen",

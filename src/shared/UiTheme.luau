@@ -8,20 +8,20 @@ local FREDOKA = "rbxasset://fonts/families/FredokaOne.json"
 local UiTheme = {}
 
 UiTheme.Color = {
-	Panel = Color3.fromRGB(24, 26, 32),
-	Surface = Color3.fromRGB(40, 43, 52),
-	SurfaceRaised = Color3.fromRGB(52, 56, 67),
-	Stroke = Color3.fromRGB(255, 255, 255),
-	Text = Color3.fromRGB(245, 245, 245),
-	TextMuted = Color3.fromRGB(165, 171, 184),
+	Panel = Color3.fromRGB(26, 34, 66),
+	Surface = Color3.fromRGB(40, 56, 104),
+	SurfaceRaised = Color3.fromRGB(58, 80, 142),
+	Stroke = Color3.fromRGB(190, 215, 255),
+	Text = Color3.fromRGB(250, 250, 255),
+	TextMuted = Color3.fromRGB(184, 202, 236),
 	Cream = Color3.fromRGB(255, 244, 222),
-	Gold = Color3.fromRGB(255, 200, 70),
-	Green = Color3.fromRGB(62, 180, 96),
-	GreenDark = Color3.fromRGB(44, 100, 62),
-	Orange = Color3.fromRGB(222, 142, 56),
-	Red = Color3.fromRGB(215, 75, 75),
-	Blue = Color3.fromRGB(76, 112, 205),
-	Disabled = Color3.fromRGB(66, 70, 80),
+	Gold = Color3.fromRGB(255, 205, 60),
+	Green = Color3.fromRGB(48, 196, 104),
+	GreenDark = Color3.fromRGB(34, 120, 76),
+	Orange = Color3.fromRGB(255, 150, 52),
+	Red = Color3.fromRGB(238, 78, 92),
+	Blue = Color3.fromRGB(72, 132, 245),
+	Disabled = Color3.fromRGB(72, 84, 118),
 }
 
 UiTheme.Font = {

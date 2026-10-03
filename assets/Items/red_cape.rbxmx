@@ -1,0 +1,443 @@
+<?xml version='1.0' encoding='utf-8'?>
+<roblox version="4">
+  <Item class="Model" referent="red_cape">
+    <Properties>
+      <string name="Name">red_cape</string>
+      <BinaryString name="AttributesSerialize">AQAAAAYAAABBdHRhY2gCBAAAAGJhY2s=</BinaryString>
+      <OptionalCoordinateFrame name="WorldPivotData">
+        <CFrame>
+          <X>0.00000000</X>
+          <Y>0.00000000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CFrame>
+      </OptionalCoordinateFrame>
+    </Properties>
+    <Item class="Part" referent="red_cape_0">
+      <Properties>
+        <string name="Name">CapeFold</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.7450980392156863</R>
+          <G>0.1568627450980392</G>
+          <B>0.19607843137254902</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.56</X>
+          <Y>2.8</Y>
+          <Z>0.075</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.79500000</X>
+          <Y>-0.10000000</Y>
+          <Z>0.80000000</Z>
+          <R00>0.9986295348</R00>
+          <R01>0.0523359562</R01>
+          <R02>0.0000000000</R02>
+          <R10>-0.0518266263</R10>
+          <R11>0.9889109408</R11>
+          <R12>-0.1391731010</R12>
+          <R20>-0.0072837573</R20>
+          <R21>0.1389823691</R21>
+          <R22>0.9902680687</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="red_cape_1">
+      <Properties>
+        <string name="Name">CapeFold</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.7215686274509804</R>
+          <G>0.1568627450980392</G>
+          <B>0.19607843137254902</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.56</X>
+          <Y>2.8</Y>
+          <Z>0.075</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.26500000</X>
+          <Y>-0.10000000</Y>
+          <Z>0.86000000</Z>
+          <R00>0.9986295348</R00>
+          <R01>0.0523359562</R01>
+          <R02>0.0000000000</R02>
+          <R10>-0.0518266263</R10>
+          <R11>0.9889109408</R11>
+          <R12>-0.1391731010</R12>
+          <R20>-0.0072837573</R20>
+          <R21>0.1389823691</R21>
+          <R22>0.9902680687</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="red_cape_2">
+      <Properties>
+        <string name="Name">CapeFold</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.6980392156862745</R>
+          <G>0.1568627450980392</G>
+          <B>0.19607843137254902</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.56</X>
+          <Y>2.8</Y>
+          <Z>0.075</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.26500000</X>
+          <Y>-0.10000000</Y>
+          <Z>0.80000000</Z>
+          <R00>0.9986295348</R00>
+          <R01>-0.0523359562</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0518266263</R10>
+          <R11>0.9889109408</R11>
+          <R12>-0.1391731010</R12>
+          <R20>0.0072837573</R20>
+          <R21>0.1389823691</R21>
+          <R22>0.9902680687</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="red_cape_3">
+      <Properties>
+        <string name="Name">CapeFold</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.6745098039215687</R>
+          <G>0.1568627450980392</G>
+          <B>0.19607843137254902</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.56</X>
+          <Y>2.8</Y>
+          <Z>0.075</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.79500000</X>
+          <Y>-0.10000000</Y>
+          <Z>0.86000000</Z>
+          <R00>0.9986295348</R00>
+          <R01>-0.0523359562</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0518266263</R10>
+          <R11>0.9889109408</R11>
+          <R12>-0.1391731010</R12>
+          <R20>0.0072837573</R20>
+          <R21>0.1389823691</R21>
+          <R22>0.9902680687</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="red_cape_4">
+      <Properties>
+        <string name="Name">ShoulderMantle</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.5411764705882353</R>
+          <G>0.10980392156862745</G>
+          <B>0.16862745098039217</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.65</X>
+          <Y>0.22</Y>
+          <Z>0.23</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.55000000</X>
+          <Y>1.27000000</Y>
+          <Z>0.68000000</Z>
+          <R00>0.9781476007</R00>
+          <R01>0.2079116908</R01>
+          <R02>0.0000000000</R02>
+          <R10>-0.2079116908</R10>
+          <R11>0.9781476007</R11>
+          <R12>-0.0000000000</R12>
+          <R20>-0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="red_cape_5">
+      <Properties>
+        <string name="Name">BorderBraid</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.8666666666666667</R>
+          <G>0.592156862745098</G>
+          <B>0.24313725490196078</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.07</X>
+          <Y>2.64</Y>
+          <Z>0.08</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-1.00000000</X>
+          <Y>-0.09000000</Y>
+          <Z>1.05000000</Z>
+          <R00>0.9986295348</R00>
+          <R01>0.0523359562</R01>
+          <R02>0.0000000000</R02>
+          <R10>-0.0518266263</R10>
+          <R11>0.9889109408</R11>
+          <R12>-0.1391731010</R12>
+          <R20>-0.0072837573</R20>
+          <R21>0.1389823691</R21>
+          <R22>0.9902680687</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="red_cape_6">
+      <Properties>
+        <string name="Name">HemBinding</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.8666666666666667</R>
+          <G>0.592156862745098</G>
+          <B>0.24313725490196078</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.91</X>
+          <Y>0.13</Y>
+          <Z>0.1</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.50000000</X>
+          <Y>-1.49000000</Y>
+          <Z>1.02000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="red_cape_7">
+      <Properties>
+        <string name="Name">ShoulderMantle</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.5411764705882353</R>
+          <G>0.10980392156862745</G>
+          <B>0.16862745098039217</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.65</X>
+          <Y>0.22</Y>
+          <Z>0.23</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.55000000</X>
+          <Y>1.27000000</Y>
+          <Z>0.68000000</Z>
+          <R00>0.9781476007</R00>
+          <R01>-0.2079116908</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.2079116908</R10>
+          <R11>0.9781476007</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="red_cape_8">
+      <Properties>
+        <string name="Name">BorderBraid</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.8666666666666667</R>
+          <G>0.592156862745098</G>
+          <B>0.24313725490196078</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.07</X>
+          <Y>2.64</Y>
+          <Z>0.08</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1.00000000</X>
+          <Y>-0.09000000</Y>
+          <Z>1.05000000</Z>
+          <R00>0.9986295348</R00>
+          <R01>-0.0523359562</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0518266263</R10>
+          <R11>0.9889109408</R11>
+          <R12>-0.1391731010</R12>
+          <R20>0.0072837573</R20>
+          <R21>0.1389823691</R21>
+          <R22>0.9902680687</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="red_cape_9">
+      <Properties>
+        <string name="Name">HemBinding</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.8666666666666667</R>
+          <G>0.592156862745098</G>
+          <B>0.24313725490196078</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.91</X>
+          <Y>0.13</Y>
+          <Z>0.1</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.50000000</X>
+          <Y>-1.49000000</Y>
+          <Z>1.02000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="red_cape_10">
+      <Properties>
+        <string name="Name">CapeClasp</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>1.0</R>
+          <G>0.7843137254901961</G>
+          <B>0.23529411764705882</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.28</X>
+          <Y>0.22</Y>
+          <Z>0.1</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>1.28000000</Y>
+          <Z>0.85000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+  </Item>
+</roblox>

@@ -55,6 +55,11 @@ Sıra: İstek 6'dan sonra (aynı bekleme sırası). Kullanıcı: "Hayvanların �
 - Su hayvanlarında (balık/`SwimDepthOffset>0`) zemin yok: aynı model su yüzeyinde (y=0 = su seviyesi) yatık oval olarak kullanılacak; ek bir şey gerekmez, ama balık modelinin üzerinde kötü görünmeyeceğini düşün (ince, düşük opaklık).
 **B) Para kazanma animasyonu.** Bugün para toplama platformunda (`src/client/Interaction/CollectorGuide.client.luau`) parıltı + para patlaması + yükselen "+$X" yazısı var; hayvan başına gelir göstergesi ayrıca yok. İstek: bunu **daha ayırt edici/farklı** bir görünüme çevir. Ne istediğini netleştirmek için önce ne olduğunu oku; öneri ve itirazını "GPT soruları"na yaz. Önerim: (1) `client-assets/Coin/` altında altın para modelleri (`Coin_Small`, `Coin_Stack`, `CoinBurst_Chunk`: ince yassı silindir/yuvarlak Part, kenar+yüz detayı), toplamada miktara göre (küçük/orta/büyük) değişen, platforma doğru kavis çizerek **kasa/sayaç yönüne uçan** paralar, (2) toplanan miktar eşiklerine göre 3 görünüm (küçük/orta/büyük gelir), (3) "+$X" yazısı kod/WorldUi'de kalır (model yazı içermez). Parça adları ve ölçü şartnamesini teslim notuna yaz; animasyon yolu/zamanlaması benim.
 Hayvan başına gelir (her hayvanın üstünde kısa "+$X") eklemek istersen bunu önerisi olarak yaz; kullanıcıya soracağım.
+### [03.10 17:40] İstek 8 — Kodla çizilen son iki yapı: satın alma pedi ve yapım alanı tabelası — KULLANICI İSTEĞİ
+Kullanıcı: "Kodla çizdiğimiz kalan şeyleri de modelleyelim, koddan kurtulalım." Tarama sonucu (src/ altında kodla çizilen görünür geometri) şu ikisi **modele çevrilebilir** çıktı; kalanlar parametrik/dinamik olduğu için kodda kalıyor (aşağıdaki not).
+**A) `BuyPad` — satın alma pedi** (`src/server/Services/BuyPadService.luau`, `buildPad`/`disc`). Bugün her pedin 4 parçası kodla çiziliyor: taş kaide `Pad_<id>` (Ø5×0.5, Cobblestone, RGB 122,118,108), Neon halka `Ring` (Ø4.4×0.12, y=0.56), iç disk `Inner` (Ø3.7×0.16, y=0.6, koyu SmoothPlastic RGB 58,54,48), havada dönen altın para `Coin` (Ø1.7×0.22, y=2.3, Metal, altın). Dosya: `assets/FacilityProps/BuyPad.rbxmx`, pivot = ped zemin merkezi (y=0), WorldPivotData=(0,0,0), PrimaryPart yok. Parça adları **birebir**: `Pad`, `Ring`, `Inner`, `Coin` (bugünkü `Pad_<yükseltmeId>` adını kod verir). Kurallar: Ring Neon + beyaz/açık renk (renk istemcide Disabled/yeşil olarak verilir; modelde gri-nötr bırak), Coin ayrı parça (kod onu döndürür/yükseltir: Cylinder, ekseni X; yüz detayı için ayrı parça eklemeyin ya da `Coin` adlı tek parça + yüz parçaları `CoinFace_N` olsun ve hepsi birlikte döneceğini düşün: yalnız `Coin` ve `CoinFace_N` adlı parçalar döner), diğer parçalar sabit. Görsel olarak mevcut ölçülerle aynı ya da biraz zengin (kenar halkası, taş ayrıntısı) olabilir; toplam ≤ 14 parça; çarpışma/sorgu/temas kapalı (hepsi `CanCollide=false`). Kodda kalan: öznitelikler (`UpgradeId`, `Cost`, `BasePos`), etiketler (`BuyPad`, `BuyPadSpin`), renk geçişi ve prompt.
+**B) Yapım alanı tabelası — `BuildSite_Unbuilt`'e gömülmesi** (`src/server/Presentation/UpgradeSites.luau`, `buildSite`). Bugün model yalnız toprak/kazık/şeritleri içeriyor; fiyat tabelasının direği `SignPole` (0.4×6×0.4, Wood, RGB 110,80,50, konum (0, 3, −SITE_HALF−1.4), **CanCollide=true**) ve tahtası `SiteSign` (5.6×1.9×0.3, WoodPlanks, RGB 85,60,40, konum (0, 6.6, −SITE_HALF−1.4)) kodla çiziliyor. `SITE_HALF` değerini koddan oku. Mevcut `assets/FacilityProps/BuildSite_Unbuilt.rbxmx` modeline bu iki parçayı **aynı adlarla** ekle (tahta ön yüzü −Z/`Front`, yazı koddan WorldUi.sign ile gelir, modele yazı koyma); direğe ince taban/halat, tahtaya çerçeve gibi ayrıntı eklenebilir ama ön yüz yazı alanı düz ve boş kalmalı (tahta rengi koyu kalsın: yazı plaka üstünde zaten koyu). Direk çarpışmalı kalsın, tahta çarpışmasın. Teslimde sahnedeki bugünkü konum/ölçüyle uyumu yaz; ben kodu silip yalnızca `SiteSign`'ı bulup yazıyı basarım.
+**Kodda kalacaklar ve nedenleri (bilgi):** taş yol şeritleri (parametrik uzunluk/genişlik), çim yamaları (seed'li dağılım), ada/meydan zemini ve plaj/bölge zeminleri (yarıçapa göre ölçekli tek parça), mevsim yaprak/dal havuzları, kıyı buzu, yağış kapsayıcıları, kurulum kıvılcımı/tozu, fener halesi (dinamik istemci efektleri), dağlar/deniz tabanı/kıyı kayaları (Terrain, parça değil), hata yedekleri (eksik model yer tutucusu). Ada doğma noktası (`Spawn`) için yeni model gerekmiyor: mevcut `SpawnPlaza` kullanıldı.
 ### [02.10] İstek 3 — Ana ada tabelası ve para toplama platformu
 Kod: `src/server/World/IslandBuilder.luau` (satır ~375-430).
 - `SignModels/PlotSign`: ana ada giriş tabelası. Parçalar: `PlotSign` (tahta 9×2.8×0.5, koyu ahşap RGB(85,60,40), WoodPlanks, çarpışmaz, yazı yüzü Front+Back), iki `SignFrame` (9.4×0.3×0.7, y=±1.55, RGB(140,100,60), Wood), iki `SignPost` (0.7×18×0.7, x=±5.4, tahtanın 16 stud altından zemine). Pivot: iki direğin ortası, zemin. Tahta zeminden 16 stud yukarıda durmalı (kod `SURFACE_Y + 16`).
@@ -80,6 +85,22 @@ Claude'un taramasında kodda hâlâ çizilen görünür geometri: yalnızca zemi
 | SeasonModels, Rock/Stump/Mushroom/Palm/Birch/Reed/Cattail/Pumpkin/Sunflower_Single, Hub_Statue/Banner/Flag | bağlandı (kullanıcı onayı: haritaya yerleştir) | adalara `Nature.scatterProps` ile serpiştirilir (kıyıda kaya/saz/palmiye, içeride kütük/mantar/kabak/ayçiçeği/huş); kar başlığı ağaçlara gizli oturur, kardan adam serpiştirilir, client karlı mevsimde açar; meydan heykel/bayrak/flama `HubBuilder`'da (Haritayı Kur sonrası görülür) |
 
 ## Claude cevapları
+
+### [03.10 17:40] Kod geometri taraması; ada doğma platformu SpawnPlaza
+
+- Ada `Spawn` (SpawnLocation) artık görünmez (ince, `Transparency=1`); görünüm `HubProps/SpawnPlaza` (zemin kotu korunur: testler `Position.Y − Size.Y/2` ile kara kotunu okur). Harita sürümü 57; haritayı kurmak/doğrulamak Studio'da bende.
+- Tarama sonucu kodla çizilen kalan görünür geometri: satın alma pedi (BuyPad) ve yapım alanı tabelası (SignPole/SiteSign) → İstek 8; gerisi parametrik/dinamik/Terrain olduğu için kodda kalıyor (nedenleri İstek 8'de).
+
+### [03.10 17:10] 38 eşya modeli koda bağlandı — görsel kabul GPT'de
+
+- `assets/Items/` 38 dosya geldi; `Config/Items.luau`'daki 38 kimlikle birebir eşleşiyor, her modelin `Attach` özniteliği eşyanın `look.attach` değeriyle tutarlı. `check-assets` 743 görünüm, 0 eksik/0 bozuk (Items 38/38).
+- Kod (bende, bitti): `InventoryService.buildLook` artık `ModelAssets.find("Items", id)` klonlar; parçalar çapa CFrame'iyle konur, `Anchored=false`, `Massless`, çarpışma/sorgu/gölge kapalı, parça→çapa WeldConstraint. Eski `item.look.parts` çizimi ve `Types.ItemPart` silindi (`look = { attach }` kaldı). Model yoksa eşya çizilmez, bir kez `warn` verir. `tests/inventory.spec` ve harness güncellendi; verify yeşil.
+- **Bende yapılmayacak (kullanıcı kararı: görsel testi ben yapmıyorum) — GPT'ye pas:**
+  1. Play'de (Rojo bağlı) 38 eşyayı Yönetici → Test → "Bütün eşyaları ver" ile alıp slotlara takarak canlı görünüm kabulü: duruş/ölçü, el kavraması (asa/çekiç), baş/sırt/göğüs oturması, R6 ve R15'te uzak/orta/yakın kamera.
+  2. Avatar fiziğini etkilemediğini doğrula (zıplama/yürüme, çarpışma, takılıp çıkarma sırasında kopan/yüzen parça).
+  3. Sorun bulursan yalnız model dosyasını (`assets/Items/<id>.rbxmx`) düzelt ve "Teslimler"e yaz; ofset/kod gerektiren bir şey varsa "GPT soruları"na yaz, ben kodu değiştiririm.
+  4. Önceki bekleyen görsel kabuller de aynı yolla sende: yeşil pet kulak+yüz, ırk aksesuarı görünürlüğü, hayvan yüzey desteği, para animasyonu, mevsim zemin ışıması, yeni canlı UI paleti/pencere başlık bandı (kullanıcıya yakışmıyorsa renk önerini yaz).
+- Bende kalan (görsel değil): harita/MAP_VERSION değişikliği yok; commit için kullanıcı onayı bekleniyor.
 
 ### [03.10 16:10] Yeşil pet kulakları alındı; 38 eşya sözleşmesi onaylandı
 
@@ -181,6 +202,45 @@ Evet, ikisini de hazırla: (1) dört ahır modeline (`Barn_Lv1-4`) mevcut ölç�
 Not (sözleşme): `PrimaryPart` olan modellerde pivot WorldPivotData değil PrimaryPart merkezidir (Roblox böyle okur). `DockDeck_5` ve `ZoneFence_Corner` bu yüzden "pivot yüzeyde" gibi görünse de merkezleri pivot sayıldı; kodda buna göre yerleştirildi. Yeni modellerde mümkünse PrimaryPart verme (hayvan/pet/kuş/balık/denizanası hariç) ya da pivotu PrimaryPart merkezine koy.
 
 ## Teslimler (GPT)
+
+### [03.10 16:33] Kullanıcı izniyle envanter kartları, kategori sekmeleri ve gerçek model önizlemeleri
+
+- Kullanıcı bu tur GPT'nin oyun koduna girmesini ve subagent kullanımını açıkça istedi. İki alt ajanla ayrık UI dosyaları düzenlendi: InventoryWindow, ItemShopWindow, Kit/Grid ve yeni Hud/ItemPreview. Oyun dengesi/kayıt/Remote/sunucu kararları değiştirilmedi.
+- Takılı ve Eşyalarım kartları, ayrıca Eşya Dükkânı, iki sütunlu autoGrid + opt-in compact autoTile kullanıyor. Sabit 88px açıklama rezervi kalktı; başlık/etki metni kadar yükseklik, 44px aksiyon hedefi korunuyor. Diğer panellerin kartları aynı. Boş slotlarda gereksiz uzun gövde yok.
+- Eşyalarım: Tümü + Alet/Asa/Muska/Başlık/Sırt; kategori sahip olunan eşyalara uygulanıyor, boş kategori mesajı beş dile çevrildi. Live tıklama testleri: 4 alet, 8 asa, 11 muska, 8 başlık, 7 sırt; boş kategori 0 eşya + doğru mesaj.
+- 38 eşyaya modelden ViewportFrame önizlemesi. default.project.json ReplicatedStorage.ItemPreviews kaynağı aynı assets/Items; dosya çoğaltılmadı. ItemPreview kamerayı model sınırlarına/önizleme en-boy oranına uydurur, sırt eşyasına arka açı kullanır. Statik, per-frame animasyon yok; aynı kimlik yeniden klonlanmaz, değişen/boş slotun eski önizlemesi silinir. Kod yeni eşya geometrisi çizmez.
+- Studio Play'de geçici GPT_UI_QA paneliyle 76 önizleme (dükkân + envanter), kategori filtreleri ve yakın ekran görüntüleri incelendi. Sahiplik yalnız test paneline verilen yerel kopyada değiştirildi; gerçek kayıt/hesap/envanter aynı. Son kamera sürümü geçici modül üzerinden canlı doğrulandı. QA paneli ve modülü silindi; başlattığımız Play durdurulup Edit'e dönüldü. Yeni kalıcı UI için Rojo + yeni Play.
+- StyLua, Selene 0/0/0 (cached API dump kullanıldı), locales 1199 anahtar, mimari, tip analizi (yeni bulgu 0), Rojo 7.4.4 build geçti; assets 743/0/0. Tip kontrolü Rokit wrapper home hatası yüzünden doğrudan Rojo binary ile çalıştırıldı, kontrol kodu/taban değiştirilmedi.
+- Son Claude 17:40 notu okundu: SpawnPlaza/harita57 çalışması Claude'da. İstek8 BuyPad + BuildSite tabela modelleri ayrı model işi olarak bekliyor; bu UI turunda harita/Terrain/MAP_VERSION/Haritayı Kur/save/publish/commit/push yapılmadı. R15 asa–taç açık bulgusu önceki notta duruyor.
+
+### [03.10 16:21] Canlı eşya/pet kontrolü ve geçici test alanının temizliği
+
+- Gerçek InventoryService.applyVisuals yükleyicisiyle kullanıcı envanterine/kaydına dokunmadan geçici karakterler test edildi: R15 38 eşya/492 parça, R6 38 eşya/492 parça; bağlantı ve fizik ayarlarında 0 hata. Test hesabı yerine yalnız geçici karakterlere bağlı sentetik envanter kullanıldı; PlayerDataService.tryGet geçici yönlendirmesi her çağrı sonunda geri alındı, kod dosyası değişmedi.
+- R6/R15 yürüyüşü yaklaşık 5.13 stud, zıplama yükselişi 7.49/7.26 stud; sağlık 100, weld sapması 0. Orta/yakın ön ve arka kamera görüntülerinde baş, göğüs, sırt, araç ve asa grupları incelendi. Bu sonuç tüm animasyon pozları/aksesuar kombinasyonlarının kabulü değildir.
+- Yeşil frog_cash/frog_goods petlerin çift kulakları ve öndeki gözleri görsel olarak doğrulandı. Panda/rakun siyah gözleri siyah maskede kayboluyordu: Pet_panda_cash/goods ve Pet_raccoon_cash/goods dosyalarına göz arkasında açık renk EyeWhite çerçeveleri eklendi (2/model, toplam 8 Part; panda 20, rakun 22). Root/pivot/ön yön/çarpışma korunuyor; mesh yok. Canlı ön görüntüde göz ayrımı düzeldi. Rojo + yeni Play kopyaları kullanır.
+- Goat/horse/cow/turbot yetişkin T4 aksesuarları temsilî önizlemede kontrol edildi; görünürlük uygun. UI paleti/pencere metinleri okunabilir. Hayvanların tüm yaşlarında yüzey desteği, para animasyonu ve bütün hava/kalite seçenekleri bu tur tamamlanmış sayılmıyor.
+- Birlikte takma testinde diamond_hammer + season_staff_inf + income_charm_3 + golden_crown + golden_wings: R6 slotlar arası kesişme yok; R15 GetPartsInPart tam geometri taramasında Equip_head/Equip_staff kesişmesi var. Play kapandığı için hangi alt parçaların kesiştiği ölçülemedi; asa/taç için rastgele model kaydırması yapılmadı. Bu bulgu açık, tam canlı kabul verilmedi.
+- Workspace.GPT_ItemQA_Runtime yalnız Play içinde yaratılmıştı; oturum kapanınca kayboldu. Edit kontrolü: GPT_ItemQA_Runtime yok, ModelBench/IslandTest/GPT*/TestBench kökleri yok. Ana harita silinmedi; Terrain/yerleşim/MAP_VERSION/Haritayı Kur/save/publish/commit/push yok. Geçici karakterler, yardımcı taban/ışıklar ve pet/ırk önizlemelerinden sahnede kalan yok.
+- Son check-assets: 743 beklenen görünüm, 0 eksik, 0 bozuk.
+
+### [03.10 16:02] 38 eşya entegrasyonu — Studio şablon kabulü geçti, canlı kabul bekliyor
+
+- 17:10 notun alındı. Salt-okuma Studio Edit denetiminde `ServerStorage.Assets.Items`: **38 model, 492 BasePart**, gerçek `GetAttribute("Attach")` değerlerinin tamamı geçerli; PrimaryPart yok; tüm parçalar Massless ve CanCollide/CanQuery/CanTouch=false, hata **0**. Böylece binary attribute encoding'in Studio'da gerçekten açıldığı doğrulandı.
+- Yerel check-assets **743/0/0**. InventoryService kaynak klonlama/çapa yerleştirme/unanchor/weld akışı incelendi; dosyalarımız doğrudan BasePart çocukları olduğu için GetChildren döngüsüyle uyumlu.
+- Studio şu an **Edit** modunda; takılı avatar/yürüme/zıplama, R6/R15, pet/ırk/zemin/para/UI canlı kabulü yapılmış sayılmıyor. Sahneye test kopyaları, kullanıcı hesabına yönetici eşyaları veya kayıt verisi yazılmadı; oyun kodu/harita/kayıt değişmedi. Görsel kabul sorumluluğunu devrettiğin not edildi; Play oturumunda kalanlar ayrıca kontrol edilmeli.
+
+### [03.10 15:50] 38 dükkân eşyası teslim — 492 parça, mesh yok
+
+- Onayladığın 16:10 sözleşmesiyle `assets/Items/<itemId>.rbxmx` içinde **38/38 model** hazır. Üç subagent ayrı grupları üretti; GPT kök ajanı tüm dosyaları birlikte denetledi. Oyun kodu, fiyat/etki/kimlik/kayıt, Studio sahnesi değiştirilmedi.
+- **4 çekiç, 42 parça (hip):** copper_hammer=10, iron_hammer=10, gold_hammer=11, diamond_hammer=11. Bakır tokmak/perçin, demir çift pençe, altın süslü peen/mühür, elmas kama kristal baş. Eski sap merkezi (0,-.85,.62), baş(.95,-.85,.62) korundu.
+- **8 asa, 124 parça (hand):** season_staff_1/3/5/inf=12/14/16/19; weather_staff_1/3/5/inf=13/16/15/19. Mevsim: tomurcuk/yaprak/sonbahar/farklı mevsim taşları. Hava: bulut+damla/ay/yıldırım/güneş ışınları. Sap 5Y, merkez(0,1.3,0), baş(0,4.1,0); baş-sap bağlantısı var.
+- **11 göğüs eşyası, 98 parça (chest):** storage_charm_1/2=9/10 (sandık/kasa); growth_charm_1/2=6/11 (filiz/çiçek); income_charm_1/2/3=8/8/11 (başak/para/güneş); barn_charm_1/2=7/11 (gerçek anahtar); contract_charm_1/2=7/10 (kapak/sayfa/mühürlü defter). Arka yüzler standart HRP ön yüzünden dışarıda; en büyük muska .95×.95×.19 altında.
+- **8 başlık, 110 parça (head):** farmer_hat14, flat_cap9, chicken_hat14, cowboy_hat15, golden_crown14, beanie13, straw_hat15, flower_crown16. Taç ortaları boş; şapkalar kabuk biçiminde, vizör/bant/ibik/çan/çiçek detayları var. Baş yüzünü kapatan yeni geometri eklenmedi.
+- **7 sırt eşyası, 118 parça (back):** backpack15, red_cape11, angel_wings19, golden_wings19, harvest_basket20, leaf_cloak15, peacock_tail19. Çanta cep/kayış, pelerin kat/kenar, kanat kademeli tüy, sepet örgü/hasat, yaprak katları, tavus gözbenekleri. Altın kanatlar daha geniş (6.02X; melek5.21X), standart avatar üstünde diğer slotlarla örtüşme canlı kabulünde kontrol edilmeli.
+- Her model identity `WorldPivotData`, PrimaryPart yok, çapa yerel CFrame. Gerçek `AttributesSerialize` ile **Attach string**: hip/hand/chest/head/back; binary decode count/key/type/value ve Rojo build doğrulandı. Part/WedgePart/eşit Ball/Cylinder; mesh/ışık/Script/GUI/Weld yok. Kaynak Anchored=true, Massless=true, CanCollide/CanQuery/CanTouch/CastShadow=false. Yükleyici Anchored=false + çapaya WeldConstraint kurmalı; yoksa karakterle taşınmaz.
+- `docs/ITEM_MODEL_TESLIMI.csv`: tüm kimlik/Attach/parça/XYZ listesi. Üreticiler `docs/model-ureticileri/generate_item_tools.py`, `generate_item_charms.py`, `generate_item_wearables.py`. Kök QA `review_item_models.py`; bağımsız primitive önizlemelerinde üç grup gözden geçirildi (Roblox render/Play testi sayılmaz).
+- **38 kapsam, Attach, pivot, isim, bütçe, ortonormal dönüş, fizik ve eşit Ball** hedefli denetimi geçti; genel check-assets **705/0/0**, tüm yeni XML'ler biçim taramasında geçti. Items henüz expected listesine eklenmemiş; 38 beklentiyi ekleyince toplam **743** olmalı. Rojo7.4.4 tüm38model build başarılı.
+- Salt-okuma Studio mevcut Play Server Items sayısı **0** (oturumdaki kopyaya henüz gelmemiş); canlı GetAttribute/bağlantı/ölçek/slot birlikte takma kabulü yapılmış sayılmaz. Rojo Edit senkronu sonrası Play yeniden başlat. InventoryService'in eski `item.look.parts` geometri çizimini bunların yüklenmesine geçir; model eksikse kodla yedek çizme. Metin, etkileşim, weld, ölçek ve efektlerin kodda kalması normaldir.
 
 ### [03.10 15:26] Yeşil pet kulakları — önce bu düzeltme, sonra eşya planına dönüş
 
@@ -721,6 +781,10 @@ Durum: görsel pilot, henüz üretim ikamesi değil. Kanatlar `Sail` + `Hub` ola
 _(Yeni teslim: ad, dosya yolu, parça sayısı, pivot, kısa not. Önceki teslim raporları silindi; modeller `assets/`, `client-assets/`, üreticiler `tools/models/` altındadır.)_
 
 ## GPT soruları
+
+### [03.10 16:21] Açık canlı kabul: R15 asa–taç kesişmesi
+
+Gerçek eşya yükleyicisiyle R15 season_staff_inf + golden_crown birlikte takılınca GetPartsInPart taraması Equip_head/Equip_staff kesişmesi verdi; aynı R6 setinde yok. Kullanıcı oturumu Edit'e döndüğü için alt parça tanısı ve düzeltme kabulü tamamlanmadı. Yeni Play'de alt parçaları ölçüp model düzeltmesi yapılmalı; ardından 8 asa × 8 başlık kombinasyonu R6/R15'te kontrol edilmeli. Kod geometrisi eklemeyelim. Dört panda/rakun dosyasındaki yeni EyeWhite çerçeveleri Rojo ile gelsin; yükleyici değişikliği gerekmiyor. Bu kayıt diğer canlı kabul maddelerini kapatmıyor.
 
 ### [03.10 15:25] Kullanıcı isteği — dükkân eşyalarının 38 farklı mesh'siz tasarımı
 

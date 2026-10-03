@@ -1,0 +1,519 @@
+<?xml version='1.0' encoding='utf-8'?>
+<roblox version="4">
+  <Item class="Model" referent="beanie">
+    <Properties>
+      <string name="Name">beanie</string>
+      <BinaryString name="AttributesSerialize">AQAAAAYAAABBdHRhY2gCBAAAAGhlYWQ=</BinaryString>
+      <OptionalCoordinateFrame name="WorldPivotData">
+        <CFrame>
+          <X>0.00000000</X>
+          <Y>0.00000000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CFrame>
+      </OptionalCoordinateFrame>
+    </Properties>
+    <Item class="Part" referent="beanie_0">
+      <Properties>
+        <string name="Name">KnitShellFront</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.7843137254901961</R>
+          <G>0.23529411764705882</G>
+          <B>0.27450980392156865</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>2.02</X>
+          <Y>0.46</Y>
+          <Z>0.15</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.82000000</Y>
+          <Z>-0.82500000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="beanie_1">
+      <Properties>
+        <string name="Name">KnitShellBack</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.7843137254901961</R>
+          <G>0.23529411764705882</G>
+          <B>0.27450980392156865</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>2.02</X>
+          <Y>0.46</Y>
+          <Z>0.15</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.82000000</Y>
+          <Z>0.82500000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="beanie_2">
+      <Properties>
+        <string name="Name">KnitShellLeft</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.7843137254901961</R>
+          <G>0.23529411764705882</G>
+          <B>0.27450980392156865</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.15</X>
+          <Y>0.46</Y>
+          <Z>1.5</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.93500000</X>
+          <Y>0.82000000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="beanie_3">
+      <Properties>
+        <string name="Name">KnitShellRight</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.7843137254901961</R>
+          <G>0.23529411764705882</G>
+          <B>0.27450980392156865</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.15</X>
+          <Y>0.46</Y>
+          <Z>1.5</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.93500000</X>
+          <Y>0.82000000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="beanie_4">
+      <Properties>
+        <string name="Name">RolledCuffFront</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.6078431372549019</R>
+          <G>0.1568627450980392</G>
+          <B>0.21176470588235294</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>2.09</X>
+          <Y>0.21</Y>
+          <Z>0.18</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.63000000</Y>
+          <Z>-0.85000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="beanie_5">
+      <Properties>
+        <string name="Name">RolledCuffBack</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.6078431372549019</R>
+          <G>0.1568627450980392</G>
+          <B>0.21176470588235294</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>2.09</X>
+          <Y>0.21</Y>
+          <Z>0.18</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.63000000</Y>
+          <Z>0.85000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="beanie_6">
+      <Properties>
+        <string name="Name">RolledCuffLeft</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.6078431372549019</R>
+          <G>0.1568627450980392</G>
+          <B>0.21176470588235294</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.18</X>
+          <Y>0.21</Y>
+          <Z>1.52</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.95500000</X>
+          <Y>0.63000000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="beanie_7">
+      <Properties>
+        <string name="Name">RolledCuffRight</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.6078431372549019</R>
+          <G>0.1568627450980392</G>
+          <B>0.21176470588235294</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.18</X>
+          <Y>0.21</Y>
+          <Z>1.52</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.95500000</X>
+          <Y>0.63000000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="beanie_8">
+      <Properties>
+        <string name="Name">SoftCapTop</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.7843137254901961</R>
+          <G>0.23529411764705882</G>
+          <B>0.27450980392156865</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>1.99</X>
+          <Y>0.24</Y>
+          <Z>1.78</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>1.16000000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="beanie_9">
+      <Properties>
+        <string name="Name">GatheredTop</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.8666666666666667</R>
+          <G>0.30196078431372547</G>
+          <B>0.3333333333333333</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>1.48</X>
+          <Y>0.15</Y>
+          <Z>1.28</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>1.34500000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="beanie_10">
+      <Properties>
+        <string name="Name">PomPom</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.9803921568627451</R>
+          <G>0.9803921568627451</G>
+          <B>0.9803921568627451</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.55</X>
+          <Y>0.55</Y>
+          <Z>0.55</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>1.69000000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="beanie_11">
+      <Properties>
+        <string name="Name">KnitRib</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.8901960784313725</R>
+          <G>0.3764705882352941</G>
+          <B>0.39215686274509803</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.04</X>
+          <Y>0.38</Y>
+          <Z>0.055</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.55000000</X>
+          <Y>0.90000000</Y>
+          <Z>-0.93000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="beanie_12">
+      <Properties>
+        <string name="Name">KnitRib</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.8901960784313725</R>
+          <G>0.3764705882352941</G>
+          <B>0.39215686274509803</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.04</X>
+          <Y>0.38</Y>
+          <Z>0.055</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.55000000</X>
+          <Y>0.90000000</Y>
+          <Z>-0.93000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+  </Item>
+</roblox>

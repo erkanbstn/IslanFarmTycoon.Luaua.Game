@@ -19,6 +19,7 @@ local PlotService = require(script.Parent:WaitForChild("PlotService"))
 local EconomyService = require(script.Parent:WaitForChild("EconomyService"))
 local RateLimiter = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("RateLimiter"))
 local Metrics = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("Metrics"))
+local ModelAssets = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("ModelAssets"))
 
 local InventoryService = {}
 
@@ -52,41 +53,43 @@ local function attachPart(character: Model, attach: string): BasePart?
 	return if found and found:IsA("BasePart") then found else nil
 end
 
+-- Eşya modeli `assets/Items/<id>`: parçalar çapa parçanın yerel uzayında yazılmıştır (çapa = attachPart); burada klonlanır,
+-- fizikten arındırılır (Massless, çarpışma/sorgu kapalı) ve parça başına çapaya kaynaklanır. Model yoksa eşya çizilmez (uyarı verilir).
+local missingLooks: { [string]: boolean } = {}
+
 local function buildLook(character: Model, slot: string, item: Config.ItemConfig)
 	local look = item.look
 	if not look then
 		return
 	end
-	local anchor = attachPart(character, look.attach)
+	local template = ModelAssets.find("Items", item.id)
+	if not template then
+		if not missingLooks[item.id] then
+			missingLooks[item.id] = true
+			warn(`[Inventory] Eşya modeli yok: Items/{item.id}`)
+		end
+		return
+	end
+	local attach = template:GetAttribute("Attach")
+	local anchor = attachPart(character, if typeof(attach) == "string" then attach else look.attach)
 	if not anchor then
 		return
 	end
 	local model = Instance.new("Model")
 	model.Name = VISUAL_PREFIX .. slot
-	for _, spec in look.parts do
-		local part = Instance.new("Part")
-		part.Name = "Piece"
-		part.Shape = if spec.shape == "Ball"
-			then Enum.PartType.Ball
-			elseif spec.shape == "Cylinder" then Enum.PartType.Cylinder
-			else Enum.PartType.Block
-		part.Size = Vector3.new(spec.size[1], spec.size[2], spec.size[3])
-		part.Color = spec.color
-		local ok, material = pcall(function()
-			return (Enum.Material :: any)[spec.material or "SmoothPlastic"]
-		end)
-		part.Material = if ok and material then material else Enum.Material.SmoothPlastic
-		part.Massless = true
-		part.CanCollide, part.CanTouch, part.CanQuery, part.CastShadow = false, false, false, false
-		local angle = spec.angle or { 0, 0, 0 }
-		part.CFrame = anchor.CFrame
-			* CFrame.new(spec.offset[1], spec.offset[2], spec.offset[3])
-			* CFrame.Angles(math.rad(angle[1]), math.rad(angle[2]), math.rad(angle[3]))
-		part.Parent = model
-		local weld = Instance.new("WeldConstraint")
-		weld.Part0 = anchor
-		weld.Part1 = part
-		weld.Parent = part
+	for _, source in template:GetChildren() do
+		if source:IsA("BasePart") then
+			local part = source:Clone()
+			part.Anchored = false
+			part.Massless = true
+			part.CanCollide, part.CanTouch, part.CanQuery, part.CastShadow = false, false, false, false
+			part.CFrame = anchor.CFrame * source.CFrame
+			part.Parent = model
+			local weld = Instance.new("WeldConstraint")
+			weld.Part0 = anchor
+			weld.Part1 = part
+			weld.Parent = part
+		end
 	end
 	model.Parent = character
 end

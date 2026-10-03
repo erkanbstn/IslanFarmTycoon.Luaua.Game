@@ -77,7 +77,7 @@ local function create(parent: Instance): UiKit.Window
 	local created = UiKit.window(parent, {
 		title = "Üretim",
 		icon = "🏭",
-		tint = UiKit.Color.Green,
+		tint = UiKit.Color.Orange,
 		width = 350,
 		maxHeight = 450,
 		anchor = Vector2.new(0.5, 0.5),

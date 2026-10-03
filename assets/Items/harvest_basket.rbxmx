@@ -1,0 +1,782 @@
+<?xml version='1.0' encoding='utf-8'?>
+<roblox version="4">
+  <Item class="Model" referent="harvest_basket">
+    <Properties>
+      <string name="Name">harvest_basket</string>
+      <BinaryString name="AttributesSerialize">AQAAAAYAAABBdHRhY2gCBAAAAGJhY2s=</BinaryString>
+      <OptionalCoordinateFrame name="WorldPivotData">
+        <CFrame>
+          <X>0.00000000</X>
+          <Y>0.00000000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CFrame>
+      </OptionalCoordinateFrame>
+    </Properties>
+    <Item class="Part" referent="harvest_basket_0">
+      <Properties>
+        <string name="Name">BasketFloor</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.5882352941176471</R>
+          <G>0.4117647058823529</G>
+          <B>0.23529411764705882</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>1.78</X>
+          <Y>0.14</Y>
+          <Z>0.96</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>-0.47000000</Y>
+          <Z>1.04000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="harvest_basket_1">
+      <Properties>
+        <string name="Name">BasketSide</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.5882352941176471</R>
+          <G>0.4117647058823529</G>
+          <B>0.23529411764705882</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.14</X>
+          <Y>1.2</Y>
+          <Z>0.96</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.82000000</X>
+          <Y>0.18000000</Y>
+          <Z>1.04000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="harvest_basket_2">
+      <Properties>
+        <string name="Name">WovenRimSide</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.7490196078431373</R>
+          <G>0.5686274509803921</G>
+          <B>0.3254901960784314</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.17</X>
+          <Y>0.13</Y>
+          <Z>1.04</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.82000000</X>
+          <Y>0.83000000</Y>
+          <Z>1.04000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="harvest_basket_3">
+      <Properties>
+        <string name="Name">BasketSide</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.5882352941176471</R>
+          <G>0.4117647058823529</G>
+          <B>0.23529411764705882</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.14</X>
+          <Y>1.2</Y>
+          <Z>0.96</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.82000000</X>
+          <Y>0.18000000</Y>
+          <Z>1.04000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="harvest_basket_4">
+      <Properties>
+        <string name="Name">WovenRimSide</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.7490196078431373</R>
+          <G>0.5686274509803921</G>
+          <B>0.3254901960784314</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.17</X>
+          <Y>0.13</Y>
+          <Z>1.04</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.82000000</X>
+          <Y>0.83000000</Y>
+          <Z>1.04000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="harvest_basket_5">
+      <Properties>
+        <string name="Name">BasketWall</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.5882352941176471</R>
+          <G>0.4117647058823529</G>
+          <B>0.23529411764705882</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>1.64</X>
+          <Y>1.2</Y>
+          <Z>0.14</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.18000000</Y>
+          <Z>0.63000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="harvest_basket_6">
+      <Properties>
+        <string name="Name">WovenRim</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.7490196078431373</R>
+          <G>0.5686274509803921</G>
+          <B>0.3254901960784314</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>1.8</X>
+          <Y>0.13</Y>
+          <Z>0.17</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.83000000</Y>
+          <Z>0.63000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="harvest_basket_7">
+      <Properties>
+        <string name="Name">BasketWall</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.5882352941176471</R>
+          <G>0.4117647058823529</G>
+          <B>0.23529411764705882</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>1.64</X>
+          <Y>1.2</Y>
+          <Z>0.14</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.18000000</Y>
+          <Z>1.45000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="harvest_basket_8">
+      <Properties>
+        <string name="Name">WovenRim</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.7490196078431373</R>
+          <G>0.5686274509803921</G>
+          <B>0.3254901960784314</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>1.8</X>
+          <Y>0.13</Y>
+          <Z>0.17</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.83000000</Y>
+          <Z>1.45000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="harvest_basket_9">
+      <Properties>
+        <string name="Name">ShoulderStrap</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.3254901960784314</R>
+          <G>0.2235294117647059</G>
+          <B>0.14901960784313725</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.14</X>
+          <Y>1.66</Y>
+          <Z>0.12</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.53000000</X>
+          <Y>0.62000000</Y>
+          <Z>0.55000000</Z>
+          <R00>0.9961946981</R00>
+          <R01>-0.0871557427</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0871557427</R10>
+          <R11>0.9961946981</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="harvest_basket_10">
+      <Properties>
+        <string name="Name">ShoulderStrap</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.3254901960784314</R>
+          <G>0.2235294117647059</G>
+          <B>0.14901960784313725</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.14</X>
+          <Y>1.66</Y>
+          <Z>0.12</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.53000000</X>
+          <Y>0.62000000</Y>
+          <Z>0.55000000</Z>
+          <R00>0.9961946981</R00>
+          <R01>0.0871557427</R01>
+          <R02>0.0000000000</R02>
+          <R10>-0.0871557427</R10>
+          <R11>0.9961946981</R11>
+          <R12>-0.0000000000</R12>
+          <R20>-0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="harvest_basket_11">
+      <Properties>
+        <string name="Name">WheatStem</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.7803921568627451</R>
+          <G>0.6392156862745098</G>
+          <B>0.28627450980392155</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.07</X>
+          <Y>0.95</Y>
+          <Z>0.07</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.38000000</X>
+          <Y>1.01000000</Y>
+          <Z>1.03000000</Z>
+          <R00>0.9781476007</R00>
+          <R01>-0.2079116908</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.2079116908</R10>
+          <R11>0.9781476007</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="harvest_basket_12">
+      <Properties>
+        <string name="Name">WheatEar</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <Color3 name="Color">
+          <R>0.9215686274509803</R>
+          <G>0.7843137254901961</G>
+          <B>0.35294117647058826</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.19</X>
+          <Y>0.5</Y>
+          <Z>0.16</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.38000000</X>
+          <Y>1.62000000</Y>
+          <Z>1.03000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="harvest_basket_13">
+      <Properties>
+        <string name="Name">WheatStem</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.7803921568627451</R>
+          <G>0.6392156862745098</G>
+          <B>0.28627450980392155</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.07</X>
+          <Y>0.95</Y>
+          <Z>0.07</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>1.11000000</Y>
+          <Z>1.03000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="harvest_basket_14">
+      <Properties>
+        <string name="Name">WheatEar</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <Color3 name="Color">
+          <R>0.9215686274509803</R>
+          <G>0.7843137254901961</G>
+          <B>0.35294117647058826</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.19</X>
+          <Y>0.5</Y>
+          <Z>0.16</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>1.72000000</Y>
+          <Z>1.03000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="harvest_basket_15">
+      <Properties>
+        <string name="Name">WheatStem</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.7803921568627451</R>
+          <G>0.6392156862745098</G>
+          <B>0.28627450980392155</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.07</X>
+          <Y>0.95</Y>
+          <Z>0.07</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.38000000</X>
+          <Y>1.01000000</Y>
+          <Z>1.03000000</Z>
+          <R00>0.9781476007</R00>
+          <R01>0.2079116908</R01>
+          <R02>0.0000000000</R02>
+          <R10>-0.2079116908</R10>
+          <R11>0.9781476007</R11>
+          <R12>-0.0000000000</R12>
+          <R20>-0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="harvest_basket_16">
+      <Properties>
+        <string name="Name">WheatEar</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <Color3 name="Color">
+          <R>0.9215686274509803</R>
+          <G>0.7843137254901961</G>
+          <B>0.35294117647058826</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.19</X>
+          <Y>0.5</Y>
+          <Z>0.16</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.38000000</X>
+          <Y>1.62000000</Y>
+          <Z>1.03000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="harvest_basket_17">
+      <Properties>
+        <string name="Name">HarvestApple</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.7647058823529411</R>
+          <G>0.2196078431372549</G>
+          <B>0.15294117647058825</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.37</X>
+          <Y>0.37</Y>
+          <Z>0.37</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.45000000</X>
+          <Y>0.94000000</Y>
+          <Z>1.30000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="harvest_basket_18">
+      <Properties>
+        <string name="Name">HarvestSquash</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.9058823529411765</R>
+          <G>0.592156862745098</G>
+          <B>0.14901960784313725</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.42</X>
+          <Y>0.42</Y>
+          <Z>0.42</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.45000000</X>
+          <Y>0.96000000</Y>
+          <Z>1.23000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="harvest_basket_19">
+      <Properties>
+        <string name="Name">CarryLoop</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">512</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.5882352941176471</R>
+          <G>0.4117647058823529</G>
+          <B>0.23529411764705882</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.7</X>
+          <Y>0.15</Y>
+          <Z>0.15</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>1.08000000</Y>
+          <Z>0.66000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+  </Item>
+</roblox>

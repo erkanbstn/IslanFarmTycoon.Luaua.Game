@@ -26,7 +26,12 @@ return function(
 			h.task,
 			h.osFake,
 			environment,
-			h.guard
+			h.guard,
+			{
+				find = function()
+					return nil
+				end,
+			}
 		).init()
 		h.environment = environment
 		return h

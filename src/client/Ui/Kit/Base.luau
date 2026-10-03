@@ -138,7 +138,12 @@ function Base.panel(parent: Instance): Frame
 	f.BackgroundTransparency = 0.08
 	f.Parent = parent
 	Base.corner(f, Tokens.Radius.Panel)
-	Base.stroke(f)
+	Base.stroke(f, 0.78)
+	-- Üstten alta hafif renk geçişi: düz gri yerine canlı, derinlikli yüzey
+	local gradient = Instance.new("UIGradient")
+	gradient.Color = ColorSequence.new(Tokens.Color.Panel:Lerp(Tokens.Color.Blue, 0.28), Tokens.Color.Panel)
+	gradient.Rotation = 90
+	gradient.Parent = f
 	return f
 end
 

@@ -1,0 +1,733 @@
+<?xml version='1.0' encoding='utf-8'?>
+<roblox version="4">
+  <Item class="Model" referent="golden_wings">
+    <Properties>
+      <string name="Name">golden_wings</string>
+      <BinaryString name="AttributesSerialize">AQAAAAYAAABBdHRhY2gCBAAAAGJhY2s=</BinaryString>
+      <OptionalCoordinateFrame name="WorldPivotData">
+        <CFrame>
+          <X>0.00000000</X>
+          <Y>0.00000000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CFrame>
+      </OptionalCoordinateFrame>
+    </Properties>
+    <Item class="Part" referent="golden_wings_0">
+      <Properties>
+        <string name="Name">ShoulderStrap</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.4588235294117647</R>
+          <G>0.3215686274509804</G>
+          <B>0.15294117647058825</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.14</X>
+          <Y>1.66</Y>
+          <Z>0.12</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.53000000</X>
+          <Y>0.62000000</Y>
+          <Z>0.55000000</Z>
+          <R00>0.9961946981</R00>
+          <R01>-0.0871557427</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0871557427</R10>
+          <R11>0.9961946981</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="golden_wings_1">
+      <Properties>
+        <string name="Name">ShoulderStrap</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.4588235294117647</R>
+          <G>0.3215686274509804</G>
+          <B>0.15294117647058825</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.14</X>
+          <Y>1.66</Y>
+          <Z>0.12</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.53000000</X>
+          <Y>0.62000000</Y>
+          <Z>0.55000000</Z>
+          <R00>0.9961946981</R00>
+          <R01>0.0871557427</R01>
+          <R02>0.0000000000</R02>
+          <R10>-0.0871557427</R10>
+          <R11>0.9961946981</R11>
+          <R12>-0.0000000000</R12>
+          <R20>-0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="golden_wings_2">
+      <Properties>
+        <string name="Name">WingHarness</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.8705882352941177</R>
+          <G>0.6313725490196078</G>
+          <B>0.20392156862745098</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.95</X>
+          <Y>0.42</Y>
+          <Z>0.19</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.88000000</Y>
+          <Z>0.72000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="golden_wings_3">
+      <Properties>
+        <string name="Name">WingRoot</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.8705882352941177</R>
+          <G>0.6313725490196078</G>
+          <B>0.20392156862745098</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.46</X>
+          <Y>1.24</Y>
+          <Z>0.22</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.69000000</X>
+          <Y>0.85000000</Y>
+          <Z>0.90000000</Z>
+          <R00>0.9135454576</R00>
+          <R01>-0.4067366431</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.4067366431</R10>
+          <R11>0.9135454576</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="golden_wings_4">
+      <Properties>
+        <string name="Name">FlightFeather</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <Color3 name="Color">
+          <R>1.0</R>
+          <G>0.7843137254901961</G>
+          <B>0.23529411764705882</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.38</X>
+          <Y>1.88</Y>
+          <Z>0.14</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.83000000</X>
+          <Y>0.82000000</Y>
+          <Z>1.06000000</Z>
+          <R00>0.9396926208</R00>
+          <R01>-0.3420201433</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.3420201433</R10>
+          <R11>0.9396926208</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="golden_wings_5">
+      <Properties>
+        <string name="Name">FlightFeather</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <Color3 name="Color">
+          <R>1.0</R>
+          <G>0.7843137254901961</G>
+          <B>0.23529411764705882</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.38</X>
+          <Y>2.01</Y>
+          <Z>0.14</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-1.10000000</X>
+          <Y>0.62000000</Y>
+          <Z>1.07500000</Z>
+          <R00>0.8746197071</R00>
+          <R01>-0.4848096202</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.4848096202</R10>
+          <R11>0.8746197071</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="golden_wings_6">
+      <Properties>
+        <string name="Name">FlightFeather</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <Color3 name="Color">
+          <R>1.0</R>
+          <G>0.7843137254901961</G>
+          <B>0.23529411764705882</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.38</X>
+          <Y>2.14</Y>
+          <Z>0.14</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-1.37000000</X>
+          <Y>0.42000000</Y>
+          <Z>1.09000000</Z>
+          <R00>0.7880107536</R00>
+          <R01>-0.6156614753</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.6156614753</R10>
+          <R11>0.7880107536</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="golden_wings_7">
+      <Properties>
+        <string name="Name">FlightFeather</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <Color3 name="Color">
+          <R>1.0</R>
+          <G>0.7843137254901961</G>
+          <B>0.23529411764705882</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.38</X>
+          <Y>2.27</Y>
+          <Z>0.14</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-1.64000000</X>
+          <Y>0.22000000</Y>
+          <Z>1.10500000</Z>
+          <R00>0.6819983601</R00>
+          <R01>-0.7313537016</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.7313537016</R10>
+          <R11>0.6819983601</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="golden_wings_8">
+      <Properties>
+        <string name="Name">FlightFeather</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <Color3 name="Color">
+          <R>1.0</R>
+          <G>0.7843137254901961</G>
+          <B>0.23529411764705882</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.38</X>
+          <Y>2.4</Y>
+          <Z>0.14</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-1.91000000</X>
+          <Y>0.02000000</Y>
+          <Z>1.12000000</Z>
+          <R00>0.5591929035</R00>
+          <R01>-0.8290375726</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.8290375726</R10>
+          <R11>0.5591929035</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="golden_wings_9">
+      <Properties>
+        <string name="Name">WingCovert</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <Color3 name="Color">
+          <R>0.8705882352941177</R>
+          <G>0.6313725490196078</G>
+          <B>0.20392156862745098</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.4</X>
+          <Y>0.82</Y>
+          <Z>0.18</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.98000000</X>
+          <Y>1.04000000</Y>
+          <Z>1.19000000</Z>
+          <R00>0.9135454576</R00>
+          <R01>-0.4067366431</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.4067366431</R10>
+          <R11>0.9135454576</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="golden_wings_10">
+      <Properties>
+        <string name="Name">WingCovert</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <Color3 name="Color">
+          <R>0.8705882352941177</R>
+          <G>0.6313725490196078</G>
+          <B>0.20392156862745098</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.4</X>
+          <Y>0.82</Y>
+          <Z>0.18</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-1.29000000</X>
+          <Y>0.86000000</Y>
+          <Z>1.19000000</Z>
+          <R00>0.7547095802</R00>
+          <R01>-0.6560590290</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.6560590290</R10>
+          <R11>0.7547095802</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="golden_wings_11">
+      <Properties>
+        <string name="Name">WingRoot</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.8705882352941177</R>
+          <G>0.6313725490196078</G>
+          <B>0.20392156862745098</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.46</X>
+          <Y>1.24</Y>
+          <Z>0.22</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.69000000</X>
+          <Y>0.85000000</Y>
+          <Z>0.90000000</Z>
+          <R00>0.9135454576</R00>
+          <R01>0.4067366431</R01>
+          <R02>0.0000000000</R02>
+          <R10>-0.4067366431</R10>
+          <R11>0.9135454576</R11>
+          <R12>-0.0000000000</R12>
+          <R20>-0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="golden_wings_12">
+      <Properties>
+        <string name="Name">FlightFeather</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <Color3 name="Color">
+          <R>1.0</R>
+          <G>0.7843137254901961</G>
+          <B>0.23529411764705882</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.38</X>
+          <Y>1.88</Y>
+          <Z>0.14</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.83000000</X>
+          <Y>0.82000000</Y>
+          <Z>1.06000000</Z>
+          <R00>0.9396926208</R00>
+          <R01>0.3420201433</R01>
+          <R02>0.0000000000</R02>
+          <R10>-0.3420201433</R10>
+          <R11>0.9396926208</R11>
+          <R12>-0.0000000000</R12>
+          <R20>-0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="golden_wings_13">
+      <Properties>
+        <string name="Name">FlightFeather</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <Color3 name="Color">
+          <R>1.0</R>
+          <G>0.7843137254901961</G>
+          <B>0.23529411764705882</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.38</X>
+          <Y>2.01</Y>
+          <Z>0.14</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1.10000000</X>
+          <Y>0.62000000</Y>
+          <Z>1.07500000</Z>
+          <R00>0.8746197071</R00>
+          <R01>0.4848096202</R01>
+          <R02>0.0000000000</R02>
+          <R10>-0.4848096202</R10>
+          <R11>0.8746197071</R11>
+          <R12>-0.0000000000</R12>
+          <R20>-0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="golden_wings_14">
+      <Properties>
+        <string name="Name">FlightFeather</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <Color3 name="Color">
+          <R>1.0</R>
+          <G>0.7843137254901961</G>
+          <B>0.23529411764705882</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.38</X>
+          <Y>2.14</Y>
+          <Z>0.14</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1.37000000</X>
+          <Y>0.42000000</Y>
+          <Z>1.09000000</Z>
+          <R00>0.7880107536</R00>
+          <R01>0.6156614753</R01>
+          <R02>0.0000000000</R02>
+          <R10>-0.6156614753</R10>
+          <R11>0.7880107536</R11>
+          <R12>-0.0000000000</R12>
+          <R20>-0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="golden_wings_15">
+      <Properties>
+        <string name="Name">FlightFeather</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <Color3 name="Color">
+          <R>1.0</R>
+          <G>0.7843137254901961</G>
+          <B>0.23529411764705882</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.38</X>
+          <Y>2.27</Y>
+          <Z>0.14</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1.64000000</X>
+          <Y>0.22000000</Y>
+          <Z>1.10500000</Z>
+          <R00>0.6819983601</R00>
+          <R01>0.7313537016</R01>
+          <R02>0.0000000000</R02>
+          <R10>-0.7313537016</R10>
+          <R11>0.6819983601</R11>
+          <R12>-0.0000000000</R12>
+          <R20>-0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="golden_wings_16">
+      <Properties>
+        <string name="Name">FlightFeather</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <Color3 name="Color">
+          <R>1.0</R>
+          <G>0.7843137254901961</G>
+          <B>0.23529411764705882</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.38</X>
+          <Y>2.4</Y>
+          <Z>0.14</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1.91000000</X>
+          <Y>0.02000000</Y>
+          <Z>1.12000000</Z>
+          <R00>0.5591929035</R00>
+          <R01>0.8290375726</R01>
+          <R02>0.0000000000</R02>
+          <R10>-0.8290375726</R10>
+          <R11>0.5591929035</R11>
+          <R12>-0.0000000000</R12>
+          <R20>-0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="golden_wings_17">
+      <Properties>
+        <string name="Name">WingCovert</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <Color3 name="Color">
+          <R>0.8705882352941177</R>
+          <G>0.6313725490196078</G>
+          <B>0.20392156862745098</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.4</X>
+          <Y>0.82</Y>
+          <Z>0.18</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.98000000</X>
+          <Y>1.04000000</Y>
+          <Z>1.19000000</Z>
+          <R00>0.9135454576</R00>
+          <R01>0.4067366431</R01>
+          <R02>0.0000000000</R02>
+          <R10>-0.4067366431</R10>
+          <R11>0.9135454576</R11>
+          <R12>-0.0000000000</R12>
+          <R20>-0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="golden_wings_18">
+      <Properties>
+        <string name="Name">WingCovert</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <Color3 name="Color">
+          <R>0.8705882352941177</R>
+          <G>0.6313725490196078</G>
+          <B>0.20392156862745098</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.4</X>
+          <Y>0.82</Y>
+          <Z>0.18</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1.29000000</X>
+          <Y>0.86000000</Y>
+          <Z>1.19000000</Z>
+          <R00>0.7547095802</R00>
+          <R01>0.6560590290</R01>
+          <R02>0.0000000000</R02>
+          <R10>-0.6560590290</R10>
+          <R11>0.7547095802</R11>
+          <R12>-0.0000000000</R12>
+          <R20>-0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+  </Item>
+</roblox>

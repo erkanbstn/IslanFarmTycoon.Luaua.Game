@@ -9,6 +9,9 @@
       },
       "ClientAssets": {
         "$path": "client-assets"
+      },
+      "ItemPreviews": {
+        "$path": "assets/Items"
       }
     },
 

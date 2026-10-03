@@ -16,6 +16,7 @@ local UiKit = require(script.Parent.Parent:WaitForChild("UiKit"))
 local PurchaseController = require(script.Parent.Parent.Parent:WaitForChild("Core"):WaitForChild("PurchaseController"))
 local HudCommon = require(script.Parent:WaitForChild("HudCommon"))
 local ItemText = require(script.Parent:WaitForChild("ItemText"))
+local ItemPreview = require(script.Parent:WaitForChild("ItemPreview"))
 
 type PlayerSave = GameTypes.PlayerSave
 
@@ -127,11 +128,11 @@ function InventoryWindow.create(screenGui: Instance): Panel
 
 	-- Takılı eşyalar: slot başına bir karo
 	UiKit.sectionHeader(equippedPage, "Takılı eşyalar", SLOTS_ORDER)
-	local slotGrid = UiKit.grid(equippedPage, SLOTS_ORDER + 1)
+	local slotGrid = UiKit.autoGrid(equippedPage, SLOTS_ORDER + 1, 2)
 	local slotCards: { [string]: UiKit.Card } = {}
 	for index, slotId in Config.ITEM_SLOT_ORDER do
 		local slot = Config.ITEM_SLOTS[slotId]
-		local card = UiKit.tile(slotGrid, index, slot.icon)
+		local card = UiKit.autoTile(slotGrid, index, slot.icon, { compact = true })
 		card.title.Text = slot.displayName
 		slotCards[slotId] = card
 		card.action.Activated:Connect(function()
@@ -178,22 +179,28 @@ function InventoryWindow.create(screenGui: Instance): Panel
 		powerCard.frame.Visible = visible
 	end
 
-	-- Sahip olunan eşyalar
+	-- Sahip olunan eşyalar: yalnızca seçili slotun eşyaları gösterilir.
 	UiKit.sectionHeader(ownedPage, "Eşyalarım", OWNED_ORDER)
+	local selectedCategory = "all"
+	local categoryEntries: { { id: string, label: string } } = { { id = "all", label = "Tümü" } }
+	for _, slotId in Config.ITEM_SLOT_ORDER do
+		table.insert(categoryEntries, { id = slotId, label = Config.ITEM_SLOTS[slotId].displayName })
+	end
 	local emptyText = UiKit.text(
 		ownedPage,
 		"Henüz eşyan yok. Meydandaki Usta Ömer'den eşya alabilirsin.",
 		"Body",
 		Color.TextMuted
 	)
-	emptyText.LayoutOrder = OWNED_ORDER + 1
-	local ownedGrid = UiKit.grid(ownedPage, OWNED_ORDER + 2)
+	emptyText.LayoutOrder = OWNED_ORDER + 2
+	local ownedGrid = UiKit.autoGrid(ownedPage, OWNED_ORDER + 3, 2)
 	local ownedCards: { [string]: UiKit.Card } = {}
 	for position, itemId in Config.ITEM_ORDER do
 		local item = Config.ITEMS[itemId]
-		local card = UiKit.tile(ownedGrid, position, item.icon)
+		local card = UiKit.autoTile(ownedGrid, position, item.icon, { compact = true })
 		card.title.Text = item.displayName
 		card.detail.Text = ItemText.describe(item)
+		ItemPreview.mount(card.icon, itemId)
 		card.frame.Visible = false
 		ownedCards[itemId] = card
 		card.action.Activated:Connect(function()
@@ -202,6 +209,29 @@ function InventoryWindow.create(screenGui: Instance): Panel
 			end
 		end)
 	end
+	local lastState: PlayerSave? = nil
+	local function filterOwned(state: PlayerSave?)
+		local anyOwned, anyVisible = false, false
+		for itemId, card in ownedCards do
+			local owned = state ~= nil and Inventory.owns(state, itemId)
+			local visible = owned and (selectedCategory == "all" or Config.ITEMS[itemId].slot == selectedCategory)
+			card.frame.Visible = visible
+			anyOwned = anyOwned or owned
+			anyVisible = anyVisible or visible
+		end
+		ownedGrid.Visible = anyVisible
+		emptyText.Visible = not anyVisible
+		UiKit.setText(
+			emptyText,
+			if anyOwned
+				then "Bu kategoride henüz eşyan yok."
+				else "Henüz eşyan yok. Meydandaki Usta Ömer'den eşya alabilirsin."
+		)
+	end
+	UiKit.tabs(ownedPage, OWNED_ORDER + 1, categoryEntries, function(categoryId: string)
+		selectedCategory = categoryId
+		filterOwned(lastState)
+	end)
 
 	local function powerOptions(kind: string): ({ { id: string, label: string } }, string)
 		local options: { { id: string, label: string } } = {}
@@ -253,17 +283,18 @@ function InventoryWindow.create(screenGui: Instance): Panel
 		goodsNote.Text =
 			`Hızlı satış ürün değerinin %{math.round(Config.GOODS_SELL.rate * 100)}'ini öder; ahır siparişi her zaman daha çok kazandırır.`
 		-- Takılı eşyalar
-		local ownedAny = false
 		for slotId, card in slotCards do
 			local itemId = Inventory.equippedId(state, slotId)
 			local item = if itemId then Config.ITEMS[itemId] else nil
 			if item then
 				card.icon.Text = item.icon
+				ItemPreview.mount(card.icon, itemId)
 				card.title.Text = item.displayName
 				card.detail.Text = ItemText.describe(item)
 				setPurchaseButton(card.action, "Çıkar", "secondary")
 			else
 				card.icon.Text = Config.ITEM_SLOTS[slotId].icon
+				ItemPreview.mount(card.icon, nil)
 				card.title.Text = Config.ITEM_SLOTS[slotId].displayName
 				card.detail.Text = "Boş"
 				setPurchaseButton(card.action, "Boş", "disabled")
@@ -272,9 +303,8 @@ function InventoryWindow.create(screenGui: Instance): Panel
 		-- Sahip olunanlar
 		for itemId, card in ownedCards do
 			local owned = Inventory.owns(state, itemId)
-			card.frame.Visible = owned
-			ownedAny = ownedAny or owned
 			if owned then
+				ItemPreview.mount(card.icon, itemId)
 				setPurchaseButton(
 					card.action,
 					if Inventory.isEquipped(state, itemId) then "Çıkar" else "Tak",
@@ -282,7 +312,8 @@ function InventoryWindow.create(screenGui: Instance): Panel
 				)
 			end
 		end
-		emptyText.Visible = not ownedAny
+		lastState = state
+		filterOwned(state)
 		-- Asa gücü
 		local staffId = Inventory.equippedId(state, "staff")
 		local staff = if staffId then Config.ITEMS[staffId] else nil
@@ -314,7 +345,7 @@ function InventoryWindow.create(screenGui: Instance): Panel
 
 	-- Kalan hak ve bekleme süresi zamanla değişir: pencere açıkken saniyede bir tazele
 	task.spawn(function()
-		while true do
+		while window.frame.Parent do
 			task.wait(1)
 			local state = ClientState.get()
 			if state and window.isOpen() then

@@ -140,17 +140,9 @@ export type DifficultyGoods = {
 }
 
 -- Eşyalar (envanter): slotlara takılır, satın alma kalıcıdır. effects = takılıyken geçerli kalıcı faydalar (FarmMath),
--- power = asa gücü (Inventory), look = karakterde görünen parçalar (InventoryService). Vector3 yerine düz {x, y, z} tabloları.
+-- power = asa gücü (Inventory), look = karakterde görünen modelin bağlanma noktası (InventoryService). Vector3 yerine düz {x, y, z} tabloları.
 export type ItemSlotConfig = { id: string, displayName: string, icon: string }
-export type ItemPart = {
-	shape: string?, -- "Block" | "Ball" | "Cylinder"
-	size: { number },
-	offset: { number },
-	angle: { number }?, -- derece
-	color: Color3,
-	material: string?, -- Enum.Material adı
-}
-export type ItemLook = { attach: string, parts: { ItemPart } } -- attach: head | back | hip | chest | hand
+export type ItemLook = { attach: string } -- attach: head | back | hip | chest | hand (geometri `assets/Items/<id>` modelindedir)
 export type ItemEffects = {
 	upgradeDiscount: number?, -- Bütün yükseltme maliyetlerinden indirim (0.1 = %10)
 	storageBonus: number?, -- Depo kapasitesi (0.15 = +%15)

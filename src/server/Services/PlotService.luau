@@ -15,6 +15,7 @@
 --       PlotSign (Part)   → SurfaceGui içinde "Text" adlı TextLabel
 
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -611,7 +612,11 @@ function PlotService.init()
 	MapBuilder.ensure()
 	MapBuilder.validate()
 	-- assign() boş ada olmadığında false döner; giriş noktası yalnızca fazla oyuncuyu reddeder.
-	if Players.MaxPlayers > Config.MAP_PLOT_COUNT then
+	-- Studio'da MaxPlayers yerel place değeridir (salt okunur, Creator Hub'dan senkronlanır) ve yayındaki ayarı yansıtmaz: yalnızca canlı sunucuda uyar.
+	local studioOk, inStudio = pcall(function()
+		return RunService:IsStudio()
+	end)
+	if not (studioOk and inStudio) and Players.MaxPlayers > Config.MAP_PLOT_COUNT then
 		warn(`[Map] MaxPlayers={Players.MaxPlayers}; haritada yalnızca {Config.MAP_PLOT_COUNT} ada var.`)
 	end
 	collectPlotModels()

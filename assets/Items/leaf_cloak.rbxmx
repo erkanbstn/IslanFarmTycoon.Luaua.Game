@@ -1,0 +1,587 @@
+<?xml version='1.0' encoding='utf-8'?>
+<roblox version="4">
+  <Item class="Model" referent="leaf_cloak">
+    <Properties>
+      <string name="Name">leaf_cloak</string>
+      <BinaryString name="AttributesSerialize">AQAAAAYAAABBdHRhY2gCBAAAAGJhY2s=</BinaryString>
+      <OptionalCoordinateFrame name="WorldPivotData">
+        <CFrame>
+          <X>0.00000000</X>
+          <Y>0.00000000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CFrame>
+      </OptionalCoordinateFrame>
+    </Properties>
+    <Item class="Part" referent="leaf_cloak_0">
+      <Properties>
+        <string name="Name">CloakFold</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.24705882352941178</R>
+          <G>0.5137254901960784</G>
+          <B>0.24313725490196078</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.74</X>
+          <Y>2.8</Y>
+          <Z>0.08</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.70000000</X>
+          <Y>-0.10000000</Y>
+          <Z>0.85000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>0.9876883406</R11>
+          <R12>-0.1564344650</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.1564344650</R21>
+          <R22>0.9876883406</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="leaf_cloak_1">
+      <Properties>
+        <string name="Name">CloakFold</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.29411764705882354</R>
+          <G>0.5490196078431373</G>
+          <B>0.24313725490196078</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.74</X>
+          <Y>2.8</Y>
+          <Z>0.08</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>-0.10000000</Y>
+          <Z>0.85000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>0.9876883406</R11>
+          <R12>-0.1564344650</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.1564344650</R21>
+          <R22>0.9876883406</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="leaf_cloak_2">
+      <Properties>
+        <string name="Name">CloakFold</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.3411764705882353</R>
+          <G>0.5843137254901961</G>
+          <B>0.24313725490196078</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.74</X>
+          <Y>2.8</Y>
+          <Z>0.08</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.70000000</X>
+          <Y>-0.10000000</Y>
+          <Z>0.85000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>0.9876883406</R11>
+          <R12>-0.1564344650</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.1564344650</R21>
+          <R22>0.9876883406</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="leaf_cloak_3">
+      <Properties>
+        <string name="Name">ShoulderLeaf</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <Color3 name="Color">
+          <R>0.4235294117647059</R>
+          <G>0.6588235294117647</G>
+          <B>0.29411764705882354</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.7</X>
+          <Y>0.25</Y>
+          <Z>0.15</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.53000000</X>
+          <Y>1.27000000</Y>
+          <Z>0.76000000</Z>
+          <R00>0.9396926208</R00>
+          <R01>-0.3420201433</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.3420201433</R10>
+          <R11>0.9396926208</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="leaf_cloak_4">
+      <Properties>
+        <string name="Name">LayeredLeaf</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <Color3 name="Color">
+          <R>0.47058823529411764</R>
+          <G>0.7450980392156863</G>
+          <B>0.39215686274509803</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.63</X>
+          <Y>0.87</Y>
+          <Z>0.13</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.42000000</X>
+          <Y>0.82000000</Y>
+          <Z>1.02000000</Z>
+          <R00>0.9510565163</R00>
+          <R01>-0.3090169944</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.3060096622</R10>
+          <R11>0.9418008997</R11>
+          <R12>-0.1391731010</R12>
+          <R20>0.0430068534</R20>
+          <R21>0.1323614846</R21>
+          <R22>0.9902680687</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="leaf_cloak_5">
+      <Properties>
+        <string name="Name">LayeredLeaf</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <Color3 name="Color">
+          <R>0.4196078431372549</R>
+          <G>0.6862745098039216</G>
+          <B>0.34509803921568627</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.63</X>
+          <Y>0.87</Y>
+          <Z>0.13</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.54000000</X>
+          <Y>0.04000000</Y>
+          <Z>1.12000000</Z>
+          <R00>0.9335804265</R00>
+          <R01>-0.3583679495</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.3548803373</R10>
+          <R11>0.9244948860</R11>
+          <R12>-0.1391731010</R12>
+          <R20>0.0498751788</R20>
+          <R21>0.1299292830</R21>
+          <R22>0.9902680687</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="leaf_cloak_6">
+      <Properties>
+        <string name="Name">LayeredLeaf</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <Color3 name="Color">
+          <R>0.3686274509803922</R>
+          <G>0.6274509803921569</G>
+          <B>0.2980392156862745</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.63</X>
+          <Y>0.87</Y>
+          <Z>0.13</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.66000000</X>
+          <Y>-0.74000000</Y>
+          <Z>1.22000000</Z>
+          <R00>0.9135454576</R00>
+          <R01>-0.4067366431</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.4027783100</R10>
+          <R11>0.9046548960</R11>
+          <R12>-0.1391731010</R12>
+          <R20>0.0566067999</R20>
+          <R21>0.1271409542</R21>
+          <R22>0.9902680687</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="leaf_cloak_7">
+      <Properties>
+        <string name="Name">ShoulderLeaf</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <Color3 name="Color">
+          <R>0.4235294117647059</R>
+          <G>0.6588235294117647</G>
+          <B>0.29411764705882354</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.7</X>
+          <Y>0.25</Y>
+          <Z>0.15</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.53000000</X>
+          <Y>1.27000000</Y>
+          <Z>0.76000000</Z>
+          <R00>0.9396926208</R00>
+          <R01>0.3420201433</R01>
+          <R02>0.0000000000</R02>
+          <R10>-0.3420201433</R10>
+          <R11>0.9396926208</R11>
+          <R12>-0.0000000000</R12>
+          <R20>-0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="leaf_cloak_8">
+      <Properties>
+        <string name="Name">LayeredLeaf</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <Color3 name="Color">
+          <R>0.47058823529411764</R>
+          <G>0.7450980392156863</G>
+          <B>0.39215686274509803</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.63</X>
+          <Y>0.87</Y>
+          <Z>0.13</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.42000000</X>
+          <Y>0.82000000</Y>
+          <Z>1.02000000</Z>
+          <R00>0.9510565163</R00>
+          <R01>0.3090169944</R01>
+          <R02>0.0000000000</R02>
+          <R10>-0.3060096622</R10>
+          <R11>0.9418008997</R11>
+          <R12>-0.1391731010</R12>
+          <R20>-0.0430068534</R20>
+          <R21>0.1323614846</R21>
+          <R22>0.9902680687</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="leaf_cloak_9">
+      <Properties>
+        <string name="Name">LayeredLeaf</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <Color3 name="Color">
+          <R>0.4196078431372549</R>
+          <G>0.6862745098039216</G>
+          <B>0.34509803921568627</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.63</X>
+          <Y>0.87</Y>
+          <Z>0.13</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.54000000</X>
+          <Y>0.04000000</Y>
+          <Z>1.12000000</Z>
+          <R00>0.9335804265</R00>
+          <R01>0.3583679495</R01>
+          <R02>0.0000000000</R02>
+          <R10>-0.3548803373</R10>
+          <R11>0.9244948860</R11>
+          <R12>-0.1391731010</R12>
+          <R20>-0.0498751788</R20>
+          <R21>0.1299292830</R21>
+          <R22>0.9902680687</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="leaf_cloak_10">
+      <Properties>
+        <string name="Name">LayeredLeaf</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <Color3 name="Color">
+          <R>0.3686274509803922</R>
+          <G>0.6274509803921569</G>
+          <B>0.2980392156862745</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.63</X>
+          <Y>0.87</Y>
+          <Z>0.13</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.66000000</X>
+          <Y>-0.74000000</Y>
+          <Z>1.22000000</Z>
+          <R00>0.9135454576</R00>
+          <R01>0.4067366431</R01>
+          <R02>0.0000000000</R02>
+          <R10>-0.4027783100</R10>
+          <R11>0.9046548960</R11>
+          <R12>-0.1391731010</R12>
+          <R20>-0.0566067999</R20>
+          <R21>0.1271409542</R21>
+          <R22>0.9902680687</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="leaf_cloak_11">
+      <Properties>
+        <string name="Name">LeafVein</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.6784313725490196</R>
+          <G>0.7450980392156863</G>
+          <B>0.3764705882352941</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.05</X>
+          <Y>0.63</Y>
+          <Z>0.06</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.80000000</Y>
+          <Z>1.07000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>0.9902680687</R11>
+          <R12>-0.1391731010</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.1391731010</R21>
+          <R22>0.9902680687</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="leaf_cloak_12">
+      <Properties>
+        <string name="Name">LeafVein</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.6784313725490196</R>
+          <G>0.7450980392156863</G>
+          <B>0.3764705882352941</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.05</X>
+          <Y>0.63</Y>
+          <Z>0.06</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.03000000</Y>
+          <Z>1.19000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>0.9902680687</R11>
+          <R12>-0.1391731010</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.1391731010</R21>
+          <R22>0.9902680687</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="leaf_cloak_13">
+      <Properties>
+        <string name="Name">LeafVein</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.6784313725490196</R>
+          <G>0.7450980392156863</G>
+          <B>0.3764705882352941</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.05</X>
+          <Y>0.63</Y>
+          <Z>0.06</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>-0.74000000</Y>
+          <Z>1.31000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>0.9902680687</R11>
+          <R12>-0.1391731010</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.1391731010</R21>
+          <R22>0.9902680687</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="leaf_cloak_14">
+      <Properties>
+        <string name="Name">AcornClasp</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">512</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.6509803921568628</R>
+          <G>0.45098039215686275</G>
+          <B>0.21568627450980393</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.22</X>
+          <Y>0.22</Y>
+          <Z>0.22</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>1.26000000</Y>
+          <Z>0.88000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+  </Item>
+</roblox>

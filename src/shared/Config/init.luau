@@ -28,7 +28,6 @@ export type AnimalConfig = Types.AnimalConfig
 export type BarnLevelConfig = Types.BarnLevelConfig
 export type ThemeConfig = Types.ThemeConfig
 export type ItemSlotConfig = Types.ItemSlotConfig
-export type ItemPart = Types.ItemPart
 export type ItemLook = Types.ItemLook
 export type ItemEffects = Types.ItemEffects
 export type ItemPower = Types.ItemPower

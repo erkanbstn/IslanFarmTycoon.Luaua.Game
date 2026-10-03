@@ -667,6 +667,7 @@ return {
 	["Takılı eşyalar"] = "Надетые предметы",
 	["Asa gücü"] = "Сила посоха",
 	["Eşyalarım"] = "Мои предметы",
+	["Bu kategoride henüz eşyan yok."] = "У тебя пока нет предметов этой категории.",
 	["Henüz eşyan yok. Meydandaki Usta Ömer'den eşya alabilirsin."] = "У тебя пока нет предметов. Купи их у мастера Омера на площади.",
 	["Çıkar"] = "Снять",
 	["Tak"] = "Надеть",

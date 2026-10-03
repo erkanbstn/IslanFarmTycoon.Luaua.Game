@@ -359,18 +359,28 @@ local function buildIsland(plotIndex: number, islandCf: CFrame, theme: number?):
 
 	-- Doğma noktası: adanın sahibi burada doğar (PlotService Player.RespawnLocation'ı buna ayarlar).
 	-- Neutral = false: sahibi olmayan oyuncular burada doğmaz, meydanda doğar. Oyuncu adaya doğru bakar.
+	-- İşlev SpawnLocation'da (görünmez, ince); görünüm hazır model (assets/HubProps/SpawnPlaza: taş disk + bronz kenar, pivot zemin).
 	local spawnPad = Instance.new("SpawnLocation")
 	spawnPad.Name = "Spawn"
-	spawnPad.Size = Vector3.new(8, 0.4, 8)
-	spawnPad.CFrame = islandCf * CFrame.new(0, SURFACE_Y + 0.2, -45) * CFrame.Angles(0, math.pi, 0)
+	spawnPad.Size = Vector3.new(8, 0.2, 8)
+	spawnPad.CFrame = islandCf * CFrame.new(0, SURFACE_Y + 0.1, -45) * CFrame.Angles(0, math.pi, 0)
 	spawnPad.Anchored = true
 	spawnPad.Neutral = false
 	spawnPad.AllowTeamChangeOnTouch = false
 	spawnPad.Duration = 0
-	spawnPad.Color = Color3.fromRGB(230, 225, 210)
-	spawnPad.Material = Enum.Material.Slate
-	spawnPad.TopSurface = Enum.SurfaceType.Smooth
+	spawnPad.Transparency = 1
+	spawnPad.CastShadow = false
 	spawnPad.Parent = plotModel
+	local spawnPlaza = ModelAssets.clone("HubProps", "SpawnPlaza")
+	if spawnPlaza then
+		spawnPlaza:PivotTo(islandCf * CFrame.new(0, SURFACE_Y, -45))
+		for _, child in spawnPlaza:GetChildren() do
+			child.Parent = plotModel
+		end
+		spawnPlaza:Destroy()
+	else
+		warn("[IslandBuilder] assets/HubProps/SpawnPlaza.rbxmx bulunamadı; ada doğma platformu çizilmedi")
+	end
 
 	-- Hazır modelin parçalarını doğrudan plot modelinin çocuğu yapar (servisler/testler adlarıyla plot altında arar)
 	local function placeFlat(folderName: string, name: string, cf: CFrame)

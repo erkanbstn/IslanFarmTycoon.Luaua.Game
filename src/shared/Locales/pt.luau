@@ -667,6 +667,7 @@ return {
 	["Takılı eşyalar"] = "Itens equipados",
 	["Asa gücü"] = "Poder do cajado",
 	["Eşyalarım"] = "Meus itens",
+	["Bu kategoride henüz eşyan yok."] = "Você ainda não tem itens nesta categoria.",
 	["Henüz eşyan yok. Meydandaki Usta Ömer'den eşya alabilirsin."] = "Você ainda não tem itens. Compre alguns com o Mestre Ömer na praça.",
 	["Çıkar"] = "Remover",
 	["Tak"] = "Equipar",

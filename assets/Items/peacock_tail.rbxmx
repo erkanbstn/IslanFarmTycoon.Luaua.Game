@@ -1,0 +1,742 @@
+<?xml version='1.0' encoding='utf-8'?>
+<roblox version="4">
+  <Item class="Model" referent="peacock_tail">
+    <Properties>
+      <string name="Name">peacock_tail</string>
+      <BinaryString name="AttributesSerialize">AQAAAAYAAABBdHRhY2gCBAAAAGJhY2s=</BinaryString>
+      <OptionalCoordinateFrame name="WorldPivotData">
+        <CFrame>
+          <X>0.00000000</X>
+          <Y>0.00000000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CFrame>
+      </OptionalCoordinateFrame>
+    </Properties>
+    <Item class="Part" referent="peacock_tail_0">
+      <Properties>
+        <string name="Name">ShoulderStrap</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.2196078431372549</R>
+          <G>0.38823529411764707</G>
+          <B>0.34509803921568627</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.14</X>
+          <Y>1.66</Y>
+          <Z>0.12</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.53000000</X>
+          <Y>0.62000000</Y>
+          <Z>0.55000000</Z>
+          <R00>0.9961946981</R00>
+          <R01>-0.0871557427</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0871557427</R10>
+          <R11>0.9961946981</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="peacock_tail_1">
+      <Properties>
+        <string name="Name">ShoulderStrap</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.2196078431372549</R>
+          <G>0.38823529411764707</G>
+          <B>0.34509803921568627</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.14</X>
+          <Y>1.66</Y>
+          <Z>0.12</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.53000000</X>
+          <Y>0.62000000</Y>
+          <Z>0.55000000</Z>
+          <R00>0.9961946981</R00>
+          <R01>0.0871557427</R01>
+          <R02>0.0000000000</R02>
+          <R10>-0.0871557427</R10>
+          <R11>0.9961946981</R11>
+          <R12>-0.0000000000</R12>
+          <R20>-0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="peacock_tail_2">
+      <Properties>
+        <string name="Name">TailRoot</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.16862745098039217</R>
+          <G>0.43137254901960786</G>
+          <B>0.3607843137254902</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.72</X>
+          <Y>0.45</Y>
+          <Z>0.28</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>-0.22000000</Y>
+          <Z>0.77000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="peacock_tail_3">
+      <Properties>
+        <string name="Name">FanFeather</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <Color3 name="Color">
+          <R>0.1568627450980392</R>
+          <G>0.6666666666666666</G>
+          <B>0.6274509803921569</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.47</X>
+          <Y>2.45</Y>
+          <Z>0.14</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.78287998</X>
+          <Y>0.66069595</Y>
+          <Z>0.86000000</Z>
+          <R00>0.7193398003</R00>
+          <R01>-0.6946583705</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.6946583705</R10>
+          <R11>0.7193398003</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="peacock_tail_4">
+      <Properties>
+        <string name="Name">FeatherTip</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.1568627450980392</R>
+          <G>0.6666666666666666</G>
+          <B>0.6274509803921569</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.47</X>
+          <Y>0.47</Y>
+          <Z>0.47</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-1.54874084</X>
+          <Y>1.45376808</Y>
+          <Z>0.86000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="peacock_tail_5">
+      <Properties>
+        <string name="Name">FeatherEye</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.8549019607843137</R>
+          <G>0.7137254901960784</G>
+          <B>0.2196078431372549</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.28</X>
+          <Y>0.28</Y>
+          <Z>0.28</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-1.54874084</X>
+          <Y>1.45376808</Y>
+          <Z>0.66000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="peacock_tail_6">
+      <Properties>
+        <string name="Name">FanFeather</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <Color3 name="Color">
+          <R>0.19607843137254902</R>
+          <G>0.5098039215686274</G>
+          <B>0.7843137254901961</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.47</X>
+          <Y>2.95</Y>
+          <Z>0.14</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.50834115</X>
+          <Y>1.10818849</Y>
+          <Z>0.86000000</Z>
+          <R00>0.9271838546</R00>
+          <R01>-0.3746065934</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.3746065934</R10>
+          <R11>0.9271838546</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="peacock_tail_7">
+      <Properties>
+        <string name="Name">FeatherTip</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.19607843137254902</R>
+          <G>0.5098039215686274</G>
+          <B>0.7843137254901961</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.47</X>
+          <Y>0.47</Y>
+          <Z>0.47</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-1.00563140</X>
+          <Y>2.33902506</Y>
+          <Z>0.86000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="peacock_tail_8">
+      <Properties>
+        <string name="Name">FeatherEye</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.8549019607843137</R>
+          <G>0.7137254901960784</G>
+          <B>0.2196078431372549</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.28</X>
+          <Y>0.28</Y>
+          <Z>0.28</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-1.00563140</X>
+          <Y>2.33902506</Y>
+          <Z>0.66000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="peacock_tail_9">
+      <Properties>
+        <string name="Name">FanFeather</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <Color3 name="Color">
+          <R>0.23529411764705882</R>
+          <G>0.7843137254901961</G>
+          <B>0.5098039215686274</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.47</X>
+          <Y>3.3</Y>
+          <Z>0.14</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.00000000</X>
+          <Y>1.36800000</Y>
+          <Z>0.86000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="peacock_tail_10">
+      <Properties>
+        <string name="Name">FeatherTip</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.23529411764705882</R>
+          <G>0.7843137254901961</G>
+          <B>0.5098039215686274</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.47</X>
+          <Y>0.47</Y>
+          <Z>0.47</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.00000000</X>
+          <Y>2.85300000</Y>
+          <Z>0.86000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="peacock_tail_11">
+      <Properties>
+        <string name="Name">FeatherEye</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.8549019607843137</R>
+          <G>0.7137254901960784</G>
+          <B>0.2196078431372549</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.28</X>
+          <Y>0.28</Y>
+          <Z>0.28</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.00000000</X>
+          <Y>2.85300000</Y>
+          <Z>0.66000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="peacock_tail_12">
+      <Properties>
+        <string name="Name">FanFeather</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <Color3 name="Color">
+          <R>0.19607843137254902</R>
+          <G>0.5098039215686274</G>
+          <B>0.7843137254901961</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.47</X>
+          <Y>2.95</Y>
+          <Z>0.14</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.50834115</X>
+          <Y>1.10818849</Y>
+          <Z>0.86000000</Z>
+          <R00>0.9271838546</R00>
+          <R01>0.3746065934</R01>
+          <R02>0.0000000000</R02>
+          <R10>-0.3746065934</R10>
+          <R11>0.9271838546</R11>
+          <R12>-0.0000000000</R12>
+          <R20>-0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="peacock_tail_13">
+      <Properties>
+        <string name="Name">FeatherTip</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.19607843137254902</R>
+          <G>0.5098039215686274</G>
+          <B>0.7843137254901961</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.47</X>
+          <Y>0.47</Y>
+          <Z>0.47</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1.00563140</X>
+          <Y>2.33902506</Y>
+          <Z>0.86000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="peacock_tail_14">
+      <Properties>
+        <string name="Name">FeatherEye</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.8549019607843137</R>
+          <G>0.7137254901960784</G>
+          <B>0.2196078431372549</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.28</X>
+          <Y>0.28</Y>
+          <Z>0.28</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1.00563140</X>
+          <Y>2.33902506</Y>
+          <Z>0.66000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="peacock_tail_15">
+      <Properties>
+        <string name="Name">FanFeather</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <Color3 name="Color">
+          <R>0.1568627450980392</R>
+          <G>0.6666666666666666</G>
+          <B>0.6274509803921569</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.47</X>
+          <Y>2.45</Y>
+          <Z>0.14</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.78287998</X>
+          <Y>0.66069595</Y>
+          <Z>0.86000000</Z>
+          <R00>0.7193398003</R00>
+          <R01>0.6946583705</R01>
+          <R02>0.0000000000</R02>
+          <R10>-0.6946583705</R10>
+          <R11>0.7193398003</R11>
+          <R12>-0.0000000000</R12>
+          <R20>-0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="peacock_tail_16">
+      <Properties>
+        <string name="Name">FeatherTip</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.1568627450980392</R>
+          <G>0.6666666666666666</G>
+          <B>0.6274509803921569</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.47</X>
+          <Y>0.47</Y>
+          <Z>0.47</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1.54874084</X>
+          <Y>1.45376808</Y>
+          <Z>0.86000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="peacock_tail_17">
+      <Properties>
+        <string name="Name">FeatherEye</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.8549019607843137</R>
+          <G>0.7137254901960784</G>
+          <B>0.2196078431372549</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.28</X>
+          <Y>0.28</Y>
+          <Z>0.28</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1.54874084</X>
+          <Y>1.45376808</Y>
+          <Z>0.66000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="peacock_tail_18">
+      <Properties>
+        <string name="Name">TailBrooch</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.2</R>
+          <G>0.36470588235294116</G>
+          <B>0.5568627450980392</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.24</X>
+          <Y>0.24</Y>
+          <Z>0.24</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>-0.20000000</Y>
+          <Z>1.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+  </Item>
+</roblox>
