@@ -51,6 +51,10 @@ type AnimalState = {
 	support: number, -- Alan düzlemine göre yüzey yüksekliği farkı (yumuşatılmış, yazılan)
 	supportGoal: number, -- Son ölçülen yüzey farkı
 	supportCheckAt: number,
+	validateAt: number, -- Hareket adımının (engel + destek) bir sonraki doğrulama zamanı
+	lastGood: Vector3, -- Son doğrulanmış konum (başarısız adım buraya geri alınır)
+	lastGoodAngle: number,
+	stallUntil: number, -- Doğrulama başarısızsa (track) bu zamana kadar bekler
 	radius: number, -- Yatay ayak izi yarıçapı (model sınır kutusundan): hayvanlar birbirinden bu kadar uzak hedef seçer
 }
 
@@ -169,7 +173,12 @@ local function footSupport(state: AnimalState, point: Vector3, yaw: number, refe
 	if ahead == nil or math.abs(ahead - center) > MAX_STEP then
 		return nil
 	end
-	return math.max(center, ahead)
+	local back = point + Vector3.new(math.sin(yaw) * reach, 0, math.cos(yaw) * reach)
+	local behind = supportAt(state, back, center)
+	if behind == nil or math.abs(behind - center) > MAX_STEP then
+		return nil
+	end
+	return math.max(center, ahead, behind)
 end
 
 -- Hedef noktasında ve oraya giden yolda hayvan basabileceği bir yüzey var mı (basamak farkı MAX_STEP içinde, boşluk yok)
@@ -269,10 +278,15 @@ local function trackReady(instance: Instance)
 		support = 0,
 		supportGoal = 0,
 		supportCheckAt = 0,
+		validateAt = 0,
+		lastGood = position,
+		lastGoodAngle = 0,
+		stallUntil = 0,
 		radius = footprintRadius(instance),
 	}
 	-- Yüzme derinliği olan (suda yaşayan) hayvanlar karaya çıkarılmaz; track (daire) hareketi de sabit yükseklikte kalır
 	local state = states[instance]
+	state.lastGoodAngle = state.trackAngle
 	local swimDepth = instance:GetAttribute("SwimDepthOffset")
 	state.swims = typeof(swimDepth) == "number" and swimDepth > 0
 	if not state.swims then
@@ -426,6 +440,9 @@ RunService.PreRender:Connect(function(dt: number)
 
 		local moving = false
 		if state.track then
+			if now < state.stallUntil then
+				continue
+			end
 			state.trackAngle += dt * 0.9
 			local rx = math.min(state.halfSize.X, 6)
 			local rz = math.min(state.halfSize.Z, 14)
@@ -434,7 +451,11 @@ RunService.PreRender:Connect(function(dt: number)
 			moving = true
 		elseif state.target == nil then
 			if now >= state.waitUntil then
-				state.target = randomPoint(state)
+				-- Yüzey henüz bulunamadıysa (streaming) kara hayvanı güvenli biçimde yerinde bekler
+				state.target = if state.supported or state.swims then randomPoint(state) else nil
+				if state.target == nil then
+					state.waitUntil = now + 1
+				end
 			end
 		else
 			local target = state.target :: Vector3
@@ -466,29 +487,37 @@ RunService.PreRender:Connect(function(dt: number)
 					if height ~= nil and math.abs(height) <= MAX_STEP then
 						state.supported = true
 						state.support, state.supportGoal = height, height
+						state.lastGood = state.position
 					end
 				end
-			elseif now >= state.supportCheckAt and (moving or state.support ~= state.supportGoal) then
-				state.supportCheckAt = now + SUPPORT_INTERVAL
+			elseif moving and now >= state.validateAt then
+				-- Atılan adımlar engel ve destek denetiminden geçer; geçemeyen adım son doğrulanmış konuma geri alınır
+				state.validateAt = now + SUPPORT_INTERVAL
+				local obstacles = obstaclesNear(state)
 				local height = footSupport(state, state.position, state.yaw, state.support)
-				if height ~= nil and math.abs(height - state.support) <= MAX_STEP then
+				if
+					height ~= nil
+					and math.abs(height - state.support) <= MAX_STEP
+					and (#obstacles == 0 or not blockedAt(state, state.position, obstacles))
+				then
 					state.supportGoal = height
-				elseif moving then
-					-- Destek kayboldu ya da basamak aşılamaz: dur ve yeniden hedef seç
+					state.lastGood = state.position
+					state.lastGoodAngle = state.trackAngle
+				else
+					state.position = state.lastGood
+					state.trackAngle = state.lastGoodAngle
 					state.target = nil
 					state.waitUntil = now + 1
+					state.stallUntil = now + 1
 					moving = false
 				end
 			end
 			-- Yüzeye geçiş: inişte yumuşak, çıkışta ayak yüzeyin altında kalmaz (hayvan yüzeye girmez)
 			local diff = state.supportGoal - state.support
-			if math.abs(diff) < 0.01 then
+			if diff >= 0 or math.abs(diff) < 0.01 then
 				state.support = state.supportGoal
 			else
 				state.support += diff * math.min(1, SUPPORT_SMOOTH * dt)
-				if diff > 0 then
-					state.support = math.max(state.support, state.supportGoal - 0.1)
-				end
 			end
 		end
 		local localCf = CFrame.new(state.position.X, state.heightOffset + state.support + bob, state.position.Z)

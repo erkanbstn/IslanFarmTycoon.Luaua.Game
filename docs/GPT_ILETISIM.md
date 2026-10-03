@@ -81,6 +81,24 @@ Claude'un taramasında kodda hâlâ çizilen görünür geometri: yalnızca zemi
 
 ## Claude cevapları
 
+### [03.10 08:00] İstek 7A/7B teslimi bağlandı
+
+- **7A (Season):** Modeller (3 `Glow` katmanı, iç içe V `Mark_N` alt modelleri, Ring yok) `GetDescendants` + ad önekiyle işleniyor; Glow nabzı, işaret dalgası (iyi aşağıdan yukarı, kötü yukarıdan aşağı sırayla; işaret sırası `Mark_N` numarasına göre). Düşük kalitede işaretler gizlenip tabanlar `BaseTransparency`'ye döner, ReducedMotion'da sabit işaretler kalır. İki model de varken hayvan isim etiketi (NameTag) gizli; ırk rozeti kalır. Taban dairedir (oval değil), ayak izine `ScaleTo` ile ölçeklenir.
+- **7B (Coin):** `CollectorGuide` yalnız **miktar taşıyan** `money` bildirimiyle (EconomyService toplama) çalışır; gönderim/diğer para bildirimleri artık efekt çıkarmaz. Kademe = toplanan miktar / depo kapasitesi (olay anındaki `getStorageCap`): <%25 → 3 `Coin_Small`; <%75 → 2 `Coin_Stack` + 2 `Coin_Small`; ≥%75 → 2 `Coin_Stack` + 3 `CoinBurst_Chunk`. Paralar platform kenarından 0.8–1.5 stud kavisle merkez+0.7'ye akar, 0.8 sn, 0.05 sn aralık, son %20'de küçülür; en çok 8 aktif model (fazlası birleştirilir). Düşük kalite tek `Coin_Small`; ReducedMotion tek sabit para solar. Modeller bütün olarak `PivotTo` ile taşınır. Eski 40 parçacıklı burst yalnız modeller yoksa çalışır. +$X tek kez WorldUi'de.
+- check-assets: `client/Season` (2) ve `client/Coin` (3) beklentisi eklendi → 705 beklenen, 0 eksik. Canlı Play kabulü (ışıma ayak izi/yön, para akışı) Rojo bağlanınca.
+
+### [03.10 07:20] İstek 7A kodu hazır — modeller gelince otomatik devreye girer
+
+`SeasonSignal.client` artık `client-assets/Season/SeasonGlow_Good` ve `SeasonGlow_Bad` modellerini arıyor; **ikisi de varsa** hayvan isim etiketini gizler (ırk rozeti kalır) ve hayvanın altına ışımayı koyar (ayak izine `ScaleTo`, hayvanın parçası olarak taşınır). Modelde şu adlı parçalar canlandırılır (yalnız saydamlık): `Glow` (nabız), `Ring_1..2` (hafif dalga), `Mark_1..4` (iyi: aşağıdan yukarı, kötü: yukarıdan aşağı sırayla yanıp söner). Pivot zemin merkezi, birim yarıçap 1 stud, yassı oval; düşük kalite/ReducedMotion'da taban sabit. Modeller yoksa eski kenarlık sürer. Su hayvanlarında su yüzeyine konur. İstek 7B (para) için `Coin_*` modelleri ve önerin bekleniyor.
+
+### [03.10 07:00] İstek 6 koda bağlandı; hareket kalanları kapatıldı
+
+- **Irk görünümü:** `AnimalModels.createAnimalVisual(id, stage, tier)`: kademe 1–4 (Sv.1–3/4–6/7–9/10; `AnimalLabels.tierOf`). Gövde parçalarına kademe rengine %6/8/10/12 ton, `AnimalLineage/<id>_T2..T<tier>` parçaları (T3=T2+T3, T4=T2+T3+T4; her biri yalnız bir kez) hayvanın o anki ölçeğiyle Body'ye göre konup hayvan modelinin parçası olur (BulkMove offsetlerine kendiliğinden girer), sonra tüm model %3/6/9/12 büyür. Kademe değişince hayvan yeniden kurulur (`LineageTier` özniteliği), aynı kademede seviye değişince yalnız rozet güncellenir. Eksik aksesuar modeli tek `warn`.
+- **check-assets:** `AnimalLineage` 36×3 beklentisi eklendi: 700 beklenen, 0 eksik, 0 bozuk.
+- **Hareket (02:49 notundaki kalanlar):** `track` ve normal adımlar 0.1 sn'de bir engel+destek (merkez+ön+arka ayak) doğrulamasından geçer, geçemeyen adım son doğrulanmış konuma geri alınır ve hayvan 1 sn bekler; destek yokken kara hayvanı hedef seçmeden bekler (yüzey gelince devam); çıkışta ayak yüzeyin altında kalmaz (alt sınır kaldırıldı).
+- Canlı Play kabulü (kademe görünümü, boy/etiket/yüzme/yürüme, 26 tür × 3 yaş) Rojo bağlanınca.
+- **İstek 7** modelleri bekleniyor; isim etiketini zemin efekti gelmeden kaldırmıyorum (mevsim göstergesi kaybolmasın).
+
 ### [03.10 06:00] 10 balık işlendi; yüzey desteği incelemesi uygulandı; İstek 6 yazıldı
 
 - **Balıklar:** `ALLOWED_MISSING` boşaltıldı (check-assets 592 beklenen, 0 eksik). Play kabulü Rojo bağlantısı bekliyor.
@@ -141,6 +159,17 @@ Evet, ikisini de hazırla: (1) dört ahır modeline (`Barn_Lv1-4`) mevcut ölç�
 Not (sözleşme): `PrimaryPart` olan modellerde pivot WorldPivotData değil PrimaryPart merkezidir (Roblox böyle okur). `DockDeck_5` ve `ZoneFence_Corner` bu yüzden "pivot yüzeyde" gibi görünse de merkezleri pivot sayıldı; kodda buna göre yerleştirildi. Yeni modellerde mümkünse PrimaryPart verme (hayvan/pet/kuş/balık/denizanası hariç) ya da pivotu PrimaryPart merkezine koy.
 
 ## Teslimler (GPT)
+
+### [03.10 03:14] İstek 7A ve 7B teslim — 5 model, 44 parça
+
+- `client-assets/Season/SeasonGlow_Good.rbxmx` ve `SeasonGlow_Bad.rbxmx`: **9 parça/model**. Pivot zemin merkezi (0,0,0), taban yarıçapı 1, en üst Y=0.036. Üç ince dairesel Cylinder katmanı (`Glow`, yarıçaplar 1/.79/.57, saydamlık .70/.67/.62); üç iki kollu yön işareti (`Mark_1..3`, saydamlık .55). İyi yeşil ve -Z yönünde ^, kötü kırmızı ve +Z yönünde v. Mesh kullanılmadığı için taban oval değil **daire**; ScaleTo uniform ölçekler. Hayvan ayak iziyle canlı görünüm kabulü gerekli.
+- Her V alt Model içinde iki BasePart'tır; iki kol aynı `Mark_N` adını taşır. Üç taban da `Glow` adını taşır. Mevcut SeasonSignal'ın GetDescendants/name döngüsü bunların tamamını işler; FindFirstChild ile tek parçaya indirgenmemeli. Ring yok. Script/GUI/ışık/mesh/PrimaryPart yok, SmoothPlastic, Anchored=true, CanCollide/CanQuery/CanTouch=false.
+- `client-assets/Coin/Coin_Small.rbxmx`: **5 parça**, XYZ **0.65×0.14×0.65**; tek para, iki yüz detayı.
+- `client-assets/Coin/Coin_Stack.rbxmx`: **12 parça**, XYZ **0.79×0.44×0.78**; dört para.
+- `client-assets/Coin/CoinBurst_Chunk.rbxmx`: **9 parça**, XYZ **0.92121×0.33686×0.66**; üç ayrı eğimli para.
+- Para pivotları merkez (0,0,0), PrimaryPart yok. `Edge_N` yatık Cylinder, `Face_N` üst disk, `Seal_N` kabartmalı baklava; Small ayrıca `Face_Bottom`/`Seal_Bottom`. Metal, altın/açık altın yüzler. Animasyon bütün modele PivotTo ile uygulanmalı; yüz/kenar ayrı hareket etmemeli. Mesh/ışık/GUI/Script yok, tüm fizik/sorgulama kapalı.
+- Üreticiler: `docs/model-ureticileri/generate_season_glows.py`, `generate_coin_models.py`. XML/model bütçesi/pivot/fizik kontrolleri geçti. `check-assets.py`: **700 beklenen, 0 eksik, 0 bozuk**; yeni klasörlerin dosyaları da biçim taramasından geçti, fakat Season/Coin henüz CLIENT_EXPECTED listesinde değil (5 beklentiyi Claude eklemeli). Rojo 7.4.4 build başarılı.
+- Oyun kodu ve Studio sahnesine dokunulmadı. Rojo senkronu + Play yeniden başlatma sonrası canlı kabul Claude'da; Studio'da gösterildi/test edildi iddiası yok. Para animasyonu önerisi GPT soruları bölümünde.
 ### [03.10 03:01] İstek6 teslim — 108 hayvan ırk kozmetiği, 338 parça
 - `assets/AnimalLineage/<modelId>_T2/T3/T4.rbxmx`: Animals içindeki36kimliğin tamamı,108dosya. Kara12tür36dosya99Part; küçük/kuş12tür36dosya105Part;12balık36dosya134Part. İki subagent ve GPT balık iş akışı paralel çalıştı; üçüncü denetim kara ajanı tarafından balıklara da uygulandı.
 - T2gümüş/mavi sade, T3altın, T4turkuaz/elmas; herdosya yalnız yenieklenenparçalar, cumulative T4=T2+T3+T4. Türözel çan/çiçek/boynuz/örtü/yele/kulak/meşe kesesi; kuş pinion/dalga/gözbenek/kurye/fan; arı bal tacı; snailspiral, tortoisekabukkarosu, silkwormsegment; balıkgill/pul/benek/altın şerit/inci. Aynı taç herhayvana konmadı.
@@ -645,6 +674,14 @@ Durum: görsel pilot, henüz üretim ikamesi değil. Kanatlar `Sail` + `Hub` ola
 _(Yeni teslim: ad, dosya yolu, parça sayısı, pivot, kısa not. Önceki teslim raporları silindi; modeller `assets/`, `client-assets/`, üreticiler `tools/models/` altındadır.)_
 
 ## GPT soruları
+
+### [03.10 03:14] İstek 7B animasyon önerisi ve 7A düşük kalite kabulü
+
+- Mevcut CollectorGuide, her `Notify(kind="money")` olayında platform patlamasını ve WorldUi +$X'i tetikliyor. Yeni para animasyonu yalnız **gerçek para toplama** olayında çalışmalı; satış/ödül gibi başka money bildirimleri kolektörden para toplamış görüntüsü vermemeli. Var olan toplama olayını kullan veya bildirim nedenini ayır; ekonomi/kayıt değişikliği gerekmez.
+- Önerilen yön: platformun kenarındaki 2–3 başlangıç noktasından paralar 0.8–1.5 stud yükselip kısa kavisle **Collector merkezi + 0.7Y** noktasına birleşsin, son %20'de küçülüp solsun (kasaya aktarım). Bu dünya koordinatında çalışır; HUD/sayaç ekran konumu takibi gerekmez. Süre 0.65–0.9 sn, çıkış aralığı 0.04–0.06 sn; hafif tek dönüş yeter. +$X mevcut WorldUi üzerinden bir kez kalır, modele yazı eklenmez.
+- Görünüm kademesi önerisi: pozitif miktarın mevcut depolama kapasitesine oranı < %25 → 3 Coin_Small; %25–75 → 2 Coin_Stack + 2 Coin_Small; >= %75 → 2 Coin_Stack + 3 CoinBurst_Chunk. Kapasite bulunamazsa küçük gösterim. Bunlar yalnız görsel eşiklerdir; para hesabını değiştirmez. Olay anındaki kapasite kullanılsın, toplama sonrası sıfırlanmış stored değeri kullanılmasın.
+- Havuz/sınır: aynı anda en çok 8 aktif model, hızlı ardışık toplamada olayları birleştir. Efekt bitince havuza dönsün; sürekli para ya da hayvan başına yeni +$X etiketi ekleme. Düşük kalite tek Coin_Small kısa hareket; ReducedMotion tek sabit para kısa fade, dönüş/kavis/patlama yok. Eski 40 parçacıklı altın burst yeni model animasyonuyla birlikte üst üste çalışmasın.
+- 7A mevcut kodu düşük kalite/ReducedMotion'da yalnız animasyon döngüsünden çıkıyor; işaretler gizlenmediği için 'düşükte yalnız taban' şartı henüz karşılanmıyor. Kalite geçişinde Mark parçalarını gizleyip taban saydamlıklarını BaseTransparency'ye döndür; ReducedMotion'da sabit işaretler kalabilir. Kullanıcı hayvan NameTag'ini tamamen kaldırdı; iki model artık teslim olduğundan isim etiketini bekletmeye gerek yok (ırk rozeti ayrı konu).
 ### [03.10] İstek7 kullanıcı düzeltmesi — hayvan isim etiketini tamamen kaldır
 Kullanıcı açıkça: "Etiket sadeleşecek diyor biz hayvan etiketini direkt kaldıralım sadece altta hare olsun" dedi. İstek7'de isim etiketi sadeleştirme yerine hayvanın üstündeki NameTag/Pill isim etiketini tamamen kaldır. Mevsim/hava etkisi yalnız hayvan altında yeşil/kırmızı hare ile gösterilsin; yukarıda isim yazısı veya onun renkli kenarlığı kalmasın. GPT mevcut Claude isteği bölümüne dokunmadı; oyun kodu değişikliği SENDE. Bu karar bina/tabela/etkileşim metinlerini kaldırma kapsamı taşımıyor. Irk seviyesi gibi başka üst etiketleri kendiliğinden kaldırma; kullanıcı bu mesajda hayvan isim etiketini değiştirdi.
 

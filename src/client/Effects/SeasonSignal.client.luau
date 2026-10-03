@@ -1,11 +1,13 @@
 --!strict
--- Hayvan mevsim/hava göstergesi (sadece görsel, sadece bu oyuncunun ekranında): gelir çarpanı artıya geçen hayvanın isim
--- etiketinin kenarlığı yeşil, eksiye düşenin kırmızı olur; nötr hayvanda kenarlık yoktur. Dünyaya hiçbir parça/parçacık/halka eklenmez
--- (öncekiler yer halkası, ok ve ışık sütunuydu: gaz ya da dikdörtgen gibi görünüyordu).
+-- Hayvan mevsim/hava göstergesi (sadece görsel, sadece bu oyuncunun ekranında): gelir çarpanı artıya geçen hayvanın ALTINDA
+-- yeşil, eksiye düşenin altında kırmızı zemin ışıması olur (client-assets/Season/SeasonGlow_Good|Bad: yassı oval taban, halkalar ve
+-- yönlü işaretler; hayvanın parçası olarak taşınır, nabız/işaret animasyonu bu dosyada). Bu modeller varsa isim etiketi gizlenir;
+-- yoksa (geçiş dönemi) eski gösterge sürer: etiketin kenarlığı yeşil/kırmızı.
 -- Sinyal `FarmMath.getSeasonEffect` ile hesaplanır (Mevsim çubuğu ile aynı hesap) ve OLAY tabanlıdır:
 -- mevsim/hava/bölge uyumu/hayvan listesi değişince yeniden hesaplanır; zamanlayıcı ya da kare başı iş yoktur.
 
 local CollectionService = game:GetService("CollectionService")
+local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -15,6 +17,8 @@ local UiTheme = require(Shared:WaitForChild("UiTheme"))
 local Core = script.Parent.Parent:WaitForChild("Core")
 local ClientState = require(Core:WaitForChild("ClientState"))
 local StartupGate = require(Core:WaitForChild("StartupGate"))
+local ClientModelAssets = require(Core:WaitForChild("ClientModelAssets"))
+local EffectSettings = require(Core:WaitForChild("EffectSettings"))
 
 local Color = UiTheme.Color
 
@@ -22,6 +26,118 @@ local STROKE_NAME = "SeasonStroke"
 local STROKE_THICKNESS = 2.5
 
 local tracked: { [Model]: boolean } = {}
+
+local GLOW_NAME = "SeasonGlow"
+local GLOW_TEMPLATES = {
+	good = ClientModelAssets.find("Season", "SeasonGlow_Good"),
+	bad = ClientModelAssets.find("Season", "SeasonGlow_Bad"),
+}
+local USE_GLOW = GLOW_TEMPLATES.good ~= nil and GLOW_TEMPLATES.bad ~= nil
+local glows: { [Model]: Model } = {}
+
+-- Işıma hayvanın ayak izine ölçeklenir (model birim yarıçaplı) ve hayvanın zemin/su seviyesine konur; hayvanın parçası olarak taşınır
+local function buildGlow(model: Model, kind: string): Model?
+	local template = GLOW_TEMPLATES[kind]
+	local body = model.PrimaryPart or model:FindFirstChild("Body")
+	if not (template and body and body:IsA("BasePart")) then
+		return nil
+	end
+	local glow = template:Clone()
+	glow.Name = GLOW_NAME
+	glow:SetAttribute("Kind", kind)
+	local size = model:GetExtentsSize()
+	glow:ScaleTo(math.max(0.8, math.max(size.X, size.Z) * 0.5 * 0.9))
+	local boxCf, boxSize = model:GetBoundingBox()
+	local swimDepth = model:GetAttribute("SwimDepthOffset")
+	local y = if typeof(swimDepth) == "number" and swimDepth > 0
+		then body.Position.Y + swimDepth + 0.05
+		else boxCf.Position.Y - boxSize.Y / 2 + 0.05
+	local look = body.CFrame.LookVector
+	glow:PivotTo(CFrame.new(body.Position.X, y, body.Position.Z) * CFrame.Angles(0, math.atan2(-look.X, -look.Z), 0))
+	for _, part in glow:GetDescendants() do
+		if part:IsA("BasePart") then
+			part:SetAttribute("BaseTransparency", part.Transparency)
+			part.Anchored = true
+			part.CanCollide, part.CanQuery, part.CanTouch = false, false, false
+		end
+	end
+	glow.Parent = model
+	return glow
+end
+
+local function applyGlow(model: Model, signal: number)
+	local existing: Model? = glows[model]
+	if existing and not existing.Parent then
+		existing = nil
+		glows[model] = nil
+	end
+	local kind = if signal > 0 then "good" elseif signal < 0 then "bad" else nil
+	if existing and (kind == nil or existing:GetAttribute("Kind") ~= kind) then
+		existing:Destroy()
+		glows[model] = nil
+		existing = nil
+	end
+	if kind and not existing then
+		local glow = buildGlow(model, kind)
+		if glow then
+			glows[model] = glow
+		end
+	end
+end
+
+-- Nabız ve işaret dalgası: yalnız saydamlık oynar (parçalar hayvanla birlikte taşındığı için konum oynamaz). Düşük kalitede
+-- ya da hareketi azalt açıkken taban sabit kalır.
+local PULSE_INTERVAL = 1 / 15
+local pulseClock = 0
+RunService.Heartbeat:Connect(function(dt: number)
+	pulseClock += dt
+	if pulseClock < PULSE_INTERVAL then
+		return
+	end
+	pulseClock = 0
+	if next(glows) == nil then
+		return
+	end
+	local low = EffectSettings.quality() == "low"
+	if low or EffectSettings.reducedMotion() then
+		-- Düşük kalite: yalnız taban (işaretler gizli, saydamlık sabit); hareketi azalt: sabit işaretler kalır, animasyon yok
+		for _, glow in glows do
+			for _, part in glow:GetDescendants() do
+				if part:IsA("BasePart") then
+					local base = part:GetAttribute("BaseTransparency") :: number
+					part.Transparency = if low and part.Name:sub(1, 5) == "Mark_" then 1 else base
+				end
+			end
+		end
+		return
+	end
+	local now = os.clock()
+	for model, glow in glows do
+		if not glow.Parent then
+			glows[model] = nil
+			continue
+		end
+		local rising = glow:GetAttribute("Kind") == "good"
+		for _, part in glow:GetDescendants() do
+			if not part:IsA("BasePart") then
+				continue
+			end
+			local base = part:GetAttribute("BaseTransparency") :: number
+			local name = part.Name
+			if name == "Glow" then
+				part.Transparency = math.clamp(base + math.sin(now * 2.2) * 0.1, 0, 1)
+			elseif name:sub(1, 5) == "Mark_" then
+				-- İşaretler sırayla yanıp söner: iyi durumda aşağıdan yukarı, kötüde yukarıdan aşağı
+				local index = tonumber(name:sub(6)) or 1
+				local phase = if rising then index else (5 - index)
+				part.Transparency = math.clamp(base + (1 - base) * (0.5 - 0.5 * math.sin(now * 3 - phase * 0.9)), 0, 1)
+			elseif name:sub(1, 5) == "Ring_" then
+				local index = tonumber(name:sub(6)) or 1
+				part.Transparency = math.clamp(base + math.sin(now * 2.2 - index * 0.8) * 0.08, 0, 1)
+			end
+		end
+	end
+end)
 
 local function compute(model: Model): number
 	local state = ClientState.get()
@@ -40,6 +156,14 @@ end
 -- Etiketin yuvarlak kutusuna (Pill) renkli kenarlık koyar/kaldırır
 local function apply(model: Model)
 	local tag = model:FindFirstChild("NameTag", true)
+	if USE_GLOW then
+		-- Zemin ışıması varken isim etiketi gösterilmez (kalabalık görünüyordu); ırk rozeti ayrı etikettir ve kalır
+		if tag and tag:IsA("BillboardGui") then
+			tag.Enabled = false
+		end
+		applyGlow(model, compute(model))
+		return
+	end
 	local pill = if tag then tag:FindFirstChild("Pill") else nil
 	if not pill then
 		return
@@ -93,6 +217,7 @@ task.spawn(function()
 	CollectionService:GetInstanceRemovedSignal("Animal"):Connect(function(instance: Instance)
 		if instance:IsA("Model") then
 			tracked[instance] = nil
+			glows[instance] = nil
 		end
 	end)
 	for _, instance in CollectionService:GetTagged("Animal") do

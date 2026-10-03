@@ -36,6 +36,11 @@ local function lineageTier(level: number): number
 	return if level >= Config.LINEAGE.maxLevel then 4 elseif level >= 7 then 3 elseif level >= 4 then 2 else 1
 end
 
+-- Irk kademesi: 0 = yok, 1 bronz (Sv.1-3), 2 gümüş (4-6), 3 altın (7-9), 4 elmas (10). Görünüm (AnimalModels) ve rozet aynı kademeyi kullanır.
+local function tierOf(level: number): number
+	return if level <= 0 then 0 else lineageTier(level)
+end
+
 local function applyLineage(model: Model, level: number, extraHeight: number)
 	model:SetAttribute("Lineage", level)
 	local anchor = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
@@ -64,4 +69,5 @@ end
 return {
 	addNameTag = addNameTag,
 	applyLineage = applyLineage,
+	tierOf = tierOf,
 }

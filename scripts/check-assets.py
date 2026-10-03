@@ -62,6 +62,9 @@ def expected() -> dict[str, set[str]]:
         | {"silo", "milk_machine", "auto_collector", "egg_factory", "golden_horseshoe"}
     )
 
+    # Irk kozmetiği: her hayvan görünümü x T2-T4 aksesuar (AnimalLineage/<modelId>_T<N>; yalnız yeni parçalar, PrimaryPart yok)
+    exp["AnimalLineage"] = {f"{a}_T{i}" for a in exp["Animals"] for i in (2, 3, 4)}
+
     # Bina seviyeleri: üretim tesisleri (silo/süt makinesi/otomatik toplayıcı/yumurta fabrikası/tekne hariç) x Sv.1-5 (BuildingLevels/<id>_Lv<N>)
     leveled = exp["Buildings"] - {"silo", "milk_machine", "auto_collector", "egg_factory", "golden_horseshoe", "fishing_boat"}
     exp["BuildingLevels"] = {f"{b}_Lv{i}" for b in leveled for i in range(1, 6)}
@@ -154,6 +157,8 @@ CLIENT_EXPECTED: dict[str, set[str]] = {
         "SwimBubbles", "Splash", "UnderwaterAtmosphere", "DiverChest", "ReefArch",
     },
     "PetProps": {"CarryAnimal", "CarryCrate", "CarryCoins"},
+    "Season": {"SeasonGlow_Good", "SeasonGlow_Bad"},
+    "Coin": {"Coin_Small", "Coin_Stack", "CoinBurst_Chunk"},
 }
 
 

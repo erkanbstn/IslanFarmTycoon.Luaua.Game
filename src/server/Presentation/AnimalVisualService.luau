@@ -29,6 +29,7 @@ local placeOnSurface = AnimalPlacement.placeOnSurface
 local findZoneGround = AnimalPlacement.findZoneGround
 local addNameTag = AnimalLabels.addNameTag
 local applyLineage = AnimalLabels.applyLineage
+local tierOf = AnimalLabels.tierOf
 
 function AnimalVisualService.clear(plot: Model)
 	local folder = plot:FindFirstChild("Animals")
@@ -47,7 +48,7 @@ local function buildAnimal(
 	themeKey: string
 ): Model
 	local look = Config.getAnimalLook(animal.animalId, themeKey)
-	local visual = createAnimalVisual(look.modelId, animal.stage)
+	local visual = createAnimalVisual(look.modelId, animal.stage, tierOf(lineageLevel))
 	visual.Name = `{animal.animalId}_{animal.uid}`
 	-- Parçalar birlikte akar: istemcideki AnimalAnimator parça listesini bir kez çıkarıp topluca taşır; streaming parçaları ayrı
 	-- getirirse geç gelen parça (baş, kanat, bacak) hayvanın yerinde kalıp kopuk görünür.
@@ -63,6 +64,7 @@ local function buildAnimal(
 	visual:SetAttribute("Uid", animal.uid)
 	visual:SetAttribute("SwimDepthOffset", depth)
 	visual:SetAttribute("Stage", animal.stage)
+	visual:SetAttribute("LineageTier", tierOf(lineageLevel))
 	visual:SetAttribute("ZoneId", animal.zoneId)
 	visual:SetAttribute("ExtensionId", animal.extensionId or "")
 	-- Client'taki AnimalAnimator hayvanı bu alan içinde gezdirir
@@ -160,11 +162,12 @@ function AnimalVisualService.refresh(plot: Model, data: PlayerSave)
 		if
 			existing
 			and existing:GetAttribute("Stage") == animal.stage
+			and existing:GetAttribute("LineageTier") == tierOf(lineageLevel)
 			and existing:GetAttribute("ZoneId") == animal.zoneId
 			and existingExt == (animal.extensionId or "")
 		then
 			keep[animal.uid] = true
-			-- Irk seviyesi değiştiyse yalnızca rozet yenilenir (hayvan yeniden kurulmaz, yerinde kalır)
+			-- Irk seviyesi aynı kademede değiştiyse yalnızca rozet yenilenir; kademe değişince hayvan yukarıda yeniden kurulur (boy/aksesuar)
 			if existing:GetAttribute("Lineage") ~= lineageLevel then
 				local swimDepth = existing:GetAttribute("SwimDepthOffset")
 				applyLineage(existing, lineageLevel, if typeof(swimDepth) == "number" then swimDepth else 0)
