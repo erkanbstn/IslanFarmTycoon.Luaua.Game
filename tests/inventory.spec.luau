@@ -23,7 +23,8 @@ return function(Inventory: any, Config: any, FarmMath: any, SaveCodec: any, Sess
 			-- Tek bir fayda yerine birkaç farklı fayda: eşyalar sadece "aynı şeyin artırılmışı" olmasın
 			assert(item.power == nil and effectCount >= 2, `{item.slot} {itemId} needs at least two different effects`)
 		else
-			assert(item.power == nil and effectCount == 0, `cosmetic {itemId} must not carry effects`)
+			-- Şapka (ticari) ve sırt (lojistik) eşyalarının da katkısı olur; etki anahtarları config.spec'te denetlenir
+			assert(item.power == nil and effectCount >= 1, `{item.slot} {itemId} needs at least one effect`)
 		end
 		assert(item.look, `item {itemId} needs a visible look`)
 		assert(
@@ -38,11 +39,12 @@ return function(Inventory: any, Config: any, FarmMath: any, SaveCodec: any, Sess
 		assert(Config.ITEM_SLOTS[slotId], `ITEM_SLOT_ORDER lists unknown slot {slotId}`)
 	end
 	-- Aileler: fiyat arttıkça fayda da artar (aksi halde ucuz kademe pahalıyı gereksiz kılar)
+	-- Aileler muskalar içindedir: şapka/sırt eşyaları farklı slotta oldukları için ayrı kurala (config.spec) bağlıdır
 	local function family(filter: (any) -> number?): { { price: number, value: number } }
 		local list = {}
 		for _, itemId in Config.ITEM_ORDER do
 			local item = Config.ITEMS[itemId]
-			local value = filter(item)
+			local value = if item.slot == "head" or item.slot == "back" then nil else filter(item)
 			if value then
 				table.insert(list, { price = item.price, value = value })
 			end
@@ -196,12 +198,58 @@ return function(Inventory: any, Config: any, FarmMath: any, SaveCodec: any, Sess
 		) < 1e-9,
 		"an income charm adds to every animal's income"
 	)
-	local cosmetic = effects("golden_crown")
+	-- Şapka/sırt: yükseltme indirimi vermez, ama kendi etkilerini FarmMath'e taşır
+	local crown = effects("golden_crown")
 	assert(
-		FarmMath.getUpgradeCost(cosmetic, upgrade) == upgrade.cost
-			and FarmMath.getStorageCap(cosmetic) == FarmMath.getStorageCap(plain),
-		"cosmetics never change the economy"
+		FarmMath.getUpgradeCost(crown, upgrade) == upgrade.cost
+			and FarmMath.getStorageCap(crown) == FarmMath.getStorageCap(plain),
+		"hats and back items never discount upgrades"
 	)
+	assert(
+		math.abs(
+			FarmMath.getAnimalMultiplier(crown, "cow", true) / FarmMath.getAnimalMultiplier(plain, "cow", true) - 1.05
+		) < 1e-9,
+		"a crown adds to every animal's income"
+	)
+	-- Takılı şapka + sırt etkileri toplanır
+	local worn = newSave()
+	for _, itemId in { "cowboy_hat", "peacock_tail" } do
+		Inventory.grant(worn, itemId)
+		assert(Inventory.equip(worn, itemId), `{itemId} can be equipped`)
+	end
+	assert(
+		math.abs(FarmMath.getBonus(worn, "contractBonus") - 0.09) < 1e-9
+			and math.abs(FarmMath.getBonus(worn, "sellBonus") - 0.04) < 1e-9
+			and math.abs(FarmMath.getBonus(worn, "goodsYield") - 0.03) < 1e-9,
+		"hat and back effects add up"
+	)
+	local leaf = effects("leaf_cloak")
+	assert(
+		math.abs(FarmMath.getGrowthSpeed(leaf, "cow") / FarmMath.getGrowthSpeed(plain, "cow") - 1.08) < 1e-9,
+		"a growth cloak speeds growth up"
+	)
+	-- Hepsi takılı: her slotta en güçlü eşya, ekonomi sınırları içinde kalmalı
+	local maxed = newSave()
+	for _, slotId in Config.ITEM_SLOT_ORDER do
+		local best: any = nil
+		for _, itemId in Config.ITEM_ORDER do
+			local item = Config.ITEMS[itemId]
+			if item.slot == slotId and (best == nil or item.price > best.price) then
+				best = item
+			end
+		end
+		if best then
+			Inventory.grant(maxed, best.id)
+			assert(Inventory.equip(maxed, best.id), `{best.id} can be equipped`)
+		end
+	end
+	assert(FarmMath.getEquippedBonus(maxed, "incomeBonus") <= 0.25, "all-equipped income bonus stays capped")
+	assert(FarmMath.getEquippedBonus(maxed, "sellBonus") <= 0.35, "all-equipped sell bonus stays capped")
+	assert(FarmMath.getEquippedBonus(maxed, "upgradeDiscount") <= 0.2, "all-equipped upgrade discount stays capped")
+	assert(FarmMath.getBonus(maxed, "expansionDiscount") <= 0.12, "all-equipped expansion discount stays capped")
+	assert(FarmMath.getBonus(maxed, "contractBonus") <= 0.3, "all-equipped contract bonus stays capped")
+	assert(FarmMath.getBonus(maxed, "goodsYield") <= 0.25, "all-equipped goods yield stays capped")
+	assert(FarmMath.getGrowthSpeed(maxed, "cow") < Config.GROWTH_SPEED_CAP, "all-equipped growth stays under the cap")
 	-- Bozuk kayıt: sahip olunmayan takılı eşya etki etmez
 	local forged = newSave()
 	forged.inventory = { items = {}, equipped = { tool = "diamond_hammer" }, uses = {} }

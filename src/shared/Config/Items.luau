@@ -198,13 +198,14 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		look = { attach = "chest" },
 	})
 
-	-- Başlıklar (görünüm)
+	-- Başlıklar (ticari etki)
 	add({
 		id = "farmer_hat",
 		displayName = "Çiftçi Şapkası",
 		icon = "🎩",
 		slot = "head",
 		price = 10000,
+		effects = { sellBonus = 0.01 },
 		look = { attach = "head" },
 	})
 	add({
@@ -213,6 +214,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🎩",
 		slot = "head",
 		price = 15000,
+		effects = { contractBonus = 0.02 },
 		look = { attach = "head" },
 	})
 	add({
@@ -221,6 +223,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🎩",
 		slot = "head",
 		price = 30000,
+		effects = { goodsYield = 0.03 },
 		look = { attach = "head" },
 	})
 	add({
@@ -229,6 +232,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🎩",
 		slot = "head",
 		price = 60000,
+		effects = { sellBonus = 0.04, contractBonus = 0.03 },
 		look = { attach = "head" },
 	})
 	add({
@@ -237,16 +241,18 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🎩",
 		slot = "head",
 		price = 400000,
+		effects = { incomeBonus = 0.05, sellBonus = 0.04 },
 		look = { attach = "head" },
 	})
 
-	-- Sırt eşyaları (görünüm)
+	-- Sırt eşyaları (lojistik etki)
 	add({
 		id = "backpack",
 		displayName = "Sırt Çantası",
 		icon = "🧥",
 		slot = "back",
 		price = 12000,
+		effects = { storageBonus = 0.05 },
 		look = { attach = "back" },
 	})
 	add({
@@ -255,6 +261,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🧥",
 		slot = "back",
 		price = 50000,
+		effects = { offlineBonus = 0.07 },
 		look = { attach = "back" },
 	})
 	add({
@@ -263,6 +270,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🧥",
 		slot = "back",
 		price = 250000,
+		effects = { incomeBonus = 0.05 },
 		look = { attach = "back" },
 	})
 	add({
@@ -271,6 +279,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🧥",
 		slot = "back",
 		price = 1000000,
+		effects = { incomeBonus = 0.06, offlineBonus = 0.1 },
 		look = { attach = "back" },
 	})
 
@@ -312,13 +321,14 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		look = { attach = "chest" },
 	})
 
-	-- Yeni başlıklar
+	-- Yeni başlıklar (ticari etki)
 	add({
 		id = "beanie",
 		displayName = "Bere",
 		icon = "🎩",
 		slot = "head",
 		price = 12000,
+		effects = { offlineBonus = 0.03 },
 		look = { attach = "head" },
 	})
 	add({
@@ -327,6 +337,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🎩",
 		slot = "head",
 		price = 20000,
+		effects = { storageBonus = 0.05 },
 		look = { attach = "head" },
 	})
 	add({
@@ -335,16 +346,18 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🎩",
 		slot = "head",
 		price = 45000,
+		effects = { growthSpeed = 1.08 },
 		look = { attach = "head" },
 	})
 
-	-- Yeni sırt eşyaları
+	-- Yeni sırt eşyaları (lojistik etki)
 	add({
 		id = "harvest_basket",
 		displayName = "Hasat Sepeti",
 		icon = "🧥",
 		slot = "back",
 		price = 25000,
+		effects = { goodsYield = 0.03 },
 		look = { attach = "back" },
 	})
 	add({
@@ -353,6 +366,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🧥",
 		slot = "back",
 		price = 90000,
+		effects = { growthSpeed = 1.08 },
 		look = { attach = "back" },
 	})
 	add({
@@ -361,6 +375,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🧥",
 		slot = "back",
 		price = 500000,
+		effects = { contractBonus = 0.06, goodsYield = 0.03 },
 		look = { attach = "back" },
 	})
 end
