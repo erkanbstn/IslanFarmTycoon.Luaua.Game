@@ -72,6 +72,19 @@ local function maxFarmView(
 				end
 			end
 		end
+		FarmMath.applyDerived(view) -- açık bölgeler satın alınanlardan türer
+		-- Açılan bölgelerin yapı geliştirme seviyesi de tam olur (otlaktaki çiftlik evi gibi seviyeyle beliren yapılar görünsün)
+		local scope: { [string]: boolean } = {}
+		for _, islandId in islandIds do
+			scope[islandId] = true
+		end
+		local expansions = view.expansions or {}
+		view.expansions = expansions
+		for zoneId, zone in Config.ZONES do
+			if scope[zone.island] and view.unlockedZones[zoneId] then
+				expansions[zoneId] = Config.BUILD_UPGRADES.maxLevel
+			end
+		end
 		FarmMath.applyDerived(view)
 		FarmMath.preserveGrowthProgress(view, previousSpeeds, os.time())
 	end

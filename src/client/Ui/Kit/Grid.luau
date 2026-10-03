@@ -183,15 +183,15 @@ function Grid.tabs(
 		local button = Instance.new("TextButton")
 		button.Text = entry.label
 		button.FontFace = Tokens.Font.Bold
-		button.TextSize = Tokens.TextSize.Button
+		button.TextSize = Tokens.TextSize.Tab
 		button.AutoButtonColor = true
 		button.AutomaticSize = Enum.AutomaticSize.X
-		button.Size = UDim2.fromOffset(0, 30)
+		button.Size = UDim2.fromOffset(0, 38)
 		button.LayoutOrder = index
 		button.Selectable = true
 		button.Parent = row
 		Base.corner(button, Tokens.Radius.Button)
-		Base.padding(button, 12, 0)
+		Base.padding(button, 14, 0)
 		buttons[entry.id] = button
 		button.Activated:Connect(function()
 			choose(entry.id)

@@ -22,7 +22,7 @@ function IslandTabs.add(window: UiKit.Window)
 	local row = Instance.new("Frame")
 	row.Name = "IslandTabs"
 	row.BackgroundTransparency = 1
-	row.Size = UDim2.new(1, 0, 0, 34)
+	row.Size = UDim2.new(1, 0, 0, 40)
 	row.LayoutOrder = -1
 	row.Parent = window.list
 	UiKit.list(row, 4, true)
@@ -35,7 +35,7 @@ function IslandTabs.add(window: UiKit.Window)
 		button.Size = UDim2.new(1 / 4, -3, 1, 0)
 		-- Her sekmede aynı yazı boyutu; uzun ad kesilir, boyut oynamaz.
 		button.TextScaled = false
-		button.TextSize = UiKit.TextSize.Button
+		button.TextSize = UiKit.TextSize.Tab
 		button.TextTruncate = Enum.TextTruncate.AtEnd
 		buttons[islandId] = button
 		button.Activated:Connect(function()

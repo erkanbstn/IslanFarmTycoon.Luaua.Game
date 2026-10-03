@@ -22,6 +22,7 @@ local ProductionPanel = require(script.Parent.Parent:WaitForChild("ProductionPan
 local IslandManager = require(script.Parent.Parent:WaitForChild("IslandManager"))
 local HudCommon = require(script.Parent:WaitForChild("HudCommon"))
 local Onboarding = require(script.Parent:WaitForChild("Onboarding"))
+local OnboardingSteps = require(Shared:WaitForChild("Modules"):WaitForChild("OnboardingSteps"))
 local StoreSection = require(script.Parent:WaitForChild("StoreSection"))
 
 type PlayerSave = GameTypes.PlayerSave
@@ -231,6 +232,9 @@ function MenuBar.create(screenGui: Instance, onUnlocked: ((message: string) -> (
 	local announced: { [GuiObject]: boolean } = {}
 	local function setMenuTile(button: GuiObject, visible: boolean, notice: string?)
 		local was = menuWasVisible[button]
+		-- Bir kez açılan karo oturum boyunca kapanmaz: adım/koşullar kayıttan türetildiği için ilerlemeyle geri düşebilir
+		-- (hayvan satmak, çiftlik değiştirmek, hayvanı eklentiye göndermek...) ve menü gidip gelirdi.
+		visible = visible or was == true
 		button.Visible = visible
 		menuWasVisible[button] = visible
 		-- Yeni belirdiyse (oturumun ilk durumu hariç) bir kez bildirilir ve birkaç saniye vurgulanır
@@ -251,25 +255,27 @@ function MenuBar.create(screenGui: Instance, onUnlocked: ((message: string) -> (
 		end
 	end
 
+	-- Karo açılış basamakları (her karo tek, açık bir tetikleyiciye bağlıdır; açılan karo oturum boyunca kapanmaz):
+	--   Pazar, Ödüller, Ayarlar, Adama Dön  başlangıçtan
+	--   Yükseltmeler   ilk para toplandıktan sonra (3. adım)
+	--   Yol Haritası   ilk yükseltme alındıktan sonra (4. adım) ya da 300 kazançta
+	--   Adalar         Yol Haritası'nı açtıktan sonra (5. adım ve sonrası) ya da temel adımları atlayan hesapta
+	--   Üretim         bir üretim tesisi (ya da çalışan iş) olunca
+	--   Envanter       eşya/ahır deposu ürünü olunca ya da tüm adımları bitirmiş hesapta
+	-- Eskiden Adalar ile Yol Haritası aynı anda, Envanter ise alakasız bir kazanç eşiğinde (1000) açılıyordu; şimdi her biri kendi nedeniyle.
 	local function updateMenuVisibility(state: PlayerSave)
 		local earned = state.lifetimeEarned or 0
 		local step = Onboarding.stepFor(state)
-		local basicsDone = Onboarding.basicsDone(state)
-		local ownsFactory = next(state.production or {}) ~= nil
-		for _, recipe in Config.PRODUCTION_RECIPES do
-			if state.purchased[recipe.upgradeId] then
-				ownsFactory = true
-			end
-		end
+		local skipsBasics = earned >= OnboardingSteps.SKIP_BASICS_EARNED
+		local ownsFactory = OnboardingSteps.ownsFactory(state) or next(state.production or {}) ~= nil
 		local ownsItems = (state.inventory ~= nil and next(state.inventory.items) ~= nil)
 			or FarmMath.getGoodsWorth(state) > 0 -- ahır deposunda ürün birikince de görünür
-		-- Adım ilerlemesine göre: 3. adımda Yükseltmeler, 4. adımda Yol Haritası, temel adımlar bitince Adalar
 		setMenuTile(upgradesButton, step == 0 or step >= 3, UNLOCK_NOTICES["Yükseltmeler"])
 		setMenuTile(roadmapButton, step == 0 or step >= 4 or earned >= 300, UNLOCK_NOTICES["Yol Haritası"])
+		setMenuTile(islandsButton, step == 0 or step >= 5 or skipsBasics, UNLOCK_NOTICES["Adalar"])
 		setMenuTile(productionButton, ownsFactory, UNLOCK_NOTICES["Üretim"])
-		setMenuTile(islandsButton, basicsDone, UNLOCK_NOTICES["Adalar"])
 		setMenuTile(homeButton, true) -- "Adama Dön" her zaman görünür: oyuncular adasını bulmakta zorlanıyor
-		setMenuTile(inventoryButton, ownsItems or earned >= 1000, UNLOCK_NOTICES["Envanter"])
+		setMenuTile(inventoryButton, ownsItems or step == 0, UNLOCK_NOTICES["Envanter"])
 		linkSelection()
 	end
 

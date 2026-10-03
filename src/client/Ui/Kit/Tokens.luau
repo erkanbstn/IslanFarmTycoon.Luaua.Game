@@ -20,7 +20,8 @@ Tokens.TextSize = {
 	Heading = UiTheme.TextSize.Heading + 1,
 	Body = UiTheme.TextSize.Body + 2,
 	Caption = UiTheme.TextSize.Caption + 2,
-	Button = UiTheme.TextSize.Body + 1, -- düğme ve sekme yazısı (Body'den bir küçük)
+	Button = UiTheme.TextSize.Body + 1, -- düğme yazısı (Body'den bir küçük)
+	Tab = UiTheme.TextSize.Body + 4, -- sekme başlığı: içerikten (Body) belirgin büyük
 	LoadingTitle = UiTheme.TextSize.LoadingTitle,
 	LoadingStatus = UiTheme.TextSize.LoadingStatus,
 }

@@ -18,7 +18,7 @@ Katman: `src/client/Ui/` (UiKit, FarmHud, `Hud/*`, paneller, `IslandManager`, `I
   (kapanışta çerçeve animasyon bitince gizlenir; `isOpen()` hemen güncellenir). Açma yolları da aynıdır: menü karosu, klavye/gamepad kısayolu `UiKit.toggleWindow(pencere)` (açıksa kapatır); dünya etkileşimi (pazar tezgâhı, satıcı, sandık, tüccar rozeti, üretim noktası)
   `UiKit.showWindow(pencere)` (açıksa dokunmaz). Kendi `isOpen`/`close` mantığı yazma, `FarmHud`'a özel "ortadaki/sağdaki pencere" listesi tutma. ESC / gamepad B açık pencereyi kapatır. Kamera yakınlaştırma pencere açıkken de çalışır (`Interaction/MenuZoom.client`).
 - Renk/yazı/boyut `UiKit.Color / UiKit.Font / UiKit.TextSize / UiKit.Radius`. Renk ve yazı tipinin kaynağı `UiTheme`; **ekran arayüzünün yazı boyutları** `Kit/Tokens.luau`'da (`UiTheme.TextSize`'dan Body/Caption +2, diğerleri +1 px büyük, `Button` = Body-1; dünyadaki tabelalar `UiTheme.TextSize`'ı olduğu gibi kullanır).
-  Elle sayı yazma (`TextSize = 13` yok): `UiKit.TextSize.Button/Caption/Body` kullan. Yazı büyüyünce düğme/karo yüksekliği ve satır kırpması gözle denenir.
+  Elle sayı yazma (`TextSize = 13` yok): `UiKit.TextSize.Button/Caption/Body` kullan; sekme başlıkları `UiKit.TextSize.Tab` (içerik yazısından büyük; `UiKit.tabs` ve ada sekmeleri kullanır). Yazı büyüyünce düğme/karo yüksekliği ve satır kırpması gözle denenir.
   Elle `Color3.fromRGB` veya font yazma.
 - Emoji yalnızca `iconChip` (ve WorldUi `icon` alanı) içinde. Buton ve metinde emoji yok.
 - Buton varyantı: primary=alınabilir, warning=para yetmiyor, disabled=kilitli/dolu, owned=alındı.
