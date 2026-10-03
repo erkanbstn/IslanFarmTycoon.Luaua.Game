@@ -80,9 +80,9 @@ Para/ürün akışlarının büyüklüğü tek bir kuralla bağlıdır; "bu say�
   Kaçırılan gelir tabanı kalır ama artık yalnızca bu sınıra kadar yükseltir.
 - **Sipariş ödülü = ürün değeri x kademe çarpanı (1,05-2) x sipariş bonusu**; gelir tabanı kaldırıldı. Satır birimi kademe değeridir (pahalı üründe `unitRefValue / değer` ile küçülür),
   depo büyüklüğüne ya da gelire bağlı değildir. Sonuç: ödül/değer 1-2,2; ödül ortanca ~0,5-4 dk gelir (en çok ~14 dk, yalnızca orta evre fixture'ında).
-- **Hızlı satış/takas oranı** (`GOODS_SELL/BARTER.rate`) ürün değerinin ölçeğini yansıtır (değer ~13x asgari getiri): bir partiyi satmak `PRODUCTION_MAX_RETURN`ı aşmaz, takas satışı aşmaz.
+- **Hızlı satış/takas oranı** (`GOODS_SELL/BARTER.rate`) ürün değerinin ölçeğini yansıtır (değer ~2,3x asgari getiri): bir partiyi satmak `PRODUCTION_MAX_RETURN`ı aşmaz, takas satışı aşmaz.
 - **Ürün merkezi tarifinin `reward` alanı tesis ölçeğidir** (geliştirme fiyatı tabanı); değerden bağımsız olduğundan değer ayarı fiyat temposunu (Çiftlik 1 referansı) bozmaz.
-- **Bilinen denge bedeli**: sipariş payı (casual, 7 gün) ~%9,3'ten ~%8,9'a (değer çarpanı ~13 ile) oturtuldu; hardcore payı ~%20'den düşer. Gelir tabanı kalktığı için pay artık yalnızca değer çarpanıyla ayarlanır; çarpan büyüdükçe
+- **Bilinen denge bedeli**: sipariş payı (casual, 7 gün) ~%9,3'ten ~%5'e indi (değer çarpanı ~2,3: en pahalı ürün ~130K; 1 et 1M gibi uçuk fiyat çıkmasın diye bilinçli); hardcore payı ~%9. Gelir tabanı kalktığı için pay artık yalnızca değer çarpanıyla ayarlanır; çarpan büyüdükçe
   tek tek sipariş gelirin dakikalarına yaklaşır (orta evrede en çok ~14 dk): ödün "Açık sorular"dadır (`docs/DURUM_RAPORU.md`).
 
 ## Yeni içerik eklerken
@@ -92,3 +92,7 @@ Para/ürün akışlarının büyüklüğü tek bir kuralla bağlıdır; "bu say�
 3. Kademe çarpanları, ada primi ya da `slotSpread` değişirse `scripts/simulate-tiers.py --personas ideal,casual,idle --assert-monotonic` ile ölç (`--mults`, `--premium`,
    `--slot-spread`, `--goods-tier`, `--goods-step` Config'e dokunmadan dener; `--order 1,6,5,4,3,2` en kötü alım sırasını ölçer); `tests/economy.spec.luau` kademe monotonluğunu denetler.
 4. Fiyatı elle çarpma; `FarmMath.getPrice` (ya da sarmalayıcıları `getUpgradeCost/getAnimalPrice/getBulkPrice/getExpansionCost`) kullan.
+
+## Pano ürünleri (yalnızca üretilebilenler)
+`Contracts.availableGoods`: pano yalnızca etkin çiftlikte ŞU AN üretilebilen ürünü ister: merkez kurulu, adası açık, tarif çiftliğin temasında ve merkezin gerektirdiği kadar o türden hayvan açık bölgede.
+Açılmamış ada, kurulmamış merkez, başka temanın ya da park edilmiş çiftliğin ürünü sipariş edilmez (çiftlik değişince pano değişir). Stoktaki başka çiftlik ürünü "Hepsini/Yarısını sat" ile paraya çevrilir.

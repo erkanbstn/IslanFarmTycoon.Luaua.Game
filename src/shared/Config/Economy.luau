@@ -31,11 +31,11 @@ return {
 		maxLineUnits = 12, -- sipariş satırı birimi
 		maxRewardRatio = 3.2, -- sipariş ödülü / ürünlerin değeri (ada sipariş bonusu dahil)
 		minRewardRatio = 1,
-		maxRewardMinutes = 15, -- sipariş ödülü, o evredeki gelirin en çok bu kadar dakikası
+		maxRewardMinutes = 8, -- sipariş ödülü, o evredeki gelirin en çok bu kadar dakikası
 		maxDisplayValue = 1e10, -- hiçbir ekran değeri bunu aşmaz
 		-- Ürün birim değeri / tam yükseltilmiş çiftlikte merkezin asgari parti getirisi (tabanı): bu bantta kalır (Config/Goods.luau "DEĞER KURALI")
-		valueToFloorMin = 8,
-		valueToFloorMax = 18,
+		valueToFloorMin = 1.8,
+		valueToFloorMax = 3.2,
 	},
 
 	-- Üretim tesisine verilen yetişkin hayvanlar iş boyunca gelir getirmez. Teslim ödülü, (hayvanların kaçırdığı gelir +

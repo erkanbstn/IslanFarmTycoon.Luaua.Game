@@ -160,7 +160,7 @@ for _, farm in FARMS do
 end
 
 print("")
-print("== D) ÜRÜN DEĞERİ ÖNERİSİ (tam yükseltilmiş çiftlik: taban değer = (kaçırılan gelir + başlatma) x MIN_RETURN; değer / taban 8-18 bandında olmalı; öneri = taban x 13) ==")
+print("== D) ÜRÜN DEĞERİ ÖNERİSİ (tam yükseltilmiş çiftlik: taban değer = (kaçırılan gelir + başlatma) x MIN_RETURN; değer / taban 1,2-2,6 bandında olmalı; öneri = taban x 1.7) ==")
 local suggested: { [string]: number } = {}
 for _, farm in FARMS do
 	local save = buildSave(farm, 1.0)
@@ -175,7 +175,7 @@ for _, farm in FARMS do
 		local forgone = FarmMath.estimateForgoneIncome(save, picked, duration)
 		local floorWorth = (forgone + FarmMath.getFacilityCost(save, recipe)) * Config.PRODUCTION_MIN_RETURN
 		local good = Config.GOODS[recipe.goodsId]
-		local value = floorWorth * 13
+		local value = floorWorth * 1.7
 		suggested[good.id] = math.max(suggested[good.id] or 0, value)
 		print(string.format("Ç%d %-16s %-14s taban %8s  şimdiki değer %7s (x%.1f)  öneri %7s  raw=%d", farm, recipeId, good.id, fmt(floorWorth), fmt(good.value), good.value / floorWorth, fmt(value), floorWorth))
 		local limitsD = Config.ECONOMY_LIMITS

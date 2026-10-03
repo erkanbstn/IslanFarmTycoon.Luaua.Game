@@ -196,12 +196,30 @@ return function(codec: any, config: any, farmMath: any, rules: any, logic: any)
 	)
 	local total = farmMath.getGoodsCap(shared)
 	assert(farmMath.addGoods(shared, "milk", total + 100) == total, "the shared barn holds the summed total per good")
-	-- Ürün merkezi yalnızca başka çiftlikte kuruluysa da sipariş için ürün sayılır
+	-- Panoya yalnızca etkin çiftlikte ŞU AN üretilebilen ürün gelir: başka çiftlikteki merkez sayılmaz
 	shared.purchased.milk_center = nil
 	shared.mainFarms["2"].purchased.egg_center = true
 	shared.mainFarms["2"].unlockedIslands.poultry = true
-	local sources = farmMath.getContractGoods(shared)
-	assert(table.find(sources, "egg") ~= nil, "a goods center on any farm makes the good orderable")
+	assert(
+		table.find(farmMath.getContractGoods(shared), "egg") == nil,
+		"a goods center on another (parked) farm does not make the good orderable"
+	)
+	-- Etkin çiftlikte merkez kurulu olsa da ada kapalıysa ya da hayvan yoksa ürün sipariş edilmez; ikisi de varsa edilir
+	local active = newSave()
+	active.animals = {}
+	active.purchased.egg_center = true
+	active.unlockedIslands.poultry = nil
+	assert(table.find(farmMath.getContractGoods(active), "egg") == nil, "an unopened island's good is never ordered")
+	active.unlockedIslands.poultry = true
+	assert(table.find(farmMath.getContractGoods(active), "egg") == nil, "a center without keepers produces nothing")
+	local layers = config.PRODUCTION_RECIPES.egg_goods.requiredAdults
+	for _ = 1, layers do
+		addAnimal(active, "chicken", "poultry")
+	end
+	active.unlockedZones = active.unlockedZones or {}
+	active.unlockedZones.poultry = true
+	local sources = farmMath.getContractGoods(active)
+	assert(table.find(sources, "egg") ~= nil, "a built center on an open island with keepers makes the good orderable")
 
 	-- ------------------------------------------------------------------ hızlı satış ve takas hesapları
 	local trade = newSave()

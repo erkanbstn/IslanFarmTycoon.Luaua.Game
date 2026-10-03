@@ -35,6 +35,27 @@ return function(
 		end
 	end
 	farmMath.applyDerived(data)
+	-- Pano yalnızca üretilebilen ürünü ister: her açık merkez için gereken sayıda hayvan açık bölgede durur
+	for _, recipe in config.PRODUCTION_RECIPES do
+		if recipe.output == "goods" and data.purchased[recipe.upgradeId] and data.unlockedIslands[recipe.island] then
+			for zoneId, zone in config.ZONES do
+				if
+					data.unlockedZones[zoneId] and config.zoneAllows(zone, recipe.animalIds[1], data.activeMainFarmId)
+				then
+					for _ = 1, recipe.requiredAdults do
+						table.insert(data.animals, {
+							uid = uid(),
+							animalId = recipe.animalIds[1],
+							zoneId = zoneId,
+							bornAt = 0,
+							stage = "adult",
+						})
+					end
+					break
+				end
+			end
+		end
+	end
 	data.cash = 0
 	local worldReady = true
 	local player: any = {

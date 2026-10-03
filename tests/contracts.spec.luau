@@ -16,6 +16,33 @@ return function(codec: any, config: any, farmMath: any, profiles: any)
 				end
 			end
 			farmMath.applyDerived(save)
+			-- Pano yalnızca üretilebilen ürünü ister: her açık merkez için gereken sayıda hayvan açık bölgede durur
+			for _, recipe in config.PRODUCTION_RECIPES do
+				if
+					recipe.output == "goods"
+					and save.purchased[recipe.upgradeId]
+					and save.unlockedIslands[recipe.island]
+				then
+					for zoneId, zone in config.ZONES do
+						if
+							save.unlockedZones[zoneId]
+							and config.zoneAllows(zone, recipe.animalIds[1], save.activeMainFarmId)
+						then
+							for _ = 1, recipe.requiredAdults do
+								serial += 1
+								table.insert(save.animals, {
+									uid = `contracts-animal-{serial}`,
+									animalId = recipe.animalIds[1],
+									zoneId = zoneId,
+									bornAt = 0,
+									stage = "adult",
+								})
+							end
+							break
+						end
+					end
+				end
+			end
 		end
 		return save
 	end
@@ -45,7 +72,10 @@ return function(codec: any, config: any, farmMath: any, profiles: any)
 		end
 		assert(tier, "every offer uses a configured tier")
 		assert(offer.key == `{farmMath.getContractWindow(now)}:{index}`, "keys carry the window and slot")
-		assert(#offer.lines == tier.lines, "line count follows the tier")
+		assert(
+			#offer.lines == math.min(tier.lines, #farmMath.getContractGoods(save)),
+			"line count follows the tier (limited by producible goods)"
+		)
 		local seen: { [string]: boolean } = {}
 		local worth = 0
 		for _, line in offer.lines do
@@ -63,7 +93,8 @@ return function(codec: any, config: any, farmMath: any, profiles: any)
 		for _, line in offer.lines do
 			local base = farmMath.getContractBaseUnits(tier, line.goodsId)
 			local low = math.max(1, math.floor(base * (1 - config.GOODS_CONTRACTS.variation)))
-			local high = math.ceil(base * (1 + config.GOODS_CONTRACTS.variation))
+			local high =
+				math.max(math.ceil(base * (1 + config.GOODS_CONTRACTS.variation)), config.GOODS_CONTRACTS.minHighUnits)
 			local limit = math.min(cap, config.GOODS_CONTRACTS.maxLineUnits)
 			assert(line.amount >= low and line.amount <= math.min(high, limit), "units vary only inside the tier band")
 		end
@@ -179,7 +210,10 @@ return function(codec: any, config: any, farmMath: any, profiles: any)
 	end
 	assert(differentWindows, "windows differ from each other")
 	assert(tierCount >= 7, "most tiers show up across windows")
-	assert(goodsCount >= 6, "most goods show up across windows")
+	assert(
+		goodsCount == #farmMath.getContractGoods(save) and goodsCount >= 4,
+		"every producible good shows up across windows"
+	)
 	local seasonal = farmMath.getContractOffers(save, now, 0.5)
 	assert(
 		seasonal[1].reward == math.floor(offers[1].worth * offers[1].rewardFactor * (1.5 + islandBonus)),

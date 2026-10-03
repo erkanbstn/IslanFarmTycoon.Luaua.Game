@@ -131,7 +131,7 @@ local SPECIES: { SpeciesRow } = {
 		income = 5,
 		island = { name = "Tavşan Adası", flavor = "Havadar kafesler", perk = "storageBonus", amount = 0.15 },
 		zone = { name = "Tavşan Yuvası", profile = "coop" },
-		goods = { id = "angora", name = "Angora", icon = "🧶", value = 84000, scale = 1040 },
+		goods = { id = "angora", name = "Angora", icon = "🧶", value = 14000, scale = 1040 },
 		cash = {
 			recipe = "angora_spinning",
 			recipeName = "Angora Eğirme",
@@ -156,7 +156,7 @@ local SPECIES: { SpeciesRow } = {
 		product = "Hindi Füme",
 		price = 450,
 		income = 6,
-		goods = { id = "smoked_turkey", name = "Hindi Füme", icon = "🍗", value = 220000, scale = 1600 },
+		goods = { id = "smoked_turkey", name = "Hindi Füme", icon = "🍗", value = 37000, scale = 1600 },
 		cash = {
 			recipe = "turkey_packing",
 			recipeName = "Hindi Paketleme",
@@ -181,7 +181,7 @@ local SPECIES: { SpeciesRow } = {
 		income = 5.2,
 		island = { name = "Arı Adası", flavor = "Çiçek mevsimi", perk = "facilitySpeed", amount = 0.1 },
 		zone = { name = "Arı Kovanları", profile = "coop" },
-		goods = { id = "honey", name = "Bal", icon = "🍯", value = 79000, scale = 1200 },
+		goods = { id = "honey", name = "Bal", icon = "🍯", value = 13000, scale = 1200 },
 		cash = {
 			recipe = "honey_bottling",
 			recipeName = "Bal Şişeleme",
@@ -207,7 +207,7 @@ local SPECIES: { SpeciesRow } = {
 		income = 12.5,
 		island = { name = "Deve Adası", flavor = "Çöl kervanı", perk = "offlineBonus", amount = 0.2 },
 		zone = { name = "Deve Ağılı", profile = "stable" },
-		goods = { id = "camel_milk", name = "Deve Sütü", icon = "🥛", value = 240000, scale = 1700 },
+		goods = { id = "camel_milk", name = "Deve Sütü", icon = "🥛", value = 39000, scale = 1700 },
 		cash = {
 			recipe = "camel_caravan",
 			recipeName = "Kervan Seferi",
@@ -233,7 +233,7 @@ local SPECIES: { SpeciesRow } = {
 		income = 25,
 		island = { name = "Tavus Adası", flavor = "Gösteriş pazarı", perk = "sellBonus", amount = 0.15 },
 		zone = { name = "Tavus Bahçesi", profile = "fold" },
-		goods = { id = "peacock_feather", name = "Tavus Tüyü", icon = "🪶", value = 650000, scale = 6000 },
+		goods = { id = "peacock_feather", name = "Tavus Tüyü", icon = "🪶", value = 110000, scale = 6000 },
 		cash = {
 			recipe = "peacock_show",
 			recipeName = "Tavus Gösterisi",
@@ -257,7 +257,7 @@ local SPECIES: { SpeciesRow } = {
 		product = "Kaymak",
 		price = 500,
 		income = 6.5,
-		goods = { id = "buffalo_cream", name = "Kaymak", icon = "🧈", value = 270000, scale = 1400 },
+		goods = { id = "buffalo_cream", name = "Kaymak", icon = "🧈", value = 44000, scale = 1400 },
 		cash = {
 			recipe = "buffalo_packing",
 			recipeName = "Kaymak Paketleme",
@@ -283,7 +283,7 @@ local SPECIES: { SpeciesRow } = {
 		income = 5,
 		island = { name = "Bıldırcın Adası", flavor = "Verimli tarla", perk = "storageBonus", amount = 0.15 },
 		zone = { name = "Bıldırcın Kümesi", profile = "coop" },
-		goods = { id = "quail_egg", name = "Bıldırcın Yumurtası", icon = "🥚", value = 84000, scale = 920 },
+		goods = { id = "quail_egg", name = "Bıldırcın Yumurtası", icon = "🥚", value = 14000, scale = 920 },
 		cash = {
 			recipe = "quail_packing",
 			recipeName = "Yumurta Kolileme",
@@ -308,7 +308,7 @@ local SPECIES: { SpeciesRow } = {
 		income = 12,
 		island = { name = "Güvercin Adası", flavor = "Posta yolu", perk = "contractBonus", amount = 0.1 },
 		zone = { name = "Güvercinlik", profile = "stable" },
-		goods = { id = "pigeon_post", name = "Posta", icon = "✉️", value = 250000, scale = 1400 },
+		goods = { id = "pigeon_post", name = "Posta", icon = "✉️", value = 42000, scale = 1400 },
 		cash = {
 			recipe = "pigeon_courier",
 			recipeName = "Posta Seferi",
@@ -334,7 +334,7 @@ local SPECIES: { SpeciesRow } = {
 		income = 24,
 		island = { name = "Salyangoz Adası", flavor = "Nemli bahçe", perk = "goodsYield", amount = 0.12 },
 		zone = { name = "Salyangoz Çiftliği", profile = "fold" },
-		goods = { id = "snail_caviar", name = "Kaviyar", icon = "🥄", value = 690000, scale = 5000 },
+		goods = { id = "snail_caviar", name = "Kaviyar", icon = "🥄", value = 120000, scale = 5000 },
 		cash = {
 			recipe = "snail_gourmet",
 			recipeName = "Gurme Servis",
@@ -359,7 +359,7 @@ local SPECIES: { SpeciesRow } = {
 		product = "Yak Kürkü",
 		price = 550,
 		income = 7,
-		goods = { id = "yak_fur", name = "Yak Kürkü", icon = "🧣", value = 290000, scale = 1600 },
+		goods = { id = "yak_fur", name = "Yak Kürkü", icon = "🧣", value = 48000, scale = 1600 },
 		cash = {
 			recipe = "yak_packing",
 			recipeName = "Kürk Paketleme",
@@ -385,7 +385,7 @@ local SPECIES: { SpeciesRow } = {
 		income = 5.5,
 		island = { name = "Lama Adası", flavor = "Dağ yolu", perk = "goodsYield", amount = 0.1 },
 		zone = { name = "Lama Yaylası", profile = "coop" },
-		goods = { id = "llama_cloth", name = "Lama Kumaşı", icon = "🧵", value = 92000, scale = 1400 },
+		goods = { id = "llama_cloth", name = "Lama Kumaşı", icon = "🧵", value = 15000, scale = 1400 },
 		cash = {
 			recipe = "llama_weaving",
 			recipeName = "Kumaş Dokuma",
@@ -410,7 +410,7 @@ local SPECIES: { SpeciesRow } = {
 		income = 13.5,
 		island = { name = "Geyik Adası", flavor = "Orman açıklığı", perk = "expansionDiscount", amount = 0.07 },
 		zone = { name = "Geyik Ormanı", profile = "stable" },
-		goods = { id = "antler", name = "Boynuz", icon = "🦴", value = 280000, scale = 2200 },
+		goods = { id = "antler", name = "Boynuz", icon = "🦴", value = 47000, scale = 2200 },
 		cash = {
 			recipe = "deer_carving",
 			recipeName = "Boynuz Oymacılığı",
@@ -435,7 +435,7 @@ local SPECIES: { SpeciesRow } = {
 		income = 27,
 		island = { name = "Şahin Adası", flavor = "Zirve avı", perk = "contractBonus", amount = 0.1 },
 		zone = { name = "Şahin Tüneği", profile = "fold" },
-		goods = { id = "falcon_trophy", name = "Av Ödülü", icon = "🏅", value = 780000, scale = 8000 },
+		goods = { id = "falcon_trophy", name = "Av Ödülü", icon = "🏅", value = 130000, scale = 8000 },
 		cash = {
 			recipe = "falcon_hunt",
 			recipeName = "Av Seferi",
@@ -460,7 +460,7 @@ local SPECIES: { SpeciesRow } = {
 		product = "Fındık",
 		price = 620,
 		income = 7.5,
-		goods = { id = "hazelnut", name = "Fındık", icon = "🌰", value = 270000, scale = 1800 },
+		goods = { id = "hazelnut", name = "Fındık", icon = "🌰", value = 45000, scale = 1800 },
 		cash = {
 			recipe = "squirrel_packing",
 			recipeName = "Fındık Paketleme",
@@ -485,7 +485,7 @@ local SPECIES: { SpeciesRow } = {
 		income = 5.6,
 		island = { name = "İpek Böceği Adası", flavor = "Dut bahçesi", perk = "facilitySpeed", amount = 0.12 },
 		zone = { name = "Dut Bahçesi", profile = "coop" },
-		goods = { id = "silk", name = "İpek", icon = "🧵", value = 83000, scale = 1600 },
+		goods = { id = "silk", name = "İpek", icon = "🧵", value = 14000, scale = 1600 },
 		cash = {
 			recipe = "silk_spinning",
 			recipeName = "İpek Eğirme",
@@ -510,7 +510,7 @@ local SPECIES: { SpeciesRow } = {
 		income = 13,
 		island = { name = "Papağan Adası", flavor = "Tropik sahne", perk = "sellBonus", amount = 0.15 },
 		zone = { name = "Papağan Sahnesi", profile = "stable" },
-		goods = { id = "parrot_ticket", name = "Gösteri Bileti", icon = "🎟️", value = 240000, scale = 2000 },
+		goods = { id = "parrot_ticket", name = "Gösteri Bileti", icon = "🎟️", value = 40000, scale = 2000 },
 		cash = {
 			recipe = "parrot_show",
 			recipeName = "Papağan Gösterisi",
@@ -536,7 +536,7 @@ local SPECIES: { SpeciesRow } = {
 		income = 26,
 		island = { name = "Kaplumbağa Adası", flavor = "Sakin lagün", perk = "offlineBonus", amount = 0.3 },
 		zone = { name = "Kaplumbağa Lagünü", profile = "fold" },
-		goods = { id = "tortoise_shell", name = "Hediyelik Kabuk", icon = "🐚", value = 660000, scale = 7000 },
+		goods = { id = "tortoise_shell", name = "Hediyelik Kabuk", icon = "🐚", value = 110000, scale = 7000 },
 		cash = {
 			recipe = "tortoise_craft",
 			recipeName = "Kabuk İşleme",
