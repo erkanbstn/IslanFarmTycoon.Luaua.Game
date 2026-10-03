@@ -3,9 +3,9 @@
 -- Ahır siparişleri (GOODS_CONTRACTS) bu depoyu tüketir; GOODS_SELL/GOODS_BARTER yığılmayı hızlı boşaltma ve takasla azaltır; `value` bir birimin para değeridir (dengeleme ve sipariş ödülü).
 --
 -- DEĞER KURALI (ürün değerleri hesapla bulunur, gelişigüzel yazılmaz): tam yükseltilmiş çiftlikte ürün merkezinin asgari parti getirisi
--- `(kaçırılan gelir + başlatma) x PRODUCTION_MIN_RETURN` (scripts/audit-economy.py bölüm D "taban") x ECONOMY_LIMITS.valueToFloor (~9; testte 6-14 bandı).
+-- `(kaçırılan gelir + başlatma) x PRODUCTION_MIN_RETURN` (scripts/audit-economy.py bölüm D "taban") x ECONOMY_LIMITS.valueToFloor (~2,3; testte 1,8-3,2 bandı: tek ürün 1M gibi uçuk olmaz, en pahalısı ~130K).
 -- Böylece (1) parti hep küçük sayıdır (taban miktar 2, en çok `PRODUCTION_MAX_BATCH_UNITS`), (2) asgari getiri miktarı şişirerek değil değerle sağlanır
--- (tek birim bile tabanı aşar), (3) sipariş ödülü (değer x 1,05-2) hem ürün değerine bağlı hem de geç oyunda anlamlıdır (sipariş payı sim'de ~%9).
+-- (tek birim bile tabanı aşar), (3) sipariş ödülü (değer x 1,05-2) hem ürün değerine bağlı hem de geç oyunda anlamlıdır (sipariş payı sim'de ~%5).
 -- Yeni ürün/hayvan eklerken ya da gelir dengesi değişirken bölüm D'yi çalıştır, değeri yeniden hesapla; `tests/goods.spec.luau` "ekonomi değişmezleri" korur.
 -- Ürün merkezi tarifinin `reward` alanı (tesis ölçeği = geliştirme fiyatı tabanı) değerden bağımsızdır: değer ayarı fiyat temposunu bozmaz.
 -- Gizli bilgi koyma: ReplicatedStorage client'a da gider.
@@ -15,14 +15,14 @@ local Species = require(script.Parent:WaitForChild("Species"))
 
 local data = {
 	GOODS = {
-		milk = { id = "milk", displayName = "Süt", icon = "🥛", animalId = "cow", value = 43000 },
-		egg = { id = "egg", displayName = "Yumurta", icon = "🥚", animalId = "chicken", value = 82000 },
-		down = { id = "down", displayName = "Tüy", icon = "🪶", animalId = "duck", value = 230000 },
-		cheese = { id = "cheese", displayName = "Peynir", icon = "🧀", animalId = "goat", value = 550000 },
-		wool = { id = "wool", displayName = "Yün", icon = "🧶", animalId = "sheep", value = 270000 },
-		meat = { id = "meat", displayName = "Et", icon = "🥩", animalId = "pig", value = 750000 },
-		horseshoe = { id = "horseshoe", displayName = "Nal", icon = "🧲", animalId = "horse", value = 90000 },
-		fish = { id = "fish", displayName = "Balık", icon = "🐟", animalId = "seabass", value = 110000 },
+		milk = { id = "milk", displayName = "Süt", icon = "🥛", animalId = "cow", value = 7100 },
+		egg = { id = "egg", displayName = "Yumurta", icon = "🥚", animalId = "chicken", value = 14000 },
+		down = { id = "down", displayName = "Tüy", icon = "🪶", animalId = "duck", value = 38000 },
+		cheese = { id = "cheese", displayName = "Peynir", icon = "🧀", animalId = "goat", value = 92000 },
+		wool = { id = "wool", displayName = "Yün", icon = "🧶", animalId = "sheep", value = 45000 },
+		meat = { id = "meat", displayName = "Et", icon = "🥩", animalId = "pig", value = 130000 },
+		horseshoe = { id = "horseshoe", displayName = "Nal", icon = "🧲", animalId = "horse", value = 15000 },
+		fish = { id = "fish", displayName = "Balık", icon = "🐟", animalId = "seabass", value = 18000 },
 	} :: { [string]: Types.GoodConfig },
 
 	-- Depo ve arayüzde gösterim sırası (hayvan türlerinin sırasıyla aynı)
@@ -41,12 +41,12 @@ local data = {
 		slots = 12,
 		variation = 0.34,
 		-- Pahalı üründe satır birimi `unitRefValue / değer` ile küçülür (en az 1): tek satırın değeri ürünler arasında benzer kalır.
-		unitRefValue = 60000,
+		unitRefValue = 15000,
 		-- Bir satırdaki en çok birim (okunabilirlik)
 		-- Her satırın en az bu kadar adede kadar çıkabilmesi (pahalı üründe de 1-3 arası rastgele); ödül gelir tavanını (aşağıdaki) aşarsa adet düşer
 		minHighUnits = 3,
 		-- Bir siparişin ödülü gelirin en çok bu kadar dakikasıdır (ECONOMY_LIMITS.maxRewardMinutes'tan küçük: test sınırı aşılmaz)
-		rewardCapMinutes = 12,
+		rewardCapMinutes = 6,
 		maxLineUnits = 12,
 		tiers = {
 			{
@@ -124,13 +124,13 @@ local data = {
 	-- değer x 1.05 olduğundan sipariş hâlâ en iyi seçenektir; üretimin depoya sığmayan fazlası da aynı oranla paraya çevrilir (kaçak olmasın).
 	-- Oran ürün değerinin asgari getiriye göre ölçeğini yansıtır: bir parti (2 birim) satılınca ~asgari getiri (PRODUCTION_MIN_RETURN) kadar para gelir.
 	GOODS_SELL = {
-		rate = 0.015,
+		rate = 0.06,
 	},
 
 	-- Ürünle takas ("Ürünle satın al"): depodaki ürünler, değerinin `rate` katı üzerinden hayvan fiyatına sayılır. Oran satış oranını
 	-- AŞAMAZ (ürünü satıp hayvan almaktan daha kârlı olmasın; config.spec denetler): takas yalnızca tek adımlık kolaylıktır.
 	GOODS_BARTER = {
-		rate = 0.015,
+		rate = 0.06,
 	},
 }
 

@@ -33,21 +33,35 @@ function Contracts.secondsLeft(now: number): number
 	return Config.GOODS_CONTRACTS.seconds - now % Config.GOODS_CONTRACTS.seconds
 end
 
--- Hesabın üretebildiği ürünler: HERHANGİ bir çiftlikte ürün merkezi kurulu ve adası açık olanlar (GOODS_ORDER sırasıyla)
+-- Panoya yalnızca oyuncunun ŞU AN üretebildiği ürünler gelir (GOODS_ORDER sırasıyla): etkin çiftlikte o ürünün merkezi kurulu, adası açık,
+-- tarif çiftliğin temasında ve merkezin gerektirdiği kadar o türden hayvan açık bölgede var. Açılmamış ada, kurulmamış merkez, başka temanın
+-- ürünü ya da elle üretilemeyen (park edilmiş çiftlik) ürün sipariş edilmez.
 function Contracts.availableGoods(save: PlayerSave): { string }
+	local farmId = (save :: any).farmId or save.activeMainFarmId
 	local built: { [string]: boolean } = {}
-	Goods.forEachFarm(save, function(farm: any)
-		for _, recipe in Config.PRODUCTION_RECIPES do
-			if
-				recipe.output == "goods"
-				and recipe.goodsId
-				and farm.purchased[recipe.upgradeId]
-				and farm.unlockedIslands[recipe.island]
-			then
-				built[recipe.goodsId] = true
+	for _, recipe in Config.PRODUCTION_RECIPES do
+		if
+			recipe.output ~= "goods"
+			or not recipe.goodsId
+			or not save.purchased[recipe.upgradeId]
+			or not save.unlockedIslands[recipe.island]
+		then
+			continue
+		end
+		local upgrade = Config.getUpgrade(recipe.upgradeId)
+		if upgrade and not Config.upgradeInTheme(upgrade, farmId) then
+			continue
+		end
+		local keepers = 0
+		for _, animal in save.animals do
+			if table.find(recipe.animalIds, animal.animalId) and save.unlockedZones[animal.zoneId] then
+				keepers += 1
 			end
 		end
-	end)
+		if keepers >= recipe.requiredAdults then
+			built[recipe.goodsId] = true
+		end
+	end
 	local result: { string } = {}
 	for _, goodsId in Config.GOODS_ORDER do
 		if built[goodsId] then
