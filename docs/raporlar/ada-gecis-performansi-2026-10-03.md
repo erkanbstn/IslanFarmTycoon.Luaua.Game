@@ -32,3 +32,10 @@
 - Altı gerçek oyuncuyla ağ/FPS profili henüz ölçülmedi; sıfır kasma garantisi verilmez.
 - Geçici runner ve test modelleri kaldırıldı, Studio Edit'e döndü; save/publish/commit/push yapılmadı.
 - Streaming ayarlarının place'e geçmesi için Rojo ayarları güncelken kullanıcı Ctrl+S ve Publish yapmalıdır.
+
+## Edit doğrulama onarımı
+
+- ThemeBaseColor/ThemeBaseSize artık hem şablon hem referans kurulumunda WorldDecor.optimize tarafından aynı başlangıç değerleriyle eklenir; sıkı öznitelik karşılaştırması korunur.
+- Tema karşılaştırmaları hata verirse özgün temalar geri kurulur ve geçici şablonlar temizlenir. Önceki hata Plot1'i tema 6'da bıraktığı için WorldSpec tema 1'in hatchery noktasını bulamıyordu.
+- Studio'da önceki başarısız testin bıraktığı Plot1 tema 1'e döndürüldü. Harita yapısı ve Dünya testleri geçti; altı plot da tema 1, geçici şablon yok.
+- Saf Luau testleri, mimari, Selene ve tip analizi geçti (yeni tip bulgusu yok). Haritayı Kur, Terrain, MAP_VERSION, save/publish kullanılmadı.

@@ -42,6 +42,18 @@ local FOLIAGE_NAMES: { [string]: boolean } = {
 	Blossom = true,
 	Petals = true,
 }
+-- Her iki kurulum yolu aynı mevsim başlangıç değerlerini taşır.
+function ThemePatch.captureFoliage(part: BasePart)
+	if FOLIAGE_NAMES[part.Name] then
+		if part:GetAttribute("ThemeBaseColor") == nil then
+			part:SetAttribute("ThemeBaseColor", part.Color)
+		end
+		if part:GetAttribute("ThemeBaseSize") == nil then
+			part:SetAttribute("ThemeBaseSize", part.Size)
+		end
+	end
+end
+
 local LEAF_PROPERTIES: { [string]: { string } } = {
 	PointLight = { "Brightness", "Color", "Enabled", "Range", "Shadows" },
 	SpotLight = { "Brightness", "Color", "Enabled", "Range", "Shadows", "Angle", "Face" },

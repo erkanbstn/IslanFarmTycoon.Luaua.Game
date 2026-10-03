@@ -5,6 +5,7 @@
 
 local ModelAssets = require(script.Parent:WaitForChild("ModelAssets"))
 local Parts = require(script.Parent:WaitForChild("DecorParts"))
+local ThemePatch = require(script.Parent:WaitForChild("ThemePatch"))
 
 local part = Parts.part
 
@@ -42,6 +43,7 @@ end
 function Props.optimize(root: Instance)
 	for _, descendant in root:GetDescendants() do
 		if descendant:IsA("BasePart") then
+			ThemePatch.captureFoliage(descendant)
 			if not descendant.CanCollide then
 				descendant.CanQuery = false
 			end
