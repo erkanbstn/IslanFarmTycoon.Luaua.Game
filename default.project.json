@@ -26,6 +26,9 @@
         },
         "WorldSpec": {
           "$path": "tests/world.spec.luau"
+        },
+        "ThemeTransitionSpec": {
+          "$path": "tests/theme-transition.spec.luau"
         }
       }
     },
@@ -81,8 +84,9 @@
       "$properties": {
         "FilteringEnabled": true,
         "StreamingEnabled": true,
-        "StreamingMinRadius": 160,
-        "StreamingTargetRadius": 1024
+        "StreamingMinRadius": 128,
+        "StreamingTargetRadius": 512,
+        "StreamOutBehavior": "Opportunistic"
       }
     }
   }

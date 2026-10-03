@@ -17,6 +17,7 @@ local ExtensionAreas = require(script.Parent.Parent:WaitForChild("Modules"):Wait
 local AnimalModels = require(script.Parent:WaitForChild("AnimalModels"))
 local AnimalPlacement = require(script.Parent:WaitForChild("AnimalPlacement"))
 local AnimalLabels = require(script.Parent:WaitForChild("AnimalLabels"))
+local VisualWorkBudget = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("VisualWorkBudget"))
 
 type PlayerSave = GameTypes.PlayerSave
 
@@ -34,7 +35,11 @@ local tierOf = AnimalLabels.tierOf
 function AnimalVisualService.clear(plot: Model)
 	local folder = plot:FindFirstChild("Animals")
 	if folder then
-		folder:ClearAllChildren()
+		for _, child in folder:GetChildren() do
+			local weight = #child:GetDescendants() + 1
+			child:Destroy()
+			VisualWorkBudget.step(weight)
+		end
 	end
 end
 
@@ -175,6 +180,7 @@ function AnimalVisualService.refresh(plot: Model, data: PlayerSave)
 			continue
 		end
 
+		VisualWorkBudget.step()
 		local visual: Model
 		if isExtension then
 			local areaCf, areaSize, movement = ExtensionAreas.find(plot, extensionId)
@@ -213,11 +219,14 @@ function AnimalVisualService.refresh(plot: Model, data: PlayerSave)
 		end
 		keep[animal.uid] = true
 		visual.Parent = animalsFolder
+		VisualWorkBudget.step(#visual:GetDescendants() + 1)
 	end
 
 	for uid, model in existingByUid do
 		if not keep[uid] and model.Parent then
+			local weight = #model:GetDescendants() + 1
 			model:Destroy()
+			VisualWorkBudget.step(weight)
 		end
 	end
 end

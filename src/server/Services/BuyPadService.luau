@@ -202,6 +202,9 @@ function BuyPadService.clear(plot: Model)
 end
 
 function BuyPadService.apply(plot: Model, save: any)
+	if plot:GetAttribute("WorldTransition") == true then
+		return
+	end
 	local wanted: { { island: string, upgrade: Config.UpgradeConfig, slot: Vector2, cost: number, priceText: string } } =
 		{}
 	local ids: { string } = {}

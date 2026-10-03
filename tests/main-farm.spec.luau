@@ -40,6 +40,7 @@ return function(
 		"a saved first farm reloads unchanged as the primary farm"
 	)
 	local player: any = {
+		Parent = {},
 		attributes = { WorldReady = true },
 		GetAttribute = function(self: any, key: string): any
 			return self.attributes[key]
@@ -108,14 +109,26 @@ return function(
 		pushEconomy = function() end,
 	}
 	local mappings: any = { ["1"] = "1" }
-	local fakePlot = {
+	local fakePlot: any = {
+		attributes = {},
+		GetAttribute = function(self: any, key: string): any
+			return self.attributes[key]
+		end,
+		SetAttribute = function(self: any, key: string, value: any)
+			self.attributes[key] = value
+		end,
 		FindFirstChild = function(): any
 			return nil
 		end,
 	}
 	local failSelect = false
+	local selectHook: ((string) -> ())? = nil
+	local selected, refreshed = 0, 0
 	local teleports = 0
 	local plots = {
+		getOwner = function(): any
+			return player
+		end,
 		getPlot = function(): any
 			return fakePlot
 		end,
@@ -132,10 +145,21 @@ return function(
 		getMainFarmPlotId = function(_p: any, id: string): string?
 			return mappings[id]
 		end,
-		selectMainFarm = function(_p: any, id: string): boolean
-			return not (failSelect and id ~= "1") and data.mainFarms[id] ~= nil
+		selectMainFarm = function(_p: any, id: string, pendingPurchase: boolean?): boolean
+			selected += 1
+			assert(
+				player:GetAttribute("WorldReady") == false and fakePlot:GetAttribute("WorldTransition") == true,
+				"transition must block concurrent gameplay"
+			)
+			if selectHook then
+				selectHook(id)
+			end
+			return not (failSelect and id ~= "1") and (data.mainFarms[id] ~= nil or pendingPurchase == true)
 		end,
-		refreshPlayerWorld = function() end,
+		refreshPlayerWorld = function(_p: any, forced: boolean?)
+			assert(forced == true, "final render must explicitly bypass transition suppression")
+			refreshed += 1
+		end,
 		teleportHome = function()
 			teleports += 1
 		end,
@@ -166,7 +190,32 @@ return function(
 		function() end
 	)
 	economy.startPlayer(player)
-	local service = createService(engine, remotes, dataService, plots, economy, limiter, dateTime, function() end)
+	local noop = function() end
+	local guard: any = nil
+	local budget = {
+		begin = function(valid: any)
+			guard = valid
+		end,
+		finish = function()
+			guard = nil
+		end,
+		step = function()
+			assert(not guard or guard(), "Visual transition cancelled")
+		end,
+	}
+	local tasks: { () -> () } = {}
+	local deferTasks = false
+	local scheduler = {
+		spawn = function(fn: () -> ())
+			if deferTasks then
+				table.insert(tasks, fn)
+			else
+				fn()
+			end
+		end,
+	}
+	local service =
+		createService(engine, remotes, dataService, plots, economy, limiter, dateTime, noop, scheduler, budget)
 	service.init()
 	service.init()
 	assert(resolver ~= nil, "live physical summary resolver must be registered")
@@ -344,6 +393,63 @@ return function(
 	data.cash = 0
 	assert(not fire("buy", "3").ok and data.mainFarms["3"] == nil, "insufficient cash cannot create a farm")
 	assert(pushes == saves + 1 and saves >= 2, "all farm mutations persist")
+	local oldSelected, oldRefreshed = selected, refreshed
+	assert(fire("select", data.activeMainFarmId).ok, "same farm selection succeeds")
+	assert(selected == oldSelected and refreshed == oldRefreshed, "same farm must not bind or render")
+	assert(
+		player:GetAttribute("WorldReady") == true and fakePlot:GetAttribute("WorldTransition") == nil,
+		"successful and failed transitions release readiness flags"
+	)
+
+	-- Kuyrukta bekleyen isteğin verisi çalıştırıldığı anda doğrulanır; oyuncu başına tek iş tutulur.
+	deferTasks = true
+	now += 1
+	sequence += 1
+	request.OnServerEvent.fire(player, "select", "2", sequence)
+	assert(#tasks == 1, "one global worker owns the queue")
+	now += 1
+	sequence += 1
+	request.OnServerEvent.fire(player, "select", "2", sequence)
+	assert(#tasks == 1 and not results[#results].ok, "queued player cannot submit another visual transaction")
+	active = false
+	table.remove(tasks, 1)()
+	assert(not results[#results].ok and selected == oldSelected, "queued transaction revalidates the session")
+	active = true
+	deferTasks = false
+
+	-- Tema hazırlığındaki hata ücret veya yeni profil yaratmaz; işçi sonraki isteği alabilir.
+	data.cash = 3000000
+	economy.settlePlayer(player)
+	local beforeFailure = data.cash
+	selectHook = function(id: string)
+		if id == "3" then
+			error("Injected theme build failure")
+		end
+	end
+	assert(
+		not fire("buy", "3").ok and data.mainFarms["3"] == nil and data.cash >= beforeFailure,
+		"precommit build errors never charge or leak a staged profile"
+	)
+	assert(player:GetAttribute("WorldReady") == true and guard == nil, "failed transition unwinds its scope")
+	selectHook = nil
+	assert(fire("select", "2").ok, "worker recovers after a failed visual transaction")
+
+	-- Yield sınırında ayrılan sahibin kaydına/alana geri yazılmaz; yeni çiftlik kesinleşmemiştir.
+	selectHook = function(id: string)
+		if id == "3" then
+			player.Parent = nil
+		end
+	end
+	local activeBeforeDisconnect = data.activeMainFarmId
+	fire("buy", "3")
+	assert(
+		data.mainFarms["3"] == nil and data.activeMainFarmId == activeBeforeDisconnect,
+		"disconnection before commit cannot persist a free bought farm"
+	)
+	assert(
+		player:GetAttribute("WorldReady") == false and guard == nil,
+		"cancelled owner is not resurrected and scope is released"
+	)
 	print(
 		"PASS main farm economy: real buy/select, owned/no-money/replay guards, shared wallet, v3 migration, independent/all-farm income, offline caps and snapshots"
 	)

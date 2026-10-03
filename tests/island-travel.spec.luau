@@ -108,7 +108,8 @@ return function(createService: any, config: any)
 		{ syncProductionSites = noop, syncMilkLoadingDecor = noop },
 		{ reset = noop },
 		vectors,
-		frames
+		frames,
+		{ begin = noop, finish = noop, step = noop }
 	)
 	local function player(id: number): any
 		return {

@@ -6,6 +6,7 @@
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerStorage = game:GetService("ServerStorage")
+local VisualWorkBudget = require(script.Parent:WaitForChild("VisualWorkBudget"))
 
 local ModelAssets = {}
 
@@ -31,6 +32,7 @@ function ModelAssets.clone(folderName: string, name: string): Model?
 	if not template then
 		return nil
 	end
+	VisualWorkBudget.step(#template:GetDescendants() + 1)
 	local model = template:Clone()
 	model:SetAttribute("ModelAsset", `{folderName}/{name}`) -- hazır modelden geldiğini gösterir (Studio denetimi/hata ayıklama)
 	for _, descendant in model:GetDescendants() do

@@ -87,7 +87,7 @@ Yeni dosya eklerken `docs/MIMARI.md`'deki "Yeni şey nereye?" tablosuna bak.
 - Meydandaki satıcı NPC'ler `HubNpcs.luau`, genel ada yapıları `HomeBuildings.luau`. Tabelalar uzun direklere asılır, tahtası çarpışmaz
   (yol kapanmasın); dekor kurulumunun sonunda `WorldDecor.optimize` çağrılır.
 - Place'e kaydedilen düzen değişince `MapBuilder.luau`'daki `MAP_VERSION`'ı artır (çalışma anı `Presentation/` için gerekmez). Temaya bağlı ada içeriği sunucu açılışında `ServerStorage.ThemeTemplates` şablonlarına kurulur,
-  çiftlik değişince `MapBuilder.applyTheme` şablonu Clone eder. `World` dosyaları `Shared`'ı yalnızca
+  çiftlik değişince `MapBuilder.applyTheme` + `ThemePatch` mevcut parçaları koruyarak şablon farklarını uygular; geçişler `VisualWorkBudget` ile karelere bölünür. `World` dosyaları `Shared`'ı yalnızca
   `World/SharedRef.luau` üzerinden alır (eklenti modülleri kopyalayıp çalıştırır; kopyadaki `Shared`'ı o bulur) — bunu bozma;
   `World` yalnızca `World`/`Shared` require eder (`check-architecture.py` denetler).
 - Gece ışığı: parça `NightLight`/`NightWindow` etiketi + `NightColor` + kapalı `PointLight` alır
