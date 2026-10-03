@@ -43,7 +43,7 @@ Kaynak: `FarmProfiles` (çiftlik alanları) ve hesap düzeyi alanlar (`SaveCodec
 Rebirth çekirdeği `Modules/Rebirth` (saf mantık: `canRebirth`, `applyReset`, etki seviyeleri) + `Services/RebirthService` (remote, hız sınırı, `RequestGuard`, yedek, telemetri) olur; `PlotService` Çiftlik 1'i yeniden kurar.
 
 ## 6. Kalıcı etki havuzu (taslak, sim'le ayarlanır)
-Her etki seviyeli, **tavanlı** (örnek tavan 5). Etkiler mevcut `Core.getBonus`/`getGrowthSpeed` toplama sistemine girer; çarpan olarak katlanmaz.
+Her etki seviyeli, **tavanlı** (örnek tavan 5). Gelir dışındaki etkiler mevcut `Core.getBonus`/`getGrowthSpeed` toplama sistemine girer (katlanmaz). **Gelir etkisi** eşyanın `incomeBonus`'una katılmaz, ayrı bir çarpandır (`ROBUX_VE_ALTIN_PLANI.md` bölüm 4b: eşya x rebirth için kalıcı üst sınır, Altın Taç gelir çarpanı dahil).
 
 | Etki | Seviye başına (taslak) | Not |
 |---|---|---|
@@ -56,12 +56,12 @@ Her etki seviyeli, **tavanlı** (örnek tavan 5). Etkiler mevcut `Core.getBonus`
 | Sipariş ödülü | +%4 | `contractBonus` |
 | Hazır başlangıç | S1 otomatik toplayıcı baştan, S2 ilk ada açık hayvanla, ... | tek seferlik "kolaylık"; en küçük etki |
 
-Havuz tamamen dolunca (8 etki x 5 = 40 rebirth) prestij kozmetik seçimi çıkar. Rebirth etkilerinin toplamı için **tavan/diz** kuralı (`GROWTH_SPEED_KNEE` gibi) toplam gelir artısına da uygulanır, Robux ve geçici bonusla birleşince patlamasın.
+Havuz tamamen dolunca (8 etki x 5 = 40 rebirth) prestij kozmetik seçimi çıkar. Toplam kalıcı gelir çarpanı (eşya x rebirth) `ROBUX_VE_ALTIN_PLANI.md` bölüm 4b'deki tavana/knee kuralına (`GROWTH_SPEED_KNEE` benzeri) tabidir; Robux tur 2x'i bu sınırın dışındadır.
 
 ## 7. Geri Dönüş bonusu (geçici)
 - **Süre:** 24 saat gerçek zaman (çevrimdışıyken de akar), her rebirth'te yenilenir.
 - **Kapsam:** yalnızca **Çiftlik 1'in ana hayvanı** (inek) geliri x3 ve büyüme hızı +%50; Çiftlik 2'ye geçince etki biter. Amaç: ilk adaya kadar olan ~12 dk ve ilk saatler kısalsın, geç oyun etkilenmesin.
-- **Birleşim:** kalıcı etki, bu bonus ve Robux ürünü **toplanır** (bölüm 6 knee kuralı); toplam çarpan sınırlıdır.
+- **Birleşim:** bu bonus yalnızca Çiftlik 1 ana hayvanını etkiler ve referans gelire girmez; gelir çarpan zinciri ve toplam sınır için `ROBUX_VE_ALTIN_PLANI.md` bölüm 4b.
 
 ## 8. Hedef tur süreleri (sim hedefi)
 `simulate-tiers.py`'ye `--rebirth N` eklenir; ideal/casual/idle için tur süresi ölçülür.
@@ -72,7 +72,7 @@ Havuz tamamen dolunca (8 etki x 5 = 40 rebirth) prestij kozmetik seçimi çıkar
 ## 9. Robux ile ilişki
 - **Tur boyunca 2x gelir** (dev ürünü, ucuz): `save.rebirth.run` altında tutulur, rebirth'te sıfırlanır; oyuncu her turda tekrar alır. Kalıcı geçit olarak satılmaz.
 - **Üretimi tamamla** (dev ürünü, ucuz) ve kısa süreli güçlendirme: tur içi, rebirth'te sıfırlanır.
-- **Eşyalar** (karar güncellendi, bkz. `ROBUX_VE_ALTIN_PLANI.md`): saf kozmetik eşya kalmaz, hepsi etki verir. Nakitle alınanlar rebirth'te sıfırlanır; en üst seviye eşyalar yalnızca Robux'la satılır ve **kalıcıdır**. Altın hesap düzeyinde kalır.
+- **Eşyalar** (karar güncellendi, bkz. `ROBUX_VE_ALTIN_PLANI.md`): etkisiz eşya kalmadı (şapka/sırt dahil hepsi etki verir). Nakitle alınanlar (şapka, sırt, çekiç, Çoban Asaları, alt kademeler) rebirth'te sıfırlanır; son seviye eşyalar (Altın Taç dahil) Robux ya da altınla alınır ve **kalıcıdır**. Etkisiz kozmetik (aura, iz, kaplama) ayrı Görünüm sekmesindedir, kalıcıdır. Altın hesap düzeyinde kalır.
 - **Satılmaz:** rebirth'in kendisi, rebirth etkisi, doğrudan çiftlik/yükseltme açılışı.
 
 ## 10. Uygulama adımları

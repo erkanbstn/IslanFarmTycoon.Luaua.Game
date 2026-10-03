@@ -1,7 +1,8 @@
 # Altın, Robux marketi ve rebirth seviyeleri planı
 
 Durum: **plan** (kod yok). `docs/REBIRTH_PLANI.md` ile birlikte okunur. Sayılar taslaktır; `scripts/simulate-*.py` ile ayarlanır.
-**Kapsam dışı:** mevcut görünüm eşyalarına (8 şapka, 7 sırt) etki verilmesi ayrı, bağımsız bir iştir (ayrı yönerge ile yapılır); bu belge ona bağlı değildir.
+**Eşyaların güncel hali** (`feat/esya-etkileri` dalı, `Config/Items.luau`): artık etkisiz eşya yoktur; 8 şapka (ticari) ve 7 sırt (lojistik) mevcut etki anahtarlarıyla fayda verir, `weather_staff_1/3/5` güçsüz "Çoban Asası" olmuştur (hava gücü yalnızca `weather_staff_inf` Ebedi Hava Asası'ndadır; mevsim asaları 1/3/5/sınırsız kademeli kalmıştır), `golden_crown` (Altın Taç) en pahalı şapkadır ve `incomeBonus` ile geliri doğrudan çarpar. Bu belgedeki eşya satışı ve rebirth kuralları buna göre yazılmıştır; sayılar `Config/Items.luau`'dadır, burada kopyalanmaz.
+**Terim:** **altın** = yeni para birimi; **Altın Hayvan** = mevcut rastgele olay (`Config.GOLDEN`); birbirinden bağımsızdır (bölüm 2b).
 
 ## 1. Omurga: üç katman
 | Katman | Ne | Rebirth'te |
@@ -38,8 +39,8 @@ Bugün şu hesaplar **etkin çiftliğin** gelirini kullanıyor; 6. çiftliği ol
 | Mevsim hedefi ödülü (`Rewards.seasonalReward`/hedef) | etkin çiftlik | referans gelir |
 | Sipariş ödül tavanı (`Contracts.offers` `rewardCapMinutes`) | etkin çiftlik; yeni çiftlikte adetler 1'e iner | referans gelir (istemci eşitliği için `save.referenceIncome` sunucudan gelir) |
 | Gelir paketi (`MonetizationService.incomePack`) | etkin çiftlik | referans gelir |
-| Altın hayvan (`Golden`) | etkin çiftliğin toplam geliri | **kalır** (etkin çiftlikte oynanan, yakalanan olay) |
-| Çevrimdışı kazanç | yalnızca etkin çiftlik (bilinen sınır, `SaveCodec`) | ayrı karar |
+| Altın Hayvan (`Golden`, olay) | etkin çiftliğin toplam geliri | **kalır**: süreli bir olaydır (her oyuncuya özel döngülerde pencere açılır, alınmazsa o döngü kaybolur; değerler `Config.GOLDEN`), kalan süre geri sayımı istemcide görünür. Referans gelire bağlanmaz ve **altın (para birimi) kazandırmaz** |
+| Çevrimdışı kazanç | yalnızca etkin çiftlik (bilinen sınır, `SaveCodec`) | referans gelire bağlanabilir (altın hesabından bağımsız, ayrı karar; "Açık kararlar") |
 `FarmMath.getReferenceIncome` tek yerden yazılır; yukarıdakiler ona bağlanır. Sipariş tavanında istemci/sunucu eşitliği için hesap sunucuda yapılıp client state'e yazılır (tavan %25'lik basamaklara yuvarlandığı için titremez). Bu düzeltme altın işinden bağımsız yapılabilir (ayrı yönerge).
 
 ## 3. Robux Marketi
@@ -51,14 +52,38 @@ Dükkândaki "Destek paketleri" **Robux Marketi** penceresine dönüşür (`Stor
 Para ve altın ürün satışı yalnızca sunucuda `ProcessReceipt` ile (kimlik 0 = kapalı kuralı sürer; makbuz çift işlenmez).
 
 ## 4. Kalıcı eşya ve kolaylık ürünleri
-- **Son seviye eşyalar** (Robux **ya da** altın, kalıcı; rebirth'te kalır): Elmas Çekiç, Mevsim/Hava Asası (sonsuz), Gelir Tılsımı 3, Büyüme/Depo/Ambar/Sipariş Tılsımı son kademeleri. Alt kademeler nakitle alınır ve rebirth'te sıfırlanır.
-- **Kolaylık ürünleri** (otomatik toplayıcı, yardımcılar `pet_cash`/`pet_goods`, isteğe bağlı depo): üç yol — nakit (sıfırlanır), altın veya Robux (kalıcı). Robux/altınla alınan sahiplik hesap düzeyinde `owned` işaretiyle tutulur; nakit sahiplik çiftlik kaydındadır; ikisi varsa etki bir kez uygulanır.
-- **Tavan:** eşya + rebirth etkisi + Robux ürünü toplamı gelir artısı için knee/tavanla sınırlanır; hepsi alınsa bile tur süresi tabanın altına inmez (`REBIRTH_PLANI` bölüm 6/8; sim denetler).
+- **Son seviye eşyalar** (Robux **ya da** altın, **kalıcı**, rebirth'te kalır). Her eşya hattının son kademesi (`Config/Items.luau`):
+  - **Elmas Çekiç** (`diamond_hammer`),
+  - **Ebedi Mevsim Asası** (`season_staff_inf`) ve **Ebedi Hava Asası** (`weather_staff_inf`); hava gücü yalnızca bu asadadır, alt asalar (Çırak/Usta/Üstat **Çoban Asası**) güçsüz nakit eşyadır,
+  - **Altın Bereket Muskası** (`income_charm_3`), Büyük Büyüme Muskası, Büyük Depo Muskası, Altın Ambar Anahtarı, Usta Tüccar Defteri (her hattın son tılsımı),
+  - **Altın Taç** (`golden_crown`) ve **Altın Kanatlar** (`golden_wings`).
+- **Alt kademeler ve tüm şapka/sırt eşyaları nakit ekonomisinde kalır**, etkilidir ve **rebirth'te sıfırlanır** (karar: "her şey sıfırlanır" kuralı; Robux/altınla alınmadıkça kalıcı değildir). Nakit yol: Çoban Asaları ve alt kademeler.
+- **Altın Taç** (en pahalı eşya, gelir çarpanı zincirinde ayrı bir yeri vardır, bölüm 4b): Robux ya da altınla alınır, kalıcıdır. `Config/Items.luau`'daki nakit fiyatı Robux/altın yolu açılınca kaldırılır (nakitle alınamaz); aksi halde her turda birkaç saat içinde geliri x2'ye çıkaran kısa yol olurdu.
+- **Fiyat:** son seviye eşyaların altın/Robux fiyatları ileride artırılabilir (özellikle gelir çarpanı verenler); fiyatlar Config'e bağlı kalır, belgede sayı yazılmaz ("Açık kararlar").
+- **Kolaylık ürünleri** (otomatik toplayıcı, yardımcılar `pet_cash`/`pet_goods`, isteğe bağlı depo): üç yol: nakit (sıfırlanır), altın veya Robux (kalıcı). Robux/altınla alınan sahiplik hesap düzeyinde `owned` işaretiyle tutulur; nakit sahiplik çiftlik kaydındadır; ikisi varsa etki bir kez uygulanır.
 
-## 5. Görünüm (saf kozmetik) — Robux sekmesi
-- Nakit dükkândaki eşyalar etki verir (ayrı iş); **etkisiz saf kozmetik** (şapka, kanat, aura, iz, yardımcı/ada görünümü, ada tabelası çerçevesi) yalnızca **Robux Marketi › Görünüm** sekmesinde satılır, kalıcıdır.
-- Altınla da alınabilecek bir alt küme (ucuz kozmetikler) isteğe bağlı; altın sink'i olarak kullanılabilir.
-- Rebirth rozet/aura kozmetikleri (bölüm 6) ücretsiz kazanılır ve aynı gösterim sistemini kullanır.
+## 4b. Gelir çarpanı zinciri ve toplam sınır
+`Income.getAnimalMultiplier` bugün: ahır x (1 + diğer bonuslar) x (1 + ırk) x (1 + **eşya**) x mevsim/hava x geçit. Eşya `incomeBonus`'u ayrı çarpandır; tüm slotlar takılıysa en çok Altın Taç + Altın Bereket Muskası + Altın Kanatlar = +%116, yani **çarpan 2,16** (`Config/Items.luau`; ancak Robux/altın yoluyla kalıcı olur).
+Rebirth ve Robux bu zincire şöyle eklenir:
+| Çarpan | Kaynak | En çok (taslak) |
+|---|---|---|
+| Eşya | takılı eşyaların `incomeBonus` toplamı | x2,16 |
+| Rebirth | seçilen gelir etkisi (ayrı çarpan, eşya toplamına katılmaz; seviye başına ~%8, tavan 5) | x1,40 |
+| Tur 2x (Robux, geçici) | geçit çarpanı gibi, rebirth'te sıfırlanır | x2,00 |
+| Geri Dönüş bonusu | yalnızca Çiftlik 1'in ana hayvanı, 24 saat | geçici (bu hesaba girmez) |
+
+Altın paketleri **çarpan değil para** verir (referans gelire göre, bölüm 1b); gelir çarpanını artırmazlar.
+Hepsi birleşirse eşya x rebirth = x3,02, tur 2x ile **~x6,0** (mevcut ırk x1,8 vb. çarpanların üstüne). Öneri (karar bekler):
+- **Kalıcı hesap çarpanı (eşya x rebirth) sınırı x3,0** (knee/tavan; sınıra yaklaştıkça artış azalır). Robux tur 2x'i bu sınırın dışındadır; en kötü durumda toplam ~x6.
+- **Tur süresi tabanı** (`REBIRTH_PLANI` bölüm 8) **eşyasız** oyuncu için ölçülür; Robux/altınla alınan hızlandırıcılar (Taç, tur 2x) bu tabanın altına inebilir (bilinçli "bekleme atlatma"). En hızlı kurulumun alt sınırı sim ile raporlanır (ideal ~4 gün / 6 = ~16 saat).
+- `ECONOMY_LIMITS`'e "kalıcı gelir çarpanı üst sınırı" eklenir; "hepsi takılı" üst sınır testi `tests/inventory.spec.luau`'da zaten vardır (`feat/esya-etkileri`).
+
+## 5. Görünüm (gerçekten etkisiz kozmetik) — Robux sekmesi
+Nakit dükkândaki şapka ve sırt eşyaları **etkilidir** ve eşya olarak kalır (bölüm 4); onlar Görünüm sekmesine girmez. **Robux Marketi › Görünüm** yalnızca **eşya olmayan, etkisiz** öğeleri satar, hepsi kalıcıdır:
+- **Görünüm yuvaları:** aura, ayak izi/iz, unvan/isim çerçevesi (eşya slotu değildir, etki vermez).
+- **Yardımcı hayvan görünümleri** (kaplama), **ada tabelası çerçevesi / ada süsleri**, **hayvan kaplamaları** (aynı hayvanın alternatif modeli; fiyat/gelir değişmez, balık görünümü gibi `Config.getAnimalLook` mantığıyla).
+- **Eşya kaplamaları:** bir eşyanın görünüşünü değiştirir, etkisi aynı kalır.
+Altınla da alınabilecek ucuz bir alt küme isteğe bağlıdır (altın sink'i). Rebirth rozet/aura kozmetikleri (bölüm 6) ücretsiz kazanılır ve aynı gösterim sistemini kullanır.
 
 ## 6. Rebirth sayısı ve seviyeleri
 Rebirth sayısı = kalıcı etki puanı sayısı (`REBIRTH_PLANI` bölüm 4). Her rebirth bir etki seçimi verir (havuz `REBIRTH_PLANI` bölüm 6). Ek olarak **seviye dönüm noktaları** (taslak):
@@ -77,7 +102,7 @@ Rozet gösterimi: `StatsPanel`'de para satırı altında (`UiKit.iconChip` + `Ui
 ## 7. Rebirth'te neler kalır (özet)
 | Sıfırlanır | Kalır |
 |---|---|
-| para, çiftlikler, hayvanlar, yükseltmeler, ırk, nakitle alınan eşya/yükseltme/yardımcı/toplayıcı, başarımlar, ahır stoğu, sözleşmeler, tur içi Robux ürünleri | **altın**, Robux/altınla alınan kalıcı eşya ve kolaylıklar, Görünüm satın alımları, rebirth sayısı/etkileri/rozetleri, ayarlar, makbuz kayıtları |
+| para, çiftlikler, hayvanlar, yükseltmeler, ırk, **nakitle alınan tüm eşyalar** (çekiç, Çoban Asaları, alt asa/tılsım kademeleri, şapka, sırt) ve yükseltme/yardımcı/toplayıcı, başarımlar, ahır stoğu, sözleşmeler, tur içi Robux ürünleri | **altın**, Robux/altınla alınan kalıcı eşya (son seviye eşyalar, Altın Taç dahil) ve kolaylıklar, Görünüm satın alımları, rebirth sayısı/etkileri/rozetleri, ayarlar, makbuz kayıtları |
 
 ## 8. Uygulama sırası
 0. **`FarmMath.getReferenceIncome`** (bölüm 1b/2b), `mainFarmSummaries[].incomePerSecond`, istemci eşitliği testi.
@@ -87,8 +112,12 @@ Rozet gösterimi: `StatsPanel`'de para satırı altında (`UiKit.iconChip` + `Ui
 4. **Rebirth** (`REBIRTH_PLANI` bölüm 10): `RebirthService`, menü, seviye dönüm noktaları.
 5. **Sim/denge:** `--rebirth`, altın kazanım/çevirme oranı, toplam etki tavanı, `audit-economy.py` ve `ECONOMY_LIMITS`'e altın/eşya sınırları.
 
-## 9. Açık noktalar (karar/ölçüm)
-- Altın miktarları, çevirme oranı ve limitleri sim ile ayarlanır.
-- Robux fiyatları ve paket büyüklükleri kullanıcıya aittir.
-- Görünüm sekmesinin altınla alınabilen alt kümesi olsun mu?
-- Seviye dönüm noktası kazanımları (ek yuva, panoya slot) uygulamada ayrıntılandırılır.
+## 9. Açık kararlar (kullanıcıya sorulacak)
+1. **Altın Taç yolu:** önerim Robux/altın + kalıcı, nakit fiyatı kaldırılır (bölüm 4). Nakit yol kalsın mı? (Kalırsa Taç her turda birkaç saatte x2 gelir verir ve rebirth'te sıfırlanır.)
+2. **Kalıcı gelir çarpanı sınırı:** eşya x rebirth için x3,0 önerisi (bölüm 4b). Taç tek başına x2 olduğundan rebirth gelir etkisi sınırın hemen altında kalıyor; alternatif: rebirth gelir etkisini küçültüp büyüme/indirim gibi diğer etkilere kaydırmak.
+3. **Tur süresi tabanı** eşyasız oyuncu için ölçülsün, Robux hızlandırıcıları taban altına inebilsin mi? (Önerim: evet.)
+4. **Son seviye eşya fiyatları** (altın ve Robux) ileride artırılabilir; özellikle Altın Taç, Altın Bereket Muskası, Altın Kanatlar. Fiyat kullanıcıya aittir, Config'e bağlanır.
+5. **Çevrimdışı kazanç** referans gelire bağlansın mı? (Önerim: evet, ayrı ve küçük bir düzeltme; altın hesabıyla ilgisi yok.)
+6. **Görünüm sekmesinin altınla alınabilen alt kümesi** olsun mu?
+7. **Seviye dönüm noktası kazanımları** (ek tılsım yuvası, panoya slot) uygulamada ayrıntılandırılır; kullanıcı onaylar.
+8. Altın miktarları, çevirme oranı ve limitleri sim ile ayarlanır; Robux fiyatları ve paket büyüklükleri kullanıcıya aittir.
