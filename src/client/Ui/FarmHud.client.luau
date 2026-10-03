@@ -31,6 +31,7 @@ local RewardsSection = require(Hud:WaitForChild("RewardsSection"))
 local BoardSection = require(Hud:WaitForChild("BoardSection"))
 local SeasonBar = require(Hud:WaitForChild("SeasonBar"))
 local Onboarding = require(Hud:WaitForChild("Onboarding"))
+local OnboardingBanner = require(Hud:WaitForChild("OnboardingBanner"))
 local ItemShopWindow = require(Hud:WaitForChild("ItemShopWindow"))
 local InventoryWindow = require(Hud:WaitForChild("InventoryWindow"))
 local IslandTabs = require(Hud:WaitForChild("IslandTabs"))
@@ -124,7 +125,8 @@ local onboarding = Onboarding.create({
 	roadmap = menu.roadmapButton,
 	production = menu.productionButton,
 })
-local goal = GoalCard.create(statsHud.frame, onboarding)
+local onboardingBanner = OnboardingBanner.create(hudRoot)
+local goal = GoalCard.create(statsHud.frame, onboarding, onboardingBanner)
 local celebrate = Celebration.create(hudRoot)
 
 menu.rewardsButton.Activated:Connect(function()
