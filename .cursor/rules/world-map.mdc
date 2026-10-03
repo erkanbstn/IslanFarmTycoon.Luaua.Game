@@ -16,6 +16,11 @@ alwaysApply: false
 - Harita sözleşmesi (Plots/Zones/Islands/BuildSpots/HubSpawn) `validate()` içindedir; yeni zorunlu
   parça eklersen oraya ve `tests/world.spec.luau` / `tests/map-structure.spec.luau`'ya ekle (Studio düzenleme modu).
 
+## Çalışma anında ana çiftlik geçişi
+- `MapBuilder.applyTheme` mevcut ağacı `ThemePatch` ile uzlaştırır; ortak ada tabanı/çit/dekor kimliği korunur. Büyük tema ağacını tek `Clone()` ile değiştirme.
+- Geçişler `MainFarmService` kuyruğunda, `VisualWorkBudget` ortak kare bütçesiyle işler; bekleme sonrası sahiplik/kayıt koruması yeniden kontrol edilir. `WorldTransition` süresince normal görsel yenilemeleri ve kurulum efektleri durur.
+- Bu çalışma anı yükleme düzeni, yerleşim veya place geometrisi değişmiyorsa MAP_VERSION artışı gerektirmez.
+
 ## Model tabanlı görseller (kod geometri çizmez)
 - Oyunda görünen her şeyin geometrisi `assets/<klasör>/<ad>.rbxmx` (sunucu: `ServerStorage.Assets`, `World/ModelAssets`; istemci efektleri: `client-assets/` → `ReplicatedStorage.ClientAssets`, `Core/ClientModelAssets`)
   modelinden gelir. Kod yalnızca model dosyasında olamayanı ekler: yazı/ikon (`WorldUi`), prompt/etkileşim, gece ışığı etiketi (`ModelAssets.markLantern/markGlowWindow`), parçacık, öznitelik/etiket,

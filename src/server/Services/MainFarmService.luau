@@ -16,7 +16,12 @@ local SaveCodec = require(script.Parent.Parent.Modules.SaveCodec)
 local FarmProfiles = require(script.Parent.Parent.Modules.FarmProfiles)
 local RateLimiter = require(script.Parent.Parent.Modules.RateLimiter)
 local ProductionRules = require(script.Parent.Parent.Modules.ProductionRules)
+local VisualWorkBudget = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("VisualWorkBudget"))
 local MainFarmService = {}
+type Request = { player: Player, action: unknown, target: unknown, id: number }
+local queue: { Request } = {}
+local pending: { [Player]: boolean } = {}
+local working = false
 local highest: { [Player]: number } = {}
 local initialized = false
 
@@ -32,6 +37,7 @@ local function apply(player: Player, action: unknown, target: unknown): (boolean
 	local farmId = target :: string
 	local previousFarmId = data.activeMainFarmId
 	local charge = 0
+	local purchasedFarm: any = nil
 	if action == "buy" then
 		local ids = FarmProfiles.ids(data)
 		if #ids >= Config.MAIN_FARM_LIMIT then
@@ -53,7 +59,7 @@ local function apply(player: Player, action: unknown, target: unknown): (boolean
 		local farm = SaveCodec.newFarm(Config, FarmMath, DateTime.now().UnixTimestampMillis / 1000, function(): string
 			return HttpService:GenerateGUID(false)
 		end, farmId)
-		data.mainFarms[farmId] = farm
+		purchasedFarm = farm
 		charge = price
 	else
 		if not data.mainFarms[farmId] then
@@ -67,30 +73,77 @@ local function apply(player: Player, action: unknown, target: unknown): (boolean
 		end
 		EconomyService.settlePlayer(player)
 	end
-	if not PlotService.selectMainFarm(player, farmId) or not PlayerDataService.setActiveMainFarm(player, farmId) then
-		-- Önceki etkin görünümü geri getir; başarısız seçim hiçbir ücret doğurmaz.
-		PlotService.selectMainFarm(player, previousFarmId)
-		PlayerDataService.setActiveMainFarm(player, previousFarmId)
-		if action == "buy" then
-			data.mainFarms[farmId] = nil
-		end
+	if action == "select" and farmId == previousFarmId then
 		PlayerDataService.pushState(player)
-		return false, "Çiftlik seçilemedi; ücret alınmadı."
+		return true, "Ana çiftlik seçildi."
 	end
-	data.cash -= charge
-	if charge > 0 then
-		TelemetryService.economy(player, "farm", charge, data.cash)
-		TelemetryService.progression(player, "farm", #FarmProfiles.ids(data), `Farm {farmId}`)
+	local plot = PlotService.getPlot(player) :: Model
+	local function valid(): boolean
+		return player.Parent ~= nil
+			and PlayerDataService.tryGet(player) == data
+			and PlotService.getPlot(player) == plot
+			and PlotService.getOwner(plot) == player
 	end
-	player:SetAttribute("SelectedFarmIsland", "home")
-	PlayerDataService.pushState(player)
-	PlayerDataService.requestSave(player)
-	local ok, err = pcall(function()
-		PlotService.refreshPlayerWorld(player)
+	if not valid() then
+		return false, "Çiftliğin henüz hazır değil."
+	end
+	player:SetAttribute("WorldReady", false)
+	plot:SetAttribute("WorldTransition", true)
+	local transitionStarted = os.clock()
+	VisualWorkBudget.begin(valid)
+	local committed = false
+	local ok, problem = pcall(function()
+		assert(PlotService.selectMainFarm(player, farmId, purchasedFarm ~= nil), "Theme selection failed")
+		VisualWorkBudget.step()
+		-- Kayıt ve ücret aynı yield etmeyen blokta kesinleşir; hazırlıkta alınan çiftlik kayda sızmaz.
+		EconomyService.settlePlayer(player)
+		assert(data.cash >= charge, "Farm balance changed during transition")
+		if purchasedFarm then
+			data.mainFarms[farmId] = purchasedFarm
+		end
+		if not PlayerDataService.setActiveMainFarm(player, farmId) then
+			if purchasedFarm then
+				data.mainFarms[farmId] = nil
+			end
+			error("Profile selection failed")
+		end
+		data.cash -= charge
+		committed = true
+		if charge > 0 then
+			TelemetryService.economy(player, "farm", charge, data.cash)
+			TelemetryService.progression(player, "farm", #FarmProfiles.ids(data), `Farm {farmId}`)
+		end
+		player:SetAttribute("SelectedFarmIsland", "home")
+		PlayerDataService.pushState(player)
+		PlayerDataService.requestSave(player)
+		PlotService.refreshPlayerWorld(player, true)
+		VisualWorkBudget.step()
 		PlotService.teleportHome(player)
 	end)
+	if not ok and not committed and valid() then
+		-- Hazırlık yarıda kesildiyse yalnız aynı sahibin adası eski temaya döner.
+		local restored, restoreError = pcall(function()
+			PlotService.selectMainFarm(player, previousFarmId)
+			PlotService.refreshPlayerWorld(player, true)
+		end)
+		if not restored then
+			warn(`[MainFarm] Önceki görünüm geri yüklenemedi: {restoreError}`)
+		end
+	end
+	VisualWorkBudget.finish()
+	if valid() then
+		plot:SetAttribute("WorldTransitionSeconds", os.clock() - transitionStarted)
+		plot:SetAttribute("WorldTransition", nil)
+		player:SetAttribute("WorldReady", true)
+	end
 	if not ok then
-		warn(`[MainFarm] Seçim kaydedildi; görünüm yenilenemedi: {err}`)
+		warn(`[MainFarm] Çiftlik geçişi kesildi: {problem}`)
+		if not committed then
+			if valid() then
+				PlayerDataService.pushState(player)
+			end
+			return false, "Çiftlik seçilemedi; ücret alınmadı."
+		end
 	end
 	return true, if action == "buy" then "Yeni ana çiftliğin satın alındı!" else "Ana çiftlik seçildi."
 end
@@ -104,6 +157,7 @@ function MainFarmService.init()
 	PlayerDataService.setMainFarmOffersResolver(PlotService.getMainFarmOffers)
 	Players.PlayerRemoving:Connect(function(player: Player)
 		highest[player] = nil
+		pending[player] = nil
 	end)
 	Remotes.get("RequestMainFarmAction").OnServerEvent
 		:Connect(function(player: Player, action: unknown, target: unknown, requestId: unknown)
@@ -122,8 +176,41 @@ function MainFarmService.init()
 				end
 				return
 			end
-			local ok, message = apply(player, action, target)
-			Remotes.get("MainFarmResult"):FireClient(player, id, ok, message)
+			if pending[player] then
+				Remotes.get("MainFarmResult"):FireClient(player, id, false, "Çiftliğin henüz hazır değil.")
+				return
+			end
+			pending[player] = true
+			table.insert(queue, { player = player, action = action, target = target, id = id })
+			if working then
+				return
+			end
+			working = true
+			task.spawn(function()
+				while #queue > 0 do
+					local nextRequest = table.remove(queue, 1)
+					if not nextRequest then
+						break
+					end
+					local owner = nextRequest.player
+					if owner.Parent and pending[owner] then
+						local succeeded, accepted, message = pcall(apply, owner, nextRequest.action, nextRequest.target)
+						if owner.Parent then
+							Remotes.get("MainFarmResult"):FireClient(
+								owner,
+								nextRequest.id,
+								succeeded and accepted == true,
+								if succeeded then message else "Çiftlik seçilemedi; ücret alınmadı."
+							)
+						end
+						if not succeeded then
+							warn(`[MainFarm] İş kuyruğu hatası: {accepted}`)
+						end
+					end
+					pending[owner] = nil
+				end
+				working = false
+			end)
 		end)
 end
 return MainFarmService

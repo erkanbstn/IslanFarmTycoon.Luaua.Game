@@ -13,18 +13,23 @@ local localPlayer = Players.LocalPlayer
 local POP_TIME = 0.5
 local FRESH_SECONDS = 3
 local MAX_POPS = 8
+local MAX_CANDIDATES = 128
+local MAX_POP_PARTS = 160
+local CANDIDATE_INTERVAL = 0.1
+local CANDIDATES_PER_TICK = 8
 local MAX_SPARKLES = 60
 local MAX_DUST = 36
 local DUST_LIFE = 0.9
 
 type Pop = { scale: number, pivot: CFrame, changedPivot: boolean, started: number, watch: RBXScriptConnection? }
-type Candidate = { stableFrames: number, expiresAt: number, connections: { RBXScriptConnection } }
+type Candidate = { stableFrames: number, expiresAt: number, parts: number, connections: { RBXScriptConnection } }
 type Spark = { part: BasePart, origin: Vector3, velocity: Vector3, born: number, life: number }
 type Dust = { part: BasePart, origin: Vector3, velocity: Vector3, born: number, startSize: number }
 local pops: { [Model]: Pop } = {}
 local candidates: { [Model]: Candidate } = {}
 local played: { [Model]: boolean } = setmetatable({}, { __mode = "k" })
 local activePops = 0
+local candidateCount = 0
 local random = Random.new()
 local sparkleFolder = Instance.new("Folder")
 sparkleFolder.Name = "BuildSparkles"
@@ -136,7 +141,7 @@ end
 
 local quietUntil = 0
 local lastFarmId: unknown = localPlayer:GetAttribute("ActiveMainFarmId")
-localPlayer:GetAttributeChangedSignal("ActiveMainFarmId"):Connect(function()
+local farmChanged = localPlayer:GetAttributeChangedSignal("ActiveMainFarmId"):Connect(function()
 	local current = localPlayer:GetAttribute("ActiveMainFarmId")
 	if lastFarmId ~= nil and current ~= lastFarmId then
 		quietUntil = os.clock() + 10
@@ -144,8 +149,21 @@ localPlayer:GetAttributeChangedSignal("ActiveMainFarmId"):Connect(function()
 	lastFarmId = current
 end)
 
-local function popIn(model: Model): boolean
-	if activePops >= MAX_POPS or pops[model] then
+local function ownedPlot(model: Model): Instance?
+	local plot: Instance? = model.Parent
+	while plot and (not plot.Parent or plot.Parent.Name ~= "Plots") do
+		plot = plot.Parent
+	end
+	return if plot and plot:GetAttribute("OwnerUserId") == localPlayer.UserId then plot else nil
+end
+
+local function suppressed(model: Model): boolean
+	local plot = ownedPlot(model)
+	return plot == nil or plot:GetAttribute("WorldTransition") == true or os.clock() < quietUntil
+end
+
+local function popIn(model: Model, parts: number): boolean
+	if activePops >= MAX_POPS or pops[model] or suppressed(model) then
 		return false
 	end
 	if
@@ -159,7 +177,7 @@ local function popIn(model: Model): boolean
 	if typeof(created) ~= "number" or Workspace:GetServerTimeNow() - created > FRESH_SECONDS then
 		return false
 	end
-	if not model:IsDescendantOf(Workspace) or not model:FindFirstChildWhichIsA("BasePart", true) then
+	if not model:IsDescendantOf(Workspace) or parts == 0 then
 		return false
 	end
 	-- ScaleTo, sonradan gelen (henüz çoğalmamış) parçaları yanlış ölçekler; dev hayvanların nedeni buydu.
@@ -168,27 +186,13 @@ local function popIn(model: Model): boolean
 	if typeof(expected) ~= "number" then
 		return false
 	end
-	local parts = 0
-	for _, descendant in model:GetDescendants() do
-		if descendant:IsA("BasePart") then
-			parts += 1
-		end
-	end
-	if parts ~= expected then
+	if parts ~= expected or parts > MAX_POP_PARTS then
 		return false
 	end
 	local camera = Workspace.CurrentCamera
 	if not camera or (model:GetPivot().Position - camera.CFrame.Position).Magnitude > 100 then
 		return false
 	end
-	local plot: Instance? = model.Parent
-	while plot and (not plot.Parent or plot.Parent.Name ~= "Plots") do
-		plot = plot.Parent
-	end
-	if not plot or plot:GetAttribute("OwnerUserId") ~= localPlayer.UserId then
-		return false
-	end
-
 	local boxCf, boxSize = model:GetBoundingBox()
 	local pop: Pop = {
 		scale = model:GetScale(),
@@ -238,6 +242,7 @@ local function removeCandidate(model: Model)
 		connection:Disconnect()
 	end
 	candidates[model] = nil
+	candidateCount -= 1
 end
 
 local function discover(instance: Instance)
@@ -256,16 +261,66 @@ local function discover(instance: Instance)
 	then
 		return
 	end
-	local candidate: Candidate = { stableFrames = 0, expiresAt = os.clock() + FRESH_SECONDS, connections = {} }
+	-- Başkasının adası ve toplu kurulumlar parça taraması başlamadan elenir.
+	if suppressed(instance) then
+		played[instance] = true
+		return
+	end
+	if candidateCount >= MAX_CANDIDATES then
+		return
+	end
+	local expected = instance:GetAttribute("PartCount")
+	if typeof(expected) == "number" and expected > MAX_POP_PARTS then
+		played[instance] = true
+		return
+	end
+	local partCount = 0
+	local visited = 0
+	local stack: { Instance } = { instance }
+	while #stack > 0 do
+		local descendant = table.remove(stack) :: Instance
+		visited += 1
+		if descendant:IsA("BasePart") then
+			partCount += 1
+		end
+		if partCount > MAX_POP_PARTS or visited > MAX_POP_PARTS * 4 then
+			partCount = MAX_POP_PARTS + 1
+			break
+		end
+		for _, child in descendant:GetChildren() do
+			table.insert(stack, child)
+		end
+	end
+	if partCount > MAX_POP_PARTS then
+		played[instance] = true
+		return
+	end
+	local candidate: Candidate =
+		{ stableFrames = 0, expiresAt = os.clock() + FRESH_SECONDS, parts = partCount, connections = {} }
+	candidateCount += 1
 	candidates[instance] = candidate
 	local function changed()
 		candidate.stableFrames = 0
 	end
-	candidate.connections = { instance.AttributeChanged:Connect(changed), instance.DescendantAdded:Connect(changed) }
+	candidate.connections = {
+		instance.AttributeChanged:Connect(changed),
+		instance.DescendantAdded:Connect(function(added: Instance)
+			if added:IsA("BasePart") then
+				candidate.parts += 1
+				changed()
+			end
+		end),
+		instance.DescendantRemoving:Connect(function(removed: Instance)
+			if removed:IsA("BasePart") then
+				candidate.parts -= 1
+				changed()
+			end
+		end),
+	}
 	-- DescendantAdded toplu çoğalmanın ortasında gelebilir; en az sonraki turu bekle.
 	task.defer(changed)
 end
-local connections: { RBXScriptConnection } = {}
+local connections: { RBXScriptConnection } = { farmChanged }
 table.insert(connections, Workspace.DescendantAdded:Connect(discover))
 table.insert(
 	connections,
@@ -282,26 +337,41 @@ for _, instance in Workspace:GetDescendants() do
 	discover(instance)
 end
 
+local candidateElapsed = 0
 table.insert(
 	connections,
-	RunService.RenderStepped:Connect(function()
+	RunService.RenderStepped:Connect(function(dt: number)
 		local now = os.clock()
 		local reduced = EffectSettings.reducedMotion()
-		for model, candidate in candidates do
-			if now >= candidate.expiresAt or not model:IsDescendantOf(Workspace) then
-				removeCandidate(model)
-				continue
-			end
-			candidate.stableFrames += 1
-			if candidate.stableFrames >= 2 and popIn(model) then
-				-- Yalnızca gerçekten başlayan efekt tüketilir; kamera/hazırlık bekleyenler tekrar denenir.
-				played[model] = true
-				removeCandidate(model)
+		candidateElapsed += dt
+		if candidateElapsed >= CANDIDATE_INTERVAL then
+			candidateElapsed = 0
+			local remaining = CANDIDATES_PER_TICK
+			for model, candidate in candidates do
+				if suppressed(model) or candidate.parts > MAX_POP_PARTS then
+					played[model] = true
+					removeCandidate(model)
+					continue
+				end
+				if now >= candidate.expiresAt or not model:IsDescendantOf(Workspace) then
+					removeCandidate(model)
+					continue
+				end
+				candidate.stableFrames += 1
+				if candidate.stableFrames >= 2 and popIn(model, candidate.parts) then
+					-- Yalnızca gerçekten başlayan efekt tüketilir; kamera/hazırlık bekleyenler tekrar denenir.
+					played[model] = true
+					removeCandidate(model)
+				end
+				remaining -= 1
+				if remaining <= 0 then
+					break
+				end
 			end
 		end
 		for model, pop in pops do
 			local t = math.min((now - pop.started) / POP_TIME, 1)
-			if reduced or t >= 1 or not model:IsDescendantOf(Workspace) then
+			if reduced or suppressed(model) or t >= 1 or not model:IsDescendantOf(Workspace) then
 				finishPop(model)
 				continue
 			end

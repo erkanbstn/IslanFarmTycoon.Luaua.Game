@@ -19,9 +19,11 @@ local TRANSITION = TweenInfo.new(1.2, Enum.EasingStyle.Sine, Enum.EasingDirectio
 local MAX_FRAGMENTS = 36
 local MAX_BRANCH_TREES = 12
 local BRANCHES_PER_TREE = 4
+local SOURCE_UPDATES_PER_FRAME = 64
 
 type Source = {
 	part: BasePart,
+	plot: Instance?,
 	kind: string,
 	color: Color3,
 	material: Enum.Material,
@@ -48,6 +50,17 @@ function SeasonalScenery.start(): () -> ()
 	local active = true
 	local sources: { [BasePart]: Source } = {}
 	local trunks: { [BasePart]: boolean } = {}
+	local pendingSources: { [number]: Source } = {}
+	local pendingSet: { [BasePart]: boolean } = {}
+	local pendingHead, pendingTail = 1, 0
+	local function queueSource(source: Source)
+		if pendingSet[source.part] then
+			return
+		end
+		pendingSet[source.part] = true
+		pendingTail += 1
+		pendingSources[pendingTail] = source
+	end
 	local emitters: { Source } = {}
 	local fragments: { Fragment } = {}
 	local branches: { BasePart } = {}
@@ -123,6 +136,72 @@ function SeasonalScenery.start(): () -> ()
 
 	local currentSeason = Environment.getSeason().id
 	local currentSample = SeasonVisuals.sample(currentSeason, Environment.getSeasonProgress())
+	local function updateSource(source: Source)
+		if source.plot and source.plot:GetAttribute("WorldTransition") == true then
+			if source.tween then
+				source.tween:Cancel()
+				source.tween = nil
+			end
+			return
+		end
+		local part = source.part
+		local sample = currentSample
+		local color = source.color
+		local visible = true
+		local size: Vector3? = nil
+		if source.kind == "snowprop" then
+			-- Parçanın kendi Transparency'si sunucuda 1'dir; karlı mevsimde 0 olur, yaprak dökülmeden önce görünmez
+			part.Transparency = if sample.snow >= 0.45 then 0 else 1
+			return
+		elseif source.kind == "snowcapDeciduous" then
+			part.Transparency = if sample.snow >= 0.45 and sample.foliage >= 0.5 then 0 else 1
+			return
+		end
+		if source.kind == "ground" or source.kind == "zoneground" then
+			if part:GetAttribute("Locked") == true then
+				if source.tween then
+					source.tween:Cancel()
+					source.tween = nil
+				end
+				source.targetColor = nil
+				return
+			end
+			local original = part:GetAttribute("OpenColor")
+			if typeof(original) == "Color3" then
+				color = original
+			end
+			local warmth = sample.autumn * (1 - sample.snow)
+			color = color:Lerp(Color3.fromRGB(165, 146, 80), warmth * 0.45):Lerp(SNOW, sample.snow * 0.94)
+			part.Material = if sample.snow > 0.35
+				then Enum.Material.Snow
+				elseif source.kind == "zoneground" then source.material
+				else Enum.Material.Grass
+		elseif source.kind == "evergreen" then
+			color = color:Lerp(SNOW, sample.snow * 0.65)
+		elseif source.kind == "flower" then
+			visible = sample.foliage * (1 - sample.snow) >= 0.2 + source.phase * 0.6
+		elseif source.kind == "berry" then
+			visible = sample.foliage >= 0.45 + source.phase * 0.3
+		else
+			-- Kümeler farklı sırada dökülür; ilkbaharda aynı dallarda geri çıkar.
+			if source.kind == "bush" then
+				-- Kışın yatayda daralan opak çalı; özgün yükseklik tabanı yerde tutar.
+				local scale = 0.55 + 0.45 * math.clamp(sample.foliage, 0, 1)
+				local horizontalScale = math.clamp(math.round(scale * 128) / 128, 0.55, 1)
+				size = Vector3.new(source.size.X * horizontalScale, source.size.Y, source.size.Z * horizontalScale)
+			else
+				visible = sample.foliage >= 0.08 + source.phase * 0.84
+			end
+			local autumnColor = AUTUMN[math.floor(source.phase * #AUTUMN) % #AUTUMN + 1]
+			color = color:Lerp(autumnColor, sample.autumn * 0.88)
+			if source.kind == "deciduous" then
+				color = color:Lerp(PETAL, sample.bloom * 0.38)
+			else
+				color = color:Lerp(SNOW, sample.snow * 0.78)
+			end
+		end
+		apply(source, color, if visible then source.modifier else 1, size)
+	end
 	local function refresh()
 		if not active then
 			return
@@ -134,64 +213,10 @@ function SeasonalScenery.start(): () -> ()
 		local cameraPosition = if camera then camera.CFrame.Position else Vector3.zero
 		table.clear(emitters)
 		for part, source in sources do
-			local color = source.color
-			local visible = true
-			local size: Vector3? = nil
-			if source.kind == "snowprop" then
-				-- Parçanın kendi Transparency'si sunucuda 1'dir; karlı mevsimde 0 olur, yaprak dökülmeden önce görünmez
-				part.Transparency = if sample.snow >= 0.45 then 0 else 1
-				continue
-			elseif source.kind == "snowcapDeciduous" then
-				part.Transparency = if sample.snow >= 0.45 and sample.foliage >= 0.5 then 0 else 1
-				continue
+			queueSource(source)
+			if source.kind == "deciduous" and camera and (part.Position - cameraPosition).Magnitude < 100 then
+				table.insert(emitters, source)
 			end
-			if source.kind == "ground" or source.kind == "zoneground" then
-				if part:GetAttribute("Locked") == true then
-					if source.tween then
-						source.tween:Cancel()
-						source.tween = nil
-					end
-					source.targetColor = nil
-					continue
-				end
-				local original = part:GetAttribute("OpenColor")
-				if typeof(original) == "Color3" then
-					color = original
-				end
-				local warmth = sample.autumn * (1 - sample.snow)
-				color = color:Lerp(Color3.fromRGB(165, 146, 80), warmth * 0.45):Lerp(SNOW, sample.snow * 0.94)
-				part.Material = if sample.snow > 0.35
-					then Enum.Material.Snow
-					elseif source.kind == "zoneground" then source.material
-					else Enum.Material.Grass
-			elseif source.kind == "evergreen" then
-				color = color:Lerp(SNOW, sample.snow * 0.65)
-			elseif source.kind == "flower" then
-				visible = sample.foliage * (1 - sample.snow) >= 0.2 + source.phase * 0.6
-			elseif source.kind == "berry" then
-				visible = sample.foliage >= 0.45 + source.phase * 0.3
-			else
-				-- Kümeler farklı sırada dökülür; ilkbaharda aynı dallarda geri çıkar.
-				if source.kind == "bush" then
-					-- Kışın yatayda daralan opak çalı; özgün yükseklik tabanı yerde tutar.
-					local scale = 0.55 + 0.45 * math.clamp(sample.foliage, 0, 1)
-					local horizontalScale = math.clamp(math.round(scale * 128) / 128, 0.55, 1)
-					size = Vector3.new(source.size.X * horizontalScale, source.size.Y, source.size.Z * horizontalScale)
-				else
-					visible = sample.foliage >= 0.08 + source.phase * 0.84
-				end
-				local autumnColor = AUTUMN[math.floor(source.phase * #AUTUMN) % #AUTUMN + 1]
-				color = color:Lerp(autumnColor, sample.autumn * 0.88)
-				if source.kind == "deciduous" then
-					color = color:Lerp(PETAL, sample.bloom * 0.38)
-					if camera and (part.Position - cameraPosition).Magnitude < 100 then
-						table.insert(emitters, source)
-					end
-				else
-					color = color:Lerp(SNOW, sample.snow * 0.78)
-				end
-			end
-			apply(source, color, if visible then source.modifier else 1, size)
 		end
 		-- Çıplak ağaçların yakın plandaki ince dalları: en fazla 12 ağaç / 48 parça.
 		local nearest: { BasePart } = {}
@@ -231,17 +256,6 @@ function SeasonalScenery.start(): () -> ()
 		end
 	end
 
-	local scheduled = false
-	local function scheduleRefresh()
-		if scheduled or not active then
-			return
-		end
-		scheduled = true
-		task.defer(function()
-			scheduled = false
-			refresh()
-		end)
-	end
 	local function discover(instance: Instance)
 		if not instance:IsA("BasePart") or sources[instance] then
 			return
@@ -252,7 +266,6 @@ function SeasonalScenery.start(): () -> ()
 		end
 		if instance.Name == "Trunk" and (parent.Name == "OakTree" or parent.Name == "BirchTree") then
 			trunks[instance] = true
-			scheduleRefresh()
 			return
 		end
 		local kind: string? = nil
@@ -308,13 +321,20 @@ function SeasonalScenery.start(): () -> ()
 		if not kind then
 			return
 		end
+		local plot: Instance? = parent
+		while plot and (not plot.Parent or plot.Parent.Name ~= "Plots") do
+			plot = plot.Parent
+		end
+		local baseColor = instance:GetAttribute("ThemeBaseColor")
+		local baseSize = instance:GetAttribute("ThemeBaseSize")
 		local source: Source = {
 			part = instance,
+			plot = plot,
 			kind = kind,
-			color = instance.Color,
+			color = if typeof(baseColor) == "Color3" then baseColor else instance.Color,
 			material = instance.Material,
 			modifier = instance.LocalTransparencyModifier,
-			size = instance.Size,
+			size = if typeof(baseSize) == "Vector3" then baseSize else instance.Size,
 			-- Aynı çiçeğin sapı ve başı aynı X/Z'dedir; birlikte kaybolup geri gelmelidir.
 			phase = stablePhase(
 				if kind == "flower" then Vector3.new(instance.Position.X, 0, instance.Position.Z) else instance.Position
@@ -325,24 +345,49 @@ function SeasonalScenery.start(): () -> ()
 			targetSize = nil,
 			connections = {},
 		}
-		if kind == "ground" then
-			table.insert(source.connections, instance:GetAttributeChangedSignal("Locked"):Connect(scheduleRefresh))
-			table.insert(source.connections, instance:GetAttributeChangedSignal("OpenColor"):Connect(scheduleRefresh))
+		local function themeBaseChanged()
+			local color = instance:GetAttribute("ThemeBaseColor")
+			local size = instance:GetAttribute("ThemeBaseSize")
+			if typeof(color) == "Color3" then
+				source.color = color
+			end
+			if typeof(size) == "Vector3" then
+				source.size = size
+			end
+			-- Sunucunun tema yamasıyla devam eden istemci tween'i aynı özelliği yazmasın.
+			if source.tween then
+				source.tween:Cancel()
+				source.tween = nil
+			end
+			source.targetColor, source.targetModifier, source.targetSize = nil, nil, nil
+			queueSource(source)
+		end
+		table.insert(source.connections, instance:GetAttributeChangedSignal("ThemeBaseColor"):Connect(themeBaseChanged))
+		table.insert(source.connections, instance:GetAttributeChangedSignal("ThemeBaseSize"):Connect(themeBaseChanged))
+		if kind == "ground" or kind == "zoneground" then
+			table.insert(
+				source.connections,
+				instance:GetAttributeChangedSignal("Locked"):Connect(function()
+					queueSource(source)
+				end)
+			)
+			table.insert(
+				source.connections,
+				instance:GetAttributeChangedSignal("OpenColor"):Connect(function()
+					queueSource(source)
+				end)
+			)
 		end
 		sources[instance] = source
-		scheduleRefresh()
+		queueSource(source)
 	end
 	local function remove(instance: Instance)
 		if not instance:IsA("BasePart") then
 			return
 		end
-		local wasTrunk = trunks[instance]
 		trunks[instance] = nil
 		local source = sources[instance]
 		if not source then
-			if wasTrunk then
-				scheduleRefresh()
-			end
 			return
 		end
 		if source.tween then
@@ -365,12 +410,9 @@ function SeasonalScenery.start(): () -> ()
 			instance.Material = Enum.Material.Grass
 		end
 		sources[instance] = nil
-		scheduleRefresh()
 	end
 	table.insert(connections, Workspace.DescendantAdded:Connect(discover))
 	table.insert(connections, Workspace.DescendantRemoving:Connect(remove))
-	table.insert(connections, player:GetAttributeChangedSignal("EffectsQuality"):Connect(scheduleRefresh))
-	table.insert(connections, player:GetAttributeChangedSignal("ReducedMotion"):Connect(scheduleRefresh))
 	for _, instance in Workspace:GetDescendants() do
 		discover(instance)
 	end
@@ -380,6 +422,22 @@ function SeasonalScenery.start(): () -> ()
 	table.insert(
 		connections,
 		RunService.Heartbeat:Connect(function(dt: number)
+			-- Streaming sırasında sadece gelen kaynaklar güncellenir; bütün ada aynı karede tween başlatmaz.
+			local processed = 0
+			while pendingHead <= pendingTail and processed < SOURCE_UPDATES_PER_FRAME do
+				local source = pendingSources[pendingHead]
+				pendingSources[pendingHead] = nil
+				pendingHead += 1
+				pendingSet[source.part] = nil
+				if sources[source.part] == source then
+					updateSource(source)
+				end
+				processed += 1
+			end
+			if pendingHead > pendingTail then
+				table.clear(pendingSources)
+				pendingHead, pendingTail = 1, 0
+			end
 			refreshElapsed += dt
 			if refreshElapsed >= 1 then
 				refreshElapsed = 0

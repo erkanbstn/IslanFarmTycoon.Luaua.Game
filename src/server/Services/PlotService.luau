@@ -39,6 +39,8 @@ local ExtensionVisualService =
 	require(script.Parent.Parent:WaitForChild("Presentation"):WaitForChild("ExtensionVisualService"))
 local IslandSpecialization = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("IslandSpecialization"))
 
+local VisualWorkBudget = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("VisualWorkBudget"))
+
 type PlayerSave = GameTypes.PlayerSave
 
 local PlotService = {}
@@ -410,15 +412,25 @@ end
 
 -- Her fiziksel çiftlik yalnızca kendisine ait kayıtla çizilir; etkin facade diğerlerine sızmaz.
 local function renderFarm(plot: Model, data: PlayerSave)
+	VisualWorkBudget.step()
 	BarnVisualService.applyForPlayer(plot, data.barnLevel)
+	VisualWorkBudget.step()
 	applyIslandState(plot, data)
+	VisualWorkBudget.step()
 	applyZoneState(plot, data)
+	VisualWorkBudget.step()
 	UpgradeVisualService.apply(plot, data)
+	VisualWorkBudget.step()
 	ExtensionVisualService.apply(plot, data)
+	VisualWorkBudget.step()
 	AnimalVisualService.refresh(plot, data)
 end
 
-function PlotService.refreshPlayerWorld(player: Player)
+function PlotService.refreshPlayerWorld(player: Player, duringTransition: boolean?)
+	local active = activePlots[player]
+	if active and active:GetAttribute("WorldTransition") == true and not duringTransition then
+		return
+	end
 	if not PlayerDataService.tryGet(player) then
 		return
 	end
@@ -434,7 +446,7 @@ end
 function PlotService.refreshFarmWorld(player: Player, farmId: string)
 	local plot = ownedOf(player)[farmId]
 	local view = if plot then PlayerDataService.getFarmView(player, farmId) else nil
-	if plot and view then
+	if plot and view and plot:GetAttribute("WorldTransition") ~= true then
 		renderFarm(plot, view)
 	end
 end
@@ -445,8 +457,11 @@ end
 
 -- Adadaki sahibe ait görselleri temizler (tema içeriğine dokunmaz); sonrasında renderFarm/resetPlot çizer.
 local function clearOwnerVisuals(plot: Model)
+	VisualWorkBudget.step()
 	UpgradeVisualService.apply(plot, nil)
+	VisualWorkBudget.step()
 	ExtensionVisualService.apply(plot, nil)
+	VisualWorkBudget.step()
 	AnimalVisualService.clear(plot)
 	DecorReveal.reset(plot)
 	local pads = plot:FindFirstChild("BuyPads")
@@ -456,6 +471,7 @@ local function clearOwnerVisuals(plot: Model)
 end
 
 local function resetPlot(plot: Model)
+	plot:SetAttribute("WorldTransition", nil)
 	plot:SetAttribute("OwnerUserId", nil)
 	plot:SetAttribute("MainFarmId", nil)
 	plot:SetAttribute("FarmActive", nil)
@@ -477,7 +493,7 @@ local function resetPlot(plot: Model)
 	end
 end
 
--- Oyuncunun adasını verilen çiftliğe bağlar. Yield etmez; para/kayıt işlemini MainFarmService yönetir.
+-- Oyuncunun adasını verilen çiftliğe bağlar. Bütçeli geçişte yield edebilir; kayıt işlemini MainFarmService yönetir.
 -- keepTheme: kayıt henüz yüklenmedi (assign); ada mevcut temasında kalır, tema restoreMainFarms'ta bir kez giydirilir.
 local function bindFarm(player: Player, farmId: string, plot: Model, keepTheme: boolean?)
 	local plotId = plot:GetAttribute("PlotId") :: string
@@ -489,6 +505,7 @@ local function bindFarm(player: Player, farmId: string, plot: Model, keepTheme: 
 	if not keepTheme then
 		MapBuilder.applyTheme(plot, themeOf(farmId)) -- ada zaten bu temadaysa hiçbir şey yapmaz
 	end
+	VisualWorkBudget.step() -- Yield sonrası sahiplik yeniden doğrulanır.
 	ownedPlots[player] = { [farmId] = plot }
 	activePlots[player] = plot
 	ownerByPlotId[plotId] = player
@@ -534,17 +551,44 @@ function PlotService.restoreMainFarms(player: Player, farmIds: { string }, activ
 	if not plot or not table.find(farmIds, activeId) then
 		return false
 	end
-	bindFarm(player, activeId, plot)
-	PlotService.refreshPlayerWorld(player)
-	return true
+	local data = PlayerDataService.tryGet(player)
+	local function valid(): boolean
+		return player.Parent ~= nil
+			and activePlots[player] == plot
+			and PlotService.getOwner(plot) == player
+			and PlayerDataService.tryGet(player) == data
+	end
+	if not data or not valid() then
+		return false
+	end
+	plot:SetAttribute("WorldTransition", true)
+	VisualWorkBudget.begin(valid)
+	local ok, problem = pcall(function()
+		bindFarm(player, activeId, plot)
+		PlotService.refreshPlayerWorld(player, true)
+	end)
+	VisualWorkBudget.finish()
+	if valid() then
+		plot:SetAttribute("WorldTransition", nil)
+	end
+	if not ok then
+		warn(`[Plot] Çiftlik kurulumu kesildi: {problem}`)
+	end
+	return ok and valid()
 end
 
 -- Etkin çiftliği değiştirir: ada yeni çiftliğin temasıyla yeniden kurulur, eskisi park edilir.
-function PlotService.selectMainFarm(player: Player, farmId: string): boolean
+function PlotService.selectMainFarm(player: Player, farmId: string, pendingPurchase: boolean?): boolean
 	local data = PlayerDataService.tryGet(player)
 	local plot = activePlots[player]
-	if not data or not data.mainFarms[farmId] or not plot then
+	if not data or (not data.mainFarms[farmId] and not pendingPurchase) or not plot then
 		return false
+	end
+	if
+		farmIdByPlotId[plot:GetAttribute("PlotId") :: string] == farmId
+		and plot:GetAttribute("ThemeIndex") == themeOf(farmId)
+	then
+		return true
 	end
 	bindFarm(player, farmId, plot)
 	return true

@@ -10,6 +10,8 @@ return function(createPlotService: any, Config: any)
 		local plots: { any } = {}
 		local themes: { [any]: number } = {}
 		local themeCalls = 0
+		local duringTheme: ((any) -> ())? = nil
+		local guard: (() -> boolean)? = nil
 		local clears: { [any]: number } = {}
 		for index = 1, Config.MAP_PLOT_COUNT do
 			local plot: any = { Name = `Plot{index}`, attributes = { PlotId = tostring(index) } }
@@ -60,6 +62,9 @@ return function(createPlotService: any, Config: any)
 			end,
 			applyTheme = function(target: any, themeIndex: number): boolean
 				themeCalls += 1
+				if duringTheme then
+					duringTheme(target)
+				end
 				themes[target] = themeIndex
 				target:SetAttribute("ThemeIndex", themeIndex)
 				return true
@@ -105,7 +110,20 @@ return function(createPlotService: any, Config: any)
 			{ apply = noop },
 			{ apply = noop },
 			{ syncProductionSites = noop, syncMilkLoadingDecor = noop },
-			{ reset = noop }
+			{ reset = noop },
+			nil,
+			nil,
+			{
+				begin = function(valid: () -> boolean)
+					guard = valid
+				end,
+				finish = function()
+					guard = nil
+				end,
+				step = function()
+					assert(not guard or guard(), "Visual transition cancelled")
+				end,
+			}
 		)
 		return {
 			service = service,
@@ -119,6 +137,9 @@ return function(createPlotService: any, Config: any)
 			themeSwaps = function(): number
 				return themeCalls
 			end,
+			duringTheme = function(hook: ((any) -> ())?)
+				duringTheme = hook
+			end,
 			calls = function(): (number, number)
 				return ensureCalls, validateCalls
 			end,
@@ -126,6 +147,7 @@ return function(createPlotService: any, Config: any)
 	end
 	local function player(index: number): any
 		return {
+			Parent = {},
 			UserId = index,
 			Name = `Player{index}`,
 			DisplayName = `Player{index}`,
@@ -241,6 +263,16 @@ return function(createPlotService: any, Config: any)
 	assert(not service.selectMainFarm(alice, "unknown"), "unowned logical farm cannot activate")
 	assert(records["1"].stored == 123 and records["4"].stored == 492, "switching never mutates saved farm contents")
 
+	-- Ara güncellemeler yarım tema üzerine hayvan/bina basmamalı.
+	mine:SetAttribute("WorldTransition", true)
+	multi.rendered[mine] = nil
+	service.refreshPlayerWorld(alice)
+	service.refreshFarmWorld(alice, "5")
+	assert(multi.rendered[mine] == nil, "normal refreshes are suppressed throughout transitions")
+	service.refreshPlayerWorld(alice, true)
+	assert(multi.rendered[mine] == multi.profiles[alice].mainFarms["5"], "explicit final refresh remains available")
+	mine:SetAttribute("WorldTransition", nil)
+
 	local swapsBefore = multi.themeSwaps()
 	service.release(alice)
 	assert(multi.themeSwaps() == swapsBefore, "releasing a plot must not rebuild its theme")
@@ -279,6 +311,21 @@ return function(createPlotService: any, Config: any)
 	local received = service.getPlot(newcomer)
 	assert(received ~= theirs, "an occupied plot is never handed out")
 	assert(service.getFarmId(received) == "1", "the next player starts on farm 1")
+	local cancelled = fixture(false)
+	cancelled.service.init()
+	local leaving = player(111)
+	assert(cancelled.service.assign(leaving), "joining player owns an allocated plot")
+	cancelled.profiles[leaving] = { activeMainFarmId = "2", mainFarms = { ["2"] = records["2"] } }
+	cancelled.duringTheme(function()
+		leaving.Parent = nil
+	end)
+	assert(
+		not cancelled.service.restoreMainFarms(leaving, { "2" }, "2"),
+		"disconnect during initial build cancels restoration"
+	)
+	assert(leaving.attributes.ActiveMainFarmId == "1", "cancelled restoration cannot rebind the vanished owner")
+	cancelled.service.release(leaving)
+	assert(cancelled.service.getPlot(leaving) == nil, "cancelled login still releases its allocated plot")
 	print(
 		"PASS plot startup: MaxPlayers warning, map validation, one plot per player, runtime theme swap, release reset"
 	)

@@ -20,6 +20,8 @@ local MapParts = require(script.Parent:WaitForChild("MapParts"))
 local IslandBuilder = require(script.Parent:WaitForChild("IslandBuilder"))
 local HubBuilder = require(script.Parent:WaitForChild("HubBuilder"))
 local MapMountains = require(script.Parent:WaitForChild("MapMountains"))
+local ThemePatch = require(script.Parent:WaitForChild("ThemePatch"))
+local VisualWorkBudget = require(script.Parent:WaitForChild("VisualWorkBudget"))
 
 local MapBuilder = {}
 
@@ -52,11 +54,6 @@ local TEMPLATE_FOLDER = "ThemeTemplates"
 local TEMPLATE_PLOT_INDEX = 1 -- şablonlar bu fiziksel adanın çerçevesinde kurulur
 local TEMPLATE_CONTENT = { "BuildSpots", "Decor", "Islands" }
 local TEMPLATE_ATTRIBUTES = { "ThemeIndex", "IslandName", "IslandIcon" }
--- Dünya konumu taşıyan Vector3 öznitelikleri (AreaSize gibi boyut öznitelikleri taşınmaz)
-local POSITION_VECTOR_ATTRIBUTES: { [string]: boolean } = { PathStart = true, PathEnd = true }
--- Dünya çerçevesinde CFrame öznitelikleri (yerel ofset tutan bir CFrame özniteliği buraya konmaz)
-local POSITION_CFRAME_ATTRIBUTES: { [string]: boolean } = { AreaCFrame = true, IslandFrame = true }
-
 local function templateFolder(): Folder
 	local existing = ServerStorage:FindFirstChild(TEMPLATE_FOLDER)
 	if existing and existing:IsA("Folder") and existing:GetAttribute("MapVersion") == MAP_VERSION then
@@ -110,24 +107,6 @@ function MapBuilder.clearTemplates()
 	end
 end
 
--- PivotTo yalnızca parçaları taşır; dünya konumu taşıyan öznitelikleri (CFrame / yol uçları) aynı farkla taşı
-local function remapPositions(root: Instance, delta: CFrame)
-	local function remap(instance: Instance)
-		for name, value in instance:GetAttributes() do
-			if
-				(typeof(value) == "CFrame" and POSITION_CFRAME_ATTRIBUTES[name])
-				or (typeof(value) == "Vector3" and POSITION_VECTOR_ATTRIBUTES[name])
-			then
-				instance:SetAttribute(name, delta * value)
-			end
-		end
-	end
-	remap(root)
-	for _, descendant in root:GetDescendants() do
-		remap(descendant)
-	end
-end
-
 -- Adadaki tema içeriğini siler: BuildSpots/Decor/Islands, uzman bölgeler; ana bölgelerde yalnızca Decor/LevelFlags (çalışma anı görselleri).
 local function clearThemeContent(plot: Model)
 	for _, name in TEMPLATE_CONTENT do
@@ -155,8 +134,7 @@ local function clearThemeContent(plot: Model)
 	end
 end
 
--- Fiziksel adanın temaya bağlı içeriğini (yapı yerleri, süsler, uzman adalar ve bölgeleri) çalışma anında değiştirir:
--- eskisini siler, tema şablonunu kopyalayıp adanın çerçevesine taşıyarak ekler.
+-- Fiziksel adanın temasını mevcut geometriyi koruyarak uygular; yalnız farklar güncellenir.
 -- Terrain, ana bölgeler, ahır, doğma noktası ve köprüler bütün adalarda aynı olduğundan dokunulmaz.
 function MapBuilder.applyTheme(plot: Model, themeIndex: number): boolean
 	if plot:GetAttribute("ThemeIndex") == themeIndex then
@@ -165,29 +143,60 @@ function MapBuilder.applyTheme(plot: Model, themeIndex: number): boolean
 	local plotIndex = tonumber(plot:GetAttribute("PlotId"))
 	assert(plotIndex, "[Map] applyTheme: PlotId geçersiz")
 	local template = getTemplate(themeIndex) -- eksikse burada kurulur; eski içerik silinmeden önce hata alınsın
-	clearThemeContent(plot)
-
-	local stamp = template:Clone()
 	local targetFrame = plotCFrame(plotIndex)
-	stamp:PivotTo(targetFrame)
-	remapPositions(stamp, targetFrame * plotCFrame(TEMPLATE_PLOT_INDEX):Inverse())
-	for _, name in TEMPLATE_ATTRIBUTES do
-		plot:SetAttribute(name, stamp:GetAttribute(name))
+	local delta = targetFrame * plotCFrame(TEMPLATE_PLOT_INDEX):Inverse()
+	-- Yarım kalan yükleme aynı temadaymış gibi erken dönmesin; geri alma da yeniden uygular.
+	plot:SetAttribute("ThemeIndex", nil)
+	local kept, created, removed, writes = 0, 0, 0, 0
+	local function patch(target: Instance, source: Instance, preserve: ((Instance) -> boolean)?)
+		local stats = ThemePatch.apply(target, source, delta, preserve)
+		kept += stats.kept
+		created += stats.created
+		removed += stats.removed
+		writes += stats.writes
 	end
 	local plotZones = plot:FindFirstChild("Zones")
-	local stampZones = stamp:FindFirstChild("Zones")
-	if plotZones and stampZones then
-		for _, zone in stampZones:GetChildren() do
-			zone.Parent = plotZones
+	local templateZones = template:FindFirstChild("Zones")
+	local function homeZone(zone: Instance): boolean
+		local id = zone:GetAttribute("ZoneId")
+		local config = if typeof(id) == "string" then Config.ZONES[id] else nil
+		return config ~= nil and config.island == "home"
+	end
+	if plotZones and templateZones then
+		for _, zone in plotZones:GetChildren() do
+			if homeZone(zone) then
+				for _, name in { "Decor", "LevelFlags" } do
+					local old = zone:FindFirstChild(name)
+					if old then
+						VisualWorkBudget.step(#old:GetDescendants() + 1)
+						old:Destroy()
+					end
+				end
+			end
 		end
+		patch(plotZones, templateZones, homeZone)
 	end
 	for _, name in TEMPLATE_CONTENT do
-		local content = stamp:FindFirstChild(name)
-		if content then
-			content.Parent = plot
+		local source = template:FindFirstChild(name)
+		if source then
+			local target = plot:FindFirstChild(name)
+			if target then
+				patch(target, source, nil)
+			else
+				local createdFolder = Instance.new("Folder")
+				createdFolder.Name = name
+				createdFolder.Parent = plot
+				patch(createdFolder, source, nil)
+			end
 		end
 	end
-	stamp:Destroy()
+	for _, name in TEMPLATE_ATTRIBUTES do
+		plot:SetAttribute(name, template:GetAttribute(name))
+	end
+	plot:SetAttribute("ThemeKeptInstances", kept)
+	plot:SetAttribute("ThemeCreatedInstances", created)
+	plot:SetAttribute("ThemeRemovedInstances", removed)
+	plot:SetAttribute("ThemePropertyWrites", writes)
 	return true
 end
 

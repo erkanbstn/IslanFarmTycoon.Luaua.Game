@@ -31,6 +31,11 @@ def main():
         if re.search(r"\brequire\s*\(", source):
             raise ValueError(f"Unresolved module import in {path}")
         factories.append(f"factories.{name} = function(deps)\n{source}\nend\n")
+    # The identity fixture exercises incremental work outside a bulk transition scope.
+    budget_fixture = "deps.VisualWorkBudget = { step = function() end }\n"
+    factories = [factory.replace("function(deps)\n", "function(deps)\n" + budget_fixture, 1)
+                 if factory.startswith("factories.AnimalVisualService") else factory
+                 for factory in factories]
     combined = fixture.replace("-- SOURCE_FACTORIES", "\n".join(factories))
     with tempfile.TemporaryDirectory(prefix="roblox-visual-identity-") as directory:
         spec = Path(directory) / "visual-identity.luau"

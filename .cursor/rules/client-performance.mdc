@@ -21,6 +21,7 @@ alwaysApply: false
   `RenderStepped` yalnızca kameraya/karaktere kare kare bağlı görsel için.
 - Pencere kapalıysa güncelleme erken dönsün (`if not window.isOpen() then return end`).
 - Yeniden kurma yerine imza karşılaştır (IslandManager `visitsSignature` kalıbı).
+- Ana çiftlik geçişinde plot `WorldTransition` süresince satın alma/kurulum efektleri çalışmaz. Mevsim kaynakları kuyrukla güncellenir; korunan yaprakların özgün renk/ölçüsü `ThemeBaseColor` / `ThemeBaseSize` özniteliklerinden yenilenir.
 - Dünyadaki nesneleri tek seferlik taramayla değil `CollectionService` etiket sinyalleriyle veya
   `DescendantAdded/Removing` ile izle: StreamingEnabled parçaları sonradan getirir/kaldırır.
 - Kalite ve erişilebilirlik: `EffectsQuality` ("low/medium/high") ve `ReducedMotion` öznitelikleri

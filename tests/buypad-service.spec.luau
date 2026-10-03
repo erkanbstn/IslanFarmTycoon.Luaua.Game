@@ -17,6 +17,10 @@ return function(
 	}
 	local function setup(): any
 		local h = harness.new()
+		h.plot.attributes = {}
+		h.plot.GetAttribute = function(self: any, name: string): any
+			return self.attributes[name]
+		end
 		local upgrades = createUpgradeService(
 			h.game,
 			h.remotes,
@@ -82,6 +86,14 @@ return function(
 
 	-- Kaide seçimi (saf): yalnızca alınabilir olanlar, ucuzdan pahalıya, sınır ve atlama listesi uygulanır
 	local h = setup()
+	h.plot.attributes.WorldTransition = true
+	local lookup = h.plot.FindFirstChild
+	h.plot.FindFirstChild = function(): never
+		error("transition must preserve existing buy pads untouched")
+	end
+	h.service.apply(h.plot, nil)
+	h.plot.FindFirstChild = lookup
+	h.plot.attributes.WorldTransition = nil
 	local picked = h.service.pickUpgrades(h.data, "home", 3, nil)
 	assert(#picked <= 3, "the limit is respected")
 	for index, upgrade in picked do

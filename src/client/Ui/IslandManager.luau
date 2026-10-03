@@ -166,7 +166,8 @@ local function submit(action: string, target: string)
 	resultOk = false
 	update()
 	Remotes.get("RequestMainFarmAction"):FireServer(action, target, id)
-	task.delay(8, function()
+	-- Altı oyuncunun geçişi ortak kuyrukta sırayla işlenebilir.
+	task.delay(60, function()
 		if pending ~= id then
 			return
 		end
