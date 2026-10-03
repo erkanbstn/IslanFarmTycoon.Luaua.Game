@@ -1,95 +1,73 @@
-# Eşya, altın ve Robux marketi planı
+# Altın, Robux marketi ve rebirth seviyeleri planı
 
-Durum: **plan** (kod yok). `docs/REBIRTH_PLANI.md` ile birlikte okunur (rebirth'te neyin kaldığı orada). Sayılar taslaktır; `scripts/simulate-*.py` ile ayarlanır.
+Durum: **plan** (kod yok). `docs/REBIRTH_PLANI.md` ile birlikte okunur. Sayılar taslaktır; `scripts/simulate-*.py` ile ayarlanır.
+**Kapsam dışı:** mevcut görünüm eşyalarına (8 şapka, 7 sırt) etki verilmesi ayrı, bağımsız bir iştir (ayrı yönerge ile yapılır); bu belge ona bağlı değildir.
 
-## 1. İlkeler (kullanıcı kararı)
-1. **Etkisiz satın alınabilir şey kalmaz.** Her eşya bir etki kazandırır. Saf görünüm eşyaları (15 şapka/sırt) etkili hale getirilir.
-2. **Her şey neredeyse Robux'lanabilir, mantıklı olmak şartıyla**: en üst seviye eşyalar Robux'la satılır; kolaylık ürünleri (otomatik toplayıcı, yardımcı) hem oyun parasıyla hem Robux'la alınabilir.
-3. **Robux'la alınan kalıcıdır** (rebirth sıfırlamaz); oyun parasıyla alınan sıfırlanır.
-4. **Yeni para birimi: altın** (yalnızca ada/çiftlik bitirince kazanılır). Bununla hızlı bitirilir ya da paraya çevrilir.
-5. **Robux Marketi**: Robux'la doğrudan altın (ve gelire göre ölçülen anlık para paketi) satın alınır.
-
-## 2. Eşyalar: görünüm eşyaları etkiye çevrilir
-Mevcut durum (`Config/Items.luau`): 19 etkili eşya (çekiç, asa, tılsım) ve **15 etkisiz görünüm eşyası** (8 şapka, 7 sırt). Hepsine **mevcut etki anahtarlarıyla** (yeni motor kodu yok) etki verilir.
-Slot rolü: **şapka = ticari** (satış, sipariş, ürün), **sırt = lojistik** (depo, çevrimdışı, büyüme). Bir slota tek eşya takılır, kademeler artar; değerler taslak.
-
-| Slot | Eşya (fiyat) | Etki (taslak) | Satış |
-|---|---|---|---|
-| Şapka | Çiftçi Şapkası (10K) | sellBonus +%2 | nakit |
-| | Bere (12K) | offlineBonus +%3 | nakit |
-| | Kasket (15K) | contractBonus +%2 | nakit |
-| | Hasır Şapka (20K) | storageBonus +%10 | nakit |
-| | Tavuk Şapkası (30K) | goodsYield +%4 | nakit |
-| | Çiçek Tacı (45K) | growthSpeed +%5 | nakit |
-| | Kovboy Şapkası (60K) | sellBonus +%6, contractBonus +%3 | nakit |
-| | **Altın Taç (400K)** | incomeBonus +%6, sellBonus +%5 | **Robux** |
-| Sırt | Sırt Çantası (12K) | storageBonus +%8 | nakit |
-| | Hasat Sepeti (25K) | goodsYield +%3 | nakit |
-| | Kırmızı Pelerin (50K) | offlineBonus +%5 | nakit |
-| | Yaprak Pelerin (90K) | growthSpeed +%10 | nakit |
-| | Melek Kanatları (250K) | incomeBonus +%4 | nakit |
-| | Tavus Kuyruğu (500K) | contractBonus +%8, goodsYield +%4 | nakit |
-| | **Altın Kanatlar (1M)** | incomeBonus +%8, offlineBonus +%10 | **Robux** |
-
-Fiyatlar eski ölçektir (Çiftlik 1 harcaması ~12M); nakitle alınan eşyalar rebirth'te sıfırlandığı için her turun başında ucuza alınır. Geç oyun gelirine (25M/saat) göre ucuz kalmaları sorun değil; tur başı hedefidir.
-
-### Robux'la satılacak en üst seviyeler (kalıcı)
-Her eşya hattının son kademesi: Elmas Çekiç, Mevsim Asası (sonsuz), Hava Asası (sonsuz), Gelir Tılsımı 3, Büyüme Tılsımı 2, Depo Tılsımı 2, Ambar Tılsımı 2, Sipariş Tılsımı 2, Altın Taç, Altın Kanatlar (**10 eşya**).
-- Etkileri bugün küçük (en çok gelir +%10, indirim %20); bu yüzden kalıcı satmak güvenlidir.
-- **Toplam tavan:** eşya + rebirth etkisi + Robux ürünü toplamı gelir artısı için knee/tavanla sınırlanır (`REBIRTH_PLANI` bölüm 6); her şey alınsa bile tur süresi tabanın altına inmez (sim denetler).
-- Robux eşyası dükkânda "Robux ile al" düğmesiyle çıkar; sahip olunca takılır, rebirth'te takılı kalır.
-
-## 3. Kolaylık ürünleri: oyun parası + Robux
-Aynı ürün iki yoldan alınabilir ("almak isteyen alsın"):
-
-| Ürün | Nakitle | Robux ile |
+## 1. Omurga: üç katman
+| Katman | Ne | Rebirth'te |
 |---|---|---|
-| Otomatik toplayıcı | yükseltme (sıfırlanır) | kalıcı (rebirth'te kalır) |
-| Yardımcılar (`pet_cash`, `pet_goods`) | yükseltme (sıfırlanır) | kalıcı |
-| Ekstra depo / diğer kolaylık yükseltmeler | yükseltme (sıfırlanır) | kalıcı (isteğe bağlı) |
+| **Para** | tur içi oyun parası | sıfırlanır |
+| **Altın** | hesap düzeyi, **zaman para birimi** (1 altın ≈ 1 dk bekleme / 0,5 dk gelir) | **kalır, birikir** |
+| **Robux** | altın, anlık para paketi ve tur ürünlerini satar; kalıcı eşya/görünüm de alır | satın alınanlar kalır |
 
-Kural: Robux'la alınan sahiplik hesap düzeyinde `owned` işaretiyle tutulur (`MonetizationService` makbuz akışı); nakitle alınan çiftlik kaydındadır ve sıfırlanır. İkisi birden varsa etki bir kez uygulanır. Sıfırlanma sonrası otomatik toplayıcı gibi şeyler, Robux'la alanlarda tur başında hazırdır.
+İlke: **her şey Robux'la hızlanabilir, ama hiçbir şey yalnızca Robux'la kilitli değildir**: Robux'la alınabilen kalıcı eşyaların hepsi altınla da alınabilir (altın ilerleme/zamanla kazanılır). Robux = bekleme süresini atlatmak.
 
-## 4. Altın (yeni para birimi)
-- **Birim:** **1 altın ≈ 1 dakikalık bekleme/gelir.** Tek anlaşılır ölçü; her şey bu birimle fiyatlanır.
-- **Kaynak (yalnızca ilerleme):** ada tamamlanınca (adanın tüm yükseltmeleri) **20**, çiftlik tamamlanınca **+50** (24 ada x 20 + 6 çiftlik x 50 = ~780 altın/tur, taslak). Tur başına sınırlıdır; rebirth sonrası ada ve çiftlikler yeniden bitirilince yine kazanılır.
-- **Kullanım:**
-  - **Hızlı bitir:** devam eden üretim partisi, hayvan büyümesi, eklenti bekleyişi (kalan dakika kadar altın; en az 1).
-  - **Paraya çevir:** 1 altın = etkin çiftliğin **0,5 dakikalık gelirine** karşılık nakit (taslak). Çevirme oranı anlık gelire bağlı olduğundan erken/geç oyunda aynı "zaman değeri" verir.
-  - **İsteğe bağlı:** altınla Robux eşyası alınmaz (Robux eşyaları yalnızca Robux).
-- **Kalıcılık:** altın **rebirth'te kalır** (hesap düzeyi, Robux'la alınabilir). Kayıt: `gold` hesap alanı.
-- **Koruma:** dönüşüm ve hızlı bitirme sunucuda, `RequestGuard` + hız sınırı + `requestId`; kazanım yalnızca sunucuda hesaplanan "ada tamamlandı" olayından, istemci miktar gönderemez.
+## 2. Altın
+- **Kaynak (yalnızca ilerleme):** ada tamamlanınca (adanın tüm yükseltmeleri) **20**, çiftlik tamamlanınca **+50** (~780 altın/tur; taslak). Kazanım yalnızca sunucuda "ada/çiftlik tamamlandı" olayından hesaplanır; istemci miktar gönderemez.
+- **Robux ile satın alma:** Market'te altın paketleri.
+- **Kullanım (sink'ler):**
+  1. **Paraya çevir:** 1 altın = etkin çiftliğin 0,5 dakikalık gelirine karşılık nakit. Oran anlık gelire bağlı, erken ve geç oyunda aynı "zaman değerini" verir.
+  2. **Hızlı bitir:** devam eden üretim partisi, hayvan büyümesi, eklenti bekleyişi (kalan dakika kadar altın, en az 1).
+  3. **Kalıcı eşya/görünüm:** Robux'luk son seviye eşyalar ve kolaylık ürünleri altınla da alınır (örn. 300-1500 altın; taslak).
+- **Birikim koruması:** altın kalıcı ve birikir; sınırsız birikip tek seferde paraya çevrilerek geç turları anlamsızlaştırmasın diye çevirme **günlük ve tur başına sınırlıdır** (taslak: günde en çok 200, turda en çok 600 altın). Sink'ler (3) birikimi doğal olarak tüketir.
+- **Kayıt:** `gold` hesap alanı (`SaveCodec/Account`, `SessionLock.VERSION` artar). Çevirme/hızlı bitir/satın alma sunucuda, `RequestGuard` + hız sınırı + `requestId`; `PlayerDataService.trySpend` benzeri tek adımlık tahsilat.
 
-## 5. Robux Marketi
-Dükkândaki "Destek paketleri" bölümü **Robux Marketi** penceresine dönüşür (`StoreSection` genişler):
-- **Altın paketleri** (örn. 100 / 500 / 1500 altın; fiyatları sen koyarsın).
-- **Anlık para paketleri**: "N dakikalık gelir" biçiminde (mevcut `incomePack` mantığı); tutar etkin çiftliğin o anki gelirine göre hesaplanır, **sabit para miktarı satılmaz**.
-- **Tur boyunca 2x gelir** ve **üretimi tamamla** (tur içi ürünler, `REBIRTH_PLANI` bölüm 9).
-- Robux eşyaları ve kalıcı kolaylıklar için "Robux ile al" düğmeleri ilgili pencerelerde (Pazar/Envanter/Yükseltmeler) de görünür.
+## 3. Robux Marketi
+Dükkândaki "Destek paketleri" **Robux Marketi** penceresine dönüşür (`StoreSection` genişler); sekmeler:
+- **Altın:** 100 / 500 / 1500 altın paketleri (fiyatlar kullanıcıya ait).
+- **Para:** "N dakikalık gelir" paketleri (mevcut `incomePack` mantığı); tutar etkin çiftliğin o anki gelirine göre hesaplanır. **Sabit para miktarı satılmaz** (erken oyunda çiftlik açılışlarını atlatır, geç oyunda değersiz kalır). Tur başında paket küçük çıkar, oyuncu doğal olarak daha geç alır.
+- **Tur boyunca:** 2x gelir ve üretimi tamamla (rebirth'te sıfırlanır; her turda tekrar alınır, ucuz).
+- **Kalıcı:** son seviye eşyalar ve kolaylık ürünleri (bölüm 4) ile **Görünüm** sekmesi (bölüm 5); ilgili pencerelerde de "Robux ile al" düğmesi.
+Para ve altın ürün satışı yalnızca sunucuda `ProcessReceipt` ile (kimlik 0 = kapalı kuralı sürer; makbuz çift işlenmez).
 
-Neden altın ve gelire göre ölçülen para: **doğrudan sabit miktar para** erken oyunda tüm kademeleri atlatır (Çiftlik 2 = 590K), geç oyunda değersiz kalır. Altın tek bir dönüşüm noktasıdır (1 altın = 1 dk), gelir paketi ise gelirle ölçeklenir; ikisi de aşamadan bağımsız adil kalır ve tek yerden ayarlanır.
+## 4. Kalıcı eşya ve kolaylık ürünleri
+- **Son seviye eşyalar** (Robux **ya da** altın, kalıcı; rebirth'te kalır): Elmas Çekiç, Mevsim/Hava Asası (sonsuz), Gelir Tılsımı 3, Büyüme/Depo/Ambar/Sipariş Tılsımı son kademeleri. Alt kademeler nakitle alınır ve rebirth'te sıfırlanır.
+- **Kolaylık ürünleri** (otomatik toplayıcı, yardımcılar `pet_cash`/`pet_goods`, isteğe bağlı depo): üç yol — nakit (sıfırlanır), altın veya Robux (kalıcı). Robux/altınla alınan sahiplik hesap düzeyinde `owned` işaretiyle tutulur; nakit sahiplik çiftlik kaydındadır; ikisi varsa etki bir kez uygulanır.
+- **Tavan:** eşya + rebirth etkisi + Robux ürünü toplamı gelir artısı için knee/tavanla sınırlanır; hepsi alınsa bile tur süresi tabanın altına inmez (`REBIRTH_PLANI` bölüm 6/8; sim denetler).
 
-## 6. Rebirth ile etkileşim
-| | Rebirth'te |
+## 5. Görünüm (saf kozmetik) — Robux sekmesi
+- Nakit dükkândaki eşyalar etki verir (ayrı iş); **etkisiz saf kozmetik** (şapka, kanat, aura, iz, yardımcı/ada görünümü, ada tabelası çerçevesi) yalnızca **Robux Marketi › Görünüm** sekmesinde satılır, kalıcıdır.
+- Altınla da alınabilecek bir alt küme (ucuz kozmetikler) isteğe bağlı; altın sink'i olarak kullanılabilir.
+- Rebirth rozet/aura kozmetikleri (bölüm 6) ücretsiz kazanılır ve aynı gösterim sistemini kullanır.
+
+## 6. Rebirth sayısı ve seviyeleri
+Rebirth sayısı = kalıcı etki puanı sayısı (`REBIRTH_PLANI` bölüm 4). Her rebirth bir etki seçimi verir (havuz `REBIRTH_PLANI` bölüm 6). Ek olarak **seviye dönüm noktaları** (taslak):
+
+| Seviye | Kazanım |
 |---|---|
-| Nakitle alınan eşya, yükseltme, yardımcı, toplayıcı | sıfırlanır |
-| Robux'la alınan eşya, kalıcı kolaylık | **kalır** |
-| Altın | **kalır** |
-| Tur içi Robux ürünleri (2x gelir, üretimi bitir) | sıfırlanır (her turda tekrar alınır) |
-| Rebirth etkileri, rebirth kozmetikleri | kalır |
+| Her rebirth | +1 etki seçimi (havuzdan; seviyeli, tavanlı) |
+| R1 | bronz rozet, Geri Dönüş bonusu (24 saat, `REBIRTH_PLANI` bölüm 7) |
+| R3 | gümüş rozet, altın kazanımı +%10 |
+| R5 | ek tılsım yuvası, hızlı bitir altın maliyeti -%10 |
+| R10 | altın rozet + aura, altın kazanımı +%10 daha |
+| R25 | efsane rozet, sipariş panosuna +1 slot |
 
-`REBIRTH_PLANI.md` bölüm 5 tablosu buna göre okunur (envanterin Robux ile alınan kısmı istisna).
+Rozet gösterimi: `StatsPanel`'de para satırı altında (`UiKit.iconChip` + `UiKit.badge`), oyuncu adı üstünde küçük rozet. Etki toplamı yine tek tavana tabidir.
 
-## 7. Uygulama sırası
-1. **Eşya etkileri** (en az risk): `Config/Items.luau` görünüm eşyalarına etki, `tests/config.spec.luau`'ya "etkisiz eşya yok" değişmezi, çeviri (en/de/ru/es/pt), `ItemText` etki satırları.
-2. **Altın:** `GameTypes` + `SaveCodec/Account` (`gold`), `SessionLock.VERSION`, ada/çiftlik tamamlama olayı (`FarmMath.isIslandComplete`), `GoldService` (hızlı bitir, çevir), HUD rozeti, testler.
-3. **Robux sahipliği:** `Config/Shop.luau` Robux eşya/kalıcı kolaylık kimlikleri, `MonetizationService` yeni etkiler (`owned` kalıcı işaret), makbuz testleri.
-4. **Market penceresi:** `StoreSection` genişletme, altın/gelir paketleri.
-5. **Sim/denge:** `--rebirth`, eşya+etki toplam tavanı, altın kazanım/dönüşüm oranı; `audit-economy.py` ve `ECONOMY_LIMITS`'e eşya/altın sınırları.
-6. Rebirth planı uygulamasıyla birleşir (`REBIRTH_PLANI.md` bölüm 10).
+## 7. Rebirth'te neler kalır (özet)
+| Sıfırlanır | Kalır |
+|---|---|
+| para, çiftlikler, hayvanlar, yükseltmeler, ırk, nakitle alınan eşya/yükseltme/yardımcı/toplayıcı, başarımlar, ahır stoğu, sözleşmeler, tur içi Robux ürünleri | **altın**, Robux/altınla alınan kalıcı eşya ve kolaylıklar, Görünüm satın alımları, rebirth sayısı/etkileri/rozetleri, ayarlar, makbuz kayıtları |
 
-## 8. Açık noktalar
-- Altın miktarları ve dönüşüm oranı sim ile ayarlanır (taslak: ada 20, çiftlik +50, 1 altın = 0,5 dk gelir).
-- Robux fiyatları ve paket büyüklükleri sana ait karar.
-- Görünüm eşyalarına verilen etkiler ve nakit fiyatlar tur süresi hedefini bozmamalı; toplam tavan sim ile doğrulanır.
-- "Robux ile al" düğmesinin Pazar penceresinde nasıl görüneceği (kart başına ikinci düğme mi, ayrı sekme mi) arayüz kararı.
+## 8. Uygulama sırası
+1. **Altın:** `GameTypes` + `SaveCodec/Account` (`gold`), `SessionLock.VERSION`, `FarmMath.isIslandComplete`, kazanım olayı, `Services/GoldService` (çevir, hızlı bitir, satın alma), HUD altın göstergesi, testler (kazanım yalnızca sunucuda, çevirme sınırı, atomik tahsilat).
+2. **Robux Marketi:** `Config/Shop.luau` yeni ürünler (altın/para paketleri, tur ürünleri), `MonetizationService` etkileri, `StoreSection` sekmeleri, makbuz testleri.
+3. **Kalıcı sahiplik:** `owned` işareti (Robux/altın), son seviye eşya ve kolaylık çift fiyat, Görünüm sekmesi.
+4. **Rebirth** (`REBIRTH_PLANI` bölüm 10): `RebirthService`, menü, seviye dönüm noktaları.
+5. **Sim/denge:** `--rebirth`, altın kazanım/çevirme oranı, toplam etki tavanı, `audit-economy.py` ve `ECONOMY_LIMITS`'e altın/eşya sınırları.
+
+## 9. Açık noktalar (karar/ölçüm)
+- Altın miktarları, çevirme oranı ve limitleri sim ile ayarlanır.
+- Robux fiyatları ve paket büyüklükleri kullanıcıya aittir.
+- Görünüm sekmesinin altınla alınabilen alt kümesi olsun mu?
+- Seviye dönüm noktası kazanımları (ek yuva, panoya slot) uygulamada ayrıntılandırılır.
