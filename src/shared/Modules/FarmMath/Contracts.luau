@@ -8,6 +8,7 @@ local GameTypes = require(script.Parent.Parent.Parent:WaitForChild("GameTypes"))
 local Core = require(script.Parent:WaitForChild("Core"))
 local Goods = require(script.Parent:WaitForChild("Goods"))
 local Income = require(script.Parent:WaitForChild("Income"))
+local Production = require(script.Parent:WaitForChild("Production"))
 
 type PlayerSave = GameTypes.PlayerSave
 
@@ -15,13 +16,14 @@ local Contracts = {}
 
 export type Line = { goodsId: string, amount: number }
 export type Offer = {
-	key: string, -- "<pencere>:<sıra>"
+	key: string, -- "<pencere>:<sıra>:<teklif özeti>"
 	tier: string,
 	displayName: string,
 	lines: { Line },
 	worth: number, -- satırların ürün değerleri toplamı
 	rewardFactor: number,
 	reward: number,
+	uncappedReward: number,
 }
 
 function Contracts.window(now: number): number
@@ -33,10 +35,15 @@ function Contracts.secondsLeft(now: number): number
 	return Config.GOODS_CONTRACTS.seconds - now % Config.GOODS_CONTRACTS.seconds
 end
 
+-- Tavan ölçüsü park edilmiş en iyi çiftliği ve görev nedeniyle geçici kesilmeyen yetişkin potansiyelini kapsar.
+function Contracts.referenceIncome(save: PlayerSave, now: number): number
+	return math.max(Income.getReferenceIncome(save, now), Income.getPermanentIncomePerSecond(save))
+end
+
 -- Panoya yalnızca oyuncunun ŞU AN üretebildiği ürünler gelir (GOODS_ORDER sırasıyla): etkin çiftlikte o ürünün merkezi kurulu, adası açık,
 -- tarif çiftliğin temasında ve merkezin gerektirdiği kadar o türden hayvan açık bölgede var. Açılmamış ada, kurulmamış merkez, başka temanın
 -- ürünü ya da elle üretilemeyen (park edilmiş çiftlik) ürün sipariş edilmez.
-function Contracts.availableGoods(save: PlayerSave): { string }
+function Contracts.availableGoods(save: PlayerSave, now: number?): { string }
 	local farmId = (save :: any).farmId or save.activeMainFarmId
 	local built: { [string]: boolean } = {}
 	for _, recipe in Config.PRODUCTION_RECIPES do
@@ -54,7 +61,16 @@ function Contracts.availableGoods(save: PlayerSave): { string }
 		end
 		local keepers = 0
 		for _, animal in save.animals do
-			if table.find(recipe.animalIds, animal.animalId) and save.unlockedZones[animal.zoneId] then
+			if
+				table.find(recipe.animalIds, animal.animalId)
+				and save.unlockedZones[animal.zoneId]
+				and Core.getStage(
+						animal.bornAt,
+						now or os.time(),
+						Production.getGrowthSpeed(save, animal.animalId, animal.zoneId, now)
+					)
+					== "adult"
+			then
 				keepers += 1
 			end
 		end
@@ -128,7 +144,7 @@ end
 -- O anki pencerenin teklifleri: `slots` kadar (ızgara). Her sıra ağırlıklı rastgele bir kademe seçer, kademenin satır sayısı kadar
 -- farklı ürünü rastgele sıralar ve birim sayısını ± variation oranında oynatır. Hiç ürün merkezi yoksa boş.
 function Contracts.offers(save: PlayerSave, now: number, bonus: number?): { Offer }
-	local available = Contracts.availableGoods(save)
+	local available = Contracts.availableGoods(save, now)
 	local offers: { Offer } = {}
 	if #available == 0 then
 		return offers
@@ -136,8 +152,9 @@ function Contracts.offers(save: PlayerSave, now: number, bonus: number?): { Offe
 	local settings = Config.GOODS_CONTRACTS
 	local window = Contracts.window(now)
 	local cap = Goods.getGoodsCap(save)
-	-- Tek siparişin ödül tavanı (gelirin birkaç dakikası); sınır Config/Economy.luau ECONOMY_LIMITS.maxRewardMinutes ile aynı ölçüdür
-	local rewardCap = Income.getReferenceIncome(save, now) * 60 * Config.GOODS_CONTRACTS.rewardCapMinutes
+	-- Göreve verilen hayvan gelirinin geçici kesilmesi panoyu sıfırlamasın: nötr yetişkin potansiyeli alt referanstır.
+	-- Tek sipariş ödülü bu referansın birkaç dakikasını aşamaz; tek pahalı birim de sınıra dahildir.
+	local rewardCap = Contracts.referenceIncome(save, now) * 60 * Config.GOODS_CONTRACTS.rewardCapMinutes
 	-- Gelir her saniye oynar; tavan %25'lik basamaklara yuvarlanır ki panodaki adetler (ve sunucunun teslimde yeniden hesapladığı adetler) titremesin.
 	if rewardCap >= 1 then
 		rewardCap = 1.25 ^ math.floor(math.log(rewardCap, 1.25))
@@ -158,11 +175,28 @@ function Contracts.offers(save: PlayerSave, now: number, bonus: number?): { Offe
 				break
 			end
 		end
+		-- Her açık ürünün panoda yeri vardır; yüksek karma primi ancak o çeşitlilik gerçekten istenirse verilir.
+		if slot <= #available then
+			for _, candidate in settings.tiers do
+				if candidate.id == settings.guaranteedTier then
+					tier = candidate
+					break
+				end
+			end
+		else
+			while tier.lines > #available do
+				local index = table.find(settings.tiers, tier) or 1
+				tier = settings.tiers[math.max(1, index - 1)]
+			end
+		end
 		-- Ürünleri karıştır (Fisher-Yates), ilk `lines` tanesini al
 		local pool = table.clone(available)
 		for index = #pool, 2, -1 do
 			local pick = math.floor(random() * index) + 1
 			pool[index], pool[pick] = pool[pick], pool[index]
+		end
+		if slot <= #available then
+			pool[1] = available[slot]
 		end
 		local lines: { Line } = {}
 		for step = 1, math.min(tier.lines, #pool) do
@@ -177,7 +211,7 @@ function Contracts.offers(save: PlayerSave, now: number, bonus: number?): { Offe
 				amount = math.clamp(amount, 1, math.min(math.max(cap, 1), settings.maxLineUnits)),
 			})
 		end
-		-- Ödül, o anki gelirin `maxRewardMinutes` dakikasını aşmasın: aşıyorsa en çok istenen satırdan birim düşülür (en az 1).
+		-- Önce ödül tavanına sığmak için en büyük satır küçültülür; tek birim bile pahalıysa son ödeme ayrıca sınırlanır.
 		-- Pahalı ürün bu yüzden erken oyunda 1 adet, gelir büyüdükçe 2-3 adet istenir.
 		local rewardBonus = (bonus or 0) + Core.getBonus(save, "contractBonus")
 		local shrinking = true
@@ -185,14 +219,25 @@ function Contracts.offers(save: PlayerSave, now: number, bonus: number?): { Offe
 			shrinking = shrinkLargest(lines)
 		end
 		local worth = totalWorth(lines)
+		local uncappedReward = Contracts.reward(worth, tier.rewardFactor, rewardBonus)
+		local reward = math.min(uncappedReward, math.max(0, math.floor(rewardCap)))
+		-- Aynı slot yeni ürün/ödülle değişirse eski seçim farklı ürünleri tüketemez.
+		local fingerprint = reward % 1000003
+		for _, line in lines do
+			for index = 1, #line.goodsId do
+				fingerprint = (fingerprint * 31 + string.byte(line.goodsId, index)) % 1000003
+			end
+			fingerprint = (fingerprint * 31 + line.amount) % 1000003
+		end
 		table.insert(offers, {
-			key = `{window}:{slot}`,
+			key = `{window}:{slot}:{fingerprint}`,
 			tier = tier.id,
 			displayName = tier.displayName,
 			lines = lines,
 			worth = worth,
 			rewardFactor = tier.rewardFactor,
-			reward = Contracts.reward(worth, tier.rewardFactor, rewardBonus),
+			reward = reward,
+			uncappedReward = uncappedReward,
 		})
 	end
 	return offers
@@ -205,7 +250,16 @@ function Contracts.isDone(save: PlayerSave, offer: Offer): boolean
 		return false
 	end
 	local window = tonumber(string.match(offer.key, "^(%d+):"))
-	return contracts.window == window and contracts.done[offer.key] == true
+	if contracts.window ~= window then
+		return false
+	end
+	local slotKey = string.match(offer.key, "^(%d+:%d+)")
+	for key, done in contracts.done do
+		if done and string.match(key, "^(%d+:%d+)") == slotKey then
+			return true
+		end
+	end
+	return false
 end
 
 -- Depoda bütün satırlar için yeterli ürün var mı
@@ -268,6 +322,21 @@ function Contracts.readyCount(save: PlayerSave, now: number, bonus: number?): nu
 		end
 	end
 	return count
+end
+
+-- Otomatik ürün üretimi bütün ahırı doldurmaz; bekleyen siparişleri ve birkaç yedek partiyi karşılar.
+function Contracts.productionTarget(save: PlayerSave, goodsId: string, batchUnits: number, now: number): number
+	local demand = 0
+	for _, offer in Contracts.offers(save, now) do
+		if not Contracts.isDone(save, offer) then
+			for _, line in offer.lines do
+				if line.goodsId == goodsId then
+					demand += line.amount
+				end
+			end
+		end
+	end
+	return math.min(Goods.getGoodsCap(save), demand + batchUnits * Config.GOODS_CONTRACTS.reserveBatches)
 end
 
 return Contracts

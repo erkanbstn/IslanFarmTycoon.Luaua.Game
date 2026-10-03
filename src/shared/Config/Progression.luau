@@ -147,6 +147,7 @@ local data = {
 		},
 	} :: { CompletionRequirements },
 	gold = { island = 20, farm = 50, cashSeconds = 30, dailyLimit = 200, runLimit = 600, maxBalance = 1e9 },
+	finishTargets = { growth = true, extension = true } :: { [string]: boolean },
 	returnSeconds = 86400,
 	returnIncomeMultiplier = 3,
 	returnGrowthExcess = 0.5,

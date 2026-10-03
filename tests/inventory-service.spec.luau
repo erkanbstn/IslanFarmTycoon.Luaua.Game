@@ -8,13 +8,14 @@ return function(
 	codec: any,
 	config: any,
 	farmMath: any,
-	inventory: any
+	inventory: any,
+	merchant: any
 )
 	local harness = createHarness(createLimiter, codec, config, farmMath)
 	local function setup(): any
 		local h = harness.new()
 		local environment = createEnvironment(h.game)
-		createService(
+		local service = createService(
 			h.game,
 			h.remotes,
 			h.dataService,
@@ -31,8 +32,13 @@ return function(
 				find = function()
 					return nil
 				end,
-			}
-		).init()
+			},
+			merchant
+		)
+		service.configureMerchantProximity(function(): boolean
+			return h.near ~= false
+		end)
+		service.init()
 		h.environment = environment
 		return h
 	end
@@ -48,6 +54,76 @@ return function(
 	local function buy(h: any, itemId: any, requestId: any?): any
 		return h.fire("RequestBuyItem", itemId, requestId or h.nextId())
 	end
+	-- Eşya tüccarı: aynı sunucu teklifi, eski fiyat/döngü ve uzaktan ödeme korunur.
+	local trader = setup()
+	local tdata = trader.data
+	tdata.adminForce = { merchantUntil = trader.now + 600 }
+	tdata.cash = 1e9
+	local offer = assert(merchant.offer(tdata, trader.player.UserId, trader.now))
+	local quote = { cycle = offer.cycle, expectedPrice = offer.price }
+	local function trade(target: any, id: any, detail: any, farmId: any?, requestId: any?): any
+		return target.fire(
+			"RequestBuyMerchantOffer",
+			id,
+			requestId or target.nextId(),
+			farmId or target.data.activeMainFarmId,
+			detail
+		)
+	end
+	local beforeTrade = tdata.cash
+	trader.near = false
+	assert(
+		not trade(trader, offer.itemId, quote).ok and tdata.cash == beforeTrade,
+		"remote catalog cannot buy away from the physical stall"
+	)
+	trader.near = true
+	assert(
+		not trade(trader, offer.itemId, { cycle = offer.cycle - 1, expectedPrice = offer.price }).ok,
+		"previous visit nonce is rejected"
+	)
+	assert(
+		not trade(trader, offer.itemId, { cycle = offer.cycle, expectedPrice = 1 }).ok,
+		"forged or stale price is rejected"
+	)
+	assert(not trade(trader, offer.itemId, quote, "wrong-farm").ok, "active farm must match")
+	assert(not trade(trader, {}, quote).ok, "malformed item is rejected")
+	assert(not trade(trader, offer.itemId, "bad").ok, "malformed quote is rejected")
+	tdata.cash = offer.price - 1
+	assert(
+		not trade(trader, offer.itemId, quote).ok and not tdata.merchant,
+		"poor trader never writes the visit marker"
+	)
+	tdata.cash = beforeTrade
+	local requestId = trader.nextId()
+	assert(trade(trader, offer.itemId, quote, nil, requestId).ok, "valid current quote buys the run item")
+	assert(
+		tdata.cash == beforeTrade - offer.price and inventory.owns(tdata, offer.itemId),
+		"actual server discount is debited and item is granted"
+	)
+	assert(tdata.merchant.key == offer.cycle and tdata.merchant.bought, "one purchase marks the visit immediately")
+	local afterTrade = tdata.cash
+	trade(trader, offer.itemId, quote, nil, requestId)
+	assert(
+		not trade(trader, offer.itemId, quote).ok and tdata.cash == afterTrade,
+		"replay and second visit purchase cannot duplicate"
+	)
+	local savedTrader =
+		assert(codec.decode(codec.encode(tdata, trader.now), config, farmMath, trader.now, function(): string
+			return "merchant-save"
+		end))
+	assert(
+		savedTrader.merchant.key == offer.cycle and savedTrader.merchant.bought,
+		"visit ownership survives encode/decode"
+	)
+	local departed = setup()
+	departed.data.cash = 1e9
+	departed.data.adminForce = { merchantUntil = departed.now + 1 }
+	local lastOffer = assert(merchant.offer(departed.data, departed.player.UserId, departed.now))
+	departed.now += 1000
+	assert(
+		not trade(departed, lastOffer.itemId, { cycle = lastOffer.cycle, expectedPrice = lastOffer.price }).ok,
+		"departed catalog cannot debit a delayed purchase"
+	)
 
 	local rewardShop = setup()
 	rewardShop.data.cash = 1e12

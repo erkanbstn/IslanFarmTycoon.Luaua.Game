@@ -147,7 +147,7 @@ function MarketWindow.create(
 
 	UiKit.text(
 		pages.finish,
-		"Etkin çiftliğindeki bir bekleyişi seç. Bitirme bedeli kalan süreye göre hesaplanır.",
+		"Hayvan büyümesini veya eklenti görevini altınla tamamla. Üretim tesislerinde kullanılamaz.",
 		"Body"
 	).LayoutOrder =
 		0
@@ -252,17 +252,6 @@ function MarketWindow.create(
 			return
 		end
 		targets = {}
-		for recipeId, job in state.production do
-			if Progression.finishGoldQuote(state, "production", recipeId, now) then
-				local recipe = Config.PRODUCTION_RECIPES[recipeId]
-				table.insert(targets, {
-					kind = "production",
-					id = recipeId,
-					uid = job.uid,
-					name = if recipe then recipe.displayName else recipeId,
-				})
-			end
-		end
 		for _, animal in state.animals do
 			local name = Config.getAnimalLook(animal.animalId, state.activeMainFarmId).displayName
 			if Progression.finishGoldQuote(state, "growth", animal.uid, now) then
@@ -297,7 +286,7 @@ function MarketWindow.create(
 			UiKit.setText(finishCard.title, target.name)
 			UiKit.setText(
 				finishCard.detail,
-				`{targetIndex}/{#targets} bekleyiş · Hedef tamamlanır; üretim ödülünü ayrıca teslim alırsın.`
+				`{targetIndex}/{#targets} bekleyiş · Seçilen hayvanın bekleyişi tamamlanır.`
 			)
 			HudCommon.setPurchaseButton(
 				finishCard.action,
@@ -310,7 +299,7 @@ function MarketWindow.create(
 			UiKit.setText(finishCard.title, "Bitirilecek bekleyiş yok")
 			UiKit.setText(
 				finishCard.detail,
-				"Üretim, hayvan büyümesi veya eklenti bekleyişi başladığında burada görünür."
+				"Hayvan büyümesi veya eklenti görevi başladığında burada görünür."
 			)
 			HudCommon.setPurchaseButton(finishCard.action, "Bekleyiş yok", "disabled")
 		end

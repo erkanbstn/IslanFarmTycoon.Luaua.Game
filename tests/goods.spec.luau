@@ -293,6 +293,12 @@ return function(codec: any, config: any, farmMath: any, rules: any, logic: any)
 		not farmMath.applyGoodsBarter(barter, { milk = 99 }) and farmMath.getGoodsAmount(barter, "milk") == 7,
 		"a stale plan changes nothing"
 	)
+	for _, invalid in { { milk = -1 }, { milk = 0.5 }, { milk = 1, unknown_good = 1 } } do
+		assert(
+			not farmMath.applyGoodsBarter(barter, invalid) and farmMath.getGoodsAmount(barter, "milk") == 7,
+			"invalid barter bundles fail before any valid goods are removed"
+		)
+	end
 	local mixed = newSave()
 	mixed.goods = {}
 	farmMath.addGoods(mixed, "milk", 2)

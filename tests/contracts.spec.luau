@@ -56,11 +56,49 @@ return function(codec: any, config: any, farmMath: any, profiles: any)
 	local fresh = newSave(false)
 	assert(#farmMath.getContractOffers(fresh, now, 0) == 0, "no item center means no barn orders")
 	assert(farmMath.getReadyContractCount(fresh, now, 0) == 0, "nothing is ready without offers")
+	local early = newSave(false)
+	early.purchased.milk_center = true
+	early.animals = {
+		{ uid = "early-a", animalId = "cow", zoneId = "starter", bornAt = now, stage = "adult" },
+		{ uid = "early-b", animalId = "cow", zoneId = "starter", bornAt = now, stage = "adult" },
+	}
+	assert(#farmMath.getContractOffers(early, now, 0) == 0, "cached adult labels cannot make newborns producible")
+	for _, animal in early.animals do
+		animal.bornAt = 0
+	end
+	local earlyOffers = farmMath.getContractOffers(early, now, 0)
+	assert(#earlyOffers == config.GOODS_CONTRACTS.slots, "the first producible item receives immediate orders")
+	local earlyIncome = farmMath.getReferenceIncome(early, now)
+	local capped = false
+	for _, offer in earlyOffers do
+		assert(#offer.lines == 1 and offer.lines[1].goodsId == "milk", "first-center orders are achievable")
+		assert(offer.rewardFactor < 2, "one available item cannot earn the six-item mixed premium")
+		assert(
+			offer.reward <= earlyIncome * 60 * config.GOODS_CONTRACTS.rewardCapMinutes,
+			"even one expensive unit obeys the early income reward ceiling"
+		)
+		capped = capped or offer.reward < offer.uncappedReward
+	end
+	assert(capped, "the early fixture exercises the formerly unenforced minimum-unit ceiling")
+	for _, animal in early.animals do
+		animal.task = { kind = "production", id = "milk_goods", startedAt = now, endsAt = now + 90 }
+	end
+	local busyOffers = farmMath.getContractOffers(early, now, 0)
+	assert(
+		busyOffers[1].reward == earlyOffers[1].reward and busyOffers[1].key == earlyOffers[1].key,
+		"assigning all adults to their center does not erase orders or reduce the quote to zero"
+	)
+	print(
+		`MEASURE first center: income/min={earlyIncome * 60}; reward={earlyOffers[1].reward}; raw={earlyOffers[1].uncappedReward}`
+	)
 
 	-- Teklifler: kademe başına bir teklif; satır sayısı kademeyle artar, ödül ürün değerinin üstündedir
 	local save = newSave(true)
 	local islandBonus = farmMath.getBonus(save, "contractBonus") -- ada yükseltmelerinden gelen sipariş bonusu (At Adası)
 	local offers = farmMath.getContractOffers(save, now, 0)
+	for index, goodsId in farmMath.getContractGoods(save, now) do
+		assert(offers[index].lines[1].goodsId == goodsId, "each producible item has an immediate guaranteed order")
+	end
 	assert(#offers == config.GOODS_CONTRACTS.slots, "one offer per grid slot")
 	local cap = farmMath.getGoodsCap(save)
 	for index, offer in offers do
@@ -71,7 +109,11 @@ return function(codec: any, config: any, farmMath: any, profiles: any)
 			end
 		end
 		assert(tier, "every offer uses a configured tier")
-		assert(offer.key == `{farmMath.getContractWindow(now)}:{index}`, "keys carry the window and slot")
+		assert(
+			string.match(offer.key, "^(%d+:%d+):%d+$") == `{farmMath.getContractWindow(now)}:{index}`
+				and #offer.key <= 24,
+			"keys carry the window, slot and bounded quote fingerprint"
+		)
 		assert(
 			#offer.lines == math.min(tier.lines, #farmMath.getContractGoods(save)),
 			"line count follows the tier (limited by producible goods)"
@@ -135,6 +177,13 @@ return function(codec: any, config: any, farmMath: any, profiles: any)
 	for _, target in { small, large } do
 		for window = 0, 60 do
 			for _, offer in farmMath.getContractOffers(target, now + window * settings.seconds, 0) do
+				assert(
+					offer.reward
+						<= farmMath.getContractReferenceIncome(target, now + window * settings.seconds)
+							* 60
+							* settings.rewardCapMinutes,
+					"every generated order obeys the actual shared reference-income cap"
+				)
 				local ratio = offer.reward / offer.worth
 				assert(
 					ratio >= limits.minRewardRatio and ratio <= limits.maxRewardRatio,
@@ -235,7 +284,7 @@ return function(codec: any, config: any, farmMath: any, profiles: any)
 	save.inventory.equipped = { charm = "barn_charm_2" }
 	assert(farmMath.getGoodsYield(save, milkRecipe, now) > plainYield, "the barn key raises production center yield")
 	save.inventory = nil
-	assert(offers[1].key == `{farmMath.getContractWindow(now)}:1`, "keys carry the window")
+	assert(string.match(offers[1].key, "^(%d+:%d+):") == `{farmMath.getContractWindow(now)}:1`, "keys carry the window")
 	assert(farmMath.getContractSecondsLeft(now) > 0, "the board has time left")
 
 	-- Yetersiz ürün: hiçbir şey değişmez
@@ -247,6 +296,11 @@ return function(codec: any, config: any, farmMath: any, profiles: any)
 	-- Teslim: ürünler tam düşer, ödül tekliften gelir, tekrar teslim edilemez
 	fill(save)
 	assert(farmMath.getReadyContractCount(save, now, 0) == #offers, "a full barn makes every offer ready")
+	local quotedStock = farmMath.getGoodsWorth(save)
+	assert(
+		farmMath.fulfillContract(save, offers[2].key, now, 0.5) == nil and farmMath.getGoodsWorth(save) == quotedStock,
+		"changed quote cannot silently consume a stale selection"
+	)
 	local stock = {}
 	for _, line in offers[2].lines do
 		stock[line.goodsId] = farmMath.getGoodsAmount(save, line.goodsId)
@@ -257,6 +311,20 @@ return function(codec: any, config: any, farmMath: any, profiles: any)
 		assert(farmMath.getGoodsAmount(save, line.goodsId) == stock[line.goodsId] - line.amount, "exact goods removed")
 	end
 	assert(farmMath.isContractDone(save, offers[2]) and save.contracts.completed == beforeCompleted + 1, "marked done")
+	local refreshedQuote = farmMath.getContractOffers(save, now, 0.5)[2]
+	assert(refreshedQuote.key ~= offers[2].key, "changed rewards carry a new quote fingerprint")
+	assert(
+		farmMath.isContractDone(save, refreshedQuote)
+			and farmMath.fulfillContract(save, refreshedQuote.key, now, 0.5) == nil,
+		"changing rewards or equipment does not reset the window's delivery quota"
+	)
+	local legacy = newSave(true)
+	legacy.contracts = {
+		window = farmMath.getContractWindow(now),
+		done = { [`{farmMath.getContractWindow(now)}:2`] = true },
+		completed = 1,
+	}
+	assert(farmMath.isContractDone(legacy, offers[2]), "legacy window-slot completions still block a second delivery")
 	local again, againReason = farmMath.fulfillContract(save, offers[2].key, now + 5, 0)
 	assert(again == nil and againReason ~= nil, "the same offer cannot be delivered twice in a window")
 	assert(farmMath.getReadyContractCount(save, now, 0) == #offers - 1, "delivered offers are no longer ready")

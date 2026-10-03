@@ -31,7 +31,7 @@ FARMS = 6
 def run(persona: str, hours: float, mults: str, extra: list[str], order: str = "") -> dict:
     command = [
         sys.executable, str(SIMULATE), "--persona", persona, "--hours", str(hours), "--farms", str(FARMS),
-        "--finish-first", "--json", *extra,
+        "--finish-first", "--stop-after-farms", "--json", *extra,
     ]
     if mults:
         command += ["--mults", mults]

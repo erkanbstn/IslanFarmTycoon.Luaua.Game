@@ -259,6 +259,13 @@ function ProductionLogic.runPets(
 			end
 			local repeatOption = if farm.autoRepeat then farm.autoRepeat[recipeId] else nil
 			if farm.production[recipeId] == nil and repeatOption ~= nil then
+				if recipe.output == "goods" and recipe.goodsId then
+					local batchUnits = farmMath.previewGoodsYield(farm, recipe, now)
+					local target = farmMath.getGoodsProductionTarget(farm, recipe.goodsId, batchUnits, now)
+					if farmMath.getGoodsAmount(root, recipe.goodsId) + batchUnits > target then
+						continue
+					end
+				end
 				local optionId = if repeatOption == "default" then nil else repeatOption
 				local started = ProductionLogic.start(root, farm, recipe, optionId, now, farmMath, hooks)
 				if started then

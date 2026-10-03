@@ -10,7 +10,6 @@ local Config = require(Shared:WaitForChild("Config"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 local Rewards = require(Shared:WaitForChild("Modules"):WaitForChild("Rewards"))
-local Merchant = require(Shared:WaitForChild("Modules"):WaitForChild("Merchant"))
 
 local PlayerDataService = require(script.Parent:WaitForChild("PlayerDataService"))
 local RequestGuard = require(script.Parent:WaitForChild("RequestGuard"))
@@ -91,35 +90,6 @@ function AnimalService.tryBuy(player: Player, animalId: unknown, count: unknown?
 	PlayerDataService.pushState(player)
 	PlayerDataService.requestSave(player)
 	Metrics.increment("AnimalsPurchased")
-	PlotService.refreshPlayerWorld(player)
-	return true, nil
-end
-
--- Gezgin tüccarın indirimli hayvan teklifini alır: teklif, fiyat ve adet sunucuda yeniden hesaplanır.
-function AnimalService.tryBuyMerchantOffer(player: Player): (boolean, string?)
-	if not RateLimiter.allow(player, "purchase", 0.2) then
-		return false, nil
-	end
-	local data = PlayerDataService.tryGet(player)
-	if not data or player:GetAttribute("WorldReady") ~= true or not PlotService.getPlot(player) then
-		return false, "Veri henüz yüklenmedi"
-	end
-	local offer = Merchant.offer(data, player.UserId, DateTime.now().UnixTimestamp)
-	if not offer then
-		return false, "Gezgin tüccar şu an teklif sunmuyor"
-	end
-	EconomyService.settlePlayer(player)
-	if not PlayerDataService.trySpend(player, offer.price, "animal", offer.animalId) then
-		return false, `Yeterli para yok ({FarmMath.formatMoney(offer.price)})`
-	end
-	-- Alındı işareti hemen yazılır; tekrarlanan ya da gecikmiş istek ikinci teklifi alamaz.
-	data.merchant = { key = offer.cycle, bought = true }
-	addAnimals(data, offer.animalId, offer.count)
-	TelemetryService.funnel(player, "first_animal")
-	Rewards.recordInvest(data, DateTime.now().UnixTimestamp)
-	PlayerDataService.pushState(player)
-	PlayerDataService.requestSave(player)
-	Metrics.increment("MerchantOffersBought")
 	PlotService.refreshPlayerWorld(player)
 	return true, nil
 end
@@ -290,18 +260,6 @@ local function updateGrowth(player: Player, farmId: string)
 end
 
 function AnimalService.init()
-	Remotes.get("RequestBuyMerchantOffer").OnServerEvent
-		:Connect(function(player: Player, _value: unknown, requestId: unknown, expectedFarmId: unknown)
-			if not RateLimiter.acceptRequest(player, requestId) then
-				return
-			end
-			local data = RequestGuard.activeFarm(player, requestId, expectedFarmId, FARM_GUARD)
-			if not data then
-				return
-			end
-			local ok, err = AnimalService.tryBuyMerchantOffer(player)
-			reply(player, requestId, ok, if ok then "Gezgin tüccardan indirimli hayvanlar geldi!" else err)
-		end)
 	Remotes.get("RequestBuyAnimal").OnServerEvent
 		:Connect(
 			function(player: Player, animalId: unknown, requestId: unknown, expectedFarmId: unknown, count: unknown)

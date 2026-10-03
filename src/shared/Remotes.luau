@@ -74,7 +74,7 @@ local EVENTS = {
 	"RequestUpgradeLineage", -- Client -> Sunucu ırk geliştirme (animalId, requestId, expectedFarmId)
 	"RequestExpandZone", -- Client -> Sunucu alan genişletme (zoneId, requestId, expectedFarmId)
 	"RequestClaimSeasonal", -- Client -> Sunucu mevsim hedefi ödülünü al (_, requestId)
-	"RequestBuyMerchantOffer", -- Client -> Sunucu gezgin tüccarın teklifini al (_, requestId, expectedFarmId)
+	"RequestBuyMerchantOffer", -- Client -> Sunucu tüccardan tur eşyası al (itemId, requestId, expectedFarmId, {cycle, expectedPrice})
 	"RequestClaimGolden", -- Client -> Sunucu altın hayvan ödülünü al (_, requestId, expectedFarmId)
 	"RequestBuyItem", -- Client -> Sunucu eşya satın al (itemId, requestId)
 	"RequestEquipItem", -- Client -> Sunucu eşyayı tak / çıkar (itemId, requestId)

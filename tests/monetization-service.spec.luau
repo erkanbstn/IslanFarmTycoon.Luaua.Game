@@ -10,12 +10,12 @@ return function(createService: any, createHarness: any, createLimiter: any, code
 	local passes = config.PRODUCTS.passes
 	local saved = {
 		income = products.income_pack.id,
-		instant = products.instant_production.id,
+		instant = products.instant_growth.id,
 		pass = passes.double_income.id,
 		effect = products.income_pack.effect,
 	}
 	products.income_pack.id = 9001
-	products.instant_production.id = 9002
+	products.instant_growth.id = 9002
 	passes.double_income.id = 7001
 
 	local function setup(): any
@@ -155,17 +155,24 @@ return function(createService: any, createHarness: any, createLimiter: any, code
 	)
 	assert(data.cash == afterSecond, "the retry does not pay again")
 
-	-- Üretimi bitir: bütün işler hemen hazır olur
-	data.production = { { readyAt = 99999 }, { readyAt = 88888 } }
-	assert(h.service.processReceipt(h.receipt("r3", 9002)) == decision.PurchaseGranted, "instant production is granted")
-	assert(data.production[1].readyAt == 0 and data.production[2].readyAt == 0, "every job is ready now")
+	-- Hızlı büyütme; makbuz etkisi üretim işlerine dokunmaz.
+	data.animals = {
+		{ uid = "first", animalId = "cow", zoneId = "starter", stage = "calf", bornAt = h.now },
+		{ uid = "second", animalId = "cow", zoneId = "starter", stage = "young", bornAt = h.now },
+	}
+	data.production = { { readyAt = 99999 } }
+	assert(h.service.processReceipt(h.receipt("r3", 9002)) == decision.PurchaseGranted, "instant growth is granted")
+	assert(
+		data.animals[1].stage == "adult" and data.animals[2].stage == "adult" and data.production[1].readyAt == 99999,
+		"growth finishes young animals without advancing production"
+	)
 
 	-- Ödül verilemeyen etki: makbuz günlükten çıkar, tekrar denenir
-	local savedHandlerData = data.production
-	data.production = nil
+	local savedHandlerData = data.animals
+	data.animals = nil
 	assert(h.service.processReceipt(h.receipt("r4", 9002)) == decision.NotProcessedYet, "a failing effect is held")
 	assert(not (data.receipts and table.find(data.receipts, "r4")), "a failed grant leaves no receipt behind")
-	data.production = savedHandlerData
+	data.animals = savedHandlerData
 
 	-- Yan etki hataları uygulanmış ödülün makbuzunu silemez; tekrar nakit ya da yeni işleri ödüllendirmez.
 	local presentation = setup()
@@ -212,7 +219,8 @@ return function(createService: any, createHarness: any, createLimiter: any, code
 		)
 	end
 	local instantError = setup()
-	instantError.data.production = { { readyAt = 1234 } }
+	instantError.data.animals =
+		{ { uid = "grow", animalId = "cow", zoneId = "starter", stage = "calf", bornAt = instantError.now } }
 	instantError.dataService.pushState = function()
 		error("state push failed")
 	end
@@ -220,19 +228,23 @@ return function(createService: any, createHarness: any, createLimiter: any, code
 		instantError.service.processReceipt(instantError.receipt("instant-error", 9002)) == decision.PurchaseGranted,
 		"push failure preserves instant-product acknowledgment"
 	)
-	instantError.data.production = { { readyAt = 9999 } }
+	instantError.data.animals =
+		{ { uid = "new-young", animalId = "cow", zoneId = "starter", stage = "calf", bornAt = instantError.now } }
 	assert(
 		instantError.service.processReceipt(instantError.receipt("instant-error", 9002)) == decision.PurchaseGranted,
 		"push failure preserves instant-product acknowledgment"
 	)
-	assert(instantError.data.production[1].readyAt == 9999, "a failed push cannot finish newly started jobs on replay")
+	assert(instantError.data.animals[1].stage == "calf", "a failed push cannot grow newly bought animals on replay")
 	local partial = setup()
-	partial.data.production = { { readyAt = 4444 }, "invalid-job" }
+	partial.data.animals = {
+		{ uid = "young", animalId = "cow", zoneId = "starter", stage = "calf", bornAt = partial.now },
+		"invalid-animal",
+	}
 	assert(
-		partial.service.processReceipt(partial.receipt("invalid-production", 9002)) == decision.NotProcessedYet,
-		"invalid production defers the receipt"
+		partial.service.processReceipt(partial.receipt("invalid-growth", 9002)) == decision.NotProcessedYet,
+		"invalid animals defer the receipt"
 	)
-	assert(partial.data.production[1].readyAt == 4444, "invalid jobs are detected before any mutation")
+	assert(partial.data.animals[1].stage == "calf", "invalid animals are detected before any mutation")
 
 	-- Kaydedilmiş ödülün platform onayı kaybolabilir; 201 yeni makbuz ve oturum yeniden yükleme sonrası tekrar.
 	local replay = setup()
@@ -565,7 +577,7 @@ return function(createService: any, createHarness: any, createLimiter: any, code
 		products[key].id = id
 	end
 
-	products.income_pack.id, products.instant_production.id, passes.double_income.id =
+	products.income_pack.id, products.instant_growth.id, passes.double_income.id =
 		saved.income, saved.instant, saved.pass
 	print(
 		"PASS monetization service: actual service receipts (no double pay, save-gated), prompts, passes and unreleased products"

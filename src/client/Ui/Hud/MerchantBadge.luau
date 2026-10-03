@@ -24,7 +24,7 @@ export type Badge = {
 
 -- Üst menü çubuğunun hemen altı; bildirimler (FarmHud toastHolder) bunun da altında durur.
 MerchantBadge.TOP = 112
-MerchantBadge.HEIGHT = 30
+MerchantBadge.HEIGHT = UiKit.TouchTarget
 
 function MerchantBadge.create(
 	screenGui: Instance,
@@ -64,21 +64,22 @@ function MerchantBadge.create(
 	local function update(state: PlayerSave?)
 		if not state then
 			button.Visible = false
+			Players.LocalPlayer:SetAttribute("MerchantVisitActive", false)
 			return
 		end
 		local now = Workspace:GetServerTimeNow()
 		local status = Merchant.status(state, Players.LocalPlayer.UserId, now)
+		Players.LocalPlayer:SetAttribute("MerchantVisitActive", status.visit ~= nil)
 		local event = Merchant.advance(tracker, status)
 		if event == "arrived" then
 			Sfx.play("merchant_arrive")
-			notify("Gezgin tüccar geldi: Pazar'da indirimli hayvanlar var!", "info")
+			notify("Gezgin tüccar geldi: indirimli tur eşyalarına göz at!", "info")
 		elseif event == "missed" then
 			notify("Gezgin tüccar yola çıktı. Bir sonrakini kaçırma!", "info")
 		end
-		local offer = status.offer
-		button.Visible = offer ~= nil
-		if offer then
-			local left = math.max(0, math.ceil(offer.endsAt - now))
+		button.Visible = status.visit ~= nil
+		if status.visit then
+			local left = math.max(0, math.ceil(status.visit.endsAt - now))
 			UiKit.setText(label, `Gezgin tüccar · {string.format("%d:%02d", left // 60, left % 60)}`)
 		end
 	end

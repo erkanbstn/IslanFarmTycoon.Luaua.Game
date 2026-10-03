@@ -133,12 +133,23 @@ return function(Progression: any, FarmMath: any, Config: any, SaveCodec: any)
 	assert(#save.animals == 3 and FarmMath.hasAutoCollect(save), "ready start adults and auto collection")
 	assert(save.unlockedIslands[Config.getTheme("1").satellites[1]], "ready start first island")
 	assert(Progression.collectGold(save, now) == 0, "opening first island does not complete its upgrades")
-	save.production = { test = { readyAt = now + 61 } }
-	assert(Progression.finishGoldQuote(save, "production", "test", now) == 1, "R5 finish discount before rounding")
+	save.animals[1].task = { kind = "extension", id = "barn", startedAt = now, endsAt = now + 61 }
 	assert(
-		select(2, Progression.finishGoldQuote(save, "production", "test", now + 61)) == "already_ready",
-		"ready jobs cannot charge"
+		Progression.finishGoldQuote(save, "extension", save.animals[1].uid, now) == 1,
+		"R5 finish discount before rounding"
 	)
+	assert(
+		select(2, Progression.finishGoldQuote(save, "extension", save.animals[1].uid, now + 61)) == "already_ready",
+		"ready extension tasks cannot charge"
+	)
+	save.production = { test = { readyAt = now + 61 } }
+	for _, atTime in { now, now + 61 } do
+		local quote, reason = Progression.finishGoldQuote(save, "production", "test", atTime)
+		assert(
+			quote == nil and reason == "unsupported_target",
+			"production finishing stays unsupported even when the batch is ready"
+		)
+	end
 	save.owned.conveniences.pet_goods = true
 	assert(FarmMath.hasPet(save, "goods"), "permanent helper enabled")
 	-- Actual configured recipes: nominal baseline remains profitable; boosted cap shortfall is cash, not inflated quantity.

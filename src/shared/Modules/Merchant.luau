@@ -1,18 +1,17 @@
 --!strict
--- Gezgin tüccar (rastgele olay): ziyaret pencereleri ve indirimli hayvan teklifi. Saf ve paylaşılan:
+-- Gezgin tüccar (rastgele olay): ziyaret pencereleri ve indirimli tur eşyaları. Saf ve paylaşılan:
 -- sunucu teklifi doğrular ve ücreti alır, client aynı hesapla teklifi gösterir. Rastgelelik oyuncu kimliği ve
 -- döngü numarasından türetilir; kayıt gerekmez (yalnızca alınan teklifin döngüsü `save.merchant` içinde tutulur).
 
 local Config = require(script.Parent.Parent:WaitForChild("Config"))
-local FarmMath = require(script.Parent:WaitForChild("FarmMath"))
+local Inventory = require(script.Parent:WaitForChild("Inventory"))
 
 local Merchant = {}
 
 export type Visit = { cycle: number, startsAt: number, endsAt: number, active: boolean }
 export type Offer = {
-	animalId: string,
-	count: number,
-	price: number, -- İndirimli toplam fiyat
+	itemId: string,
+	price: number,
 	fullPrice: number,
 	cycle: number,
 	endsAt: number,
@@ -42,7 +41,7 @@ function Merchant.visit(userId: number, now: number): Visit?
 end
 
 -- Şu an süren ziyaret (yönetici zorlaması dahil) ve bu ziyaretin teklifi alınmış mı. Teklif/rozet/bildirim aynı kaynaktan okur.
-export type Status = { visit: Visit?, bought: boolean, offer: Offer? }
+export type Status = { visit: Visit?, bought: boolean, offer: Offer?, offers: { Offer } }
 
 local function activeVisit(save: any, userId: number, now: number): Visit?
 	-- Test aracı: yönetici ziyareti zorlayabilir (save.adminForce yalnızca çalışma anında vardır, kaydedilmez)
@@ -64,52 +63,55 @@ local function activeVisit(save: any, userId: number, now: number): Visit?
 	return nil
 end
 
--- Şu an sunulan teklif: ziyaret sürüyor, bu döngüde alınmadı ve satın alınabilen bir hayvan var.
+-- Ziyaret başına tek alım; sabit katalog sahiplik değişince yeni bir teklif üretmez.
 function Merchant.status(save: any, userId: number, now: number): Status
 	local visit = activeVisit(save, userId, now)
 	if not visit then
-		return { visit = nil, bought = false, offer = nil }
+		return { visit = nil, bought = false, offer = nil, offers = {} }
 	end
-	local merchant = save.merchant
-	local bought = merchant ~= nil and merchant.key == visit.cycle and merchant.bought == true
+	local marker = save.merchant
+	local bought = marker ~= nil and marker.key == visit.cycle and marker.bought == true
 	if bought then
-		return { visit = visit, bought = true, offer = nil }
+		return { visit = visit, bought = true, offer = nil, offers = {} }
 	end
 	local candidates: { string } = {}
-	for _, animalId in Config.ANIMAL_ORDER do
-		if FarmMath.findZoneForAnimal(save, animalId) then
-			table.insert(candidates, animalId)
+	local ranks: { [string]: number } = {}
+	for index, itemId in Config.ITEM_ORDER do
+		local item = Config.ITEMS[itemId]
+		if item and not item.rewardOnly and item.price > 0 then
+			table.insert(candidates, itemId)
+			ranks[itemId] = rand(userId, visit.cycle, 100 + index)
 		end
 	end
-	if #candidates == 0 then
-		return { visit = visit, bought = false, offer = nil }
-	end
-	-- Pahalı yarıdan seç: indirim anlamlı olsun
 	table.sort(candidates, function(a: string, b: string): boolean
-		return Config.ANIMALS[a].price < Config.ANIMALS[b].price
+		local left = ranks[a]
+		local right = ranks[b]
+		return if left == right then a < b else left < right
 	end)
-	local upper: { string } = {}
-	for index = #candidates - math.ceil(#candidates / 2) + 1, #candidates do
-		table.insert(upper, candidates[index])
+	local offers: { Offer } = {}
+	for index = 1, math.min(Config.MERCHANT.stock, #candidates) do
+		local itemId = candidates[index]
+		if not Inventory.owns(save, itemId) then
+			local fullPrice = Config.ITEMS[itemId].price
+			table.insert(offers, {
+				itemId = itemId,
+				fullPrice = fullPrice,
+				price = math.max(1, math.floor(fullPrice * (1 - Config.MERCHANT.discount))),
+				cycle = visit.cycle,
+				endsAt = visit.endsAt,
+			})
+		end
 	end
-	local animalId = upper[math.floor(rand(userId, visit.cycle, 3) * #upper) + 1]
-	local count = math.min(Config.MERCHANT.stock, FarmMath.getFreeSlots(save, animalId))
-	if count < 1 then
-		return { visit = visit, bought = false, offer = nil }
+	return { visit = visit, bought = false, offer = offers[1], offers = offers }
+end
+
+function Merchant.findOffer(save: any, userId: number, now: number, itemId: string): Offer?
+	for _, offer in Merchant.status(save, userId, now).offers do
+		if offer.itemId == itemId then
+			return offer
+		end
 	end
-	local fullPrice = FarmMath.getBulkPrice(save, animalId, count)
-	return {
-		visit = visit,
-		bought = false,
-		offer = {
-			animalId = animalId,
-			count = count,
-			price = math.floor(fullPrice * (1 - Config.MERCHANT.discount)),
-			fullPrice = fullPrice,
-			cycle = visit.cycle,
-			endsAt = visit.endsAt,
-		},
-	}
+	return nil
 end
 
 function Merchant.offer(save: any, userId: number, now: number): Offer?

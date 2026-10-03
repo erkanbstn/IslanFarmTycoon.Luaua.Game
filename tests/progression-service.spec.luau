@@ -108,47 +108,76 @@ return function(factory: any, harness: any, codec: any, config: any, farmMath: a
 		gold("convert", { expectedRun = 1, amount = 1, expectedCash = cash }).ok and h.data.cash == oldCash + cash,
 		"exact cash quote is delivered"
 	)
-	h.data.production.test = { uid = "batch", readyAt = h.now + 120 }
-	local cost = assert(progression.finishGoldQuote(h.data, "production", "test", h.now), "batch quotes finish")
+	-- Üretim hızlı bitirmesi kapalı: sürmekte olan ve zaten hazır partiler ödeme/durum değiştirmez.
+	for _, readyAt in { h.now + 120, h.now - 1 } do
+		h.data.production.test = { uid = "batch", readyAt = readyAt }
+		h.data.animals[1].task = { kind = "production", id = "test", startedAt = h.now - 20, endsAt = readyAt }
+		local beforeGold, beforeCash = h.data.gold, h.data.cash
+		local batch, task = h.data.production.test, h.data.animals[1].task
+		assert(
+			not gold(
+				"finish",
+				{ expectedRun = 1, targetKind = "production", targetId = "test", uid = "batch", expectedCost = 2 }
+			).ok,
+			"production finishing rejects both working and ready batches"
+		)
+		assert(
+			h.data.gold == beforeGold
+				and h.data.cash == beforeCash
+				and h.data.production.test == batch
+				and batch.readyAt == readyAt
+				and h.data.animals[1].task == task
+				and task.endsAt == readyAt,
+			"unsupported production finish preserves both wallets, batch and working animals"
+		)
+	end
+	h.data.animals[1].task = { kind = "extension", id = "barn", startedAt = h.now, endsAt = h.now + 120 }
+	h.data.animals[1].extensionId = "barn"
+	local cost = assert(progression.finishGoldQuote(h.data, "extension", "income", h.now), "extension quotes finish")
+	local function finishRequest(uid: string, expectedCost: number, startedAt: number?): any
+		return {
+			expectedRun = 1,
+			targetKind = "extension",
+			uid = uid,
+			expectedCost = expectedCost,
+			expectedEndsAt = h.now + 120,
+			expectedStartedAt = startedAt or h.now,
+		}
+	end
+	assert(not gold("finish", finishRequest("old", cost)).ok, "stale animal cannot be finished")
 	assert(
-		not gold(
-			"finish",
-			{ expectedRun = 1, targetKind = "production", targetId = "test", uid = "old", expectedCost = cost }
-		).ok,
-		"stale batch cannot be finished"
+		not gold("finish", finishRequest("income", cost, h.now - 1)).ok,
+		"same animal on a new task rejects old preview"
 	)
-	assert(
-		not gold(
-			"finish",
-			{ expectedRun = 1, targetKind = "production", targetId = "test", uid = "batch", expectedCost = cost - 1 }
-		).ok,
-		"higher server cost rejects stale preview"
-	)
+	assert(not gold("finish", finishRequest("income", cost - 1)).ok, "higher server cost rejects stale preview")
 	local beforeFinish = h.data.gold
+	local finishId = h.nextId()
 	assert(
-		gold(
-			"finish",
-			{ expectedRun = 1, targetKind = "production", targetId = "test", uid = "batch", expectedCost = cost + 1 }
-		).ok,
+		h.fire("RequestGoldAction", "finish", finishId, "1", finishRequest("income", cost + 1)).ok,
 		"lower live cost is accepted"
 	)
-	assert(h.data.gold == beforeFinish - cost and h.data.production.test.readyAt == h.now, "only live cost is charged")
 	assert(
-		not gold(
-			"finish",
-			{ expectedRun = 1, targetKind = "production", targetId = "test", uid = "batch", expectedCost = cost }
-		).ok,
-		"ready batch cannot charge again"
+		h.data.gold == beforeFinish - cost and h.data.animals[1].task == nil and h.data.animals[1].extensionId == nil,
+		"only live cost is charged and the extension animal returns"
 	)
-	h.data.animals[1].task = { kind = "extension", id = "barn", startedAt = h.now, endsAt = h.now + 120 }
+	assert(
+		h.fire("RequestGoldAction", "finish", finishId, "1", finishRequest("income", cost + 1)) == nil
+			and h.data.gold == beforeFinish - cost,
+		"same finish request cannot replay"
+	)
+	assert(
+		not gold("finish", finishRequest("income", cost)).ok and h.data.gold == beforeFinish - cost,
+		"already finished extension cannot charge again"
+	)
+	h.data.animals[1].task = { kind = "extension", id = "barn", startedAt = h.now - 120, endsAt = h.now }
 	assert(not gold("finish", {
 		expectedRun = 1,
 		targetKind = "extension",
 		uid = "income",
-		expectedCost = 2,
-		expectedEndsAt = h.now + 120,
-		expectedStartedAt = h.now - 1,
-	}).ok, "same animal on a new task rejects old preview")
+		expectedCost = cost,
+		expectedEndsAt = h.now,
+		expectedStartedAt = h.now - 120,
+	}).ok and h.data.gold == beforeFinish - cost, "naturally ready extension cannot charge")
 	h.data.transfers.quarantined = true
 	assert(not gold("buy", { expectedRun = 1, offerId = "pet_goods" }).ok, "backup quarantine blocks financial actions")
 	h.data.transfers.quarantined = nil

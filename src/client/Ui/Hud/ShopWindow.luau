@@ -1,16 +1,13 @@
 --!strict
 -- Hayvan Pazarı penceresi: hayvan listesi, toplu alım çarpanı ve küçük-büyük balık değişimi.
 
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local GameTypes = require(Shared:WaitForChild("GameTypes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 local Environment = require(Shared:WaitForChild("Modules"):WaitForChild("Environment"))
-local Merchant = require(Shared:WaitForChild("Modules"):WaitForChild("Merchant"))
 local ClientState = require(script.Parent.Parent.Parent:WaitForChild("Core"):WaitForChild("ClientState"))
 local UiKit = require(script.Parent.Parent:WaitForChild("UiKit"))
 local PurchaseController = require(script.Parent.Parent.Parent:WaitForChild("Core"):WaitForChild("PurchaseController"))
@@ -141,44 +138,6 @@ function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 		end)
 	end
 
-	-- Gezgin tüccar: ziyaret sürerken en üstte indirimli hayvan teklifi (teklif sunucuda yeniden doğrulanır)
-	local merchantCard = UiKit.card(shopWindow.list, -1, "🧳")
-	merchantCard.frame.Visible = false
-	merchantCard.action.Activated:Connect(function()
-		if merchantCard.action.Active then
-			PurchaseController.submit("RequestBuyMerchantOffer", "merchant")
-		end
-	end)
-	local function updateMerchant(state: PlayerSave)
-		local offer = Merchant.offer(state, Players.LocalPlayer.UserId, Workspace:GetServerTimeNow())
-		merchantCard.frame.Visible = offer ~= nil
-		if not offer then
-			return
-		end
-		local look = Config.getAnimalLook(offer.animalId, state.activeMainFarmId)
-		local left = math.max(0, offer.endsAt - Workspace:GetServerTimeNow())
-		merchantCard.icon.Text = look.icon
-		merchantCard.title.Text = look.displayName
-		merchantCard.detail.Text =
-			`Gezgin tüccar · x{offer.count} · %{math.round(Config.MERCHANT.discount * 100)} indirim · Normal fiyat: {FarmMath.formatMoney(
-				offer.fullPrice
-			)} · {string.format("%02d:%02d", math.ceil(left) // 60, math.ceil(left) % 60)} kaldı`
-		setPurchaseButton(
-			merchantCard.action,
-			FarmMath.formatMoney(offer.price),
-			if state.cash >= offer.price then "primary" else "warning"
-		)
-	end
-	task.spawn(function()
-		while true do
-			task.wait(1)
-			local state = ClientState.get()
-			if state and shopWindow.isOpen() then
-				updateMerchant(state)
-			end
-		end
-	end)
-
 	local replacementCard = UiKit.card(shopWindow.list, 3 * #Config.ANIMAL_ORDER + 2, Config.ANIMALS.seabass.icon)
 	replacementCard.title.Text = "Küçük balığı büyük balıkla değiştir"
 	replacementCard.action.Activated:Connect(function()
@@ -199,7 +158,6 @@ function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 			end
 			lastContext = context
 		end
-		updateMerchant(state)
 		if content then
 			UiKit.setText(shopInfo, "Hayvan al ve çiftliğinin gelirini büyüt.")
 		end

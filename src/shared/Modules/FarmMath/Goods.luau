@@ -204,15 +204,7 @@ end
 
 -- Planı uygular (hepsi ya da hiçbiri): ürünleri düşer; yetmezse hiçbir şey değişmez ve false döner.
 function Goods.applyBarter(save: PlayerSave, plan: { [string]: number }): boolean
-	for goodId, amount in plan do
-		if Goods.getGoodsAmount(save, goodId) < amount then
-			return false
-		end
-	end
-	for goodId, amount in plan do
-		assert(Goods.removeGoods(save, goodId, amount), "goods vanished during a barter")
-	end
-	return true
+	return Goods.removeGoodsBundle(save, plan)
 end
 
 return Goods

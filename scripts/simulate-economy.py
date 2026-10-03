@@ -218,7 +218,7 @@ end
 -- Ürün (ahır deposu) ölçümü: üretim/tüketim/doluluk. FarmMath.addGoods sarılır; ProductionLogic aynı tabloyu kullanır.
 local goodsStat: { [string]: any } = {}
 -- Sipariş ve parti ölçümü (ödül/değer oranı, ödülün gelir dakikası, satır ve parti birimi): "uçuk sayı" denetimi (docs/ZORLUK_VE_FIYAT.md)
-local orderStat = { count = 0, ratioSum = 0, ratioMax = 0, minutesSum = 0, minutesMax = 0, lineMax = 0, batchMax = 0 }
+local orderStat = { count = 0, ratioSum = 0, ratioMax = 0, minutesSum = 0, minutesMax = 0, referenceMinutesSum = 0, referenceMinutesMax = 0, lineMax = 0, batchMax = 0 }
 local function gstat(goodsId: string): any
 	local row = goodsStat[goodsId]
 	if not row then
@@ -619,11 +619,15 @@ local function ordersTick()
 			if reward then
 				local ratio = reward / math.max(offer.worth, 1)
 				local minutes = reward / math.max(FarmMath.computeIncomePerSecond(save, now) * 60, 1)
+				local referenceMinutes = reward / math.max(FarmMath.getContractReferenceIncome(save, now) * 60, 1)
+				assert(referenceMinutes <= Config.GOODS_CONTRACTS.rewardCapMinutes + 1e-9, "contract exceeded the shared reference-income cap")
 				orderStat.count += 1
 				orderStat.ratioSum += ratio
 				orderStat.ratioMax = math.max(orderStat.ratioMax, ratio)
 				orderStat.minutesSum += minutes
 				orderStat.minutesMax = math.max(orderStat.minutesMax, minutes)
+				orderStat.referenceMinutesSum += referenceMinutes
+				orderStat.referenceMinutesMax = math.max(orderStat.referenceMinutesMax, referenceMinutes)
 				for _, line in offer.lines do
 					gstat(line.goodsId).ordered += line.amount
 					orderStat.lineMax = math.max(orderStat.lineMax, line.amount)
@@ -1018,6 +1022,23 @@ else
 	end
 end
 
+local function completedRequestedFarms(): boolean
+	if not S.stopAfterFarms or ownedFarmCount() < S.farms then
+		return false
+	end
+	for farmId in save.mainFarms do
+		local prefix = if farmId == FARM then "" else `Ç{farmId} `
+		if milestones[prefix .. "TÜM YÜKSELTMELER"] == nil then
+			return false
+		end
+	end
+	return true
+end
+
+local function shouldStop(): boolean
+	return (S.stopAtRebirth and milestones["REBIRTH HAZIR"] ~= nil) or completedRequestedFarms()
+end
+
 local lastSeenAt: number? = 0
 for _, window in sessions do
 	if lastSeenAt and window[1] > lastSeenAt then
@@ -1028,16 +1049,16 @@ for _, window in sessions do
 		t += STEP
 		now = START + t
 		onlineStep()
-		if S.stopAtRebirth and milestones["REBIRTH HAZIR"] then
+		if shouldStop() then
 			break
 		end
 	end
 	lastSeenAt = t
-	if S.stopAtRebirth and milestones["REBIRTH HAZIR"] then
+	if shouldStop() then
 		break
 	end
 end
-if lastSeenAt and lastSeenAt < TOTAL and not (S.stopAtRebirth and milestones["REBIRTH HAZIR"]) then
+if lastSeenAt and lastSeenAt < TOTAL and not shouldStop() then
 	goOffline(lastSeenAt, TOTAL)
 end
 now = START + (lastSeenAt or 0)
@@ -1144,7 +1165,7 @@ do
 		emit(string.format("  TOPLAM     üretim %6.2f/dk · pano %6.2f/dk · toptan %6.2f/dk · takas %6.2f/dk · ort. doluluk %%%5.1f", totalProduced / minutes, totalOrdered / minutes, totalSold / minutes, totalBartered / minutes, fillWeighted / fillSeconds * 100))
 	end
 	if orderStat.count > 0 then
-		emit(string.format("  SİPARİŞ ÖLÇÜMÜ: %d teslim · ödül/değer ort. %.2f, en çok %.2f · ödül ort. %.1f, en çok %.1f dk gelir · satır en çok %d birim · parti en çok %d birim", orderStat.count, orderStat.ratioSum / orderStat.count, orderStat.ratioMax, orderStat.minutesSum / orderStat.count, orderStat.minutesMax, orderStat.lineMax, orderStat.batchMax))
+		emit(string.format("  SİPARİŞ ÖLÇÜMÜ: %d teslim · ödül/değer ort. %.2f, en çok %.2f · etkin çiftlik geliri ort. %.1f, en çok %.1f dk · tavan referansı ort. %.1f, en çok %.1f dk · satır en çok %d birim · parti en çok %d birim", orderStat.count, orderStat.ratioSum / orderStat.count, orderStat.ratioMax, orderStat.minutesSum / orderStat.count, orderStat.minutesMax, orderStat.referenceMinutesSum / orderStat.count, orderStat.referenceMinutesMax, orderStat.lineMax, orderStat.batchMax))
 	end
 	local unlockUnits, unlockWorth = 0, 0
 	for goodsId, amount in unlockGoods do
@@ -1345,12 +1366,15 @@ def main() -> int:
     parser.add_argument("--starting-gold", type=int, default=0, help="Önceden birikmiş/satın alınmış altın")
     parser.add_argument("--gold-policy", choices=["save", "convert", "equipment"], default="save")
     parser.add_argument("--stop-at-rebirth", action="store_true", help="Rebirth hazır olunca koşuyu bitir")
+    parser.add_argument("--stop-after-farms", action="store_true", help="--finish-first ile istenen çiftliklerin tüm yükseltmeleri tamamlanınca koşuyu bitir")
     parser.add_argument("--carry-account", help="Önceki simülasyonun gerçek Rebirth.apply çıktısını taşıyan JSON dosyası")
     parser.add_argument("--apply-rebirth", action="store_true", help="Hazırsa gerçek rebirth dönüşümünü uygulayıp sonraki hesap durumunu döndür")
     parser.add_argument("--farms", type=int, default=None, help="Sahip olunacak en çok ana çiftlik sayısı (1 = çoklu çiftlik yok)")
     parser.add_argument("--json", action="store_true", help="Makine okunur JSON çıktısı")
     parser.add_argument("--smoke", action="store_true", help="Duman testi: JSON'u kendisi ayrıştırır ve hayvan sayısını doğrular (PowerShell boru hattı BOM'u olmadan)")
     args = parser.parse_args()
+    if args.stop_after_farms and (not args.finish_first or args.completion != "all"):
+        parser.error("--stop-after-farms yalnız --finish-first ve --completion all ile kullanılabilir")
     carry_account = json.loads(Path(args.carry_account).read_text(encoding="utf-8")) if args.carry_account else None
     if carry_account:
         args.rebirth = carry_account["progression"]["count"]
@@ -1421,6 +1445,7 @@ def main() -> int:
         "startingGold": args.starting_gold,
         "goldPolicy": args.gold_policy,
         "stopAtRebirth": args.stop_at_rebirth,
+        "stopAfterFarms": args.stop_after_farms,
         "carryAccount": carry_account or False,
         "applyRebirth": args.apply_rebirth,
         "mults": [float(item) for item in args.mults.split(",") if item.strip()],
@@ -1451,7 +1476,8 @@ def main() -> int:
         module("ProductionRules", "src/server/Modules/ProductionRules.luau"),
         module("ProductionLogic", "src/server/Modules/ProductionLogic.luau", {"ProductionRules"}),
         module("Rewards", "src/shared/Modules/Rewards.luau", {"Config", "FarmMath"}),
-        module("Merchant", "src/shared/Modules/Merchant.luau", {"Config", "FarmMath"}),
+        module("Inventory", "src/shared/Modules/Inventory.luau", {"Config"}),
+        module("Merchant", "src/shared/Modules/Merchant.luau", {"Config", "Inventory"}),
         module("Golden", "src/shared/Modules/Golden.luau", {"Config", "FarmMath", "Merchant"}),
         SIMULATION.replace("__HOURS__", str(hours)).replace("__FARM__", str(args.farm))
         .replace("__COST_BASE__", str(args.cost_base))

@@ -120,14 +120,6 @@ return {
 				effect = "runDouble",
 				lifetime = "run",
 			},
-			instant_production = {
-				id = 0,
-				displayName = "Üretimi Bitir",
-				description = "Devam eden bütün üretimleri hemen tamamlar",
-				icon = "⚡",
-				effect = "instantProduction",
-				lifetime = "run",
-			},
 			income_pack_small = {
 				id = 0,
 				displayName = "15 Dakikalık Gelir",
@@ -170,7 +162,7 @@ return {
 
 	-- Gezgin tüccar (rastgele olay): her oyuncuya ayrı ve sunucu saatinden türeyen ziyaret pencereleri.
 	-- Her cycleSeconds içinde chance olasılıkla, rastgele bir başlangıçla visitSeconds süren bir ziyaret olur;
-	-- ziyarette satın alınabilen hayvanlardan pahalı yarısından biri, en fazla stock adet, discount indirimle sunulur.
+	-- ziyarette stock farklı tur eşyası discount indirimle sunulur; ziyaret başına tek eşya alınabilir.
 	-- Ziyaret oturum uzunluğuna göre ayarlıdır: ~20 dk'lık oturumda en az bir, çoğunlukla iki ziyaret yakalanır.
 	MERCHANT = {
 		cycleSeconds = 600,
@@ -178,6 +170,7 @@ return {
 		chance = 0.75,
 		discount = 0.3,
 		stock = 3,
+		buyRadius = 16,
 	},
 
 	-- Altın hayvan (rastgele olay): her oyuncuya ayrı, sunucu saatinden türeyen kısa pencereler. Pencere açıkken

@@ -38,6 +38,7 @@ local RebirthWindow = require(Hud:WaitForChild("RebirthWindow"))
 local IslandTabs = require(Hud:WaitForChild("IslandTabs"))
 local ShopWindow = require(Hud:WaitForChild("ShopWindow"))
 local MerchantBadge = require(Hud:WaitForChild("MerchantBadge"))
+local MerchantWindow = require(Hud:WaitForChild("MerchantWindow"))
 local RoadmapWindow = require(Hud:WaitForChild("RoadmapWindow"))
 local UpgradesWindow = require(Hud:WaitForChild("UpgradesWindow"))
 local StatsPanel = require(Hud:WaitForChild("StatsPanel"))
@@ -178,6 +179,7 @@ end)
 -- Sağ kenarda, sağ menü sütununun (76 px + boşluk) soluna yaslı
 local WINDOW_POSITION = UDim2.new(1, -96, 0.5, 0)
 
+local merchant = MerchantWindow.create(hudRoot)
 local shop = ShopWindow.create(hudRoot, WINDOW_POSITION)
 local shopWindow = shop.window
 local roadmap = RoadmapWindow.create(hudRoot, WINDOW_POSITION)
@@ -198,6 +200,9 @@ end)
 
 -- Meydandaki satıcı NPC'ler: mevcut pencereleri açar (satın alma yine sunucuda doğrulanır)
 local vendorActions: { [string]: () -> () } = {
+	merchant = function()
+		showWindow(merchant.window)
+	end,
 	orders = function()
 		showWindow(boardWindow)
 	end,
@@ -306,7 +311,7 @@ local seasonBar = SeasonBar.create(statsHud.frame)
 
 -- Altın hayvan belirdiğinde bir kez haber ver (hayvan çiftlikte parlar); tüccar için kalıcı rozet var
 local merchantBadge = MerchantBadge.create(hudRoot, function()
-	showWindow(shopWindow)
+	showWindow(merchant.window)
 end, showToast)
 local lastGoldenCycle = -1
 local function goldenNotice(state: PlayerSave?)
@@ -331,6 +336,7 @@ task.spawn(function()
 		updateRewards(ClientState.get())
 		updateBoard(ClientState.get())
 		if current then
+			merchant.update(current)
 			progressionPanel.update(current)
 			rebirthPanel.update(current)
 		end
@@ -360,6 +366,7 @@ local function onState(state: PlayerSave, structural: boolean)
 	screenGui.Enabled = true
 	local income = FarmMath.computeIncomePerSecond(state)
 	statsHud.update(state, income)
+	merchant.update(state)
 	goal.updateIsland(state, income)
 	goal.updateGoal(state, income)
 	menu.updateVisibility(state)

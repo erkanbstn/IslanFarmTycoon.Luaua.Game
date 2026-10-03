@@ -139,26 +139,6 @@ local productEffects: { [string]: (data: any, product: Config.ProductConfig) -> 
 		end
 		return true
 	end,
-	instantProduction = function(data)
-		-- Bozuk iş listesini mutasyondan önce doğrula; yarım uygulanmış etki yeniden ödüllendirilmesin.
-		if typeof(data.production) ~= "table" then
-			return false
-		end
-		for _, job in data.production do
-			if typeof(job) ~= "table" then
-				return false
-			end
-		end
-		for _, job in data.production do
-			job.readyAt = 0
-		end
-		for _, animal in data.animals do
-			if animal.task and animal.task.kind == "production" then
-				animal.task = nil
-			end
-		end
-		return true
-	end,
 	goldPack = function(data, product)
 		local amount = product.goldAmount
 		if

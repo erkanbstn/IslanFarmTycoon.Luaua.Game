@@ -12,6 +12,7 @@ local Remotes = require(Shared:WaitForChild("Remotes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 local Environment = require(Shared:WaitForChild("Modules"):WaitForChild("Environment"))
 local Inventory = require(Shared:WaitForChild("Modules"):WaitForChild("Inventory"))
+local Merchant = require(Shared:WaitForChild("Modules"):WaitForChild("Merchant"))
 
 local PlayerDataService = require(script.Parent:WaitForChild("PlayerDataService"))
 local RequestGuard = require(script.Parent:WaitForChild("RequestGuard"))
@@ -22,6 +23,13 @@ local Metrics = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChil
 local ModelAssets = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("ModelAssets"))
 
 local InventoryService = {}
+local merchantProximity: (Player) -> boolean = function(_player: Player): boolean
+	return false
+end
+
+function InventoryService.configureMerchantProximity(check: (Player) -> boolean)
+	merchantProximity = check
+end
 
 local VISUAL_PREFIX = "Equip_"
 
@@ -234,6 +242,45 @@ function InventoryService.tryBuy(player: Player, itemId: unknown): (boolean, str
 	return true, nil
 end
 
+function InventoryService.tryBuyMerchantOffer(player: Player, itemId: unknown, quote: unknown): (boolean, string?)
+	if not RateLimiter.allow(player, "purchase", 0.2) then
+		return false, nil
+	end
+	if not RateLimiter.validId(itemId) or typeof(quote) ~= "table" then
+		return false, "Geçersiz istek"
+	end
+	local data = ready(player)
+	if not data then
+		return false, "Veri henüz yüklenmedi"
+	end
+	local offer = Merchant.findOffer(data, player.UserId, nowSeconds(), itemId :: string)
+	if not offer then
+		return false, "Gezgin tüccar şu an bu eşyayı sunmuyor."
+	end
+	local expected = quote :: any
+	if expected.cycle ~= offer.cycle or expected.expectedPrice ~= offer.price then
+		return false, "Tüccarın teklifi değişti. Güncel teklifi tekrar incele."
+	end
+	if not merchantProximity(player) then
+		return false, "Satın almak için meydandaki gezgin tüccara yaklaş."
+	end
+	EconomyService.settlePlayer(player)
+	if not PlayerDataService.trySpend(player, offer.price, "item") then
+		return false, `Yeterli para yok ({FarmMath.formatMoney(offer.price)})`
+	end
+	local item = Config.ITEMS[offer.itemId]
+	local autoEquip = Inventory.equippedId(data, item.slot) == nil
+	changeEquipment(player, function()
+		data.merchant = { key = offer.cycle, bought = true }
+		Inventory.grant(data, offer.itemId)
+		if autoEquip then
+			Inventory.equip(data, offer.itemId)
+		end
+	end)
+	Metrics.increment("MerchantOffersBought")
+	return true, nil
+end
+
 function InventoryService.tryToggleEquip(player: Player, itemId: unknown): (boolean, string?, boolean?)
 	if not RateLimiter.allow(player, "equipItem", 0.3) then
 		return false, nil, nil
@@ -334,6 +381,22 @@ function InventoryService.tryUse(player: Player, itemId: unknown, argument: unkn
 end
 
 function InventoryService.init()
+	Remotes.get("RequestBuyMerchantOffer").OnServerEvent
+		:Connect(function(player: Player, itemId: unknown, requestId: unknown, expectedFarmId: unknown, quote: unknown)
+			if not RateLimiter.acceptRequest(player, requestId) then
+				return
+			end
+			if not RequestGuard.activeFarm(player, requestId, expectedFarmId) then
+				return
+			end
+			local ok, message = InventoryService.tryBuyMerchantOffer(player, itemId, quote)
+			RequestGuard.reply(
+				player,
+				requestId,
+				ok,
+				if ok then "Tüccardan indirimli tur eşyası alındı." else message
+			)
+		end)
 	Remotes.get("RequestBuyItem").OnServerEvent:Connect(function(player: Player, itemId: unknown, requestId: unknown)
 		if not RateLimiter.acceptRequest(player, requestId) then
 			return

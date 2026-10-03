@@ -23,6 +23,7 @@ export type NpcSpec = {
 	action: string, -- "orders" | "store" | "roadmap" | "upgrades" | "travel"
 	blurb: string, -- Tabelada görünen tek satır işlev açıklaması (NPC adı etkileşim ipucunda)
 	prompt: string,
+	modelName: string?, -- Var olan satıcı görünümü farklı bir görev için yeniden kullanılabilir.
 }
 
 local BLOOM_COLORS = {
@@ -46,10 +47,10 @@ local function place(parent: Instance, name: string, base: CFrame): Model?
 	return model
 end
 
-function HubNpcs.vendor(parent: Instance, base: CFrame, spec: NpcSpec)
-	local model = place(parent, `Vendor_{spec.action}`, base)
+function HubNpcs.vendor(parent: Instance, base: CFrame, spec: NpcSpec): Model?
+	local model = place(parent, spec.modelName or `Vendor_{spec.action}`, base)
 	if not model then
-		return
+		return nil
 	end
 	model:SetAttribute("Action", spec.action)
 	-- Client (HubNpcs.client) etiketli satıcıları canlandırır: göz teması, el sallama, konuşma balonu
@@ -77,6 +78,7 @@ function HubNpcs.vendor(parent: Instance, base: CFrame, spec: NpcSpec)
 	prompt.RequiresLineOfSight = false
 	prompt:SetAttribute("Action", spec.action)
 	prompt.Parent = anchor
+	return model
 end
 
 function HubNpcs.fountain(parent: Instance, base: CFrame)

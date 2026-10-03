@@ -238,7 +238,7 @@ function StoreSection.create(list: GuiObject, category: string?): ((PlayerSave) 
 				detail = if entry.key == "double_income"
 					then "Her turda geçerlidir. Bu tur için alınan 2x ile çarpılmaz."
 					else "Rebirth'te korunur ve sonraki turlarda da çalışır."
-			elseif product.effect == "instantProduction" or product.effect == "instantGrowth" then
+			elseif product.effect == "instantGrowth" then
 				detail = `Tek kullanım · {product.description}`
 			else
 				detail = `Bu tur · {product.description}`
@@ -250,7 +250,7 @@ function StoreSection.create(list: GuiObject, category: string?): ((PlayerSave) 
 				elseif offer then `Kalıcı · {CONVENIENCE_BENEFITS[offer.id] or product.description}`
 				elseif product.effect == "incomePack" then `{FarmMath.formatMoney(cashAmount or 0)} · Bu tur`
 				elseif product.effect == "runDouble" then "Bu tur · 2x gelir"
-				elseif product.effect == "instantProduction" or product.effect == "instantGrowth" then "Tek kullanım"
+				elseif product.effect == "instantGrowth" then "Tek kullanım"
 				elseif product.effect == "goldPack" then `{product.goldAmount or 0} altın · Rebirth'te kalır`
 				elseif entry.kind == "pass" then product.description
 				else string.match(detail, "[^\n]+") or detail

@@ -106,8 +106,13 @@ return function(policy: any, createService: any, createLimiter: any, config: any
 		end,
 	}
 	local overrides: { any } = {}
+	local failNextWeather = false
 	local seasons = {
 		setAdminWeather = function(id: string?): boolean
+			if failNextWeather then
+				failNextWeather = false
+				error("injected service failure")
+			end
 			table.insert(overrides, { kind = "weather", id = id })
 			return true
 		end,
@@ -135,14 +140,19 @@ return function(policy: any, createService: any, createLimiter: any, config: any
 			refreshes += 1
 		end,
 	}
+	local growthPreservations = 0
+	local lastGrowthEquipment: string? = nil
 	local farmMath = {
 		getStorageCap = function(_save: any): number
 			return 1e9
 		end,
-		snapshotGrowthSpeeds = function(_save: any)
+		snapshotGrowthSpeeds = function(save: any)
+			lastGrowthEquipment = if save.inventory then save.inventory.equipped.tool else nil
 			return {}
 		end,
-		preserveGrowthProgress = function(_save: any, _speeds: any, _now: number) end,
+		preserveGrowthProgress = function(_save: any, _speeds: any, _now: number)
+			growthPreservations += 1
+		end,
 		applyDerived = function(save: any)
 			save.derived = true
 			save.unlockedZones = { poultry = save.purchased.island_poultry == true }
@@ -187,7 +197,30 @@ return function(policy: any, createService: any, createLimiter: any, config: any
 			return true, "reset"
 		end,
 	}
-	local service = createService(fakeGame, remotes, dataService, economy, plots, farmMath, seasons, limiter, dataReset)
+	local warningCount = 0
+	local service = createService(
+		fakeGame,
+		remotes,
+		dataService,
+		economy,
+		plots,
+		farmMath,
+		seasons,
+		limiter,
+		dataReset,
+		{
+			current = function(preview: any): any
+				assert(
+					preview.golden == nil and preview.adminForce.goldenUntil > os.time(),
+					"golden preflight uses the forced canonical event with a cleared preview claim"
+				)
+				return if #preview.animals > 0 then {} else nil
+			end,
+		},
+		function()
+			warningCount += 1
+		end
+	)
 	service.init()
 	service.init()
 	assert(
@@ -307,7 +340,9 @@ return function(policy: any, createService: any, createLimiter: any, config: any
 	now += 1
 	data.animals = { { animalId = "cow", zoneId = "starter", bornAt = 123, stage = "calf", uid = "a" } }
 	data.purchased = {}
+	local growthTraceStart = #trace
 	fire(owner, "growAll", "now", 207)
+	assert(trace[growthTraceStart + 1] == "settle", "growth changes settle old income before any push/save")
 	assert(
 		data.animals[1].stage == "adult" and data.animals[1].bornAt == 0 and refreshes == 1 and results[#results].ok,
 		"growAll makes own animals adult and refreshes the world"
@@ -407,7 +442,12 @@ return function(policy: any, createService: any, createLimiter: any, config: any
 	)
 	now += 1
 	data.inventory.equipped.tool = "copper_hammer"
+	local previousPreservations = growthPreservations
 	fire(owner, "clearItems", "now", 218)
+	assert(
+		growthPreservations == previousPreservations + 1 and lastGrowthEquipment == "copper_hammer",
+		"clearing equipped items snapshots old growth and preserves young animal progress"
+	)
 	assert(
 		results[#results].ok and next(data.inventory.items) == nil and next(data.inventory.equipped) == nil,
 		"clearItems empties the inventory"
@@ -429,6 +469,12 @@ return function(policy: any, createService: any, createLimiter: any, config: any
 		farmCount += 1
 	end
 	assert(farmCount == config.MAIN_FARM_LIMIT, "maxAll adds every missing main farm for free")
+	for zoneId in data.unlockedZones do
+		assert(
+			data.lineage[zoneId] == config.LINEAGE.maxLevel,
+			"maxAll completes unlocked zone lineage for rebirth testing"
+		)
+	end
 	for _, animal in data.animals do
 		assert(animal.stage == "adult", "maxAll animals are adult")
 	end
@@ -436,6 +482,15 @@ return function(policy: any, createService: any, createLimiter: any, config: any
 	local newcomer = makePlayer(43)
 	players.PlayerAdded.fire(newcomer)
 	assert(newcomer.attributes.IsAdmin == false, "new players receive server-derived permissions")
+	now += 1
+	local oldAnimals, oldForce, oldGolden = data.animals, data.adminForce, data.golden
+	data.animals = {}
+	fire(owner, "forceGolden", "now", 5000)
+	assert(
+		not results[#results].ok and data.adminForce == oldForce and data.golden == oldGolden,
+		"a golden force with no eligible animal rejects without changing markers"
+	)
+	data.animals = oldAnimals
 	-- Herkesi sıfırla: onay değeri şart, tam bir kez çalışır (stranger zaten yukarıda reddedildi)
 	now += 1
 	fire(owner, "resetAllPlayers", "now", 5001)
@@ -443,6 +498,17 @@ return function(policy: any, createService: any, createLimiter: any, config: any
 	now += 1
 	fire(owner, "resetAllPlayers", "confirm", 5002)
 	assert(resetCalls == 1, "the owner's confirmed reset runs exactly once")
+
+	now += 1
+	failNextWeather = true
+	fire(owner, "setWeather", "snow", 5003)
+	assert(
+		not results[#results].ok and results[#results].id == 5003 and warningCount == 1,
+		"service failure returns a matching error instead of leaving the UI pending"
+	)
+	local failedResultCount = #results
+	fire(owner, "setWeather", "snow", 5003)
+	assert(#results == failedResultCount, "a failed admin request cannot replay a partly applied operation")
 
 	print(
 		"admin: actual service ownership, spoofing, numeric guards, replay, throttling, save and environment actions passed"

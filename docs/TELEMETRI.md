@@ -20,7 +20,7 @@ Tüm olaylar **sunucudan** `Services/TelemetryService.luau` ile gönderilir; saf
 | Adım | Ad | Tetik |
 |---|---|---|
 | 1 | First collect | İlk toplama (platform ya da Otomatik Toplayıcı) |
-| 2 | First animal | İlk hayvan alımı (pazar ya da gezgin tüccar) |
+| 2 | First animal | İlk hayvan alımı (pazar) |
 | 3 | First upgrade | İlk yol haritası yükseltmesi |
 | 4 | First island | İlk uzman ada |
 | 5 | Barn level 2 | Ahır Sv.2 |
@@ -39,9 +39,9 @@ oyuncular bu yüzden hunide görünmez; yalnızca sonradan geçtikleri adımlar 
 | Kaynak | Production (toplu, 60 sn) | `ProductionService`, `PetService` (para fabrikası ödülü) |
 | Kaynak | IncomePack | `MonetizationService` (gelir paketi) |
 | Kaynak | Refund | `AnimalService` (hayvan satışı iadesi) |
-| Gider | Animal (hayvan, gezgin tüccar, balık değişimi) | `AnimalService` |
+| Gider | Animal (hayvan, balık değişimi) | `AnimalService` |
 | Gider | Upgrade, Lineage, Expansion | `UpgradeService` |
-| Gider | Item | `InventoryService` |
+| Gider | Item (dükkan ve gezgin tüccar) | `InventoryService` |
 | Gider | Farm | `MainFarmService` |
 | Gider | Facility (üretim başlatma) | `ProductionService`, `PetService` |
 

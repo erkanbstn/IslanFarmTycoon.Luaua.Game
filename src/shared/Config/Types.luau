@@ -269,7 +269,7 @@ export type ProductConfig = {
 	incomeMultiplier: number?, -- Geçit: tüm hayvan gelirine çarpan
 	storageBonus: number?, -- Geçit: depo kapasitesine ek (0.5 = +%50)
 	autoCollect: boolean?, -- Geçit: baştan otomatik toplayıcı
-	effect: string?, -- Ürün: "instantProduction" | "incomePack"
+	effect: string?, -- Ürün: "instantGrowth" | "incomePack" | "goldPack" | "runDouble" | "permanentOffer"
 	incomeHours: number?, -- Ürün: "incomePack" kaç saatlik gelir verir
 	goldAmount: number?, -- Ürün: kalıcı altın paketi
 	offerId: string?, -- Ürün: kalıcı ekipman/kolaylık teklifi

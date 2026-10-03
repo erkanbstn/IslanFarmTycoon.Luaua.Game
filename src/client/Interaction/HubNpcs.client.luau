@@ -33,6 +33,7 @@ local GREETINGS: { [string]: { string } } = {
 		"Her yatırım çiftliğini büyütür, sırayı sen seç.",
 	},
 	travel = { "Hangi adaya yelken açıyoruz?", "Adalarını gezmek için tabelaya yaklaş." },
+	merchant = { "Bu ziyaret için indirimli eşyaları getirdim.", "Bir eşya seç; bu turda sana eşlik etsin." },
 }
 
 type Attached = { part: BasePart, rel: CFrame }
@@ -55,6 +56,26 @@ type Npc = {
 }
 
 local npcs: { [Model]: Npc } = {}
+
+local function setMerchantVisibility(model: Model)
+	if model:GetAttribute("Action") ~= "merchant" then
+		return
+	end
+	local active = localPlayer:GetAttribute("MerchantVisitActive") == true
+	for _, child in model:GetDescendants() do
+		if child:IsA("BasePart") then
+			child.LocalTransparencyModifier = if active then 0 else 1
+		elseif child:IsA("SurfaceGui") or child:IsA("BillboardGui") or child:IsA("ProximityPrompt") then
+			(child :: any).Enabled = active
+		end
+	end
+end
+
+localPlayer:GetAttributeChangedSignal("MerchantVisitActive"):Connect(function()
+	for model in npcs do
+		setMerchantVisibility(model)
+	end
+end)
 
 local function setup(model: Instance)
 	if not model:IsA("Model") or npcs[model] then
@@ -102,6 +123,7 @@ local function setup(model: Instance)
 		lines = if typeof(action) == "string" then GREETINGS[action] or {} else {},
 		lineIndex = 0,
 	}
+	setMerchantVisibility(model)
 end
 
 local function hideBubble(npc: Npc)
@@ -168,6 +190,11 @@ RunService.Heartbeat:Connect(function(dt: number)
 		if not model.Parent or not npc.head.Parent then
 			hideBubble(npc)
 			npcs[model] = nil
+			continue
+		end
+		if model:GetAttribute("Action") == "merchant" and localPlayer:GetAttribute("MerchantVisitActive") ~= true then
+			hideBubble(npc)
+			npc.greeted = false
 			continue
 		end
 		local distance = if playerPosition then (playerPosition - npc.torso.Position).Magnitude else math.huge

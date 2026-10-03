@@ -90,10 +90,10 @@ return function(ReceiptLog: any, FarmMath: any, Config: any, SaveCodec: any)
 	for key, product in Config.PRODUCTS.passes do
 		assert(typeof(product.id) == "number" and product.id >= 0, `pass {key} id must be a non-negative number`)
 	end
+	assert(Config.PRODUCTS.products.instant_production == nil, "production instant completion is not a paid product")
 	for key, product in Config.PRODUCTS.products do
 		assert(
-			product.effect == "instantProduction"
-				or product.effect == "instantGrowth"
+			product.effect == "instantGrowth"
 				or product.effect == "incomePack"
 				or product.effect == "goldPack"
 				or product.effect == "runDouble"

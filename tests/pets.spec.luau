@@ -124,6 +124,37 @@ return function(codec: any, config: any, farmMath: any, logic: any)
 	assert(data.production.milk_goods ~= nil, "the goods batch runs again")
 	assert(data.production.packed_milk.optionId == "medium", "the chosen batch size is repeated")
 
+	-- Uzun otomatik üretim stok tamponunda durur; tüketim olduğunda ayarı kaybetmeden devam eder.
+	local buffered = newData()
+	buffered.barnLevel = #config.BARN_LEVELS
+	buffered.autoRepeat = { milk_goods = "default" }
+	local paused = false
+	local lastTime = now
+	for step = 1, 120 do
+		lastTime = now + step * 120
+		local cycle = run(buffered, lastTime)
+		if buffered.production.milk_goods == nil and cycle.started == 0 then
+			paused = true
+		end
+	end
+	local bufferedAmount = farmMath.getGoodsAmount(buffered, "milk")
+	assert(paused and bufferedAmount > 0, "repeated production pauses when demand and reserve are covered")
+	assert(
+		bufferedAmount < farmMath.getGoodsCap(buffered),
+		"the helper leaves storage space instead of filling the barn"
+	)
+	assert(buffered.autoRepeat.milk_goods == "default", "waiting preserves the player's repeat choice")
+	if buffered.production.milk_goods then
+		run(buffered, buffered.production.milk_goods.readyAt + 1)
+	end
+	farmMath.sellGoods(buffered, "milk", "all")
+	local resumed = run(buffered, lastTime + 1000)
+	assert(
+		resumed.started == 1 and buffered.production.milk_goods ~= nil,
+		"stock consumption resumes production automatically"
+	)
+	print(`MEASURE automated milk: 120 ticks stock={bufferedAmount}; capacity={farmMath.getGoodsCap(buffered)}`)
+
 	-- Depo doluysa ürün partisi bekler (boşa gitmez)
 	local full = newData()
 	assert(

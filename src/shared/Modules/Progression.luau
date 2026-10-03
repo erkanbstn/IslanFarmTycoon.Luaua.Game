@@ -298,6 +298,9 @@ function Progression.goldCashQuote(save: any, amount: unknown, now: number): (nu
 end
 
 function Progression.finishGoldQuote(save: any, kind: unknown, id: unknown, now: number): (number?, string?)
+	if typeof(kind) ~= "string" or not Config.PROGRESSION.finishTargets[kind] then
+		return nil, "unsupported_target"
+	end
 	if typeof(id) ~= "string" then
 		return nil, "invalid_target"
 	end

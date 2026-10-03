@@ -64,15 +64,23 @@ return function(Merchant: any, Config: any, FarmMath: any)
 	local farm = newSave()
 	local offer = Merchant.offer(farm, userId, now)
 	assert(offer, "an active visit makes an offer")
-	assert(Config.ANIMALS[offer.animalId], "the offer is a real animal")
-	assert(FarmMath.findZoneForAnimal(farm, offer.animalId), "the offered animal can actually be placed")
-	assert(offer.count >= 1 and offer.count <= settings.stock, "stock is respected")
-	assert(offer.count <= FarmMath.getFreeSlots(farm, offer.animalId), "no more than the free slots")
-	assert(offer.fullPrice == FarmMath.getBulkPrice(farm, offer.animalId, offer.count), "full price is the bulk price")
 	assert(
-		offer.price == math.floor(offer.fullPrice * (1 - settings.discount)) and offer.price < offer.fullPrice,
-		"discount applied"
+		Config.ITEMS[offer.itemId] and not Config.ITEMS[offer.itemId].rewardOnly,
+		"offer is a real cash-only run item"
 	)
+	assert(offer.fullPrice == Config.ITEMS[offer.itemId].price, "normal price is the canonical item price")
+	assert(
+		offer.price == math.max(1, math.floor(offer.fullPrice * (1 - settings.discount)))
+			and offer.price < offer.fullPrice,
+		"real configured discount applied"
+	)
+	local catalogue = Merchant.status(farm, userId, now).offers
+	assert(#catalogue == settings.stock, "visit has the configured finite catalogue")
+	local seen = {}
+	for _, entry in catalogue do
+		assert(not seen[entry.itemId], "catalogue has no duplicate items")
+		seen[entry.itemId] = true
+	end
 	assert(offer.cycle == cycleAt and offer.endsAt > now, "the offer knows its cycle and departure")
 
 	-- Döngü başına bir kez; sonraki döngüde yeniden teklif edilebilir
@@ -82,23 +90,19 @@ return function(Merchant: any, Config: any, FarmMath: any)
 	assert(Merchant.offer(farm, userId, now), "a marker from an older cycle does not block this visit")
 	assert(Merchant.offer(farm, userId, now + settings.visitSeconds + 1) == nil, "no offer after the merchant leaves")
 
-	-- Yer yoksa teklif yok: başlangıç bölgesi dolunca satın alınabilir hayvan kalmaz
+	-- Ownership never rerolls new stock in the same visit, and animal capacity is irrelevant.
 	farm.merchant = nil
-	while FarmMath.findZoneForAnimal(farm, "cow") do
-		table.insert(
-			farm.animals,
-			{ uid = `x{#farm.animals}`, animalId = "cow", zoneId = "starter", bornAt = 0, stage = "adult" }
-		)
+	farm.inventory = { items = {}, equipped = {} }
+	for _, entry in catalogue do
+		farm.inventory.items[entry.itemId] = true
 	end
-	local everyAnimalBlocked = true
-	for _, animalId in Config.ANIMAL_ORDER do
-		if FarmMath.findZoneForAnimal(farm, animalId) then
-			everyAnimalBlocked = false
-		end
-	end
-	if everyAnimalBlocked then
-		assert(Merchant.offer(farm, userId, now) == nil, "a full farm gets no offer")
-	end
+	assert(Merchant.offer(farm, userId, now) == nil, "owning all fixed stock does not reroll new sale items")
+	farm.inventory.items[catalogue[1].itemId] = nil
+	assert(
+		Merchant.offer(farm, userId, now).itemId == catalogue[1].itemId,
+		"remaining offer is stable after ownership changes"
+	)
+	farm.inventory = nil
 	-- Yönetici zorlaması: ziyaret yokken bile teklif çıkar, süre bitince kaybolur
 	local quietAt: number? = nil
 	for cycle = 0, 400 do
@@ -179,8 +183,7 @@ return function(Merchant: any, Config: any, FarmMath: any)
 	assert(serverOffer and clientStatus.offer, "both sides see the offer")
 	local clientOffer: any = clientStatus.offer
 	assert(
-		clientOffer.animalId == serverOffer.animalId
-			and clientOffer.count == serverOffer.count
+		clientOffer.itemId == serverOffer.itemId
 			and clientOffer.price == serverOffer.price
 			and clientOffer.cycle == serverOffer.cycle
 			and clientOffer.endsAt == serverOffer.endsAt,
@@ -209,23 +212,15 @@ return function(Merchant: any, Config: any, FarmMath: any)
 	assert(Merchant.advance(boughtTracker, statusAt(serverNow + 5)) == nil, "buying is not a miss")
 	assert(Merchant.advance(boughtTracker, statusAt(syncVisit.endsAt + 1)) == nil, "a bought visit is never missed")
 
-	-- Al-sat marjı: en iyi eşya takımıyla satış iadesi, tüccar fiyatının altında kalmalı (tüccardan al, geri sat = kâr yok)
-	local bestPerSlot: { [string]: number } = {}
-	for _, item in Config.ITEMS do
-		local bonus = if item.effects and item.effects.sellBonus then item.effects.sellBonus else 0
-		if bonus > (bestPerSlot[item.slot] or 0) then
-			bestPerSlot[item.slot] = bonus
+	-- Reward-only items never enter a paid catalogue even over many real-time visits.
+	for cycle = 0, 100 do
+		local sample = newSave()
+		sample.adminForce = { merchantUntil = epoch + cycle * settings.cycleSeconds + 10 }
+		for _, entry in Merchant.status(sample, userId, epoch + cycle * settings.cycleSeconds).offers do
+			assert(not Config.ITEMS[entry.itemId].rewardOnly, "rebirth rewards cannot be sold by the merchant")
+			assert(entry.price >= 1 and entry.price < entry.fullPrice, "discount remains positive and real")
 		end
 	end
-	local maxSellBonus = 0
-	for _, bonus in bestPerSlot do
-		maxSellBonus += bonus
-	end
-	local maxRefund = Config.ANIMAL_SELL_FRACTION * (1 + maxSellBonus)
-	assert(
-		maxRefund < 1 - settings.discount,
-		`sell refund {maxRefund} must stay below the merchant price ratio {1 - settings.discount}`
-	)
 
 	print("PASS merchant: visit windows, frequency, offer selection, discount and once-per-visit rule")
 end

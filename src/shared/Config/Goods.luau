@@ -30,7 +30,7 @@ local data = {
 
 	-- Ahır siparişleri: pano `seconds` saniyede bir yenilenir; 8 kademe (1-6 ürün çeşidi; "toptan" tek üründen çok ister). Satır başına birim sayısı
 	-- kademe değeridir (`units`, ± `variation`; pahalı üründe küçülür), depo büyüklüğüne ya da gelire bağlı DEĞİL: sayılar küçük kalır (satır en çok `maxLineUnits`).
-	-- Ödül = ürünlerin değeri x kademe çarpanı (`rewardFactor` 1,05-2) x sipariş bonusu; oyuncunun gelirine bağlı bir taban yoktur. Ürün
+	-- Brüt ödül = ürünlerin değeri x kademe çarpanı x sipariş bonusu; ödeme referans gelirin rewardCapMinutes sınırını aşamaz. Ürün
 	-- değerleri (aşağıda, `GOODS`/`Species`) ürün merkezi partisinin asgari getirisine göre ölçülüdür (`scripts/audit-economy.py` bölüm D),
 	-- bu yüzden küçük sayılar geç oyunda da anlamlı para eder.
 	GOODS_CONTRACTS = {
@@ -39,12 +39,14 @@ local data = {
 		-- (pencere numarası ve sıra ile türetilir; sunucu ve client aynı sonucu bulur). Birim sayısı kademe değerinin
 		-- ± variation oranında değişir.
 		slots = 12,
+		guaranteedTier = "quick", -- her üretilebilir ürün için bir erişilebilir teklif; kalan slotlar ağırlıklı dağıtılır
+		reserveBatches = 2, -- ürün yardımcısı kalan siparişler ve bu kadar yedek parti için üretir
 		variation = 0.34,
 		-- Pahalı üründe satır birimi `unitRefValue / değer` ile küçülür (en az 1): tek satırın değeri ürünler arasında benzer kalır.
 		unitRefValue = 15000,
 		-- Bir satırdaki en çok birim (okunabilirlik)
-		-- Her satırın en az bu kadar adede kadar çıkabilmesi (pahalı üründe de 1-3 arası rastgele); ödül gelir tavanını (aşağıdaki) aşarsa adet düşer
-		minHighUnits = 3,
+		-- Pahalı üründe de bu adede kadar talep oluşur; gelir tavanı aşılıyorsa önce adet düşürülür, tek birim de pahalıysa ödül sınırlanır.
+		minHighUnits = 4,
 		-- Bir siparişin ödülü gelirin en çok bu kadar dakikasıdır (ECONOMY_LIMITS.maxRewardMinutes'tan küçük: test sınırı aşılmaz)
 		rewardCapMinutes = 6,
 		maxLineUnits = 12,

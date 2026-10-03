@@ -7,6 +7,7 @@ local Config = require(Shared:WaitForChild("Config"))
 local GameTypes = require(Shared:WaitForChild("GameTypes"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
+local Golden = require(Shared:WaitForChild("Modules"):WaitForChild("Golden"))
 local PlayerDataService = require(script.Parent:WaitForChild("PlayerDataService"))
 local EconomyService = require(script.Parent:WaitForChild("EconomyService"))
 local PlotService = require(script.Parent:WaitForChild("PlotService"))
@@ -84,6 +85,10 @@ local function maxFarmView(
 		for zoneId, zone in Config.ZONES do
 			if scope[zone.island] and view.unlockedZones[zoneId] then
 				expansions[zoneId] = Config.BUILD_UPGRADES.maxLevel
+				if grow and fill then
+					view.lineage = view.lineage or {}
+					view.lineage[zoneId] = Config.LINEAGE.maxLevel
+				end
 			end
 		end
 		FarmMath.applyDerived(view)
@@ -182,6 +187,7 @@ local function execute(player: Player, action: string, value: unknown): (boolean
 			return false, "Kayıt oturumu artık etkin değil"
 		end
 		EconomyService.settlePlayer(player) -- takılı eşyaların etkisi değişebilir: geçen süre eski etkiyle kapanır
+		local previousSpeeds = FarmMath.snapshotGrowthSpeeds(data)
 		local inventory: GameTypes.InventoryData = (if action == "clearItems" then nil else data.inventory)
 			or { items = {}, equipped = {}, uses = {} }
 		data.inventory = inventory
@@ -190,6 +196,7 @@ local function execute(player: Player, action: string, value: unknown): (boolean
 				inventory.items[itemId] = true
 			end
 		end
+		FarmMath.preserveGrowthProgress(data, previousSpeeds, os.time())
 		PlayerDataService.pushState(player)
 		PlayerDataService.requestSave(player)
 		PlotService.refreshPlayerWorld(player)
@@ -227,13 +234,24 @@ local function execute(player: Player, action: string, value: unknown): (boolean
 		if not data then
 			return false, "Kayıt oturumu artık etkin değil"
 		end
+		if action == "forceGolden" then
+			-- Gerçek olayın uygunluk kuralını kullan; boş/çalışan çiftlikte başarı bildirimi verme.
+			local preview = table.clone(data)
+			local previewForce: { [string]: any } = table.clone(data.adminForce or {})
+			previewForce.goldenUntil = os.time() + Config.GOLDEN.windowSeconds
+			preview.adminForce = previewForce
+			preview.golden = nil
+			if not Golden.current(preview, player.UserId, os.time()) then
+				return false, "Altın hayvan için açık bir bölgede boştaki yetişkin hayvan gerekir."
+			end
+		end
 		local force: { [string]: any } = data.adminForce or {}
 		data.adminForce = force
 		local message = ""
 		if action == "forceMerchant" then
 			force.merchantUntil = os.time() + Config.MERCHANT.visitSeconds
 			data.merchant = nil
-			message = "Gezgin tüccar geldi (Pazar penceresine bak)"
+			message = "Gezgin tüccar geldi. Meydandaki tezgâhı ziyaret edebilirsin."
 		elseif action == "forceGolden" then
 			force.goldenUntil = os.time() + Config.GOLDEN.windowSeconds
 			data.golden = nil
@@ -261,6 +279,8 @@ local function execute(player: Player, action: string, value: unknown): (boolean
 		if not data then
 			return false, "Kayıt oturumu artık etkin değil"
 		end
+		-- Yetişkin sayısı/yükseltmeler değişmeden önce geçen süre eski gelirle kapatılır.
+		EconomyService.settlePlayer(player)
 		-- Değer: "now" = seçili ada, "all" = bütün adalar, ya da bir ada kimliği (kilitli adayı seçmek mümkün olmadığı için)
 		local selected = player:GetAttribute("SelectedFarmIsland")
 		local islandIds: { string } = {}
@@ -369,7 +389,13 @@ local function onRequest(player: Player, action: unknown, value: unknown, reques
 		end
 		return
 	end
-	local ok, message = execute(player, actionName, value)
+	local completed, ok, message = pcall(execute, player, actionName, value)
+	if not completed then
+		warn(`[Admin] {actionName} işlemi tamamlanamadı`)
+		Remotes.get("AdminResult")
+			:FireClient(player, id, false, "İşlem tamamlanamadı. Yeniden denemeden önce durumu kontrol et.")
+		return
+	end
 	Remotes.get("AdminResult"):FireClient(player, id, ok, message)
 end
 

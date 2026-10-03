@@ -1,14 +1,6 @@
 --!strict
--- Hayvan servisi: gerçek servis kaynağı; sahip, parası yok, tekrar istek, yanlış çiftlik, hız sınırı, satış ve tüccar.
-return function(
-	createService: any,
-	createHarness: any,
-	createLimiter: any,
-	codec: any,
-	config: any,
-	farmMath: any,
-	merchant: any
-)
+-- Hayvan servisi: gerçek servis kaynağı; sahip, parası yok, tekrar istek, yanlış çiftlik, hız sınırı ve satış.
+return function(createService: any, createHarness: any, createLimiter: any, codec: any, config: any, farmMath: any)
 	local harness = createHarness(createLimiter, codec, config, farmMath)
 	local function setup(): any
 		local h = harness.new()
@@ -168,26 +160,6 @@ return function(
 		wrongSell and wrongSell.ok == false and string.find(wrongSell.message, "Etkin çiftlik", 1, true) ~= nil,
 		"farm"
 	)
-
-	-- Gezgin tüccar: teklif yokken reddedilir; teklif varken bir kez alınır, tekrar alınamaz
-	local trader = setup()
-	local tdata = trader.data
-	local noOffer = trader.fire("RequestBuyMerchantOffer", nil, trader.nextId(), tdata.activeMainFarmId)
-	assert(noOffer and noOffer.ok == false, "no offer, no purchase")
-	tdata.adminForce = { merchantUntil = trader.now + 600 }
-	local offer = assert(merchant.offer(tdata, trader.player.UserId, trader.now), "the forced visit makes an offer")
-	tdata.cash = offer.price - 1
-	local poor = trader.fire("RequestBuyMerchantOffer", nil, trader.nextId(), tdata.activeMainFarmId)
-	assert(poor and poor.ok == false and tdata.merchant == nil, "an unaffordable offer is refused")
-	tdata.cash = offer.price
-	local animalsBeforeOffer = #tdata.animals
-	local bought = trader.fire("RequestBuyMerchantOffer", nil, trader.nextId(), tdata.activeMainFarmId)
-	assert(bought and bought.ok == true and tdata.cash == 0, "the offer is bought at the server price")
-	assert(#tdata.animals == animalsBeforeOffer + offer.count, "the offered animals arrive")
-	assert(tdata.merchant and tdata.merchant.bought == true, "the bought mark is written immediately")
-	tdata.cash = offer.price
-	local again = trader.fire("RequestBuyMerchantOffer", nil, trader.nextId(), tdata.activeMainFarmId)
-	assert(again and again.ok == false and tdata.cash == offer.price, "a second purchase in the same visit is refused")
 
 	-- Ürünle takas: ürünler düşer + hayvan gelir (tek adım), nakit harcanmaz; yetmeyen ürün, dolu bölge, tekrar, yanlış çiftlik reddedilir
 	local barter = setup()
@@ -401,6 +373,6 @@ return function(
 		"replacement resumes after the task ends and charges the server price"
 	)
 	print(
-		"PASS animal service: actual service ownership, no-cash, replay, stale farm, throttling, sell, merchant and fish guards"
+		"PASS animal service: actual service ownership, no-cash, replay, stale farm, throttling, sell and fish guards"
 	)
 end

@@ -132,6 +132,14 @@ local function create(parent: Instance): UiKit.Window
 		card.title.Text = recipe.displayName
 		local details = UiKit.disclosure(card.frame, 20, "Ayrıntılar")
 		local detailsLabel = UiKit.text(details.body, recipe.description, "Caption")
+		if recipe.output == "goods" then
+			local repeatHelp = UiKit.text(
+				details.body,
+				"Siparişler ve iki parti yedek için üretir; stok yeterliyse bekler, tüketilince sürdürür.",
+				"Caption"
+			)
+			repeatHelp.LayoutOrder = 6
+		end
 		local progress, fill = UiKit.progressBar(card.frame, 5)
 		progress.LayoutOrder = 3
 		local keep = UiKit.button(card.frame, "Civcivi kümese ekle", "primary")
