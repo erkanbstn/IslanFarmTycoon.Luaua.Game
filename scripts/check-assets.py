@@ -97,7 +97,7 @@ def expected() -> dict[str, set[str]]:
     )
     exp["Lineage"] = {f"LineageMonument_Lv{i}" for i in range(1, 11)}
     exp["FacilityProps"] = (
-        {"BuildSite_Unbuilt"}
+        {"BuildSite_Unbuilt", "BuyPad"}
         | {f"FacilityProps_Lv{i}" for i in range(1, 6)}
         | {f"FacilityRings_Lv{i}" for i in range(1, 6)}
     )
@@ -242,6 +242,51 @@ def inspect(path: Path, folder: str) -> list[str]:
             problems.append("tabela eksik: 1 SignBoard + 2 SignPost gerekir")
     if folder in ("Animals", "Pets") and model.find("Properties/Ref[@name='PrimaryPart']") is None:
         problems.append("PrimaryPart yok")
+    if folder == "FacilityProps" and path.stem in ("BuyPad", "BuildSite_Unbuilt"):
+        problems.extend(facility_contract_problems(model, path.stem))
+    return problems
+
+
+def facility_contract_problems(model: ET.Element, name: str) -> list[str]:
+    """Kodun parça adıyla bulduğu satın alma/yapım alanı geometrisini koru."""
+    problems: list[str] = []
+    pivot = model.find("Properties/OptionalCoordinateFrame[@name='WorldPivotData']/CFrame")
+    if pivot is not None:
+        identity = {"X": 0, "Y": 0, "Z": 0, "R00": 1, "R01": 0, "R02": 0,
+                    "R10": 0, "R11": 1, "R12": 0, "R20": 0, "R21": 0, "R22": 1}
+        if any(pivot.find(key) is None or abs(float(pivot.find(key).text) - value) > 0.0001
+               for key, value in identity.items()):
+            problems.append("zemin pivotu sıfır ve dönüşü birim olmalı")
+    primary = model.find("Properties/Ref[@name='PrimaryPart']")
+    if primary is not None and primary.text not in (None, "null"):
+        problems.append("PrimaryPart olmamalı (zemin pivotu kullanılır)")
+    children = model.findall("Item")
+    required = ("Pad", "Ring", "Inner", "Coin") if name == "BuyPad" else ("SignPole", "SiteSign")
+    for part_name in required:
+        matches = [item for item in children
+                   if item.findtext("Properties/string[@name='Name']") == part_name]
+        if len(matches) != 1 or matches[0].get("class") != "Part":
+            problems.append(f"doğrudan çocuk olarak tam bir Part {part_name} gerekir")
+    if name == "BuyPad":
+        parts = [item for item in model.iter("Item") if item.get("class") in ("Part", "WedgePart")]
+        if len(parts) > 14:
+            problems.append(f"BuyPad bütçesi <=14 parça ({len(parts)} var)")
+        for item in parts:
+            part_name = item.findtext("Properties/string[@name='Name']")
+            for flag in ("CanCollide", "CanQuery", "CanTouch"):
+                if item.findtext(f"Properties/bool[@name='{flag}']") != "false":
+                    problems.append(f"{part_name}: {flag}=false olmalı")
+        for item in children:
+            part_name = item.findtext("Properties/string[@name='Name']")
+            if part_name in required and item.findtext("Properties/token[@name='Shape']") != "2":
+                problems.append(f"{part_name}: Cylinder (Shape=2) olmalı")
+    else:
+        for item in children:
+            part_name = item.findtext("Properties/string[@name='Name']")
+            if part_name in required:
+                expected_flag = "true" if part_name == "SignPole" else "false"
+                if item.findtext("Properties/bool[@name='CanCollide']") != expected_flag:
+                    problems.append(f"{part_name}: CanCollide={expected_flag} olmalı")
     return problems
 
 

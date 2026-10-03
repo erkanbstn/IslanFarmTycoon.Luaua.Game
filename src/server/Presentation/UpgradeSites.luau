@@ -22,44 +22,47 @@ local makePart = UpgradeParts.makePart
 -- Yapım alanı: satın alınabilir ama henüz alınmamış bir binanın yeri. Toprak zemin, kazıklar, sarı şerit ve fiyatlı
 -- küçük bir tabela; alınınca kaldırılır ve yerine bina kurulur (oyuncu neyin nereye geleceğini görür).
 local SITE_HALF = 4.4
+local warnedSiteAsset = false
 
 local function buildSite(upgrade: Config.UpgradeConfig, spot: BasePart, parent: Instance, priceText: string)
-	local site = Instance.new("Model")
+	local site = ModelAssets.clone("FacilityProps", "BuildSite_Unbuilt")
+	if not site then
+		if not warnedSiteAsset then
+			warn("[UpgradeSites] FacilityProps/BuildSite_Unbuilt modeli eksik")
+			warnedSiteAsset = true
+		end
+		return
+	end
+	local board = site:FindFirstChild("SiteSign")
+	local pole = site:FindFirstChild("SignPole")
+	if not board or not board:IsA("BasePart") or not pole or not pole:IsA("BasePart") then
+		site:Destroy()
+		if not warnedSiteAsset then
+			warn("[UpgradeSites] BuildSite_Unbuilt içinde SiteSign/SignPole eksik")
+			warnedSiteAsset = true
+		end
+		return
+	end
 	site.Name = upgrade.id
 	site:SetAttribute("UpgradeId", upgrade.id)
 	local base = spot.CFrame
-	local function piece(name: string, size: Vector3, offset: CFrame, color: Color3, material: Enum.Material): Part
-		local p = makePart(site, name, size, base * offset, color, material)
-		p.CanCollide = false
-		p.CanQuery = false
-		return p
-	end
-	-- Hazır model (assets/FacilityProps/BuildSite_Unbuilt: toprak, kazıklar, şeritler); tabela, direk ve satın alma istemi kodla eklenir
-	ModelAssets.place(site, "FacilityProps", "BuildSite_Unbuilt", base)
-	-- Fiyat tabelası: ön köşede (yürüme yolunu kapatmaz: tahta yüksekte, direk ince)
-	local pole = piece(
-		"SignPole",
-		Vector3.new(0.4, 6, 0.4),
-		CFrame.new(0, 3, -SITE_HALF - 1.4),
-		Color3.fromRGB(110, 80, 50),
-		Enum.Material.Wood
-	)
-	pole.CanCollide = true
-	local board = piece(
-		"SiteSign",
-		Vector3.new(5.6, 1.9, 0.3),
-		CFrame.new(0, 6.6, -SITE_HALF - 1.4),
-		Color3.fromRGB(85, 60, 40),
-		Enum.Material.WoodPlanks
-	)
+	site:PivotTo(base)
 	WorldUi.sign(board, Enum.NormalId.Front, {
 		icon = upgrade.icon,
 		title = upgrade.displayName,
 		text = `Yapım alanı · {priceText}`,
 	})
 	-- Tabelaya yaklaşınca "Satın al": satın almayı BuyPadService sunucuda doğrular (UpgradeService.tryBuy).
-	local promptAnchor =
-		piece("SitePromptAnchor", Vector3.one * 0.2, CFrame.new(0, 2.6, -SITE_HALF - 1.4), METAL, Enum.Material.Metal)
+	local promptAnchor = makePart(
+		site,
+		"SitePromptAnchor",
+		Vector3.one * 0.2,
+		base * CFrame.new(0, 2.6, -SITE_HALF - 1.4),
+		METAL,
+		Enum.Material.Metal
+	)
+	promptAnchor.CanCollide = false
+	promptAnchor.CanQuery = false
 	promptAnchor.Transparency = 1
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.Name = "BuySitePrompt"
