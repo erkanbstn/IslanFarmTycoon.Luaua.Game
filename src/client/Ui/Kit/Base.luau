@@ -117,7 +117,7 @@ function Base.iconChip(parent: Instance, icon: string, size: number, tint: Color
 	chip.Name = "Icon"
 	chip.Size = UDim2.fromOffset(size, size)
 	chip.BackgroundColor3 = tint or Tokens.Color.SurfaceRaised
-	chip.BackgroundTransparency = if tint then 0.75 else 0
+	chip.BackgroundTransparency = if tint then 0.82 else 0
 	chip.Text = icon
 	chip.TextScaled = true
 	chip.FontFace = Tokens.Font.Body
@@ -135,13 +135,13 @@ end
 function Base.panel(parent: Instance): Frame
 	local f = Instance.new("Frame")
 	f.BackgroundColor3 = Tokens.Color.Panel
-	f.BackgroundTransparency = 0.08
+	f.BackgroundTransparency = 0
 	f.Parent = parent
 	Base.corner(f, Tokens.Radius.Panel)
 	Base.stroke(f, 0.78)
 	-- Üstten alta hafif renk geçişi: düz gri yerine canlı, derinlikli yüzey
 	local gradient = Instance.new("UIGradient")
-	gradient.Color = ColorSequence.new(Tokens.Color.Panel:Lerp(Tokens.Color.Blue, 0.28), Tokens.Color.Panel)
+	gradient.Color = ColorSequence.new(Tokens.Color.Panel, Tokens.Color.Panel:Lerp(Tokens.Color.PreviewMint, 0.14))
 	gradient.Rotation = 90
 	gradient.Parent = f
 	return f

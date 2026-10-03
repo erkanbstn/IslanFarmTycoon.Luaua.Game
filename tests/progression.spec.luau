@@ -121,7 +121,7 @@ return function(Progression: any, FarmMath: any, Config: any, SaveCodec: any)
 	for id in Config.PROGRESSION.perks do
 		save.progression.perks[id] = 5
 	end
-	assert(Progression.canChoosePerk(save, "prestige"), "prestige available after forty perk levels")
+	assert(not Progression.canChoosePerk(save, "prestige"), "thirty rebirth limit replaces unlimited prestige resets")
 	save = fresh()
 	save.progression.count = 5
 	save.progression.perks.ready_start = 5

@@ -2,6 +2,7 @@
 -- Eşya karolarında oyundaki modelin sabit önizlemesi; aynı kimlik için yeniden klonlanmaz.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 local UiKit = require(script.Parent.Parent:WaitForChild("UiKit"))
 
 local ItemPreview = {}
@@ -29,11 +30,19 @@ function ItemPreview.mount(icon: TextLabel, itemId: string?)
 	viewport:SetAttribute("ItemId", itemId)
 	viewport.Size = UDim2.fromScale(1, 1)
 	viewport.BackgroundTransparency = 1
-	viewport.Ambient = UiKit.Color.Text
-	viewport.LightColor = UiKit.Color.Cream
+	viewport.Ambient = UiKit.Color.PreviewAmbient
+	viewport.LightColor = UiKit.Color.OnAccent
 	viewport.LightDirection = Vector3.new(-1, -1, -1)
 	viewport.Parent = icon
-	icon.Size = UDim2.new(1, 0, 0, 52)
+	icon.Size = UDim2.new(1, 0, 0, 72)
+	local item = Config.ITEMS[itemId]
+	local slot = if item then item.slot else nil
+	icon.BackgroundColor3 = if slot == "tool"
+		then UiKit.Color.PreviewSun
+		elseif slot == "staff" then UiKit.Color.PreviewSky
+		elseif slot == "charm" then UiKit.Color.PreviewMint
+		else UiKit.Color.PreviewLavender
+	icon.BackgroundTransparency = 0
 	local world = Instance.new("WorldModel")
 	world.Parent = viewport
 	local model = template:Clone()
@@ -79,7 +88,10 @@ function ItemPreview.mount(icon: TextLabel, itemId: string?)
 		camera.CFrame = CFrame.new(direction.Unit * distance * 1.12) * rotation
 	end
 	fitCamera()
-	viewport:GetPropertyChangedSignal("AbsoluteSize"):Connect(fitCamera)
+	local resized = viewport:GetPropertyChangedSignal("AbsoluteSize"):Connect(fitCamera)
+	viewport.Destroying:Connect(function()
+		resized:Disconnect()
+	end)
 	icon.Text = ""
 end
 

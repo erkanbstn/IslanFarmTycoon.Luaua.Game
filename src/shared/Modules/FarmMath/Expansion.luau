@@ -184,7 +184,7 @@ function Expansion.getFacilityDuration(
 	optionId: string?
 ): number
 	local resolved = Recipes.resolve(recipe, optionId)
-	local faster = 1 - math.clamp(Core.getBonus(save, "facilitySpeed"), 0, 0.5) -- eşya ve ada özellikleri
+	local faster = 1 - math.clamp(Core.getBonus(save, "facilitySpeed"), -0.5, 0.5) -- çanta bedeli hızı azaltabilir; iki yönde sınırlı
 	return math.max(10, math.floor(resolved.duration * Expansion.getBuildMultiplier(save, recipe.id, "speed") * faster))
 end
 

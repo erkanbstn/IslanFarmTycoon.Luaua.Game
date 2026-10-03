@@ -49,6 +49,25 @@ return function(
 		return h.fire("RequestBuyItem", itemId, requestId or h.nextId())
 	end
 
+	local rewardShop = setup()
+	rewardShop.data.cash = 1e12
+	local rewardCash = rewardShop.data.cash
+	for _, milestone in config.PROGRESSION.milestones do
+		if milestone.itemId then
+			assert(
+				not buy(rewardShop, milestone.itemId).ok,
+				"earned-only reward cannot be forged through the cash remote"
+			)
+			assert(
+				not rewardShop.data.inventory.items[milestone.itemId],
+				"cash remote never grants locked rebirth cosmetics"
+			)
+		end
+	end
+	assert(
+		rewardShop.data.cash == rewardCash and rewardShop.counters.saves == 0,
+		"earned-only attempts never debit or persist"
+	)
 	-- Satın alma: fiyat sunucuda okunur, sahiplik yazılır, boş slota otomatik takılır
 	local h = setup()
 	local data = h.data

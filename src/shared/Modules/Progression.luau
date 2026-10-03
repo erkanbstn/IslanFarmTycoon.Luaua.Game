@@ -7,6 +7,7 @@ local Progression = {}
 Progression.permanentOffers = Config.PROGRESSION.permanentOffers
 Progression.getPerkLevel = FarmMath.getPerkLevel
 Progression.getPerkBonus = FarmMath.getPerkBonus
+Progression.getMilestoneBonus = FarmMath.getMilestoneBonus
 Progression.isReturnActive = FarmMath.isReturnActive
 
 local requiredByFarm: { [string]: { string } } = {}
@@ -55,6 +56,93 @@ local function farmView(root: any, farmId: string): any?
 	return if root.mainFarms then root.mainFarms[farmId] else nil
 end
 
+function Progression.getMilestone(level: number): any?
+	return if level % 1 == 0
+			and level >= 1
+			and level <= Config.PROGRESSION.maxRebirth
+		then Config.PROGRESSION.milestones[level]
+		else nil
+end
+
+function Progression.getCompletionRequirements(root: any): any
+	local count = if root.progression then root.progression.count else 0
+	local selected = Config.PROGRESSION.completionRequirements[1]
+	for _, requirement in Config.PROGRESSION.completionRequirements do
+		if count >= requirement.fromCount then
+			selected = requirement
+		end
+	end
+	return selected
+end
+
+-- Sunucu, arayüz ve simülatör aynı satın alınabilir hedefleri izler.
+function Progression.getRebirthTargets(root: any, farmId: string): { any }
+	local requirement = Progression.getCompletionRequirements(root)
+	local targets: { any } = {}
+	local theme = Config.getTheme(farmId)
+	for _, zoneId in Config.ZONE_ORDER do
+		local zone = Config.ZONES[zoneId]
+		if zone.island == "home" or table.find(theme.satellites, zone.island) then
+			local level = if zoneId == "starter"
+				then math.max(requirement.homeExpansionLevel, requirement.zoneExpansionLevel)
+				else requirement.zoneExpansionLevel
+			if level > 0 then
+				table.insert(targets, { kind = "expansion", id = zoneId, level = level })
+			end
+		end
+	end
+	if requirement.homeLineageLevel > 0 then
+		table.insert(targets, { kind = "lineage", id = theme.homeAnimal, level = requirement.homeLineageLevel })
+	end
+	if requirement.homeFacilityLevel > 0 then
+		for recipeId, recipe in Config.PRODUCTION_RECIPES do
+			if recipe.island == "home" and recipe.output == "cash" and recipe.animalId == theme.homeAnimal then
+				table.insert(targets, { kind = "expansion", id = recipeId, level = requirement.homeFacilityLevel })
+			end
+		end
+	end
+	return targets
+end
+
+function Progression.isRebirthFarmComplete(root: any, farmId: string): boolean
+	if not Progression.isFarmComplete(root, farmId) then
+		return false
+	end
+	local farm = farmView(root, farmId)
+	if not farm then
+		return false
+	end
+	if not farm then
+		return false
+	end
+	for _, target in Progression.getRebirthTargets(root, farmId) do
+		local level = if target.kind == "lineage"
+			then FarmMath.getLineageLevel(farm, target.id)
+			else FarmMath.getExpansionLevel(farm, target.id)
+		if level < target.level then
+			return false
+		end
+	end
+	return true
+end
+
+function Progression.grantRebirthRewards(root: any): boolean
+	local changed = false
+	root.owned = root.owned or { items = {}, conveniences = {} }
+	root.inventory = root.inventory or { items = {}, equipped = {}, uses = {} }
+	for level = 1, math.min(if root.progression then root.progression.count else 0, Config.PROGRESSION.maxRebirth) do
+		local itemId = Config.PROGRESSION.milestones[level].itemId
+		if itemId then
+			if not root.owned.items[itemId] or not root.inventory.items[itemId] then
+				changed = true
+			end
+			root.owned.items[itemId] = true
+			root.inventory.items[itemId] = true
+		end
+	end
+	return changed
+end
+
 function Progression.isIslandComplete(save: any, islandId: string, farmId: string?): boolean
 	local id = farmId or save.farmId or save.activeMainFarmId
 	local farm = if id then farmView(save, id) else nil
@@ -94,16 +182,22 @@ function Progression.progress(root: any): any
 		local id = tostring(index)
 		if farmView(root, id) then
 			owned += 1
-			if Progression.isFarmComplete(root, id) then
+			if Progression.isRebirthFarmComplete(root, id) then
 				complete += 1
 			end
 		end
 	end
+	local count = if root.progression then root.progression.count else 0
 	return {
 		farmsOwned = owned,
 		farmsComplete = complete,
 		farmsTotal = Config.MAIN_FARM_LIMIT,
-		canRebirth = owned == Config.MAIN_FARM_LIMIT and complete == Config.MAIN_FARM_LIMIT,
+		canRebirth = count < Config.PROGRESSION.maxRebirth
+			and owned == Config.MAIN_FARM_LIMIT
+			and complete == Config.MAIN_FARM_LIMIT,
+		nextLevel = math.min(count + 1, Config.PROGRESSION.maxRebirth),
+		maxRebirth = Config.PROGRESSION.maxRebirth,
+		requirements = Progression.getCompletionRequirements(root),
 	}
 end
 
@@ -112,16 +206,14 @@ function Progression.canRebirth(root: any): boolean
 end
 
 function Progression.canChoosePerk(save: any, id: unknown): boolean
+	if save.progression and save.progression.count >= Config.PROGRESSION.maxRebirth then
+		return false
+	end
 	if typeof(id) ~= "string" then
 		return false
 	end
 	if id == "prestige" then
-		for perkId, definition in Config.PROGRESSION.perks do
-			if Progression.getPerkLevel(save, perkId) < definition.maxLevel then
-				return false
-			end
-		end
-		return true
+		return false
 	end
 	local definition = Config.PROGRESSION.perks[id]
 	return definition ~= nil and Progression.getPerkLevel(save, id) < definition.maxLevel
@@ -140,7 +232,7 @@ function Progression.collectGold(root: any, now: number): number
 		state = Progression.defaults(now, root.lifetimeEarned)
 		root.progression = state
 	end
-	local bonus = if state.count >= 10 then 0.2 elseif state.count >= 3 then 0.1 else 0
+	local bonus = Progression.getMilestoneBonus(root, "goldBonus")
 	local earned = 0
 	local balance = root.gold or 0
 	for index = 1, Config.MAIN_FARM_LIMIT do
@@ -234,13 +326,18 @@ function Progression.finishGoldQuote(save: any, kind: unknown, id: unknown, now:
 	elseif remaining <= 0 then
 		return nil, "already_ready"
 	end
-	local discount = if save.progression and save.progression.count >= 5 then 0.1 else 0
+	local discount = Progression.getMilestoneBonus(save, "finishDiscount")
 	return math.max(1, math.ceil(remaining / 60 * (1 - discount))), nil
 end
 
 function Progression.getStartingCash(save: any, farmId: string?): number
 	local id = farmId or save.farmId or save.activeMainFarmId
-	return Config.getStartingCash(id) * (1 + Progression.getPerkBonus(save, "startingAnimals"))
+	return Config.getStartingCash(id)
+		* (
+			1
+			+ Progression.getPerkBonus(save, "startingAnimals")
+			+ Progression.getMilestoneBonus(save, "startingAnimals")
+		)
 end
 
 function Progression.applyReadyStart(save: any, now: number, newUid: () -> string)

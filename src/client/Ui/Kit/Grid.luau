@@ -10,7 +10,7 @@ local Controls = require(script.Parent:WaitForChild("Controls"))
 local Grid = {}
 
 local TILE_WIDTH = 108
-local TILE_HEIGHT = 236
+local TILE_HEIGHT = 260
 local COMPACT_TILE_HEIGHT = 124 -- aksiyon düğmesiz karolar (ör. ahır deposu)
 local GAP = 8
 
@@ -170,8 +170,8 @@ function Grid.tabs(
 	local function choose(id: string)
 		for buttonId, button in buttons do
 			local active = buttonId == id
-			button.BackgroundColor3 = if active then Tokens.Color.Gold else Tokens.Color.SurfaceRaised
-			button.TextColor3 = if active then Tokens.Color.Panel else Tokens.Color.Text
+			button.BackgroundColor3 = if active then Tokens.Color.Teal else Tokens.Color.SurfaceRaised
+			button.TextColor3 = if active then Tokens.Color.OnAccent else Tokens.Color.Text
 		end
 	end
 	for index, entry in entries do

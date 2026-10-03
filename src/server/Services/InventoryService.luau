@@ -212,6 +212,9 @@ function InventoryService.tryBuy(player: Player, itemId: unknown): (boolean, str
 		return false, "Veri henüz yüklenmedi"
 	end
 	local item = Config.ITEMS[itemId]
+	if item.rewardOnly then
+		return false, "Bu eşya yalnızca rebirth ilerlemesiyle kazanılır."
+	end
 	if Inventory.owns(data, itemId) then
 		return false, "Bu eşyaya zaten sahipsin"
 	end

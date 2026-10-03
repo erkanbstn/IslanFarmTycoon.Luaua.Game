@@ -1,5 +1,5 @@
 --!strict
--- Eşya Dükkânı: meydandaki satıcıdan oyun parasıyla eşya alınır (bir kez, kalıcı). Satın alınan eşya Envanter'den takılır.
+-- Eşya Dükkânı: nakit eşyalar tur içindir; kalıcı ve rebirth ödülü sahiplikler korunur.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -20,6 +20,12 @@ local Color = UiKit.Color
 local setPurchaseButton = HudCommon.setPurchaseButton
 
 local ItemShopWindow = {}
+local rewardLevels: { [string]: number } = {}
+for level, milestone in Config.PROGRESSION.milestones do
+	if milestone.itemId then
+		rewardLevels[milestone.itemId] = level
+	end
+end
 
 export type Shop = {
 	window: UiKit.Window,
@@ -66,7 +72,7 @@ function ItemShopWindow.create(screenGui: Instance, openPermanent: (() -> ())?):
 			card.detail.Text = ItemText.describe(item)
 			cards[item.id] = card
 			card.action.Activated:Connect(function()
-				if card.action.Active then
+				if card.action.Active and not item.rewardOnly then
 					PurchaseController.submit("RequestBuyItem", item.id)
 				end
 			end)
@@ -82,7 +88,10 @@ function ItemShopWindow.create(screenGui: Instance, openPermanent: (() -> ())?):
 		for itemId, card in cards do
 			local item = Config.ITEMS[itemId]
 			local permanent = state.owned ~= nil and state.owned.items[itemId] == true
-			UiKit.setText(card.detail, `{if permanent then "Kalıcı" else "Bu tur"} · {ItemText.describe(item)}`)
+			UiKit.setText(
+				card.detail,
+				`{if permanent then "Kalıcı" else "Bu tur"} · {ItemText.slotNotice(item)}\n{ItemText.describe(item)}`
+			)
 			ItemPreview.mount(card.icon, itemId)
 			if Inventory.owns(state, itemId) then
 				setPurchaseButton(
@@ -90,6 +99,9 @@ function ItemShopWindow.create(screenGui: Instance, openPermanent: (() -> ())?):
 					if permanent then "Kalıcı olarak sahipsin" else "Sahipsin · Bu tur",
 					"owned"
 				)
+			elseif item.rewardOnly then
+				UiKit.setText(card.detail, `Rebirth ödülü · {ItemText.slotNotice(item)}\n{ItemText.describe(item)}`)
+				setPurchaseButton(card.action, `R{rewardLevels[itemId] or 0} ödülü · Oynayarak kazan`, "disabled")
 			else
 				setPurchaseButton(
 					card.action,

@@ -29,9 +29,9 @@ Katman: `src/client/Ui/` (UiKit, FarmHud, `Hud/*`, paneller, `IslandManager`, `I
 |---|---|
 | Sol orta | `Stats` paneli (sola kayarak kapanır; sağ kenarında sekme): ada adı, para+gelir, ahır, depo, mevsim/hava kartı, sıradaki hedef ve sıradaki ada |
 | Üst orta | `MenuTop` karo çubuğu: Pazar, Yükseltmeler, Yol Haritası, Üretim, Adalar (bildirimler bunun altında) |
-| Sağ orta | `MenuSide` karo sütunu: Envanter, Ödüller, Destek (yalnızca ürün kimlikleri girilince: `StoreSection.isForSale`), Adama Dön, Ayarlar, (yönetici) Yönetici |
+| Sağ orta | `MenuSide` karo sütunu: Envanter, Ödüller, Market (kimlik 0 iken katalog görünür, ödeme kapalı), Rebirth (hazırsa), Adama Dön, Ayarlar, (yönetici) Yönetici |
 | Sağ (pencere) | Pazar / Yol Haritası / Yükseltmeler pencereleri (`WINDOW_POSITION`) |
-| Orta (pencere) | Ödüller (günlük ödül, mevsim hedefi, başarımlar), Sipariş Panosu, Destek Dükkânı, Eşya Dükkânı, Envanter (birbirini kapatır: `openCenter`; meydan satıcıları ve pazar tezgâhı ilgili pencereyi açar) |
+| Orta (pencere) | Ödüller, Sipariş Panosu, Market (Robux katalog, kalıcı altın teklifleri, altın çevirme ve hızlı bitirme), Eşya Dükkânı, Envanter. UiKit pencere kaydıyla birbirini kapatır; meydan satıcıları ve pazar tezgâhı ilgili pencereyi açar |
 | Üst orta | Bildirimler (toast) |
 | Sağ üst / sol üst | Roblox oyuncu listesi ve sohbet — HUD buraya bir şey koymaz |
 
@@ -63,7 +63,7 @@ Katman: `src/client/Ui/` (UiKit, FarmHud, `Hud/*`, paneller, `IslandManager`, `I
 
 - HUD ana betiği `src/client/Ui/FarmHud.client.luau` yalnızca orkestrasyondur (ekranı kurar, modülleri bağlar, durumu dağıtır). Pencereler ve
   bölümler `src/client/Ui/Hud/` altındadır: `StatsPanel` (sol panel), `GoalCard` (hedef/ada kartları), `MenuBar` (üst menü çubuğu + sağ sütun + rozetler), `Celebration`, `ShopWindow`, `RoadmapWindow`, `UpgradesWindow`, `IslandTabs`, `StoreSection`,
-  `RewardsSection`, `BoardSection`, `ItemShopWindow` + `InventoryWindow` (+ ortak `ItemText`), `SeasonBar`, `Onboarding` (ilk adımlar: `shared/Modules/OnboardingSteps` ile durumdan türetilir, kayıt alanı yok; `UiKit.pulse` vurgusu + `TutorialGuide` özniteliğiyle CollectorGuide ışını), ortak `HudCommon` (`setPurchaseButton`, `purchaseHint`). Yeni pencere/bölüm
+  `RewardsSection`, `BoardSection`, `MarketWindow` (StoreSection katalog, altın cüzdanı/çevirme/hızlı bitirme), `ItemShopWindow` + `InventoryWindow` (+ ortak `ItemText`), `SeasonBar`, `Onboarding` (ilk adımlar: `shared/Modules/OnboardingSteps` ile durumdan türetilir, kayıt alanı yok; `UiKit.pulse` vurgusu + `TutorialGuide` özniteliğiyle CollectorGuide ışını), ortak `HudCommon` (`setPurchaseButton`, `purchaseHint`). Yeni pencere/bölüm
   eklerken ana betiğe yığmak yerine buraya `create(...)` + `update(state)` kalıbıyla yeni modül yaz.
 - Mevsim/hava: ReplicatedStorage attribute'larını doğrudan okuma/dinleme; `Environment.getSeason()/getWeather()` ve `Environment.onChanged` kullan (asa ile oyuncuya özel katman otomatik uygulanır).
 - Ada bağlamı: paneller `IslandContext.get()` adasını gösterir. Açık adaya girince `IslandAutoSelect` sunucuda gerçek seçim yapar; kilitli adaya girince yalnızca

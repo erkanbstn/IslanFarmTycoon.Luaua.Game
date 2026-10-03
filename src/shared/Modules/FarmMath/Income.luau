@@ -397,9 +397,11 @@ function Income.getOfflineTerms(save: PlayerSave): (number, number)
 	local baseRate = if upgraded then Config.OFFLINE_UPGRADED_EARNING_RATE else Config.OFFLINE_EARNING_RATE
 	local hours = (if upgraded then Config.OFFLINE_UPGRADED_MAX_HOURS else Config.OFFLINE_MAX_HOURS)
 		+ Core.getPerkBonus(save, "offlineHours")
+		+ Core.getMilestoneBonus(save, "offlineHours")
 	local rate = baseRate
 			* (1 + Core.getEquippedBonus(save, "offlineBonus") + Core.getUpgradeBonus(save, "offlineBonus"))
 		+ Core.getPerkBonus(save, "offlineBonus")
+		+ Core.getMilestoneBonus(save, "offlineBonus")
 	return math.min(Config.OFFLINE_MAX_TOTAL_RATE, rate), hours
 end
 

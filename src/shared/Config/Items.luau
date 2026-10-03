@@ -375,6 +375,161 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		effects = { contractBonus = 0.06, goodsYield = 0.03 },
 		look = { attach = "back" },
 	})
+
+	-- Uzman ekipmanları: aynı yuvada gelir yerine üretim, ticaret veya çevrimdışı oyun seçilir.
+	add({
+		id = "artisan_hammer",
+		displayName = "Atölye Çekici",
+		icon = "🔨",
+		slot = "tool",
+		price = 1600000,
+		effects = { expansionDiscount = 0.18, facilitySpeed = 0.18 },
+		look = { attach = "hip" },
+	})
+	add({
+		id = "artisan_staff",
+		displayName = "Üretim Asası",
+		icon = "🪄",
+		slot = "staff",
+		price = 1200000,
+		effects = { facilitySpeed = 0.18, goodsYield = 0.12 },
+		look = { attach = "hand" },
+	})
+	add({
+		id = "night_charm",
+		displayName = "Gece Nöbeti Muskası",
+		icon = "📿",
+		slot = "charm",
+		price = 900000,
+		effects = { offlineBonus = 0.45, contractBonus = 0.05 },
+		look = { attach = "chest" },
+	})
+	add({
+		id = "logistics_charm",
+		displayName = "Lojistik Muskası",
+		icon = "📿",
+		slot = "charm",
+		price = 1800000,
+		effects = { storageBonus = 0.6, goodsYield = 0.08 },
+		look = { attach = "chest" },
+	})
+	add({
+		id = "orchard_charm",
+		displayName = "Filiz Muskası",
+		icon = "📿",
+		slot = "charm",
+		price = 1500000,
+		effects = { growthSpeed = 1.5, sellBonus = 0.06 },
+		look = { attach = "chest" },
+	})
+	add({
+		id = "merchant_hat",
+		displayName = "Tüccar Şapkası",
+		icon = "🎩",
+		slot = "head",
+		price = 350000,
+		effects = { contractBonus = 0.1, sellBonus = 0.08 },
+		look = { attach = "head" },
+	})
+	add({
+		id = "expedition_pack",
+		displayName = "Keşif Çantası",
+		icon = "🧥",
+		slot = "back",
+		price = 1800000,
+		effects = { offlineBonus = 0.2, storageBonus = 0.25 },
+		look = { attach = "back" },
+	})
+	add({
+		id = "artisan_cape",
+		displayName = "Atölye Pelerini",
+		icon = "🧥",
+		slot = "back",
+		price = 1300000,
+		effects = { facilitySpeed = 0.08, goodsYield = 0.08 },
+		look = { attach = "back" },
+	})
+	add({
+		id = "trade_charm",
+		displayName = "Pazarlık Muskası",
+		icon = "📿",
+		slot = "charm",
+		price = 2500000,
+		effects = { contractBonus = 0.25, sellBonus = 0.05 },
+		tradeoffs = { goodsYield = 0.1 },
+		look = { attach = "chest" },
+	})
+	add({
+		id = "warehouse_pack",
+		displayName = "Ambar Çantası",
+		icon = "🧥",
+		slot = "back",
+		price = 2600000,
+		effects = { storageBonus = 0.5, offlineBonus = 0.15 },
+		tradeoffs = { facilitySpeed = 0.05 },
+		look = { attach = "back" },
+	})
+	add({
+		id = "breeder_staff",
+		displayName = "Yetiştirici Asası",
+		icon = "🪄",
+		slot = "staff",
+		price = 900000,
+		effects = { growthSpeed = 1.3, goodsYield = 0.08 },
+		tradeoffs = { offlineBonus = 0.15 },
+		look = { attach = "hand" },
+	})
+	-- Başarım ekipmanları para ile satılmaz; tek yuvayı kullanarak diğer ekipmanlardan vazgeçmeyi gerektirir.
+	add({
+		id = "pioneer_hammer",
+		displayName = "Öncü Çekici",
+		icon = "🔨",
+		slot = "tool",
+		price = 1,
+		rewardOnly = true,
+		effects = { upgradeDiscount = 0.08, expansionDiscount = 0.08 },
+		look = { attach = "hip" },
+	})
+	add({
+		id = "caretaker_staff",
+		displayName = "Bakıcı Asası",
+		icon = "🪄",
+		slot = "staff",
+		price = 1,
+		rewardOnly = true,
+		effects = { growthSpeed = 1.25, facilitySpeed = 0.1 },
+		look = { attach = "hand" },
+	})
+	add({
+		id = "harbor_charm",
+		displayName = "Liman Muskası",
+		icon = "📿",
+		slot = "charm",
+		price = 1,
+		rewardOnly = true,
+		effects = { goodsYield = 0.2, contractBonus = 0.12 },
+		look = { attach = "chest" },
+	})
+	add({
+		id = "night_cape",
+		displayName = "Gece Pelerini",
+		icon = "🧥",
+		slot = "back",
+		price = 1,
+		rewardOnly = true,
+		effects = { offlineBonus = 0.3, storageBonus = 0.3 },
+		look = { attach = "back" },
+	})
+	add({
+		id = "master_crown",
+		displayName = "Ustalık Tacı",
+		icon = "🎩",
+		slot = "head",
+		price = 1,
+		rewardOnly = true,
+		effects = { incomeBonus = 0.25, contractBonus = 0.15 },
+		look = { attach = "head" },
+	})
 end
 
 return Items

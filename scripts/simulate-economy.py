@@ -104,7 +104,7 @@ for index, mult in S.mults do
 	Config.DIFFICULTY.tiers[index].costMultiplier = mult -- ayar denemesi: kademe çiftlik çarpanları
 end
 local STEP = 5 -- saniye
-local START = 1036800 -- UTC gün başı: günlük ödül günleri sim gününe oturur
+local START = if S.carryAccount then S.carryAccount.progression.startedAt else 1036800 -- Gerçek tur geçişinde UTC zamanı korunur.
 local TOTAL = HOURS * 3600
 local USER_ID = 424242 -- altın hayvan pencereleri bu kimlikten türer (deterministik)
 
@@ -136,8 +136,26 @@ save.progression.count = S.rebirth
 save.progression.run = S.rebirth + 1
 save.progression.perks = S.perks
 save.progression.runDouble = S.runDouble
+if S.carryAccount then
+	for key, value in S.carryAccount do
+		save[key] = value
+	end
+end
 if S.rebirth > 0 then
 	save.progression.returnEndsAt = START + Config.PROGRESSION.returnSeconds
+	save.progression.returnEnded = false
+end
+if S.runDouble then
+	save.progression.runDouble = true
+end
+Progression.grantRebirthRewards(save)
+-- Yeni ücretsiz ekipman boş yuvaya takılır; satın alınan seçim zorla değiştirilmez.
+for _, milestone in Config.PROGRESSION.milestones do
+	local itemId = milestone.itemId
+	local item = if itemId then Config.ITEMS[itemId] else nil
+	if item and save.owned.items[itemId] and not save.inventory.equipped[item.slot] then
+		save.inventory.equipped[item.slot] = itemId
+	end
 end
 for _, itemId in S.equipment do
 	local item = assert(Config.ITEMS[itemId], `Unknown equipment: {itemId}`)
@@ -735,6 +753,30 @@ local function invest()
 			bought = true
 			continue
 		end
+		-- Rebirth hedefindeki soy geliştirmesi, bütün isteğe bağlı yatırımların
+		-- bitmesini beklemez. Gerçek FarmMath durumu ve fiyatı kullanılır.
+		local requiredTargets = Progression.getRebirthTargets(save, save.activeMainFarmId)
+		local boughtRequiredLineage = false
+		for _, target in requiredTargets do
+			if target.kind == "lineage" and FarmMath.getLineageLevel(save, target.id) < target.level then
+				local status, _, cost = FarmMath.getLineageStatus(save, target.id)
+				if status == "available" and cost <= save.cash then
+					save.cash -= cost
+					save.lineage = save.lineage or {}
+					save.lineage[target.id] = FarmMath.getLineageLevel(save, target.id) + 1
+					lineageTotal += 1
+					lineageSpent += cost
+					actions += 1
+					invested()
+					boughtRequiredLineage = true
+					break
+				end
+			end
+		end
+		if boughtRequiredLineage then
+			bought = true
+			continue
+		end
 		local cheapest: any = nil
 		local cheapestCost = math.huge
 		local nextCost = math.huge -- alınabilir en ucuz yükseltme/genişletme (parası yetmese de)
@@ -766,7 +808,7 @@ local function invest()
 		local farmId = nextFarmId()
 		local farmPrice = if farmId then FarmMath.getPrice(save, "farm", nil, tonumber(farmId)) else nil
 		-- finishFirst: bir sonraki çiftlik yalnızca etkin çiftliğin tüm yükseltmeleri bitince alınır (çiftlik tamamlama süresi ölçümü)
-		local farmDue = if S.finishFirst then (if S.completion == "basic" then Progression.isFarmComplete(save) else milestones[farmPrefix() .. "TÜM YÜKSELTMELER"] ~= nil) else farmPrice ~= nil and farmPrice <= nextCost
+		local farmDue = if S.finishFirst then (if S.completion == "basic" then Progression.isRebirthFarmComplete(save, save.activeMainFarmId) else milestones[farmPrefix() .. "TÜM YÜKSELTMELER"] ~= nil) else farmPrice ~= nil and farmPrice <= nextCost
 		if S.farms > ownedFarmCount() and farmId and farmPrice and farmPrice <= save.cash and farmDue then
 			buyFarm(farmId, farmPrice)
 			bought = true
@@ -965,14 +1007,18 @@ if S.session <= 0 then
 	sessions = { { 0, TOTAL } }
 else
 	local n = 0
-	while n * S.period < TOTAL do
-		local from = n * S.period
-		table.insert(sessions, { from, math.min(from + S.session, TOTAL) })
+	local phase = START % S.period
+	while n * S.period - phase < TOTAL do
+		local from = n * S.period - phase
+		local finish = math.min(from + S.session, TOTAL)
+		if finish > math.max(0, from) then
+			table.insert(sessions, { math.max(0, from), finish })
+		end
 		n += 1
 	end
 end
 
-local lastSeenAt: number? = nil
+local lastSeenAt: number? = 0
 for _, window in sessions do
 	if lastSeenAt and window[1] > lastSeenAt then
 		goOffline(lastSeenAt, window[1])
@@ -1174,6 +1220,36 @@ else
 		end
 		return "null"
 	end
+	local nextAccount = nil
+	if S.applyRebirth and Progression.canRebirth(save) then
+		local function copy(value: any): any
+			if typeof(value) ~= "table" then
+				return value
+			end
+			local result = {}
+			for key, child in value do
+				result[key] = copy(child)
+			end
+			return result
+		end
+		local nextSave = copy(save)
+		FarmProfiles.capture(nextSave)
+		local choice = nil
+		for offset = 0, #Config.PROGRESSION.perkOrder - 1 do
+			local id = Config.PROGRESSION.perkOrder[(nextSave.progression.count + offset) % #Config.PROGRESSION.perkOrder + 1]
+			if Progression.canChoosePerk(nextSave, id) then
+				choice = id
+				break
+			end
+		end
+		assert(choice, "No perk available before configured rebirth cap")
+		assert(Rebirth.apply(nextSave, Config, FarmMath, Progression, SaveCodec, now, function(): string
+			readyUid += 1
+			return `next-{readyUid}`
+		end, choice), "Actual rebirth transformation failed")
+		nextAccount = { gold = nextSave.gold, owned = nextSave.owned, inventory = nextSave.inventory,
+			progression = nextSave.progression, lifetimeEarned = nextSave.lifetimeEarned }
+	end
 	print(encode({
 		settings = {
 			persona = S.persona, hours = HOURS, farm = FARM, collect = COLLECT, react = S.react,
@@ -1211,6 +1287,7 @@ else
 		farms = farmRows,
 		farmBuys = farmBuys,
 		account = { gold = save.gold, owned = save.owned, inventory = save.inventory, progression = save.progression },
+		nextAccount = nextAccount,
 	}))
 end
 """
@@ -1226,7 +1303,7 @@ def lua_literal(value: object) -> str:
     if isinstance(value, list):
         return "{ " + ", ".join(lua_literal(item) for item in value) + " }"
     if isinstance(value, dict):
-        return "{ " + ", ".join(f"{key} = {lua_literal(item)}" for key, item in value.items()) + " }"
+        return "{ " + ", ".join(f"[{lua_literal(key)}] = {lua_literal(item)}" for key, item in value.items()) + " }"
     raise TypeError(f"Luau değerine çevrilemedi: {value!r}")
 
 
@@ -1268,10 +1345,16 @@ def main() -> int:
     parser.add_argument("--starting-gold", type=int, default=0, help="Önceden birikmiş/satın alınmış altın")
     parser.add_argument("--gold-policy", choices=["save", "convert", "equipment"], default="save")
     parser.add_argument("--stop-at-rebirth", action="store_true", help="Rebirth hazır olunca koşuyu bitir")
+    parser.add_argument("--carry-account", help="Önceki simülasyonun gerçek Rebirth.apply çıktısını taşıyan JSON dosyası")
+    parser.add_argument("--apply-rebirth", action="store_true", help="Hazırsa gerçek rebirth dönüşümünü uygulayıp sonraki hesap durumunu döndür")
     parser.add_argument("--farms", type=int, default=None, help="Sahip olunacak en çok ana çiftlik sayısı (1 = çoklu çiftlik yok)")
     parser.add_argument("--json", action="store_true", help="Makine okunur JSON çıktısı")
     parser.add_argument("--smoke", action="store_true", help="Duman testi: JSON'u kendisi ayrıştırır ve hayvan sayısını doğrular (PowerShell boru hattı BOM'u olmadan)")
     args = parser.parse_args()
+    carry_account = json.loads(Path(args.carry_account).read_text(encoding="utf-8")) if args.carry_account else None
+    if carry_account:
+        args.rebirth = carry_account["progression"]["count"]
+        args.perks = ",".join(f"{key}:{level}" for key, level in carry_account["progression"]["perks"].items())
     if args.rebirth < 0 or args.rebirth > 1000000 or args.starting_gold < 0 or args.starting_gold > 1000000000:
         parser.error("Rebirth ve altın sınırları geçersiz")
     try:
@@ -1338,6 +1421,8 @@ def main() -> int:
         "startingGold": args.starting_gold,
         "goldPolicy": args.gold_policy,
         "stopAtRebirth": args.stop_at_rebirth,
+        "carryAccount": carry_account or False,
+        "applyRebirth": args.apply_rebirth,
         "mults": [float(item) for item in args.mults.split(",") if item.strip()],
         "premium": [[float(value) for value in part.split(":")] for part in args.premium.split(",") if part.strip()],
         "slotSpread": args.slot_spread if args.slot_spread is not None else False,
@@ -1362,6 +1447,7 @@ def main() -> int:
         module("TransferRules", "src/server/Modules/TransferRules.luau"),
         module("TransferLedger", "src/server/Modules/TransferLedger.luau", {"TransferRules"}),
         run_tests.save_codec_bundle(),
+        module("Rebirth", "src/server/Modules/Rebirth.luau"),
         module("ProductionRules", "src/server/Modules/ProductionRules.luau"),
         module("ProductionLogic", "src/server/Modules/ProductionLogic.luau", {"ProductionRules"}),
         module("Rewards", "src/shared/Modules/Rewards.luau", {"Config", "FarmMath"}),

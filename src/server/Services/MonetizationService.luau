@@ -106,6 +106,39 @@ end
 
 -- Kalıcı etki yield etmez ve Roblox/presentation servisi çağırmaz; makbuzla aynı blokta uygulanır.
 local productEffects: { [string]: (data: any, product: Config.ProductConfig) -> boolean } = {
+	instantGrowth = function(data, product)
+		if typeof(data.animals) ~= "table" then
+			return false
+		end
+		local young = false
+		for _, animal in data.animals do
+			if
+				typeof(animal) ~= "table"
+				or (animal.stage ~= "adult" and animal.stage ~= "young" and animal.stage ~= "calf")
+			then
+				return false
+			end
+			young = young or animal.stage ~= "adult"
+		end
+		if not young then
+			local compensation = product.goldAmount
+			if
+				not compensation
+				or compensation <= 0
+				or (data.gold or 0) + compensation > Config.PROGRESSION.gold.maxBalance
+			then
+				return false
+			end
+			data.gold = (data.gold or 0) + compensation
+			return true
+		end
+		for _, animal in data.animals do
+			if animal.stage ~= "adult" then
+				animal.bornAt, animal.stage = 0, "adult"
+			end
+		end
+		return true
+	end,
 	instantProduction = function(data)
 		-- Bozuk iş listesini mutasyondan önce doğrula; yarım uygulanmış etki yeniden ödüllendirilmesin.
 		if typeof(data.production) ~= "table" then
@@ -145,7 +178,16 @@ local productEffects: { [string]: (data: any, product: Config.ProductConfig) -> 
 			return false
 		end
 		-- Geciken/ikinci ücretli hak kaybolmaz; aynı turda 4x yaratmadan sonraki tura taşınır.
-		if state.runDouble or (data.passes and data.passes.double_income) or Progression.canRebirth(data) then
+		if
+			state.count >= Config.PROGRESSION.maxRebirth
+			and (state.runDouble or (data.passes and data.passes.double_income))
+		then
+			local compensation = Config.PROGRESSION.terminalDoubleGold
+			if (data.gold or 0) + compensation > Config.PROGRESSION.gold.maxBalance then
+				return false
+			end
+			data.gold = (data.gold or 0) + compensation
+		elseif state.runDouble or (data.passes and data.passes.double_income) or Progression.canRebirth(data) then
 			if (state.doubleCredits or 0) >= 1000000 then
 				return false
 			end
@@ -336,7 +378,13 @@ function MonetizationService.init()
 		if not data or (data.transfers and data.transfers.quarantined) then
 			return
 		end
-		if kind == "pass" and data and data.passes and data.passes[key :: string] then
+		if
+			kind == "pass"
+			and (
+				(data.passes and data.passes[key :: string])
+				or (key == "auto_collector" and data.owned and data.owned.conveniences.auto_collect)
+			)
+		then
 			Remotes.get("Notify"):FireClient(player, "Bu ürüne zaten sahipsin", "info")
 			return
 		end
@@ -344,8 +392,21 @@ function MonetizationService.init()
 			local offer = Config.PROGRESSION.permanentOffers[product.offerId]
 			local rights = data.owned
 				and (if offer and offer.kind == "item" then data.owned.items else data.owned.conveniences)
-			if not offer or (rights and rights[product.offerId]) then
+			if
+				not offer
+				or (rights and rights[product.offerId])
+				or (product.offerId == "auto_collect" and data.passes and data.passes.auto_collector)
+			then
 				Remotes.get("Notify"):FireClient(player, "Bu ürüne zaten sahipsin", "info")
+				return
+			end
+		elseif kind == "product" and product.effect == "instantGrowth" then
+			local young = false
+			for _, animal in data.animals do
+				young = young or animal.stage ~= "adult"
+			end
+			if not young then
+				Remotes.get("Notify"):FireClient(player, "Bu çiftlikte büyütülecek genç hayvan yok", "info")
 				return
 			end
 		elseif kind == "product" and product.effect == "runDouble" then

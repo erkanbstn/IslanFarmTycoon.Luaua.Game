@@ -637,8 +637,26 @@ return function(Config: any, FarmMath: any)
 				count += 1
 			end
 			assert(count >= 1, `item {itemId} must have at least one effect`)
-			bySlot[item.slot] = bySlot[item.slot] or {}
-			table.insert(bySlot[item.slot], item)
+			if not item.rewardOnly then
+				bySlot[item.slot] = bySlot[item.slot] or {}
+				table.insert(bySlot[item.slot], item)
+			end
+			for key, value in item.tradeoffs or {} do
+				assert(
+					key == "goodsYield" or key == "facilitySpeed" or key == "offlineBonus",
+					"tradeoff has an implemented formula"
+				)
+				assert(
+					typeof(value) == "number" and value > 0 and value <= 0.5,
+					"equipment drawbacks are bounded positive penalties"
+				)
+			end
+			if item.rewardOnly then
+				assert(
+					Config.PROGRESSION.permanentOffers[itemId] == nil,
+					"achievement items cannot be bought with gold or Robux"
+				)
+			end
 		end
 		for _, slotId in { "head", "back" } do
 			local list = bySlot[slotId]

@@ -67,7 +67,7 @@ function Windows.window(parent: Instance, options: WindowOptions): Window
 	Base.corner(band, Tokens.Radius.Panel)
 	local bandFade = Instance.new("UIGradient")
 	bandFade.Rotation = 90
-	bandFade.Transparency = NumberSequence.new(0.4, 1)
+	bandFade.Transparency = NumberSequence.new(0.84, 1)
 	bandFade.Parent = band
 
 	local header = Instance.new("Frame")

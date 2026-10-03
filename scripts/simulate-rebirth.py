@@ -35,7 +35,7 @@ def run(persona: str, scenario: str, extra: list[str]) -> dict:
             "activeHours": totals["onlineMinutes"] / 60,
             "goldEarned": totals["goldEarned"], "goldSpent": totals["goldSpent"],
             "goldRemaining": totals["gold"], "milestones": data["milestones"],
-            "account": data["account"]}
+            "account": data["account"], "nextAccount": data.get("nextAccount")}
 
 
 def main() -> int:

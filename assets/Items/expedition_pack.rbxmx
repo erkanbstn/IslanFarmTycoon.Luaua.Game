@@ -1,0 +1,593 @@
+<roblox version="4">
+  <Item class="Model" referent="backpack">
+    <Properties>
+      <string name="Name">expedition_pack</string>
+      <BinaryString name="AttributesSerialize">AQAAAAYAAABBdHRhY2gCBAAAAGJhY2s=</BinaryString>
+      <OptionalCoordinateFrame name="WorldPivotData">
+        <CFrame>
+          <X>0.00000000</X>
+          <Y>0.00000000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CFrame>
+      </OptionalCoordinateFrame>
+    </Properties>
+    <Item class="Part" referent="backpack_0">
+      <Properties>
+        <string name="Name">PackBody</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.2</R>
+          <G>0.4627450980392157</G>
+          <B>0.6392156862745098</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>1.58</X>
+          <Y>1.8</Y>
+          <Z>0.7</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.35000000</Y>
+          <Z>0.97000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="backpack_1">
+      <Properties>
+        <string name="Name">RoundedLid</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <Color3 name="Color">
+          <R>0.1411764705882353</R>
+          <G>0.32941176470588235</G>
+          <B>0.49411764705882355</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>1.65</X>
+          <Y>0.34</Y>
+          <Z>0.76</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>1.42000000</Y>
+          <Z>0.97000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="backpack_2">
+      <Properties>
+        <string name="Name">FrontPocket</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.8431372549019608</R>
+          <G>0.7490196078431373</G>
+          <B>0.5529411764705883</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>1.02</X>
+          <Y>0.62</Y>
+          <Z>0.2</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.15000000</Y>
+          <Z>1.42000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="backpack_3">
+      <Properties>
+        <string name="Name">PocketFlap</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.7098039215686275</R>
+          <G>0.6</G>
+          <B>0.396078431372549</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>1.05</X>
+          <Y>0.16</Y>
+          <Z>0.22</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.54000000</Y>
+          <Z>1.44000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="backpack_4">
+      <Properties>
+        <string name="Name">ShoulderStrap</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.1843137254901961</R>
+          <G>0.3058823529411765</G>
+          <B>0.403921568627451</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.14</X>
+          <Y>1.66</Y>
+          <Z>0.12</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.53000000</X>
+          <Y>0.62000000</Y>
+          <Z>0.55000000</Z>
+          <R00>0.9961946981</R00>
+          <R01>-0.0871557427</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0871557427</R10>
+          <R11>0.9961946981</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="backpack_5">
+      <Properties>
+        <string name="Name">ShoulderStrap</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.1843137254901961</R>
+          <G>0.3058823529411765</G>
+          <B>0.403921568627451</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.14</X>
+          <Y>1.66</Y>
+          <Z>0.12</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.53000000</X>
+          <Y>0.62000000</Y>
+          <Z>0.55000000</Z>
+          <R00>0.9961946981</R00>
+          <R01>0.0871557427</R01>
+          <R02>0.0000000000</R02>
+          <R10>-0.0871557427</R10>
+          <R11>0.9961946981</R11>
+          <R12>-0.0000000000</R12>
+          <R20>-0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="backpack_6">
+      <Properties>
+        <string name="Name">SidePouch</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.1411764705882353</R>
+          <G>0.32941176470588235</G>
+          <B>0.49411764705882355</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.25</X>
+          <Y>0.88</Y>
+          <Z>0.58</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.86000000</X>
+          <Y>0.10000000</Y>
+          <Z>0.99000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="backpack_7">
+      <Properties>
+        <string name="Name">LeatherFastener</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.11372549019607843</R>
+          <G>0.20784313725490197</G>
+          <B>0.30196078431372547</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.1</X>
+          <Y>1.45</Y>
+          <Z>0.07</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.51000000</X>
+          <Y>0.58000000</Y>
+          <Z>1.36000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="backpack_8">
+      <Properties>
+        <string name="Name">Buckle</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.9333333333333333</R>
+          <G>0.803921568627451</G>
+          <B>0.5215686274509804</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.19</X>
+          <Y>0.2</Y>
+          <Z>0.09</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.51000000</X>
+          <Y>0.94000000</Y>
+          <Z>1.43000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="backpack_9">
+      <Properties>
+        <string name="Name">SidePouch</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.1411764705882353</R>
+          <G>0.32941176470588235</G>
+          <B>0.49411764705882355</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.25</X>
+          <Y>0.88</Y>
+          <Z>0.58</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.86000000</X>
+          <Y>0.10000000</Y>
+          <Z>0.99000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="backpack_10">
+      <Properties>
+        <string name="Name">LeatherFastener</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.11372549019607843</R>
+          <G>0.20784313725490197</G>
+          <B>0.30196078431372547</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.1</X>
+          <Y>1.45</Y>
+          <Z>0.07</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.51000000</X>
+          <Y>0.58000000</Y>
+          <Z>1.36000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="backpack_11">
+      <Properties>
+        <string name="Name">Buckle</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.9333333333333333</R>
+          <G>0.803921568627451</G>
+          <B>0.5215686274509804</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.19</X>
+          <Y>0.2</Y>
+          <Z>0.09</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.51000000</X>
+          <Y>0.94000000</Y>
+          <Z>1.43000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="backpack_12">
+      <Properties>
+        <string name="Name">HandleLeg</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.2</R>
+          <G>0.4627450980392157</G>
+          <B>0.6392156862745098</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.12</X>
+          <Y>0.24</Y>
+          <Z>0.13</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.25000000</X>
+          <Y>1.65000000</Y>
+          <Z>0.94000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="backpack_13">
+      <Properties>
+        <string name="Name">HandleLeg</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.2</R>
+          <G>0.4627450980392157</G>
+          <B>0.6392156862745098</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.12</X>
+          <Y>0.24</Y>
+          <Z>0.13</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.25000000</X>
+          <Y>1.65000000</Y>
+          <Z>0.94000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="backpack_14">
+      <Properties>
+        <string name="Name">CarryHandle</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.2</R>
+          <G>0.4627450980392157</G>
+          <B>0.6392156862745098</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.62</X>
+          <Y>0.12</Y>
+          <Z>0.13</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>1.80000000</Y>
+          <Z>0.94000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+  </Item>
+</roblox>

@@ -163,6 +163,8 @@ export type ItemConfig = {
 	slot: string,
 	price: number,
 	effects: ItemEffects?,
+	tradeoffs: { [string]: number }?, -- Takılıyken bu faydalardan düşülen pozitif fırsat bedeli.
+	rewardOnly: boolean?, -- Yalnızca rebirth başarımıyla kazanılır; para/altın/Robux ile satılmaz.
 	power: ItemPower?,
 	look: ItemLook?,
 }

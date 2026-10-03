@@ -1,9 +1,7 @@
 --!strict
--- Destek Dükkânı içeriği: oyun geçitleri ve ürünler (kimliği 0 olanlar henüz satışta değildir, gizlenir).
-
+-- Market kataloğu; kimliği hazır olmayan ürünler görünür, ücretli satın alma kapalı kalır.
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
-
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
@@ -12,15 +10,12 @@ local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath")
 local Progression = require(Shared:WaitForChild("Modules"):WaitForChild("Progression"))
 local UiKit = require(script.Parent.Parent:WaitForChild("UiKit"))
 local ItemPreview = require(script.Parent:WaitForChild("ItemPreview"))
+local ItemText = require(script.Parent:WaitForChild("ItemText"))
 local PurchaseController = require(script.Parent.Parent.Parent:WaitForChild("Core"):WaitForChild("PurchaseController"))
-
+local HudCommon = require(script.Parent:WaitForChild("HudCommon"))
 type PlayerSave = GameTypes.PlayerSave
-
-local Color = UiKit.Color
-
 local StoreSection = {}
 
--- Satışta ürün var mı (Config/Shop'ta kimliği 0 olmayan en az bir geçit ya da ürün). Yoksa dükkân karosu çıkmaz, güncelleme çalışmaz.
 function StoreSection.isForSale(): boolean
 	for _, group in { Config.PRODUCTS.passes, Config.PRODUCTS.products } do
 		for _, product in group do
@@ -32,95 +27,100 @@ function StoreSection.isForSale(): boolean
 	return false
 end
 
--- Listeyi kurar; durum geldikçe çağrılacak güncelleme işlevini döner
-function StoreSection.create(list: Instance): (PlayerSave) -> ()
-	local STORE_ORDER = 90
-	local storeHeader = UiKit.sectionHeader(list, "Robux Marketi", STORE_ORDER)
+local function categoryFor(kind: string, product: Config.ProductConfig): string
+	if product.effect == "goldPack" then
+		return "gold"
+	elseif product.effect == "incomePack" then
+		return "cash"
+	elseif kind == "pass" or product.lifetime == "permanent" or product.effect == "permanentOffer" then
+		return "permanent"
+	end
+	return "run"
+end
+
+function StoreSection.create(list: Instance, category: string?): (PlayerSave) -> ()
+	local selected = category or "featured"
 	UiKit.text(
 		list,
-		"Robux fiyatı satın alma penceresinde gösterilir. Altın ve kalıcı teklifleri oyun ilerlemesiyle de kazanabilirsin.",
+		"Robux fiyatı satın alma penceresinde gösterilir. Kimlikleri hazır olmayan ürünler yakında açılacak.",
 		"Caption"
-	).LayoutOrder = STORE_ORDER
-		+ 1
-	type StoreEntry = { kind: string, key: string, product: Config.ProductConfig, card: UiKit.Card, category: string }
-	local storeEntries: { StoreEntry } = {}
-	local storeEmpty = UiKit.text(list, "Dükkân çok yakında açılıyor.", "Caption", Color.TextMuted)
-	storeEmpty.LayoutOrder = STORE_ORDER - 1
-	local grids: { [string]: Frame } = {}
-	for _, category in { "gold", "cash", "run", "permanent" } do
-		local grid = UiKit.autoGrid(list, STORE_ORDER + 3, 2)
-		grid.Visible = category == "gold"
-		grids[category] = grid
+	).LayoutOrder =
+		0
+	if selected == "featured" then
+		UiKit.text(list, "Kendi oyun tarzını seç: üretim, ticaret, depolama veya çevrimdışı ilerleme.", "Body").LayoutOrder =
+			1
+	elseif selected == "permanent" then
+		UiKit.text(list, "Kalıcı sahiplik rebirth'te korunur. Eşyaları Envanter'den takabilirsin.", "Body").LayoutOrder =
+			1
+	elseif selected == "gold" then
+		UiKit.text(
+			list,
+			"Altın satın almak günlük ve tur başına paraya çevirme sınırlarını artırmaz.",
+			"Body"
+		).LayoutOrder =
+			1
+	elseif selected == "cash" then
+		UiKit.text(list, "Para paketi gelirinle büyür. Oyun parası rebirth'te sıfırlanır.", "Body").LayoutOrder =
+			1
 	end
-	local _, selectTab = UiKit.tabs(list, STORE_ORDER + 2, {
-		{ id = "gold", label = "Altın" },
-		{ id = "cash", label = "Para" },
-		{ id = "run", label = "Bu Tur" },
-		{ id = "permanent", label = "Kalıcı" },
-	}, function(id: string)
-		for category, grid in grids do
-			grid.Visible = category == id
-		end
-	end)
+	local grid = UiKit.autoGrid(list, 2, 2)
+	type Entry = { kind: string, key: string, product: Config.ProductConfig, card: UiKit.Card, goldButton: TextButton? }
+	local entries: { Entry } = {}
+	local featured: { [string]: boolean } = {
+		gold_100 = true,
+		income_pack_small = true,
+		permanent_artisan_staff = true,
+		permanent_night_charm = true,
+		permanent_merchant_hat = true,
+		run_double_income = true,
+	}
 	for _, group in
 		{ { kind = "pass", items = Config.PRODUCTS.passes }, { kind = "product", items = Config.PRODUCTS.products } }
 	do
 		local keys: { string } = {}
-		for key in group.items do
-			table.insert(keys, key)
+		for key, product in group.items do
+			if (selected == "featured" and featured[key]) or selected == categoryFor(group.kind, product) then
+				table.insert(keys, key)
+			end
 		end
 		table.sort(keys)
 		for _, key in keys do
 			local product = group.items[key]
-			local category = if product.effect == "goldPack"
-				then "gold"
-				elseif product.effect == "incomePack" then "cash"
-				elseif
-					group.kind == "pass"
-					or product.lifetime == "permanent"
-					or product.effect == "permanentOffer"
-				then "permanent"
-				else "run"
-			local card = UiKit.autoTile(grids[category], #storeEntries + 1, product.icon)
-			card.title.Text = product.displayName
-			card.detail.Text = product.description
+			local card = UiKit.autoTile(grid, #entries + 1, product.icon)
+			card.frame.Name = key
+			UiKit.setText(card.title, product.displayName)
 			local offer = if product.offerId then Config.PROGRESSION.permanentOffers[product.offerId] else nil
 			if offer and offer.itemId then
 				ItemPreview.mount(card.icon, offer.itemId)
 			end
 			card.action.Activated:Connect(function()
-				if card.action.Active then
+				if card.action.Active and product.id ~= 0 then
 					Remotes.get("RequestPromptProduct"):FireServer(group.kind, key)
 				end
 			end)
+			local goldButton: TextButton? = nil
+			if offer then
+				local button = UiKit.button(card.frame, "", "disabled")
+				button.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
+				button.LayoutOrder = 5
+				button.Activated:Connect(function()
+					if button.Active then
+						PurchaseController.submitWithRun("RequestGoldAction", "buy", { offerId = product.offerId })
+					end
+				end)
+				goldButton = button
+			end
 			table.insert(
-				storeEntries,
-				{ kind = group.kind, key = key, product = product, card = card, category = category }
+				entries,
+				{ kind = group.kind, key = key, product = product, card = card, goldButton = goldButton }
 			)
 		end
 	end
-	-- Mevcut geçitler tek başına satışa açıldığında boş Altın sekmesiyle karşılaşılmaz.
-	for _, category in { "gold", "cash", "run", "permanent" } do
-		local available = false
-		for _, entry in storeEntries do
-			available = available or (entry.category == category and entry.product.id ~= 0)
-		end
-		if available then
-			selectTab(category)
-			for id, grid in grids do
-				grid.Visible = id == category
-			end
-			break
-		end
-	end
-
-	local function updateStore(state: PlayerSave)
-		local any = false
-		for _, entry in storeEntries do
-			local forSale = entry.product.id ~= 0
-			local owned = entry.kind == "pass" and state.passes ~= nil and state.passes[entry.key] == true
+	return function(state: PlayerSave)
+		for _, entry in entries do
 			local product = entry.product
 			local offer = if product.offerId then Config.PROGRESSION.permanentOffers[product.offerId] else nil
+			local owned = entry.kind == "pass" and state.passes ~= nil and state.passes[entry.key] == true
 			if offer and state.owned then
 				owned = owned
 					or (
@@ -129,9 +129,19 @@ function StoreSection.create(list: Instance): (PlayerSave) -> ()
 							else state.owned.conveniences[offer.id] == true
 					)
 			end
-			local blocked = Players.LocalPlayer:GetAttribute("DataStatus") ~= "Active" or PurchaseController.isPending()
-			local text = if owned then "Kalıcı olarak sahipsin" else "Robux ile al"
+			if (offer and offer.id == "auto_collect") or entry.key == "auto_collector" then
+				owned = owned
+					or (state.passes ~= nil and state.passes.auto_collector == true)
+					or (state.owned ~= nil and state.owned.conveniences.auto_collect == true)
+			end
+			local blocked = Players.LocalPlayer:GetAttribute("DataStatus") ~= "Active"
+				or Players.LocalPlayer:GetAttribute("AccountTransactionPending") == true
+				or PurchaseController.isPending()
 			local detail = product.description
+			local label = if owned
+				then "Kalıcı olarak sahipsin"
+				elseif product.id == 0 then "Robux · Yakında"
+				else "Robux ile al"
 			if product.effect == "goldPack" then
 				detail = `{product.goldAmount or 0} altın · Rebirth'te kalır`
 			elseif product.effect == "incomePack" then
@@ -149,34 +159,46 @@ function StoreSection.create(list: Instance): (PlayerSave) -> ()
 				local ready = Progression.canRebirth(state)
 				owned = active or hasPass
 				blocked = blocked or ready
-				text = if active
+				label = if active
 					then "Bu tur 2x açık"
 					elseif hasPass then "Kalıcı 2x geçidin var"
 					elseif ready then "Yeni turda alınabilir"
-					else "Robux ile al · Bu tur"
-				detail = if ready
-					then "Rebirth hazır. Bu ürün sıfırlamada sona erer; yeni turda alabilirsin."
-					else "Yalnız bu tur: rebirth'te sona erer ve sonraki turda yeniden alınır."
-			elseif product.effect == "permanentOffer" then
-				detail = `Kalıcı · {product.description}\nTekrar teslim edilen kalıcı hak altına çevrilir.`
-			elseif entry.category == "run" then
-				detail = `Bu tur · {product.description}`
+					else label
+				detail = "Yalnız bu tur: rebirth'te sona erer ve sonraki turda yeniden alınır."
+			elseif entry.key == "double_income" and state.progression and state.progression.runDouble then
+				detail = "Kalıcı 2x geçit: mevcut turdaki 2x ile çarpılmaz; sonraki turlarda da sürer."
+			elseif offer then
+				local item = if offer.itemId then Config.ITEMS[offer.itemId] else nil
+				detail = if item
+					then `Kalıcı · {ItemText.slotNotice(item)}\n{ItemText.describe(item)}\nNakit alternatif: {FarmMath.formatMoney(
+						item.price
+					)} · Bu tur`
+					else `Kalıcı · {product.description}`
 			elseif entry.kind == "pass" then
 				detail = `Kalıcı geçit · {product.description}`
+			elseif product.effect == "instantProduction" or product.effect == "instantGrowth" then
+				detail = `Tek kullanım · {product.description}`
+			else
+				detail = `Bu tur · {product.description}`
 			end
-			any = any or forSale
-			entry.card.frame.Visible = forSale
 			UiKit.setText(entry.card.detail, detail)
-			UiKit.setText(entry.card.action, text)
+			UiKit.setText(entry.card.action, label)
 			UiKit.setVariant(
 				entry.card.action,
-				if owned then "owned" elseif blocked or not forSale then "disabled" else "primary"
+				if owned then "owned" elseif blocked or product.id == 0 then "disabled" else "primary"
 			)
+			if offer and entry.goldButton then
+				HudCommon.setPurchaseButton(
+					entry.goldButton,
+					if owned then "Kalıcı olarak sahipsin" else `{offer.goldCost} altın · Kalıcı`,
+					if owned
+						then "owned"
+						elseif blocked then "disabled"
+						elseif (state.gold or 0) >= offer.goldCost then "primary"
+						else "warning"
+				)
+			end
 		end
-		(storeHeader.Parent :: GuiObject).Visible = any
-		storeEmpty.Visible = not any
 	end
-	return updateStore
 end
-
 return StoreSection

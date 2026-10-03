@@ -45,6 +45,7 @@ return function(Inventory: any, Config: any, FarmMath: any, SaveCodec: any, Sess
 		for _, itemId in Config.ITEM_ORDER do
 			local item = Config.ITEMS[itemId]
 			local value = if item.slot == "head"
+					or item.rewardOnly
 					or item.slot == "back"
 					or (item.slot == "staff" and not item.power)
 				then nil

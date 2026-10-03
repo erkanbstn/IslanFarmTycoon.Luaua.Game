@@ -36,6 +36,21 @@ function Core.getPerkBonus(save: PlayerSave, effect: string): number
 	return total
 end
 
+function Core.getMilestoneBonus(save: PlayerSave, effect: string): number
+	local progression = (save :: any).progression
+	local count = if progression
+			and typeof(progression.count) == "number"
+			and isFinite(progression.count)
+		then math.clamp(math.floor(progression.count), 0, Config.PROGRESSION.maxRebirth)
+		else 0
+	local total = 0
+	for level = 1, count do
+		local milestone = Config.PROGRESSION.milestones[level]
+		total += if milestone and milestone.effects then milestone.effects[effect] or 0 else 0
+	end
+	return total
+end
+
 function Core.isReturnActive(save: PlayerSave, now: number?): boolean
 	local progression = (save :: any).progression
 	return progression ~= nil
@@ -91,7 +106,8 @@ local function forEachEquippedEffect(save: PlayerSave, key: string, apply: (valu
 		local value = if item
 				and item.effects
 				and (inventory.items[itemId] or permanent)
-			then (item.effects :: any)[key]
+				and ((item.effects :: any)[key] ~= nil or (item.tradeoffs and item.tradeoffs[key] ~= nil))
+			then ((item.effects :: any)[key] or 0) - (if item.tradeoffs then item.tradeoffs[key] or 0 else 0)
 			else nil
 		if typeof(value) == "number" and isFinite(value) then
 			apply(value)
@@ -124,7 +140,10 @@ end
 
 -- Takılı eşya + yükseltme faydalarının toplamı (contractBonus, goodsYield, sellBonus, offlineBonus, facilitySpeed, expansionDiscount)
 function Core.getBonus(save: PlayerSave, key: string): number
-	return Core.getEquippedBonus(save, key) + Core.getUpgradeBonus(save, key) + Core.getPerkBonus(save, key)
+	return Core.getEquippedBonus(save, key)
+		+ Core.getUpgradeBonus(save, key)
+		+ Core.getPerkBonus(save, key)
+		+ Core.getMilestoneBonus(save, key)
 end
 
 -- Pasif Gelir: alınmışsa çevrimdışı kazanç doğrudan kasaya yatar; alınmamışsa yalnızca depo birikir (dolunca durur).
@@ -214,6 +233,7 @@ function Core.getStorageCap(save: PlayerSave): number
 		end
 	end
 	bonus += Core.getEquippedBonus(save, "storageBonus")
+	bonus += Core.getMilestoneBonus(save, "storageBonus")
 	-- Oyun geçidi: ekstra depo
 	for key, pass in Config.PRODUCTS.passes do
 		if pass.storageBonus and save.passes and save.passes[key] then

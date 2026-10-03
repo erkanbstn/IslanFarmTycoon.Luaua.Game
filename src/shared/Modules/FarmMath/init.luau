@@ -32,6 +32,7 @@ FarmMath.formatRate = Format.formatRate
 FarmMath.applyDerived = Core.applyDerived
 FarmMath.getPerkLevel = Core.getPerkLevel
 FarmMath.getPerkBonus = Core.getPerkBonus
+FarmMath.getMilestoneBonus = Core.getMilestoneBonus
 FarmMath.isReturnActive = Core.isReturnActive
 FarmMath.getEquippedBonus = Core.getEquippedBonus
 FarmMath.getBonus = Core.getBonus

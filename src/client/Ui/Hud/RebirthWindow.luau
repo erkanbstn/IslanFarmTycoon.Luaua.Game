@@ -1,5 +1,5 @@
 --!strict
--- Rebirth yalnız hazırken açılır; kalıcı etki seçimi ve ayrı onay olmadan sıfırlama gönderilmez.
+-- Rebirth yolculuğu her zaman incelenir; sıfırlama yalnız hazırken iki ayrı onayla gönderilir.
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
@@ -54,15 +54,56 @@ function RebirthWindow.create(parent: Instance): { window: UiKit.Window, update:
 		title = "Rebirth",
 		icon = "🔄",
 		tint = UiKit.Color.Gold,
-		width = 460,
+		width = 500,
 		maxHeight = 600,
 		anchor = Vector2.new(0.5, 0.5),
 		position = UDim2.fromScale(0.5, 0.5),
 	})
 	local overview = UiKit.text(window.list, "", "Heading")
+	overview.Name = "RebirthOverview"
 	overview.LayoutOrder = 0
-	UiKit.text(window.list, "Kalıcı bir etki seç. Seçmeden yeni tur başlamaz.", "Body").LayoutOrder = 1
-	local choiceGrid = UiKit.autoGrid(window.list, 2, 2)
+	local target = UiKit.text(window.list, "", "Body")
+	target.Name = "RebirthRequirements"
+	target.LayoutOrder = 1
+	local milestone = UiKit.text(window.list, "", "Body", UiKit.Color.Green)
+	milestone.Name = "NextMilestone"
+	milestone.LayoutOrder = 2
+	local choicePage = Instance.new("Frame")
+	choicePage.Name = "PerkChoices"
+	choicePage.BackgroundTransparency = 1
+	choicePage.Size = UDim2.new(1, 0, 0, 0)
+	choicePage.AutomaticSize = Enum.AutomaticSize.Y
+	choicePage.LayoutOrder = 4
+	choicePage.Parent = window.list
+	UiKit.list(choicePage, 8)
+	local journeyPage = Instance.new("Frame")
+	journeyPage.Name = "RebirthJourney"
+	journeyPage.BackgroundTransparency = 1
+	journeyPage.Size = UDim2.new(1, 0, 0, 0)
+	journeyPage.AutomaticSize = Enum.AutomaticSize.Y
+	journeyPage.LayoutOrder = 4
+	journeyPage.Visible = false
+	journeyPage.Parent = window.list
+	UiKit.list(journeyPage, 8)
+	UiKit.tabs(window.list, 3, {
+		{ id = "choice", label = "Etki Seç" },
+		{ id = "journey", label = "30 Rebirth Yolculuğu" },
+	}, function(id: string)
+		choicePage.Visible = id == "choice"
+		journeyPage.Visible = id == "journey"
+	end)
+	local journeyRows: { [number]: { title: TextLabel, detail: TextLabel } } = {}
+	for level = 1, Config.PROGRESSION.maxRebirth do
+		local title = UiKit.text(journeyPage, "", "Heading")
+		title.Name = `MilestoneTitleR{level}`
+		title.LayoutOrder = level * 2
+		local detail = UiKit.text(journeyPage, "", "Caption")
+		detail.LayoutOrder = level * 2 + 1
+		journeyRows[level] = { title = title, detail = detail }
+	end
+	local choiceNote = UiKit.text(choicePage, "Kalıcı bir etki seç. Seçmeden yeni tur başlamaz.", "Body")
+	choiceNote.LayoutOrder = 1
+	local choiceGrid = UiKit.autoGrid(choicePage, 2, 2)
 	local choices: { [string]: UiKit.Card } = {}
 	local current: PlayerSave? = nil
 	local selected: string? = nil
@@ -94,25 +135,26 @@ function RebirthWindow.create(parent: Instance): { window: UiKit.Window, update:
 			update(current)
 		end
 	end)
-	local selection = UiKit.text(window.list, "Önce bir etki seç.", "Body")
+	local selection = UiKit.text(choicePage, "Önce bir etki seç.", "Body")
+	selection.Name = "SelectedPerk"
 	selection.LayoutOrder = 3
 	local lost = UiKit.text(
-		window.list,
+		choicePage,
 		"Sıfırlanacak: para, çiftlikler, hayvanlar, yükseltmeler, ırk, nakit eşyalar, tur yardımcıları, ürünler, siparişler ve başarımlar.",
 		"Body",
 		UiKit.Color.Red
 	)
 	lost.LayoutOrder = 4
 	UiKit.text(
-		window.list,
-		"Kalacak: altın, altın/Robux ile alınmış kalıcı eşyalar ve kolaylıklar, kalıcı geçitler, rebirth etkileri, günlük giriş serisi ve ayarlar.",
+		choicePage,
+		"Kalacak: altın, kalıcı ve rebirth ödülü eşyalar, kolaylıklar, kalıcı geçitler, rebirth etkileri, günlük giriş serisi ve ayarlar.",
 		"Body",
 		UiKit.Color.Green
 	).LayoutOrder =
 		5
-	local returnNotice = UiKit.text(window.list, "", "Body")
+	local returnNotice = UiKit.text(choicePage, "", "Body")
 	returnNotice.LayoutOrder = 6
-	local begin = UiKit.button(window.list, "Etki seç ve sıfırla", "disabled")
+	local begin = UiKit.button(choicePage, "Etki seç ve sıfırla", "disabled")
 	begin.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
 	begin.LayoutOrder = 7
 	local confirmBox = Instance.new("Frame")
@@ -121,7 +163,7 @@ function RebirthWindow.create(parent: Instance): { window: UiKit.Window, update:
 	confirmBox.AutomaticSize = Enum.AutomaticSize.Y
 	confirmBox.LayoutOrder = 8
 	confirmBox.Visible = false
-	confirmBox.Parent = window.list
+	confirmBox.Parent = choicePage
 	UiKit.list(confirmBox, 8)
 	UiKit.text(
 		confirmBox,
@@ -172,22 +214,64 @@ function RebirthWindow.create(parent: Instance): { window: UiKit.Window, update:
 			selected, confirmationRun = nil, nil
 			viewedRun = if record then record.run else nil
 		end
-		if not Progression.canRebirth(state) then
+		local ready = Progression.canRebirth(state)
+		if not ready then
 			confirmationRun = nil
-			if window.isOpen() then
-				window.close()
-			end
-			return
 		end
 		if not window.isOpen() then
 			return
 		end
 		local count = if record then record.count else 0
-		UiKit.setText(overview, `Rebirth R{count} · Altı çiftlik tamamlandı`)
+		local maximumRebirth = Config.PROGRESSION.maxRebirth
+		local summary = Progression.progress(state)
+		local complete = count >= maximumRebirth
+		UiKit.setText(
+			overview,
+			`Rebirth R{count}/{maximumRebirth} · {summary.farmsComplete}/{summary.farmsTotal} çiftlik hazır`
+		)
+		local requirements = summary.requirements or Progression.getCompletionRequirements(state)
+		UiKit.setText(
+			target,
+			if complete
+				then "R30 yolculuğu tamamlandı. Mevcut çiftliklerini geliştirmeye devam edebilirsin; yeni sıfırlama yok."
+				else requirements.description
+		)
+		local nextMilestone = if not complete then Progression.getMilestone(count + 1) else nil
+		local currentMilestone = Progression.getMilestone(count)
+		UiKit.setText(
+			milestone,
+			if nextMilestone
+				then if currentMilestone
+					then `Son kazanım: {currentMilestone.displayName}\n{currentMilestone.description}\nSonraki ödül R{count + 1}: {nextMilestone.displayName}\n{nextMilestone.description}`
+					else `Sonraki ödül R{count + 1}: {nextMilestone.displayName}\n{nextMilestone.description}`
+				else if currentMilestone
+					then `Son kazanım: {currentMilestone.displayName}\n{currentMilestone.description}`
+					else ""
+		)
+		choiceGrid.Visible = not complete
+		choiceNote.Visible = not complete
+		selection.Visible = not complete
+		lost.Visible = not complete
+		returnNotice.Visible = not complete
+		for level, row in journeyRows do
+			local reward = Progression.getMilestone(level)
+			if reward then
+				local status = if level <= count
+					then "Açıldı"
+					elseif level == count + 1 then "Sıradaki"
+					else "Kilitli"
+				UiKit.setText(row.title, `R{level} · {reward.displayName} · {status}`)
+				row.title.TextColor3 = if level <= count
+					then UiKit.Color.Green
+					elseif level == count + 1 then UiKit.Color.Gold
+					else UiKit.Color.TextMuted
+				UiKit.setText(row.detail, reward.description)
+			end
+		end
 		for id, card in choices do
 			local level = Progression.getPerkLevel(state, id)
 			local maximum = Config.PROGRESSION.perks[id].maxLevel
-			local available = Progression.canChoosePerk(state, id)
+			local available = not complete and Progression.canChoosePerk(state, id)
 			UiKit.setText(card.detail, `Seviye {level}/{maximum}`)
 			HudCommon.setPurchaseButton(
 				card.action,
@@ -195,7 +279,7 @@ function RebirthWindow.create(parent: Instance): { window: UiKit.Window, update:
 				if selected == id then "accent" elseif available then "primary" else "owned"
 			)
 		end
-		local canPrestige = Progression.canChoosePerk(state, "prestige")
+		local canPrestige = not complete and Progression.canChoosePerk(state, "prestige")
 		prestige.frame.Visible = canPrestige
 		HudCommon.setPurchaseButton(
 			prestige.action,
@@ -241,10 +325,14 @@ function RebirthWindow.create(parent: Instance): { window: UiKit.Window, update:
 			returnNotice,
 			`Geri Dönüş bonusu {Config.PROGRESSION.returnSeconds / 3600} saat gerçek zaman sürer; çıkışta durmaz. Yalnız ilk çiftliğin ana hayvanını etkiler ve ikinci çiftlikte sona erer.`
 		)
-		local canSubmit = selected ~= nil and Progression.canChoosePerk(state, selected)
+		local canSubmit = ready and not complete and selected ~= nil and Progression.canChoosePerk(state, selected)
 		confirmBox.Visible = confirmationRun ~= nil
-		begin.Visible = confirmationRun == nil
-		HudCommon.setPurchaseButton(begin, "Etki seç ve sıfırla", if canSubmit then "primary" else "disabled")
+		begin.Visible = not complete and confirmationRun == nil
+		HudCommon.setPurchaseButton(
+			begin,
+			if ready then "Etki seç ve sıfırla" else "Çiftlik hedeflerini tamamla",
+			if canSubmit then "primary" else "disabled"
+		)
 		HudCommon.setPurchaseButton(confirm, "Onayla ve yeni tura başla", if canSubmit then "danger" else "disabled")
 	end
 	window.frame:GetPropertyChangedSignal("Visible"):Connect(function()

@@ -7,39 +7,64 @@ local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Co
 
 local ItemText = {}
 
+local function percent(label: string, value: number): string
+	return `{label}: {if value >= 0 then "+" else "-"}%{math.round(math.abs(value) * 100)}`
+end
+
+local function points(label: string, value: number): string
+	return `{label}: {if value >= 0 then "+" else "-"}{math.round(math.abs(value) * 100)} puan`
+end
+
+function ItemText.slotNotice(item: Config.ItemConfig): string
+	local slot = Config.ITEM_SLOTS[item.slot]
+	return `Yuva: {if slot then slot.displayName else item.slot} · Takılı eşyanın yerine geçer.`
+end
+
 function ItemText.describe(item: Config.ItemConfig): string
 	local parts: { string } = {}
 	local effects = item.effects
 	if effects then
 		if effects.upgradeDiscount then
-			table.insert(parts, `Yükseltme maliyetleri -%{math.round(effects.upgradeDiscount * 100)}`)
+			table.insert(parts, percent("Yükseltme maliyeti", -effects.upgradeDiscount))
 		end
 		if effects.expansionDiscount then
-			table.insert(parts, `Geliştirme maliyetleri -%{math.round(effects.expansionDiscount * 100)}`)
+			table.insert(parts, percent("Geliştirme maliyeti", -effects.expansionDiscount))
 		end
 		if effects.storageBonus then
-			table.insert(parts, `Depo kapasitesi +%{math.round(effects.storageBonus * 100)}`)
+			table.insert(parts, percent("Depo kapasitesi", effects.storageBonus))
 		end
 		if effects.growthSpeed then
-			table.insert(parts, `Hayvanlar %{math.round((effects.growthSpeed - 1) * 100)} daha hızlı büyür`)
+			table.insert(parts, percent("Hayvan büyüme hızı", effects.growthSpeed - 1))
 		end
 		if effects.incomeBonus then
-			table.insert(parts, `Bütün gelir +%{math.round(effects.incomeBonus * 100)}`)
+			table.insert(parts, percent("Bütün gelir", effects.incomeBonus))
 		end
 		if effects.contractBonus then
-			table.insert(parts, `Ahır siparişi ödülü +%{math.round(effects.contractBonus * 100)}`)
+			table.insert(parts, percent("Ahır siparişi ödülü", effects.contractBonus))
 		end
 		if effects.goodsYield then
-			table.insert(parts, `Ürün merkezi verimi +%{math.round(effects.goodsYield * 100)}`)
+			table.insert(parts, percent("Ürün merkezi verimi", effects.goodsYield))
 		end
 		if effects.sellBonus then
-			table.insert(parts, `Hayvan satış geliri +%{math.round(effects.sellBonus * 100)}`)
+			table.insert(parts, percent("Hayvan satış geliri", effects.sellBonus))
 		end
 		if effects.facilitySpeed then
-			table.insert(parts, `Üretim tesisleri %{math.round(effects.facilitySpeed * 100)} daha hızlı`)
+			table.insert(parts, percent("Üretim süresi", -effects.facilitySpeed))
 		end
 		if effects.offlineBonus then
-			table.insert(parts, `Çevrimdışı kazanç +%{math.round(effects.offlineBonus * 100)}`)
+			table.insert(parts, points("Çevrimdışı gelir oranı", effects.offlineBonus))
+		end
+	end
+	local tradeoffs = item.tradeoffs
+	if tradeoffs then
+		if tradeoffs.offlineBonus then
+			table.insert(parts, points("Çevrimdışı gelir oranı", -tradeoffs.offlineBonus))
+		end
+		if tradeoffs.facilitySpeed then
+			table.insert(parts, percent("Üretim süresi", tradeoffs.facilitySpeed))
+		end
+		if tradeoffs.goodsYield then
+			table.insert(parts, percent("Ürün merkezi verimi", -tradeoffs.goodsYield))
 		end
 	end
 	local power = item.power

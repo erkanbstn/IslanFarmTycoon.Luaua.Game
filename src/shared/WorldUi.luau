@@ -41,7 +41,7 @@ local function iconChip(parent: Instance, icon: string, tint: Color3?): TextLabe
 	chip.Text = icon
 	chip.TextScaled = true
 	chip.FontFace = Font.Body
-	chip.TextColor3 = Color.Text
+	chip.TextColor3 = Color.WorldText
 	chip.LayoutOrder = 1
 	chip.Parent = parent
 
@@ -75,7 +75,7 @@ function WorldUi.tag(parent: Instance, name: string, options: TagOptions): Billb
 	local pill = Instance.new("Frame")
 	pill.Name = "Pill"
 	pill.Size = UDim2.fromScale(1, 1)
-	pill.BackgroundColor3 = Color.Panel
+	pill.BackgroundColor3 = Color.WorldPanel
 	pill.BackgroundTransparency = 0.12
 	pill.Parent = gui
 	local corner = Instance.new("UICorner")
@@ -169,7 +169,7 @@ function WorldUi.sign(part: BasePart, face: Enum.NormalId, options: SignOptions)
 	root.AnchorPoint = Vector2.new(0.5, 0.5)
 	root.Position = UDim2.fromScale(0.5, 0.5)
 	root.Size = UDim2.fromScale(0.96, 0.88)
-	root.BackgroundColor3 = Color.Panel
+	root.BackgroundColor3 = Color.WorldPanel
 	root.BackgroundTransparency = 0.08
 	root.Parent = gui
 	local plateCorner = Instance.new("UICorner")
@@ -191,7 +191,7 @@ function WorldUi.sign(part: BasePart, face: Enum.NormalId, options: SignOptions)
 	layout.Parent = root
 
 	if options.icon then
-		iconChip(root, options.icon, options.tint or Color.Gold)
+		iconChip(root, options.icon, options.tint or Color.WorldGold)
 	end
 
 	-- İkon kare olduğu için yazı sütununun genişliği yüzün en-boy oranına göre hesaplanır
@@ -222,7 +222,7 @@ function WorldUi.sign(part: BasePart, face: Enum.NormalId, options: SignOptions)
 		title.FontFace = Font.Display
 		title.TextScaled = true
 		title.TextWrapped = true
-		title.TextColor3 = Color.Gold
+		title.TextColor3 = Color.WorldGold
 		title.TextXAlignment = align
 		title.Text = options.title
 		title.LayoutOrder = 1
@@ -277,7 +277,7 @@ function WorldUi.board(part: BasePart, face: Enum.NormalId, options: { title: st
 	header.LayoutOrder = 0
 	header.Parent = root
 	if options.icon then
-		local chip = iconChip(header, options.icon, Color.Gold)
+		local chip = iconChip(header, options.icon, Color.WorldGold)
 		chip.Position = UDim2.fromScale(0, 0)
 	end
 	local title = Instance.new("TextLabel")
@@ -288,7 +288,7 @@ function WorldUi.board(part: BasePart, face: Enum.NormalId, options: { title: st
 	title.FontFace = Font.Display
 	title.TextScaled = true
 	title.TextWrapped = true
-	title.TextColor3 = Color.Gold
+	title.TextColor3 = Color.WorldGold
 	title.TextXAlignment = Enum.TextXAlignment.Left
 	title.Text = options.title
 	title.Parent = header
@@ -324,7 +324,7 @@ function WorldUi.board(part: BasePart, face: Enum.NormalId, options: { title: st
 		value.BackgroundTransparency = 1
 		value.FontFace = Font.Display
 		value.TextScaled = true
-		value.TextColor3 = Color.Gold
+		value.TextColor3 = Color.WorldGold
 		value.TextXAlignment = Enum.TextXAlignment.Right
 		value.Text = ""
 		value.Parent = row
@@ -401,7 +401,7 @@ function WorldUi.floatingMoney(parent: BasePart, text: string, reducedMotion: bo
 	local gui = WorldUi.tag(parent, "CollectedMoney", {
 		text = text,
 		icon = "💰",
-		tint = Color.Gold,
+		tint = Color.WorldGold,
 		widthStuds = 6,
 		heightStuds = 1.6,
 		offset = Vector3.new(0, 2, 0),

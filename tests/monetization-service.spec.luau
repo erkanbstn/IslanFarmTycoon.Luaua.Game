@@ -402,8 +402,12 @@ return function(createService: any, createHarness: any, createLimiter: any, code
 	-- Yeni para ve kalıcı haklar gerçek makbuz yolundan geçer; ikinci makbuz ücretli hakkı yok etmez.
 	local newProducts = {
 		gold_100 = 9101,
+		instant_growth = 9107,
 		run_double_income = 9102,
 		permanent_golden_crown = 9103,
+		income_pack_small = 9104,
+		income_pack_large = 9105,
+		permanent_auto_collect = 9106,
 	}
 	local previousIds: { [string]: number } = {}
 	for key, id in newProducts do
@@ -452,6 +456,54 @@ return function(createService: any, createHarness: any, createLimiter: any, code
 	assert(run.data.progression.doubleCredits == 1, "second late purchase becomes one future run credit")
 	run.fire("RequestPromptProduct", "product", "run_double_income")
 	assert(#run.market.productPrompts == 0, "active run bonus cannot be sold again through the UI")
+	local growth = setup()
+	growth.data.animals = {
+		{ stage = "calf", bornAt = growth.now, uid = "calf", animalId = "cow", zoneId = "starter" },
+		{ stage = "young", bornAt = growth.now, uid = "young", animalId = "cow", zoneId = "starter" },
+	}
+	assert(
+		growth.service.processReceipt(growth.receipt("grow-first", 9107)) == decision.PurchaseGranted,
+		"growth purchase is saved before acknowledgement"
+	)
+	assert(
+		growth.data.animals[1].stage == "adult" and growth.data.animals[2].stage == "adult",
+		"both youth stages grow completely"
+	)
+	growth.service.processReceipt(growth.receipt("grow-first", 9107))
+	assert(growth.data.gold == 0, "growth receipt replay cannot turn into a second compensation")
+	assert(
+		growth.service.processReceipt(growth.receipt("grow-late", 9107)) == decision.PurchaseGranted,
+		"late growth delivery without young animals compensates the paid right"
+	)
+	assert(growth.data.gold == products.instant_growth.goldAmount, "late growth receives full configured compensation")
+	growth.fire("RequestPromptProduct", "product", "instant_growth")
+	assert(#growth.market.productPrompts == 0, "no-young-animal state cannot open growth purchase")
+	local terminal = setup()
+	terminal.data.progression.count = config.PROGRESSION.maxRebirth
+	terminal.data.progression.runDouble = true
+	local compensated = config.PROGRESSION.terminalDoubleGold
+	for _ = 1, 30 do
+		assert(
+			terminal.service.processReceipt(terminal.receipt("terminal-repeat", 9102)) == decision.PurchaseGranted,
+			"terminal delayed purchase is acknowledged after durable compensation"
+		)
+	end
+	assert(
+		terminal.data.gold == compensated and terminal.data.progression.doubleCredits == 0,
+		"thirty receipt retries grant one terminal compensation and no unusable credit"
+	)
+	terminal.data.gold = config.PROGRESSION.gold.maxBalance
+	assert(
+		terminal.service.processReceipt(terminal.receipt("terminal-full", 9102)) == decision.NotProcessedYet,
+		"full terminal wallet defers the paid right"
+	)
+	assert(not table.find(terminal.data.receipts, "terminal-full"), "deferred terminal purchase remains retryable")
+	terminal.data.gold = 0
+	assert(
+		terminal.service.processReceipt(terminal.receipt("terminal-full", 9102)) == decision.PurchaseGranted,
+		"terminal purchase retries after capacity relief"
+	)
+	assert(terminal.data.gold == compensated, "terminal compensation is delivered in full")
 	local permanent = setup()
 	permanent.data.inventory.items.golden_crown = true -- bu turda nakitle alınmış, henüz kalıcı değil
 	assert(
@@ -484,6 +536,31 @@ return function(createService: any, createHarness: any, createLimiter: any, code
 		"income pack delivery is acknowledged"
 	)
 	assert(parked.data.cash == 12345 * 3600, "income pack uses the account permanent reference, not active farm")
+	for index, key in { "income_pack_small", "income_pack_large" } do
+		local pack = setup()
+		pack.data.permanentParkedIncomeBest = 100
+		assert(
+			pack.service.processReceipt(pack.receipt(`cash-size-{index}`, newProducts[key])) == decision.PurchaseGranted,
+			"each cash size is delivered through the actual saved receipt path"
+		)
+		assert(
+			pack.data.cash == 100 * 3600 * products[key].incomeHours,
+			"cash sizes use their exact configured duration"
+		)
+		pack.service.processReceipt(pack.receipt(`cash-size-{index}`, newProducts[key]))
+		assert(pack.data.cash == 100 * 3600 * products[key].incomeHours, "each cash size replay cannot grant twice")
+	end
+	local autoPassId = passes.auto_collector.id
+	passes.auto_collector.id = 7101
+	local passCollector = setup()
+	passCollector.data.passes = { auto_collector = true }
+	passCollector.fire("RequestPromptProduct", "product", "permanent_auto_collect")
+	assert(#passCollector.market.productPrompts == 0, "collector pass blocks equivalent permanent product prompt")
+	local goldCollector = setup()
+	goldCollector.data.owned.conveniences.auto_collect = true
+	goldCollector.fire("RequestPromptProduct", "pass", "auto_collector")
+	assert(#goldCollector.market.passPrompts == 0, "gold collector blocks equivalent pass prompt")
+	passes.auto_collector.id = autoPassId
 	for key, id in previousIds do
 		products[key].id = id
 	end

@@ -26,7 +26,6 @@ local IslandContext = require(script.Parent.Parent:WaitForChild("Core"):WaitForC
 local IslandManager = require(script.Parent:WaitForChild("IslandManager"))
 local Sfx = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("Sfx"))
 local Hud = script.Parent:WaitForChild("Hud")
-local StoreSection = require(Hud:WaitForChild("StoreSection"))
 local RewardsSection = require(Hud:WaitForChild("RewardsSection"))
 local BoardSection = require(Hud:WaitForChild("BoardSection"))
 local SeasonBar = require(Hud:WaitForChild("SeasonBar"))
@@ -34,7 +33,7 @@ local Onboarding = require(Hud:WaitForChild("Onboarding"))
 local OnboardingBanner = require(Hud:WaitForChild("OnboardingBanner"))
 local ItemShopWindow = require(Hud:WaitForChild("ItemShopWindow"))
 local InventoryWindow = require(Hud:WaitForChild("InventoryWindow"))
-local ProgressionWindow = require(Hud:WaitForChild("ProgressionWindow"))
+local MarketWindow = require(Hud:WaitForChild("MarketWindow"))
 local RebirthWindow = require(Hud:WaitForChild("RebirthWindow"))
 local IslandTabs = require(Hud:WaitForChild("IslandTabs"))
 local ShopWindow = require(Hud:WaitForChild("ShopWindow"))
@@ -95,17 +94,8 @@ local boardWindow = UiKit.window(hudRoot, {
 	anchor = Vector2.new(0.5, 0.5),
 	position = UDim2.fromScale(0.5, 0.5),
 })
-local storeWindow = UiKit.window(hudRoot, {
-	title = "Robux Marketi",
-	icon = "🎒",
-	tint = Color.Blue,
-	width = 380,
-	maxHeight = 480,
-	anchor = Vector2.new(0.5, 0.5),
-	position = UDim2.fromScale(0.5, 0.5),
-})
 -- Eşya Dükkânı (meydandaki satıcı) ve Envanter
-local progressionPanel = ProgressionWindow.create(hudRoot)
+local progressionPanel = MarketWindow.create(hudRoot)
 local itemShop = ItemShopWindow.create(hudRoot, function()
 	progressionPanel.open("permanent")
 end)
@@ -121,7 +111,6 @@ local statsHud = StatsPanel.create(hudRoot)
 local toastRelay: { show: (message: string, kind: string?) -> () } = {
 	show = function(_message: string, _kind: string?) end,
 }
-local storeForSale = StoreSection.isForSale()
 local menu = MenuBar.create(hudRoot, function(message: string)
 	toastRelay.show(message, "info")
 end)
@@ -138,7 +127,7 @@ menu.goldButton.Activated:Connect(function()
 	toggleWindow(progressionPanel.window)
 end)
 statsHud.progressionButton.Activated:Connect(function()
-	progressionPanel.open()
+	progressionPanel.open("convert")
 end)
 menu.rebirthButton.Activated:Connect(function()
 	toggleWindow(rebirthPanel.window)
@@ -147,11 +136,9 @@ end)
 menu.rewardsButton.Activated:Connect(function()
 	toggleWindow(rewardsWindow)
 end)
-if storeForSale then
-	menu.storeButton.Activated:Connect(function()
-		toggleWindow(storeWindow)
-	end)
-end
+menu.storeButton.Activated:Connect(function()
+	toggleWindow(progressionPanel.window)
+end)
 menu.inventoryButton.Activated:Connect(function()
 	toggleWindow(inventoryPanel.window)
 end)
@@ -160,16 +147,11 @@ end)
 -- Ödüller penceresi: günlük ödül ve başarımlar
 ---------------------------------------------------------------------------
 
--- Satışta ürün yoksa dükkân karosu da güncelleme de yoktur (kimlikler Config/Shop'ta doldurulunca açılır)
-local updateStore: ((PlayerSave) -> ())? = if storeForSale then StoreSection.create(storeWindow.list) else nil
 local updateRewardsSection, updateRewardsBadge = RewardsSection.create(rewardsWindow.list, menu.setRewardsBadge)
 -- Kapalı pencerenin içeriği çizilmez (açılınca `redraw` tazeler); yalnızca Ödüller rozet sayısı güncel tutulur.
 local function updateRewards(state: PlayerSave?)
 	if not state then
 		return
-	end
-	if updateStore and storeWindow.isOpen() then
-		updateStore(state)
 	end
 	if rewardsWindow.isOpen() then
 		updateRewardsSection(state)
@@ -423,7 +405,7 @@ local function redraw()
 		onState(state, true)
 	end
 end
-for _, window in { rewardsWindow, boardWindow, storeWindow, progressionPanel.window, rebirthPanel.window } do
+for _, window in { rewardsWindow, boardWindow, progressionPanel.window, rebirthPanel.window } do
 	window.frame:GetPropertyChangedSignal("Visible"):Connect(function()
 		if window.isOpen() then
 			redraw()

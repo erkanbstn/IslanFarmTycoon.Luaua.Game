@@ -52,7 +52,10 @@ function Controls.setVariant(target: TextButton, variant: Variant)
 	local interactive = variant ~= "disabled" and variant ~= "owned"
 	target.Active = interactive
 	target.AutoButtonColor = interactive
-	target.TextColor3 = if interactive then Tokens.Color.Text else Tokens.Color.TextMuted
+	target.TextColor3 = if variant == "disabled"
+		then Tokens.Color.TextMuted
+		elseif variant == "secondary" then Tokens.Color.Text
+		else Tokens.Color.OnAccent
 end
 
 function Controls.button(parent: Instance, text: string, variant: Variant): TextButton
@@ -140,7 +143,7 @@ function Controls.pointer(target: GuiObject, text: string): (enabled: boolean) -
 	pill.Parent = holder
 	Base.corner(pill, Tokens.Radius.Button)
 	Base.padding(pill, 10, 5)
-	local label = Base.text(pill, text, "Caption", Tokens.Color.Panel)
+	local label = Base.text(pill, text, "Caption", Tokens.Color.OnAccent)
 	label.FontFace = Tokens.Font.Bold
 	label.AutomaticSize = Enum.AutomaticSize.XY
 	label.Size = UDim2.fromOffset(0, 0)
@@ -202,8 +205,8 @@ function Controls.menuButton(parent: Instance, icon: string, text: string, tint:
 	b.Text = ""
 	b.Size = UDim2.fromOffset(Tokens.MenuTileSize.X, Tokens.MenuTileSize.Y)
 	-- Zemin karonun rengine doğru tonlanır: sıradaki karolar renkten ayırt edilir
-	b.BackgroundColor3 = Tokens.Color.Panel:Lerp(tint, 0.32)
-	b.BackgroundTransparency = 0.06
+	b.BackgroundColor3 = Tokens.Color.Panel:Lerp(tint, 0.12)
+	b.BackgroundTransparency = 0
 	b.AutoButtonColor = true
 	b.Selectable = true
 	b.Parent = parent
@@ -396,7 +399,7 @@ function Controls.badge(target: GuiObject): (count: number) -> ()
 	badge.Size = UDim2.fromOffset(22, 22)
 	badge.Active = false -- dokunuş altındaki karoya geçer (karo zaten >= TouchTarget)
 	badge.BackgroundColor3 = Tokens.Color.Red
-	badge.TextColor3 = Tokens.Color.Text
+	badge.TextColor3 = Tokens.Color.OnAccent
 	badge.FontFace = Tokens.Font.Bold
 	badge.TextSize = Tokens.TextSize.Caption
 	badge.Visible = false

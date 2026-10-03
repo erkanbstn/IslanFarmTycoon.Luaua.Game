@@ -147,6 +147,71 @@ return function(codec: any, config: any, farmMath: any, progression: any, rebirt
 		"expired snapshot round trips"
 	)
 	assert(twice.animals[1].bornAt == expired.animals[1].bornAt, "reloading does not remap growth twice")
+	-- Gerçek saf reset + codec ile otuz turun tamamı; her tur yeni altı çiftlik kurulur.
+	local journey = fresh()
+	journey.receipts = { "original-paid-right" }
+	journey.owned.items.golden_crown = true
+	journey.inventory.items.golden_crown = true
+	for level = 1, config.PROGRESSION.maxRebirth do
+		for index = 1, config.MAIN_FARM_LIMIT do
+			local id = tostring(index)
+			local farm = codec.newFarm(config, farmMath, now, uid, id)
+			for _, upgrade in config.UPGRADES do
+				if not upgrade.leveled and config.upgradeInTheme(upgrade, id) then
+					farm.purchased[upgrade.id] = true
+				end
+			end
+			for target in config.BUILD_TARGETS do
+				farm.expansions[target] = config.BUILD_UPGRADES.maxLevel
+			end
+			farm.lineage[config.getTheme(id).homeAnimal] = config.LINEAGE.maxLevel
+			farmMath.applyDerived(farm)
+			journey.mainFarms[id] = farm
+		end
+		for key, value in journey.mainFarms["1"] do
+			journey[key] = value
+		end
+		local perk = nil
+		for _, id in config.PROGRESSION.perkOrder do
+			if progression.canChoosePerk(journey, id) then
+				perk = id
+				break
+			end
+		end
+		assert(perk and progression.canRebirth(journey), `level {level} has a valid effect and completion`)
+		if level == config.PROGRESSION.maxRebirth then
+			journey.progression.doubleCredits = 5
+		end
+		assert(rebirth.apply(journey, config, farmMath, progression, codec, now, uid, perk), `rebirth {level} applies`)
+		assert(
+			journey.progression.count == level and journey.progression.run == level + 1,
+			"exactly one generation advances"
+		)
+		journey = assert(
+			codec.decode(codec.encode(journey, now), config, farmMath, now, uid),
+			`rebirth {level} financial snapshot reloads`
+		)
+		assert(
+			journey.owned.items.golden_crown and #journey.receipts == 1,
+			"old paid rights and receipt history survive every turn"
+		)
+	end
+	assert(
+		journey.progression.doubleCredits == 0 and journey.progression.runDouble,
+		"terminal turn consumes one credit and compensates remaining unusable credits"
+	)
+	for _, milestone in config.PROGRESSION.milestones do
+		if milestone.itemId then
+			assert(
+				journey.owned.items[milestone.itemId] and journey.inventory.items[milestone.itemId],
+				"every free milestone is permanent and reloadable"
+			)
+		end
+	end
+	assert(
+		not rebirth.apply(journey, config, farmMath, progression, codec, now, uid, "income"),
+		"thirty-one cannot bypass pure server cap"
+	)
 	print(
 		"PASS financial rebirth: optional legacy data, strict money/rights/claims, snapshots, gold completion and reset preservation"
 	)

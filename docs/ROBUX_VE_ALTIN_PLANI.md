@@ -2,15 +2,17 @@
 
 Durum: **altın, kalıcı sahiplik ve ürün ödülleri uygulandı**; Creator Hub kimlikleri/fiyatları olmadığı için Robux satışları kapalıdır. Güncel teslim: [REBIRTH_GELISTIRME_RAPORU.md](REBIRTH_GELISTIRME_RAPORU.md), 4 Ekim 2026.
 
+Market genişletmesi: [MARKET_GELISTIRME_RAPORU.md](MARKET_GELISTIRME_RAPORU.md) ilk sekiz yeni ekipmanı ve birleşik kataloğu anlatır. Sonraki 30 rebirth geliştirmesi üç uzman ürün, beş ücretsiz rebirth ekipmanı, 50/3000 altın paketleri ve tek kullanımlık büyütme ürünü ekler. Güncel kalıcı satış teklifi sayısı 24'tür; fiyat/etki kaynağı Config'tir. [30 tur doğrulaması](REBIRTH_30_DOGRULAMA.md).
+
 ## Güncel satış ve ekonomi sözleşmesi
 
 - Her turun ana ada dahil 24 adası ve altı çiftliği için başlangıç altını 780'dir. Tamamlanma ödülü bir kere verilir; son ödüller rebirth sıfırlamasından önce tahsil edilir. R3/R10 bonuslarıyla 858/936 olabilir.
 - Altın kalıcıdır. Nakit çevirme günlük UTC 200, tur başına 600 ile sınırlıdır; rebirth bugünkü kotayı yenilemez. Bir altın 30 saniyelik kalıcı referans gelir eder. Referans, sahip olunan çiftliklerin en yüksek nötr yetişkin potansiyelidir; geçici Return/tur 2x, görev kaybı ve hava dahil değildir. Önizleme değişirse işlem reddedilir.
 - Üretim, büyüme ve eklenti bekleme süreleri altınla bitirilebilir. Sunucu güncel kalan süreyi, hayvan/iş kimliğini ve önizleme bedelini doğrular; eski işe ait istek yeni işi bitiremez.
-- Mevcut son seviye eşyaların on tanesi ve üç kolaylık ürünü altınla kalıcı edinilebilir. Tek kaynak `Config/Progression.permanentOffers` tablosudur. Altın Taç ve diğer eşyaların mevcut nakit yolları korunmuştur: nakit edinim tur içidir, altın/Robux kalıcıdır. Ayrı yeni mesh veya kozmetik sistemi eklenmedi.
-- Yeni Robux ürünleri: 100/500/1500 altın, tur 2x gelir ve 13 kalıcı teklif. Mevcut gelir paketi kalıcı referans gelirle hesaplanır; mevcut üretimi bitir ürünü korunur. Tüm yeni kimlikler 0'dır; platform fiyatı uydurulmaz.
+- Kalıcı satış teklifleri 21 ekipman ve üç kolaylıktır. Tek kaynak `Config/Progression.permanentOffers` tablosudur. Nakit edinim tur içidir, altın/Robux kalıcıdır. Beş rebirth ekipmanı ücretsiz kazanılır, satın alınamaz. Her yuvada tek ekipman takılır; tüm avantajlar üst üste toplanmaz. Yeni mesh üretilmedi.
+- Robux kataloğu: 50/100/500/1500/3000 altın, üç nakit paketi, tur 2x, kalıcı teklifler, mevcut üretimi bitir ve tek kullanımlık genç hayvanları büyüt. Nakit paketi kalıcı referans gelirle hesaplanır. Kimlikler 0 olduğundan satış kapalıdır; platform fiyatı uydurulmaz. Altın satın almak çevirme kotalarını artırmaz.
 - Mevcut 2x geçidi ile tur 2x üst üste 4x olmaz. Takılı eşya × rebirth gelirinin sert tavanı 3'tür; tur/geçit 2x bunun dışındadır. UI gelir etkisinin tavan sonrası ek kazancını gösterir.
-- Makbuz etkisi ve satın alma kimliği aynı kalıcı snapshot içindedir. Kayıt doğrulanmadan `PurchaseGranted` verilmez. Aynı makbuz tekrar ödül vermez. Ayrı ödeme nedeniyle ikinci kalıcı eşya teslimi gerekirse altın eşdeğeri verilir; cüzdan tavanında teslim ertelenir. Aktif 2x veya tamamlanmış turda gelen 2x makbuzu sonraki tur kredisine dönüşür.
+- Makbuz etkisi ve satın alma kimliği aynı kalıcı snapshot içindedir. Kayıt doğrulanmadan `PurchaseGranted` verilmez. Aynı makbuz tekrar ödül vermez. Ayrı ödeme nedeniyle ikinci kalıcı eşya teslimi altın eşdeğerini verir; cüzdan tavanında teslim ertelenir. R30 öncesi aktif 2x üzerine gelen 2x sonraki tur kredisidir; terminal krediler ve geç gelen ayrı 2x ödemeleri adet başına 200 altın olur. Hızlı büyütme tesliminde genç hayvan kalmamışsa 50 altın karşılık verilir. Dolu cüzdan hakları yok etmez.
 - Rebirth, kalıcı asanın bugünkü kullanımını ve finansal günlükleri korur. Geçmiş kayıtlar opsiyonel alanların güvenli varsayılanıyla yüklenir; sürüm artırıp kullanıcı verisi silme uygulanmadı.
 - R5 ek tılsım yuvası, R10 aura, R25 sipariş yuvası, görünüm sekmesi ve gezgin tüccara yeni ürün eklemek ayrı geliştirme kapsamıdır. Mevcut tüccar ve model sözleşmesi korunur. İlk sürüm mevcut ekipmana işlevsel kalıcı satın alma yolları verir.
 

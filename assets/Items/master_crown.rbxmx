@@ -1,0 +1,552 @@
+<roblox version="4">
+  <Item class="Model" referent="golden_crown">
+    <Properties>
+      <string name="Name">master_crown</string>
+      <BinaryString name="AttributesSerialize">AQAAAAYAAABBdHRhY2gCBAAAAGhlYWQ=</BinaryString>
+      <OptionalCoordinateFrame name="WorldPivotData">
+        <CFrame>
+          <X>0.00000000</X>
+          <Y>0.00000000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CFrame>
+      </OptionalCoordinateFrame>
+    </Properties>
+    <Item class="Part" referent="golden_crown_0">
+      <Properties>
+        <string name="Name">OpenGoldBandFront</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.21176470588235294</R>
+          <G>0.6431372549019608</G>
+          <B>0.5607843137254902</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>1.98</X>
+          <Y>0.34</Y>
+          <Z>0.14</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.75000000</Y>
+          <Z>-0.82000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="golden_crown_1">
+      <Properties>
+        <string name="Name">OpenGoldBandBack</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.21176470588235294</R>
+          <G>0.6431372549019608</G>
+          <B>0.5607843137254902</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>1.98</X>
+          <Y>0.34</Y>
+          <Z>0.14</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.75000000</Y>
+          <Z>0.82000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="golden_crown_2">
+      <Properties>
+        <string name="Name">OpenGoldBandLeft</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.21176470588235294</R>
+          <G>0.6431372549019608</G>
+          <B>0.5607843137254902</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.14</X>
+          <Y>0.34</Y>
+          <Z>1.5</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.92000000</X>
+          <Y>0.75000000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="golden_crown_3">
+      <Properties>
+        <string name="Name">OpenGoldBandRight</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.21176470588235294</R>
+          <G>0.6431372549019608</G>
+          <B>0.5607843137254902</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.14</X>
+          <Y>0.34</Y>
+          <Z>1.5</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.92000000</X>
+          <Y>0.75000000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="golden_crown_4">
+      <Properties>
+        <string name="Name">RoyalPoint</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <Color3 name="Color">
+          <R>0.8509803921568627</R>
+          <G>0.7411764705882353</G>
+          <B>0.4823529411764706</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.3</X>
+          <Y>0.59</Y>
+          <Z>0.27</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.82000000</X>
+          <Y>1.20000000</Y>
+          <Z>-0.71000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="golden_crown_5">
+      <Properties>
+        <string name="Name">PointGem</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.21176470588235294</R>
+          <G>0.6431372549019608</G>
+          <B>0.5607843137254902</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.2</X>
+          <Y>0.2</Y>
+          <Z>0.2</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.82000000</X>
+          <Y>1.57000000</Y>
+          <Z>-0.71000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="golden_crown_6">
+      <Properties>
+        <string name="Name">RoyalPoint</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <Color3 name="Color">
+          <R>0.8509803921568627</R>
+          <G>0.7411764705882353</G>
+          <B>0.4823529411764706</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.3</X>
+          <Y>0.59</Y>
+          <Z>0.27</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.82000000</X>
+          <Y>1.20000000</Y>
+          <Z>-0.71000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="golden_crown_7">
+      <Properties>
+        <string name="Name">PointGem</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.21176470588235294</R>
+          <G>0.6431372549019608</G>
+          <B>0.5607843137254902</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.2</X>
+          <Y>0.2</Y>
+          <Z>0.2</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.82000000</X>
+          <Y>1.57000000</Y>
+          <Z>-0.71000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="golden_crown_8">
+      <Properties>
+        <string name="Name">RoyalPoint</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <Color3 name="Color">
+          <R>0.8509803921568627</R>
+          <G>0.7411764705882353</G>
+          <B>0.4823529411764706</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.3</X>
+          <Y>0.59</Y>
+          <Z>0.27</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.82000000</X>
+          <Y>1.20000000</Y>
+          <Z>0.71000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="golden_crown_9">
+      <Properties>
+        <string name="Name">PointGem</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.21176470588235294</R>
+          <G>0.6431372549019608</G>
+          <B>0.5607843137254902</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.2</X>
+          <Y>0.2</Y>
+          <Z>0.2</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.82000000</X>
+          <Y>1.57000000</Y>
+          <Z>0.71000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="golden_crown_10">
+      <Properties>
+        <string name="Name">RoyalPoint</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <Color3 name="Color">
+          <R>0.8509803921568627</R>
+          <G>0.7411764705882353</G>
+          <B>0.4823529411764706</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.3</X>
+          <Y>0.59</Y>
+          <Z>0.27</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.82000000</X>
+          <Y>1.20000000</Y>
+          <Z>0.71000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="golden_crown_11">
+      <Properties>
+        <string name="Name">PointGem</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.21176470588235294</R>
+          <G>0.6431372549019608</G>
+          <B>0.5607843137254902</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.2</X>
+          <Y>0.2</Y>
+          <Z>0.2</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.82000000</X>
+          <Y>1.57000000</Y>
+          <Z>0.71000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="golden_crown_12">
+      <Properties>
+        <string name="Name">Crest</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.807843137254902</R>
+          <G>0.6823529411764706</G>
+          <B>0.4235294117647059</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.56</X>
+          <Y>0.39</Y>
+          <Z>0.1</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.94000000</Y>
+          <Z>-0.91000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="golden_crown_13">
+      <Properties>
+        <string name="Name">Ruby</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.7450980392156863</R>
+          <G>0.6039215686274509</G>
+          <B>0.34509803921568627</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.26</X>
+          <Y>0.26</Y>
+          <Z>0.26</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.97000000</Y>
+          <Z>-1.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+  </Item>
+</roblox>

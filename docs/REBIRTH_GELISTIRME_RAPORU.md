@@ -1,5 +1,7 @@
 # Rebirth, altın ve Robux geliştirme raporu
 
+Sonraki aşama notu (4 Ekim): Bu teslim kullanıcı onayıyla `2cc4a74` olarak commit/push edildi ve uzak main'e birleştirildi. Aşağıdaki commit/publish ifadeleri ilk teslim anının kaydıdır. Yeni market, ürün çeşitleri ve güncel doğrulama [MARKET_GELISTIRME_RAPORU.md](MARKET_GELISTIRME_RAPORU.md) içindedir; canlı yayın veya genel veri sıfırlaması yapılmadı.
+
 Başlangıç: 3 Ekim 2026, `main` / `dace9fd`. Çalışma dalı: `codex/rebirth-altin-robux`. Önceden bulunan `OYUNCU_AKISI_INCELEMESI.md` korundu. Commit, push, yayınlama veya veri sıfırlama yapılmaz; son yayın ve yönetici sıfırlaması kullanıcıdadır.
 
 ## Uygulama sözleşmesi

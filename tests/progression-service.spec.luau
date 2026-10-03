@@ -37,6 +37,10 @@ return function(factory: any, harness: any, codec: any, config: any, farmMath: a
 			h.task,
 			h.warn
 		)
+		h.equipmentRefreshes = 0
+		service.configureEquipmentRefresh(function()
+			h.equipmentRefreshes += 1
+		end)
 		service.init()
 		h.data.gold = 1000
 		h.data.transfers = { outbox = {}, received = {} }
@@ -65,6 +69,23 @@ return function(factory: any, harness: any, codec: any, config: any, farmMath: a
 		"owned purchase cannot charge twice"
 	)
 	assert(h.data.gold == boughtBalance, "duplicate ownership preserves wallet")
+	local collector = setup()
+	collector.data.passes = { auto_collector = true }
+	local collectorBalance = collector.data.gold
+	assert(
+		not collector.fire(
+			"RequestGoldAction",
+			"buy",
+			collector.nextId(),
+			"1",
+			{ expectedRun = 1, offerId = "auto_collect" }
+		).ok,
+		"existing collector pass blocks an equivalent permanent gold purchase"
+	)
+	assert(
+		collector.data.gold == collectorBalance and collector.counters.saves == 0,
+		"equivalent ownership never debits or saves"
+	)
 	local requestId = h.nextId()
 	assert(
 		h.fire("RequestGoldAction", "buy", requestId, "1", { expectedRun = 1, offerId = "pet_cash" }).ok,
@@ -161,19 +182,48 @@ return function(factory: any, harness: any, codec: any, config: any, farmMath: a
 		not h.fire("RequestRebirth", "income", h.nextId(), "1", { expectedRun = 41 }).ok,
 		"maxed perk cannot exceed its bound"
 	)
-	assert(
-		h.fire("RequestRebirth", "prestige", h.nextId(), "1", { expectedRun = 41 }).ok,
-		"all-max prestige keeps rebirth available"
-	)
-	assert(
-		h.data.progression.count == 41 and h.data.progression.run == 42 and h.data.progression.perks.income == 5,
-		"prestige advances generation without an extra point"
-	)
+	local beforeLegacy = codec.encode(h.data, h.now)
 	assert(
 		not h.fire("RequestRebirth", "prestige", h.nextId(), "1", { expectedRun = 41 }).ok,
-		"old rebirth run cannot replay"
+		"legacy accounts above thirty cannot bypass terminal cap with prestige"
 	)
-	assert(not service.collect(h.player), "incomplete fresh run causes no repeated claim write")
+	assert(
+		h.data.progression.count == 40 and h.data.progression.run == 41,
+		"legacy generations and perk rights remain untouched"
+	)
+	local decodedLegacy = assert(codec.decode(beforeLegacy, config, farmMath, h.now, function(): string
+		return "legacy"
+	end))
+	assert(
+		decodedLegacy.progression.count == 40 and decodedLegacy.progression.perks.income == 5,
+		"legacy forty points are not clamped or overwritten"
+	)
+	assert(service.collect(h.player), "legacy earned permanent rewards are repaired inside the financial checkpoint")
+	local savedAfterRepair = h.counters.saves
+	for _ = 1, 30 do
+		assert(not service.collect(h.player), "reward reconciliation replay is idempotent")
+	end
+	assert(h.counters.saves == savedAfterRepair, "thirty repeated claims produce no additional checkpoint")
+	h.data.progression.doubleCredits = 3
+	h.data.gold = config.PROGRESSION.gold.maxBalance
+	assert(
+		not service.collect(h.player) and h.data.progression.doubleCredits == 3,
+		"legacy prepaid terminal credits are retained when wallet is full"
+	)
+	h.data.gold = 0
+	assert(service.collect(h.player), "legacy prepaid credits are reconciled when capacity becomes available")
+	assert(
+		h.data.gold == 3 * config.PROGRESSION.terminalDoubleGold and h.data.progression.doubleCredits == 0,
+		"legacy prepaid rights convert in full exactly once"
+	)
+	assert(not service.collect(h.player), "legacy credit recovery cannot replay")
+	assert(h.equipmentRefreshes == 0, "rejected terminal resets never change equipped presentation")
+	h.data.progression.count, h.data.progression.run, h.data.progression.perks = 0, 1, {}
+	assert(
+		h.fire("RequestRebirth", "income", h.nextId(), "1", { expectedRun = 1 }).ok,
+		"valid server rebirth still advances below the cap"
+	)
+	assert(h.equipmentRefreshes == 1, "durable reset refreshes equipment after removing run-only items")
 	-- Gerçek döngü ve collect: bir oyuncunun kalıcı yazımı yield ederken diğeri tamamlanır.
 	local slow = harness.new({ unlockAll = true })
 	local secondData =
@@ -182,6 +232,16 @@ return function(factory: any, harness: any, codec: any, config: any, farmMath: a
 		end))
 	local firstData = slow.data
 	slow.playersList = { slow.player, slow.stranger }
+	local cohort = { [slow.player] = firstData, [slow.stranger] = secondData }
+	for index = 3, 30 do
+		local player = table.clone(slow.stranger)
+		player.UserId = slow.stranger.UserId + index
+		table.insert(slow.playersList, player)
+		cohort[player] =
+			assert(codec.decode(codec.encode(secondData, slow.now), config, farmMath, slow.now, function(): string
+				return `cohort-{index}`
+			end))
+	end
 	local stopped = false
 	local failFirst = false
 	slow.dataService.tryGet = function(player: any): any
@@ -191,7 +251,7 @@ return function(factory: any, harness: any, codec: any, config: any, farmMath: a
 			end
 			return firstData
 		end
-		return if player == slow.stranger then secondData else nil
+		return cohort[player]
 	end
 	slow.dataService.transactAccount = function(player: any, mutate: any, afterCallback: any): (boolean, string?)
 		if player == slow.player and not stopped then
@@ -220,27 +280,34 @@ return function(factory: any, harness: any, codec: any, config: any, farmMath: a
 	isolated.init()
 	assert(#slow.spawned == 1, "reinitialization cannot create a second polling loop")
 	slow.runSpawned(1)
-	assert(#slow.spawned == 3, "one worker is scheduled for each player")
+	assert(#slow.spawned == 31, "one worker is scheduled for each of thirty concurrent players")
 	local blocked = coroutine.create(slow.spawned[2])
 	local started, marker = coroutine.resume(blocked)
 	assert(started and marker == "slow datastore", "first player's real collect waits for durability")
-	slow.spawned[3]()
+	for index = 3, 31 do
+		slow.spawned[index]()
+	end
 	assert(secondData.gold > 0 and firstData.gold == 0, "another player's claim completes before the slow save resumes")
 	slow.runSpawned(1)
-	assert(#slow.spawned == 4, "in-flight player never accumulates extra workers")
-	slow.spawned[4]()
+	assert(#slow.spawned == 60, "in-flight player never accumulates extra workers while twenty-nine players continue")
+	for index = 32, 60 do
+		slow.spawned[index]()
+	end
 	assert(coroutine.resume(blocked) and firstData.gold > 0, "slow player's claim eventually completes")
 	slow.runSpawned(1)
-	assert(#slow.spawned == 6, "finished player can be scheduled again")
+	assert(#slow.spawned == 90, "finished player can be scheduled again across the thirty-player cohort")
 	failFirst = true
-	slow.spawned[5]()
+	slow.spawned[61]()
 	failFirst = false
-	slow.spawned[6]()
+	for index = 62, 90 do
+		slow.spawned[index]()
+	end
 	slow.runSpawned(1)
-	assert(#slow.spawned == 8, "exception clears the per-player worker guard")
-	slow.spawned[7]()
-	slow.spawned[8]()
+	assert(#slow.spawned == 120, "exception clears the per-player worker guard without leaking thirty-player jobs")
+	for index = 91, 120 do
+		slow.spawned[index]()
+	end
 	print(
-		"PASS progression service: Remote context, replay, permanent ownership, exact quote, stale jobs, finish cost, quarantine, prestige and isolated bounded workers"
+		"PASS progression service: Remote context, replay, permanent ownership, exact quote, stale jobs, finish cost, quarantine, terminal cap, legacy rights and isolated bounded workers"
 	)
 end

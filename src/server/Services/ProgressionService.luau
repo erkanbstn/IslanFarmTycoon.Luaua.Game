@@ -18,6 +18,11 @@ local Rebirth = require(script.Parent.Parent.Modules.Rebirth)
 
 local ProgressionService = {}
 local initialized = false
+local refreshEquipment: ((Player) -> ())? = nil
+
+function ProgressionService.configureEquipmentRefresh(callback: (Player) -> ())
+	refreshEquipment = callback
+end
 -- Ayrılan oyuncu kalıcı tabloda tutulmaz; çalışan işin kilidi pcall sonrasında temizlenir.
 local inFlight: { [Player]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 
@@ -104,7 +109,7 @@ function ProgressionService.tryGoldAction(
 				return false, "Geçersiz kalıcı ürün."
 			end
 			local owned = if offer.kind == "item" then data.owned.items else data.owned.conveniences
-			if owned[offer.id] then
+			if owned[offer.id] or (offer.id == "auto_collect" and data.passes and data.passes.auto_collector) then
 				return false, "Bu kalıcı ürüne zaten sahipsin."
 			end
 			if data.gold < offer.goldCost then
@@ -214,8 +219,26 @@ function ProgressionService.tryRebirth(
 		if ready then
 			PlotService.teleportHome(owner)
 		end
+		if refreshEquipment then
+			refreshEquipment(owner)
+		end
 		PlayerDataService.pushState(owner)
 	end)
+end
+
+local function reconcilePermanent(data: any): boolean
+	local changed = Progression.grantRebirthRewards(data)
+	local state = data.progression
+	local credits = state.doubleCredits or 0
+	if state.count >= Config.PROGRESSION.maxRebirth and credits > 0 then
+		local amount = credits * Config.PROGRESSION.terminalDoubleGold
+		if data.gold + amount <= Config.PROGRESSION.gold.maxBalance then
+			data.gold += amount
+			state.doubleCredits = 0
+			changed = true
+		end
+	end
+	return changed
 end
 
 function ProgressionService.collect(player: Player): boolean
@@ -229,16 +252,27 @@ function ProgressionService.collect(player: Player): boolean
 	local candidate: any = table.clone(data)
 	candidate.progression = table.clone(state)
 	candidate.progression.claims = table.clone(state.claims)
-	if Progression.collectGold(candidate, now) <= 0 then
+	local owned: any = data.owned
+	local inventory: any = data.inventory
+	candidate.owned = { items = table.clone(owned.items), conveniences = table.clone(owned.conveniences) }
+	candidate.inventory = table.clone(inventory)
+	candidate.inventory.items = table.clone(inventory.items)
+	local earned = Progression.collectGold(candidate, now)
+	local reconciled = reconcilePermanent(candidate)
+	if earned <= 0 and not reconciled then
 		return false
 	end
 	EconomyService.settlePlayer(player)
 	local gained = 0
 	local accepted = PlayerDataService.transactAccount(player, function(current: any): (boolean, string?)
 		gained = Progression.collectGold(current, now)
-		return gained > 0, nil
+		local repaired = reconcilePermanent(current)
+		return gained > 0 or repaired, nil
 	end, function(owner: Player)
-		Remotes.get("Notify"):FireClient(owner, `{gained} altın kazanıldı`, "money")
+		if gained > 0 then
+			Remotes.get("Notify"):FireClient(owner, `{gained} altın kazanıldı`, "money")
+		end
+		PlayerDataService.pushState(owner)
 	end)
 	return accepted
 end

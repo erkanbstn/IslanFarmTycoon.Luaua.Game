@@ -12,6 +12,9 @@ function Rebirth.apply(
 	newUid: () -> string,
 	perkId: string
 ): boolean
+	if not data.progression or data.progression.count >= config.PROGRESSION.maxRebirth then
+		return false
+	end
 	if not progression.canRebirth(data) or not progression.canChoosePerk(data, perkId) then
 		return false
 	end
@@ -19,6 +22,17 @@ function Rebirth.apply(
 		return false
 	end
 	local state = data.progression
+	local milestone = progression.getMilestone(state.count + 1)
+	local reward = if milestone then milestone.goldReward or 0 else 0
+	local terminalCredits = if state.count + 1 == config.PROGRESSION.maxRebirth
+		then math.max(0, (state.doubleCredits or 0) - 1)
+		else 0
+	if
+		(data.gold or 0) + reward + terminalCredits * config.PROGRESSION.terminalDoubleGold
+		> config.PROGRESSION.gold.maxBalance
+	then
+		return false
+	end
 	progression.collectGold(data, now)
 	local claimed = 0
 	for _ in state.claims do
@@ -27,6 +41,13 @@ function Rebirth.apply(
 	if claimed < config.MAIN_FARM_LIMIT * 5 then
 		return false
 	end
+	if
+		data.gold + reward + terminalCredits * config.PROGRESSION.terminalDoubleGold
+		> config.PROGRESSION.gold.maxBalance
+	then
+		return false
+	end
+	data.gold += reward + terminalCredits * config.PROGRESSION.terminalDoubleGold
 	state.count += 1
 	state.run += 1
 	if perkId ~= "prestige" then
@@ -41,6 +62,9 @@ function Rebirth.apply(
 	state.runDouble = (state.doubleCredits or 0) > 0
 	if state.runDouble then
 		state.doubleCredits -= 1
+	end
+	if terminalCredits > 0 then
+		state.doubleCredits = 0
 	end
 	data.activeMainFarmId = "1"
 	data.mainFarms = { ["1"] = codec.newFarm(config, farmMath, now, newUid, "1") }
@@ -61,6 +85,7 @@ function Rebirth.apply(
 			data.inventory.equipped[slot] = id
 		end
 	end
+	progression.grantRebirthRewards(data)
 	farmMath.applyDerived(data)
 	progression.applyReadyStart(data, now, newUid)
 	return true

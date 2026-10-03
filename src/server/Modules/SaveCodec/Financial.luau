@@ -15,6 +15,12 @@ function Financial.decode(source: any, config: any, now: number): any?
 	if not integer(gold, 0, config.PROGRESSION.gold.maxBalance) then
 		return nil
 	end
+	local earnedItems: { [string]: boolean } = {}
+	for _, milestone in config.PROGRESSION.milestones do
+		if milestone.itemId then
+			earnedItems[milestone.itemId] = true
+		end
+	end
 	local owned: any = { items = {}, conveniences = {} }
 	if source.owned ~= nil then
 		if
@@ -29,7 +35,10 @@ function Financial.decode(source: any, config: any, now: number): any?
 			for id, value in values :: any do
 				local offer: any = config.PROGRESSION.permanentOffers[id]
 				local expectedKind = if kind == "items" then "item" else "convenience"
-				if value ~= true or not offer or offer.kind ~= expectedKind then
+				if
+					value ~= true
+					or (not (offer and offer.kind == expectedKind) and not (kind == "items" and earnedItems[id]))
+				then
 					return nil
 				end
 				owned[kind][id] = true

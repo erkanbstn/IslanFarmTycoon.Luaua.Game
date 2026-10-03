@@ -115,6 +115,9 @@ return function(createController: any, createRebirthWindow: any)
 		Color = {},
 		TouchTarget = 44,
 		list = function() end,
+		tabs = function(): any
+			return node(), function() end
+		end,
 		autoGrid = function(): any
 			return node()
 		end,
@@ -165,6 +168,7 @@ return function(createController: any, createRebirthWindow: any)
 	local submissions = {}
 	local definition = {
 		PROGRESSION = {
+			maxRebirth = 30,
 			permanentIncomeCap = 3,
 			returnSeconds = 86400,
 			perkOrder = { "income", "growth" },
@@ -175,6 +179,15 @@ return function(createController: any, createRebirthWindow: any)
 		},
 	}
 	local progression = {
+		getMilestone = function(level: number): any
+			return if level > 0 then { displayName = `Milestone {level}`, description = `Reward {level}` } else nil
+		end,
+		getCompletionRequirements = function(): any
+			return { description = "Meaningful farm requirements" }
+		end,
+		progress = function(save: any): any
+			return { farmsComplete = if save.ready then 6 else 2, farmsTotal = 6 }
+		end,
 		getIncomeMultiplier = function(_save: any, itemMultiplier: number): number
 			return math.min(3, itemMultiplier)
 		end,
@@ -226,7 +239,14 @@ return function(createController: any, createRebirthWindow: any)
 	assert(#submissions == 0, "no effect selection cannot reset")
 	cards[1].action.Activated.fire()
 	assert(
-		string.find(labels[3].Text, "ek gelir: +%0", 1, true),
+		(function(): boolean
+			for _, label in labels do
+				if label.Name == "SelectedPerk" then
+					return string.find(label.Text, "ek gelir: +%0", 1, true) ~= nil
+				end
+			end
+			return false
+		end)(),
 		"income preview shows zero marginal gain when equipped items already reach the cap"
 	)
 	begin.Activated.fire()
@@ -246,16 +266,34 @@ return function(createController: any, createRebirthWindow: any)
 	assert(#submissions == 1, "repeated confirmation requires a fresh review")
 	switched.ready = false
 	panel.update(switched)
-	assert(not panel.window.isOpen(), "rebirth window closes when no longer ready")
-	local maxed: any = { ready = true, allMax = true, progression = { run = 3, count = 40 } }
+	assert(panel.window.isOpen(), "unfinished farms keep the journey available for inspection")
+	assert(not begin.Active and not confirm.Active, "unfinished farms cannot submit a reset")
+	local journeyCount = 0
+	for _, label in labels do
+		if label.Name and string.find(label.Name, "MilestoneTitleR", 1, true) then
+			journeyCount += 1
+		end
+		if label.Name == "NextMilestone" then
+			assert(string.find(label.Text, "R2", 1, true), "next reward follows current rebirth count")
+			assert(string.find(label.Text, "Milestone 1", 1, true), "earned milestone is shown beside the next reward")
+		end
+	end
+	assert(journeyCount == 30, "all 30 earned milestones can be inspected")
+	local maxed: any = { ready = false, allMax = true, progression = { run = 31, count = 30 } }
 	panel.update(maxed)
-	panel.window.open()
-	assert(cards[3].frame.Visible, "all effects at maximum exposes prestige fallback")
-	cards[3].action.Activated.fire()
-	begin.Activated.fire()
+	assert(panel.window.isOpen(), "R30 journey remains available after completion")
+	assert(not begin.Visible and not confirm.Active, "R30 hides further reset and disables confirmation")
+	for _, label in labels do
+		if label.Name == "RebirthRequirements" then
+			assert(string.find(label.Text, "yeni sıfırlama yok", 1, true), "R30 explains the journey has ended")
+		end
+		if label.Name == "NextMilestone" then
+			assert(string.find(label.Text, "Milestone 30", 1, true), "final milestone replaces unavailable R31 reward")
+		end
+	end
 	confirm.Activated.fire()
-	assert(#submissions == 2 and submissions[2].perk == "prestige", "maxed account can explicitly choose prestige")
+	assert(#submissions == 1, "completed journey never sends another reset")
 	print(
-		"PASS progression UI: exact run/quote transport, one request per intention, timeout, effect choice, second confirmation, stale runs and prestige"
+		"PASS progression UI: exact run/quote transport, confirmation, stale runs, 30 milestone journey and R30 terminal state"
 	)
 end

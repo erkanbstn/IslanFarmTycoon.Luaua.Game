@@ -24,7 +24,6 @@ local IslandManager = require(script.Parent.Parent:WaitForChild("IslandManager")
 local HudCommon = require(script.Parent:WaitForChild("HudCommon"))
 local Onboarding = require(script.Parent:WaitForChild("Onboarding"))
 local OnboardingSteps = require(Shared:WaitForChild("Modules"):WaitForChild("OnboardingSteps"))
-local StoreSection = require(script.Parent:WaitForChild("StoreSection"))
 
 type PlayerSave = GameTypes.PlayerSave
 
@@ -111,10 +110,11 @@ function MenuBar.create(screenGui: Instance, onUnlocked: ((message: string) -> (
 	local homeButton = UiKit.menuButton(sideBar, "🏠", "Adama Dön", Color.Orange, nil)
 	local settingsButton = UiKit.menuButton(sideBar, "⚙️", "Ayarlar", Color.TextMuted, nil)
 	local adminButton = UiKit.menuButton(sideBar, "🔑", "Yönetici", Color.Gold, nil)
-	-- Destek Dükkânı: yalnızca Config/Shop'ta satışa açık (kimliği 0 olmayan) ürün varsa görünür
-	local storeButton = UiKit.menuButton(sideBar, "💎", "Robux", Color.Blue, nil)
-	storeButton.Visible = StoreSection.isForSale()
+	-- Market, ücretli ürünler henüz kapalıyken de altın ve kalıcı eşya kataloğunu sunar.
+	local storeButton = UiKit.menuButton(sideBar, "💎", "Market", Color.Blue, nil)
+	storeButton.Visible = true
 	local goldButton = UiKit.menuButton(sideBar, "🪙", "Altın", Color.Gold, nil)
+	goldButton.Visible = false
 	local rebirthButton = UiKit.menuButton(sideBar, "🔄", "Rebirth", Color.Gold, nil)
 	rebirthButton.Visible = false
 
@@ -303,10 +303,11 @@ function MenuBar.create(screenGui: Instance, onUnlocked: ((message: string) -> (
 		setMenuTile(productionButton, ownsFactory, UNLOCK_NOTICES["Üretim"])
 		setMenuTile(homeButton, true) -- "Adama Dön" her zaman görünür: oyuncular adasını bulmakta zorlanıyor
 		setMenuTile(inventoryButton, ownsItems or step == 0, UNLOCK_NOTICES["Envanter"])
-		setMenuTile(goldButton, (state.gold or 0) > 0 or step == 0 or step >= 4)
+		goldButton.Visible = false
+		setMenuTile(storeButton, true)
 		-- Hazır olmayan turda bu karo gerçekten kaybolur; kalıcı menü açılma kuralına dahil değildir.
 		local ready = Progression.canRebirth(state)
-		rebirthButton.Visible = ready
+		rebirthButton.Visible = #state.animals > 0 or (state.progression ~= nil and state.progression.count > 0)
 		if ready ~= rebirthWasReady then
 			rebirthPulse(ready)
 			rebirthWasReady = ready
