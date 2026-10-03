@@ -47,7 +47,12 @@ return function(
 			visuals,
 			h.task,
 			h.warn,
-			fakeVector2
+			fakeVector2,
+			{
+				clone = function(): never
+					error("pad assets must not be cloned when build sites already cover the upgrades")
+				end,
+			}
 		)
 		h.service.init()
 		return h

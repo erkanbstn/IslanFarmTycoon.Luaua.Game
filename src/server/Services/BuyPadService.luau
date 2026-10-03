@@ -17,6 +17,7 @@ local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath")
 local RateLimiter = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("RateLimiter"))
 local UiTheme = require(Shared:WaitForChild("UiTheme"))
 local WorldUi = require(Shared:WaitForChild("WorldUi"))
+local ModelAssets = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("ModelAssets"))
 
 local PlayerDataService = require(script.Parent:WaitForChild("PlayerDataService"))
 local PlotService = require(script.Parent:WaitForChild("PlotService"))
@@ -28,6 +29,7 @@ local BuyPadService = {}
 
 local PADS_NAME = "BuyPads"
 local UPDATE_SECONDS = 1
+local warnedMissingPad = false
 
 -- Ada yerel (x, z) yuvaları: yolun ve bölge çitinin dışında, girişe yakın açık zemin.
 local SLOTS: { [string]: { Vector2 } } = {
@@ -90,29 +92,6 @@ function BuyPadService.pickUpgrades(
 	return result
 end
 
-local function disc(
-	parent: Instance,
-	name: string,
-	diameter: number,
-	height: number,
-	cf: CFrame,
-	color: Color3,
-	material: Enum.Material
-): Part
-	-- Silindirin ekseni X'tir; dik durması için Z etrafında 90° döndürülür.
-	local p = Instance.new("Part")
-	p.Name = name
-	p.Shape = Enum.PartType.Cylinder
-	p.Size = Vector3.new(height, diameter, diameter)
-	p.CFrame = cf * CFrame.Angles(0, 0, math.rad(90))
-	p.Color = color
-	p.Material = material
-	p.Anchored = true
-	p.CanCollide, p.CanTouch, p.CanQuery, p.CastShadow = false, false, false, false
-	p.Parent = parent
-	return p
-end
-
 -- Taş kaide + parlayan halka + havada dönen altın para; renk (yeterli/yetersiz) client'ta halkaya uygulanır.
 local function buildPad(
 	container: Model,
@@ -124,44 +103,42 @@ local function buildPad(
 	priceText: string
 )
 	local origin = frame * CFrame.new(slot.X, 0, slot.Y)
-	local pad = disc(
-		container,
-		`Pad_{upgrade.id}`,
-		5,
-		0.5,
-		origin * CFrame.new(0, 0.25, 0),
-		Color3.fromRGB(122, 118, 108),
-		Enum.Material.Cobblestone
-	)
-	local ring =
-		disc(container, "Ring", 4.4, 0.12, origin * CFrame.new(0, 0.56, 0), UiTheme.Color.Disabled, Enum.Material.Neon)
+	local model = ModelAssets.clone("FacilityProps", "BuyPad")
+	if not model then
+		if not warnedMissingPad then
+			warn("[BuyPad] FacilityProps/BuyPad modeli eksik; satın alma pedi çizilmedi")
+			warnedMissingPad = true
+		end
+		return
+	end
+	local pad = model:FindFirstChild("Pad")
+	local ring = model:FindFirstChild("Ring")
+	local coin = model:FindFirstChild("Coin")
+	if not (pad and pad:IsA("BasePart") and ring and ring:IsA("BasePart") and coin and coin:IsA("BasePart")) then
+		if not warnedMissingPad then
+			warn("[BuyPad] FacilityProps/BuyPad parça sözleşmesi hatalı; satın alma pedi çizilmedi")
+			warnedMissingPad = true
+		end
+		model:Destroy()
+		return
+	end
+	model:PivotTo(origin)
+	pad.Name = `Pad_{upgrade.id}`
+	ring.Color = UiTheme.Color.Disabled
 	ring:SetAttribute("UpgradeId", upgrade.id)
 	ring:SetAttribute("Cost", cost)
 	CollectionService:AddTag(ring, "BuyPad")
-	disc(
-		container,
-		"Inner",
-		3.7,
-		0.16,
-		origin * CFrame.new(0, 0.6, 0),
-		Color3.fromRGB(58, 54, 48),
-		Enum.Material.SmoothPlastic
-	)
 	local coinPosition = origin.Position + Vector3.new(0, 2.3, 0)
-	local coin = Instance.new("Part")
-	coin.Name = "Coin"
-	coin.Shape = Enum.PartType.Cylinder
-	coin.Size = Vector3.new(0.22, 1.7, 1.7)
 	coin.CFrame = CFrame.new(coinPosition)
 	coin.Color = UiTheme.Color.Gold
-	coin.Material = Enum.Material.Metal
-	coin.Anchored = true
-	coin.CanCollide, coin.CanTouch, coin.CanQuery, coin.CastShadow = false, false, false, false
 	coin:SetAttribute("Cost", cost)
 	coin:SetAttribute("UpgradeId", upgrade.id)
 	coin:SetAttribute("BasePos", coinPosition)
-	coin.Parent = container
 	CollectionService:AddTag(coin, "BuyPadSpin")
+	for _, child in model:GetChildren() do
+		child.Parent = container
+	end
+	model:Destroy()
 
 	WorldUi.tag(pad, "PadTag", {
 		text = `{upgrade.displayName} · {priceText}`,
