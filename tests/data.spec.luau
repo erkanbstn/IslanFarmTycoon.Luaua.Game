@@ -357,7 +357,32 @@ return function(lock: any, codec: any, config: any, farmMath: any)
 		"with the upgrade up to OFFLINE_UPGRADED_MAX_HOURS of income counts at the higher rate"
 	)
 
+	-- Veri çağı (yönetici "herkesi sıfırla"): çağı uyuşmayan kayıt temiz yeni oyun olur; uyuşan ve çağ verilmeyen korunur
+	local function progressed(epoch: number?): any
+		local farm = farmWithAnimals()
+		farm.cash = 5000
+		farm.lifetimeEarned = 777
+		farm.epoch = epoch
+		return farm
+	end
+	local epochSnap = codec.encode(progressed(3), now)
+	assert(epochSnap.epoch == 3, "the epoch is saved with the profile")
+	local sameEpoch = assert(codec.decode(epochSnap, config, farmMath, now, offlineUid, 3))
+	assert(sameEpoch.cash == 5000 and sameEpoch.epoch == 3, "a matching epoch keeps the profile")
+	local noEpoch = assert(codec.decode(epochSnap, config, farmMath, now, offlineUid, nil))
+	assert(noEpoch.cash == 5000, "no global epoch (unreadable store) never resets anyone")
+	local reset = assert(codec.decode(epochSnap, config, farmMath, now, offlineUid, 4))
+	assert(
+		reset.cash ~= 5000 and reset.epoch == 4 and (reset.lifetimeEarned or 0) == 0,
+		"a stale epoch starts a clean new game stamped with the new epoch"
+	)
+	local legacySnap = codec.encode(progressed(nil), now)
+	local legacy = assert(codec.decode(legacySnap, config, farmMath, now, offlineUid, 0))
+	assert(legacy.cash == 5000, "profiles without an epoch count as epoch 0 (nobody is reset at launch)")
+	local legacyReset = assert(codec.decode(legacySnap, config, farmMath, now, offlineUid, 1))
+	assert(legacyReset.cash ~= 5000, "after the first reset, profiles without an epoch are reset too")
+
 	print(
-		"data: lock ownership, response-loss retries, revision, migration, numeric, capacity and account guards passed"
+		"data: lock ownership, response-loss retries, revision, migration, numeric, capacity, epoch reset and account guards passed"
 	)
 end

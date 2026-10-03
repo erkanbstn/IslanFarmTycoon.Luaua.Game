@@ -284,6 +284,19 @@ function PlayerDataService.load(player: Player): PlayerSave?
 	end
 	if acquired then
 		local decodeNow = DateTime.now().UnixTimestampMillis / 1000
+		-- Veri çağı: yönetici sıfırlamasından sonra eski çağdan kalan kayıt temiz oyunla değişir; eskisi arşivlenir.
+		local epoch = SaveStore.getEpoch()
+		if
+			epoch ~= nil
+			and session.persistent
+			and typeof(raw) == "table"
+			and typeof((raw :: any).mainFarms) == "table"
+			and (if typeof((raw :: any).epoch) == "number" then (raw :: any).epoch else 0) ~= epoch
+		then
+			local oldEpoch = if typeof((raw :: any).epoch) == "number" then (raw :: any).epoch else 0
+			SaveStore.archive(key, player.UserId, raw, oldEpoch)
+			TelemetryService.custom(player, "ProfileResetByEpoch")
+		end
 		local function adopt(data: any, offlineEarned: number, repairs: number?, grown: number?)
 			session.data = data
 			session.offlineEarned = offlineEarned
@@ -299,7 +312,7 @@ function PlayerDataService.load(player: Player): PlayerSave?
 			end
 		end
 		local decodeOk, data, offlineEarned, decodeProblem, repairs, grown =
-			pcall(SaveCodec.decode, raw, Config, FarmMath, decodeNow, newUid)
+			pcall(SaveCodec.decode, raw, Config, FarmMath, decodeNow, newUid, epoch)
 		if decodeOk and data then
 			adopt(data, offlineEarned, repairs, grown)
 		else
@@ -309,7 +322,7 @@ function PlayerDataService.load(player: Player): PlayerSave?
 				then SaveStore.recoverFromBackup(key, player.UserId, raw, function(candidate: unknown): boolean
 					return (
 						pcall(function()
-							local decoded = SaveCodec.decode(candidate, Config, FarmMath, decodeNow, newUid)
+							local decoded = SaveCodec.decode(candidate, Config, FarmMath, decodeNow, newUid, epoch)
 							assert(decoded, "backup does not decode")
 						end)
 					)
@@ -317,7 +330,7 @@ function PlayerDataService.load(player: Player): PlayerSave?
 				else nil
 			if backup then
 				local backupOk, backupData, backupEarned, _, backupRepairs, backupGrown =
-					pcall(SaveCodec.decode, backup, Config, FarmMath, decodeNow, newUid)
+					pcall(SaveCodec.decode, backup, Config, FarmMath, decodeNow, newUid, epoch)
 				if backupOk and backupData then
 					adopt(backupData, backupEarned, backupRepairs, backupGrown)
 					session.recovered = true

@@ -12,6 +12,7 @@ local EconomyService = require(script.Parent:WaitForChild("EconomyService"))
 local PlotService = require(script.Parent:WaitForChild("PlotService"))
 local HttpService = game:GetService("HttpService")
 local SeasonService = require(script.Parent:WaitForChild("SeasonService"))
+local DataResetService = require(script.Parent:WaitForChild("DataResetService"))
 local SaveCodec = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("SaveCodec"))
 local FarmProfiles = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("FarmProfiles"))
 local AdminPolicy = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("AdminPolicy"))
@@ -163,6 +164,13 @@ local function execute(player: Player, action: string, value: unknown): (boolean
 		PlayerDataService.pushState(player)
 		PlayerDataService.requestSave(player)
 		return true, "Para güncellendi"
+	end
+	if action == "resetAllPlayers" then
+		-- Tehlikeli: bütün oyuncuların verisini sıfırlar (ayrıntı: DataResetService). Onay değeri "confirm" olmalı.
+		if value ~= "confirm" then
+			return false, "Onay değeri geçersiz"
+		end
+		return DataResetService.resetAll()
 	end
 	if action == "grantItems" or action == "clearItems" then
 		-- Test aracı: bütün eşyaları ver (takmaz) ya da envanteri boşalt; para harcamaz, yalnızca yöneticinin kendi profili.

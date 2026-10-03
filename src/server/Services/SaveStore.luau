@@ -63,6 +63,73 @@ function SaveStore.keyFor(userId: number): string
 	return `player_{userId}`
 end
 
+-- Veri çağı: yönetici "herkesi sıfırla" bu sayıyı artırır; kaydındaki sayı farklı olan oyuncu girişte temiz yeni oyunla başlar
+-- (SaveCodec.decode). Tek anahtarda tutulur; DataStore yoksa/okunamazsa son bilinen değer kullanılır (hiç yoksa nil: denetim yapılmaz).
+local EPOCH_KEY = "__meta_epoch"
+local knownEpoch: number? = if store == nil then 0 else nil
+
+function SaveStore.getEpoch(): number?
+	local activeStore = store
+	if not activeStore then
+		return knownEpoch
+	end
+	for attempt = 1, 3 do
+		local ok, value = pcall(function()
+			return (activeStore :: DataStore):GetAsync(EPOCH_KEY)
+		end)
+		if ok then
+			knownEpoch = if typeof(value) == "number" and value == value and value >= 0 then value else 0
+			return knownEpoch
+		end
+		if attempt < 3 then
+			task.wait(0.5 * attempt)
+		end
+	end
+	warn("[Data] EpochReadFailed: son bilinen değer kullanılıyor")
+	return knownEpoch
+end
+
+-- Genel çağı bir artırır (yönetici sıfırlaması). Dönüş: yeni çağ; yazılamazsa nil (hiçbir şey değişmez).
+function SaveStore.bumpEpoch(): number?
+	local activeStore = store
+	if not activeStore then
+		knownEpoch = (knownEpoch or 0) + 1
+		return knownEpoch
+	end
+	local result: number? = nil
+	local ok, err = pcall(function()
+		(activeStore :: DataStore):UpdateAsync(EPOCH_KEY, function(current: any)
+			local base = if typeof(current) == "number" and current == current and current >= 0 then current else 0
+			result = base + 1
+			return result
+		end)
+	end)
+	if not ok or result == nil then
+		warn(`[Data] EpochBumpFailed: {err}`)
+		return nil
+	end
+	knownEpoch = result
+	return result
+end
+
+-- Sıfırlanan çağın eski kaydını geri alınabilir tutar: `<anahtar>_archive_<eskiÇağ>` anahtarına kopyalar (oturum kilidi çıkarılır).
+-- Yazılamazsa false döner; çağıran yine de devam eder ama uyarır (asıl kayıt zaten ancak ilk kayıtta ezilir).
+function SaveStore.archive(key: string, userId: number, raw: unknown, oldEpoch: number): boolean
+	local activeStore = store
+	if not activeStore or typeof(raw) ~= "table" then
+		return false
+	end
+	local copy = table.clone(raw :: any)
+	copy._session = nil
+	local ok, err = pcall(function()
+		(activeStore :: DataStore):SetAsync(`{key}_archive_{oldEpoch}`, copy)
+	end)
+	if not ok then
+		warn(`[Data] ArchiveFailed user={userId}: {err}`)
+	end
+	return ok
+end
+
 function SaveStore.beginShutdown(seconds: number)
 	shutdownDeadline = os.clock() + seconds
 end

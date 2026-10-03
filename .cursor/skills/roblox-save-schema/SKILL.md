@@ -31,6 +31,14 @@ Kayıt kaybı geri alınamaz; her adımı test et.
 - Tercih alanları: dil ve grafik için doğrulama listesi `Config`'tedir (`LANGUAGES`, `GRAPHICS_MODES`); ses ve hareket azaltma için `Modules/Preferences`. Tanınmayan değer atılır.
 - Para/sayı sınırı: `SaveCodec/Common` `MAX_MONEY` ve `SessionLock.isFinite`.
 
+## Herkesi sıfırlama (veri çağı / epoch)
+- Canlı oyunda "herkesin verisini sil" yerine **veri çağı** artırılır: `SaveStore.bumpEpoch()` (`__meta_epoch` anahtarı) genel sayıyı bir artırır; kayıtta `epoch` alanı vardır (hesap düzeyi, `SaveCodec`).
+  `SaveCodec.decode(..., epoch)` çağı uyuşmayan kaydı temiz yeni oyuna çevirir (çağsız eski kayıt 0 sayılır: ilk sıfırlamaya kadar kimse etkilenmez); `epoch` nil (okunamadı) ise denetim yapılmaz.
+  `PlayerDataService.load` sıfırlanan kaydı önce `<anahtar>_archive_<eskiÇağ>` anahtarına arşivler (`SaveStore.archive`): veri silinmez, elle kurtarılabilir.
+- Tetikleyici: yönetici paneli → Test sekmesi → Tehlikeli bölge ("SIFIRLA" yazıp düğme) = `AdminService` eylemi `resetAllPlayers`/`confirm` → `Services/DataResetService`: çağı artırır, MessagingService ile bütün sunucudaki oyuncuları atar.
+  Yalnızca `AdminPolicy` sahibi; test kodu: `tests/data.spec.luau` (çağ), `tests/admin.spec.luau` (yetki + onay).
+- Şema sürümü (`SessionLock.VERSION`) göçsüz sıfırlamak için de kullanılabilir ama her dağıtımda kaybettirir; ihtiyaç anında çağ tercih edilir.
+
 ## Yedek ve ölçüm (`Modules/SaveBackup`, `Services/SaveStore`, `PlayerDataService`)
 - Başarılı kayıtta, `SaveBackup.INTERVAL_SECONDS` aralığıyla asıl anahtarın yanına dönüşümlü `SaveBackup.SLOTS` yedek yazılır (`SaveBackup.slotKey`; oturum kilidi ve revizyon içermez, `_backupAt` taşır).
 - Asıl kayıt çözülemezse (bozuk) yükleme en yeni çözülebilir yedekle açılır (`SaveStore.recoverFromBackup`); bozuk kayıt önce `SaveBackup.quarantineKey` anahtarına kopyalanır (yazılamazsa kurtarma yapılmaz).

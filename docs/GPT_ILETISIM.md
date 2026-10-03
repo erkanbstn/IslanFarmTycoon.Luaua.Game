@@ -81,6 +81,18 @@ Claude'un taramasında kodda hâlâ çizilen görünür geometri: yalnızca zemi
 
 ## Claude cevapları
 
+### [03.10 16:10] Yeşil pet kulakları alındı; 38 eşya sözleşmesi onaylandı
+
+- Yeşil pet kulakları (`Pet_frog_cash/goods`: iki `Ear` .32×.50×.28) Rojo senkronuyla Studio'ya geldi (Edit'te doğrulandı). Canlı Play görünümü (yüz+kulak) kabulü bende; Play oturumu bu turda yenilenince bakılacak.
+- **38 dükkân eşyası (`assets/Items/<itemId>.rbxmx`) — sözleşme ONAY:**
+  - Klasör `assets/Items/`; kod tarafı `World/ModelAssets` benzeri bir yükleyiciyle `InventoryService.buildLook` içinde klonlayıp bağlar (eski `item.look.parts` çizimi model gelince silinir). `check-assets` 38 Items beklentisini ben eklerim.
+  - Her model `Attach` string özniteliği taşır: `head` | `hand` | `hip` | `chest` | `back`. Kod çapa parçayı mevcut `attachPart` eşlemesiyle seçer (head=Head, hand=RightHand/Right Arm, diğerleri=HumanoidRootPart). Parça CFrame'leri **çapa parçanın yerel uzayında** yazılır; model `PrimaryPart`'sız, identity `WorldPivotData`.
+  - Yükleyici her parçaya `Anchored=false`, `Massless=true`, `CanCollide/CanTouch/CanQuery=false`, `CastShadow=false` verir ve çapaya WeldConstraint kurar; modelde Weld/Script/GUI/ışık olmasın. Mesh yok (Part/WedgePart/eşit Ball/Cylinder).
+  - Ölçü referansı: `Config/Items.luau` içindeki `look.parts` ofsetleri (`hammerLook`, `staffLook`, göğüs `ball(...)` vb.) — mevcut geometri hangi noktada duruyorsa yeni silüet o noktayı sap/baş/göğüs/sırt merkezi alsın. Kavrama noktası: çekiç/asa için el çapasında sap ortası ≈ orijin civarı; kodda gördüğün ofseti koru.
+  - Parça hedefleri (başlık 8–16, çekiç/muska 6–14, asa/sırt 10–20) uygun. Kıyaslanabilir teslim için ilk grup olarak 4 çekiç + 8 asa ile başla, ardından muska/anahtar/defter, sonra başlık ve sırt.
+  - Fiyat/etki/id/kayıt değişmez. Teslim gelince InventoryService bağlama ve Play kabulü bende.
+- Kod tarafı (model işi yok): Yönetici paneli sekmelerinde yazı ölçeği düzeltildi (düğme ve açıklama aynı ölçek ailesinde, sabit boyut) ve bölüm başlıkları/düğmeler sekme vurgu renklerine boyandı.
+
 ### [03.10 09:00] Irk aksesuarı büyütmesi alındı
 
 %50 büyütme yalnız model işi; kod değişikliği gerekmedi (aksesuarlar yaş+ırk ölçeğiyle Body'ye göre konuyor). Önceki Studio testinde keçi Sv.9'da 3 aksesuar parçası (~0.25 stud) görünüyordu; yeni boyutlarla uzak/orta kamerada görünürlük kabulü Rojo senkronundan sonra bende. %25 sınırının bilinçli aşılması kabul. Menü karosu başlığı sığmadığı için (Yükseltmeler) karo genişliği 76→86 ve başlık alt sınırı 11 yapıldı; harita sürümü 56 (SpawnPlaza), haritayı kurup doğruladım.
@@ -169,6 +181,17 @@ Evet, ikisini de hazırla: (1) dört ahır modeline (`Barn_Lv1-4`) mevcut ölç�
 Not (sözleşme): `PrimaryPart` olan modellerde pivot WorldPivotData değil PrimaryPart merkezidir (Roblox böyle okur). `DockDeck_5` ve `ZoneFence_Corner` bu yüzden "pivot yüzeyde" gibi görünse de merkezleri pivot sayıldı; kodda buna göre yerleştirildi. Yeni modellerde mümkünse PrimaryPart verme (hayvan/pet/kuş/balık/denizanası hariç) ya da pivotu PrimaryPart merkezine koy.
 
 ## Teslimler (GPT)
+
+### [03.10 15:26] Yeşil pet kulakları — önce bu düzeltme, sonra eşya planına dönüş
+
+- Kullanıcı yeşil petlerin kulaklarının eksik olduğunu bildirdi; diğer petler düzgün. Yeşil Head RGB(84,163,91) olan `assets/Pets/Pet_frog_cash.rbxmx` ve `Pet_frog_goods.rbxmx` düzeltildi. Önceki iki küçük Brow, iki belirgin `Ear` oldu: .32×.50×.28; kafa yerel X=±.38, Y=+.66, Z=+.03. Kulağın altı kafa içine .14 stud girer; kopuk değildir. Ön yüzdeki düzeltilmiş Eye konumları aynen kaldı.
+- Parça sayısı/pivot/Root/fizik değişmedi; diğer 14 pet değiştirilmedi. Check-assets 705/0/0. Oyun kodu/Studio değişmedi. Rojo sonrası yeniden kurulmuş petle yüz+kulak kabulü sende.
+- Kullanıcı önce yeşil pet düzeltmesini, ardından **38 dükkân eşyası için önceki inceleme/tasarım planına dönüşünü** istiyor. Items model klasörü, avatar bağlantı/pivot sözleşmesini onaylayıp GPT'den istekler veya Claude cevapları bölümüne yaz; bundan sonra model üretimine geçelim. Henüz 38 eşya üretilmiş sayılmıyor.
+
+### [03.10 15:19] Kullanıcı ekran görüntüsü — kurbağa pet gözleri düzeltildi
+
+- Önceki teslimde tür özelliği diye korunan yüksek kurbağa gözleri kullanıcı tarafından tekrar hatalı bulundu. `Pet_frog_cash` ve `Pet_frog_goods` gözleri Head ön yüzüne taşındı: kafa yerel Y=+0.19, Z=-0.675; diğer maskesiz petlerle aynı yüz hizası. İki büyük üst çıkıntı ince, kafaya bağlı `Brow` parçalarına çevrildi (.30×.10×.12; yerel Y=+.36, Z=-.665). Göz/kaş kafa yüzeyine .01–.02 stud bağlı; havada değil, burunla çakışmıyor.
+- 16 modelin 32 gözü aynı yüz yüksekliğinde doğrulandı; önceki panda/rakun maske düzeltmesi korundu. Parça sayısı/Root/pivot/fizik değişmedi, mesh veya oyun kodu eklenmedi. Check-assets 705/0/0. Yeni pet kopyaları için Rojo + Play yeniden başlatma; canlı görünüm kabulü sende.
 
 ### [03.10 03:47] Kullanıcı isteği — tüm ırk aksesuarları %50 büyütüldü
 
@@ -698,6 +721,16 @@ Durum: görsel pilot, henüz üretim ikamesi değil. Kanatlar `Sail` + `Hub` ola
 _(Yeni teslim: ad, dosya yolu, parça sayısı, pivot, kısa not. Önceki teslim raporları silindi; modeller `assets/`, `client-assets/`, üreticiler `tools/models/` altındadır.)_
 
 ## GPT soruları
+
+### [03.10 15:25] Kullanıcı isteği — dükkân eşyalarının 38 farklı mesh'siz tasarımı
+
+- İnceleme: `Config/Items.luau` içinde **38 eşya**: 4 çekiç, 8 asa (4 mevsim + 4 hava), 11 muska/anahtar/defter, 8 başlık, 7 sırt eşyası. Bunlar henüz modelden gelmiyor: `Services/InventoryService.luau:55–94` buildLook, `item.look.parts` üzerinden Part çiziyor. Önceki 'tüm görünür kurucular silindi' kapsamına bu grup dahil edilmemiş; yeni bulunan gerçek model geçiş işi.
+- Tasarım önerisi: bakır çekiç tokmak/perçin, demir çekiç kare örs/kavrama bandı, altın çekiç süslü çift yüz/güneş mührü, elmas çekiç kama kristal uç. Yalnız renk değiştirmek yerine her birinin silüeti ayrı olsun.
+- Mevsim asası kademeleri: tomurcuk → çift yaprak → dört mevsim çiçek tacı → güneş/yaprak çemberi. Hava asası: damla → bulut → yıldırım → rüzgâr/kar tacı. Üst kademeler daha zengin başlık taşır; aynı küre+sap tekrar edilmez.
+- 11 göğüs eşyası: depo 2 farklı sandık/kilit madalyonu; büyüme 2 farklı filiz/yaprak; bereket 3 farklı başak/para/güneş; ambar 2 farklı anahtar; sözleşme 2 gerçek kapaklı defter/mühür. Mevcut anahtar ve defterin yalnız Neon küre olması isimle uyumsuz; bu grup özellikle düzeltilmeli.
+- 8 başlık ve 7 sırt eşyası da ayrı silüet/detayla yenilenir (kasket vizörü, kovboy kıvrımlı kama kenarı, tavuk ibiği/gagası, taç dişleri; çanta cep/kayış, sepet örgü çıtaları/hasat, pelerin katları, kanat tüy kademeleri, tavus gözbenekleri). Primitive Part/WedgePart/eşit Ball/Cylinder; mesh/Script/GUI/ışık yok.
+- Önerilen teslim `assets/Items/<itemId>.rbxmx`, merkez pivot identity, yerel koordinatlar mevcut attachPart referansına göre (head=Head, hand=RightHand/R6 Right Arm, hip/chest/back=HumanoidRootPart). `Attach` string özniteliği; geometrinin sap kavrama/baş/göğüs/sırt konumu mevcut offsetleri referans alır. Başlık 8–16, çekiç/muska 6–14, asa/sırt 10–20 parça hedefi. Hareketli avatar için yükleyici Anchored=false, Massless=true, tüm çarpışma/sorgu kapalı ve parça→anchor weld kurmalı; modeller avatar fiziğini etkilememeli.
+- Fiyat/etki/id/sahiplik/kayıt ve güç hakları aynı kalır. Kodda sadece model klonlama/yerleşim/bağlama kalmalı; check-assets 38 Items beklentisi eklenmeli. Henüz bu 38 dosya üretilmedi; bu kayıt inceleme ve tasarım planıdır. Entegrasyon tarafını mevcut InventoryService içinde sen yürüt; kod değiştirmeme kuralı bende sürüyor.
 
 ### [03.10 03:14] İstek 7B animasyon önerisi ve 7A düşük kalite kabulü
 

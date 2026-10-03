@@ -83,6 +83,39 @@ end)
 
 type Control = { button: TextButton, action: string, value: string? }
 
+-- Sekme başına vurgu rengi (başlıklar) ve işlem başına düğme tonu; yeni renk yazma, UiKit.Color'dan türet.
+local PAGE_ACCENT: { [string]: Color3 } = {
+	Page_cash = UiKit.Color.Green,
+	Page_players = UiKit.Color.Blue,
+	Page_world = UiKit.Color.Gold,
+	Page_test = UiKit.Color.Orange,
+}
+local ACTION_ACCENT: { [string]: Color3 } = {
+	addCash = UiKit.Color.Green,
+	setCash = UiKit.Color.Blue,
+	["target:giveCash"] = UiKit.Color.Green,
+	["target:takeCash"] = UiKit.Color.Orange,
+	["target:setTargetCash"] = UiKit.Color.Blue,
+	["target:inspect"] = UiKit.Color.Blue,
+	["target:kickPlayer"] = UiKit.Color.Red,
+	setWeather = UiKit.Color.Blue,
+	setSeason = UiKit.Color.Green,
+	setTime = UiKit.Color.Gold,
+	setLights = UiKit.Color.Gold,
+	setLightLevel = UiKit.Color.Gold,
+	maxAll = UiKit.Color.Green,
+	growAll = UiKit.Color.Green,
+	unlockIslands = UiKit.Color.Blue,
+	fillSlots = UiKit.Color.Blue,
+	forceMerchant = UiKit.Color.Orange,
+	forceGolden = UiKit.Color.Gold,
+	completeSeason = UiKit.Color.Green,
+	resetEvents = UiKit.Color.Red,
+	grantItems = UiKit.Color.Blue,
+	clearItems = UiKit.Color.Red,
+	fillBarn = UiKit.Color.Orange,
+}
+
 local function create(parent: Instance): UiKit.Window
 	local created = UiKit.window(parent, {
 		title = "Yönetici",
@@ -105,6 +138,11 @@ local function create(parent: Instance): UiKit.Window
 	status.RichText = false
 	status.LayoutOrder = 3
 	local controls: { Control } = {}
+
+	-- Bölüm başlığı: sayfanın vurgu renginde (sekme başına bir renk); düğme tonlarıyla aynı aileden.
+	local function heading(holder: Instance, text: string, color: Color3?): TextLabel
+		return UiKit.text(holder, text, "Heading", color or PAGE_ACCENT[holder.Name] or UiKit.Color.Gold)
+	end
 
 	-- Sekmeler: her sekme kendi bölümlerini ayrı bir çerçevede tutar (liste uzayıp gitmesin); sonuç satırı sekmelerin üstünde kalır.
 	local pages: { [string]: Frame } = {}
@@ -132,7 +170,7 @@ local function create(parent: Instance): UiKit.Window
 	end)
 	local page: Instance = pages.cash
 
-	local cashHeading = UiKit.text(page, "Kendi kasam", "Heading")
+	local cashHeading = heading(page, "Kendi kasam")
 	cashHeading.LayoutOrder = 4
 	local function updateBalance()
 		local state = ClientState.get()
@@ -144,17 +182,14 @@ local function create(parent: Instance): UiKit.Window
 	amount.Name = "CashAmount"
 	amount.LayoutOrder = 5
 
-	-- Uzun düğme yazıları satıra sarılır, gerekirse küçülür; düğmeden taşmaz.
+	-- Düğme yazısı sabit boyutta (UiKit.TextSize.Button) ve satıra sarılır; açıklama yazısıyla aynı ölçek ailesinde kalır.
 	local function fit(button: TextButton)
 		button.TextWrapped = true
-		button.TextScaled = true
-		local limit = Instance.new("UITextSizeConstraint")
-		limit.MaxTextSize = button.TextSize
-		limit.MinTextSize = 10
-		limit.Parent = button
+		button.TextScaled = false
+		button.TextSize = UiKit.TextSize.Button
 		local padding = Instance.new("UIPadding")
-		padding.PaddingLeft = UDim.new(0, 6)
-		padding.PaddingRight = UDim.new(0, 6)
+		padding.PaddingLeft = UDim.new(0, 8)
+		padding.PaddingRight = UDim.new(0, 8)
 		padding.PaddingTop = UDim.new(0, 3)
 		padding.PaddingBottom = UDim.new(0, 3)
 		padding.Parent = button
@@ -207,7 +242,7 @@ local function create(parent: Instance): UiKit.Window
 		7
 
 	page = pages.world
-	UiKit.text(page, "Sunucu havası", "Heading").LayoutOrder = 8
+	heading(page, "Sunucu havası").LayoutOrder = 8
 	local weatherStatus = UiKit.text(page, "", "Caption")
 	weatherStatus.LayoutOrder = 9
 	local weather = {
@@ -253,7 +288,7 @@ local function create(parent: Instance): UiKit.Window
 		end
 	end
 	choices("setWeather", weather, 10)
-	UiKit.text(page, "Sunucu mevsimi", "Heading").LayoutOrder = 13
+	heading(page, "Sunucu mevsimi").LayoutOrder = 13
 	local seasonStatus = UiKit.text(page, "", "Caption")
 	seasonStatus.LayoutOrder = 14
 	choices("setSeason", seasons, 15)
@@ -283,20 +318,20 @@ local function create(parent: Instance): UiKit.Window
 		{ id = "normal", label = "Normal" },
 		{ id = "strong", label = "Güçlü" },
 	}
-	UiKit.text(page, "Gün ve gece", "Heading").LayoutOrder = 19
+	heading(page, "Gün ve gece").LayoutOrder = 19
 	local timeStatus = UiKit.text(page, "", "Caption")
 	timeStatus.LayoutOrder = 20
 	choices("setTime", times, 21)
-	UiKit.text(page, "Gece ışıkları", "Heading").LayoutOrder = 24
+	heading(page, "Gece ışıkları").LayoutOrder = 24
 	local lightStatus = UiKit.text(page, "", "Caption")
 	lightStatus.LayoutOrder = 25
 	choices("setLights", lightModes, 26)
-	UiKit.text(page, "Işık parlaklığı", "Heading").LayoutOrder = 28
+	heading(page, "Işık parlaklığı").LayoutOrder = 28
 	local levelStatus = UiKit.text(page, "", "Caption")
 	levelStatus.LayoutOrder = 29
 	choices("setLightLevel", lightLevels, 30)
 	page = pages.test
-	UiKit.text(page, "Test araçları (yalnızca kendi çiftliğin)", "Heading").LayoutOrder = 33
+	heading(page, "Test araçları (yalnızca kendi çiftliğin)").LayoutOrder = 33
 	UiKit.text(
 		page,
 		'Açma ve doldurma, seçili (bulunduğun) ada ya da bütün adalar içindir (kilitli ada seçilemediği için "Bütün adalar" onları da açar). Hayvanları yetişkin yapmak büyüme animasyonunu, açmak tabela ve eklentileri, doldurmak yoğunluğu denemek içindir. Para harcamaz.',
@@ -313,7 +348,7 @@ local function create(parent: Instance): UiKit.Window
 		{ id = "now", label = "Bu adadaki bütün slotları hayvanla doldur" },
 		{ id = "all", label = "Bütün adaları hayvanla doldur" },
 	}, 38)
-	UiKit.text(page, "Rastgele olaylar (test)", "Heading").LayoutOrder = 39
+	heading(page, "Rastgele olaylar (test)").LayoutOrder = 39
 	UiKit.text(
 		page,
 		"Olaylar normalde rastgele gelir; bunlar hemen görmek içindir. Altın hayvan ve tüccar yalnızca senin profilinde çıkar, kaydedilmez.",
@@ -324,14 +359,42 @@ local function create(parent: Instance): UiKit.Window
 	choices("forceGolden", { { id = "now", label = "Altın hayvanı çağır" } }, 42)
 	choices("completeSeason", { { id = "now", label = "Mevsim hedefini tamamla" } }, 43)
 	choices("resetEvents", { { id = "now", label = "Olayları ve mevsim hedefini sıfırla" } }, 44)
-	UiKit.text(page, "Envanter (test)", "Heading").LayoutOrder = 45
+	heading(page, "Envanter (test)").LayoutOrder = 45
 	choices("fillBarn", { { id = "now", label = "Ahır deposunu doldur" } }, 48)
 	choices("grantItems", { { id = "now", label = "Bütün eşyaları ver (takmaz)" } }, 46)
 	choices("clearItems", { { id = "now", label = "Envanteri boşalt" } }, 47)
 
+	-- Tehlikeli bölge: bütün oyuncuların verisini sıfırlar (kayıtlar silinmez: veri çağı artar, eski kayıt arşivlenir; ayrıntı DataResetService)
+	heading(page, "Tehlikeli bölge", UiKit.Color.Red).LayoutOrder = 60
+	UiKit.text(
+		page,
+		"Bütün oyuncuların (sen dahil, bütün sunucular) verisini sıfırlar: herkes atılır, yeniden girince temiz oyunla başlar. Eski kayıtlar arşivlenir. Geri alınamaz; onay için kutuya SIFIRLA yaz.",
+		"Caption"
+	).LayoutOrder =
+		61
+	local resetConfirm = UiKit.textInput(page, "Onay için SIFIRLA yaz")
+	resetConfirm.LayoutOrder = 62
+	local resetRow = row(63)
+	local resetButton = UiKit.button(resetRow, "Herkesin verisini sıfırla", "danger")
+	fit(resetButton)
+	resetButton.Size = UDim2.new(1, 0, 1, 0)
+	resetButton.Activated:Connect(function()
+		if not resetButton.Active then
+			return
+		end
+		if resetConfirm.Text ~= "SIFIRLA" then
+			resultText = "Onay için kutuya tam olarak SIFIRLA yaz."
+			resultSuccess = false
+			refresh()
+			return
+		end
+		resetConfirm.Text = ""
+		submit("resetAllPlayers", "confirm")
+	end)
+
 	-- Oyuncu işlemleri: seçilen oyuncuya para ver/al/ayarla, kayıt özeti, sunucudan at. Hedef ve tutar sunucuda yeniden doğrulanır.
 	page = pages.players
-	UiKit.text(page, "Oyuncu işlemleri", "Heading").LayoutOrder = 48
+	heading(page, "Oyuncu işlemleri").LayoutOrder = 48
 	local targetStatus = UiKit.text(page, "Önce bir oyuncu seç.", "Caption")
 	targetStatus.LayoutOrder = 49
 	local playerList = Instance.new("Frame")
@@ -486,10 +549,13 @@ local function create(parent: Instance): UiKit.Window
 				or (control.action == "setTime" and control.value == selectedTime)
 				or (control.action == "setLights" and control.value == selectedLights)
 				or (control.action == "setLightLevel" and control.value == selectedLevel)
-			UiKit.setVariant(
-				control.button,
-				if busy then "disabled" elseif selected or control.value == nil then "primary" else "secondary"
-			)
+			UiKit.setVariant(control.button, if busy then "disabled" elseif selected then "primary" else "secondary")
+			if not busy and not selected then
+				-- Seçilmemiş düğme yüzeyden vurgu rengine doğru tonlanır (işlem düğmeleri daha canlı)
+				local accent = ACTION_ACCENT[control.action] or UiKit.Color.Blue
+				control.button.BackgroundColor3 =
+					UiKit.Color.SurfaceRaised:Lerp(accent, if control.value == nil then 0.8 else 0.5)
+			end
 		end
 	end
 	render = update

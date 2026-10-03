@@ -60,6 +60,7 @@ export type PlayerSave = {
 	passes: { [string]: boolean }?, -- Doğrulanmış oyun geçitleri (kaydedilmez; sunucu MarketplaceService'ten yazar)
 	receipts: { string }?, -- İşlenmiş satın alma makbuz kimlikleri (çift ödemeyi önler)
 	lifetimeEarned: number?, -- Ömür boyu kazanç (başarımlar için)
+	epoch: number?, -- Veri çağı: yönetici "herkesi sıfırla" ile artan genel sayıyla uyuşmayan kayıt temiz yeni oyun olur (SaveStore.getEpoch)
 	daily: { day: number, streak: number }?, -- Günlük ödül: son alınan gün (UTC gün numarası) ve seri
 	achievements: { [string]: boolean }?, -- Ödülü alınmış başarımlar
 	envOverride: EnvOverride?, -- Asa ile oyuncuya özel mevsim/hava (çalışma anı; kaydedilmez)

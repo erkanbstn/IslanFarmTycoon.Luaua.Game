@@ -24,20 +24,24 @@ function SaveCodec.decode(
 	config: any,
 	farmMath: any,
 	now: number,
-	newUid: () -> string
+	newUid: () -> string,
+	epoch: number?
 ): (any?, number, string?, number?, number?)
 	local problem = SessionLock.validate(raw)
 	if problem then
 		return nil, 0, problem
 	end
 	local source: any = if typeof(raw) == "table" then raw else {}
-	if source.version ~= SessionLock.VERSION then
-		-- Yeni oyuncu ya da eski sürüm kayıt: oyun yayında olmadığından göç yoktur, temiz yeni oyun başlar
+	-- Veri çağı (epoch): genel sayı verilmişse ve kayıttaki sayıyla uyuşmuyorsa (yönetici "herkesi sıfırla") kayıt yok sayılır, temiz oyun başlar.
+	local staleEpoch = epoch ~= nil and (if typeof(source.epoch) == "number" then source.epoch else 0) ~= epoch
+	if source.version ~= SessionLock.VERSION or staleEpoch then
+		-- Yeni oyuncu, eski sürüm ya da sıfırlanmış çağ kaydı: temiz yeni oyun başlar
 		-- (kilit/revizyon alanları DataStore katmanındadır; yazımda yeni sürümle üzerine yazılır).
 		local data, earned, err, repairs, grown = Farm.decode(nil, config, farmMath, now, newUid)
 		if data then
 			FarmProfiles.ensure(data)
 			data.inventory = { items = {}, equipped = {}, uses = {} }
+			data.epoch = epoch
 		end
 		return data, earned, err, repairs, grown
 	end
@@ -108,6 +112,7 @@ function SaveCodec.decode(
 		repairTotal += fixed
 	end
 	Account.decode(source, data, config)
+	data.epoch = if typeof(source.epoch) == "number" then source.epoch else nil
 	data.inventory = Inventory.decode(source.inventory, config)
 	Account.decodeLedger(source, data, config)
 	return data, earnedTotal, nil, repairTotal, grownTotal
@@ -122,6 +127,7 @@ function SaveCodec.encode(save: any, now: number): { [string]: any }
 	end
 	return {
 		version = SessionLock.VERSION,
+		epoch = save.epoch,
 		cash = Common.amount(save.cash, 0),
 		mainFarms = farms,
 		activeMainFarmId = save.activeMainFarmId,

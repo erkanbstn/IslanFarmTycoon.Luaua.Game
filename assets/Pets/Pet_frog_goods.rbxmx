@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
 <roblox version="4">
   <Meta name="ExplicitAutoJoints">true</Meta>
   <Item class="Model" referent="RBXMODEL">
@@ -327,14 +328,14 @@
       <Properties>
         <string name="Name">Ear</string>
         <Vector3 name="Size">
-          <X>0.48</X>
-          <Y>0.38</Y>
-          <Z>0.4</Z>
+          <X>0.32000000</X>
+          <Y>0.50000000</Y>
+          <Z>0.28000000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1199.62</X>
-          <Y>6.7</Y>
-          <Z>1542.5</Z>
+          <X>1199.62000000</X>
+          <Y>6.76000000</Y>
+          <Z>1542.63000000</Z>
           <R00>1.0</R00>
           <R01>-0.0</R01>
           <R02>0</R02>
@@ -365,14 +366,14 @@
       <Properties>
         <string name="Name">Ear</string>
         <Vector3 name="Size">
-          <X>0.48</X>
-          <Y>0.38</Y>
-          <Z>0.4</Z>
+          <X>0.32000000</X>
+          <Y>0.50000000</Y>
+          <Z>0.28000000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1200.38</X>
-          <Y>6.7</Y>
-          <Z>1542.5</Z>
+          <X>1200.38000000</X>
+          <Y>6.76000000</Y>
+          <Z>1542.63000000</Z>
           <R00>1.0</R00>
           <R01>-0.0</R01>
           <R02>0</R02>
@@ -409,8 +410,8 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1199.68</X>
-          <Y>6.74</Y>
-          <Z>1542.27</Z>
+          <Y>6.29000000</Y>
+          <Z>1541.92500000</Z>
           <R00>1.0</R00>
           <R01>-0.0</R01>
           <R02>0</R02>
@@ -447,8 +448,8 @@
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1200.32</X>
-          <Y>6.74</Y>
-          <Z>1542.27</Z>
+          <Y>6.29000000</Y>
+          <Z>1541.92500000</Z>
           <R00>1.0</R00>
           <R01>-0.0</R01>
           <R02>0</R02>

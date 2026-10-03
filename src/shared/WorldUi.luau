@@ -162,11 +162,18 @@ function WorldUi.sign(part: BasePart, face: Enum.NormalId, options: SignOptions)
 	gui.PixelsPerStud = 50
 	gui.Parent = part
 
+	-- Koyu yazı plakası: tabela tahtası açık renkli (ahşap) olunca altın/krem yazı okunmuyordu; yazı hep koyu zemin üstünde durur.
 	local root = Instance.new("Frame")
 	root.Name = "Content"
-	root.Size = UDim2.fromScale(1, 1)
-	root.BackgroundTransparency = 1
+	root.AnchorPoint = Vector2.new(0.5, 0.5)
+	root.Position = UDim2.fromScale(0.5, 0.5)
+	root.Size = UDim2.fromScale(0.96, 0.88)
+	root.BackgroundColor3 = Color.Panel
+	root.BackgroundTransparency = 0.08
 	root.Parent = gui
+	local plateCorner = Instance.new("UICorner")
+	plateCorner.CornerRadius = UDim.new(0, 22)
+	plateCorner.Parent = root
 	local pad = Instance.new("UIPadding")
 	pad.PaddingTop = UDim.new(0.12, 0)
 	pad.PaddingBottom = UDim.new(0.12, 0)

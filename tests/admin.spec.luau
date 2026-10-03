@@ -180,7 +180,14 @@ return function(policy: any, createService: any, createLimiter: any, config: any
 			return nil
 		end,
 	}
-	local service = createService(fakeGame, remotes, dataService, economy, plots, farmMath, seasons, limiter)
+	local resetCalls = 0
+	local dataReset = {
+		resetAll = function(): (boolean, string)
+			resetCalls += 1
+			return true, "reset"
+		end,
+	}
+	local service = createService(fakeGame, remotes, dataService, economy, plots, farmMath, seasons, limiter, dataReset)
 	service.init()
 	service.init()
 	assert(
@@ -191,6 +198,8 @@ return function(policy: any, createService: any, createLimiter: any, config: any
 	local function fire(player: any, action: any, value: any, id: any)
 		request.OnServerEvent.fire(player, action, value, id)
 	end
+	fire(stranger, "resetAllPlayers", "confirm", 900)
+	assert(resetCalls == 0, "only the verified owner can reset every player")
 	fire(stranger, "setCash", 999, 1)
 	fire(stranger, "setWeather", "snow", 2)
 	fire(stranger, "setSeason", "winter", 3)
@@ -427,6 +436,14 @@ return function(policy: any, createService: any, createLimiter: any, config: any
 	local newcomer = makePlayer(43)
 	players.PlayerAdded.fire(newcomer)
 	assert(newcomer.attributes.IsAdmin == false, "new players receive server-derived permissions")
+	-- Herkesi sıfırla: onay değeri şart, tam bir kez çalışır (stranger zaten yukarıda reddedildi)
+	now += 1
+	fire(owner, "resetAllPlayers", "now", 5001)
+	assert(resetCalls == 0, "the reset needs the explicit confirm value")
+	now += 1
+	fire(owner, "resetAllPlayers", "confirm", 5002)
+	assert(resetCalls == 1, "the owner's confirmed reset runs exactly once")
+
 	print(
 		"admin: actual service ownership, spoofing, numeric guards, replay, throttling, save and environment actions passed"
 	)
