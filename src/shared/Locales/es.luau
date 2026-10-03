@@ -1242,6 +1242,7 @@ return {
 	["{} geldi! Etkilere göz at (Mevsim çubuğu)"] = "¡Llegó {1}! Mira los efectos (barra de estación)",
 	["Hava: {} · Etkilere göz at"] = "Clima: {1} · Mira los efectos",
 	["Ürünle al · {}"] = "Con productos · {1}",
+	["Ürünle al x{}"] = "Con productos x{1}",
 	["{} Adası"] = "Isla de {1}",
 	["{} Adası · Çiftlik {}"] = "Isla de {1} · Granja {2}",
 	["Para gönder"] = "Enviar dinero",

@@ -126,7 +126,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		slot = "staff",
 		price = 4000000,
 		effects = { goodsYield = 0.1 },
-		power = { kind = "weather" },
+		power = { kind = "weather", usesPerDay = 1 },
 		look = { attach = "hand" },
 	})
 
