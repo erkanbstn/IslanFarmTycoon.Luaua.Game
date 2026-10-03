@@ -191,6 +191,20 @@ local function addCapacityProps(parent: Instance, surfaceCf: CFrame, layout: any
 	)
 end
 
+local function syncCapacityProps(parent: Instance, surfaceCf: CFrame, layout: any, capacity: number)
+	local visualCapacity = math.min(capacity, 4)
+	local existing = parent:FindFirstChild("CapacityProps")
+	if parent:GetAttribute("VisualCapacity") == visualCapacity and (visualCapacity <= 2 or existing) then
+		return
+	end
+	if existing then
+		existing:Destroy()
+	end
+	addCapacityProps(parent, surfaceCf, layout, visualCapacity)
+	parent:SetAttribute("VisualCapacity", visualCapacity)
+	IslandSpecialization.markObstacles(parent)
+end
+
 function ExtensionVisualService.apply(plot: Model, save: PlayerSave?)
 	local legacy = plot:FindFirstChild("ExtensionVisuals")
 	if legacy then
@@ -215,11 +229,9 @@ function ExtensionVisualService.apply(plot: Model, save: PlayerSave?)
 			count, startedAt, endsAt = JobMarks.extensionSummary(save, extensionId, now)
 			capacity = FarmMath.getExtensionCapacity(save, extensionId)
 		end
-		-- Durum değişmediyse yapıyı yeniden kurma: her yenilemede tabela ve balonlar silinip yeniden
-		-- oluşunca ekranda yanıp sönüyordu. Duran hayvan sayısı, kapasite ve ilk dönüş zamanı imzadadır.
-		local price = FarmMath.getUpgradeCost(save, upgrade)
+		-- Yalnızca görünür yapı türü değişince yeniden kur. İndirimler, işler ve kapasite ana yapıyı değiştirmez.
 		local priceText = FarmMath.formatUpgradePrice(save, upgrade)
-		local signature = `{islandUnlocked}|{owned}|{capacity}|{price}`
+		local signature = `{islandUnlocked}|{owned}`
 		-- Aynı adadaki eklentiler (ör. keçi adası) imzayı ve klasörü paylaşmasın: her birinin kendi alt klasörü var.
 		local root = InstanceUtil.getOrCreateFolder(island, "ExtensionVisuals")
 		if root:GetAttribute("Signature") ~= nil then
@@ -227,14 +239,28 @@ function ExtensionVisualService.apply(plot: Model, save: PlayerSave?)
 			root:SetAttribute("Signature", nil)
 		end
 		local folder = root:FindFirstChild(extensionId)
-		if folder and folder:GetAttribute("Signature") == signature then
-			-- Yapı aynı: yalnızca duran hayvan sayısı ve süre güncellenir (tabela ve etkileşim balonları yeniden kurulmaz)
+		local previousSignature = if folder then folder:GetAttribute("Signature") else nil
+		local sameStructure = previousSignature == signature
+			or (
+				typeof(previousSignature) == "string"
+				and string.sub(previousSignature, 1, #signature + 1) == signature .. "|"
+			)
+		if folder and sameStructure then
+			folder:SetAttribute("Signature", signature)
 			local existing = folder:FindFirstChild(extensionId)
 			if existing and existing:IsA("Model") then
+				syncCapacityProps(folder, getIslandSurfaceCf(island), layout, capacity)
 				JobMarks.setExtension(existing, count, capacity, startedAt, endsAt)
 				local assign = existing:FindFirstChild("ExtensionAssignPrompt", true)
 				if assign and assign:IsA("ProximityPrompt") then
 					assign.ObjectText = `{layout.title} ({count}/{capacity})`
+				end
+			elseif islandUnlocked and not owned and folder:GetAttribute("PriceText") ~= priceText then
+				local sale = folder:FindFirstChild(`ForSale_{extensionId}`)
+				local board = if sale then sale:FindFirstChild("ForSaleSign", true) else nil
+				if board then
+					WorldUi.setSignText(board, `Satılık · {priceText}`)
+					folder:SetAttribute("PriceText", priceText)
 				end
 			end
 			continue
@@ -258,11 +284,11 @@ function ExtensionVisualService.apply(plot: Model, save: PlayerSave?)
 				local signBoard = model:FindFirstChild("SpecialtySign", true)
 				JobMarks.ensureAnchor(model, if signBoard and signBoard:IsA("BasePart") then signBoard else nil, 3)
 				JobMarks.setExtension(model, count, capacity, startedAt, endsAt)
-				addCapacityProps(target, surfaceCf, layout, capacity)
-				IslandSpecialization.markObstacles(target)
+				syncCapacityProps(target, surfaceCf, layout, capacity)
 			end
 		else
 			model = IslandSpecialization.buildForSaleSign(target, surfaceCf, extensionId, priceText)
+			target:SetAttribute("PriceText", priceText)
 		end
 		attachPrompts(plot, model, extensionId, upgrade.id, owned, save)
 	end

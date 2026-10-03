@@ -80,7 +80,10 @@ function HubNpcs.vendor(parent: Instance, base: CFrame, spec: NpcSpec)
 end
 
 function HubNpcs.fountain(parent: Instance, base: CFrame)
-	place(parent, "Fountain", base)
+	local model = place(parent, "Fountain", base)
+	if model then
+		model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
+	end
 end
 
 function HubNpcs.bench(parent: Instance, base: CFrame)

@@ -27,7 +27,7 @@
         <Vector3 name="Size">
           <X>2.2</X>
           <Y>1.9</Y>
-          <Z>2.19108</Z>
+          <Z>3.100000000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1018</X>
@@ -503,74 +503,6 @@
         </Color3>
         <token name="Material">1312</token>
         <token name="Shape">1</token>
-        <bool name="Anchored">true</bool>
-        <bool name="CanCollide">false</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanQuery">false</bool>
-      </Properties>
-    </Item>
-    <Item class="WedgePart" referent="RBXANIMALREFRESHChestSlope">
-      <Properties>
-        <string name="Name">ChestSlope</string>
-        <Vector3 name="Size">
-          <X>2.06976</X>
-          <Y>1.76928</Y>
-          <Z>0.775</Z>
-        </Vector3>
-        <CoordinateFrame name="CFrame">
-          <X>1018</X>
-          <Y>5.812</Y>
-          <Z>213.8375</Z>
-          <R00>1</R00>
-          <R01>0</R01>
-          <R02>0</R02>
-          <R10>0</R10>
-          <R11>1</R11>
-          <R12>0</R12>
-          <R20>0</R20>
-          <R21>0</R21>
-          <R22>1</R22>
-        </CoordinateFrame>
-        <Color3 name="Color">
-          <R>0.9607843137254902</R>
-          <G>0.6862745098039216</G>
-          <B>0.7058823529411765</B>
-        </Color3>
-        <token name="Material">1312</token>
-        <bool name="Anchored">true</bool>
-        <bool name="CanCollide">false</bool>
-        <bool name="CanTouch">false</bool>
-        <bool name="CanQuery">false</bool>
-      </Properties>
-    </Item>
-    <Item class="WedgePart" referent="RBXANIMALREFRESHHaunchSlope">
-      <Properties>
-        <string name="Name">HaunchSlope</string>
-        <Vector3 name="Size">
-          <X>2.06976</X>
-          <Y>1.76928</Y>
-          <Z>0.775</Z>
-        </Vector3>
-        <CoordinateFrame name="CFrame">
-          <X>1018</X>
-          <Y>5.812</Y>
-          <Z>216.1625</Z>
-          <R00>-1.0</R00>
-          <R01>0</R01>
-          <R02>-0.0</R02>
-          <R10>-0.0</R10>
-          <R11>1</R11>
-          <R12>-0.0</R12>
-          <R20>-0.0</R20>
-          <R21>0</R21>
-          <R22>-1.0</R22>
-        </CoordinateFrame>
-        <Color3 name="Color">
-          <R>0.9607843137254902</R>
-          <G>0.6862745098039216</G>
-          <B>0.7058823529411765</B>
-        </Color3>
-        <token name="Material">1312</token>
         <bool name="Anchored">true</bool>
         <bool name="CanCollide">false</bool>
         <bool name="CanTouch">false</bool>

@@ -10,7 +10,7 @@ local Controls = require(script.Parent:WaitForChild("Controls"))
 local Grid = {}
 
 local TILE_WIDTH = 108
-local TILE_HEIGHT = 214
+local TILE_HEIGHT = 236
 local COMPACT_TILE_HEIGHT = 124 -- aksiyon düğmesiz karolar (ör. ahır deposu)
 local GAP = 8
 
@@ -70,17 +70,11 @@ function Grid.tile(
 	local layout = Base.list(frame, 4)
 	layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
-	local statusHolder = Instance.new("Frame")
-	statusHolder.Name = "StatusHolder"
-	statusHolder.BackgroundTransparency = 1
-	statusHolder.Size = UDim2.new(1, 0, 0, 0)
-	statusHolder.LayoutOrder = 0
-	statusHolder.Parent = frame
-	local status = Controls.statusLabel(statusHolder)
+	local status = Controls.statusLabel(frame)
 	local chip = Base.iconChip(frame, icon, 38, Tokens.Color.Gold)
 	chip.LayoutOrder = 1
-	local title = caption(frame, 30, 13, true, 2)
-	local detail = caption(frame, detailHeight or (if compact then 30 else 88), 12, false, 3)
+	local title = caption(frame, 32, Tokens.TextSize.Caption, true, 2)
+	local detail = caption(frame, detailHeight or (if compact then 30 else 88), Tokens.TextSize.Caption, false, 3)
 	local action = Controls.button(frame, "", "primary")
 	action.Size = UDim2.new(1, 0, 0, 30)
 	action.TextSize = Tokens.TextSize.Button
@@ -140,19 +134,15 @@ function Grid.autoTile(grid: Frame, order: number, icon: string, options: TileOp
 	local layout = Base.list(frame, if compact then 3 else 4)
 	layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
-	local statusHolder = Instance.new("Frame")
-	statusHolder.Name = "StatusHolder"
-	statusHolder.BackgroundTransparency = 1
-	statusHolder.Size = UDim2.new(1, 0, 0, 0)
-	statusHolder.LayoutOrder = 0
-	statusHolder.Parent = frame
-	local status = Controls.statusLabel(statusHolder)
+	local status = Controls.statusLabel(frame)
 	local chip = Base.iconChip(frame, icon, if compact then 42 else 34, Tokens.Color.Gold)
 	chip.LayoutOrder = 1
-	local title = autoCaption(frame, if compact then Tokens.TextSize.Caption else 13, true, 2)
-	local detail = autoCaption(frame, if compact then Tokens.TextSize.Caption else 12, false, 3)
+	local title = autoCaption(frame, Tokens.TextSize.Caption, true, 2)
+	local detail = autoCaption(frame, Tokens.TextSize.Caption, false, 3)
 	local action = Controls.button(frame, "", "primary")
-	action.Size = UDim2.new(1, 0, 0, if compact then Tokens.TouchTarget else 30)
+	action.Size = UDim2.new(1, 0, 0, Tokens.TouchTarget)
+	action.AutomaticSize = Enum.AutomaticSize.Y
+	Base.padding(action, 6, 6)
 	action.TextSize = Tokens.TextSize.Button
 	action.LayoutOrder = 4
 	return { frame = frame, icon = chip, title = title, detail = detail, action = action, status = status }

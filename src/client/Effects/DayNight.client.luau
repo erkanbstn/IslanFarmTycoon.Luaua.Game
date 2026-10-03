@@ -136,10 +136,20 @@ local function updateHalo(glow: Glow, show: boolean)
 	halo.Parent = glow.part
 end
 
-local function applyGlow(glow: Glow)
+local function scaledRange(light: Light, current: number): number
+	local range = baseValue(light, "BaseRange", current)
+	return math.min(range * Presets.number("Lights/RangeScale") * (0.6 + 0.4 * multiplier), MAX_LIGHT_RANGE)
+end
+
+local function applyGlow(glow: Glow, force: boolean?)
 	local part = glow.part
 	local allowed = lightsAllowed(part)
-	if glow.appliedRamp == ramp and glow.appliedMultiplier == multiplier and glow.appliedLights == allowed then
+	if
+		not force
+		and glow.appliedRamp == ramp
+		and glow.appliedMultiplier == multiplier
+		and glow.appliedLights == allowed
+	then
 		return
 	end
 	glow.appliedRamp, glow.appliedMultiplier, glow.appliedLights = ramp, multiplier, allowed
@@ -155,13 +165,19 @@ local function applyGlow(glow: Glow)
 	for _, child in part:GetChildren() do
 		if child:IsA("Light") then
 			local base = baseValue(child, "BaseBrightness", child.Brightness)
-			child.Enabled = on
+			child.Enabled = on and allowed
+			-- Seçili gerçek ışıklar duvar/çatıdan geçmesin; düşük kalite yalnızca hale gösterir.
+			child.Shadows = allowed
 			child.Brightness = base * Presets.number("Lights/BrightnessScale") * ramp * multiplier
 			-- Parlaklık seçimi menzili de etkiler; yalnızca Brightness çarpmak gözle zor fark edilir.
-			if child:IsA("PointLight") or child:IsA("SpotLight") then
-				local range = baseValue(child, "BaseRange", child.Range)
-				child.Range =
-					math.min(range * Presets.number("Lights/RangeScale") * (0.6 + 0.4 * multiplier), MAX_LIGHT_RANGE)
+			if child:IsA("PointLight") then
+				child.Range = scaledRange(child, child.Range)
+			end
+			if child:IsA("SpotLight") then
+				child.Range = scaledRange(child, child.Range)
+			end
+			if child:IsA("SurfaceLight") then
+				child.Range = scaledRange(child, child.Range)
 			end
 		end
 	end
@@ -191,7 +207,7 @@ local function track(instance: Instance)
 	publishCount()
 	instance.ChildAdded:Connect(function(child: Instance)
 		if child:IsA("Light") and glows[instance] then
-			applyGlow(glow)
+			applyGlow(glow, true)
 			publishCount()
 		end
 	end)

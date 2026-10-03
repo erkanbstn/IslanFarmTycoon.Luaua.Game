@@ -51,4 +51,82 @@ function PetMotion.advance(
 	return x + dx / distance * step, z + dz / distance * step, false
 end
 
+export type Point = { x: number, z: number }
+type RouteNode = { x: number, z: number, cost: number, score: number, parent: string? }
+
+-- Engel denetimini çağırana bırakır; sınırlı arama duvar/çit etrafından dolaşır.
+-- Yol bulunamadığında zorla düz yürümek yerine nil döner.
+function PetMotion.detour(
+	x: number,
+	z: number,
+	targetX: number,
+	targetZ: number,
+	canTravel: (number, number, number, number) -> boolean,
+	spacing: number?,
+	budget: number?
+): { Point }?
+	if canTravel(x, z, targetX, targetZ) then
+		return { { x = targetX, z = targetZ } }
+	end
+	local step = spacing or 3
+	local limit = budget or 256
+	local function distance(px: number, pz: number): number
+		return math.sqrt((px - targetX) ^ 2 + (pz - targetZ) ^ 2)
+	end
+	local nodes: { [string]: RouteNode } = {
+		["0:0"] = { x = x, z = z, cost = 0, score = distance(x, z), parent = nil },
+	}
+	local open: { string } = { "0:0" }
+	local closed: { [string]: boolean } = {}
+	local offsets = { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 }, { 1, 1 }, { 1, -1 }, { -1, 1 }, { -1, -1 } }
+	for _ = 1, limit do
+		if #open == 0 then
+			return nil
+		end
+		local best = 1
+		for index = 2, #open do
+			if nodes[open[index]].score < nodes[open[best]].score then
+				best = index
+			end
+		end
+		local key = table.remove(open, best) :: string
+		local current = nodes[key]
+		closed[key] = true
+		-- Yakın hücre hedefe son güvenli bağlantıyı kurar; duvardan kestirme yapılmaz.
+		if distance(current.x, current.z) <= step * 1.5 and canTravel(current.x, current.z, targetX, targetZ) then
+			local reverse: { Point } = { { x = targetX, z = targetZ } }
+			local trace: string? = key
+			while trace and trace ~= "0:0" do
+				local node = nodes[trace]
+				table.insert(reverse, { x = node.x, z = node.z })
+				trace = node.parent
+			end
+			local route: { Point } = {}
+			for index = #reverse, 1, -1 do
+				table.insert(route, reverse[index])
+			end
+			return route
+		end
+		local gridX = math.round((current.x - x) / step)
+		local gridZ = math.round((current.z - z) / step)
+		for _, offset in offsets do
+			local ix, iz = gridX + offset[1], gridZ + offset[2]
+			local nextKey = `{ix}:{iz}`
+			if closed[nextKey] then
+				continue
+			end
+			local nx, nz = x + ix * step, z + iz * step
+			local cost = current.cost + math.sqrt(offset[1] ^ 2 + offset[2] ^ 2) * step
+			local previous = nodes[nextKey]
+			if (not previous or cost < previous.cost) and canTravel(current.x, current.z, nx, nz) then
+				nodes[nextKey] = { x = nx, z = nz, cost = cost, score = cost + distance(nx, nz), parent = key }
+				if not previous then
+					table.insert(open, nextKey)
+				end
+			end
+		end
+	end
+	return nil
+end
+
 return PetMotion

@@ -150,6 +150,12 @@ end
 ---------------------------------------------------------------------------
 
 type IslandCircle = { center: Vector3, radius: number }
+local knownCircles: { [string]: IslandCircle } = {}
+local spawnedCircles: { [string]: boolean } = {}
+
+local function circleKey(circle: IslandCircle): string
+	return `{circle.center.X}:{circle.center.Z}:{circle.radius}`
+end
 
 local function collectIslands(): { IslandCircle }
 	local circles: { IslandCircle } = {}
@@ -166,7 +172,15 @@ local function collectIslands(): { IslandCircle }
 		end
 	end
 	table.insert(circles, { center = Vector3.zero, radius = 40 }) -- Meydan
-	return circles
+	-- Streaming'den çıkmak adayı silmez; bilinen kıyıları ve sürülerini koru.
+	for _, circle in circles do
+		knownCircles[circleKey(circle)] = circle
+	end
+	local known: { IslandCircle } = {}
+	for _, circle in knownCircles do
+		table.insert(known, circle)
+	end
+	return known
 end
 
 local function isOpenWater(point: Vector3, circles: { IslandCircle }): boolean
@@ -194,6 +208,9 @@ local function createSchool(anchor: Vector3)
 			table.insert(fish, member)
 		end
 	end
+	if #fish == 0 then
+		return
+	end
 	table.insert(schools, {
 		anchor = anchor,
 		radius = random:NextNumber(4, 9),
@@ -208,7 +225,21 @@ end
 
 local function spawnSchools()
 	local circles = collectIslands()
+	for index = #schools, 1, -1 do
+		local school = schools[index]
+		if not isOpenWater(school.anchor, circles) then
+			for _, fish in school.fish do
+				fish.model:Destroy()
+			end
+			table.remove(schools, index)
+		end
+	end
 	for _, circle in circles do
+		local key = circleKey(circle)
+		if spawnedCircles[key] then
+			continue
+		end
+		spawnedCircles[key] = true
 		local count = if circle.radius > 50 then 4 elseif circle.radius > 30 then 2 else 2
 		for _ = 1, count do
 			-- Birkaç deneme: adaların dışındaki açık suya denk gelen bir nokta bul
@@ -351,10 +382,7 @@ end
 -- Bekleme bir yükleme varsayımı değil, aynı karedeki parça olaylarını birleştirmedir.
 local rebuildScheduled = false
 local function scheduleRebuild(instance: Instance)
-	if
-		not instance:IsA("BasePart")
-		or (instance.Name ~= "PlotBase" and instance.Name ~= "IslandBase" and instance.Name ~= "Ground")
-	then
+	if not instance:IsA("BasePart") or (instance.Name ~= "PlotBase" and instance.Name ~= "IslandBase") then
 		return
 	end
 	if rebuildScheduled then
@@ -363,8 +391,6 @@ local function scheduleRebuild(instance: Instance)
 	rebuildScheduled = true
 	task.defer(function()
 		rebuildScheduled = false
-		folder:ClearAllChildren()
-		table.clear(schools)
 		spawnSchools()
 	end)
 end

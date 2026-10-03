@@ -117,24 +117,36 @@ end
 
 type Circle = { x: number, z: number, radius: number }
 local circles: { Circle } = {}
+local knownCircles: { [string]: boolean } = {}
 
-local function collectCircles()
-	table.clear(circles)
-	table.insert(circles, { x = 0, z = 0, radius = HUB_RADIUS + 12 })
+local function collectCircles(): { Circle }
+	local added: { Circle } = {}
+	local function remember(circle: Circle)
+		local key = `{circle.x}:{circle.z}:{circle.radius}`
+		if not knownCircles[key] then
+			knownCircles[key] = true
+			table.insert(circles, circle)
+			table.insert(added, circle)
+		end
+	end
+	-- Uzak adalar stream edilmediğinde de kıyılarını su diye değerlendirme.
+	remember({ x = 0, z = 0, radius = HUB_RADIUS + 12 })
 	local plots = Workspace:FindFirstChild("Plots")
 	if plots then
 		for _, desc in plots:GetDescendants() do
 			if desc:IsA("BasePart") and (desc.Name == "PlotBase" or desc.Name == "IslandBase") then
 				-- Silindirin çapı Size.Y (ekseni X); kıyı kayaları ve plaj için pay bırak
-				table.insert(circles, { x = desc.Position.X, z = desc.Position.Z, radius = desc.Size.Y / 2 + 14 })
+				remember({ x = desc.Position.X, z = desc.Position.Z, radius = desc.Size.Y / 2 + 14 })
 			elseif desc:IsA("BasePart") and desc:GetAttribute("SwimDepth") then
-				table.insert(
-					circles,
-					{ x = desc.Position.X, z = desc.Position.Z, radius = math.max(desc.Size.X, desc.Size.Z) / 2 + 8 }
-				)
+				remember({
+					x = desc.Position.X,
+					z = desc.Position.Z,
+					radius = math.max(desc.Size.X, desc.Size.Z) / 2 + 8,
+				})
 			end
 		end
 	end
+	return added
 end
 
 local function isOpenWater(x: number, z: number): boolean
@@ -790,14 +802,24 @@ local rebuildScheduled = false
 Workspace.DescendantAdded:Connect(function(instance: Instance)
 	if
 		instance:IsA("BasePart")
-		and (instance.Name == "PlotBase" or instance.Name == "IslandBase" or instance.Name == "Ground")
+		and (instance.Name == "PlotBase" or instance.Name == "IslandBase")
 		and not rebuildScheduled
 	then
 		rebuildScheduled = true
 		task.defer(function()
 			rebuildScheduled = false
-			collectCircles()
-			clearCells()
+			local added = collectCircles()
+			-- Yeni kıyı yalnızca kesiştiği hücreleri etkiler; uzaktaki mercanlar yerinde kalır.
+			for key, cell in cells do
+				for _, circle in added do
+					local dx, dz = cell.center.X - circle.x, cell.center.Z - circle.z
+					if dx * dx + dz * dz <= (circle.radius + CELL / math.sqrt(2)) ^ 2 then
+						cell.model:Destroy()
+						cells[key] = nil
+						break
+					end
+				end
+			end
 			lastCellCheck = 0
 		end)
 	end

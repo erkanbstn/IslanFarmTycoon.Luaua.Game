@@ -277,10 +277,10 @@ local function addBuildSpot(folder: Instance, upgradeId: string, cf: CFrame): Pa
 end
 
 -- İki nokta arasında tahta köprü: hazır modüllerden (assets/BridgeModels: 8 ve 2 stud'luk) uç uca dizilir.
--- Uçlar ada zemininin 0.05 altında biter (çakışıp titremesin); artan uzunluk ortalanır (en çok 1 stud taşar).
+-- Güverte ince taş yolların üstünde kalır; artan uzunluk ortalanır (en çok 1 stud taşar).
 local bridgeWarned = false
 local function buildBridgeBetween(parent: Instance, from: Vector3, to: Vector3)
-	local y = SURFACE_Y - 0.05 -- modül pivotu güverte üstündedir
+	local y = SURFACE_Y + 0.25 -- modül pivotu güverte üstündedir; kıyıda taş yüzey güverteyi kesmez
 	local a = Vector3.new(from.X, y, from.Z)
 	local b = Vector3.new(to.X, y, to.Z)
 	local length = (b - a).Magnitude

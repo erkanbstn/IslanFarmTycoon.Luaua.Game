@@ -3,7 +3,7 @@
 --   Yem Kalitesi (feed_quality)        : her açık bölgenin sağ kenarında yem istasyonu (kase, çuval, huni, vitamin yemi, altın)
 --   Depo Genişletme (storage_expansion): toplama platformunun yanında depo yığını (kasalar, fıçılar, kulübe, altın kilit)
 --   Hızlı Büyüme (fast_growth)         : her açık bölgenin sol kenarında büyüme fenerleri (kristal, halka, iri kristal ve yıldızlar)
--- Model plot içinde "LevelProps" adıyla durur; seviyeler ya da açık bölgeler değişince imza değişir ve yeniden kurulur.
+-- Depo ve ırk anıtı ayrı imzalarla korunur; ilgisiz geliştirmeler kulübeyi yeniden kurmaz.
 
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -60,14 +60,6 @@ end
 -- değişir: Sv.1-3 bronz top, Sv.4-6 gümüş kupa, Sv.7-9 altın kupa, Sv.10 altın taç ve ışık sütunu.
 local MONUMENT_OFFSET = Vector3.new(30, 0, -47)
 local PEDESTAL_SPACING = 1.6
-
-local function lineageMonument(model: Model, cf: CFrame, levels: { { id: string, level: number } })
-	for index, entry in levels do
-		-- 8 kaideden sonra ikinci sıra (ada kenarına taşmasın; 24 hayvan türünde tek sıra x>56 olur)
-		local at = cf * CFrame.new(((index - 1) % 8) * PEDESTAL_SPACING, 0, -math.floor((index - 1) / 8) * 2.6)
-		placeAsset(model, "Lineage", `LineageMonument_Lv{entry.level}`, at)
-	end
-end
 
 -- Yardımcılar (pet): toplama platformunun yanında durur. Para yardımcısı köpek, ürün yardımcısı kedi.
 -- Yardımcı türleri: her adanın kendi hayvanı vardır (ana ada köpek/kedi); görünüm assets/Pets modellerindedir.
@@ -159,10 +151,6 @@ local function applyProps(plot: Model, save: PlayerSave?)
 	table.sort(zones, function(a, b)
 		return a.id < b.id
 	end)
-	local ids: { string } = {}
-	for _, zone in zones do
-		table.insert(ids, zone.id)
-	end
 	local monument: { { id: string, level: number } } = {}
 	for _, animalId in Config.ANIMAL_ORDER do
 		local level = if save.lineage then save.lineage[animalId] else nil
@@ -170,47 +158,129 @@ local function applyProps(plot: Model, save: PlayerSave?)
 			table.insert(monument, { id = animalId, level = math.min(level, 10) })
 		end
 	end
-	local monumentKey = {}
-	for _, entry in monument do
-		table.insert(monumentKey, `{entry.id}{entry.level}`)
+	local model: Model
+	if existing and existing:IsA("Model") then
+		model = existing
+	else
+		model = Instance.new("Model")
+		model.Name = MODEL_NAME
+		model.Parent = plot
 	end
-	local signature = `{feed}|{storage}|{growth}|{table.concat(ids, ",")}|{table.concat(monumentKey, ",")}`
-	if existing and existing:GetAttribute("Signature") == signature then
-		return
+	-- Eski toplu düzen yalnızca bir kez dönüştürülür; sonraki güncellemeler tek süse dokunur.
+	if model:GetAttribute("Signature") ~= "IncrementalV2" then
+		for _, child in model:GetChildren() do
+			if child.Name ~= "StorageProps" and child.Name ~= "LineageProps" then
+				child:Destroy()
+			end
+		end
+		model:SetAttribute("Signature", "IncrementalV2")
 	end
-	if existing then
-		existing:Destroy()
+	local wanted: { [string]: boolean } = {}
+	local function zoneProp(name: string, frame: CFrame, level: number, build: (Model, CFrame, number) -> ())
+		if level <= 0 then
+			return
+		end
+		wanted[name] = true
+		local prop = model:FindFirstChild(name)
+		if prop and (prop:GetAttribute("Level") ~= level or prop:GetAttribute("Frame") ~= frame) then
+			prop:Destroy()
+			prop = nil
+		end
+		if not prop then
+			local group = Instance.new("Model")
+			group.Name = name
+			group:SetAttribute("Level", level)
+			group:SetAttribute("Frame", frame)
+			build(group, frame, level)
+			group.Parent = model
+		end
 	end
-	if feed + storage + growth + #monument == 0 then
-		return
-	end
-	local model = Instance.new("Model")
-	model.Name = MODEL_NAME
-	model:SetAttribute("Signature", signature)
 	for _, zone in zones do
 		local ground = zone.ground
 		local top = ground.CFrame * CFrame.new(0, ground.Size.Y / 2, 0)
 		local halfX, halfZ = ground.Size.X / 2, ground.Size.Z / 2
-		if feed > 0 then
-			feedStation(model, top * CFrame.new(halfX - 2, 0, -halfZ * 0.55) * CFrame.Angles(0, math.rad(90), 0), feed)
-		end
-		if growth > 0 then
-			growthBeacon(model, top * CFrame.new(halfX - 5, 0, -halfZ * 0.75), growth)
+		zoneProp(
+			`Feed_{zone.id}`,
+			top * CFrame.new(halfX - 2, 0, -halfZ * 0.55) * CFrame.Angles(0, math.rad(90), 0),
+			feed,
+			feedStation
+		)
+		zoneProp(`Growth_{zone.id}`, top * CFrame.new(halfX - 5, 0, -halfZ * 0.75), growth, growthBeacon)
+	end
+	for _, child in model:GetChildren() do
+		if child.Name ~= "StorageProps" and child.Name ~= "LineageProps" and not wanted[child.Name] then
+			child:Destroy()
 		end
 	end
 	local collector = plot:FindFirstChild("Collector")
+	local storageFrame: CFrame? = nil
 	if storage > 0 and collector and collector:IsA("BasePart") then
 		local base = CFrame.new(collector.Position.X, collector.Position.Y - 0.75, collector.Position.Z)
 			* collector.CFrame.Rotation
-		-- Toplayıcı 180° döner: yerel -X dünyada kuleye (+X) düşüyordu; yığın kulenin ve yardımcıların dışında, ada kuzeyinde durur.
-		storageYard(model, base * CFrame.new(-1, 0, 9) * CFrame.Angles(0, math.pi, 0), storage)
+		storageFrame = base * CFrame.new(-1, 0, 9) * CFrame.Angles(0, math.pi, 0)
+	end
+	local storageProps = model:FindFirstChild("StorageProps")
+	if
+		storageProps
+		and (storageProps:GetAttribute("Level") ~= storage or storageProps:GetAttribute("Frame") ~= storageFrame)
+	then
+		storageProps:Destroy()
+		storageProps = nil
+	end
+	if storageFrame and not storageProps then
+		local group = Instance.new("Model")
+		group.Name = "StorageProps"
+		group:SetAttribute("Level", storage)
+		group:SetAttribute("Frame", storageFrame)
+		storageYard(group, storageFrame, storage)
+		group.Parent = model
+	end
+	local lineageProps = model:FindFirstChild("LineageProps")
+	if lineageProps and not lineageProps:IsA("Model") then
+		lineageProps:Destroy()
+		lineageProps = nil
 	end
 	local plotBase = plot:FindFirstChild("PlotBase")
-	if #monument > 0 and plotBase and plotBase:IsA("BasePart") then
+	if #monument == 0 or not plotBase or not plotBase:IsA("BasePart") then
+		if lineageProps then
+			lineageProps:Destroy()
+		end
+	elseif plotBase and plotBase:IsA("BasePart") then
+		local group = if lineageProps then lineageProps :: Model else Instance.new("Model")
+		group.Name = "LineageProps"
+		group.Parent = model
+		if group:GetAttribute("Signature") ~= "IncrementalV2" then
+			for _, child in group:GetChildren() do
+				child:Destroy()
+			end
+			group:SetAttribute("Signature", "IncrementalV2")
+		end
 		local frame = plotBase.CFrame * CFrame.Angles(0, 0, -math.pi / 2) * CFrame.new(0, plotBase.Size.X / 2, 0)
-		lineageMonument(model, frame * CFrame.new(MONUMENT_OFFSET.X, 0, MONUMENT_OFFSET.Z), monument)
+		local base = frame * CFrame.new(MONUMENT_OFFSET.X, 0, MONUMENT_OFFSET.Z)
+		local wantedMonuments: { [string]: boolean } = {}
+		for index, entry in monument do
+			wantedMonuments[entry.id] = true
+			local at = base * CFrame.new(((index - 1) % 8) * PEDESTAL_SPACING, 0, -math.floor((index - 1) / 8) * 2.6)
+			local old = group:FindFirstChild(entry.id)
+			if old and (old:GetAttribute("Level") ~= entry.level or old:GetAttribute("Frame") ~= at) then
+				old:Destroy()
+				old = nil
+			end
+			if not old then
+				local single = Instance.new("Model")
+				single.Name = entry.id
+				single:SetAttribute("Level", entry.level)
+				single:SetAttribute("Frame", at)
+				placeAsset(single, "Lineage", `LineageMonument_Lv{entry.level}`, at)
+				single.Parent = group
+			end
+		end
+		for _, child in group:GetChildren() do
+			if not wantedMonuments[child.Name] then
+				child:Destroy()
+			end
+		end
 	end
-	model.Parent = plot
 end
 
 -- Yardımcılar ayrı modelde durur: seviye/bölge değişip LevelProps yeniden kurulsa da yürüyen yardımcı kaybolmaz.
@@ -221,23 +291,21 @@ local function applyPets(plot: Model, save: PlayerSave?)
 	local slots: { ProductionLogic.PetSlot } = if save
 		then ProductionLogic.petSlots(save, Config.PRODUCTION_ORDER, FarmMath, Config)
 		else {}
-	local keys: { string } = {}
-	for _, slot in slots do
-		table.insert(keys, `{slot.kind}:{slot.island}`)
-	end
-	local signature = table.concat(keys, ",")
-	if existing and existing:GetAttribute("Signature") == signature then
-		return
-	end
-	if existing then
-		existing:Destroy()
-	end
 	if #slots == 0 then
+		if existing then
+			existing:Destroy()
+		end
 		return
 	end
-	local model = Instance.new("Model")
-	model.Name = PETS_NAME
-	model:SetAttribute("Signature", signature)
+	local model: Model
+	if existing and existing:IsA("Model") then
+		model = existing
+	else
+		model = Instance.new("Model")
+		model.Name = PETS_NAME
+		model.Parent = plot
+	end
+	local wanted: { [string]: boolean } = {}
 	local collector = plot:FindFirstChild("Collector")
 	local islands = plot:FindFirstChild("Islands")
 	for _, slot in slots do
@@ -264,10 +332,23 @@ local function applyPets(plot: Model, save: PlayerSave?)
 			end
 		end
 		if home then
-			petFigure(model, home, slot.kind, slot.island)
+			local name = `Pet_{slot.kind}_{slot.island}`
+			wanted[name] = true
+			local old = model:FindFirstChild(name)
+			if old and old:GetAttribute("PetHome") ~= home then
+				old:Destroy()
+				old = nil
+			end
+			if not old then
+				petFigure(model, home, slot.kind, slot.island)
+			end
 		end
 	end
-	model.Parent = plot
+	for _, child in model:GetChildren() do
+		if not wanted[child.Name] then
+			child:Destroy()
+		end
+	end
 end
 
 function UpgradeLevelProps.apply(plot: Model, save: PlayerSave?)

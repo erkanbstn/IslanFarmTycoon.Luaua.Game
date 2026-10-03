@@ -38,6 +38,11 @@ type Actor = {
 	island: string,
 	props: { Prop },
 	propModel: Model?, -- taşınan nesnenin (client-assets/PetProps) sarmalayıcısı
+	radius: number,
+	height: number,
+	width: number,
+	length: number,
+	center: Vector3,
 }
 
 local function alive(actor: Actor): boolean
@@ -100,44 +105,213 @@ local function cameraDistance(actor: Actor): number?
 	return if camera then (camera.CFrame.Position - actor.cf.Position).Magnitude else nil
 end
 
--- Çarpışma: yardımcı katı nesnelerin (çit, kütük, bina, ağaç) içinden geçmez. Her adımda yürüyüş yönüne kısa yatay ışın atılır;
--- engel varsa 45/90/135 derece yan yönler denenir. Hiçbiri açık değilse yardımcı bekler; uzun süre ilerleyemezse (takılma)
--- hedefe doğru yürümeye zorlanır, böylece teslim turu asla donmaz.
-local PET_RADIUS = 1.2
-local PROBE_HEIGHT = 1.4
-local STUCK_SECONDS = 2
+-- Her türün gerçek gövde hacmi korunur; bekleme süresi engelleri hiçbir zaman kapatmaz.
+local MAX_STEP = 0.8
+local MIN_NORMAL = 0.7
+local RETRY_SECONDS = 1
 local rayParams = RaycastParams.new()
-rayParams.FilterType = Enum.RaycastFilterType.Exclude
+rayParams.FilterType = Enum.RaycastFilterType.Include
 rayParams.RespectCanCollide = true
-local SIDE_ANGLES = { 0, 45, -45, 90, -90, 135, -135 }
+rayParams.IgnoreWater = true
+local overlapParams = OverlapParams.new()
+overlapParams.FilterType = Enum.RaycastFilterType.Include
+overlapParams.RespectCanCollide = true
 
-local function blockedAhead(actor: Actor, position: Vector3, direction: Vector3, distance: number): boolean
-	rayParams.FilterDescendantsInstances = { actor.model }
-	local origin = Vector3.new(position.X, actor.y + PROBE_HEIGHT, position.Z)
-	local hit = Workspace:Raycast(origin, direction * (distance + PET_RADIUS), rayParams)
-	if not hit then
-		return false
+local function queryWorld(actor: Actor)
+	local include: { Instance } = { actor.plot, Workspace.Terrain }
+	local world = Workspace:FindFirstChild("World")
+	if world then
+		table.insert(include, world)
 	end
-	local instance = hit.Instance
-	-- Oyuncular ve yardımcılar engel sayılmaz; yalnızca sabit (Anchored) dünya parçaları
-	if instance.Parent and instance.Parent:FindFirstChildOfClass("Humanoid") then
-		return false
-	end
-	return instance.Anchored and instance.CanCollide
+	rayParams.FilterDescendantsInstances = include
+	overlapParams.FilterDescendantsInstances = include
 end
 
--- Hedefe yürür. Kalite yalnızca zıplamayı keser; konum her kalitede akıcı ilerler (PetMotion.walkInterval aralığıyla).
--- Yalnızca çok uzaktaki yardımcı ışınlanır.
-local function walk(actor: Actor, target: Vector3): boolean
-	target = Vector3.new(target.X, actor.y, target.Z)
+local function updateBodySize(actor: Actor)
+	local cf, size = actor.model:GetBoundingBox()
+	local center = actor.cf:PointToObjectSpace(cf.Position)
+	actor.center = Vector3.new(center.X, 0, center.Z)
+	actor.width = size.X + 0.24
+	actor.length = size.Z + 0.24
+	actor.radius = math.abs(center.X) + actor.width / 2
+	actor.height = math.max(1, center.Y + size.Y / 2 + 0.12)
+end
+
+local function heading(actor: Actor, direction: Vector3?): CFrame
+	if direction and direction.Magnitude > 1e-4 then
+		return CFrame.lookAt(Vector3.zero, direction)
+	end
+	return actor.cf.Rotation
+end
+
+local function bodyBox(actor: Actor, x: number, y: number, z: number, direction: Vector3?): (CFrame, Vector3)
+	-- Çıkılabilir basamakları gövde engeli sayma; ayak ışınları bunların yüksekliğini izler.
+	-- Uzun kuyruğun arkasındaki alçak platform, bütün peti platform kenarında kilitlememeli.
+	local bottom = MAX_STEP + 0.1
+	local height = math.max(0.5, actor.height + 0.35 - bottom)
+	local center = Vector3.new(actor.center.X, bottom + height / 2, actor.center.Z)
+	return CFrame.new(x, y, z) * heading(actor, direction) * CFrame.new(center),
+		Vector3.new(actor.width, height, actor.length)
+end
+
+local function supportAt(actor: Actor, x: number, z: number, direction: Vector3?): number?
+	queryWorld(actor)
+	local level: number? = nil
+	-- Tek merkez rayı bir ayağı kıyıdan veya köprüden düşürmesin.
+	local side, front = actor.width * 0.35, actor.length * 0.3
+	local rotation = heading(actor, direction)
+	for _, offset in
+		{
+			Vector2.zero,
+			Vector2.new(side, 0),
+			Vector2.new(-side, 0),
+			Vector2.new(0, front),
+			Vector2.new(0, -front),
+		}
+	do
+		local worldOffset = rotation * Vector3.new(offset.X, 0, offset.Y)
+		local origin = Vector3.new(x + worldOffset.X, actor.y + MAX_STEP + 0.1, z + worldOffset.Z)
+		local hit = Workspace:Raycast(origin, Vector3.new(0, -MAX_STEP * 2 - 0.4, 0), rayParams)
+		if not hit or hit.Normal.Y < MIN_NORMAL or math.abs(hit.Position.Y - actor.y) > MAX_STEP then
+			return nil
+		end
+		level = math.max(level or hit.Position.Y, hit.Position.Y)
+	end
+	return level
+end
+
+local function canStand(
+	actor: Actor,
+	x: number,
+	z: number,
+	cache: { [string]: number | boolean }?,
+	direction: Vector3?
+): number?
+	local key = `{x}:{z}:{if direction then direction.Unit else actor.cf.LookVector}`
+	local cached = if cache then cache[key] else nil
+	if cached ~= nil then
+		return if typeof(cached) == "number" then cached else nil
+	end
+	local y = supportAt(actor, x, z, direction)
+	if not y then
+		if cache then
+			cache[key] = false
+		end
+		return nil
+	end
+	local cf, size = bodyBox(actor, x, y, z, direction)
+	for _, part in Workspace:GetPartBoundsInBox(cf, size, overlapParams) do
+		if part.Anchored and part.CanCollide then
+			if cache then
+				cache[key] = false
+			end
+			return nil
+		end
+	end
+	if cache then
+		cache[key] = y
+	end
+	return y
+end
+
+local function canTravel(
+	actor: Actor,
+	x: number,
+	z: number,
+	nx: number,
+	nz: number,
+	cache: { [string]: number | boolean }?
+): boolean
+	local direction = Vector3.new(nx - x, 0, nz - z)
+	local length = direction.Magnitude
+	if length < 1e-4 then
+		return canStand(actor, nx, nz, cache) ~= nil
+	end
+	if not canStand(actor, nx, nz, cache, direction) or not canStand(actor, x, z, cache, direction) then
+		return false
+	end
+	queryWorld(actor)
+	local cf, size = bodyBox(actor, x, actor.y, z, direction)
+	local hit = Workspace:Blockcast(cf, size, direction, rayParams)
+	if hit and hit.Instance.Anchored and hit.Instance.CanCollide then
+		return false
+	end
+	-- Uzun bağlantı kıyı/köprü boşluklarından kestirme yapamaz.
+	local samples = math.ceil(length / math.max(1, actor.radius))
+	for index = 1, samples - 1 do
+		local alpha = index / samples
+		if not canStand(actor, x + direction.X * alpha, z + direction.Z * alpha, cache, direction) then
+			return false
+		end
+	end
+	return true
+end
+
+local function safeDestination(actor: Actor, target: Vector3): Vector3?
+	local y = canStand(actor, target.X, target.Z)
+	if y then
+		return Vector3.new(target.X, y, target.Z)
+	end
+	-- Sandık/tesis çapasının içinde durmak yerine en yakın boş teslim noktasına yaklaşır.
+	local toward = actor.cf.Position - target
+	local startAngle = math.atan2(toward.X, toward.Z)
+	for ring = 1, 4 do
+		local radius = ring * math.max(1.5, actor.radius)
+		for index = 0, 11 do
+			local angle = startAngle + index * math.pi / 6
+			local x, z = target.X + math.sin(angle) * radius, target.Z + math.cos(angle) * radius
+			local level = canStand(actor, x, z)
+			if level then
+				return Vector3.new(x, level, z)
+			end
+		end
+	end
+	return nil
+end
+
+-- Yalnızca görünmeyen uzak yardımcı, kontrol edilmiş boş ve destekli hedefe ışınlanabilir.
+local function walk(actor: Actor, requested: Vector3): boolean
+	updateBodySize(actor)
+	local target = safeDestination(actor, requested)
+	if not target then
+		task.wait(RETRY_SECONDS)
+		return false
+	end
 	if PetMotion.teleports(cameraDistance(actor)) then
+		actor.y = target.Y
 		place(actor, CFrame.lookAt(target, target + actor.cf.LookVector))
 		task.wait(FAR_TELEPORT_SECONDS)
 		return alive(actor)
 	end
+	local function plan(): { PetMotion.Point }?
+		local position = actor.cf.Position
+		local cache: { [string]: number | boolean } = {}
+		local checks = 0
+		return PetMotion.detour(
+			position.X,
+			position.Z,
+			target.X,
+			target.Z,
+			function(x: number, z: number, nx: number, nz: number): boolean
+				checks += 1
+				-- Yol araması kare başına yığılmaz; önbellek aynı zemin hücresini tekrar taramaz.
+				if checks % 16 == 0 then
+					RunService.Heartbeat:Wait()
+				end
+				return alive(actor) and canTravel(actor, x, z, nx, nz, cache)
+			end,
+			math.max(2.5, actor.radius * 1.5),
+			256
+		)
+	end
+	local route = plan()
+	if not route then
+		task.wait(RETRY_SECONDS)
+		return false
+	end
 	local pending = 0
-	local stuck = 0
-	while true do
+	local index = 1
+	while index <= #route do
 		if not alive(actor) then
 			return false
 		end
@@ -148,43 +322,35 @@ local function walk(actor: Actor, target: Vector3): boolean
 		local dt = pending
 		pending = 0
 		local position = actor.cf.Position
-		local nextX, nextZ, arrived = PetMotion.advance(position.X, position.Z, target.X, target.Z, SPEED, dt)
+		local point = route[index]
+		local nextX, nextZ, arrived = PetMotion.advance(position.X, position.Z, point.x, point.z, SPEED, dt)
 		if arrived then
-			return true
+			index += 1
+			continue
 		end
-		if stuck < STUCK_SECONDS then
-			local want = Vector3.new(nextX - position.X, 0, nextZ - position.Z)
-			local stepLength = want.Magnitude
-			if stepLength > 1e-4 then
-				local unit = want / stepLength
-				local chosen: Vector3? = nil
-				for _, degrees in SIDE_ANGLES do
-					local candidate = (CFrame.Angles(0, math.rad(degrees), 0) * unit)
-					if not blockedAhead(actor, position, candidate, stepLength) then
-						chosen = candidate
-						break
-					end
-				end
-				if chosen then
-					nextX, nextZ = position.X + chosen.X * stepLength, position.Z + chosen.Z * stepLength
-					stuck = 0
-				else
-					stuck += dt
-					continue
-				end
+		-- Streaming veya yeni bina rotayı kapatırsa son güvenli konumda durup yeniden arar.
+		if not canTravel(actor, position.X, position.Z, nextX, nextZ) then
+			task.wait(RETRY_SECONDS)
+			route = plan()
+			if not route then
+				return false
 			end
+			index = 1
+			continue
 		end
+		local support = supportAt(actor, nextX, nextZ, Vector3.new(nextX - position.X, 0, nextZ - position.Z))
+		if not support then
+			return false
+		end
+		actor.y = support
 		actor.t += dt
 		local bob = if PetMotion.animates(EffectSettings.quality(), EffectSettings.reducedMotion())
-			then math.abs(math.sin(actor.t * 9)) * 0.35
+			then math.abs(math.sin(actor.t * 9)) * 0.25
 			else 0
-		local flat = Vector3.new(nextX, actor.y, nextZ)
-		local direction = Vector3.new(nextX - position.X, 0, nextZ - position.Z)
-		if direction.Magnitude < 1e-4 then
-			direction = actor.cf.LookVector
-		end
-		place(actor, CFrame.lookAt(flat + Vector3.new(0, bob, 0), flat + Vector3.new(0, bob, 0) + direction))
+		local flat = Vector3.new(nextX, actor.y + bob, nextZ)
+		place(actor, CFrame.lookAt(flat, flat + Vector3.new(nextX - position.X, 0, nextZ - position.Z)))
 	end
+	return true
 end
 
 -- Bekleme: olduğu yerde hafifçe sallanır
@@ -223,17 +389,47 @@ end
 -- Plotun taş yol ağı (dünya XZ): ana ada yolları + köprüler + uzman ada yolları. Ada içeriği yeniden kurulabildiğinden
 -- ve streaming köprüyü geç getirebildiğinden girdilerin imzası her yürüyüşte karşılaştırılır; ağ yalnızca imza değişince
 -- yeniden kurulur (aynı plotun tüm yardımcıları aynı ağı paylaşır).
+local function bridgeEnds(island: Instance, home: Vector3): (Vector3?, Vector3?, number)
+	local decks: { BasePart } = {}
+	local legacy = island:FindFirstChild("Bridge")
+	if legacy and legacy:IsA("BasePart") then
+		table.insert(decks, legacy)
+	end
+	for _, child in island:GetChildren() do
+		if child.Name == "BridgeModule_8" or child.Name == "BridgeModule_2" then
+			local deck = child:FindFirstChild("Deck")
+			if deck and deck:IsA("BasePart") then
+				table.insert(decks, deck)
+			end
+		end
+	end
+	if #decks == 0 then
+		return nil, nil, 0
+	end
+	table.sort(decks, function(a: BasePart, b: BasePart): boolean
+		return (a.Position - home).Magnitude < (b.Position - home).Magnitude
+	end)
+	local first, last = decks[1], decks[#decks]
+	local a = first.CFrame * Vector3.new(0, 0, first.Size.Z / 2)
+	local b = last.CFrame * Vector3.new(0, 0, -last.Size.Z / 2)
+	-- Eski tek parça köprü ters yönlendirilmişse ana ada ucu yine doğru seçilir.
+	if #decks == 1 and (a - home).Magnitude > (b - home).Magnitude then
+		a, b = b, a
+	end
+	return a, b, #decks
+end
+
 local function graphSignature(plot: Model): string
 	local parts = { tostring(plot:GetAttribute("HomeFrame")), tostring(plot:GetAttribute("HomeRadius")) }
+	local home = plot:GetAttribute("HomeFrame")
+	local homePosition = if typeof(home) == "CFrame" then home.Position else Vector3.zero
 	local islands = plot:FindFirstChild("Islands")
 	if islands then
 		for _, island in islands:GetChildren() do
-			local bridge = island:FindFirstChild("Bridge")
+			local a, b, count = bridgeEnds(island, homePosition)
 			table.insert(
 				parts,
-				`{island.Name}:{if bridge and bridge:IsA("BasePart")
-					then tostring(bridge.CFrame) .. tostring(bridge.Size)
-					else "-"}:{island:GetAttribute("PathStart")}:{island:GetAttribute("PathEnd")}`
+				`{island.Name}:{a}:{b}:{count}:{island:GetAttribute("PathStart")}:{island:GetAttribute("PathEnd")}`
 			)
 		end
 	end
@@ -258,11 +454,8 @@ local function buildGraph(plot: Model): MapPaths.Graph?
 	end
 	for _, island in islands:GetChildren() do
 		local startPoint, endPoint = island:GetAttribute("PathStart"), island:GetAttribute("PathEnd")
-		local bridge = island:FindFirstChild("Bridge")
-		if typeof(startPoint) == "Vector3" and typeof(endPoint) == "Vector3" and bridge and bridge:IsA("BasePart") then
-			local half = bridge.Size.Z / 2
-			local homeEnd = bridge.CFrame * Vector3.new(0, 0, half)
-			local islandEnd = bridge.CFrame * Vector3.new(0, 0, -half)
+		local homeEnd, islandEnd = bridgeEnds(island, frame.Position)
+		if typeof(startPoint) == "Vector3" and typeof(endPoint) == "Vector3" and homeEnd and islandEnd then
 			local a = MapPaths.addNode(graph, homeEnd.X, homeEnd.Z)
 			local b = MapPaths.addNode(graph, islandEnd.X, islandEnd.Z)
 			local c = MapPaths.addNode(graph, startPoint.X, startPoint.Z)
@@ -308,7 +501,12 @@ local function goTo(actor: Actor, target: Vector3): boolean
 	local points: { MapPaths.Point } = if graph
 		then MapPaths.route(graph, position.X, position.Z, target.X, target.Z)
 		else { { x = target.X, z = target.Z } }
-	for _, point in points do
+	for index, point in points do
+		-- Yol ağı statiktir; yeni bina bir ara düğümün üstüne gelebilir. Petin son hedefi korunur,
+		-- kapalı ara düğüm yerine sonraki açık düğüme güvenli çevre rotası aranır.
+		if index < #points and not canStand(actor, point.x, point.z) then
+			continue
+		end
 		if not walk(actor, Vector3.new(point.x, actor.y, point.z)) then
 			return false
 		end
@@ -483,9 +681,21 @@ local function track(instance: Instance)
 			island = island,
 			props = {},
 			propModel = nil,
+			radius = 1.2,
+			height = 2,
+			width = 2,
+			length = 2,
+			center = Vector3.zero,
 		}
 		local ok, err = pcall(function()
-			run(actor)
+			-- Yol geçici kapalıyken yardımcı görevi tamamen bırakmaz; güvenli konumdan tekrar dener.
+			while alive(actor) do
+				run(actor)
+				clearProps(actor)
+				if alive(actor) then
+					idleFor(actor, RETRY_SECONDS)
+				end
+			end
 		end)
 		if not ok then
 			warn(`[PetAnimator] {err}`)

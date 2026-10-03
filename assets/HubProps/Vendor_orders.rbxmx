@@ -1156,7 +1156,7 @@
           <B>0.223529</B>
         </Color3>
         <token name="Shape">1</token>
-        <token name="Material">528</token>
+        <token name="Material">848</token>
         <bool name="Anchored">true</bool>
         <bool name="CanCollide">false</bool>
         <bool name="CanQuery">false</bool>

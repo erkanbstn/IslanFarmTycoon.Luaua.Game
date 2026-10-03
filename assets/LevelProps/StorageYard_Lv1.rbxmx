@@ -5,9 +5,9 @@
       <string name="Name">StorageYard_Lv1</string>
       <OptionalCoordinateFrame name="WorldPivotData">
         <CFrame>
-          <X>1200</X>
-          <Y>4</Y>
-          <Z>1198</Z>
+          <X>0</X>
+          <Y>0</Y>
+          <Z>0</Z>
           <R00>1</R00>
           <R01>0</R01>
           <R02>0</R02>
@@ -20,18 +20,18 @@
         </CFrame>
       </OptionalCoordinateFrame>
     </Properties>
-    <Item class="Part" referent="RBXR101">
+    <Item class="Part" referent="GPT_STORAGE_1_1">
       <Properties>
         <string name="Name">Crate</string>
         <Vector3 name="Size">
-          <X>1.74</X>
-          <Y>1.74</Y>
-          <Z>1.692973</Z>
+          <X>1.7</X>
+          <Y>1.7</Y>
+          <Z>1.7</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1200.0</X>
-          <Y>4.9</Y>
-          <Z>1198.024324</Z>
+          <X>0</X>
+          <Y>0.85</Y>
+          <Z>0</Z>
           <R00>1.0</R00>
           <R01>-0.0</R01>
           <R02>0</R02>
@@ -50,26 +50,26 @@
         <token name="Material">528</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
-        <bool name="CanCollide">false</bool>
+        <bool name="CanCollide">true</bool>
         <bool name="CanTouch">false</bool>
-        <bool name="CanQuery">false</bool>
+        <bool name="CanQuery">true</bool>
         <float name="Transparency">0</float>
         <float name="Reflectance">0</float>
-        <bool name="CastShadow">false</bool>
+        <bool name="CastShadow">true</bool>
       </Properties>
     </Item>
-    <Item class="Part" referent="RBXR102">
+    <Item class="Part" referent="GPT_STORAGE_1_2">
       <Properties>
         <string name="Name">CrateBand</string>
         <Vector3 name="Size">
           <X>1.78</X>
           <Y>0.18</Y>
-          <Z>0.077838</Z>
+          <Z>0.08</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1200.0</X>
-          <Y>5.45</Y>
-          <Z>1197.187568</Z>
+          <X>0</X>
+          <Y>1.35</Y>
+          <Z>-0.87</Z>
           <R00>1.0</R00>
           <R01>-0.0</R01>
           <R02>0</R02>
@@ -81,11 +81,11 @@
           <R22>1</R22>
         </CoordinateFrame>
         <Color3 name="Color">
-          <R>0.4196078431372549</R>
-          <G>0.28627450980392155</G>
-          <B>0.1843137254901961</B>
+          <R>0.3568627450980392</R>
+          <G>0.23921568627450981</G>
+          <B>0.14901960784313725</B>
         </Color3>
-        <token name="Material">512</token>
+        <token name="Material">528</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
         <bool name="CanCollide">false</bool>
@@ -96,18 +96,18 @@
         <bool name="CastShadow">false</bool>
       </Properties>
     </Item>
-    <Item class="Part" referent="RBXR103">
+    <Item class="Part" referent="GPT_STORAGE_1_3">
       <Properties>
         <string name="Name">CrateBand</string>
         <Vector3 name="Size">
           <X>1.78</X>
           <Y>0.18</Y>
-          <Z>0.077838</Z>
+          <Z>0.08</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1200.0</X>
-          <Y>5.45</Y>
-          <Z>1198.861081</Z>
+          <X>0</X>
+          <Y>1.35</Y>
+          <Z>0.87</Z>
           <R00>1.0</R00>
           <R01>-0.0</R01>
           <R02>0</R02>
@@ -119,11 +119,11 @@
           <R22>1</R22>
         </CoordinateFrame>
         <Color3 name="Color">
-          <R>0.4196078431372549</R>
-          <G>0.28627450980392155</G>
-          <B>0.1843137254901961</B>
+          <R>0.3568627450980392</R>
+          <G>0.23921568627450981</G>
+          <B>0.14901960784313725</B>
         </Color3>
-        <token name="Material">512</token>
+        <token name="Material">528</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
         <bool name="CanCollide">false</bool>
@@ -134,34 +134,34 @@
         <bool name="CastShadow">false</bool>
       </Properties>
     </Item>
-    <Item class="Part" referent="RBXR104">
+    <Item class="Part" referent="GPT_STORAGE_1_4">
       <Properties>
         <string name="Name">CrateBrace</string>
         <Vector3 name="Size">
-          <X>1.4</X>
-          <Y>0.16</Y>
-          <Z>0.077838</Z>
+          <X>1.5</X>
+          <Y>0.15</Y>
+          <Z>0.08</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1200.0</X>
-          <Y>4.9</Y>
-          <Z>1197.138919</Z>
-          <R00>0.743145</R00>
-          <R01>-0.669131</R01>
+          <X>0</X>
+          <Y>0.85</Y>
+          <Z>0.9</Z>
+          <R00>0.8191520442889918</R00>
+          <R01>-0.573576436351046</R01>
           <R02>0</R02>
-          <R10>0.669131</R10>
-          <R11>0.743145</R11>
+          <R10>0.573576436351046</R10>
+          <R11>0.8191520442889918</R11>
           <R12>0</R12>
           <R20>0</R20>
           <R21>0</R21>
           <R22>1</R22>
         </CoordinateFrame>
         <Color3 name="Color">
-          <R>0.4196078431372549</R>
-          <G>0.28627450980392155</G>
-          <B>0.1843137254901961</B>
+          <R>0.7411764705882353</R>
+          <G>0.5568627450980392</G>
+          <B>0.34509803921568627</B>
         </Color3>
-        <token name="Material">512</token>
+        <token name="Material">528</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
         <bool name="CanCollide">false</bool>
@@ -172,18 +172,18 @@
         <bool name="CastShadow">false</bool>
       </Properties>
     </Item>
-    <Item class="Part" referent="RBXR105">
+    <Item class="Part" referent="GPT_STORAGE_1_5">
       <Properties>
         <string name="Name">Crate</string>
         <Vector3 name="Size">
-          <X>1.74</X>
-          <Y>1.74</Y>
-          <Z>1.692973</Z>
+          <X>1.7</X>
+          <Y>1.7</Y>
+          <Z>1.7</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1202.0</X>
-          <Y>4.9</Y>
-          <Z>1198.024324</Z>
+          <X>2</X>
+          <Y>0.85</Y>
+          <Z>0</Z>
           <R00>1.0</R00>
           <R01>-0.0</R01>
           <R02>0</R02>
@@ -202,26 +202,26 @@
         <token name="Material">528</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
-        <bool name="CanCollide">false</bool>
+        <bool name="CanCollide">true</bool>
         <bool name="CanTouch">false</bool>
-        <bool name="CanQuery">false</bool>
+        <bool name="CanQuery">true</bool>
         <float name="Transparency">0</float>
         <float name="Reflectance">0</float>
-        <bool name="CastShadow">false</bool>
+        <bool name="CastShadow">true</bool>
       </Properties>
     </Item>
-    <Item class="Part" referent="RBXR106">
+    <Item class="Part" referent="GPT_STORAGE_1_6">
       <Properties>
         <string name="Name">CrateBand</string>
         <Vector3 name="Size">
           <X>1.78</X>
           <Y>0.18</Y>
-          <Z>0.077838</Z>
+          <Z>0.08</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1202.0</X>
-          <Y>5.45</Y>
-          <Z>1197.187568</Z>
+          <X>2</X>
+          <Y>1.35</Y>
+          <Z>-0.87</Z>
           <R00>1.0</R00>
           <R01>-0.0</R01>
           <R02>0</R02>
@@ -233,11 +233,11 @@
           <R22>1</R22>
         </CoordinateFrame>
         <Color3 name="Color">
-          <R>0.4196078431372549</R>
-          <G>0.28627450980392155</G>
-          <B>0.1843137254901961</B>
+          <R>0.3568627450980392</R>
+          <G>0.23921568627450981</G>
+          <B>0.14901960784313725</B>
         </Color3>
-        <token name="Material">512</token>
+        <token name="Material">528</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
         <bool name="CanCollide">false</bool>
@@ -248,18 +248,18 @@
         <bool name="CastShadow">false</bool>
       </Properties>
     </Item>
-    <Item class="Part" referent="RBXR107">
+    <Item class="Part" referent="GPT_STORAGE_1_7">
       <Properties>
         <string name="Name">CrateBand</string>
         <Vector3 name="Size">
           <X>1.78</X>
           <Y>0.18</Y>
-          <Z>0.077838</Z>
+          <Z>0.08</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1202.0</X>
-          <Y>5.45</Y>
-          <Z>1198.861081</Z>
+          <X>2</X>
+          <Y>1.35</Y>
+          <Z>0.87</Z>
           <R00>1.0</R00>
           <R01>-0.0</R01>
           <R02>0</R02>
@@ -271,11 +271,11 @@
           <R22>1</R22>
         </CoordinateFrame>
         <Color3 name="Color">
-          <R>0.4196078431372549</R>
-          <G>0.28627450980392155</G>
-          <B>0.1843137254901961</B>
+          <R>0.3568627450980392</R>
+          <G>0.23921568627450981</G>
+          <B>0.14901960784313725</B>
         </Color3>
-        <token name="Material">512</token>
+        <token name="Material">528</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
         <bool name="CanCollide">false</bool>
@@ -286,34 +286,34 @@
         <bool name="CastShadow">false</bool>
       </Properties>
     </Item>
-    <Item class="Part" referent="RBXR108">
+    <Item class="Part" referent="GPT_STORAGE_1_8">
       <Properties>
         <string name="Name">CrateBrace</string>
         <Vector3 name="Size">
-          <X>1.4</X>
-          <Y>0.16</Y>
-          <Z>0.077838</Z>
+          <X>1.5</X>
+          <Y>0.15</Y>
+          <Z>0.08</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1202.0</X>
-          <Y>4.9</Y>
-          <Z>1197.138919</Z>
-          <R00>0.743145</R00>
-          <R01>-0.669131</R01>
+          <X>2</X>
+          <Y>0.85</Y>
+          <Z>0.9</Z>
+          <R00>0.8191520442889918</R00>
+          <R01>-0.573576436351046</R01>
           <R02>0</R02>
-          <R10>0.669131</R10>
-          <R11>0.743145</R11>
+          <R10>0.573576436351046</R10>
+          <R11>0.8191520442889918</R11>
           <R12>0</R12>
           <R20>0</R20>
           <R21>0</R21>
           <R22>1</R22>
         </CoordinateFrame>
         <Color3 name="Color">
-          <R>0.4196078431372549</R>
-          <G>0.28627450980392155</G>
-          <B>0.1843137254901961</B>
+          <R>0.7411764705882353</R>
+          <G>0.5568627450980392</G>
+          <B>0.34509803921568627</B>
         </Color3>
-        <token name="Material">512</token>
+        <token name="Material">528</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
         <bool name="CanCollide">false</bool>
@@ -324,18 +324,18 @@
         <bool name="CastShadow">false</bool>
       </Properties>
     </Item>
-    <Item class="Part" referent="RBXR109">
+    <Item class="Part" referent="GPT_STORAGE_1_9">
       <Properties>
         <string name="Name">Crate</string>
         <Vector3 name="Size">
-          <X>1.74</X>
-          <Y>1.74</Y>
-          <Z>1.692973</Z>
+          <X>1.7</X>
+          <Y>1.7</Y>
+          <Z>1.7</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1201.0</X>
-          <Y>6.7</Y>
-          <Z>1198.024324</Z>
+          <X>1</X>
+          <Y>2.55</Y>
+          <Z>0</Z>
           <R00>1.0</R00>
           <R01>-0.0</R01>
           <R02>0</R02>
@@ -354,26 +354,26 @@
         <token name="Material">528</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
-        <bool name="CanCollide">false</bool>
+        <bool name="CanCollide">true</bool>
         <bool name="CanTouch">false</bool>
-        <bool name="CanQuery">false</bool>
+        <bool name="CanQuery">true</bool>
         <float name="Transparency">0</float>
         <float name="Reflectance">0</float>
-        <bool name="CastShadow">false</bool>
+        <bool name="CastShadow">true</bool>
       </Properties>
     </Item>
-    <Item class="Part" referent="RBXR110">
+    <Item class="Part" referent="GPT_STORAGE_1_10">
       <Properties>
         <string name="Name">CrateBand</string>
         <Vector3 name="Size">
           <X>1.78</X>
           <Y>0.18</Y>
-          <Z>0.077838</Z>
+          <Z>0.08</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1201.0</X>
-          <Y>7.25</Y>
-          <Z>1197.187568</Z>
+          <X>1</X>
+          <Y>3.05</Y>
+          <Z>-0.87</Z>
           <R00>1.0</R00>
           <R01>-0.0</R01>
           <R02>0</R02>
@@ -385,11 +385,11 @@
           <R22>1</R22>
         </CoordinateFrame>
         <Color3 name="Color">
-          <R>0.4196078431372549</R>
-          <G>0.28627450980392155</G>
-          <B>0.1843137254901961</B>
+          <R>0.3568627450980392</R>
+          <G>0.23921568627450981</G>
+          <B>0.14901960784313725</B>
         </Color3>
-        <token name="Material">512</token>
+        <token name="Material">528</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
         <bool name="CanCollide">false</bool>
@@ -400,18 +400,18 @@
         <bool name="CastShadow">false</bool>
       </Properties>
     </Item>
-    <Item class="Part" referent="RBXR111">
+    <Item class="Part" referent="GPT_STORAGE_1_11">
       <Properties>
         <string name="Name">CrateBand</string>
         <Vector3 name="Size">
           <X>1.78</X>
           <Y>0.18</Y>
-          <Z>0.077838</Z>
+          <Z>0.08</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1201.0</X>
-          <Y>7.25</Y>
-          <Z>1198.861081</Z>
+          <X>1</X>
+          <Y>3.05</Y>
+          <Z>0.87</Z>
           <R00>1.0</R00>
           <R01>-0.0</R01>
           <R02>0</R02>
@@ -423,11 +423,11 @@
           <R22>1</R22>
         </CoordinateFrame>
         <Color3 name="Color">
-          <R>0.4196078431372549</R>
-          <G>0.28627450980392155</G>
-          <B>0.1843137254901961</B>
+          <R>0.3568627450980392</R>
+          <G>0.23921568627450981</G>
+          <B>0.14901960784313725</B>
         </Color3>
-        <token name="Material">512</token>
+        <token name="Material">528</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
         <bool name="CanCollide">false</bool>
@@ -438,34 +438,34 @@
         <bool name="CastShadow">false</bool>
       </Properties>
     </Item>
-    <Item class="Part" referent="RBXR112">
+    <Item class="Part" referent="GPT_STORAGE_1_12">
       <Properties>
         <string name="Name">CrateBrace</string>
         <Vector3 name="Size">
-          <X>1.4</X>
-          <Y>0.16</Y>
-          <Z>0.077838</Z>
+          <X>1.5</X>
+          <Y>0.15</Y>
+          <Z>0.08</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1201.0</X>
-          <Y>6.7</Y>
-          <Z>1197.138919</Z>
-          <R00>0.743145</R00>
-          <R01>-0.669131</R01>
+          <X>1</X>
+          <Y>2.55</Y>
+          <Z>0.9</Z>
+          <R00>0.8191520442889918</R00>
+          <R01>-0.573576436351046</R01>
           <R02>0</R02>
-          <R10>0.669131</R10>
-          <R11>0.743145</R11>
+          <R10>0.573576436351046</R10>
+          <R11>0.8191520442889918</R11>
           <R12>0</R12>
           <R20>0</R20>
           <R21>0</R21>
           <R22>1</R22>
         </CoordinateFrame>
         <Color3 name="Color">
-          <R>0.4196078431372549</R>
-          <G>0.28627450980392155</G>
-          <B>0.1843137254901961</B>
+          <R>0.7411764705882353</R>
+          <G>0.5568627450980392</G>
+          <B>0.34509803921568627</B>
         </Color3>
-        <token name="Material">512</token>
+        <token name="Material">528</token>
         <token name="Shape">1</token>
         <bool name="Anchored">true</bool>
         <bool name="CanCollide">false</bool>

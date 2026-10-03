@@ -37,4 +37,40 @@ return function(PetMotion: any)
 	-- Büyük dt (takılma) sınırlanır
 	x = PetMotion.advance(0, 0, 1000, 0, 15, 5)
 	assert(x <= 15 * PetMotion.MAX_DT + 1e-6, "huge dt is clamped")
+
+	-- Kapalı duvarı zorla geçmek yerine güvenli çevre yolu bulur.
+	local function wallSegment(ax: number, az: number, bx: number, bz: number): boolean
+		for index = 0, 100 do
+			local alpha = index / 100
+			local px, pz = ax + (bx - ax) * alpha, az + (bz - az) * alpha
+			if px >= 3 and px <= 7 and pz >= -4 and pz <= 4 then
+				return false
+			end
+		end
+		return true
+	end
+	local route = PetMotion.detour(0, 0, 10, 0, wallSegment, 2, 256)
+	assert(route and #route > 1, "solid building gets a detour")
+	local previousX, previousZ = 0, 0
+	for _, point in route do
+		assert(wallSegment(previousX, previousZ, point.x, point.z), "every returned segment avoids the building")
+		previousX, previousZ = point.x, point.z
+	end
+	assert(previousX == 10 and previousZ == 0, "detour reaches the destination")
+
+	-- Köşegen serbest uçları bir duvarın içinden kestirme yapmak için kullanamaz.
+	local blocked = PetMotion.detour(0, 0, 4, 4, function(_ax: number, _az: number, _bx: number, _bz: number): boolean
+		return false
+	end, 2, 20)
+	assert(blocked == nil, "sealed path fails safely rather than forcing movement")
+	local calls = 0
+	local limited = PetMotion.detour(0, 0, 200, 0, function(ax: number, _az: number, bx: number, _bz: number): boolean
+		calls += 1
+		return math.abs(bx - ax) <= 2
+	end, 2, 12)
+	assert(limited == nil and calls < 110, "blocked/unreachable goal has bounded planning work")
+	local direct = PetMotion.detour(0, 0, 10, 0, function(_ax: number, _az: number, _bx: number, _bz: number): boolean
+		return true
+	end)
+	assert(direct and #direct == 1 and direct[1].x == 10, "clear route avoids grid planning")
 end

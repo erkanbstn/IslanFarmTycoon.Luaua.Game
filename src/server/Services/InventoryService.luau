@@ -77,8 +77,11 @@ local function buildLook(character: Model, slot: string, item: Config.ItemConfig
 	end
 	local model = Instance.new("Model")
 	model.Name = VISUAL_PREFIX .. slot
+	model:SetAttribute("ItemId", item.id)
+	local partCount = 0
 	for _, source in template:GetChildren() do
 		if source:IsA("BasePart") then
+			partCount += 1
 			local part = source:Clone()
 			part.Anchored = false
 			part.Massless = true
@@ -91,25 +94,61 @@ local function buildLook(character: Model, slot: string, item: Config.ItemConfig
 			weld.Parent = part
 		end
 	end
+	model:SetAttribute("PartCount", partCount)
 	model.Parent = character
 end
 
--- Takılı eşyaları karaktere yeniden giydirir (çıkarılanlar kalkar, takılanlar eklenir)
+local function matchesLook(model: Model, character: Model, item: Config.ItemConfig): boolean
+	if model:GetAttribute("ItemId") ~= item.id or not item.look then
+		return false
+	end
+	local template = ModelAssets.find("Items", item.id)
+	local attach = template and template:GetAttribute("Attach")
+	local anchor = attachPart(character, if typeof(attach) == "string" then attach else item.look.attach)
+	if not anchor then
+		return false
+	end
+	local count = 0
+	for _, part in model:GetChildren() do
+		if part:IsA("BasePart") then
+			local weld = part:FindFirstChildWhichIsA("WeldConstraint")
+			if not weld or weld.Part0 ~= anchor or weld.Part1 ~= part then
+				return false
+			end
+			count += 1
+		end
+	end
+	return count > 0 and count == model:GetAttribute("PartCount")
+end
+
+-- Yalnız değişen slotu giydir; diğer eşyaların parçaları/kaynakları yerinde kalır.
 function InventoryService.applyVisuals(player: Player)
 	local character = player.Character
 	if not character then
 		return
 	end
+	local data = PlayerDataService.tryGet(player)
+	local kept: { [string]: boolean } = {}
 	for _, child in character:GetChildren() do
-		if string.sub(child.Name, 1, #VISUAL_PREFIX) == VISUAL_PREFIX then
+		if string.sub(child.Name, 1, #VISUAL_PREFIX) ~= VISUAL_PREFIX then
+			continue
+		end
+		local slot = string.sub(child.Name, #VISUAL_PREFIX + 1)
+		local itemId = if data then Inventory.equippedId(data, slot) else nil
+		local item = if itemId then Config.ITEMS[itemId] else nil
+		if item and child:IsA("Model") and not kept[slot] and matchesLook(child, character, item) then
+			kept[slot] = true
+		else
 			child:Destroy()
 		end
 	end
-	local data = PlayerDataService.tryGet(player)
 	if not data then
 		return
 	end
 	for _, slot in Config.ITEM_SLOT_ORDER do
+		if kept[slot] then
+			continue
+		end
 		local itemId = Inventory.equippedId(data, slot)
 		local item = if itemId then Config.ITEMS[itemId] else nil
 		if item then

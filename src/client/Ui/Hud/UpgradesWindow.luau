@@ -96,7 +96,7 @@ function UpgradesWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Upg
 		end)
 	end
 
-	-- Bir seviyenin faydaları: " · " ile ayrılmış kısa parçalar (her parça ayrı çevrilir)
+	-- Her fayda ayrı satırda; dar karolarda fiyat düğmesine taşmaz.
 	local function effectText(zone: Config.ZoneConfig?, bundle: Config.BuildLevelEffects): string
 		local parts: { string } = {}
 		if bundle.capacity then
@@ -121,7 +121,7 @@ function UpgradesWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Upg
 		if bundle.thrift then
 			table.insert(parts, `Başlatma -%{math.round(bundle.thrift * 100)}`)
 		end
-		return table.concat(parts, " · ")
+		return table.concat(parts, "\n")
 	end
 
 	local function updateExpansions(state: PlayerSave, content: boolean)

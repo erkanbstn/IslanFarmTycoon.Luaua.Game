@@ -29,6 +29,72 @@ local notifyHook: ((message: string, kind: string?) -> ())? = nil
 
 type Offer = { id: string, name: string, icon: string, ownerUserId: number? }
 
+local avatarCache: { [number]: string } = {}
+local avatarRequests: { [number]: { (string) -> () } } = {}
+
+local function setAvatar(chip: TextLabel, userId: number)
+	chip.Name = "OwnerAvatar"
+	chip.Size = UDim2.fromOffset(48, 48)
+	chip.BackgroundColor3 = UiKit.Color.Panel
+	chip.ClipsDescendants = true
+	local portrait = Instance.new("ImageLabel")
+	portrait.Name = "Portrait"
+	portrait.BackgroundTransparency = 1
+	portrait.Size = UDim2.fromScale(1, 1)
+	portrait.ScaleType = Enum.ScaleType.Crop
+	portrait.Parent = chip
+	UiKit.corner(portrait, UiKit.Radius.Card)
+	local function apply(image: string)
+		if not chip:IsDescendantOf(player.PlayerGui) then
+			return
+		end
+		portrait.Image = image
+		UiKit.setText(chip, "")
+	end
+	local cached = avatarCache[userId]
+	if cached then
+		apply(cached)
+		return
+	end
+	local pendingAvatars = avatarRequests[userId]
+	if pendingAvatars then
+		table.insert(pendingAvatars, apply)
+		return
+	end
+	avatarRequests[userId] = { apply }
+	task.spawn(function()
+		local image: string? = nil
+		for attempt = 1, 3 do
+			local ok, content, ready = pcall(function()
+				return Players:GetUserThumbnailAsync(
+					userId,
+					Enum.ThumbnailType.HeadShot,
+					Enum.ThumbnailSize.Size150x150
+				)
+			end)
+			if ok and ready and content ~= "" then
+				image = content
+				break
+			end
+			if attempt < 3 then
+				task.wait(1)
+			end
+		end
+		local waiting: { (string) -> () } = avatarRequests[userId] or {}
+		avatarRequests[userId] = nil
+		if image then
+			avatarCache[userId] = image
+			for _, callback in waiting do
+				callback(image)
+			end
+		end
+	end)
+end
+
+Players.PlayerRemoving:Connect(function(leaving: Player)
+	avatarCache[leaving.UserId] = nil
+end)
+
 -- Sunucunun tam ada envanteri. Streaming açıkken uzak adaların modeli cihazda olmayabilir;
 -- satın alma/ziyaret listesi bu yüzden Workspace'e değil bu listeye dayanır.
 local function offersById(state: any): { [string]: Offer }
@@ -370,6 +436,7 @@ local function create(): UiKit.Window
 	showTab("farms")
 	local visitsSignature: string? = nil
 	local visitButtons: { TextButton } = {}
+	local giveButtons: { TextButton } = {}
 	local function rebuildVisits()
 		local plots = Workspace:FindFirstChild("Plots")
 		local signatureParts: { string } = {}
@@ -394,6 +461,12 @@ local function create(): UiKit.Window
 		for id, offer in offerById do
 			table.insert(signatureParts, `offer:{id}:{tostring(offer.ownerUserId)}:{offer.name}`)
 		end
+		for _, owner in Players:GetPlayers() do
+			table.insert(
+				signatureParts,
+				`owner:{owner.UserId}:{owner.DisplayName}:{tostring(owner:GetAttribute("ActiveMainFarmId"))}`
+			)
+		end
 		table.sort(signatureParts)
 		local signature = table.concat(signatureParts, "|")
 		if signature == visitsSignature then
@@ -401,6 +474,7 @@ local function create(): UiKit.Window
 		end
 		visitsSignature = signature
 		table.clear(visitButtons)
+		table.clear(giveButtons)
 		for _, child in visits:GetChildren() do
 			if child:IsA("GuiObject") then
 				child:Destroy()
@@ -412,18 +486,26 @@ local function create(): UiKit.Window
 		for index = 1, Config.MAP_PLOT_COUNT do
 			local id = tostring(index)
 			local plot = plotsById[id]
-			local ownerId = plot and plot:GetAttribute("OwnerUserId")
-			if not plot or typeof(ownerId) ~= "number" or ownerId == player.UserId then
+			local offer = offerById[id]
+			local ownerId = if offer then offer.ownerUserId else plot and plot:GetAttribute("OwnerUserId")
+			if typeof(ownerId) ~= "number" or ownerId == player.UserId then
 				continue
 			end
 			local owner = Players:GetPlayerByUserId(ownerId)
-			local card = UiKit.autoTile(visitGrid, index, tostring(plot:GetAttribute("IslandIcon") or "🏝️"))
+			local ownerName = if owner then owner.DisplayName else "Oyuncu"
+			local farmId = (owner and owner:GetAttribute("ActiveMainFarmId"))
+				or (plot and plot:GetAttribute("MainFarmId"))
+			local card = UiKit.autoTile(visitGrid, index, "👤", { compact = true })
+			card.frame.Name = `Visit_{ownerId}`
 			card.frame.BackgroundColor3 = UiKit.Color.SurfaceRaised
-			card.title.Text = tostring(plot:GetAttribute("IslandName") or plot.Name)
-			card.detail.Text = `{if owner then owner.DisplayName else "Oyuncu"} · Çiftlik {tostring(
-				plot:GetAttribute("MainFarmId")
-			)}`
-			card.action.Text = "Ziyaret et"
+			setAvatar(card.icon, ownerId)
+			card.title.TextWrapped = false
+			card.title.TextTruncate = Enum.TextTruncate.AtEnd
+			card.title.AutomaticSize = Enum.AutomaticSize.None
+			card.title.Size = UDim2.new(1, 0, 0, UiKit.TextSize.Caption + 6)
+			UiKit.setText(card.title, ownerName)
+			UiKit.setText(card.detail, if farmId ~= nil then `Çiftlik {tostring(farmId)}` else "Yükleniyor")
+			UiKit.setText(card.action, "Ziyaret et")
 			table.insert(visitButtons, card.action)
 			card.action.Activated:Connect(function()
 				if blocked() then
@@ -433,10 +515,11 @@ local function create(): UiKit.Window
 				created.close()
 			end)
 			if owner then
-				local give = UiKit.button(card.frame, "Para gönder", "secondary")
-				give.Size = UDim2.new(1, 0, 0, 30)
+				local give = UiKit.button(card.frame, "Para gönder", "accent")
+				give.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
 				give.TextSize = UiKit.TextSize.Button
 				give.LayoutOrder = 5
+				table.insert(giveButtons, give)
 				give.Activated:Connect(function()
 					if blocked() then
 						return
@@ -557,6 +640,9 @@ local function create(): UiKit.Window
 		UiKit.setVariant(hub, if unavailable then "disabled" else "primary")
 		for _, button in visitButtons do
 			UiKit.setVariant(button, if unavailable then "disabled" else "primary")
+		end
+		for _, button in giveButtons do
+			UiKit.setVariant(button, if unavailable then "disabled" else "accent")
 		end
 	end
 	created.frame:GetPropertyChangedSignal("Visible"):Connect(function()

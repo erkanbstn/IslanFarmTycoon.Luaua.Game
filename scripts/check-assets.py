@@ -134,7 +134,7 @@ def expected() -> dict[str, set[str]]:
     exp["SignModels"] = {"IslandSign", "PlotSign", "SaleMarker", "Signpost_Direction", "SpecialtySign"}
     exp["ShoreModels"] = {"DockDeck_5", "DockTip", "FishCrates", "FisherHut_Lv1", "NetDryingRack", "Pile"}
     exp["ZoneBases"] = {"CollectorPad", "FishWalkway_Module", "ZoneFence_Corner", "ZoneFence_Segment_4"}
-    exp["SeasonModels"] = {"SnowCap_Bush", "SnowCap_Oak", "SnowCap_Pine", "Snowman"}
+    exp["SeasonModels"] = {"SnowCap_Bush", "SnowCap_Oak", "SnowCap_Pine", "Snowman", "IceFloe"}
     exp["CommonDecor"] = (
         {f"OakTree_{c}" for c in "ABCD"}
         | {f"PineTree_{c}" for c in "ABC"}

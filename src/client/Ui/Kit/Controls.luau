@@ -59,6 +59,7 @@ function Controls.button(parent: Instance, text: string, variant: Variant): Text
 	b.Text = text
 	b.FontFace = Tokens.Font.Bold
 	b.TextSize = Tokens.TextSize.Body
+	b.TextWrapped = true
 	b.Size = UDim2.fromOffset(104, 36)
 	b.Selectable = true
 	b.Parent = parent
@@ -337,18 +338,18 @@ export type Card = {
 -- Kartın sağ üst köşesindeki durum yazısı. parent bir düzen (UIListLayout) altındaysa sıfır yükseklikli bir tutucuya konur.
 function Controls.statusLabel(parent: Instance): TextLabel
 	local label = Base.text(parent, "", "Caption", Tokens.Color.Red)
-	label.AnchorPoint = Vector2.new(1, 0)
-	label.Position = UDim2.new(1, 0, 0, 0)
-	label.AutomaticSize = Enum.AutomaticSize.XY
-	label.Size = UDim2.fromOffset(0, 0)
-	label.TextWrapped = false
+	label.Name = "Status"
+	label.AutomaticSize = Enum.AutomaticSize.Y
+	label.Size = UDim2.new(1, 0, 0, 0)
+	label.TextWrapped = true
 	label.TextXAlignment = Enum.TextXAlignment.Right
+	label.LayoutOrder = 0
 	label.ZIndex = 3
 	label.Visible = false
 	return label
 end
 
--- Durum yazısını yazar/gizler; yazı varken kartın aksiyon düğmesi gizlenir (kart büyümesin)
+-- Durum kendi satırını kullanır; başlık ve açıklamanın üstüne binmez.
 function Controls.setStatus(card: Card, text: string?)
 	card.status.Visible = text ~= nil
 	if text then
@@ -395,7 +396,7 @@ function Controls.card(parent: Instance, order: number, icon: string): Card
 	action.Size = UDim2.new(1, 0, 0, 40)
 	action.LayoutOrder = 2
 
-	local status = Controls.statusLabel(row)
+	local status = Controls.statusLabel(frame)
 	return { frame = frame, icon = chip, title = title, detail = detail, action = action, status = status }
 end
 

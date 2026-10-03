@@ -78,16 +78,24 @@ function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 		local lineageRow = Instance.new("Frame")
 		lineageRow.Name = "LineageRow"
 		lineageRow.BackgroundTransparency = 1
-		lineageRow.Size = UDim2.new(1, 0, 0, 68)
-		lineageRow.LayoutOrder = 3
+		lineageRow.Size = UDim2.new(1, 0, 0, 0)
+		lineageRow.AutomaticSize = Enum.AutomaticSize.Y
+		lineageRow.LayoutOrder = 4
+		card.action.LayoutOrder = 5
 		lineageRow.Visible = false
 		lineageRow.Parent = card.frame
 		UiKit.list(lineageRow, 4)
 		local lineageButton = UiKit.button(lineageRow, "", "secondary")
-		lineageButton.Size = UDim2.new(1, 0, 0, 32)
+		lineageButton.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
+		lineageButton.AutomaticSize = Enum.AutomaticSize.Y
+		lineageButton.TextSize = UiKit.TextSize.Button
+		UiKit.padding(lineageButton, 6, 6)
 		lineageButton.LayoutOrder = 1
 		local sellButton = UiKit.button(lineageRow, "", "secondary")
-		sellButton.Size = UDim2.new(1, 0, 0, 32)
+		sellButton.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
+		sellButton.AutomaticSize = Enum.AutomaticSize.Y
+		sellButton.TextSize = UiKit.TextSize.Button
+		UiKit.padding(sellButton, 6, 6)
 		sellButton.LayoutOrder = 2
 		sellButtons[animalId] = sellButton
 		sellButton.Activated:Connect(function()
@@ -104,9 +112,12 @@ function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 		end)
 		-- Ürünle satın al: depodaki ürünlerin değeri (GOODS_BARTER.rate) hayvanın fiyatını karşılıyorsa tek hayvan takasla alınır
 		local barterButton = UiKit.button(card.frame, "", "secondary")
-		barterButton.Size = UDim2.new(1, 0, 0, 30)
+		barterButton.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
+		barterButton.AutomaticSize = Enum.AutomaticSize.Y
 		barterButton.TextSize = UiKit.TextSize.Button
-		barterButton.LayoutOrder = 5
+		UiKit.padding(barterButton, 6, 6)
+		barterButton.TextSize = UiKit.TextSize.Button
+		barterButton.LayoutOrder = 6
 		barterButton.Visible = false
 		barterButtons[animalId] = barterButton
 		barterButton.Activated:Connect(function()

@@ -45,7 +45,9 @@ local function buildSite(upgrade: Config.UpgradeConfig, spot: BasePart, parent: 
 	end
 	site.Name = upgrade.id
 	site:SetAttribute("UpgradeId", upgrade.id)
+	site:SetAttribute("PriceText", priceText)
 	local base = spot.CFrame
+	site:SetAttribute("SiteFrame", base)
 	site:PivotTo(base)
 	WorldUi.sign(board, Enum.NormalId.Front, {
 		icon = upgrade.icon,
@@ -77,6 +79,21 @@ local function buildSite(upgrade: Config.UpgradeConfig, spot: BasePart, parent: 
 	WorldUi.configureProximityPrompt(prompt)
 	prompt.Parent = promptAnchor
 	site.Parent = parent
+end
+
+-- Fiyat indirimi/yerleşim güncellenirken mevcut tabela ve prompt korunur.
+local function updateSite(site: Instance, spot: BasePart, priceText: string)
+	if site:GetAttribute("PriceText") ~= priceText then
+		local board = site:FindFirstChild("SiteSign")
+		if board then
+			WorldUi.setSignText(board, `Yapım alanı · {priceText}`)
+		end
+		site:SetAttribute("PriceText", priceText)
+	end
+	if site:IsA("Model") and site:GetAttribute("SiteFrame") ~= spot.CFrame then
+		site:PivotTo(spot.CFrame)
+		site:SetAttribute("SiteFrame", spot.CFrame)
+	end
 end
 
 -- Tesis geliştirme seviyesi dünyada görünür: binanın dibinde seviye kadar altın halka ve üstünde "Sv.N" etiketi.
@@ -140,5 +157,6 @@ end
 
 return {
 	buildSite = buildSite,
+	updateSite = updateSite,
 	applyLevelMarks = applyLevelMarks,
 }

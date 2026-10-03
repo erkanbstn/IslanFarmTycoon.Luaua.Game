@@ -114,6 +114,7 @@ function WorldUi.tag(parent: Instance, name: string, options: TagOptions): Billb
 	label.BackgroundTransparency = 1
 	label.FontFace = Font.Display
 	label.TextScaled = true
+	label.TextWrapped = true
 	label.TextColor3 = Color.Cream
 	label.TextXAlignment = if options.icon then Enum.TextXAlignment.Left else Enum.TextXAlignment.Center
 	label.Text = options.text
@@ -220,6 +221,7 @@ function WorldUi.sign(part: BasePart, face: Enum.NormalId, options: SignOptions)
 		title.BackgroundTransparency = 1
 		title.FontFace = Font.Display
 		title.TextScaled = true
+		title.TextWrapped = true
 		title.TextColor3 = Color.Gold
 		title.TextXAlignment = align
 		title.Text = options.title
@@ -233,6 +235,7 @@ function WorldUi.sign(part: BasePart, face: Enum.NormalId, options: SignOptions)
 	text.BackgroundTransparency = 1
 	text.FontFace = Font.Display
 	text.TextScaled = true
+	text.TextWrapped = true
 	text.TextColor3 = options.textColor or Color.Cream
 	text.TextXAlignment = align
 	text.Text = options.text
@@ -284,6 +287,7 @@ function WorldUi.board(part: BasePart, face: Enum.NormalId, options: { title: st
 	title.BackgroundTransparency = 1
 	title.FontFace = Font.Display
 	title.TextScaled = true
+	title.TextWrapped = true
 	title.TextColor3 = Color.Gold
 	title.TextXAlignment = Enum.TextXAlignment.Left
 	title.Text = options.title

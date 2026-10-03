@@ -151,8 +151,7 @@ local function buildHub(parent: Instance)
 	local signPos = Vector3.new(math.sin(betweenBridges), 0, math.cos(betweenBridges)) * (HUB_RADIUS - 8)
 	local signCf = CFrame.lookAt(signPos, Vector3.zero) + Vector3.new(0, SURFACE_Y, 0)
 
-	-- Hazır model (assets/HubModels); parçalar doğrudan meydan modelinin çocuğu olur (HubBoardService "PlayerBoard" parçasını
-	-- burada arar). Yerel -Z meydanın ortasına bakar.
+	-- Büyük tabelanın tahtası ve çerçevesi birlikte yüklenir. Yerel -Z meydanın ortasına bakar.
 	local function placeBoardModel(name: string, offset: CFrame): Model?
 		local model = ModelAssets.clone("HubModels", name)
 		if not model then
@@ -160,16 +159,21 @@ local function buildHub(parent: Instance)
 			return nil
 		end
 		model:PivotTo(signCf * offset)
+		if name ~= "HubTravelBoard" then
+			model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
+			model.Parent = hub
+			return model
+		end
 		for _, child in model:GetChildren() do
 			child.Parent = hub
 		end
 		model:Destroy()
-		return model
+		return nil
 	end
 
 	-- Karşılama tabelası (direk + tahta)
 	placeBoardModel("HubTitleBoard", CFrame.new())
-	local title = hub:FindFirstChild("Title")
+	local title = hub:FindFirstChild("Title", true)
 	if title and title:IsA("BasePart") then
 		for _, face in { Enum.NormalId.Front, Enum.NormalId.Back } do
 			WorldUi.sign(title, face, { icon = "🐄", title = "Hoş geldin", text = Config.GAME_NAME })
@@ -178,7 +182,7 @@ local function buildHub(parent: Instance)
 
 	-- Sunucudaki oyuncuların para ve ada durumu (HubBoardService satırları günceller); yürümeyi engellemez
 	placeBoardModel("HubPlayerBoard", CFrame.new(0, 0, -2))
-	local ranking = hub:FindFirstChild("PlayerBoard")
+	local ranking = hub:FindFirstChild("PlayerBoard", true)
 	if ranking and ranking:IsA("BasePart") then
 		WorldUi.board(
 			ranking,
