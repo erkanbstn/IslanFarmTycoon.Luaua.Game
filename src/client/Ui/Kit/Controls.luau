@@ -135,7 +135,7 @@ function Controls.menuButton(parent: Instance, icon: string, text: string, tint:
 	label.TextScaled = true
 	local fit = Instance.new("UITextSizeConstraint")
 	fit.MaxTextSize = Tokens.TextSize.Caption
-	fit.MinTextSize = Tokens.MinTextSize
+	fit.MinTextSize = 11 -- menü karosu başlığı (en uzunu "Yükseltmeler") karoya sığmalı; genel alt sınır (12) burada fazla büyük
 	fit.Parent = label
 
 	if shortcut then

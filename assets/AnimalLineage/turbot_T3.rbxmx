@@ -25,13 +25,13 @@
       <Properties>
         <string name="Name">Lineage_T3_GoldScale_0</string>
         <Vector3 name="Size">
-          <X>0.082352716</X>
-          <Y>0.002058818</Y>
-          <Z>0.144117253</Z>
+          <X>0.123529074</X>
+          <Y>0.003088227</Y>
+          <Z>0.216175880</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>-0.478675162</X>
-          <Y>0.086813489</Y>
+          <Y>0.111813489</Y>
           <Z>0.000000000</Z>
           <R00>1.000000000</R00>
           <R01>0.000000000</R01>
@@ -63,13 +63,13 @@
       <Properties>
         <string name="Name">Lineage_T3_GoldScale_1</string>
         <Vector3 name="Size">
-          <X>0.082352716</X>
-          <Y>0.002058818</Y>
-          <Z>0.144117253</Z>
+          <X>0.123529074</X>
+          <Y>0.003088227</Y>
+          <Z>0.216175880</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>0.478675162</X>
-          <Y>0.086813489</Y>
+          <Y>0.111813489</Y>
           <Z>0.000000000</Z>
           <R00>1.000000000</R00>
           <R01>0.000000000</R01>

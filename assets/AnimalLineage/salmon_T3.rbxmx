@@ -25,12 +25,12 @@
       <Properties>
         <string name="Name">Lineage_T3_GoldFlank_0</string>
         <Vector3 name="Size">
-          <X>0.007734150</X>
-          <Y>0.048528001</Y>
-          <Z>0.141944401</Z>
+          <X>0.011601225</X>
+          <Y>0.072792002</Y>
+          <Z>0.212916601</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>-0.261672080</X>
+          <X>-0.266672080</X>
           <Y>-0.245673004</Y>
           <Z>-0.272970002</Z>
           <R00>1.000000000</R00>
@@ -62,12 +62,12 @@
       <Properties>
         <string name="Name">Lineage_T3_GoldFlank_1</string>
         <Vector3 name="Size">
-          <X>0.007734150</X>
-          <Y>0.048528001</Y>
-          <Z>0.141944401</Z>
+          <X>0.011601225</X>
+          <Y>0.072792002</Y>
+          <Z>0.212916601</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>-0.261672080</X>
+          <X>-0.266672080</X>
           <Y>-0.245673004</Y>
           <Z>0.272970002</Z>
           <R00>1.000000000</R00>
@@ -99,12 +99,12 @@
       <Properties>
         <string name="Name">Lineage_T3_GoldFlank_2</string>
         <Vector3 name="Size">
-          <X>0.007734150</X>
-          <Y>0.048528001</Y>
-          <Z>0.141944401</Z>
+          <X>0.011601225</X>
+          <Y>0.072792002</Y>
+          <Z>0.212916601</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.261672080</X>
+          <X>0.266672080</X>
           <Y>-0.245673004</Y>
           <Z>-0.272970002</Z>
           <R00>1.000000000</R00>
@@ -136,12 +136,12 @@
       <Properties>
         <string name="Name">Lineage_T3_GoldFlank_3</string>
         <Vector3 name="Size">
-          <X>0.007734150</X>
-          <Y>0.048528001</Y>
-          <Z>0.141944401</Z>
+          <X>0.011601225</X>
+          <Y>0.072792002</Y>
+          <Z>0.212916601</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.261672080</X>
+          <X>0.266672080</X>
           <Y>-0.245673004</Y>
           <Z>0.272970002</Z>
           <R00>1.000000000</R00>

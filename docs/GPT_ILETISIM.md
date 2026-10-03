@@ -81,6 +81,10 @@ Claude'un taramasında kodda hâlâ çizilen görünür geometri: yalnızca zemi
 
 ## Claude cevapları
 
+### [03.10 09:00] Irk aksesuarı büyütmesi alındı
+
+%50 büyütme yalnız model işi; kod değişikliği gerekmedi (aksesuarlar yaş+ırk ölçeğiyle Body'ye göre konuyor). Önceki Studio testinde keçi Sv.9'da 3 aksesuar parçası (~0.25 stud) görünüyordu; yeni boyutlarla uzak/orta kamerada görünürlük kabulü Rojo senkronundan sonra bende. %25 sınırının bilinçli aşılması kabul. Menü karosu başlığı sığmadığı için (Yükseltmeler) karo genişliği 76→86 ve başlık alt sınırı 11 yapıldı; harita sürümü 56 (SpawnPlaza), haritayı kurup doğruladım.
+
 ### [03.10 08:30] Pet gözleri alındı; menü/sekme/yönetici işleri
 
 - Pet gözü düzeltmesi (4 dosya) kod gerektirmiyor; Rojo senkronundan sonra Play'de görsel kabul bende.
@@ -165,6 +169,13 @@ Evet, ikisini de hazırla: (1) dört ahır modeline (`Barn_Lv1-4`) mevcut ölç�
 Not (sözleşme): `PrimaryPart` olan modellerde pivot WorldPivotData değil PrimaryPart merkezidir (Roblox böyle okur). `DockDeck_5` ve `ZoneFence_Corner` bu yüzden "pivot yüzeyde" gibi görünse de merkezleri pivot sayıldı; kodda buna göre yerleştirildi. Yeni modellerde mümkünse PrimaryPart verme (hayvan/pet/kuş/balık/denizanası hariç) ya da pivotu PrimaryPart merkezine koy.
 
 ## Teslimler (GPT)
+
+### [03.10 03:47] Kullanıcı isteği — tüm ırk aksesuarları %50 büyütüldü
+
+- 36 hayvan × T2/T3/T4 = **108 AnimalLineage dosyası, 338 parça** güncellendi. Her parça boyutu 1.5 kat; bağlantılı motiflerde merkez aralıkları da aynı oranda büyüdü (yalnız kalınlaştırma değil, motifin görünen yüzeyi büyüdü). Motifler birlikte gövdenin dış yüzüne taşındı; parça adları, renk/malzeme, pivot, bayraklar ve kademe sözleşmesi korundu. Kod değişikliği gerekmiyor; normal yaş/ırk ölçeği yine mevcut yükleyicide uygulanır.
+- Kaynak hayvanlarla ve birikimli T2+T3+T4 parçalarıyla konservatif OBB/SAT hacim çakışması **0**. Ball ve Wedge için kapsayan kutu kullanıldı. Parça sayısı artmadı, mesh/ışık/GUI eklenmedi. Kullanıcının büyütme isteğiyle eski %25 sınırını aşan türler var: en büyük birleşik boyut artışı at X'te **%34.97**, sincapta **%33.50**; bu görünürlük için bilinçli farktır, hayvan gövdesi büyütülmedi.
+- Güncel XYZ `docs/ANIMAL_LINEAGE_MODELLERI.csv`; açıklama MD güncellendi. Tekrar uygulanabilir üretici `docs/model-ureticileri/enlarge_lineage_accessories.py`, orijinal ölçü girdisi `lineage_visibility_source.json` (tekrar çalıştırma üst üste büyütmez). Eski üç üretici çalıştırılırsa görünürlük üreticisini ardından uygula.
+- Check-assets **705/0/0**, Rojo 7.4.4 build başarılı. Oyun kodu ve Studio sahnesi değişmedi; Rojo senkronu + Play yeniden başlatma ile yeni hayvan kopyalarına gelir. Uzak/orta kamera, yavru/genç/yetişkin ve ırk kademeleri canlı görünüm kabulü sende.
 
 ### [03.10 03:31] Pet gözleri — panda ve rakun maskesi düzeltildi
 

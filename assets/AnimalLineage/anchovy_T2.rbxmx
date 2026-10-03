@@ -25,12 +25,12 @@
       <Properties>
         <string name="Name">Lineage_T2_SilverScale_0</string>
         <Vector3 name="Size">
-          <X>0.007728000</X>
-          <Y>0.041952000</Y>
-          <Z>0.031212288</Z>
+          <X>0.011592000</X>
+          <Y>0.062928000</Y>
+          <Z>0.046818432</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>-0.279864000</X>
+          <X>-0.284864000</X>
           <Y>0.212382000</Y>
           <Z>-0.120947616</Z>
           <R00>1.000000000</R00>
@@ -63,12 +63,12 @@
       <Properties>
         <string name="Name">Lineage_T2_SilverScale_1</string>
         <Vector3 name="Size">
-          <X>0.007728000</X>
-          <Y>0.041952000</Y>
-          <Z>0.031212288</Z>
+          <X>0.011592000</X>
+          <Y>0.062928000</Y>
+          <Z>0.046818432</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>-0.279864000</X>
+          <X>-0.284864000</X>
           <Y>0.212382000</Y>
           <Z>-0.027310752</Z>
           <R00>1.000000000</R00>
@@ -101,12 +101,12 @@
       <Properties>
         <string name="Name">Lineage_T2_SilverScale_2</string>
         <Vector3 name="Size">
-          <X>0.007728000</X>
-          <Y>0.041952000</Y>
-          <Z>0.031212288</Z>
+          <X>0.011592000</X>
+          <Y>0.062928000</Y>
+          <Z>0.046818432</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.279864000</X>
+          <X>0.284864000</X>
           <Y>0.212382000</Y>
           <Z>-0.120947616</Z>
           <R00>1.000000000</R00>
@@ -139,12 +139,12 @@
       <Properties>
         <string name="Name">Lineage_T2_SilverScale_3</string>
         <Vector3 name="Size">
-          <X>0.007728000</X>
-          <Y>0.041952000</Y>
-          <Z>0.031212288</Z>
+          <X>0.011592000</X>
+          <Y>0.062928000</Y>
+          <Z>0.046818432</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.279864000</X>
+          <X>0.284864000</X>
           <Y>0.212382000</Y>
           <Z>-0.027310752</Z>
           <R00>1.000000000</R00>

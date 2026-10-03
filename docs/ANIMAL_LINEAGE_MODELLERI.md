@@ -1,5 +1,17 @@
 # Hayvan ırk kozmetikleri — İstek 6
 
+## Görünürlük güncellemesi (03.10)
+
+Kullanıcı aksesuarları büyütmeyi istedi. Güncel sürüm bütün aksesuar parçalarını
+%50 büyütür; bağlı motiflerde parça merkezleri de motif merkezi çevresinde aynı
+oranda açılır. Motifler gövdeye ve diğer kademelere gömülmeden dış yüzeye taşınır.
+Parça sayısı, isim, renk, malzeme, pivot ve yükleyici sözleşmesi değişmez.
+Üretici: `docs/model-ureticileri/enlarge_lineage_accessories.py` (bundled Python+NumPy).
+İlk ölçüler `lineage_visibility_source.json` dosyasında tutulur; tekrar çalıştırma
+üst üste büyütmez. Eski üç üretici kullanılırsa bu görünürlük üreticisi ardından çalıştırılmalı.
+Güncel boyutlar CSV'dedir. Aşağıdaki %25 sınırı ve eski ölçü denetimi ilk teslimin tarihsel
+bilgisidir; kullanıcının büyütme isteğiyle bu sınır aşılabilir. Canlı Play görünüm kabulü gereklidir.
+
 36 hayvan × T2/T3/T4 = 108 XML model; toplam 338 parça.
 - T2: Sv.4–6 gümüş/mavi; T3: Sv.7–9 altın; T4: Sv.10 turkuaz/elmas.
 - Dosyalar yalnız o kademenin yeni parçalarıdır. T3=T2+T3; T4=T2+T3+T4 klonlanır.

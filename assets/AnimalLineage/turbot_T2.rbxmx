@@ -25,13 +25,13 @@
       <Properties>
         <string name="Name">Lineage_T2_SilverScale_0</string>
         <Vector3 name="Size">
-          <X>0.072058627</X>
-          <Y>0.002058818</Y>
-          <Z>0.133823164</Z>
+          <X>0.108087941</X>
+          <Y>0.003088227</Y>
+          <Z>0.200734746</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>-0.468381072</X>
-          <Y>0.086813489</Y>
+          <Y>0.106813489</Y>
           <Z>-0.195587701</Z>
           <R00>1.000000000</R00>
           <R01>0.000000000</R01>
@@ -63,13 +63,13 @@
       <Properties>
         <string name="Name">Lineage_T2_BlueScale_1</string>
         <Vector3 name="Size">
-          <X>0.072058627</X>
-          <Y>0.002058818</Y>
-          <Z>0.133823164</Z>
+          <X>0.108087941</X>
+          <Y>0.003088227</Y>
+          <Z>0.200734746</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>-0.468381072</X>
-          <Y>0.086813489</Y>
+          <Y>0.106813489</Y>
           <Z>0.174999522</Z>
           <R00>1.000000000</R00>
           <R01>0.000000000</R01>
@@ -101,13 +101,13 @@
       <Properties>
         <string name="Name">Lineage_T2_SilverScale_2</string>
         <Vector3 name="Size">
-          <X>0.072058627</X>
-          <Y>0.002058818</Y>
-          <Z>0.133823164</Z>
+          <X>0.108087941</X>
+          <Y>0.003088227</Y>
+          <Z>0.200734746</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>0.468381072</X>
-          <Y>0.086813489</Y>
+          <Y>0.106813489</Y>
           <Z>-0.195587701</Z>
           <R00>1.000000000</R00>
           <R01>0.000000000</R01>
@@ -139,13 +139,13 @@
       <Properties>
         <string name="Name">Lineage_T2_BlueScale_3</string>
         <Vector3 name="Size">
-          <X>0.072058627</X>
-          <Y>0.002058818</Y>
-          <Z>0.133823164</Z>
+          <X>0.108087941</X>
+          <Y>0.003088227</Y>
+          <Z>0.200734746</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>0.468381072</X>
-          <Y>0.086813489</Y>
+          <Y>0.106813489</Y>
           <Z>0.174999522</Z>
           <R00>1.000000000</R00>
           <R01>0.000000000</R01>

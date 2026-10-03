@@ -25,14 +25,14 @@
       <Properties>
         <string name="Name">Lineage_DiamondHoneyPlate</string>
         <Vector3 name="Size">
-          <X>0.21600000</X>
-          <Y>0.04500000</Y>
-          <Z>0.19437000</Z>
+          <X>0.324000000</X>
+          <Y>0.067500000</Y>
+          <Z>0.291555000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.00000000</X>
-          <Y>0.57250000</Y>
-          <Z>0.00000000</Z>
+          <X>0.000000000</X>
+          <Y>0.587500000</Y>
+          <Z>0.000000000</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>
@@ -62,14 +62,14 @@
       <Properties>
         <string name="Name">Lineage_DiamondHoneyProng0</string>
         <Vector3 name="Size">
-          <X>0.04320000</X>
-          <Y>0.10000000</Y>
-          <Z>0.05831100</Z>
+          <X>0.064800000</X>
+          <Y>0.150000000</Y>
+          <Z>0.087466500</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>-0.06912000</X>
-          <Y>0.64500000</Y>
-          <Z>0.00000000</Z>
+          <X>-0.103680000</X>
+          <Y>0.696250000</Y>
+          <Z>0.000000000</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>
@@ -99,14 +99,14 @@
       <Properties>
         <string name="Name">Lineage_DiamondHoneyProng1</string>
         <Vector3 name="Size">
-          <X>0.04320000</X>
-          <Y>0.16000000</Y>
-          <Z>0.05831100</Z>
+          <X>0.064800000</X>
+          <Y>0.240000000</Y>
+          <Z>0.087466500</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.00000000</X>
-          <Y>0.67500000</Y>
-          <Z>0.00000000</Z>
+          <X>0.000000000</X>
+          <Y>0.741250000</Y>
+          <Z>0.000000000</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>
@@ -136,14 +136,14 @@
       <Properties>
         <string name="Name">Lineage_DiamondHoneyProng2</string>
         <Vector3 name="Size">
-          <X>0.04320000</X>
-          <Y>0.10000000</Y>
-          <Z>0.05831100</Z>
+          <X>0.064800000</X>
+          <Y>0.150000000</Y>
+          <Z>0.087466500</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.06912000</X>
-          <Y>0.64500000</Y>
-          <Z>0.00000000</Z>
+          <X>0.103680000</X>
+          <Y>0.696250000</Y>
+          <Z>0.000000000</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>

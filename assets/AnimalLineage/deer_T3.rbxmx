@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
 <roblox version="4">
   <Item class="Model" referent="RBXMODEL">
     <Properties>
@@ -23,14 +24,14 @@
       <Properties>
         <string name="Name">Lineage_GoldAntlerTip0</string>
         <Vector3 name="Size">
-          <X>0.15000000</X>
-          <Y>0.14000000</Y>
-          <Z>0.15000000</Z>
+          <X>0.225000000</X>
+          <Y>0.210000000</Y>
+          <Z>0.225000000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>-0.66647289</X>
-          <Y>3.33506328</Y>
-          <Z>-2.24398930</Z>
+          <X>-0.697333692</X>
+          <Y>3.419606825</Y>
+          <Z>-2.243989300</Z>
           <R00>0.93937272</R00>
           <R01>-0.34289780</R01>
           <R02>0.00000000</R02>
@@ -59,14 +60,14 @@
       <Properties>
         <string name="Name">Lineage_GoldAntlerTip1</string>
         <Vector3 name="Size">
-          <X>0.15000000</X>
-          <Y>0.14000000</Y>
-          <Z>0.15000000</Z>
+          <X>0.225000000</X>
+          <Y>0.210000000</Y>
+          <Z>0.225000000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.66647289</X>
-          <Y>3.33506328</Y>
-          <Z>-2.24398930</Z>
+          <X>0.697333692</X>
+          <Y>3.419606825</Y>
+          <Z>-2.243989300</Z>
           <R00>0.93937272</R00>
           <R01>0.34289780</R01>
           <R02>0.00000000</R02>

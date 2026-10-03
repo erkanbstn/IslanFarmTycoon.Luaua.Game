@@ -25,12 +25,12 @@
       <Properties>
         <string name="Name">Lineage_T3_GoldPearl_0</string>
         <Vector3 name="Size">
-          <X>0.021147386</X>
-          <Y>0.021147386</Y>
-          <Z>0.021147386</Z>
+          <X>0.031721079</X>
+          <Y>0.031721079</Y>
+          <Z>0.031721079</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>-0.142744858</X>
+          <X>-0.152744858</X>
           <Y>-0.119653779</Y>
           <Z>-0.139945943</Z>
           <R00>1.000000000</R00>
@@ -63,12 +63,12 @@
       <Properties>
         <string name="Name">Lineage_T3_GoldPearl_1</string>
         <Vector3 name="Size">
-          <X>0.021147386</X>
-          <Y>0.021147386</Y>
-          <Z>0.021147386</Z>
+          <X>0.031721079</X>
+          <Y>0.031721079</Y>
+          <Z>0.031721079</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>-0.142744858</X>
+          <X>-0.152744858</X>
           <Y>-0.119653779</Y>
           <Z>0.139945943</Z>
           <R00>1.000000000</R00>
@@ -101,12 +101,12 @@
       <Properties>
         <string name="Name">Lineage_T3_GoldPearl_2</string>
         <Vector3 name="Size">
-          <X>0.021147386</X>
-          <Y>0.021147386</Y>
-          <Z>0.021147386</Z>
+          <X>0.031721079</X>
+          <Y>0.031721079</Y>
+          <Z>0.031721079</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.142744858</X>
+          <X>0.152744858</X>
           <Y>-0.119653779</Y>
           <Z>-0.139945943</Z>
           <R00>1.000000000</R00>
@@ -139,12 +139,12 @@
       <Properties>
         <string name="Name">Lineage_T3_GoldPearl_3</string>
         <Vector3 name="Size">
-          <X>0.021147386</X>
-          <Y>0.021147386</Y>
-          <Z>0.021147386</Z>
+          <X>0.031721079</X>
+          <Y>0.031721079</Y>
+          <Z>0.031721079</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.142744858</X>
+          <X>0.152744858</X>
           <Y>-0.119653779</Y>
           <Z>0.139945943</Z>
           <R00>1.000000000</R00>

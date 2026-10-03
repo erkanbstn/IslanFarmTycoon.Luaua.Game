@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
 <roblox version="4">
   <Item class="Model" referent="RBXMODEL">
     <Properties>
@@ -23,14 +24,14 @@
       <Properties>
         <string name="Name">Lineage_SilverBlanketStripe</string>
         <Vector3 name="Size">
-          <X>1.20000000</X>
-          <Y>0.07500000</Y>
-          <Z>0.15000000</Z>
+          <X>1.800000000</X>
+          <Y>0.112500000</Y>
+          <Z>0.225000000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.00000000</X>
-          <Y>1.11250033</Y>
-          <Z>0.27201050</Z>
+          <X>0.000000000</X>
+          <Y>1.132500330</Y>
+          <Z>0.272010500</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>

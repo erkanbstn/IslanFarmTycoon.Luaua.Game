@@ -25,13 +25,13 @@
       <Properties>
         <string name="Name">Lineage_T4_DiamondPearl_0</string>
         <Vector3 name="Size">
-          <X>0.054478577</X>
-          <Y>0.054478577</Y>
-          <Z>0.054478577</Z>
+          <X>0.081717866</X>
+          <Y>0.081717866</Y>
+          <Z>0.081717866</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>-0.160841513</X>
-          <Y>0.454522248</Y>
+          <Y>0.469522248</Y>
           <Z>0.318631007</Z>
           <R00>1.000000000</R00>
           <R01>0.000000000</R01>
@@ -63,12 +63,12 @@
       <Properties>
         <string name="Name">Lineage_T4_CrystalBand_1</string>
         <Vector3 name="Size">
-          <X>0.007263810</X>
-          <Y>0.051273955</Y>
-          <Z>0.109872761</Z>
+          <X>0.010895715</X>
+          <Y>0.076910933</Y>
+          <Z>0.164809142</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>-0.263053700</X>
+          <X>-0.268053700</X>
           <Y>0.000000000</Y>
           <Z>0.461465596</Z>
           <R00>1.000000000</R00>
@@ -101,13 +101,13 @@
       <Properties>
         <string name="Name">Lineage_T4_DiamondPearl_2</string>
         <Vector3 name="Size">
-          <X>0.054478577</X>
-          <Y>0.054478577</Y>
-          <Z>0.054478577</Z>
+          <X>0.081717866</X>
+          <Y>0.081717866</Y>
+          <Z>0.081717866</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>0.160841513</X>
-          <Y>0.454522248</Y>
+          <Y>0.469522248</Y>
           <Z>0.318631007</Z>
           <R00>1.000000000</R00>
           <R01>0.000000000</R01>
@@ -139,12 +139,12 @@
       <Properties>
         <string name="Name">Lineage_T4_CrystalBand_3</string>
         <Vector3 name="Size">
-          <X>0.007263810</X>
-          <Y>0.051273955</Y>
-          <Z>0.109872761</Z>
+          <X>0.010895715</X>
+          <Y>0.076910933</Y>
+          <Z>0.164809142</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.263053700</X>
+          <X>0.268053700</X>
           <Y>0.000000000</Y>
           <Z>0.461465596</Z>
           <R00>1.000000000</R00>

@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
 <roblox version="4">
   <Item class="Model" referent="RBXMODEL">
     <Properties>
@@ -23,14 +24,14 @@
       <Properties>
         <string name="Name">Lineage_SilverMuzzleBridge</string>
         <Vector3 name="Size">
-          <X>1.15000000</X>
-          <Y>0.10000000</Y>
-          <Z>0.07000000</Z>
+          <X>1.725000000</X>
+          <Y>0.150000000</Y>
+          <Z>0.105000000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.00000000</X>
-          <Y>0.51600037</Y>
-          <Z>-4.30699411</Z>
+          <X>0.000000000</X>
+          <Y>0.516000370</Y>
+          <Z>-4.326994110</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>
@@ -59,14 +60,14 @@
       <Properties>
         <string name="Name">Lineage_DairyBell</string>
         <Vector3 name="Size">
-          <X>0.28000000</X>
-          <Y>0.24000000</Y>
-          <Z>0.24000000</Z>
+          <X>0.420000000</X>
+          <Y>0.360000000</Y>
+          <Z>0.360000000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.00000000</X>
-          <Y>-0.18143982</Y>
-          <Z>-2.87600590</Z>
+          <X>0.000000000</X>
+          <Y>-0.241439820</Y>
+          <Z>-2.876005900</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>

@@ -25,14 +25,14 @@
       <Properties>
         <string name="Name">Lineage_DiamondPinionBase</string>
         <Vector3 name="Size">
-          <X>0.25200000</X>
-          <Y>0.04500000</Y>
-          <Z>0.31806000</Z>
+          <X>0.378000000</X>
+          <Y>0.067500000</Y>
+          <Z>0.477090000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.00000000</X>
-          <Y>0.67250000</Y>
-          <Z>0.00000000</Z>
+          <X>0.000000000</X>
+          <Y>0.687500000</Y>
+          <Z>0.000000000</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>
@@ -62,14 +62,14 @@
       <Properties>
         <string name="Name">Lineage_DiamondPinionFacet0</string>
         <Vector3 name="Size">
-          <X>0.10080000</X>
-          <Y>0.10000000</Y>
-          <Z>0.25444800</Z>
+          <X>0.151200000</X>
+          <Y>0.150000000</Y>
+          <Z>0.381672000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>-0.06678000</X>
-          <Y>0.74500000</Y>
-          <Z>0.00000000</Z>
+          <X>-0.100170000</X>
+          <Y>0.796250000</Y>
+          <Z>0.000000000</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>
@@ -98,14 +98,14 @@
       <Properties>
         <string name="Name">Lineage_DiamondPinionFacet1</string>
         <Vector3 name="Size">
-          <X>0.10080000</X>
-          <Y>0.10000000</Y>
-          <Z>0.25444800</Z>
+          <X>0.151200000</X>
+          <Y>0.150000000</Y>
+          <Z>0.381672000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.06678000</X>
-          <Y>0.74500000</Y>
-          <Z>0.00000000</Z>
+          <X>0.100170000</X>
+          <Y>0.796250000</Y>
+          <Z>0.000000000</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>

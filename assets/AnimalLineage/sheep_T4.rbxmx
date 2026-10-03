@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
 <roblox version="4">
   <Item class="Model" referent="RBXMODEL">
     <Properties>
@@ -23,14 +24,14 @@
       <Properties>
         <string name="Name">Lineage_WoolCrystalMount0</string>
         <Vector3 name="Size">
-          <X>0.35000000</X>
-          <Y>0.06500000</Y>
-          <Z>0.45000000</Z>
+          <X>0.525000000</X>
+          <Y>0.097500000</Y>
+          <Z>0.675000000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.70000000</X>
-          <Y>1.58250000</Y>
-          <Z>-0.20000000</Z>
+          <X>0.700000000</X>
+          <Y>1.600625000</Y>
+          <Z>-0.200000000</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>
@@ -59,14 +60,14 @@
       <Properties>
         <string name="Name">Lineage_WoolCrystal01</string>
         <Vector3 name="Size">
-          <X>0.08750000</X>
-          <Y>0.08750000</Y>
-          <Z>0.08750000</Z>
+          <X>0.131250000</X>
+          <Y>0.131250000</Y>
+          <Z>0.131250000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.70000000</X>
-          <Y>1.65875000</Y>
-          <Z>-0.34625000</Z>
+          <X>0.700000000</X>
+          <Y>1.715000000</Y>
+          <Z>-0.419375000</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>
@@ -95,14 +96,14 @@
       <Properties>
         <string name="Name">Lineage_WoolCrystal02</string>
         <Vector3 name="Size">
-          <X>0.08750000</X>
-          <Y>0.08750000</Y>
-          <Z>0.08750000</Z>
+          <X>0.131250000</X>
+          <Y>0.131250000</Y>
+          <Z>0.131250000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.70000000</X>
-          <Y>1.65875000</Y>
-          <Z>-0.05375000</Z>
+          <X>0.700000000</X>
+          <Y>1.715000000</Y>
+          <Z>0.019375000</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>
@@ -131,14 +132,14 @@
       <Properties>
         <string name="Name">Lineage_WoolCrystalMount1</string>
         <Vector3 name="Size">
-          <X>0.35000000</X>
-          <Y>0.06500000</Y>
-          <Z>0.45000000</Z>
+          <X>0.525000000</X>
+          <Y>0.097500000</Y>
+          <Z>0.675000000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.60000000</X>
-          <Y>1.53250000</Y>
-          <Z>1.10000000</Z>
+          <X>0.600000000</X>
+          <Y>1.550625000</Y>
+          <Z>1.100000000</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>
@@ -167,14 +168,14 @@
       <Properties>
         <string name="Name">Lineage_WoolCrystal11</string>
         <Vector3 name="Size">
-          <X>0.08750000</X>
-          <Y>0.08750000</Y>
-          <Z>0.08750000</Z>
+          <X>0.131250000</X>
+          <Y>0.131250000</Y>
+          <Z>0.131250000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.60000000</X>
-          <Y>1.60875000</Y>
-          <Z>0.95375000</Z>
+          <X>0.600000000</X>
+          <Y>1.665000000</Y>
+          <Z>0.880625000</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>
@@ -203,14 +204,14 @@
       <Properties>
         <string name="Name">Lineage_WoolCrystal12</string>
         <Vector3 name="Size">
-          <X>0.08750000</X>
-          <Y>0.08750000</Y>
-          <Z>0.08750000</Z>
+          <X>0.131250000</X>
+          <Y>0.131250000</Y>
+          <Z>0.131250000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.60000000</X>
-          <Y>1.60875000</Y>
-          <Z>1.24625000</Z>
+          <X>0.600000000</X>
+          <Y>1.665000000</Y>
+          <Z>1.319375000</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>

@@ -25,14 +25,14 @@
       <Properties>
         <string name="Name">Lineage_DiamondCourierSeal</string>
         <Vector3 name="Size">
-          <X>0.19800000</X>
-          <Y>0.04500000</Y>
-          <Z>0.31806000</Z>
+          <X>0.297000000</X>
+          <Y>0.067500000</Y>
+          <Z>0.477090000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.00000000</X>
-          <Y>0.52250000</Y>
-          <Z>0.00000000</Z>
+          <X>0.000000000</X>
+          <Y>0.535000000</Y>
+          <Z>0.000000000</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>
@@ -62,14 +62,14 @@
       <Properties>
         <string name="Name">Lineage_DiamondCourierRibbon</string>
         <Vector3 name="Size">
-          <X>0.06336000</X>
-          <Y>0.04500000</Y>
-          <Z>0.28625400</Z>
+          <X>0.095040000</X>
+          <Y>0.067500000</Y>
+          <Z>0.429381000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.00000000</X>
-          <Y>0.56750000</Y>
-          <Z>0.00000000</Z>
+          <X>0.000000000</X>
+          <Y>0.602500000</Y>
+          <Z>0.000000000</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>
@@ -99,14 +99,14 @@
       <Properties>
         <string name="Name">Lineage_DiamondCourierGem</string>
         <Vector3 name="Size">
-          <X>0.09504000</X>
-          <Y>0.04500000</Y>
-          <Z>0.09541800</Z>
+          <X>0.142560000</X>
+          <Y>0.067500000</Y>
+          <Z>0.143127000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.00000000</X>
-          <Y>0.61250000</Y>
-          <Z>0.00000000</Z>
+          <X>0.000000000</X>
+          <Y>0.670000000</Y>
+          <Z>0.000000000</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>

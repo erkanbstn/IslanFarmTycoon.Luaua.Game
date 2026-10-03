@@ -25,12 +25,12 @@
       <Properties>
         <string name="Name">Lineage_T3_GoldFlank_0</string>
         <Vector3 name="Size">
-          <X>0.007782654</X>
-          <Y>0.068365274</Y>
-          <Z>0.142834589</Z>
+          <X>0.011673981</X>
+          <Y>0.102547911</Y>
+          <Z>0.214251884</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>-0.263313122</X>
+          <X>-0.268313122</X>
           <Y>-0.346099198</Y>
           <Z>-0.274681903</Z>
           <R00>1.000000000</R00>
@@ -62,12 +62,12 @@
       <Properties>
         <string name="Name">Lineage_T3_GoldFlank_1</string>
         <Vector3 name="Size">
-          <X>0.007782654</X>
-          <Y>0.068365274</Y>
-          <Z>0.142834589</Z>
+          <X>0.011673981</X>
+          <Y>0.102547911</Y>
+          <Z>0.214251884</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>-0.263313122</X>
+          <X>-0.268313122</X>
           <Y>-0.346099198</Y>
           <Z>0.274681903</Z>
           <R00>1.000000000</R00>
@@ -99,12 +99,12 @@
       <Properties>
         <string name="Name">Lineage_T3_GoldFlank_2</string>
         <Vector3 name="Size">
-          <X>0.007782654</X>
-          <Y>0.068365274</Y>
-          <Z>0.142834589</Z>
+          <X>0.011673981</X>
+          <Y>0.102547911</Y>
+          <Z>0.214251884</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.263313122</X>
+          <X>0.268313122</X>
           <Y>-0.346099198</Y>
           <Z>-0.274681903</Z>
           <R00>1.000000000</R00>
@@ -136,12 +136,12 @@
       <Properties>
         <string name="Name">Lineage_T3_GoldFlank_3</string>
         <Vector3 name="Size">
-          <X>0.007782654</X>
-          <Y>0.068365274</Y>
-          <Z>0.142834589</Z>
+          <X>0.011673981</X>
+          <Y>0.102547911</Y>
+          <Z>0.214251884</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.263313122</X>
+          <X>0.268313122</X>
           <Y>-0.346099198</Y>
           <Z>0.274681903</Z>
           <R00>1.000000000</R00>

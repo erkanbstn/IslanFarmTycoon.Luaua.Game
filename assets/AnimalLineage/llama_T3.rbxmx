@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
 <roblox version="4">
   <Item class="Model" referent="RBXMODEL">
     <Properties>
@@ -23,14 +24,14 @@
       <Properties>
         <string name="Name">Lineage_AndeanNeckTassel-1</string>
         <Vector3 name="Size">
-          <X>0.07500000</X>
-          <Y>0.52000000</Y>
-          <Z>0.20000000</Z>
+          <X>0.112500000</X>
+          <Y>0.780000000</Y>
+          <Z>0.300000000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>-0.33849999</X>
-          <Y>1.81748261</Y>
-          <Z>-1.38628459</Z>
+          <X>-0.358499990</X>
+          <Y>1.817482610</Y>
+          <Z>-1.386284590</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>
@@ -59,14 +60,14 @@
       <Properties>
         <string name="Name">Lineage_AndeanNeckTassel1</string>
         <Vector3 name="Size">
-          <X>0.07500000</X>
-          <Y>0.52000000</Y>
-          <Z>0.20000000</Z>
+          <X>0.112500000</X>
+          <Y>0.780000000</Y>
+          <Z>0.300000000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.33849999</X>
-          <Y>1.81748261</Y>
-          <Z>-1.38628459</Z>
+          <X>0.358499990</X>
+          <Y>1.817482610</Y>
+          <Z>-1.386284590</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>

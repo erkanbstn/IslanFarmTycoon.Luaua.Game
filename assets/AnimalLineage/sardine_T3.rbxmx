@@ -25,12 +25,12 @@
       <Properties>
         <string name="Name">Lineage_T3_GoldFlank_0</string>
         <Vector3 name="Size">
-          <X>0.003137614</X>
-          <Y>0.019308391</Y>
-          <Z>0.075302725</Z>
+          <X>0.004706421</X>
+          <Y>0.028962587</Y>
+          <Z>0.112954087</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>-0.106155927</X>
+          <X>-0.111155927</X>
           <Y>-0.097748730</Y>
           <Z>-0.144812932</Z>
           <R00>1.000000000</R00>
@@ -63,12 +63,12 @@
       <Properties>
         <string name="Name">Lineage_T3_GoldFlank_1</string>
         <Vector3 name="Size">
-          <X>0.003137614</X>
-          <Y>0.019308391</Y>
-          <Z>0.075302725</Z>
+          <X>0.004706421</X>
+          <Y>0.028962587</Y>
+          <Z>0.112954087</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.106155927</X>
+          <X>0.111155927</X>
           <Y>-0.097748730</Y>
           <Z>-0.144812932</Z>
           <R00>1.000000000</R00>

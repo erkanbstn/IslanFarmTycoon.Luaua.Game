@@ -25,14 +25,14 @@
       <Properties>
         <string name="Name">Lineage_GoldenCarrierPlate</string>
         <Vector3 name="Size">
-          <X>0.19800000</X>
-          <Y>0.04500000</Y>
-          <Z>0.31806000</Z>
+          <X>0.297000000</X>
+          <Y>0.067500000</Y>
+          <Z>0.477090000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.29700000</X>
-          <Y>0.52250000</Y>
-          <Z>0.00000000</Z>
+          <X>0.297000000</X>
+          <Y>0.536250000</Y>
+          <Z>0.000000000</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>
@@ -62,14 +62,14 @@
       <Properties>
         <string name="Name">Lineage_GoldenMailSeal</string>
         <Vector3 name="Size">
-          <X>0.06930000</X>
-          <Y>0.04500000</Y>
-          <Z>0.10495980</Z>
+          <X>0.103950000</X>
+          <Y>0.067500000</Y>
+          <Z>0.157439700</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.29700000</X>
-          <Y>0.56750000</Y>
-          <Z>0.00000000</Z>
+          <X>0.297000000</X>
+          <Y>0.603750000</Y>
+          <Z>0.000000000</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>

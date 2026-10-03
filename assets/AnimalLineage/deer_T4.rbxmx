@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
 <roblox version="4">
   <Item class="Model" referent="RBXMODEL">
     <Properties>
@@ -23,14 +24,14 @@
       <Properties>
         <string name="Name">Lineage_ForestDiadem</string>
         <Vector3 name="Size">
-          <X>0.42000000</X>
-          <Y>0.16000000</Y>
-          <Z>0.07000000</Z>
+          <X>0.630000000</X>
+          <Y>0.240000000</Y>
+          <Z>0.105000000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.00000000</X>
-          <Y>2.00400017</Y>
-          <Z>-3.02700000</Z>
+          <X>0.000000000</X>
+          <Y>2.004000170</Y>
+          <Z>-3.047000000</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>
@@ -59,14 +60,14 @@
       <Properties>
         <string name="Name">Lineage_ForestCrystal1</string>
         <Vector3 name="Size">
-          <X>0.06000000</X>
-          <Y>0.06000000</Y>
-          <Z>0.06000000</Z>
+          <X>0.090000000</X>
+          <Y>0.090000000</Y>
+          <Z>0.090000000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>-0.13650000</X>
-          <Y>2.00400017</Y>
-          <Z>-3.09200000</Z>
+          <X>-0.204750000</X>
+          <Y>2.004000170</Y>
+          <Z>-3.144500000</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>
@@ -95,14 +96,14 @@
       <Properties>
         <string name="Name">Lineage_ForestCrystal2</string>
         <Vector3 name="Size">
-          <X>0.06000000</X>
-          <Y>0.06000000</Y>
-          <Z>0.06000000</Z>
+          <X>0.090000000</X>
+          <Y>0.090000000</Y>
+          <Z>0.090000000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.00000000</X>
-          <Y>2.00400017</Y>
-          <Z>-3.09200000</Z>
+          <X>0.000000000</X>
+          <Y>2.004000170</Y>
+          <Z>-3.144500000</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>
@@ -131,14 +132,14 @@
       <Properties>
         <string name="Name">Lineage_ForestCrystal3</string>
         <Vector3 name="Size">
-          <X>0.06000000</X>
-          <Y>0.06000000</Y>
-          <Z>0.06000000</Z>
+          <X>0.090000000</X>
+          <Y>0.090000000</Y>
+          <Z>0.090000000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.13650000</X>
-          <Y>2.00400017</Y>
-          <Z>-3.09200000</Z>
+          <X>0.204750000</X>
+          <Y>2.004000170</Y>
+          <Z>-3.144500000</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>

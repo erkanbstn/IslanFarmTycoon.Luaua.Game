@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
 <roblox version="4">
   <Item class="Model" referent="RBXMODEL">
     <Properties>
@@ -23,14 +24,14 @@
       <Properties>
         <string name="Name">Lineage_HighlandSaddleWeave0</string>
         <Vector3 name="Size">
-          <X>0.50000000</X>
-          <Y>0.07500000</Y>
-          <Z>0.90000000</Z>
+          <X>0.750000000</X>
+          <Y>0.112500000</Y>
+          <Z>1.350000000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>-0.59000000</X>
-          <Y>1.89749972</Y>
-          <Z>-1.02297730</Z>
+          <X>-0.590000000</X>
+          <Y>1.917499720</Y>
+          <Z>-1.022977300</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>
@@ -59,14 +60,14 @@
       <Properties>
         <string name="Name">Lineage_HighlandSaddleWeave1</string>
         <Vector3 name="Size">
-          <X>0.50000000</X>
-          <Y>0.07500000</Y>
-          <Z>0.90000000</Z>
+          <X>0.750000000</X>
+          <Y>0.112500000</Y>
+          <Z>1.350000000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.00000000</X>
-          <Y>1.89749972</Y>
-          <Z>-1.02297730</Z>
+          <X>0.000000000</X>
+          <Y>2.032499720</Y>
+          <Z>-1.022977300</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>
@@ -95,14 +96,14 @@
       <Properties>
         <string name="Name">Lineage_HighlandSaddleWeave2</string>
         <Vector3 name="Size">
-          <X>0.50000000</X>
-          <Y>0.07500000</Y>
-          <Z>0.90000000</Z>
+          <X>0.750000000</X>
+          <Y>0.112500000</Y>
+          <Z>1.350000000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.59000000</X>
-          <Y>1.89749972</Y>
-          <Z>-1.02297730</Z>
+          <X>0.590000000</X>
+          <Y>1.917499720</Y>
+          <Z>-1.022977300</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>

@@ -25,12 +25,12 @@
       <Properties>
         <string name="Name">Lineage_T2_SilverScale_0</string>
         <Vector3 name="Size">
-          <X>0.002928439</X>
-          <Y>0.019308391</Y>
-          <Z>0.046340138</Z>
+          <X>0.004392659</X>
+          <Y>0.028962587</Y>
+          <Z>0.069510207</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>-0.106051340</X>
+          <X>-0.111051340</X>
           <Y>0.097748730</Y>
           <Z>-0.179568036</Z>
           <R00>1.000000000</R00>
@@ -63,12 +63,12 @@
       <Properties>
         <string name="Name">Lineage_T2_SilverScale_1</string>
         <Vector3 name="Size">
-          <X>0.002928439</X>
-          <Y>0.019308391</Y>
-          <Z>0.046340138</Z>
+          <X>0.004392659</X>
+          <Y>0.028962587</Y>
+          <Z>0.069510207</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>-0.106051340</X>
+          <X>-0.111051340</X>
           <Y>0.097748730</Y>
           <Z>-0.110057829</Z>
           <R00>1.000000000</R00>
@@ -101,12 +101,12 @@
       <Properties>
         <string name="Name">Lineage_T2_SilverScale_2</string>
         <Vector3 name="Size">
-          <X>0.002928439</X>
-          <Y>0.019308391</Y>
-          <Z>0.046340138</Z>
+          <X>0.004392659</X>
+          <Y>0.028962587</Y>
+          <Z>0.069510207</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>-0.106051340</X>
+          <X>-0.111051340</X>
           <Y>0.097748730</Y>
           <Z>-0.040547621</Z>
           <R00>1.000000000</R00>
@@ -139,12 +139,12 @@
       <Properties>
         <string name="Name">Lineage_T2_SilverScale_3</string>
         <Vector3 name="Size">
-          <X>0.002928439</X>
-          <Y>0.019308391</Y>
-          <Z>0.046340138</Z>
+          <X>0.004392659</X>
+          <Y>0.028962587</Y>
+          <Z>0.069510207</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.106051340</X>
+          <X>0.111051340</X>
           <Y>0.097748730</Y>
           <Z>-0.179568036</Z>
           <R00>1.000000000</R00>
@@ -177,12 +177,12 @@
       <Properties>
         <string name="Name">Lineage_T2_SilverScale_4</string>
         <Vector3 name="Size">
-          <X>0.002928439</X>
-          <Y>0.019308391</Y>
-          <Z>0.046340138</Z>
+          <X>0.004392659</X>
+          <Y>0.028962587</Y>
+          <Z>0.069510207</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.106051340</X>
+          <X>0.111051340</X>
           <Y>0.097748730</Y>
           <Z>-0.110057829</Z>
           <R00>1.000000000</R00>
@@ -215,12 +215,12 @@
       <Properties>
         <string name="Name">Lineage_T2_SilverScale_5</string>
         <Vector3 name="Size">
-          <X>0.002928439</X>
-          <Y>0.019308391</Y>
-          <Z>0.046340138</Z>
+          <X>0.004392659</X>
+          <Y>0.028962587</Y>
+          <Z>0.069510207</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.106051340</X>
+          <X>0.111051340</X>
           <Y>0.097748730</Y>
           <Z>-0.040547621</Z>
           <R00>1.000000000</R00>

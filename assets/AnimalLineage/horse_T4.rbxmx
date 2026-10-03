@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
 <roblox version="4">
   <Item class="Model" referent="RBXMODEL">
     <Properties>
@@ -23,14 +24,14 @@
       <Properties>
         <string name="Name">Lineage_SaddleJewel01</string>
         <Vector3 name="Size">
-          <X>0.12000000</X>
-          <Y>0.12000000</Y>
-          <Z>0.12000000</Z>
+          <X>0.180000000</X>
+          <Y>0.180000000</Y>
+          <Z>0.180000000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>-0.97500003</X>
-          <Y>0.28000000</Y>
-          <Z>-0.16625000</Z>
+          <X>-1.043750030</X>
+          <Y>0.280000000</Y>
+          <Z>-0.369375000</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>
@@ -59,14 +60,14 @@
       <Properties>
         <string name="Name">Lineage_SaddleJewel02</string>
         <Vector3 name="Size">
-          <X>0.12000000</X>
-          <Y>0.12000000</Y>
-          <Z>0.12000000</Z>
+          <X>0.180000000</X>
+          <Y>0.180000000</Y>
+          <Z>0.180000000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>-0.97500003</X>
-          <Y>0.28000000</Y>
-          <Z>0.24000000</Z>
+          <X>-1.043750030</X>
+          <Y>0.280000000</Y>
+          <Z>0.240000000</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>
@@ -95,14 +96,14 @@
       <Properties>
         <string name="Name">Lineage_SaddleJewel03</string>
         <Vector3 name="Size">
-          <X>0.12000000</X>
-          <Y>0.12000000</Y>
-          <Z>0.12000000</Z>
+          <X>0.180000000</X>
+          <Y>0.180000000</Y>
+          <Z>0.180000000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>-0.97500003</X>
-          <Y>0.28000000</Y>
-          <Z>0.64625000</Z>
+          <X>-1.043750030</X>
+          <Y>0.280000000</Y>
+          <Z>0.849375000</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>
@@ -131,14 +132,14 @@
       <Properties>
         <string name="Name">Lineage_SaddleJewel11</string>
         <Vector3 name="Size">
-          <X>0.12000000</X>
-          <Y>0.12000000</Y>
-          <Z>0.12000000</Z>
+          <X>0.180000000</X>
+          <Y>0.180000000</Y>
+          <Z>0.180000000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.97500003</X>
-          <Y>0.28000000</Y>
-          <Z>-0.16625000</Z>
+          <X>1.043750030</X>
+          <Y>0.280000000</Y>
+          <Z>-0.369375000</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>
@@ -167,14 +168,14 @@
       <Properties>
         <string name="Name">Lineage_SaddleJewel12</string>
         <Vector3 name="Size">
-          <X>0.12000000</X>
-          <Y>0.12000000</Y>
-          <Z>0.12000000</Z>
+          <X>0.180000000</X>
+          <Y>0.180000000</Y>
+          <Z>0.180000000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.97500003</X>
-          <Y>0.28000000</Y>
-          <Z>0.24000000</Z>
+          <X>1.043750030</X>
+          <Y>0.280000000</Y>
+          <Z>0.240000000</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>
@@ -203,14 +204,14 @@
       <Properties>
         <string name="Name">Lineage_SaddleJewel13</string>
         <Vector3 name="Size">
-          <X>0.12000000</X>
-          <Y>0.12000000</Y>
-          <Z>0.12000000</Z>
+          <X>0.180000000</X>
+          <Y>0.180000000</Y>
+          <Z>0.180000000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.97500003</X>
-          <Y>0.28000000</Y>
-          <Z>0.64625000</Z>
+          <X>1.043750030</X>
+          <Y>0.280000000</Y>
+          <Z>0.849375000</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>
@@ -239,14 +240,14 @@
       <Properties>
         <string name="Name">Lineage_TurquoiseBrowCrest</string>
         <Vector3 name="Size">
-          <X>0.38000000</X>
-          <Y>0.12000000</Y>
-          <Z>0.45000000</Z>
+          <X>0.570000000</X>
+          <Y>0.180000000</Y>
+          <Z>0.675000000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.00000000</X>
-          <Y>2.21385301</Y>
-          <Z>-3.12885817</Z>
+          <X>0.000000000</X>
+          <Y>2.241042243</Y>
+          <Z>-3.141536718</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>

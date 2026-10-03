@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
 <roblox version="4">
   <Item class="Model" referent="RBXMODEL">
     <Properties>
@@ -23,14 +24,14 @@
       <Properties>
         <string name="Name">Lineage_GoldManeClip0</string>
         <Vector3 name="Size">
-          <X>0.30000000</X>
-          <Y>0.13000000</Y>
-          <Z>0.07500000</Z>
+          <X>0.450000000</X>
+          <Y>0.195000000</Y>
+          <Z>0.112500000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.00000000</X>
-          <Y>1.39187300</Y>
-          <Z>-0.73466261</Z>
+          <X>0.000000000</X>
+          <Y>1.400325365</Y>
+          <Z>-0.716536455</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>
@@ -59,14 +60,14 @@
       <Properties>
         <string name="Name">Lineage_GoldManeClip1</string>
         <Vector3 name="Size">
-          <X>0.30000000</X>
-          <Y>0.13000000</Y>
-          <Z>0.07500000</Z>
+          <X>0.450000000</X>
+          <Y>0.195000000</Y>
+          <Z>0.112500000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.00000000</X>
-          <Y>1.77252226</Y>
-          <Z>-0.91216229</Z>
+          <X>0.000000000</X>
+          <Y>1.780974625</Y>
+          <Z>-0.894036135</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>
@@ -95,14 +96,14 @@
       <Properties>
         <string name="Name">Lineage_GoldManeClip2</string>
         <Vector3 name="Size">
-          <X>0.30000000</X>
-          <Y>0.13000000</Y>
-          <Z>0.07500000</Z>
+          <X>0.450000000</X>
+          <Y>0.195000000</Y>
+          <Z>0.112500000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.00000000</X>
-          <Y>2.15317152</Y>
-          <Z>-1.08966196</Z>
+          <X>0.000000000</X>
+          <Y>2.161623885</Y>
+          <Z>-1.071535805</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>

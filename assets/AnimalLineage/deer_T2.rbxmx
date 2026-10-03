@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
 <roblox version="4">
   <Item class="Model" referent="RBXMODEL">
     <Properties>
@@ -23,14 +24,14 @@
       <Properties>
         <string name="Name">Lineage_ForestNeckBrooch</string>
         <Vector3 name="Size">
-          <X>0.34000000</X>
-          <Y>0.26000000</Y>
-          <Z>0.07000000</Z>
+          <X>0.510000000</X>
+          <Y>0.390000000</Y>
+          <Z>0.105000000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.00000000</X>
-          <Y>1.08998672</Y>
-          <Z>-1.92782330</Z>
+          <X>0.000000000</X>
+          <Y>1.080398209</Y>
+          <Z>-1.945374951</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>

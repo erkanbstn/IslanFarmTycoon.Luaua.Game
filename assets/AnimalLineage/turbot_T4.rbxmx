@@ -25,13 +25,13 @@
       <Properties>
         <string name="Name">Lineage_T4_DiamondPearl_0</string>
         <Vector3 name="Size">
-          <X>0.018014657</X>
-          <Y>0.018014657</Y>
-          <Z>0.018014657</Z>
+          <X>0.027021985</X>
+          <Y>0.027021985</Y>
+          <Z>0.027021985</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>-0.319116775</X>
-          <Y>0.111233358</Y>
+          <Y>0.116233358</Y>
           <Z>0.298528595</Z>
           <R00>1.000000000</R00>
           <R01>0.000000000</R01>
@@ -63,13 +63,13 @@
       <Properties>
         <string name="Name">Lineage_T4_CrystalBand_1</string>
         <Vector3 name="Size">
-          <X>0.102940895</X>
-          <Y>0.002058818</Y>
-          <Z>0.102940895</Z>
+          <X>0.154411342</X>
+          <Y>0.003088227</Y>
+          <Z>0.154411342</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>-0.319116775</X>
-          <Y>0.086813489</Y>
+          <Y>0.106813489</Y>
           <Z>0.432351759</Z>
           <R00>1.000000000</R00>
           <R01>0.000000000</R01>
@@ -101,13 +101,13 @@
       <Properties>
         <string name="Name">Lineage_T4_DiamondPearl_2</string>
         <Vector3 name="Size">
-          <X>0.018014657</X>
-          <Y>0.018014657</Y>
-          <Z>0.018014657</Z>
+          <X>0.027021985</X>
+          <Y>0.027021985</Y>
+          <Z>0.027021985</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>0.319116775</X>
-          <Y>0.111233358</Y>
+          <Y>0.116233358</Y>
           <Z>0.298528595</Z>
           <R00>1.000000000</R00>
           <R01>0.000000000</R01>
@@ -139,13 +139,13 @@
       <Properties>
         <string name="Name">Lineage_T4_CrystalBand_3</string>
         <Vector3 name="Size">
-          <X>0.102940895</X>
-          <Y>0.002058818</Y>
-          <Z>0.102940895</Z>
+          <X>0.154411342</X>
+          <Y>0.003088227</Y>
+          <Z>0.154411342</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>0.319116775</X>
-          <Y>0.086813489</Y>
+          <Y>0.106813489</Y>
           <Z>0.432351759</Z>
           <R00>1.000000000</R00>
           <R01>0.000000000</R01>

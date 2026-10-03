@@ -25,14 +25,14 @@
       <Properties>
         <string name="Name">Lineage_DiamondEyespotBase</string>
         <Vector3 name="Size">
-          <X>0.23400000</X>
-          <Y>0.04500000</Y>
-          <Z>0.35340000</Z>
+          <X>0.351000000</X>
+          <Y>0.067500000</Y>
+          <Z>0.530100000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.00000000</X>
-          <Y>0.67250000</Y>
-          <Z>0.00000000</Z>
+          <X>0.000000000</X>
+          <Y>0.685000000</Y>
+          <Z>0.000000000</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>
@@ -62,14 +62,14 @@
       <Properties>
         <string name="Name">Lineage_DiamondEyespot</string>
         <Vector3 name="Size">
-          <X>0.15912000</X>
-          <Y>0.04500000</Y>
-          <Z>0.23324400</Z>
+          <X>0.238680000</X>
+          <Y>0.067500000</Y>
+          <Z>0.349866000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.00000000</X>
-          <Y>0.71750000</Y>
-          <Z>0.00000000</Z>
+          <X>0.000000000</X>
+          <Y>0.752500000</Y>
+          <Z>0.000000000</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>
@@ -99,14 +99,14 @@
       <Properties>
         <string name="Name">Lineage_DiamondEyespotCenter</string>
         <Vector3 name="Size">
-          <X>0.06084000</X>
-          <Y>0.04500000</Y>
-          <Z>0.09188400</Z>
+          <X>0.091260000</X>
+          <Y>0.067500000</Y>
+          <Z>0.137826000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.00000000</X>
-          <Y>0.76250000</Y>
-          <Z>0.00000000</Z>
+          <X>0.000000000</X>
+          <Y>0.820000000</Y>
+          <Z>0.000000000</Z>
           <R00>1.00000000</R00>
           <R01>0.00000000</R01>
           <R02>0.00000000</R02>

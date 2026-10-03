@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
 <roblox version="4">
   <Item class="Model" referent="RBXMODEL">
     <Properties>
@@ -23,14 +24,14 @@
       <Properties>
         <string name="Name">Lineage_TurquoiseEarClip0</string>
         <Vector3 name="Size">
-          <X>0.20000000</X>
-          <Y>0.17000000</Y>
-          <Z>0.07000000</Z>
+          <X>0.300000000</X>
+          <Y>0.255000000</Y>
+          <Z>0.105000000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>-0.56579799</X>
-          <Y>1.07811161</Y>
-          <Z>-2.11206468</Z>
+          <X>-0.565797990</X>
+          <Y>1.069659245</Y>
+          <Z>-2.130190836</Z>
           <R00>0.93969262</R00>
           <R01>0.34202014</R01>
           <R02>0.00000000</R02>
@@ -59,14 +60,14 @@
       <Properties>
         <string name="Name">Lineage_TurquoiseEarClip1</string>
         <Vector3 name="Size">
-          <X>0.20000000</X>
-          <Y>0.17000000</Y>
-          <Z>0.07000000</Z>
+          <X>0.300000000</X>
+          <Y>0.255000000</Y>
+          <Z>0.105000000</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>0.56579799</X>
-          <Y>1.07811161</Y>
-          <Z>-2.11206468</Z>
+          <X>0.565797990</X>
+          <Y>1.069659245</Y>
+          <Z>-2.130190836</Z>
           <R00>0.93969262</R00>
           <R01>-0.34202014</R01>
           <R02>0.00000000</R02>
