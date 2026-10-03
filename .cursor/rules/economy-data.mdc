@@ -126,7 +126,8 @@ Değişiklikten sonra: `python scripts/run-tests.py`.
   `changeEquipment` ile geçen süreyi eski etkiyle kapatır. Asa gücü oyuncuya özel çalışma anı `envOverride { seasonId, seasonEndsAt, weatherId, weatherEndsAt }` tutar; `Environment.getSeason/getWeather/
   getIncomeMultiplier/getSeasonEndsAt/getNextSeason(override?)` katmanı uygular (sunucu `save.envOverride` verir; client `Environment.setClientOverride` ile kurar). Mevsim/hava tüketicisi dünya
   özniteliğini doğrudan okumaz, `Environment` üzerinden geçer; dünya mevsimini yalnızca `SeasonService` (ve yönetici araçları) değiştirir. Yeni eşya ailesi: `tests/inventory.spec.luau` (pahalı kademe daha
-  güçlü) + çeviri (ad + şablon açıklama).
+  güçlü) + çeviri (ad + şablon açıklama). Her eşyanın en az bir etkisi vardır (etkisiz eşya satılmaz; slot rolü: şapka = ticari, sırt = lojistik); anahtar listesi ve şapka/sırt
+  slotunda fiyat ↔ güç sırası `tests/config.spec.luau` (etki bölümü), "hepsi takılı" üst sınırları `tests/inventory.spec.luau` içindedir; değerler `Config/Items.luau`'dadır (burada sayı yazma).
 - **Yardımcılar (pet)**: `pet_cash_lv1`, `pet_goods_lv1` yükseltmeleri (`FarmMath.hasPet(save, "cash"|"goods")`); hazır partiyi ürün merkezinde depoda yer varsa kendisi teslim alır ve
   `autoRepeat[tarifId]` varsa yeniden başlatır; yardımcı türü tek kaynaktan `FarmMath.petKindFor(recipe)` (ürün merkezi "goods", para fabrikası ve kuluçka "cash"; kuluçka dolu kümeste teslim bekler) (`RequestProductionAction("auto", ...)`; yardımcısı olmayan çiftlikte reddedilir, decode bilinmeyen girdiyi atar). `PetService` park edilmiş dahil TÜM
   çiftliklerde, yalnızca çevrimiçi oyuncu için çalışır; elle işlem ve yardımcı aynı `ProductionLogic` kuralını kullanır. Test: `tests/pets.spec.luau`.

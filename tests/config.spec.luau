@@ -604,5 +604,54 @@ return function(Config: any, FarmMath: any)
 		end
 		assert(Config.getAnimalLook("cow", "2").modelId == "cow", "non-fish animals keep their own model")
 	end
+
+	-- Eşya etkileri: her eşyanın katkısı var, anahtarlar motorun bildiği listeden, slot içinde fiyat ↔ güç tutarlı
+	do
+		local KNOWN_EFFECTS = {
+			upgradeDiscount = 1,
+			expansionDiscount = 1,
+			sellBonus = 1,
+			facilitySpeed = 1,
+			contractBonus = 1,
+			goodsYield = 1,
+			storageBonus = 0.5,
+			offlineBonus = 0.5,
+			growthSpeed = 0.5, -- çarpan: (değer - 1) artı sayılır
+			incomeBonus = 1,
+		}
+		-- Anahtarlar aynı değerde olmadığı için güç, ağırlıklı artı toplamıdır (depo/çevrimdışı/büyüme yarım sayılır)
+		local function power(item: any): number
+			local total = 0
+			for key, value in item.effects do
+				total += (if key == "growthSpeed" then value - 1 else value) * KNOWN_EFFECTS[key]
+			end
+			return total
+		end
+		local bySlot: { [string]: { any } } = {}
+		for _, itemId in Config.ITEM_ORDER do
+			local item = Config.ITEMS[itemId]
+			local count = 0
+			for key, value in item.effects or {} do
+				assert(KNOWN_EFFECTS[key], `item {itemId} uses unknown effect {key}`)
+				assert(typeof(value) == "number" and value > 0, `item {itemId} effect {key} must be positive`)
+				count += 1
+			end
+			assert(count >= 1, `item {itemId} must have at least one effect`)
+			bySlot[item.slot] = bySlot[item.slot] or {}
+			table.insert(bySlot[item.slot], item)
+		end
+		for _, slotId in { "head", "back" } do
+			local list = bySlot[slotId]
+			table.sort(list, function(a, b)
+				return a.price < b.price
+			end)
+			for index = 2, #list do
+				assert(
+					power(list[index]) > power(list[index - 1]),
+					`slot {slotId}: {list[index].id} costs more than {list[index - 1].id}, so it must be stronger`
+				)
+			end
+		end
+	end
 	print("PASS config: cross-references, prerequisite graph, seasonal goals and start state")
 end
