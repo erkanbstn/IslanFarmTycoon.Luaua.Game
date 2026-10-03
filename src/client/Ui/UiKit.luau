@@ -51,6 +51,7 @@ UiKit.sectionHeader = Base.sectionHeader
 UiKit.setVariant = Controls.setVariant
 UiKit.button = Controls.button
 UiKit.pulse = Controls.pulse
+UiKit.pointer = Controls.pointer
 UiKit.menuButton = Controls.menuButton
 UiKit.slider = Controls.slider
 UiKit.closeButton = Controls.closeButton

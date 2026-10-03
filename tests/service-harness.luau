@@ -160,8 +160,8 @@ return function(createLimiter: any, codec: any, config: any, farmMath: any, crea
 			end,
 		}
 		h.metrics = {
-			increment = function(name: string)
-				h.metricCounts[name] = (h.metricCounts[name] or 0) + 1
+			increment = function(name: string, amount: number?)
+				h.metricCounts[name] = (h.metricCounts[name] or 0) + (amount or 1)
 			end,
 		}
 		h.dataService = {

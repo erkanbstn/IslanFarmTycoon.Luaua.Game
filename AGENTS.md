@@ -112,7 +112,7 @@ Yeni dosya eklerken `docs/MIMARI.md`'deki "Yeni şey nereye?" tablosuna bak.
 - Buton tipleri: primary = alınabilir, warning = para yetmiyor, disabled = kilitli/dolu, owned = alındı.
 - HUD bölgeleri: sol orta `Stats` paneli (sola kayarak kapanır), üst orta menü çubuğu (Pazar, Yükseltmeler, Yol Haritası, Üretim, Adalar), sağ orta menü sütunu (Envanter, Ödüller, Adama Dön, Ayarlar),
  sağda pencereler, üst ortada bildirimler. Sağ üst (oyuncu listesi) ve sol üst (sohbet) boş kalır.
- Menü karoları kademeli açılır (yeni oyuncu Pazar/Ödüller/Ayarlar görür); ipucu satırı yalnızca sorun varken çıkar. Ayrıntılı bilgi ana HUD'a değil ilgili pencereye (ödüller "Ödüller" penceresine) gider. Sipariş Panosu, Eşya Dükkânı, Envanter, Pazar, Yol Haritası ve Yükseltmeler
+ Menü karoları kademeli açılır (yeni oyuncu Pazar/Ödüller/Ayarlar görür); ipucu satırı yalnızca sorun varken çıkar. Yeni oyuncunun ilk adımları üst ortada görev şeridi (`Hud/OnboardingBanner`, metin `GoalCard`'dan) ve vurgulu düğmede "Buraya dokun" oku (`UiKit.pointer`) ile yönlendirilir; ilk hayvanı oyuncu Pazar'dan kendi alır. Ayrıntılı bilgi ana HUD'a değil ilgili pencereye (ödüller "Ödüller" penceresine) gider. Sipariş Panosu, Eşya Dükkânı, Envanter, Pazar, Yol Haritası ve Yükseltmeler
   ayrı pencerelerdir; pencere ve bölüm kodu `src/client/Ui/Hud/` altında, `FarmHud.client.luau` yalnızca orkestrasyondur.
 - Sunucu bildirim (Notify) metinlerine emoji koyma; bildirimin türü (success/error/money/info) işareti belirler.
 

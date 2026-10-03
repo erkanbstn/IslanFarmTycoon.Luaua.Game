@@ -5,6 +5,7 @@
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
 local Sfx = require(script.Parent.Parent.Parent:WaitForChild("Core"):WaitForChild("Sfx"))
 local Tokens = require(script.Parent:WaitForChild("Tokens"))
 local Base = require(script.Parent:WaitForChild("Base"))
@@ -96,6 +97,97 @@ function Controls.pulse(target: GuiObject): (enabled: boolean) -> ()
 				ring,
 				TweenInfo.new(0.7, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true),
 				{ Transparency = 0.8 }
+			)
+			tween = loop
+			loop:Play()
+		end
+	end
+end
+
+-- Yönlendirme oku: hedef düğmenin yanında zıplayan altın etiket. Ekranın sağ kenarındaki düğmelerde (menü sütunu)
+-- etiket sola, diğerlerinde düğmenin altına çıkar. Dönen işlev oku açar/kapatır; ReducedMotion açıkken ok sabit kalır.
+function Controls.pointer(target: GuiObject, text: string): (enabled: boolean) -> ()
+	local holder = Instance.new("Frame")
+	holder.Name = "GuidePointer"
+	holder.BackgroundTransparency = 1
+	holder.AutomaticSize = Enum.AutomaticSize.XY
+	holder.Size = UDim2.fromOffset(0, 0)
+	holder.Active = false
+	holder.Visible = false
+	holder.ZIndex = 20
+	holder.Parent = target
+	local list = Instance.new("UIListLayout")
+	list.Padding = UDim.new(0, -6)
+	list.SortOrder = Enum.SortOrder.LayoutOrder
+	list.Parent = holder
+
+	local arrow = Instance.new("Frame")
+	arrow.Name = "Arrow"
+	arrow.BackgroundColor3 = Tokens.Color.Gold
+	arrow.BorderSizePixel = 0
+	arrow.Size = UDim2.fromOffset(14, 14)
+	arrow.Rotation = 45
+	arrow.ZIndex = 20
+	arrow.Parent = holder
+
+	local pill = Instance.new("Frame")
+	pill.Name = "Pill"
+	pill.BackgroundColor3 = Tokens.Color.Gold
+	pill.BorderSizePixel = 0
+	pill.AutomaticSize = Enum.AutomaticSize.XY
+	pill.Size = UDim2.fromOffset(0, 0)
+	pill.ZIndex = 21
+	pill.Parent = holder
+	Base.corner(pill, Tokens.Radius.Button)
+	Base.padding(pill, 10, 5)
+	local label = Base.text(pill, text, "Caption", Tokens.Color.Panel)
+	label.FontFace = Tokens.Font.Bold
+	label.AutomaticSize = Enum.AutomaticSize.XY
+	label.Size = UDim2.fromOffset(0, 0)
+	label.TextWrapped = false
+	label.ZIndex = 22
+
+	local tween: Tween? = nil
+	return function(enabled: boolean)
+		if holder.Visible == enabled then
+			return
+		end
+		holder.Visible = enabled
+		if tween then
+			tween:Cancel()
+			tween = nil
+		end
+		if not enabled then
+			return
+		end
+		local camera = Workspace.CurrentCamera
+		local sideways = camera ~= nil
+			and target.AbsolutePosition.X + target.AbsoluteSize.X / 2 > camera.ViewportSize.X * 0.6
+		local from: UDim2
+		local to: UDim2
+		if sideways then
+			list.FillDirection = Enum.FillDirection.Horizontal
+			list.VerticalAlignment = Enum.VerticalAlignment.Center
+			pill.LayoutOrder = 1
+			arrow.LayoutOrder = 2
+			holder.AnchorPoint = Vector2.new(1, 0.5)
+			from = UDim2.new(0, -4, 0.5, 0)
+			to = UDim2.new(0, -14, 0.5, 0)
+		else
+			list.FillDirection = Enum.FillDirection.Vertical
+			list.HorizontalAlignment = Enum.HorizontalAlignment.Center
+			arrow.LayoutOrder = 1
+			pill.LayoutOrder = 2
+			holder.AnchorPoint = Vector2.new(0.5, 0)
+			from = UDim2.new(0.5, 0, 1, 4)
+			to = UDim2.new(0.5, 0, 1, 14)
+		end
+		holder.Position = from
+		if Players.LocalPlayer:GetAttribute("ReducedMotion") ~= true then
+			local loop = TweenService:Create(
+				holder,
+				TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true),
+				{ Position = to }
 			)
 			tween = loop
 			loop:Play()

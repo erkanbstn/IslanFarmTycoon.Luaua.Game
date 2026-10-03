@@ -122,7 +122,9 @@ function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 		barterButtons[animalId] = barterButton
 		barterButton.Activated:Connect(function()
 			if barterButton.Active then
-				PurchaseController.submit("RequestBarterAnimal", animalId)
+				local state = ClientState.get()
+				local count = if state then bulkCount(state, animalId) else 1
+				PurchaseController.submit("RequestBarterAnimal", animalId, if count > 1 then count else nil)
 			end
 		end)
 		card.action.Activated:Connect(function()
@@ -263,14 +265,20 @@ function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 			local barterButton = barterButtons[animalId]
 			local barterWorth = FarmMath.getGoodsBarterWorth(state)
 			local roomForBarter = zoneId ~= nil and FarmMath.getFreeSlots(state, animalId) >= 1
-			local single = if roomForBarter then FarmMath.getBulkPrice(state, animalId, 1) else 0
+			local barterPrice = if roomForBarter then price else 0
 			local barterPlan = if roomForBarter and barterWorth > 0
-				then FarmMath.planGoodsBarter(state, single)
+				then FarmMath.planGoodsBarter(state, barterPrice)
 				else nil
 			-- Ürünle alım mümkünse düğme hangi ürünlerin gideceğini yazar; ürün yetmiyorsa ölü düğme yerine kartın sağ üstünde kırmızı yazı
 			barterButton.Visible = barterPlan ~= nil
 			if barterPlan then
-				setPurchaseButton(barterButton, `Ürünle al · {FarmMath.formatGoodsCost(barterPlan)}`, "primary")
+				setPurchaseButton(
+					barterButton,
+					if count > 1
+						then `Ürünle al x{count} · {FarmMath.formatGoodsCost(barterPlan)}`
+						else `Ürünle al · {FarmMath.formatGoodsCost(barterPlan)}`,
+					"primary"
+				)
 			end
 			if roomForBarter and barterWorth > 0 and not barterPlan then
 				card.status.Text = "Ürün yetmiyor"

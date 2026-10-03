@@ -14,6 +14,7 @@ local IslandContext = require(script.Parent.Parent.Parent:WaitForChild("Core"):W
 local UiKit = require(script.Parent.Parent:WaitForChild("UiKit"))
 local HudCommon = require(script.Parent:WaitForChild("HudCommon"))
 local Onboarding = require(script.Parent:WaitForChild("Onboarding"))
+local OnboardingBanner = require(script.Parent:WaitForChild("OnboardingBanner"))
 local OnboardingSteps = require(Shared:WaitForChild("Modules"):WaitForChild("OnboardingSteps"))
 
 type PlayerSave = GameTypes.PlayerSave
@@ -29,7 +30,7 @@ export type Hud = {
 	updateIsland: (state: PlayerSave, income: number) -> (),
 }
 
-function GoalCard.create(stats: Frame, onboarding: Onboarding.Hud): Hud
+function GoalCard.create(stats: Frame, onboarding: Onboarding.Hud, banner: OnboardingBanner.Banner): Hud
 	-- Sıradaki ada kartı: oyuncunun uzun vadeli amacı
 	local islandCard = Instance.new("Frame")
 	islandCard.BackgroundColor3 = Color.Surface
@@ -136,7 +137,7 @@ function GoalCard.create(stats: Frame, onboarding: Onboarding.Hud): Hud
 			-- Hayvansız başlanır: ilk hayvan başlangıç parasıyla alınır
 			local homeName = Config.ANIMALS[homeAnimal].displayName
 			goalLabel.Text = if #state.animals == 0
-				then `İlk hedef: ilk hayvanını satın al ({homeName})`
+				then `Pazar'ı aç ve ilk hayvanını satın al ({homeName})`
 				else `İlk hedef: yeni bir hayvan ({homeName})`
 			goalDetail.Text = purchaseHint(state, FarmMath.getAnimalPrice(state, homeAnimal), income)
 			return
@@ -314,6 +315,12 @@ function GoalCard.create(stats: Frame, onboarding: Onboarding.Hud): Hud
 
 	local function updateGoal(state: PlayerSave, income: number)
 		updateGoalMain(state, income)
+		-- Üst ortadaki görev şeridi ilk adımlarda aynı metni gösterir (metin kaynağı yukarıdaki kart)
+		if Onboarding.stepFor(state) ~= 0 then
+			banner.show(goalTitle.Text, goalLabel.Text)
+		else
+			banner.hide()
+		end
 		-- Yeni oyuncuda hedef kartı tek başına yönlendirir; bekleyen işler deneyimli oyuncuda eklenir
 		if Onboarding.stepFor(state) ~= 0 then
 			return

@@ -29,6 +29,12 @@ return function(OnboardingSteps: any, Config: any, FarmMath: any)
 	-- 1-3: temel adımlar sırayla ilerler
 	local save = newSave()
 	assert(OnboardingSteps.stepFor(save) == 1, "yeni oyuncu 1. adımda")
+	save.cash = 0
+	assert(
+		OnboardingSteps.stepFor(save) == 1,
+		"ilk hayvan adımı para şartı aramaz (Pazar parasız da işaretlenir)"
+	)
+	save.cash = Config.STARTING_CASH
 	table.insert(save.animals, { uid = "a1", animalId = "cow", zoneId = "starter", bornAt = 0, stage = "adult" })
 	assert(OnboardingSteps.stepFor(save) == 2, "hayvan alındı: parayı topla")
 	save.lifetimeEarned = 50

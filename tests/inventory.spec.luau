@@ -154,6 +154,14 @@ return function(Inventory: any, Config: any, FarmMath: any, SaveCodec: any, Sess
 	Inventory.grant(save, "weather_staff_inf")
 	Inventory.equip(save, "weather_staff_inf")
 	assert(Inventory.canUse(save, "weather_staff_inf", t0 + 300), "weather uses are separate from season uses")
+	assert(Config.ITEMS.weather_staff_inf.power.usesPerDay == 1, "the weather staff allows one change per day")
+	Inventory.recordUse(save, "weather_staff_inf", t0 + 300)
+	assert(
+		Inventory.usesLeft(save, "weather_staff_inf", t0 + 600) == 0
+			and not Inventory.canUse(save, "weather_staff_inf", t0 + 600 + Config.ITEM_USE_COOLDOWN_SECONDS),
+		"the weather staff is spent for the day"
+	)
+	assert(Inventory.canUse(save, "weather_staff_inf", t0 + 86400 + 300), "a new UTC day restores the weather use")
 	-- Sınırsız asa: günlük sınır yok, yalnızca bekleme
 	Inventory.equip(save, "season_staff_inf")
 	assert(Inventory.usesLeft(save, "season_staff_inf", t0 + 300) == math.huge, "unlimited staffs never run out")

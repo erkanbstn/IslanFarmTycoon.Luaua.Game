@@ -1,11 +1,12 @@
 --!strict
 -- İlk adımlar yönlendirmesi: adım durumdan türetilir (kayıt alanı yok; mantık Modules/OnboardingSteps).
---   1) İlk hayvanı al        Pazar düğmesi + dünyada pazar tezgâhı işareti
+--   1) İlk hayvanı al        Pazar düğmesi + dünyada pazar tezgâhı işareti (para şartı yok: oyuncu hayvanı kendi alır)
 --   2) Parayı topla          yeşil platforma ışın çizgisi (CollectorGuide)
 --   3) İlk yükseltmeyi al    Yükseltmeler düğmesi + dünyada ilgili yapım alanı işareti
 --   4) Yol Haritası'nı aç    Yol Haritası düğmesi
 --   5) İlk genişletmeyi al   Yükseltmeler düğmesi (Geliştirmeler sekmesi)
 --   6) Üretimde ilk parti    Üretim düğmesi
+-- Her vurgulu düğmede ayrıca zıplayan "Buraya dokun" oku vardır (UiKit.pointer); üst ortadaki görev şeridi OnboardingBanner.
 -- Dünya işareti `TutorialMarker` özniteliğiyle bildirilir ("market" ya da "pad:<yükseltme>"); çizimi Interaction/TutorialMarker.
 
 local Players = game:GetService("Players")
@@ -65,6 +66,11 @@ function Onboarding.create(buttons: Buttons): Hud
 	local pulseUpgrades = UiKit.pulse(buttons.upgrades)
 	local pulseRoadmap = UiKit.pulse(buttons.roadmap)
 	local pulseProduction = UiKit.pulse(buttons.production)
+	-- Parlayan düğmenin yanında "Buraya dokun" oku (yalnızca ilk adımlarda)
+	local pointShop = UiKit.pointer(buttons.shop, "Buraya dokun")
+	local pointUpgrades = UiKit.pointer(buttons.upgrades, "Buraya dokun")
+	local pointRoadmap = UiKit.pointer(buttons.roadmap, "Buraya dokun")
+	local pointProduction = UiKit.pointer(buttons.production, "Buraya dokun")
 	local function apply(state: PlayerSave, canAffordUpgrade: boolean, upgradeId: string?): number
 		local step = Onboarding.stepFor(state)
 		local expansionAffordable = false
@@ -73,15 +79,21 @@ function Onboarding.create(buttons: Buttons): Hud
 			expansionAffordable = targetId ~= nil and state.cash >= cost
 		end
 		local marker = ""
-		if step == 1 and state.cash >= 1 then
+		if step == 1 then
 			marker = "market"
 		elseif step == 3 and canAffordUpgrade and upgradeId then
 			marker = `pad:{upgradeId}`
 		end
-		pulseShop(step == 1 and state.cash >= 1)
-		pulseUpgrades((step == 3 and canAffordUpgrade) or (step == 5 and expansionAffordable))
+		-- İlk hayvan oyuncunun kendi seçimidir: Pazar, parası olsun olmasın (başlangıç parası hayvana yeter) işaretlenir
+		local upgradesTarget = (step == 3 and canAffordUpgrade) or (step == 5 and expansionAffordable)
+		pulseShop(step == 1)
+		pulseUpgrades(upgradesTarget)
 		pulseRoadmap(step == 4)
 		pulseProduction(step == 6)
+		pointShop(step == 1)
+		pointUpgrades(upgradesTarget)
+		pointRoadmap(step == 4)
+		pointProduction(step == 6)
 		setAttributeIfChanged("TutorialMarker", marker)
 		-- CollectorGuide: yeşil platforma giden ışın
 		setAttributeIfChanged("TutorialGuide", step == 2)

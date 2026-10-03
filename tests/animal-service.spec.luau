@@ -246,6 +246,45 @@ return function(
 		)
 	end
 
+	-- Toplu takas (x5): bedel 5 hayvanın toplam fiyatıdır, 5 hayvan gelir; geçersiz çarpan ve yetmeyen ürün reddedilir
+	do
+		local bulk = setup()
+		local kdata = bulk.data
+		local bulkPrice = farmMath.getBulkPrice(kdata, "cow", 5)
+		kdata.cash = 77
+		kdata.goods = {}
+		farmMath.addGoods(kdata, "milk", farmMath.getGoodsCap(kdata))
+		local plan = farmMath.planGoodsBarter(kdata, bulkPrice)
+		assert(plan, "the fixture barn holds enough goods for five cows")
+		local goodsBefore = farmMath.getGoodsAmount(kdata, "milk")
+		local invalid = bulk.fire("RequestBarterAnimal", "cow", bulk.nextId(), kdata.activeMainFarmId, 7)
+		assert(invalid and invalid.ok == false, "a multiplier outside BULK_MULTIPLIERS is refused")
+		assert(farmMath.getGoodsAmount(kdata, "milk") == goodsBefore, "a refused bulk barter changes nothing")
+		local animalsBeforeBulk = #kdata.animals
+		local bulkOk = bulk.fire("RequestBarterAnimal", "cow", bulk.nextId(), kdata.activeMainFarmId, 5)
+		assert(bulkOk and bulkOk.ok == true, "x5 barter succeeds with enough goods")
+		assert(#kdata.animals == animalsBeforeBulk + 5 and kdata.cash == 77, "five animals arrive and no cash is spent")
+		assert(
+			farmMath.getGoodsAmount(kdata, "milk") == goodsBefore - (plan.milk or 0),
+			"the goods for five animals leave the barn"
+		)
+		assert(bulk.metricCounts.AnimalsBartered == 5, "five barters are counted")
+		-- Ürün beş hayvanın bedelinin bir birim altında: hiçbir şey değişmez: hiçbir şey değişmez
+		local poorBulk = setup()
+		local pdata = poorBulk.data
+		pdata.goods = {}
+		local milkUnit = math.floor(config.GOODS.milk.value * config.GOODS_BARTER.rate)
+		local unitsForFive = math.ceil(farmMath.getBulkPrice(pdata, "cow", 5) / milkUnit)
+		assert(unitsForFive >= 2, "five cows need more than one unit of milk")
+		farmMath.addGoods(pdata, "milk", unitsForFive - 1)
+		local animalsPoor = #pdata.animals
+		local short = poorBulk.fire("RequestBarterAnimal", "cow", poorBulk.nextId(), pdata.activeMainFarmId, 5)
+		assert(
+			short and short.ok == false and #pdata.animals == animalsPoor,
+			"goods just short of the five-cow price cannot buy five"
+		)
+	end
+
 	-- Doğrulama: bilinmeyen tür, yanlış çiftlik, yabancı, tekrar, kilitli ve dolu bölge, hız sınırı
 	local guardBarter = setup()
 	local gdata = guardBarter.data
