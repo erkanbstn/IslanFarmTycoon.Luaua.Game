@@ -94,32 +94,29 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 	})
 	add({
 		id = "weather_staff_1",
-		displayName = "Çırak Hava Asası",
+		displayName = "Çırak Çoban Asası",
 		icon = "🪄",
 		slot = "staff",
 		price = 100000,
-		effects = { goodsYield = 0.02 },
-		power = { kind = "weather", usesPerDay = 1 },
+		effects = { facilitySpeed = 0.03, storageBonus = 0.05 },
 		look = { attach = "hand" },
 	})
 	add({
 		id = "weather_staff_3",
-		displayName = "Usta Hava Asası",
+		displayName = "Usta Çoban Asası",
 		icon = "🪄",
 		slot = "staff",
 		price = 400000,
-		effects = { goodsYield = 0.04 },
-		power = { kind = "weather", usesPerDay = 3 },
+		effects = { facilitySpeed = 0.05, offlineBonus = 0.08 },
 		look = { attach = "hand" },
 	})
 	add({
 		id = "weather_staff_5",
-		displayName = "Büyücü Hava Asası",
+		displayName = "Üstat Çoban Asası",
 		icon = "🪄",
 		slot = "staff",
 		price = 1000000,
-		effects = { goodsYield = 0.06 },
-		power = { kind = "weather", usesPerDay = 5 },
+		effects = { facilitySpeed = 0.07, offlineBonus = 0.1, expansionDiscount = 0.04 },
 		look = { attach = "hand" },
 	})
 	add({
@@ -240,8 +237,8 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		displayName = "Altın Taç",
 		icon = "🎩",
 		slot = "head",
-		price = 400000,
-		effects = { incomeBonus = 0.05, sellBonus = 0.04 },
+		price = 30000000,
+		effects = { incomeBonus = 1, sellBonus = 0.04 },
 		look = { attach = "head" },
 	})
 

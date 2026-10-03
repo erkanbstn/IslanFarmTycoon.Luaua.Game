@@ -24,6 +24,8 @@ local highlight: Highlight? = nil
 local billboard: BillboardGui? = nil
 local shownUid: string? = nil
 local shownModel: Model? = nil
+local countdown: TextLabel? = nil
+local shownEndsAt = 0
 
 local PROXIMITY_CHECK_SECONDS = 0.12
 local CLAIM_RETRY_SECONDS = 1.2
@@ -48,8 +50,17 @@ local function clear()
 		billboard:Destroy()
 		billboard = nil
 	end
+	countdown = nil
 	shownUid = nil
 	shownModel = nil
+end
+
+-- Pencere kapanınca fırsat kaybolur: kalan süre düğmenin altında geri sayar
+local function updateCountdown()
+	local label = countdown
+	if label then
+		label.Text = `{math.max(0, math.ceil(shownEndsAt - Workspace:GetServerTimeNow()))} sn`
+	end
 end
 
 local function show(event: Golden.Event, model: Model)
@@ -71,20 +82,32 @@ local function show(event: Golden.Event, model: Model)
 	local gui = Instance.new("BillboardGui")
 	gui.Name = "GoldenClaim"
 	gui.Adornee = anchor
-	gui.Size = UDim2.fromOffset(150, 40)
+	gui.Size = UDim2.fromOffset(150, 62)
 	gui.StudsOffsetWorldSpace = Vector3.new(0, boxSize.Y / 2 + 3.5, 0)
 	gui.AlwaysOnTop = true
 	gui.MaxDistance = 150
 	gui.ResetOnSpawn = false
 	gui.Parent = playerGui
 	local button = UiKit.button(gui, `Topla · {FarmMath.formatMoney(event.reward)}`, "primary")
-	button.Size = UDim2.fromScale(1, 1)
+	button.Size = UDim2.new(1, 0, 0, 40)
+	local timer = Instance.new("TextLabel")
+	timer.BackgroundTransparency = 1
+	timer.Position = UDim2.fromOffset(0, 42)
+	timer.Size = UDim2.new(1, 0, 0, 18)
+	timer.FontFace = UiKit.Font.Bold
+	timer.TextSize = 16
+	timer.TextColor3 = UiKit.Color.Gold
+	timer.TextStrokeTransparency = 0.4
+	timer.Parent = gui
+	countdown = timer
+	shownEndsAt = event.endsAt
 	button.Activated:Connect(function()
 		if button.Active then
 			PurchaseController.submit("RequestClaimGolden", "golden")
 		end
 	end)
 	billboard = gui
+	updateCountdown()
 	shownUid = event.uid
 	shownModel = model
 end
@@ -105,6 +128,7 @@ RunService.Heartbeat:Connect(function(dt: number)
 		return
 	end
 	if shownUid == event.uid and billboard and billboard.Parent then
+		updateCountdown()
 		return
 	end
 	local model = findModel(event.uid)

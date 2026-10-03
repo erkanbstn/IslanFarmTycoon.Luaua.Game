@@ -13,12 +13,12 @@ return function(Inventory: any, Config: any, FarmMath: any, SaveCodec: any, Sess
 		for _ in item.effects or {} do
 			effectCount += 1
 		end
-		if item.slot == "staff" then
-			assert(
-				item.power and (item.power.kind == "season" or item.power.kind == "weather"),
-				`staff {itemId} needs a power`
-			)
+		if item.slot == "staff" and item.power then
+			assert(item.power.kind == "season" or item.power.kind == "weather", `staff {itemId} has an unknown power`)
 			assert(effectCount >= 1, `staff {itemId} also needs a passive effect`)
+		elseif item.slot == "staff" then
+			-- Güçsüz asalar (Çoban Asaları): yalnızca pasif fayda; hava gücü sadece Ebedi Hava Asası'nda
+			assert(effectCount >= 2, `power-less staff {itemId} needs at least two different effects`)
 		elseif item.slot == "tool" or item.slot == "charm" then
 			-- Tek bir fayda yerine birkaç farklı fayda: eşyalar sadece "aynı şeyin artırılmışı" olmasın
 			assert(item.power == nil and effectCount >= 2, `{item.slot} {itemId} needs at least two different effects`)
@@ -44,7 +44,11 @@ return function(Inventory: any, Config: any, FarmMath: any, SaveCodec: any, Sess
 		local list = {}
 		for _, itemId in Config.ITEM_ORDER do
 			local item = Config.ITEMS[itemId]
-			local value = if item.slot == "head" or item.slot == "back" then nil else filter(item)
+			local value = if item.slot == "head"
+					or item.slot == "back"
+					or (item.slot == "staff" and not item.power)
+				then nil
+				else filter(item)
 			if value then
 				table.insert(list, { price = item.price, value = value })
 			end
@@ -69,9 +73,6 @@ return function(Inventory: any, Config: any, FarmMath: any, SaveCodec: any, Sess
 		end),
 		family(function(item)
 			return if item.power and item.power.kind == "season" then item.power.usesPerDay or 1000 else nil
-		end),
-		family(function(item)
-			return if item.power and item.power.kind == "weather" then item.power.usesPerDay or 1000 else nil
 		end),
 	}
 	for index, list in families do
@@ -150,9 +151,9 @@ return function(Inventory: any, Config: any, FarmMath: any, SaveCodec: any, Sess
 		"used uses carry over to a different staff of the same kind"
 	)
 	-- Hava hakkı mevsim hakkından ayrı
-	Inventory.grant(save, "weather_staff_1")
-	Inventory.equip(save, "weather_staff_1")
-	assert(Inventory.canUse(save, "weather_staff_1", t0 + 300), "weather uses are separate from season uses")
+	Inventory.grant(save, "weather_staff_inf")
+	Inventory.equip(save, "weather_staff_inf")
+	assert(Inventory.canUse(save, "weather_staff_inf", t0 + 300), "weather uses are separate from season uses")
 	-- Sınırsız asa: günlük sınır yok, yalnızca bekleme
 	Inventory.equip(save, "season_staff_inf")
 	assert(Inventory.usesLeft(save, "season_staff_inf", t0 + 300) == math.huge, "unlimited staffs never run out")
@@ -207,9 +208,9 @@ return function(Inventory: any, Config: any, FarmMath: any, SaveCodec: any, Sess
 	)
 	assert(
 		math.abs(
-			FarmMath.getAnimalMultiplier(crown, "cow", true) / FarmMath.getAnimalMultiplier(plain, "cow", true) - 1.05
+			FarmMath.getAnimalMultiplier(crown, "cow", true) / FarmMath.getAnimalMultiplier(plain, "cow", true) - 2
 		) < 1e-9,
-		"a crown adds to every animal's income"
+		"a crown doubles every animal's income"
 	)
 	-- Takılı şapka + sırt etkileri toplanır
 	local worn = newSave()
@@ -243,7 +244,7 @@ return function(Inventory: any, Config: any, FarmMath: any, SaveCodec: any, Sess
 			assert(Inventory.equip(maxed, best.id), `{best.id} can be equipped`)
 		end
 	end
-	assert(FarmMath.getEquippedBonus(maxed, "incomeBonus") <= 0.25, "all-equipped income bonus stays capped")
+	assert(FarmMath.getEquippedBonus(maxed, "incomeBonus") <= 1.2, "all-equipped income bonus stays capped")
 	assert(FarmMath.getEquippedBonus(maxed, "sellBonus") <= 0.35, "all-equipped sell bonus stays capped")
 	assert(FarmMath.getEquippedBonus(maxed, "upgradeDiscount") <= 0.2, "all-equipped upgrade discount stays capped")
 	assert(FarmMath.getBonus(maxed, "expansionDiscount") <= 0.12, "all-equipped expansion discount stays capped")
