@@ -1,6 +1,29 @@
 # Rebirth planı
 
-Durum: **plan** (kod yok). Kararlar kullanıcıyla netleşti (aşağıda "Kararlar"); sayılar taslaktır, `simulate-tiers.py`/`simulate-economy.py` rebirth desteğiyle ayarlanır.
+Durum: **çekirdek uygulandı**, 4 Ekim 2026. Güncel teslim ve doğrulama kaydı: [REBIRTH_GELISTIRME_RAPORU.md](REBIRTH_GELISTIRME_RAPORU.md).
+
+## Uygulanan sözleşme
+
+- Altı satın alınmış çiftliğin temaya uygun temel yükseltmeleri tamamlanınca rebirth açılır. Seviye/ırk zincirleri tamamlanma koşuluna dahil değildir. `Progression.isFarmComplete` ve `canRebirth` ortak doğrulama kaynağıdır.
+- Sekiz etkiden biri seçilir; her biri beş seviyelidir. Kırk seviye dolunca `prestige` sayacı artırır; yeni kozmetik veya yeni güç vermez. Etki değerleri yalnız `Config/Progression.luau` içindedir.
+- Hazır Başlangıç sırasıyla otomatik toplayıcı, yetişkin ana hayvan, ilk küçük adanın açılışı, ikinci ve üçüncü yetişkin ana hayvan verir. Açılış, adanın bütün yükseltmelerini ücretsiz tamamlamaz.
+- Nakit, çiftlikler, hayvanlar, yükseltmeler, stok, sipariş, tur ekipmanı ve başarımlar sıfırlanır. Altın, kalıcı sahiplik, makbuz/aktarım günlükleri, tercihler ve ömür boyu kazanç korunur. Günlük giriş serisi, bugünkü ödül ve asaların günlük kullanım sınırları korunur.
+- Geri Dönüş 24 saat gerçek zaman boyunca yalnız ilk çiftliğin ineğini etkiler. Herhangi başka bir çiftlik satın alınınca kesin biter; ilk çiftliğe dönmek süreyi yenilemez. Çevrimdışı gelir ve büyüme, bonusun başlangıç/bitiş sınırlarında ayrı hesaplanır.
+- `Modules/Rebirth` saf sıfırlama mantığıdır; `Services/ProgressionService` altın ve rebirth Remote'larını yönetir. `SaveCodec/Financial` hesap alanlarını doğrular. Uyumlu opsiyonel alanlar nedeniyle kayıt sürümü artırılmadı; eski kayıt silinmez.
+- `PlayerDataService.transactAccount` önce bekleyen kaydı doğrular, hesabı işlemlere kilitler ve tek kalıcı snapshot yazar. Başarısı belirsiz yazımda eski veriye dönülmez; tekrar kayıt yapılana kadar kilit korunur. Arayüz/dünya güncellemesi kayıt doğrulanınca yapılır.
+- HUD altın/R sayacı, koşullu Rebirth menüsü, etki seçimi ve ayrı sıfırlama onayı eklendi. Gelir etkisi önizlemesi takılı eşyanın tavanından sonra gerçek ek kazancı gösterir.
+- R3 altın kazanımı +%10, R5 hızlı bitirme maliyeti -%10, R10 altın kazanımı toplam +%20 uygulanır. R5 ek tılsım yuvası, R10 aura, R25 sipariş yuvası ve dünya üstü rozet ilk sürümde yoktur.
+
+## Süre kararı
+
+İlk hedef yüzde 75–85, otomatik garanti değildir. Yalnız +%8 gelir seçimi, simülasyonda turu yaklaşık yüzde 7–8 kısaltır. Önceki turdan saklanan 780 altınla Elmas Çekiç edinmek ve aynı gelir etkisi, günlük bir saat oynayan senaryoyu 19 günden 15 güne indirir. Böylece ücretsiz birikim sonraki turu da hızlandırır. Tam koşullar ve hızlandırılmış senaryolar geliştirme raporundadır; canlı oyuncu verisi henüz yoktur.
+
+`python scripts/simulate-rebirth.py` gerçek Config/FarmMath ile yeni tur başlangıçlarını karşılaştırır. Tarihsel `simulate-tiers.py` tüm yükseltme ölçüsü ayrı kalır; rebirth koşuluyla aynı sayılmaz.
+
+## Tarihsel taslak
+
+Aşağıdaki özgün taslak karar geçmişi için korunmuştur. **Yukarıdaki uygulama sözleşmesi geçerlidir**; aşağıdaki eski dosya adları, sürüm artırma, kozmetik ve süre önerileri uygulanmış özellik veya sonraki iş talimatı değildir.
+
 İlgili belgeler: `docs/ROBUX_VE_ALTIN_PLANI.md` (eşya etkileri, altın, Robux marketi; Robux ile alınanlar ve altın rebirth'te kalır), `docs/ZORLUK_VE_FIYAT.md` (çiftlik süreleri), `docs/DURUM_RAPORU.md` (K2 Robux), `.cursor/rules/economy-data.mdc` (kayıt şeması).
 
 ## 1. Amaç

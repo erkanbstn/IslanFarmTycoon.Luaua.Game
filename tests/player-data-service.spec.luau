@@ -687,7 +687,82 @@ return function(createService: any, Config: any, saveVersion: number)
 	idle()
 	assert(#push.sent == count, "no packet after the session is gone")
 
+	local transaction = loaded()
+	local root = assert(transaction.service.tryGet(transaction.player), "transaction profile exists")
+	root.gold = 500
+	local afterCount = 0
+	transaction.store.actions = { { delay = 1 } }
+	transaction.tasks.delay(0.1, function()
+		assert(transaction.service.tryGet(transaction.player) == nil, "financial checkpoint hides the mutable account")
+		assert(not transaction.service.trySpend(transaction.player, 1), "concurrent spending is blocked")
+		transaction.service.addCash(transaction.player, 500)
+	end)
+	assert(
+		transaction.call(function()
+			return transaction.service.transactAccount(
+				transaction.player,
+				function(financialData: any): (boolean, string?)
+					financialData.gold -= 100
+					financialData.owned.conveniences.auto_collect = true
+					return true, "granted"
+				end,
+				function()
+					afterCount += 1
+				end
+			)
+		end),
+		"financial transaction persists before success"
+	)
+	assert(
+		root.gold == 400 and root.cash == Config.STARTING_CASH,
+		"blocked mutations cannot change the transaction snapshot"
+	)
+	assert(
+		transaction.store.raw.gold == 400 and transaction.store.raw.owned.conveniences.auto_collect,
+		"wallet and entitlement commit together"
+	)
+	assert(
+		afterCount == 1 and transaction.service.tryGet(transaction.player) == root,
+		"successful commit unlocks the same root exactly once"
+	)
+	assert(not transaction.call(function()
+		return transaction.service.transactAccount(transaction.player, function(financialData: any): (boolean, string?)
+			financialData.gold = 0
+			financialData.owned.conveniences.auto_collect = nil
+			return false, "rejected"
+		end)
+	end), "a rejected mutator is rolled back before any write")
+	assert(
+		root.gold == 400 and root.owned.conveniences.auto_collect,
+		"rejection restores account contents without replacing its root"
+	)
+	transaction.store.actions = { { failBefore = true }, { failBefore = true }, { failBefore = true } }
+	assert(not transaction.call(function()
+		return transaction.service.transactAccount(transaction.player, function(financialData: any): (boolean, string?)
+			financialData.gold -= 100
+			financialData.owned.conveniences.pet_cash = true
+			return true, nil
+		end, function()
+			afterCount += 1
+		end)
+	end), "an uncertain transaction is not reported as committed")
+	assert(
+		transaction.service.tryGet(transaction.player) == nil and root.gold == 300,
+		"uncertain write retains tentative financialData behind the lock"
+	)
+	transaction.runUntil(function(): boolean
+		return transaction.player.attributes.AccountTransactionPending == false
+	end)
+	assert(
+		transaction.store.raw.gold == 300 and transaction.store.raw.owned.conveniences.pet_cash,
+		"maintenance retries the same financial intent"
+	)
+	assert(
+		afterCount == 2 and transaction.service.tryGet(transaction.player) == root,
+		"retry unlocks and presents exactly once"
+	)
+
 	print(
-		"PASS player-data service: retries, uncertain responses, save/release overlap, leave during load, retained final save, ownership/lease loss, future schema"
+		"PASS player-data service: retries, uncertain responses, save/release overlap, leave during load, retained final save, ownership/lease loss, future schema, financial mutex"
 	)
 end

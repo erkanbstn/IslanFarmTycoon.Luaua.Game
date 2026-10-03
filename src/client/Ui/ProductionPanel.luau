@@ -89,6 +89,7 @@ local function create(parent: Instance): UiKit.Window
 		"Caption"
 	).LayoutOrder =
 		0
+	UiKit.text(created.list, "Ürün partilerinde yüksek gelir farkı nakitle tamamlanır.", "Caption").LayoutOrder = 0
 	local selectedLabel = UiKit.text(created.list, "", "Heading")
 	selectedLabel.LayoutOrder = 1
 	local showAll = UiKit.button(created.list, "Adadaki tüm tesisleri göster", "secondary")

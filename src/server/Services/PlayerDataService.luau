@@ -17,9 +17,13 @@ local SaveBackup = require(script.Parent.Parent.Modules.SaveBackup)
 local SaveStore = require(script.Parent.SaveStore)
 local TelemetryService = require(script.Parent.TelemetryService)
 local Preferences = require(script.Parent.Parent.Modules.Preferences)
+local Progression = require(Shared:WaitForChild("Modules"):WaitForChild("Progression"))
 
 type PlayerSave = GameTypes.PlayerSave
 type Session = {
+	accountLocked: boolean?,
+	accountRetry: boolean?,
+	accountAfter: ((Player, PlayerSave) -> ())?,
 	owner: string,
 	data: PlayerSave?,
 	persistent: boolean,
@@ -190,7 +194,7 @@ end
 
 function PlayerDataService.tryGet(player: Player): PlayerSave?
 	local session = sessions[player]
-	if not session or session.status ~= "Active" then
+	if not session or session.status ~= "Active" or session.accountLocked then
 		return nil
 	end
 	if session.persistent and os.time() >= session.leaseExpires and not session.saveFailing then
@@ -410,7 +414,10 @@ end
 
 function PlayerDataService.save(player: Player): boolean
 	local session = sessions[player]
-	if not session or not PlayerDataService.tryGet(player) then
+	if not session or session.status ~= "Active" or not session.data then
+		return false
+	end
+	if not session.accountLocked and not PlayerDataService.tryGet(player) then
 		return false
 	end
 	if not session.persistent then
@@ -426,6 +433,83 @@ function PlayerDataService.save(player: Player): boolean
 		end
 	until session.savedPacketRevision >= checkpoint
 	return true
+end
+
+local function cloneAccount(value: any): any
+	if typeof(value) ~= "table" then
+		return value
+	end
+	local result = {}
+	for key, entry in value do
+		result[key] = cloneAccount(entry)
+	end
+	return result
+end
+
+local function unlockAccount(player: Player, session: Session)
+	session.accountLocked, session.accountRetry = nil, nil
+	player:SetAttribute("AccountTransactionPending", false)
+	local after = session.accountAfter
+	session.accountAfter = nil
+	if after and session.data and sessions[player] == session and session.status == "Active" then
+		if not pcall(after, player, session.data) then
+			warn("[Data] Hesap işlemi sunumu başarısız")
+		end
+	end
+	pcall(PlayerDataService.pushState, player)
+end
+
+-- Mutator yield etmez. Belirsiz yazımda geri alma güvenli değildir; aynı snapshot kesinleşene kadar hesap kilitli kalır.
+function PlayerDataService.transactAccount(
+	player: Player,
+	mutate: (PlayerSave) -> (boolean, string?),
+	after: ((Player, PlayerSave) -> ())?
+): (boolean, string?)
+	local data = PlayerDataService.tryGet(player)
+	local session = sessions[player]
+	if not data or not session then
+		return false, "Hesap işlemi sürüyor; biraz bekle."
+	end
+	session.accountLocked = true
+	player:SetAttribute("AccountTransactionPending", true)
+	local function saved(): boolean
+		local succeeded, result = pcall(PlayerDataService.save, player)
+		if not succeeded then
+			warn(`[Data] Hesap checkpoint'i yeniden denenecek: {result}`)
+		end
+		return succeeded and result == true
+	end
+	-- Önceden kuyruğa alınmış bir yazım yeni işlemin içine karışmaz.
+	if session.pending and not saved() then
+		unlockAccount(player, session)
+		return false, "Kayıt hizmeti hazır değil; yeniden dene."
+	end
+	if sessions[player] ~= session or session.status ~= "Active" then
+		unlockAccount(player, session)
+		return false, "Kayıt oturumu artık etkin değil"
+	end
+	local original = cloneAccount(data)
+	local ok, accepted, message = pcall(mutate, data)
+	if not ok or accepted ~= true then
+		table.clear(data)
+		for key, value in original do
+			(data :: any)[key] = value
+		end
+		unlockAccount(player, session)
+		if not ok then
+			warn(`[Data] Hesap işlemi uygulanamadı: {accepted}`)
+		end
+		return false, if ok then message else "Hesap işlemi uygulanamadı; ücret alınmadı."
+	end
+	PlayerDataService.markDirty(player)
+	session.accountAfter = after
+	if saved() then
+		unlockAccount(player, session)
+		return true, message
+	end
+	session.accountRetry = true
+	PlayerDataService.requestSave(player)
+	return false, "Hesap işlemi kaydediliyor; tamamlanana kadar bekle."
 end
 
 -- Kalıcı işlem işareti, ağ gönderimi hata verse bile kayıt checkpoint'ine girer.
@@ -449,7 +533,9 @@ function PlayerDataService.requestSave(player: Player)
 			return
 		end
 		session.saveScheduled = false
-		PlayerDataService.save(player)
+		if PlayerDataService.save(player) and session.accountRetry then
+			unlockAccount(player, session)
+		end
 	end)
 end
 
@@ -586,11 +672,10 @@ local function sendState(player: Player, session: Session)
 		return if farmPlotResolver then farmPlotResolver(player, id) else nil
 	end)
 	local offers = if mainFarmOffersResolver then mainFarmOffersResolver() else {}
-	Remotes.get("PlayerState"):FireClient(
-		player,
-		FarmProfiles.clientState(data, summaries, offers, FarmMath.getParkedIncomeBest(data, os.time())),
-		session.packetRevision
-	)
+	local payload = FarmProfiles.clientState(data, summaries, offers, FarmMath.getParkedIncomeBest(data, os.time()))
+	payload.progressionStatus = Progression.progress(data)
+	payload.permanentParkedIncomeBest = FarmMath.getPermanentParkedIncomeBest(data)
+	Remotes.get("PlayerState"):FireClient(player, payload, session.packetRevision)
 end
 
 -- Kayıt/kirli işareti hemen güncellenir; istemciye gönderim oyuncu başına birleştirilir:
@@ -644,7 +729,11 @@ function PlayerDataService.init()
 			task.wait(math.min(Config.AUTOSAVE_SECONDS, LEASE_SECONDS / 3))
 			for player, session in sessions do
 				if session.status == "Active" then
-					task.spawn(PlayerDataService.save, player)
+					task.spawn(function()
+						if PlayerDataService.save(player) and session.accountRetry then
+							unlockAccount(player, session)
+						end
+					end)
 				elseif session.status == "Closing" and not session.releasing and session.data then
 					if os.time() < session.leaseExpires + FINAL_SAVE_GRACE_SECONDS then
 						task.spawn(PlayerDataService.release, player)

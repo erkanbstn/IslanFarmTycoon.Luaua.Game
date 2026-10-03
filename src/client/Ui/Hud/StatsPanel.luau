@@ -26,6 +26,7 @@ export type Hud = {
 	update: (state: PlayerSave, income: number) -> (),
 	setCompact: (compact: boolean) -> (),
 	bounceCash: () -> (),
+	progressionButton: TextButton,
 }
 
 function StatsPanel.create(screenGui: Instance): Hud
@@ -81,6 +82,12 @@ function StatsPanel.create(screenGui: Instance): Hud
 	end
 	local incomeLabel = UiKit.text(cashTexts, "+$0/sn", "Caption")
 	incomeLabel.LayoutOrder = 2
+	local progressionButton = UiKit.button(cashTexts, "Altın: 0 · R0", "secondary")
+	progressionButton.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
+	progressionButton.LayoutOrder = 3
+	progressionButton.TextColor3 = Color.Green
+	local cashRow = cashTexts.Parent :: Frame
+	cashRow.Size = UDim2.new(1, 0, 0, 92)
 
 	local barnTexts = statRow(stats, 2, "🏚️", Color.Red)
 	local barnLabel = UiKit.text(barnTexts, "", "Heading")
@@ -157,6 +164,10 @@ function StatsPanel.create(screenGui: Instance): Hud
 		local cap = FarmMath.getStorageCap(state)
 		local barnConfig = FarmMath.getBarnConfig(state)
 		animateCash(state.cash)
+		UiKit.setText(
+			progressionButton,
+			`Altın: {state.gold or 0} · R{if state.progression then state.progression.count else 0}`
+		)
 		UiKit.setText(incomeLabel, `+${FarmMath.formatRate(income)}/sn gelir`)
 		UiKit.setText(barnLabel, barnConfig.displayName)
 		local ownedIslands, totalIslands = FarmMath.countIslands(state)
@@ -314,6 +325,7 @@ function StatsPanel.create(screenGui: Instance): Hud
 		update = update,
 		setCompact = setCompact,
 		bounceCash = bounceCash,
+		progressionButton = progressionButton,
 	}
 end
 

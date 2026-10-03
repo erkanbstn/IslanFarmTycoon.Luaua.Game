@@ -62,6 +62,7 @@ function FarmProfiles.view(data: any, farmId: string): any
 		farm.farmId = farmId
 		farm.passes = data.passes -- Oyun geçitleri hesap düzeyindedir; etkin olmayan çiftliğe de uygulanır
 		farm.inventory = data.inventory -- Envanter de hesap düzeyindedir: takılı eşyalar her çiftliğin gelirini etkiler
+		farm.gold, farm.owned, farm.progression = data.gold, data.owned, data.progression
 		farm.envOverride = data.envOverride -- Asa ile oyuncuya özel mevsim/hava her çiftliğin gelirini etkiler
 	end
 	return farm

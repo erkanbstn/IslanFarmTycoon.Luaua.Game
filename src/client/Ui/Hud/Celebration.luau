@@ -21,6 +21,8 @@ local Celebration = {}
 -- Döndürdüğü fonksiyon her durum güncellemesinde çağrılır; yeni alınanları kutlar.
 function Celebration.create(screenGui: Instance): (PlayerSave) -> ()
 	local lastFarmId: string? = nil
+	local lastRun: number? = nil
+	local lastAnimalCount = 0
 	local lastPurchased: { [string]: boolean } = {}
 	local lastLevels: { [string]: number } = {}
 	local function celebrate(title: string, detail: string)
@@ -72,16 +74,25 @@ function Celebration.create(screenGui: Instance): (PlayerSave) -> ()
 
 	local function detectMilestone(state: PlayerSave)
 		local farmId = state.activeMainFarmId
-		local known = lastFarmId == farmId
+		local run = if state.progression then state.progression.run else 1
+		local known = lastFarmId == farmId and lastRun == run
 		lastFarmId = farmId
+		lastRun = run
+		if known and lastAnimalCount == 0 and #state.animals > 0 then
+			celebrate("İlk hayvanın geldi", "Çiftliğin artık gelir üretiyor.")
+		end
+		lastAnimalCount = #state.animals
 		local newPurchased: { [string]: boolean } = {}
 		local newLevels: { [string]: number } = {}
 		for id in state.purchased do
 			newPurchased[id] = true
 			if known and not lastPurchased[id] then
 				local upgrade = Config.getUpgrade(id)
-				if upgrade and upgrade.kind ~= "island" then
-					celebrate(upgrade.displayName, "Yeni yapı")
+				if upgrade then
+					celebrate(
+						upgrade.displayName,
+						if upgrade.kind == "island" then "Yeni ada açıldı" else "Yeni yapı"
+					)
 				end
 			end
 		end

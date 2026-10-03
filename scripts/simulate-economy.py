@@ -17,7 +17,7 @@ Her mekanik açılıp kapanabilir (bayraklar persona ön ayarını ezer):
   --days N (= --hours N*24), --json (makine okunur çıktı)
 
 Bilinen sınırlar (bilinçli sadeleştirme):
-  - Çevrimdışı kazanç yalnızca etkin çiftlik için modellenir; gerçek SaveCodec her çiftliği ayrı hesaplayıp toplar (gerçek oyun daha cömert).
+  - Çevrimdışı kazanç tüm sahip olunan çiftliklerde ayrı hesaplanır; yürüyüş ve menüde karar verme modellenmez.
   - Persona oturum düzeni --hours 6'da tek oturum üretir (casual: 20 dk çevrimiçi); persona karşılaştırması için --days kullan.
   - "Depo dolu" yalnızca toplama aralığına göre ölçülür, oturum içi AFK modellenmez.
   - Üretim ve eklenti yalnızca etkin çiftlikte elle yapılır; park edilmişlerde yalnızca yardımcılar (pet) çalışır.
@@ -128,6 +128,34 @@ for index = 1, Config.STARTING_COW_COUNT do
 end
 FarmMath.applyDerived(save)
 save.mainFarms = { [FARM] = FarmProfiles.extract(save) }
+save.gold = S.startingGold
+save.owned = { items = {}, conveniences = {} }
+save.inventory = { items = {}, equipped = {}, uses = {} }
+save.progression = Progression.defaults(START, 0)
+save.progression.count = S.rebirth
+save.progression.run = S.rebirth + 1
+save.progression.perks = S.perks
+save.progression.runDouble = S.runDouble
+if S.rebirth > 0 then
+	save.progression.returnEndsAt = START + Config.PROGRESSION.returnSeconds
+end
+for _, itemId in S.equipment do
+	local item = assert(Config.ITEMS[itemId], `Unknown equipment: {itemId}`)
+	save.owned.items[itemId] = true
+	save.inventory.items[itemId] = true
+	save.inventory.equipped[item.slot] = itemId
+end
+for _, key in S.conveniences do
+	save.owned.conveniences[key] = true
+end
+save.cash = Progression.getStartingCash(save, FARM) * Config.DIFFICULTY.tiers[tonumber(FARM) or 1].costMultiplier
+local readyUid = 0
+if FARM == "1" then
+	Progression.applyReadyStart(save, START, function(): string
+		readyUid += 1
+		return `ready-{readyUid}`
+	end)
+end
 
 local themeIslands = FarmMath.themeIslands(save)
 local function inTheme(upgrade: any): boolean
@@ -135,6 +163,7 @@ local function inTheme(upgrade: any): boolean
 end
 
 local now = START
+local goldEarned, goldSpent, goldCash = 0, 0, 0
 local milestones: { [string]: number } = {}
 local order: { string } = {}
 -- Başka çiftliğe geçilince kilometre taşı adlarına "Ç<no> " öneki eklenir (ilk çiftlik eski adlarla kalır)
@@ -214,7 +243,7 @@ end
 
 local function refreshStages()
 	for _, animal in save.animals do
-		animal.stage = FarmMath.getStage(animal.bornAt, now, FarmMath.getGrowthSpeed(save, animal.animalId, animal.zoneId))
+		animal.stage = FarmMath.getStage(animal.bornAt, now, FarmMath.getGrowthSpeed(save, animal.animalId, animal.zoneId, now))
 		if animal.stage == "adult" and animal.bornAt ~= 0 then
 			mark("ilk büyüyen yetişkin")
 		end
@@ -264,7 +293,7 @@ local function recordFacilityPayback(farm: any, recipe: any, optionId: string?)
 		return
 	end
 	local duration = FarmMath.getFacilityDuration(farm, recipe, optionId)
-	local forgone = FarmMath.estimateForgoneIncome(farm, animals, duration)
+	local forgone = FarmMath.estimateForgoneIncome(farm, animals, duration, now)
 	local reward = FarmMath.getProductionReward(farm, recipe, now, { optionId = optionId, forgone = forgone })
 	local net = (reward - forgone - FarmMath.getFacilityCost(farm, recipe)) / math.max(duration, 1)
 	if net > 0 then
@@ -337,6 +366,11 @@ local farmBuys: { any } = {} -- çiftlik alımları: tema, dakika, fiyat, alım 
 local function buyFarm(farmId: string, price: number)
 	table.insert(farmBuys, { id = farmId, minutes = math.floor(now / 6) / 10, price = price, cash = save.cash })
 	save.cash -= price
+	if save.progression and not save.progression.returnEnded and farmId ~= "1" then
+		local speeds = FarmMath.snapshotGrowthSpeeds(save, now)
+		save.progression.returnEnded = true
+		FarmMath.preserveGrowthProgress(save, speeds, now)
+	end
 	local farm = SaveCodec.newFarm(Config, FarmMath, now, function(): string
 		uidCounter += 1
 		return `farm-{uidCounter}`
@@ -403,7 +437,7 @@ local function bestOption(farm: any, recipe: any): string?
 		local animals = FarmMath.pickProductionAnimals(farm, recipe, now, option.id)
 		if animals then
 			local duration = FarmMath.getFacilityDuration(farm, recipe, option.id)
-			local forgone = FarmMath.estimateForgoneIncome(farm, animals, duration)
+	local forgone = FarmMath.estimateForgoneIncome(farm, animals, duration, now)
 			local reward = FarmMath.getProductionReward(farm, recipe, now, { optionId = option.id, forgone = forgone })
 			local score = (reward - forgone - FarmMath.getFacilityCost(farm, recipe)) / math.max(duration, 1)
 			if score > bestScore then
@@ -636,6 +670,49 @@ end
 ---------------------------------------------------------------------------
 -- Yatırım: aç gözlü (hayvan > çiftlik > alan/yükseltme > ırk)
 ---------------------------------------------------------------------------
+local function progressionTick()
+	goldEarned += Progression.collectGold(save, now)
+	if S.goldPolicy == "convert" then
+		local state = save.progression
+		local today = math.floor(now / 86400)
+		local dayUsed = if state.convertedDay == today then state.convertedDayGold else 0
+		local amount = math.min(save.gold, Config.PROGRESSION.gold.dailyLimit - dayUsed, Config.PROGRESSION.gold.runLimit - state.convertedRunGold)
+		if amount > 0 then
+			local cash = Progression.goldCashQuote(save, amount, now)
+			if cash then
+				save.gold -= amount
+				state.convertedDay = today
+				state.convertedDayGold = dayUsed + amount
+				state.convertedRunGold += amount
+				goldSpent += amount
+				goldCash += cash
+				earn(cash, "altın çevirme", false)
+			end
+		end
+	elseif S.goldPolicy == "equipment" then
+		-- Önceden belirtilen yatırım sırası; elde olmayan altınla ekipman satın alınmaz.
+		for _, offerId in { "diamond_hammer", "auto_collect", "golden_crown", "income_charm_3", "golden_wings" } do
+			local offer = Config.PROGRESSION.permanentOffers[offerId]
+			local rights = if offer.kind == "item" then save.owned.items else save.owned.conveniences
+			if not rights[offerId] then
+				if save.gold < offer.goldCost then
+					break
+				end
+				local speeds = FarmMath.snapshotGrowthSpeeds(save)
+				save.gold -= offer.goldCost
+				goldSpent += offer.goldCost
+				rights[offerId] = true
+				if offer.kind == "item" then
+					local item = Config.ITEMS[offerId]
+					save.inventory.items[offerId] = true
+					save.inventory.equipped[item.slot] = offerId
+				end
+				FarmMath.preserveGrowthProgress(save, speeds, now)
+			end
+		end
+	end
+end
+
 local function invest()
 	local bought = true
 	while bought do
@@ -689,7 +766,7 @@ local function invest()
 		local farmId = nextFarmId()
 		local farmPrice = if farmId then FarmMath.getPrice(save, "farm", nil, tonumber(farmId)) else nil
 		-- finishFirst: bir sonraki çiftlik yalnızca etkin çiftliğin tüm yükseltmeleri bitince alınır (çiftlik tamamlama süresi ölçümü)
-		local farmDue = if S.finishFirst then milestones[farmPrefix() .. "TÜM YÜKSELTMELER"] ~= nil else farmPrice ~= nil and farmPrice <= nextCost
+		local farmDue = if S.finishFirst then (if S.completion == "basic" then Progression.isFarmComplete(save) else milestones[farmPrefix() .. "TÜM YÜKSELTMELER"] ~= nil) else farmPrice ~= nil and farmPrice <= nextCost
 		if S.farms > ownedFarmCount() and farmId and farmPrice and farmPrice <= save.cash and farmDue then
 			buyFarm(farmId, farmPrice)
 			bought = true
@@ -825,6 +902,7 @@ local function onlineStep()
 			ordersTick()
 		end
 		invest()
+		progressionTick()
 		if S.prodInterval <= 0 then
 			goodsTick()
 		end
@@ -855,6 +933,12 @@ local function onlineStep()
 		end
 	end
 	reportCheck()
+	if Progression.isFarmComplete(save) then
+		mark("TEMEL YÜKSELTMELER")
+	end
+	if Progression.canRebirth(save) then
+		mark("REBIRTH HAZIR", true)
+	end
 end
 
 -- Çevrimdışı dönem: SaveCodec.decode gibi her çiftlik (park edilmişler dahil) kendi görünümüyle
@@ -898,10 +982,16 @@ for _, window in sessions do
 		t += STEP
 		now = START + t
 		onlineStep()
+		if S.stopAtRebirth and milestones["REBIRTH HAZIR"] then
+			break
+		end
 	end
 	lastSeenAt = t
+	if S.stopAtRebirth and milestones["REBIRTH HAZIR"] then
+		break
+	end
 end
-if lastSeenAt and lastSeenAt < TOTAL then
+if lastSeenAt and lastSeenAt < TOTAL and not (S.stopAtRebirth and milestones["REBIRTH HAZIR"]) then
 	goOffline(lastSeenAt, TOTAL)
 end
 now = START + (lastSeenAt or 0)
@@ -1089,6 +1179,7 @@ else
 			persona = S.persona, hours = HOURS, farm = FARM, collect = COLLECT, react = S.react,
 			session = S.session / 60, period = S.period / 3600, prodInterval = S.prodInterval, extInterval = S.extInterval,
 			orders = S.orders, rewards = S.rewards, goldenChance = S.goldenChance, farms = S.farms, sellAbove = S.sellAbove,
+			completion = S.completion, rebirth = S.rebirth, goldPolicy = S.goldPolicy, runDouble = S.runDouble, equipment = S.equipment, perks = S.perks,
 		},
 		milestones = milestoneRows,
 		hourly = hourly,
@@ -1113,10 +1204,13 @@ else
 			farmsOwned = ownedFarmCount(),
 			lifetimeEarned = save.lifetimeEarned,
 			allUpgradesMinutes = milestones["TÜM YÜKSELTMELER"],
+			rebirthMinutes = milestones["REBIRTH HAZIR"],
+			gold = save.gold, goldEarned = goldEarned, goldSpent = goldSpent, goldCash = goldCash,
 		},
 		sources = sourceRows,
 		farms = farmRows,
 		farmBuys = farmBuys,
+		account = { gold = save.gold, owned = save.owned, inventory = save.inventory, progression = save.progression },
 	}))
 end
 """
@@ -1165,10 +1259,40 @@ def main() -> int:
     parser.add_argument("--golden-chance", type=float, default=None, help="Altın hayvanı yakalama olasılığı (0-1)")
     parser.add_argument("--sell-above", type=float, default=None, help="Bir ürün depo kapasitesinin bu oranına ulaşınca yarısını sat (Yarısını sat; 0 = hiç satma)")
     parser.add_argument("--finish-first", action="store_true", help="Sonraki çiftlik yalnızca etkin çiftliğin tüm yükseltmeleri bitince alınır (çiftlik tamamlama süresi)")
+    parser.add_argument("--completion", choices=["all", "basic"], default="all", help="Çiftlik bitiş filtresi: basic = rebirth koşulu, seviye zincirleri hariç")
+    parser.add_argument("--rebirth", type=int, default=0, help="Başlangıçtaki rebirth sayısı; geçmiş turların süresini simüle etmez")
+    parser.add_argument("--perks", default="", help="Başlangıç etki seviyeleri: income:1,growth:2; toplamı --rebirth ile aynı olmalı")
+    parser.add_argument("--equipment", default="", help="Başlangıç kalıcı ekipman kimlikleri; önceden edinilmiş sahiplik senaryosu")
+    parser.add_argument("--conveniences", default="", help="Başlangıç kalıcı kolaylıklar: auto_collect,pet_cash,pet_goods")
+    parser.add_argument("--run-double", action="store_true", help="Bu tur 2x ürününün teslim edildiği senaryo")
+    parser.add_argument("--starting-gold", type=int, default=0, help="Önceden birikmiş/satın alınmış altın")
+    parser.add_argument("--gold-policy", choices=["save", "convert", "equipment"], default="save")
+    parser.add_argument("--stop-at-rebirth", action="store_true", help="Rebirth hazır olunca koşuyu bitir")
     parser.add_argument("--farms", type=int, default=None, help="Sahip olunacak en çok ana çiftlik sayısı (1 = çoklu çiftlik yok)")
     parser.add_argument("--json", action="store_true", help="Makine okunur JSON çıktısı")
     parser.add_argument("--smoke", action="store_true", help="Duman testi: JSON'u kendisi ayrıştırır ve hayvan sayısını doğrular (PowerShell boru hattı BOM'u olmadan)")
     args = parser.parse_args()
+    if args.rebirth < 0 or args.rebirth > 1000000 or args.starting_gold < 0 or args.starting_gold > 1000000000:
+        parser.error("Rebirth ve altın sınırları geçersiz")
+    try:
+        perk_pairs = [part.split(":") for part in args.perks.split(",") if part.strip()]
+        perks = {key: int(level) for key, level in perk_pairs}
+        if len(perks) != len(perk_pairs) or any(level < 1 or level > 5 for level in perks.values()):
+            raise ValueError("invalid levels")
+    except (ValueError, TypeError):
+        parser.error("--perks kimlik:1..5 biçiminde olmalı; aynı kimlik iki kez kullanılamaz")
+    perk_order = ["income", "growth", "starting_cash", "upgrade_discount", "facility_speed", "offline", "contract", "ready_start"]
+    if any(key not in perk_order for key in perks):
+        parser.error("Bilinmeyen etki")
+    if not perks:
+        left = min(args.rebirth, 40)
+        for key in perk_order:
+            level = min(left, 5)
+            if level:
+                perks[key] = level
+            left -= level
+    if sum(perks.values()) != min(args.rebirth, 40):
+        parser.error("Etki seviyeleri toplamı rebirth sayısıyla uyuşmuyor")
     executable = args.luau or shutil.which("luau")
     if executable is None:
         bundled = ROOT / ".tools" / "luau" / ("luau.exe" if sys.platform == "win32" else "luau")
@@ -1205,6 +1329,15 @@ def main() -> int:
         "farms": int(pick("farms", args.farms, 1)),
         "order": [int(item) for item in args.order.split(",") if item.strip()],
         "finishFirst": args.finish_first,
+        "completion": args.completion,
+        "rebirth": args.rebirth,
+        "perks": perks,
+        "equipment": [item.strip() for item in args.equipment.split(",") if item.strip()],
+        "conveniences": [item.strip() for item in args.conveniences.split(",") if item.strip()],
+        "runDouble": args.run_double,
+        "startingGold": args.starting_gold,
+        "goldPolicy": args.gold_policy,
+        "stopAtRebirth": args.stop_at_rebirth,
         "mults": [float(item) for item in args.mults.split(",") if item.strip()],
         "premium": [[float(value) for value in part.split(":")] for part in args.premium.split(",") if part.strip()],
         "slotSpread": args.slot_spread if args.slot_spread is not None else False,
@@ -1222,9 +1355,12 @@ def main() -> int:
         module("GameTypes", "src/shared/GameTypes.luau"),
         "local Environment = { getIncomeMultiplier = function() return 1 end }\n",
         run_tests.farm_math_bundle(),
+        module("Progression", "src/shared/Modules/Progression.luau", {"Config", "FarmMath"}),
         module("SessionLock", "src/server/Modules/SessionLock.luau"),
         module("FarmProfiles", "src/server/Modules/FarmProfiles.luau"),
         module("Preferences", "src/server/Modules/Preferences.luau"),
+        module("TransferRules", "src/server/Modules/TransferRules.luau"),
+        module("TransferLedger", "src/server/Modules/TransferLedger.luau", {"TransferRules"}),
         run_tests.save_codec_bundle(),
         module("ProductionRules", "src/server/Modules/ProductionRules.luau"),
         module("ProductionLogic", "src/server/Modules/ProductionLogic.luau", {"ProductionRules"}),

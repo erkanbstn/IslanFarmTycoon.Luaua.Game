@@ -23,7 +23,23 @@ function PurchaseController.notify(success: boolean, message: string)
 	Sfx.play(if success then "success" else "error")
 end
 
-function PurchaseController.submit(remote: Remotes.EventName, value: string, extra: (number | string)?): boolean
+export type Detail = {
+	expectedRun: number?,
+	amount: number?,
+	expectedCash: number?,
+	offerId: string?,
+	targetKind: string?,
+	targetId: string?,
+	uid: string?,
+	expectedCost: number?,
+	expectedEndsAt: number?,
+}
+
+function PurchaseController.submit(
+	remote: Remotes.EventName,
+	value: string,
+	extra: (number | string | Detail)?
+): boolean
 	local state = ClientState.get()
 	if pending or not state then
 		return false
@@ -44,6 +60,17 @@ function PurchaseController.submit(remote: Remotes.EventName, value: string, ext
 		completed:Fire(false, "Yanıt gecikti; durum yenileniyor. Tekrar almadan önce kontrol et.")
 	end)
 	return true
+end
+
+-- Tur değişince eski pencereden gelen işlem sunucuda reddedilir; niyet gönderilirken tur kimliği eklenir.
+function PurchaseController.submitWithRun(remote: Remotes.EventName, value: string, detail: Detail?): boolean
+	local state = ClientState.get()
+	if not state or not state.progression then
+		return false
+	end
+	local payload: Detail = if detail then table.clone(detail) else {}
+	payload.expectedRun = state.progression.run
+	return PurchaseController.submit(remote, value, payload)
 end
 
 -- (hedef, tutar, requestId) biçimli istek (para gönderme): etkin çiftlik bağlamı yok, kimlik aynı sayaçtan gelir (sunucuda tekrar kimlik reddedilir).

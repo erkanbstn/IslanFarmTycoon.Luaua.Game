@@ -27,8 +27,11 @@ end
 
 -- Bir hayvan türünün büyüme hızı: genel güçlendirmeler (silo, Hızlı Büyüme) + o türe özel + bölge geliştirmesi + takılı muska.
 -- Artılar toplanır, toplam combineGrowthExcess ile azalan getiriye sokulur (çarpım birikmez).
-function Production.getGrowthSpeed(save: PlayerSave, animalId: string, zoneId: string?): number
-	local excess = Core.getEquippedExcess(save, "growthSpeed")
+function Production.getGrowthSpeed(save: PlayerSave, animalId: string, zoneId: string?, now: number?): number
+	local excess = Core.getEquippedExcess(save, "growthSpeed") + Core.getPerkBonus(save, "growthExcess")
+	if animalId == "cow" and Core.isReturnActive(save, now) then
+		excess += Config.PROGRESSION.returnGrowthExcess
+	end
 	if zoneId then
 		excess += Expansion.getBuildExcess(save, zoneId, "growthSpeed") -- bölge geliştirmesi (ör. yemlik, kuluçka)
 	end
@@ -48,9 +51,9 @@ function Production.getGrowthSpeed(save: PlayerSave, animalId: string, zoneId: s
 end
 
 -- Yavrunun yetişkin olması için gereken saniye (arayüz ve test bunu kullanır; elle çarpma yok)
-function Production.getGrowthSeconds(save: PlayerSave, animalId: string, zoneId: string?): number
+function Production.getGrowthSeconds(save: PlayerSave, animalId: string, zoneId: string?, now: number?): number
 	return (Config.GROWTH_SECONDS.calf + Config.GROWTH_SECONDS.young)
-		/ Production.getGrowthSpeed(save, animalId, zoneId)
+		/ Production.getGrowthSpeed(save, animalId, zoneId, now)
 end
 
 -- Yetişkin ve boşta hayvanlar (açık bölgede, tarifin türlerinden; eklentide duranlar ve başka bir tesise verilmiş
@@ -73,7 +76,7 @@ local function isAvailableAdult(
 	local cacheKey = `{animal.animalId}|{animal.zoneId}`
 	local speed = speeds[cacheKey]
 	if speed == nil then
-		speed = Production.getGrowthSpeed(save, animal.animalId, animal.zoneId)
+		speed = Production.getGrowthSpeed(save, animal.animalId, animal.zoneId, now)
 		speeds[cacheKey] = speed
 	end
 	return Core.getStage(animal.bornAt, now, speed :: number) == "adult"
@@ -153,7 +156,7 @@ function Production.getProductionReward(
 	local reward = math.floor(recipe.reward * (1 + bonus) * facilityYield)
 	if job and job.forgone then
 		local floorReward = math.ceil(
-			(job.forgone + Expansion.getFacilityCost(save, recipe))
+			(job.forgone + ((job :: any).startCost or Expansion.getFacilityCost(save, recipe)))
 				* math.min(recipe.returnMultiplier or Config.PRODUCTION_MIN_RETURN, Config.PRODUCTION_MAX_RETURN)
 		)
 		reward = math.max(reward, floorReward)
@@ -191,7 +194,9 @@ function Production.getGoodsYield(
 	local amount = math.floor(recipe.goodsAmount * multiplier)
 	if job and job.forgone then
 		local floorAmount = math.ceil(
-			(job.forgone + Expansion.getFacilityCost(save, recipe)) * Config.PRODUCTION_MIN_RETURN / good.value
+			(job.forgone + ((job :: any).startCost or Expansion.getFacilityCost(save, recipe)))
+				* Config.PRODUCTION_MIN_RETURN
+				/ good.value
 		)
 		amount = math.max(amount, floorAmount)
 	end
@@ -199,12 +204,12 @@ function Production.getGoodsYield(
 end
 
 -- Büyüme hızı değişmeden önce her hayvanın (tür|bölge) hızını kaydeder; preserveGrowthProgress ile birlikte kullanılır.
-function Production.snapshotGrowthSpeeds(save: PlayerSave): { [string]: number }
+function Production.snapshotGrowthSpeeds(save: PlayerSave, now: number?): { [string]: number }
 	local speeds: { [string]: number } = {}
 	for _, animal in save.animals do
 		local key = `{animal.animalId}|{animal.zoneId}`
 		if speeds[key] == nil then
-			speeds[key] = Production.getGrowthSpeed(save, animal.animalId, animal.zoneId)
+			speeds[key] = Production.getGrowthSpeed(save, animal.animalId, animal.zoneId, now)
 		end
 	end
 	return speeds
@@ -215,7 +220,7 @@ function Production.preserveGrowthProgress(save: PlayerSave, previousSpeeds: { [
 	for _, animal in save.animals do
 		local previous = previousSpeeds[`{animal.animalId}|{animal.zoneId}`]
 		if previous and animal.bornAt ~= 0 then
-			local speed = Production.getGrowthSpeed(save, animal.animalId, animal.zoneId)
+			local speed = Production.getGrowthSpeed(save, animal.animalId, animal.zoneId, now)
 			local growUp = Config.GROWTH_SECONDS.calf + Config.GROWTH_SECONDS.young
 			if Core.getStage(animal.bornAt, now, previous) == "adult" then
 				-- Zaten yetişkin: yetişkinliğin başladığı an değişmez (sipariş ve gelir geçmişi doğru kalır)
@@ -227,6 +232,26 @@ function Production.preserveGrowthProgress(save: PlayerSave, previousSpeeds: { [
 			animal.stage = Core.getStage(animal.bornAt, now, speed)
 		end
 	end
+end
+
+-- Miktar tavanı asgari getiriyi keserse yalnızca eksik değer nakit olarak tamamlanır.
+function Production.getGoodsCompensation(
+	save: PlayerSave,
+	recipe: Config.ProductionRecipeConfig,
+	job: GameTypes.ProductionJob,
+	_now: number,
+	units: number,
+	cashOverflow: number?
+): number
+	local good = if recipe.output == "goods" and recipe.goodsId then Config.GOODS[recipe.goodsId] else nil
+	if not good or not job.forgone then
+		return 0
+	end
+	local floorReward = math.ceil(
+		(job.forgone + ((job :: any).startCost or Expansion.getFacilityCost(save, recipe)))
+			* Config.PRODUCTION_MIN_RETURN
+	)
+	return math.max(0, floorReward - math.max(0, units) * good.value - math.max(0, cashOverflow or 0))
 end
 
 return Production

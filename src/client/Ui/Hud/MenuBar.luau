@@ -14,6 +14,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local GameTypes = require(Shared:WaitForChild("GameTypes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
+local Progression = require(Shared:WaitForChild("Modules"):WaitForChild("Progression"))
 local IslandContext = require(script.Parent.Parent.Parent:WaitForChild("Core"):WaitForChild("IslandContext"))
 local UiKit = require(script.Parent.Parent:WaitForChild("UiKit"))
 local SettingsMenu = require(script.Parent.Parent:WaitForChild("SettingsMenu"))
@@ -46,6 +47,8 @@ export type Hud = {
 	settingsButton: TextButton,
 	adminButton: TextButton,
 	storeButton: TextButton,
+	goldButton: TextButton,
+	rebirthButton: TextButton,
 	setRewardsBadge: (count: number) -> (),
 	updateBadges: (state: PlayerSave) -> (),
 	updateProductionBadge: (state: PlayerSave?) -> (),
@@ -109,21 +112,43 @@ function MenuBar.create(screenGui: Instance, onUnlocked: ((message: string) -> (
 	local settingsButton = UiKit.menuButton(sideBar, "⚙️", "Ayarlar", Color.TextMuted, nil)
 	local adminButton = UiKit.menuButton(sideBar, "🔑", "Yönetici", Color.Gold, nil)
 	-- Destek Dükkânı: yalnızca Config/Shop'ta satışa açık (kimliği 0 olmayan) ürün varsa görünür
-	local storeButton = UiKit.menuButton(sideBar, "💎", "Destek", Color.Blue, nil)
+	local storeButton = UiKit.menuButton(sideBar, "💎", "Robux", Color.Blue, nil)
 	storeButton.Visible = StoreSection.isForSale()
+	local goldButton = UiKit.menuButton(sideBar, "🪙", "Altın", Color.Gold, nil)
+	local rebirthButton = UiKit.menuButton(sideBar, "🔄", "Rebirth", Color.Gold, nil)
+	rebirthButton.Visible = false
 
 	-- Çubuk içi sıra
 	for index, button in { shopButton, upgradesButton, roadmapButton, productionButton, islandsButton } do
 		button.LayoutOrder = index
 	end
-	for index, button in { inventoryButton, rewardsButton, storeButton, homeButton, settingsButton, adminButton } do
+	for index, button in
+		{
+			inventoryButton,
+			rewardsButton,
+			goldButton,
+			storeButton,
+			rebirthButton,
+			homeButton,
+			settingsButton,
+			adminButton,
+		}
+	do
 		button.LayoutOrder = index
 	end
 	-- Gamepad: görünür karolar arasında NextSelection zinciri (gizli karo atlanır). Üst çubuk soldan sağa, son karodan sağ
 	-- sütuna geçer; sütunda yukarı/aşağı gezilir, sütundan sola basınca üst çubuğa dönülür.
 	local topOrder: { GuiObject } = { shopButton, upgradesButton, roadmapButton, productionButton, islandsButton }
-	local sideOrder: { GuiObject } =
-		{ inventoryButton, rewardsButton, storeButton, homeButton, settingsButton, adminButton }
+	local sideOrder: { GuiObject } = {
+		inventoryButton,
+		rewardsButton,
+		goldButton,
+		storeButton,
+		rebirthButton,
+		homeButton,
+		settingsButton,
+		adminButton,
+	}
 	local function visibleOnly(list: { GuiObject }): { GuiObject }
 		local result: { GuiObject } = {}
 		for _, button in list do
@@ -230,6 +255,8 @@ function MenuBar.create(screenGui: Instance, onUnlocked: ((message: string) -> (
 	local menuPulses: { [GuiObject]: (boolean) -> () } = {}
 	local menuWasVisible: { [GuiObject]: boolean } = {}
 	local announced: { [GuiObject]: boolean } = {}
+	local rebirthPulse = UiKit.pulse(rebirthButton)
+	local rebirthWasReady = false
 	local function setMenuTile(button: GuiObject, visible: boolean, notice: string?)
 		local was = menuWasVisible[button]
 		-- Bir kez açılan karo oturum boyunca kapanmaz: adım/koşullar kayıttan türetildiği için ilerlemeyle geri düşebilir
@@ -276,6 +303,14 @@ function MenuBar.create(screenGui: Instance, onUnlocked: ((message: string) -> (
 		setMenuTile(productionButton, ownsFactory, UNLOCK_NOTICES["Üretim"])
 		setMenuTile(homeButton, true) -- "Adama Dön" her zaman görünür: oyuncular adasını bulmakta zorlanıyor
 		setMenuTile(inventoryButton, ownsItems or step == 0, UNLOCK_NOTICES["Envanter"])
+		setMenuTile(goldButton, (state.gold or 0) > 0 or step == 0 or step >= 4)
+		-- Hazır olmayan turda bu karo gerçekten kaybolur; kalıcı menü açılma kuralına dahil değildir.
+		local ready = Progression.canRebirth(state)
+		rebirthButton.Visible = ready
+		if ready ~= rebirthWasReady then
+			rebirthPulse(ready)
+			rebirthWasReady = ready
+		end
 		linkSelection()
 	end
 
@@ -293,6 +328,8 @@ function MenuBar.create(screenGui: Instance, onUnlocked: ((message: string) -> (
 		settingsButton = settingsButton,
 		adminButton = adminButton,
 		storeButton = storeButton,
+		goldButton = goldButton,
+		rebirthButton = rebirthButton,
 		setRewardsBadge = setRewardsBadge,
 		updateBadges = updateBadges,
 		updateProductionBadge = updateProductionBadge,

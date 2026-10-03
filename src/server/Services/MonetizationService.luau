@@ -16,9 +16,12 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
+local Progression = require(Shared:WaitForChild("Modules"):WaitForChild("Progression"))
 
 local PlayerDataService = require(script.Parent:WaitForChild("PlayerDataService"))
 local TelemetryService = require(script.Parent:WaitForChild("TelemetryService"))
+local EconomyService = require(script.Parent:WaitForChild("EconomyService"))
+local PlotService = require(script.Parent:WaitForChild("PlotService"))
 local RateLimiter = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("RateLimiter"))
 local ReceiptLog = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("ReceiptLog"))
 local Metrics = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("Metrics"))
@@ -97,7 +100,7 @@ end
 
 -- Desteklenen ürün etkileri tek kaynaktır: processReceipt yalnızca burada olanları işler.
 local function incomePackAmount(data: any, product: Config.ProductConfig): number
-	local income = FarmMath.computeIncomePerSecond(data)
+	local income = FarmMath.getPermanentReferenceIncome(data)
 	return math.floor(math.max(income * 3600 * (product.incomeHours or 1), Config.PRODUCT_MIN_INCOME_PACK))
 end
 
@@ -115,6 +118,62 @@ local productEffects: { [string]: (data: any, product: Config.ProductConfig) -> 
 		end
 		for _, job in data.production do
 			job.readyAt = 0
+		end
+		for _, animal in data.animals do
+			if animal.task and animal.task.kind == "production" then
+				animal.task = nil
+			end
+		end
+		return true
+	end,
+	goldPack = function(data, product)
+		local amount = product.goldAmount
+		if
+			not amount
+			or amount <= 0
+			or amount % 1 ~= 0
+			or (data.gold or 0) + amount > Config.PROGRESSION.gold.maxBalance
+		then
+			return false
+		end
+		data.gold = (data.gold or 0) + amount
+		return true
+	end,
+	runDouble = function(data)
+		local state = data.progression
+		if not state then
+			return false
+		end
+		-- Geciken/ikinci ücretli hak kaybolmaz; aynı turda 4x yaratmadan sonraki tura taşınır.
+		if state.runDouble or (data.passes and data.passes.double_income) or Progression.canRebirth(data) then
+			if (state.doubleCredits or 0) >= 1000000 then
+				return false
+			end
+			state.doubleCredits = (state.doubleCredits or 0) + 1
+		else
+			state.runDouble = true
+		end
+		return true
+	end,
+	permanentOffer = function(data, product)
+		local offer = if product.offerId then Config.PROGRESSION.permanentOffers[product.offerId] else nil
+		if not offer then
+			return false
+		end
+		data.owned = data.owned or { items = {}, conveniences = {} }
+		local rights = if offer.kind == "item" then data.owned.items else data.owned.conveniences
+		if rights[offer.id] then
+			-- Mağaza tekrar almayı engeller; geç makbuzla çakışan satın alma bedelsiz silinmez.
+			if (data.gold or 0) + offer.goldCost > Config.PROGRESSION.gold.maxBalance then
+				return false
+			end
+			data.gold = (data.gold or 0) + offer.goldCost
+		else
+			rights[offer.id] = true
+			if offer.kind == "item" then
+				data.inventory = data.inventory or { items = {}, equipped = {}, uses = {} }
+				data.inventory.items[offer.id] = true
+			end
 		end
 		return true
 	end,
@@ -145,6 +204,7 @@ local function presentProduct(player: Player, data: any, product: Config.Product
 			TelemetryService.economy(player, "iap", incomePackAmount(data, product), data.cash)
 		end
 		PlayerDataService.pushState(player)
+		PlotService.refreshPlayerWorld(player)
 		Metrics.increment("ProductsGranted")
 		Remotes.get("Notify"):FireClient(player, `{product.displayName} etkinleştirildi!`, "success")
 	end)
@@ -181,10 +241,29 @@ function MonetizationService.processReceipt(receiptInfo: any): Enum.ProductPurch
 		return Enum.ProductPurchaseDecision.NotProcessedYet
 	end
 	local id = receiptInfo.PurchaseId
+	if ReceiptLog.has(data, id) then
+		return if PlayerDataService.save(player)
+			then Enum.ProductPurchaseDecision.PurchaseGranted
+			else Enum.ProductPurchaseDecision.NotProcessedYet
+	end
+	if ReceiptLog.isFull(data) then
+		Metrics.increment("ReceiptCapacityBlocked")
+		return Enum.ProductPurchaseDecision.NotProcessedYet
+	end
 	-- Makbuz ve etki bellekte yield etmeden birlikte uygulanır; save ikisini aynı görüntüyle yazar.
 	-- Ödül verilemezse makbuz günlükten çıkar; Roblox yeniden denediğinde ödül gerçekten verilir.
-	local outcome = ReceiptLog.grant(data, id, function(): boolean
-		return applyProduct(data, product)
+	EconomyService.settlePlayer(player)
+	local outcome = "failed"
+	local persisted = PlayerDataService.transactAccount(player, function(current: any): (boolean, string?)
+		if current.transfers and current.transfers.quarantined then
+			return false, nil
+		end
+		outcome = ReceiptLog.grant(current, id, function(): boolean
+			return applyProduct(current, product)
+		end)
+		return outcome == "granted" or outcome == "duplicate", nil
+	end, function()
+		EconomyService.startPlayer(player)
 	end)
 	if outcome == "full" then
 		Metrics.increment("ReceiptCapacityBlocked")
@@ -195,12 +274,13 @@ function MonetizationService.processReceipt(receiptInfo: any): Enum.ProductPurch
 	elseif outcome == "failed" then
 		return Enum.ProductPurchaseDecision.NotProcessedYet
 	elseif outcome == "granted" then
-		PlayerDataService.markDirty(player)
-		presentProduct(player, data, product)
+		if persisted then
+			presentProduct(player, data, product)
+		end
 	end
 	-- PurchaseGranted yalnızca kayıt diske yazıldıysa; yazılamazsa Roblox makbuzu yeniden gönderir
 	-- ve yukarıdaki kontrol ödülü tekrar vermeden yeniden kaydetmeyi dener.
-	if PlayerDataService.save(player) then
+	if persisted then
 		return Enum.ProductPurchaseDecision.PurchaseGranted
 	end
 	return Enum.ProductPurchaseDecision.NotProcessedYet
@@ -253,9 +333,30 @@ function MonetizationService.init()
 			return
 		end
 		local data = PlayerDataService.tryGet(player)
+		if not data or (data.transfers and data.transfers.quarantined) then
+			return
+		end
 		if kind == "pass" and data and data.passes and data.passes[key :: string] then
 			Remotes.get("Notify"):FireClient(player, "Bu ürüne zaten sahipsin", "info")
 			return
+		end
+		if kind == "product" and product.effect == "permanentOffer" and product.offerId then
+			local offer = Config.PROGRESSION.permanentOffers[product.offerId]
+			local rights = data.owned
+				and (if offer and offer.kind == "item" then data.owned.items else data.owned.conveniences)
+			if not offer or (rights and rights[product.offerId]) then
+				Remotes.get("Notify"):FireClient(player, "Bu ürüne zaten sahipsin", "info")
+				return
+			end
+		elseif kind == "product" and product.effect == "runDouble" then
+			if
+				(data.progression and data.progression.runDouble)
+				or (data.passes and data.passes.double_income)
+				or Progression.canRebirth(data)
+			then
+				Remotes.get("Notify"):FireClient(player, "Bu tur için ek gelir ürünü alınamaz", "info")
+				return
+			end
 		end
 		if kind == "pass" then
 			MarketplaceService:PromptGamePassPurchase(player, product.id)

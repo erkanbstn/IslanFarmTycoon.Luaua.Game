@@ -269,6 +269,9 @@ export type ProductConfig = {
 	autoCollect: boolean?, -- Geçit: baştan otomatik toplayıcı
 	effect: string?, -- Ürün: "instantProduction" | "incomePack"
 	incomeHours: number?, -- Ürün: "incomePack" kaç saatlik gelir verir
+	goldAmount: number?, -- Ürün: kalıcı altın paketi
+	offerId: string?, -- Ürün: kalıcı ekipman/kolaylık teklifi
+	lifetime: string?, -- Kalıcı veya bu tur; ödeme türü kalıcılığı belirlemez.
 }
 
 export type SoundConfig = { id: string, volume: number, pitch: number? }

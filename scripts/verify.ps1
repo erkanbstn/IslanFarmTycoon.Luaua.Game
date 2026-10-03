@@ -68,6 +68,9 @@ try {
 	Invoke-Check "Economy simulation smoke (--smoke parses the JSON itself)" {
 		& $Python scripts/simulate-economy.py --luau $interpreter --persona casual --hours 2 --smoke
 	}
+	Invoke-Check "Rebirth economy simulation smoke" {
+		& $Python scripts/simulate-economy.py --luau $interpreter --persona casual --hours 2 --completion basic --rebirth 1 --perks income:1 --starting-gold 780 --gold-policy equipment --smoke
+	}
 	# Uçuk değer denetimi: parti miktarı, ürün değeri/taban, sipariş ödülü/değer ve gelir dakikası, kademe fiyat tavanı (ECONOMY_LIMITS)
 	Invoke-Check "Economy audit (absurd values)" { & $Python scripts/audit-economy.py --luau $interpreter --check }
 	# Çiftlik tamamlama süresi tema 1 -> 6 her oyuncu tipinde (ideal/casual/idle) KESİN artar; deadlock yok (~2,5 dk)

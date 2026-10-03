@@ -8,6 +8,7 @@ local Config = require(Shared:WaitForChild("Config"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local GameTypes = require(Shared:WaitForChild("GameTypes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
+local Progression = require(Shared:WaitForChild("Modules"):WaitForChild("Progression"))
 local UiKit = require(script.Parent.Parent:WaitForChild("UiKit"))
 local PurchaseController = require(script.Parent.Parent.Parent:WaitForChild("Core"):WaitForChild("PurchaseController"))
 local IslandContext = require(script.Parent.Parent.Parent:WaitForChild("Core"):WaitForChild("IslandContext"))
@@ -39,6 +40,8 @@ function RoadmapWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Road
 	local roadmapInfo =
 		UiKit.text(roadmapWindow.list, "Tüm aşamalar ve ilerlemen. Alışveriş için Yükseltmeler (U)", "Caption")
 	roadmapInfo.LayoutOrder = 0
+	local rebirthGoal = UiKit.text(roadmapWindow.list, "", "Caption", Color.Gold)
+	rebirthGoal.LayoutOrder = 1
 
 	IslandTabs.add(roadmapWindow)
 
@@ -125,6 +128,11 @@ function RoadmapWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Road
 	end
 
 	local function updateRoadmap(state: PlayerSave, content: boolean)
+		local progress = Progression.progress(state)
+		UiKit.setText(
+			rebirthGoal,
+			`Uzun hedef: {progress.farmsComplete}/{progress.farmsTotal} çiftliği tamamla. Rebirth ile kalıcı etki kazanıp yeni tura başlarsın.`
+		)
 		local selectedIsland = IslandContext.get()
 		IslandTabs.update(state)
 		if content then

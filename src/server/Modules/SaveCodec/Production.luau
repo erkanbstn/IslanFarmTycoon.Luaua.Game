@@ -55,6 +55,12 @@ function Production.decodeJobs(source: any, save: any, config: any): (string?, n
 			return "Üretim kaydı geçersiz; orijinal kayıt korunuyor", 0
 		end
 		seenJobs[job.uid] = true
+		if
+			job.startCost ~= nil
+			and (not SessionLock.isFinite(job.startCost) or job.startCost < 0 or job.startCost > 1e15)
+		then
+			return "Üretim maliyeti geçersiz; orijinal kayıt korunuyor", 0
+		end
 		-- startedAt/forgone eski kayıtlarda yoktur (hayvan verilmemiş işler; ödül tabanı uygulanmaz)
 		local startedAt: number? = nil
 		if SessionLock.isFinite(job.startedAt) and job.startedAt >= 0 and job.startedAt <= job.readyAt then
@@ -74,6 +80,7 @@ function Production.decodeJobs(source: any, save: any, config: any): (string?, n
 			end
 		end
 		save.production[recipeId] = {
+			startCost = job.startCost,
 			uid = job.uid,
 			readyAt = job.readyAt,
 			startedAt = startedAt,
@@ -89,6 +96,7 @@ function Production.encodeJobs(production: any): { [string]: any }
 	local result = {}
 	for recipeId, job in production or {} do
 		result[recipeId] = {
+			startCost = job.startCost,
 			uid = job.uid,
 			readyAt = job.readyAt,
 			startedAt = job.startedAt,

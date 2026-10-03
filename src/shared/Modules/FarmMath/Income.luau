@@ -21,7 +21,9 @@ function Income.getAnimalMultiplier(
 	save: PlayerSave,
 	animalId: string,
 	neutralWeather: boolean?,
-	zoneId: string?
+	zoneId: string?,
+	now: number?,
+	permanentOnly: boolean?
 ): number
 	local bonus = 0
 	local affinity = 0
@@ -50,6 +52,17 @@ function Income.getAnimalMultiplier(
 			passFactor *= pass.incomeMultiplier
 		end
 	end
+	local progression = (save :: any).progression
+	if not permanentOnly and progression and progression.runDouble then
+		passFactor = math.max(passFactor, 2)
+	end
+	local itemFactor =
+		math.min(Config.PROGRESSION.permanentIncomeCap, (1 + itemBonus) * (1 + Core.getPerkBonus(save, "incomeBonus")))
+	local returnFactor = if not permanentOnly
+			and animalId == "cow"
+			and Core.isReturnActive(save, now)
+		then Config.PROGRESSION.returnIncomeMultiplier
+		else 1
 	-- Ahır seviyesi x güçlendirmeler x ırk x eşya x mevsim/hava x geçit
 	local environment = if neutralWeather
 		then 1
@@ -57,9 +70,10 @@ function Income.getAnimalMultiplier(
 	return Core.getBarnConfig(save).incomeMultiplier
 		* (1 + bonus)
 		* (1 + lineageBonus)
-		* (1 + itemBonus)
+		* itemFactor
 		* environment
 		* passFactor
+		* returnFactor
 end
 
 -- Bir hayvanın şu anki mevsim + hava etkisi (bölge mevsim uyumu dahil): yüzde (0.1 = +%10) ve işaret (-1/0/+1).
@@ -106,7 +120,7 @@ function Income.getAnimalIncome(
 		return 0
 	end
 	return animalConfig.baseIncomePerSecond
-		* Income.getAnimalMultiplier(save, animalId, nil, if animal then animal.zoneId else nil)
+		* Income.getAnimalMultiplier(save, animalId, nil, if animal then animal.zoneId else nil, now)
 		* currentTaskFactor(save, animal, now)
 end
 
@@ -123,7 +137,7 @@ function Income.computeIncomePerSecond(save: PlayerSave, now: number?): number
 		local rate = rates[cacheKey]
 		if rate == nil then
 			rate = animalConfig.baseIncomePerSecond
-				* Income.getAnimalMultiplier(save, animal.animalId, nil, animal.zoneId)
+				* Income.getAnimalMultiplier(save, animal.animalId, nil, animal.zoneId, now)
 			rates[cacheKey] = rate
 		end
 		local stageMul = Config.STAGE_INCOME_MULTIPLIER[animal.stage] or 1
@@ -158,6 +172,18 @@ function Income.computeIncomeOverInterval(
 	if not isFinite(startedAt) or not isFinite(endedAt) or endedAt <= startedAt then
 		return 0
 	end
+	local progression = (save :: any).progression
+	local returnStart = if progression then progression.startedAt else nil
+	if returnStart and startedAt < returnStart and returnStart < endedAt and Core.isReturnActive(save, returnStart) then
+		local view: any = table.clone(save :: any)
+		view.animals = {}
+		for _, animal in save.animals do
+			table.insert(view.animals, table.clone(animal))
+		end
+		Production.preserveGrowthProgress(view, Production.snapshotGrowthSpeeds(save, startedAt), returnStart)
+		return Income.computeIncomeOverInterval(save, startedAt, returnStart, neutralWeather)
+			+ Income.computeIncomeOverInterval(view, returnStart, endedAt, neutralWeather)
+	end
 	local total = 0
 	local rates: { [string]: number } = {}
 	local speeds: { [string]: number } = {}
@@ -167,24 +193,49 @@ function Income.computeIncomeOverInterval(
 			continue
 		end
 		local cacheKey = `{animal.animalId}|{animal.zoneId}`
+		local expiry = if animal.animalId == "cow" and Core.isReturnActive(save, startedAt)
+			then (save :: any).progression.returnEndsAt
+			else nil
 		local speed = speeds[cacheKey]
 		if speed == nil then
-			speed = Production.getGrowthSpeed(save, animal.animalId, animal.zoneId)
+			speed = Production.getGrowthSpeed(save, animal.animalId, animal.zoneId, startedAt)
 			speeds[cacheKey] = speed
 		end
 		local baseRate = rates[cacheKey]
 		if baseRate == nil then
 			baseRate = animalConfig.baseIncomePerSecond
-				* Income.getAnimalMultiplier(save, animal.animalId, neutralWeather, animal.zoneId)
+				* Income.getAnimalMultiplier(save, animal.animalId, neutralWeather, animal.zoneId, startedAt)
+			if expiry then
+				baseRate /= Config.PROGRESSION.returnIncomeMultiplier
+			end
 			rates[cacheKey] = baseRate
 		end
-		local weighted = stageSeconds(animal, speed :: number, startedAt, endedAt)
+		local function rangeSeconds(from: number, to: number): number
+			if not expiry then
+				return stageSeconds(animal, speed :: number, from, to)
+			end
+			local before = stageSeconds(animal, speed :: number, from, math.min(to, expiry))
+			local after = 0
+			if to > expiry then
+				local nextSpeed = Production.getGrowthSpeed(save, animal.animalId, animal.zoneId, expiry)
+				local adjusted = table.clone(animal)
+				if animal.bornAt ~= 0 then
+					local growUp = Config.GROWTH_SECONDS.calf + Config.GROWTH_SECONDS.young
+					adjusted.bornAt = if Core.getStage(animal.bornAt, expiry, speed :: number) == "adult"
+						then animal.bornAt + growUp / (speed :: number) - growUp / nextSpeed
+						else expiry - math.max(0, expiry - animal.bornAt) * (speed :: number) / nextSpeed
+				end
+				after = stageSeconds(adjusted, nextSpeed, math.max(from, expiry), to)
+			end
+			return before * Config.PROGRESSION.returnIncomeMultiplier + after
+		end
+		local weighted = rangeSeconds(startedAt, endedAt)
 		local task = animal.task
 		if task then
 			local from = math.max(startedAt, task.startedAt)
 			local to = math.min(endedAt, task.endsAt)
 			if to > from then
-				weighted += (taskMultiplier(save, task) - 1) * stageSeconds(animal, speed :: number, from, to)
+				weighted += (taskMultiplier(save, task) - 1) * rangeSeconds(from, to)
 			end
 		end
 		total += (baseRate :: number) * weighted
@@ -194,7 +245,22 @@ end
 
 -- Verilen hayvanların `duration` saniye boyunca yerinde (yetişkin olarak) kazanacağı gelir. Tesise verilen hayvanlar
 -- iş boyunca gelir getirmediği için üretim ödülünün tabanı bu değerden hesaplanır.
-function Income.estimateForgoneIncome(save: PlayerSave, animals: { GameTypes.AnimalRecord }, duration: number): number
+function Income.estimateForgoneIncome(
+	save: PlayerSave,
+	animals: { GameTypes.AnimalRecord },
+	duration: number,
+	now: number?
+): number
+	if now then
+		local view: any = table.clone(save :: any)
+		view.animals = {}
+		for _, animal in animals do
+			local available: any = table.clone(animal)
+			available.task = nil
+			table.insert(view.animals, available)
+		end
+		return Income.computeIncomeOverInterval(view, now, now + duration)
+	end
 	local total = 0
 	for _, animal in animals do
 		local animalConfig = Config.ANIMALS[animal.animalId]
@@ -215,7 +281,7 @@ end
 function Income.previewGoodsYield(save: PlayerSave, recipe: Config.ProductionRecipeConfig, now: number): number
 	local picked = Production.pickProductionAnimals(save, recipe, now, nil)
 	local forgone = if picked
-		then Income.estimateForgoneIncome(save, picked, Expansion.getFacilityDuration(save, recipe, nil))
+		then Income.estimateForgoneIncome(save, picked, Expansion.getFacilityDuration(save, recipe, nil), now)
 		else 0
 	local job: any = { uid = "preview", readyAt = now, startedAt = now, forgone = forgone }
 	local amount = Production.getGoodsYield(save, recipe, now, job)
@@ -235,6 +301,8 @@ function Income.getParkedFarmIncome(save: PlayerSave, farmId: string, farm: any,
 				return farmId
 			elseif key == "passes" then
 				return root.passes
+			elseif key == "progression" or key == "owned" then
+				return root[key]
 			elseif key == "inventory" then
 				return root.inventory
 			elseif key == "envOverride" then
@@ -277,12 +345,62 @@ function Income.getReferenceIncome(save: PlayerSave, now: number?): number
 	return math.max(Income.computeIncomePerSecond(save, now), parked)
 end
 
+-- Altın/paket ölçüsü: yetişkin potansiyeli, nötr hava, görevden ve tur bonusundan bağımsız.
+function Income.getPermanentIncomePerSecond(save: PlayerSave): number
+	local total = 0
+	local rates: { [string]: number } = {}
+	for _, animal in save.animals do
+		local definition = Config.ANIMALS[animal.animalId]
+		if not definition or not save.unlockedZones[animal.zoneId] then
+			continue
+		end
+		local key = `{animal.animalId}|{animal.zoneId}`
+		local rate = rates[key]
+		if rate == nil then
+			rate = definition.baseIncomePerSecond
+				* Income.getAnimalMultiplier(save, animal.animalId, true, animal.zoneId, nil, true)
+			rates[key] = rate
+		end
+		total += rate :: number
+	end
+	return total
+end
+
+function Income.getPermanentParkedIncomeBest(save: PlayerSave): number
+	local farms = (save :: any).mainFarms
+	local best = 0
+	if farms then
+		for id, farm in farms do
+			if id ~= (save.farmId or save.activeMainFarmId) and typeof(farm.animals) == "table" then
+				local view: any = table.clone(farm)
+				view.farmId, view.inventory, view.passes = id, save.inventory, save.passes
+				view.progression, view.owned = (save :: any).progression, (save :: any).owned
+				best = math.max(best, Income.getPermanentIncomePerSecond(view))
+			end
+		end
+	end
+	return best
+end
+
+function Income.getPermanentReferenceIncome(save: PlayerSave): number
+	local sent = (save :: any).permanentParkedIncomeBest
+	local parked = Income.getPermanentParkedIncomeBest(save)
+	if typeof(sent) == "number" and Core.isFinite(sent) then
+		parked = math.max(parked, sent)
+	end
+	return math.max(Income.getPermanentIncomePerSecond(save), parked)
+end
+
 -- Çevrimdışı kazanç oranı (eşya/ada bonusu dahil) ve en çok sayılan süre (saat). Pasif Gelir ikisini de artırır.
 function Income.getOfflineTerms(save: PlayerSave): (number, number)
 	local upgraded = Core.hasOfflineIncome(save)
 	local baseRate = if upgraded then Config.OFFLINE_UPGRADED_EARNING_RATE else Config.OFFLINE_EARNING_RATE
-	local hours = if upgraded then Config.OFFLINE_UPGRADED_MAX_HOURS else Config.OFFLINE_MAX_HOURS
-	return math.min(Config.OFFLINE_MAX_TOTAL_RATE, baseRate * (1 + Core.getBonus(save, "offlineBonus"))), hours
+	local hours = (if upgraded then Config.OFFLINE_UPGRADED_MAX_HOURS else Config.OFFLINE_MAX_HOURS)
+		+ Core.getPerkBonus(save, "offlineHours")
+	local rate = baseRate
+			* (1 + Core.getEquippedBonus(save, "offlineBonus") + Core.getUpgradeBonus(save, "offlineBonus"))
+		+ Core.getPerkBonus(save, "offlineBonus")
+	return math.min(Config.OFFLINE_MAX_TOTAL_RATE, rate), hours
 end
 
 -- Sınır depoya değil süreye bağlıdır: en çok `hours` saatlik gelirin `rate` oranı kasaya yatar.

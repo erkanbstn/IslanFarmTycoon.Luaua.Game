@@ -49,7 +49,7 @@ function InventoryWindow.create(screenGui: Instance): Panel
 	})
 	UiKit.text(
 		window.list,
-		"Ürünler ahır deposunda birikir (ahırdaki sandıktan da açılır). Her slota bir eşya takılır; eşyaları meydandaki Usta Ömer'den alırsın.",
+		"Ürünler ahır deposunda birikir. Nakit eşyalar bu tur içindir; kalıcı altın/Robux sahipliği rebirth'te kalır. Her slota bir eşya takılır.",
 		"Caption"
 	).LayoutOrder = GOODS_ORDER
 		- 1
@@ -290,7 +290,12 @@ function InventoryWindow.create(screenGui: Instance): Panel
 				card.icon.Text = item.icon
 				ItemPreview.mount(card.icon, itemId)
 				card.title.Text = item.displayName
-				card.detail.Text = ItemText.describe(item)
+				UiKit.setText(
+					card.detail,
+					`{if state.owned and state.owned.items[itemId :: string] then "Kalıcı" else "Bu tur"} · {ItemText.describe(
+						item
+					)}`
+				)
 				setPurchaseButton(card.action, "Çıkar", "secondary")
 			else
 				card.icon.Text = Config.ITEM_SLOTS[slotId].icon
@@ -304,6 +309,12 @@ function InventoryWindow.create(screenGui: Instance): Panel
 		for itemId, card in ownedCards do
 			local owned = Inventory.owns(state, itemId)
 			if owned then
+				UiKit.setText(
+					card.detail,
+					`{if state.owned and state.owned.items[itemId] then "Kalıcı" else "Bu tur"} · {ItemText.describe(
+						Config.ITEMS[itemId]
+					)}`
+				)
 				ItemPreview.mount(card.icon, itemId)
 				setPurchaseButton(
 					card.action,

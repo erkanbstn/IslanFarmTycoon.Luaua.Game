@@ -74,7 +74,10 @@ function Rewards.progress(save: any, achievement: Config.AchievementConfig): num
 		end
 		return count
 	elseif metric == "earned" then
-		return save.lifetimeEarned or 0
+		return math.max(
+			0,
+			(save.lifetimeEarned or 0) - (if save.progression then save.progression.runEarnedBase or 0 else 0)
+		)
 	elseif metric == "orders" then
 		return if save.contracts then save.contracts.completed else 0
 	elseif string.sub(metric, 1, 7) == "animal:" then

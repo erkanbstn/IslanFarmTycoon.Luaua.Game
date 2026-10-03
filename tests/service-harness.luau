@@ -226,10 +226,31 @@ return function(createLimiter: any, codec: any, config: any, farmMath: any, crea
 			end,
 		}
 		h.economyService = {
+			startPlayer = function() end,
 			settlePlayer = function()
 				h.counters.settles += 1
 			end,
 		}
+		h.dataService.transactAccount = function(target: any, mutate: any, after: any): (boolean, string?)
+			local current = h.dataService.tryGet(target)
+			if not current then
+				return false, "inactive"
+			end
+			local ok, message = mutate(current)
+			if not ok then
+				return false, message
+			end
+			if h.dataService.markDirty then
+				h.dataService.markDirty(target)
+			end
+			if not h.dataService.save(target) then
+				return false, "save_pending"
+			end
+			if after then
+				after()
+			end
+			return true, message
+		end
 
 		-- Gerçek RequestGuard, aynı sahte sınırlarla (Remotes, kayıt servisi, sınırlayıcı, sayaçlar)
 		h.guard = createGuard(h.game, h.remotes, h.dataService, h.limiter, h.metrics)

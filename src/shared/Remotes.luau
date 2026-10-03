@@ -10,6 +10,8 @@ local FOLDER_NAME = "Remotes"
 
 export type EventName =
 	"RequestMainFarmAction"
+	| "RequestGoldAction"
+	| "RequestRebirth"
 	| "MainFarmResult"
 	| "Notify"
 	| "PlayerState"
@@ -51,6 +53,8 @@ export type EventName =
 	| "RequestSetPreference"
 
 local EVENTS = {
+	"RequestGoldAction", -- action, requestId, expectedFarmId, detail (expectedRun zorunlu)
+	"RequestRebirth", -- perkId, requestId, expectedFarmId, detail (expectedRun zorunlu)
 	"RequestMainFarmAction", -- buy physicalPlotId / select logicalFarmId, requestId
 	"MainFarmResult", -- requestId, success, message
 	"RequestProductionAction", -- start/sell/keep, recipeId, jobUid?, requestId

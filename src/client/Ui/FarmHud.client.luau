@@ -34,6 +34,8 @@ local Onboarding = require(Hud:WaitForChild("Onboarding"))
 local OnboardingBanner = require(Hud:WaitForChild("OnboardingBanner"))
 local ItemShopWindow = require(Hud:WaitForChild("ItemShopWindow"))
 local InventoryWindow = require(Hud:WaitForChild("InventoryWindow"))
+local ProgressionWindow = require(Hud:WaitForChild("ProgressionWindow"))
+local RebirthWindow = require(Hud:WaitForChild("RebirthWindow"))
 local IslandTabs = require(Hud:WaitForChild("IslandTabs"))
 local ShopWindow = require(Hud:WaitForChild("ShopWindow"))
 local MerchantBadge = require(Hud:WaitForChild("MerchantBadge"))
@@ -94,7 +96,7 @@ local boardWindow = UiKit.window(hudRoot, {
 	position = UDim2.fromScale(0.5, 0.5),
 })
 local storeWindow = UiKit.window(hudRoot, {
-	title = "Destek Dükkânı",
+	title = "Robux Marketi",
 	icon = "🎒",
 	tint = Color.Blue,
 	width = 380,
@@ -103,8 +105,12 @@ local storeWindow = UiKit.window(hudRoot, {
 	position = UDim2.fromScale(0.5, 0.5),
 })
 -- Eşya Dükkânı (meydandaki satıcı) ve Envanter
-local itemShop = ItemShopWindow.create(hudRoot)
+local progressionPanel = ProgressionWindow.create(hudRoot)
+local itemShop = ItemShopWindow.create(hudRoot, function()
+	progressionPanel.open("permanent")
+end)
 local inventoryPanel = InventoryWindow.create(hudRoot)
+local rebirthPanel = RebirthWindow.create(hudRoot)
 
 ---------------------------------------------------------------------------
 -- Sol panel, menü ve hedef kartları (oluşturma sırası ekrandaki üst üste binmeyi belirler)
@@ -128,6 +134,15 @@ local onboarding = Onboarding.create({
 local onboardingBanner = OnboardingBanner.create(hudRoot)
 local goal = GoalCard.create(statsHud.frame, onboarding, onboardingBanner)
 local celebrate = Celebration.create(hudRoot)
+menu.goldButton.Activated:Connect(function()
+	toggleWindow(progressionPanel.window)
+end)
+statsHud.progressionButton.Activated:Connect(function()
+	progressionPanel.open()
+end)
+menu.rebirthButton.Activated:Connect(function()
+	toggleWindow(rebirthPanel.window)
+end)
 
 menu.rewardsButton.Activated:Connect(function()
 	toggleWindow(rewardsWindow)
@@ -333,6 +348,10 @@ task.spawn(function()
 		-- Geri sayımlar ve zamanla açılan ödüller için; kapalı pencerede yalnızca rozet
 		updateRewards(ClientState.get())
 		updateBoard(ClientState.get())
+		if current then
+			progressionPanel.update(current)
+			rebirthPanel.update(current)
+		end
 		task.wait(1)
 	end
 end)
@@ -362,6 +381,8 @@ local function onState(state: PlayerSave, structural: boolean)
 	goal.updateIsland(state, income)
 	goal.updateGoal(state, income)
 	menu.updateVisibility(state)
+	progressionPanel.update(state)
+	rebirthPanel.update(state)
 	celebrate(state)
 	updateRewards(state) -- pencere kapalıyken yalnızca rozet sayısı
 	updateBoard(state) -- yalnızca açıkken
@@ -402,7 +423,7 @@ local function redraw()
 		onState(state, true)
 	end
 end
-for _, window in { rewardsWindow, boardWindow, storeWindow } do
+for _, window in { rewardsWindow, boardWindow, storeWindow, progressionPanel.window, rebirthPanel.window } do
 	window.frame:GetPropertyChangedSignal("Visible"):Connect(function()
 		if window.isOpen() then
 			redraw()

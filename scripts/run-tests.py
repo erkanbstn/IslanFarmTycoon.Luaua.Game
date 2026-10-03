@@ -47,7 +47,7 @@ def module(name: str, path: str, dependencies: set[str] | None = None, factory_a
 
 CONFIG_PARTS = [
     "Types", "Species", "Core", "Weather", "Economy", "Difficulty", "Shop", "Achievements", "Audio", "Goods", "Islands", "Upgrades", "Production",
-    "Animals", "Items",
+    "Animals", "Items", "Progression",
 ]
 
 
@@ -90,7 +90,7 @@ def farm_math_bundle() -> str:
     return "".join(["local FarmMath = (function()\n", parts, init, "\nreturn FarmMathInit\nend)()\n"])
 
 
-SAVE_CODEC_PARTS = ["Common", "Goods", "Tasks", "Inventory", "Production", "Animals", "Account", "Farm"]
+SAVE_CODEC_PARTS = ["Common", "Goods", "Tasks", "Inventory", "Production", "Animals", "Account", "Financial", "Farm"]
 
 
 def save_codec_bundle() -> str:
@@ -131,6 +131,13 @@ def main() -> int:
         "-- Pure economy specs replace this multiplier to check weather independence.\n",
         "local Environment = { getIncomeMultiplier = function() return 1 end }\n",
         farm_math_bundle(),
+        module("Progression", "src/shared/Modules/Progression.luau", {"Config", "FarmMath"}),
+        module("progressionSpec", "tests/progression.spec.luau"),
+        module("PurchaseControllerFactory", "src/client/Core/PurchaseController.luau", {"Remotes", "ClientState", "Sfx"},
+               "game, Remotes, ClientState, Sfx, Instance, os, task"),
+        module("RebirthWindowFactory", "src/client/Ui/Hud/RebirthWindow.luau", {"Config", "GameTypes", "Progression", "FarmMath", "UiKit", "PurchaseController", "HudCommon"},
+               "game, Config, Progression, UiKit, PurchaseController, HudCommon, Instance, UDim2, Vector2, Enum, script, FarmMath"),
+        module("progressionUiSpec", "tests/progression-ui.spec.luau"),
         module("SessionLock", "src/server/Modules/SessionLock.luau"),
         module("SaveBackup", "src/server/Modules/SaveBackup.luau"),
         module("FarmProfiles", "src/server/Modules/FarmProfiles.luau"),
@@ -138,6 +145,8 @@ def main() -> int:
         module("TransferRules", "src/server/Modules/TransferRules.luau"),
         module("TransferLedger", "src/server/Modules/TransferLedger.luau", {"TransferRules"}),
         save_codec_bundle(),
+        module("Rebirth", "src/server/Modules/Rebirth.luau"),
+        module("financialRebirthSpec", "tests/financial-rebirth.spec.luau"),
         module("Rewards", "src/shared/Modules/Rewards.luau", {"Config", "FarmMath"}),
         module("Merchant", "src/shared/Modules/Merchant.luau", {"Config", "FarmMath"}),
         module("merchantSpec", "tests/merchant.spec.luau"),
@@ -164,7 +173,7 @@ def main() -> int:
                {"Config", "SessionLock", "Metrics", "SaveBackup", "TransferLedger"},
                "game, task, os, Metrics, warn"),
         module("PlayerDataFactoryBody", "src/server/Services/PlayerDataService.luau",
-               {"Config", "GameTypes", "Remotes", "FarmMath", "SessionLock", "SaveCodec", "FarmProfiles", "Metrics", "SaveBackup", "Preferences", "TelemetryService", "SaveStore"},
+               {"Config", "GameTypes", "Remotes", "FarmMath", "Progression", "SessionLock", "SaveCodec", "FarmProfiles", "Metrics", "SaveBackup", "Preferences", "TelemetryService", "SaveStore"},
                "game, task, Instance, os, Remotes, DateTime, Metrics, warn, SaveStore"),
         "local function PlayerDataFactory(game, task, Instance, os, Remotes, DateTime, Metrics, warn)\n"
         "\treturn PlayerDataFactoryBody(game, task, Instance, os, Remotes, DateTime, Metrics, warn,\n"
@@ -275,15 +284,23 @@ def main() -> int:
                "game, Remotes, PlayerDataService, EconomyService, PlotService, RateLimiter, Metrics, DateTime, task, warn, RequestGuard"),
         module("engagementServiceSpec", "tests/engagement-service.spec.luau"),
         module("MonetizationServiceFactory", "src/server/Services/MonetizationService.luau",
-               {"Config", "Remotes", "FarmMath", "PlayerDataService", "RateLimiter", "ReceiptLog", "Metrics", "TelemetryService"},
-               "game, Remotes, PlayerDataService, RateLimiter, Metrics, Enum, warn, task, TelemetryService"),
+               {"Config", "Remotes", "FarmMath", "Progression", "PlayerDataService", "RateLimiter", "ReceiptLog", "Metrics", "TelemetryService", "EconomyService", "PlotService"},
+               "game, Remotes, PlayerDataService, RateLimiter, Metrics, Enum, warn, task, TelemetryService, EconomyService, PlotService"),
         module("monetizationServiceSpec", "tests/monetization-service.spec.luau"),
+        module("ProgressionServiceFactory", "src/server/Services/ProgressionService.luau",
+               {"Config", "Remotes", "FarmMath", "Progression", "SaveCodec", "Rebirth", "PlayerDataService", "PlotService", "EconomyService", "RequestGuard", "RateLimiter"},
+               "game, Remotes, PlayerDataService, PlotService, EconomyService, RequestGuard, RateLimiter, DateTime, task, warn"),
+        module("progressionServiceSpec", "tests/progression-service.spec.luau"),
         module("BuyPadServiceFactory", "src/server/Services/BuyPadService.luau",
                {"Config", "Remotes", "FarmMath", "RateLimiter", "UiTheme", "WorldUi", "ModelAssets", "PlayerDataService", "PlotService", "UpgradeService", "UpgradeVisualService"},
                "game, Remotes, RateLimiter, UiTheme, WorldUi, PlayerDataService, PlotService, UpgradeService, UpgradeVisualService, task, warn, Vector2, ModelAssets"),
         module("buyPadServiceSpec", "tests/buypad-service.spec.luau"),
         module("requestGuardSpec", "tests/request-guard.spec.luau"),
         "dataSpec(SessionLock, SaveCodec, Config, FarmMath)\n",
+        "financialRebirthSpec(SaveCodec, Config, FarmMath, Progression, Rebirth)\n",
+        "progressionSpec(Progression, FarmMath, Config, SaveCodec)\n",
+        "progressionUiSpec(PurchaseControllerFactory, RebirthWindowFactory)\n",
+        "progressionServiceSpec(ProgressionServiceFactory, serviceHarness(RateLimiterFactory, SaveCodec, Config, FarmMath), SaveCodec, Config, FarmMath, Progression)\n",
         "transferLedgerSpec(TransferLedger, SaveCodec, Config, FarmMath, SessionLock)\n",
         "transferServiceSpec(TransferServiceFactory, TransferLedger, TransferRules)\n",
         "saveStoreTransferSpec(SaveStoreFactory)\n",

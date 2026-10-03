@@ -5,6 +5,8 @@ Gösterilen fiyat (arayüz, tabela, buton) ile sunucunun tahsil ettiği fiyat ay
 Kurallar ve rakamlar `src/shared/Config/Difficulty.luau` içindedir; bu belge gerekçeyi açıklar, rakamları tutmaz (sürüm kaymasın). Ölçülen değerler
 `docs/DURUM_RAPORU.md` §4 ve `scripts/simulate-tiers.py` çıktısındadır.
 
+Rebirth, seviye/ırk zincirleri hariç **temel** yükseltmeleri ister. `simulate-tiers.py` tarihsel tüm-yükseltme metriğini korur; yeni `scripts/simulate-rebirth.py` temel koşulu ve kalıcı altın/etki senaryolarını ölçer. Güncel koşullar, takvim/aktif süre ayrımı ve sonuçlar `docs/REBIRTH_GELISTIRME_RAPORU.md` içindedir. İki metriğin süreleri aynı ilerleme politikası varsayılmadan karşılaştırılmaz.
+
 ## Kademe = tema numarası
 
 Çiftliğin zorluk kademesi **temanın numarasıdır** (`Pricing.getTier`: etkin çiftlik numarası = `THEMES` sırası; tek yer). Alım sırası serbesttir: oyuncu istediği temayı

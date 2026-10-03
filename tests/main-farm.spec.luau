@@ -433,6 +433,22 @@ return function(
 	assert(player:GetAttribute("WorldReady") == true and guard == nil, "failed transition unwinds its scope")
 	selectHook = nil
 	assert(fire("select", "2").ok, "worker recovers after a failed visual transaction")
+	assert(fire("select", "1").ok, "Return regression begins on the first farm")
+	data.progression.count, data.progression.run = 1, 2
+	data.progression.perks.income = 1
+	data.progression.startedAt, data.progression.returnEndsAt = now - 100, now + 100
+	data.progression.returnEnded = false
+	data.animals = { { uid = "return-calf", animalId = "cow", zoneId = "starter", stage = "calf", bornAt = now - 10 } }
+	local returnBornAt = data.animals[1].bornAt
+	local returnSpeed = farmMath.getGrowthSpeed(data, "cow", "starter", now)
+	assert(fire("select", "2").ok and data.progression.returnEnded, "leaving farm one ends Return")
+	local firstFarm = profiles.view(data, "1")
+	local ordinarySpeed = farmMath.getGrowthSpeed(firstFarm, "cow", "starter", now)
+	local expectedBornAt = now - (now - returnBornAt) * returnSpeed / ordinarySpeed
+	assert(
+		math.abs(firstFarm.animals[1].bornAt - expectedBornAt) < 0.001,
+		"ending Return preserves already-earned growth"
+	)
 
 	-- Yield sınırında ayrılan sahibin kaydına/alana geri yazılmaz; yeni çiftlik kesinleşmemiştir.
 	selectHook = function(id: string)

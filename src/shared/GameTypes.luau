@@ -28,6 +28,7 @@ export type ContractsRecord = {
 }
 
 export type ProductionJob = {
+	startCost: number?,
 	uid: string,
 	readyAt: number,
 	startedAt: number?, -- eski kayıtlarda yok
@@ -59,7 +60,27 @@ export type WalletTransfers = {
 	quarantined: boolean?,
 }
 
+export type PermanentOwned = { items: { [string]: boolean }, conveniences: { [string]: boolean } }
+export type ProgressionData = {
+	run: number,
+	count: number,
+	perks: { [string]: number },
+	claims: { [string]: boolean },
+	startedAt: number,
+	returnEndsAt: number,
+	returnEnded: boolean,
+	runEarnedBase: number,
+	convertedDay: number,
+	convertedDayGold: number,
+	convertedRunGold: number,
+	runDouble: boolean,
+	doubleCredits: number?,
+}
+
 export type PlayerSave = {
+	gold: number?,
+	owned: PermanentOwned?,
+	progression: ProgressionData?,
 	activeMainFarmId: string,
 	farmId: string?, -- Yalnızca etkin olmayan çiftlik görünümlerinde: o çiftliğin numarası (tema için)
 	adminForce: { [string]: any }?, -- Yönetici olay test araçları (çalışma anı; kaydedilmez)

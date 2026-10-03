@@ -104,7 +104,8 @@ local function upgradePrice(save: PlayerSave?, id: string): number
 		scale *= Pricing.getIslandPremium(save, upgrade.islandId)
 	end
 	local base = math.floor(upgrade.cost * scale + 0.5)
-	local discount = math.clamp(Core.getEquippedBonus(save, "upgradeDiscount"), 0, 0.9)
+	local discount =
+		math.clamp(Core.getEquippedBonus(save, "upgradeDiscount") + Core.getPerkBonus(save, "upgradeDiscount"), 0, 0.9)
 	if discount <= 0 then
 		return base
 	end

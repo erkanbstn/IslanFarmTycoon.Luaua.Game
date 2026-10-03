@@ -14,6 +14,38 @@ local function isFinite(value: number): boolean
 	return value == value and value > -math.huge and value < math.huge
 end
 
+function Core.getPerkLevel(save: PlayerSave, id: string): number
+	local definition = Config.PROGRESSION.perks[id]
+	local progression = (save :: any).progression
+	local value = if progression and progression.perks then progression.perks[id] else nil
+	return if definition
+			and typeof(value) == "number"
+			and isFinite(value)
+		then math.clamp(math.floor(value), 0, definition.maxLevel)
+		else 0
+end
+
+function Core.getPerkBonus(save: PlayerSave, effect: string): number
+	local total = 0
+	for id, definition in Config.PROGRESSION.perks do
+		local value = (definition.effects :: any)[effect]
+		if typeof(value) == "number" then
+			total += value * Core.getPerkLevel(save, id)
+		end
+	end
+	return total
+end
+
+function Core.isReturnActive(save: PlayerSave, now: number?): boolean
+	local progression = (save :: any).progression
+	return progression ~= nil
+		and progression.count > 0
+		and progression.returnEnded ~= true
+		and (save.farmId or save.activeMainFarmId) == "1"
+		and (now or os.time()) >= progression.startedAt
+		and (now or os.time()) < progression.returnEndsAt
+end
+
 -- purchased'dan barnLevel, açık adaları ve açık bölgeleri yeniden hesaplar (tek doğruluk kaynağı: purchased).
 -- Bir bölge açıktır: adası açıksa VE (bölgeyi açan bir yol haritası öğesi yoksa ya da alınmışsa).
 function Core.applyDerived(save: PlayerSave)
@@ -54,7 +86,13 @@ local function forEachEquippedEffect(save: PlayerSave, key: string, apply: (valu
 	end
 	for _, itemId in inventory.equipped do
 		local item = Config.ITEMS[itemId]
-		local value = if item and item.effects and inventory.items[itemId] then (item.effects :: any)[key] else nil
+		local owned = (save :: any).owned
+		local permanent = owned and owned.items and owned.items[itemId] == true
+		local value = if item
+				and item.effects
+				and (inventory.items[itemId] or permanent)
+			then (item.effects :: any)[key]
+			else nil
 		if typeof(value) == "number" and isFinite(value) then
 			apply(value)
 		end
@@ -86,7 +124,7 @@ end
 
 -- Takılı eşya + yükseltme faydalarının toplamı (contractBonus, goodsYield, sellBonus, offlineBonus, facilitySpeed, expansionDiscount)
 function Core.getBonus(save: PlayerSave, key: string): number
-	return Core.getEquippedBonus(save, key) + Core.getUpgradeBonus(save, key)
+	return Core.getEquippedBonus(save, key) + Core.getUpgradeBonus(save, key) + Core.getPerkBonus(save, key)
 end
 
 -- Pasif Gelir: alınmışsa çevrimdışı kazanç doğrudan kasaya yatar; alınmamışsa yalnızca depo birikir (dolunca durur).
@@ -96,7 +134,9 @@ end
 
 -- Yardımcı (pet): "cash" = para fabrikaları, "goods" = ürün merkezleri; çiftlik başına satın alınır (save.purchased)
 function Core.hasPet(save: PlayerSave, kind: string): boolean
+	local owned = (save :: any).owned
 	return save.purchased[`pet_{kind}_lv1`] == true
+		or (owned ~= nil and owned.conveniences ~= nil and owned.conveniences[`pet_{kind}`] == true)
 end
 
 -- Çarpılan etki: growthSpeed
@@ -118,6 +158,13 @@ function Core.getEquippedExcess(save: PlayerSave, key: string): number
 end
 
 function Core.hasAutoCollect(save: PlayerSave): boolean
+	local owned = (save :: any).owned
+	if
+		(owned and owned.conveniences and owned.conveniences.auto_collect == true)
+		or ((save.farmId or save.activeMainFarmId) == "1" and Core.getPerkLevel(save, "ready_start") >= 1)
+	then
+		return true
+	end
 	for key, pass in Config.PRODUCTS.passes do
 		if pass.autoCollect and save.passes and save.passes[key] then
 			return true

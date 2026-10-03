@@ -30,6 +30,9 @@ FarmMath.formatMoney = Format.formatMoney
 FarmMath.formatRate = Format.formatRate
 -- Core
 FarmMath.applyDerived = Core.applyDerived
+FarmMath.getPerkLevel = Core.getPerkLevel
+FarmMath.getPerkBonus = Core.getPerkBonus
+FarmMath.isReturnActive = Core.isReturnActive
 FarmMath.getEquippedBonus = Core.getEquippedBonus
 FarmMath.getBonus = Core.getBonus
 FarmMath.hasPet = Core.hasPet
@@ -107,6 +110,7 @@ FarmMath.getGrowthSpeed = Production.getGrowthSpeed
 FarmMath.countProductionAdults = Production.countProductionAdults
 FarmMath.pickProductionAnimals = Production.pickProductionAnimals
 FarmMath.getGoodsYield = Production.getGoodsYield
+FarmMath.getGoodsCompensation = Production.getGoodsCompensation
 FarmMath.forEachFarm = Goods.forEachFarm
 FarmMath.resolveRecipe = Recipes.resolve
 -- Ahır siparişleri
@@ -137,6 +141,9 @@ FarmMath.computeIncomePerSecond = Income.computeIncomePerSecond
 FarmMath.computeIncomeOverInterval = Income.computeIncomeOverInterval
 FarmMath.getReferenceIncome = Income.getReferenceIncome
 FarmMath.getParkedIncomeBest = Income.getParkedIncomeBest
+FarmMath.getPermanentReferenceIncome = Income.getPermanentReferenceIncome
+FarmMath.getPermanentParkedIncomeBest = Income.getPermanentParkedIncomeBest
+FarmMath.getPermanentIncomePerSecond = Income.getPermanentIncomePerSecond
 FarmMath.computeOfflineEarnings = Income.computeOfflineEarnings
 FarmMath.getOfflineTerms = Income.getOfflineTerms
 -- Animals

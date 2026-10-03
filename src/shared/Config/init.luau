@@ -19,6 +19,7 @@ local Upgrades = require(script:WaitForChild("Upgrades"))
 local Production = require(script:WaitForChild("Production"))
 local Animals = require(script:WaitForChild("Animals"))
 local Items = require(script:WaitForChild("Items"))
+local Progression = require(script:WaitForChild("Progression"))
 
 export type ZoneConfig = Types.ZoneConfig
 export type BuildLevelEffects = Types.BuildLevelEffects
@@ -43,6 +44,7 @@ export type SoundConfig = Types.SoundConfig
 export type ExtensionConfig = Types.ExtensionConfig
 
 local Config = {
+	PROGRESSION = Progression,
 	-- Core
 	GAME_NAME = Core.GAME_NAME,
 	VERSION = Core.VERSION,
@@ -498,6 +500,21 @@ end
 
 -- Eşya tanımları (Config/Items.luau): fiyat ve dengeyi ordan düzenle.
 Items.install(Config.ITEMS, Config.ITEM_ORDER)
+
+local convenienceNames =
+	{ auto_collect = "Otomatik Toplayıcı", pet_cash = "Para Yardımcısı", pet_goods = "Ürün Yardımcısı" }
+for id, offer in Config.PROGRESSION.permanentOffers do
+	local item = if offer.kind == "item" then Config.ITEMS[(offer :: any).itemId] else nil
+	Config.PRODUCTS.products[`permanent_{id}`] = {
+		id = offer.robuxProductId or 0,
+		displayName = if item then item.displayName else convenienceNames[id],
+		description = "Kalıcı; altınla da alınabilir",
+		icon = if item then item.icon else "🎁",
+		effect = "permanentOffer",
+		offerId = id,
+		lifetime = "permanent",
+	}
+end
 
 function Config.getUpgrade(id: string): UpgradeConfig?
 	for _, upgrade in Config.UPGRADES do

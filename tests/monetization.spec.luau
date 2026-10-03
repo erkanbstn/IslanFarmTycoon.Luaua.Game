@@ -92,7 +92,11 @@ return function(ReceiptLog: any, FarmMath: any, Config: any, SaveCodec: any)
 	end
 	for key, product in Config.PRODUCTS.products do
 		assert(
-			product.effect == "instantProduction" or product.effect == "incomePack",
+			product.effect == "instantProduction"
+				or product.effect == "incomePack"
+				or product.effect == "goldPack"
+				or product.effect == "runDouble"
+				or product.effect == "permanentOffer",
 			`product {key} needs a known effect`
 		)
 	end

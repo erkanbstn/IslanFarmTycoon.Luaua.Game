@@ -52,7 +52,7 @@ function ProductionLogic.start(
 	local duration = farmMath.getFacilityDuration(farm, recipe, optionId)
 	local readyAt = now + duration
 	-- Tesise verilen hayvanlar iş boyunca gelir getirmez; ödül bu kaybın üzerinde bir tabanla garanti edilir.
-	local forgone = farmMath.estimateForgoneIncome(farm, animals, duration)
+	local forgone = farmMath.estimateForgoneIncome(farm, animals, duration, now)
 	for _, animal in animals do
 		animal.task = { kind = "production", id = recipe.id, startedAt = now, endsAt = readyAt }
 	end
@@ -61,6 +61,7 @@ function ProductionLogic.start(
 		readyAt = readyAt,
 		startedAt = now,
 		forgone = forgone,
+		startCost = startCost,
 		optionId = batch.optionId,
 	}
 	return true, nil
@@ -91,7 +92,7 @@ function ProductionLogic.canClaimAutomatically(
 end
 
 -- Hazır partiyi teslim alır (süresi dolmuş olmalı; çağıran kontrol eder). Döner: (nakit ödül, ürün bildirimi).
--- Ürün merkezinde para verilmez, ürün ORTAK depoya (root) eklenir; sığmayan kısım eklenmez.
+-- Ürün ortak depoya gider; yüksek gelir bonusunda miktar tavanının bozduğu asgari getiri nakitle tamamlanır.
 function ProductionLogic.claim(
 	root: any,
 	farm: any,
@@ -112,12 +113,15 @@ function ProductionLogic.claim(
 		local message = `Ahıra eklendi · {good.displayName} · +{added}`
 		-- Depoya sığmayan kısım "Hepsini sat" ile aynı oranla paraya çevrilir (boşa gitmez; satıştan kaçak olmasın)
 		local overflow = amount - added
-		if overflow > 0 then
-			local cash = farmMath.getGoodsSellValue(recipe.goodsId, overflow)
+		local cash = if overflow > 0 then farmMath.getGoodsSellValue(recipe.goodsId, overflow) else 0
+		-- Depo taşmasının indirimli satışı aynı kalır; telafi yalnız parti miktar tavanındaki farktır.
+		local compensation = farmMath.getGoodsCompensation(farm, recipe, job, now, amount)
+		cash += compensation
+		if cash > 0 then
 			hooks.addCash(cash)
-			return cash, `{message} · Fazlası paraya çevrildi · +{farmMath.formatMoney(cash)}`
+			message = `{message} · Nakit karşılık · +{farmMath.formatMoney(cash)}`
 		end
-		return 0, message
+		return cash, message
 	end
 	local reward = farmMath.getProductionReward(farm, recipe, now, job)
 	hooks.addCash(reward)

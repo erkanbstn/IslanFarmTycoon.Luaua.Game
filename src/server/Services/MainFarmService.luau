@@ -101,6 +101,14 @@ local function apply(player: Player, action: unknown, target: unknown): (boolean
 		if purchasedFarm then
 			data.mainFarms[farmId] = purchasedFarm
 		end
+		local returnSpeeds: { [string]: any } = {}
+		local progression = data.progression
+		local returnNow = DateTime.now().UnixTimestampMillis / 1000
+		if progression and not progression.returnEnded and farmId ~= "1" then
+			for _, id in FarmProfiles.ids(data) do
+				returnSpeeds[id] = FarmMath.snapshotGrowthSpeeds(FarmProfiles.view(data, id), returnNow)
+			end
+		end
 		if not PlayerDataService.setActiveMainFarm(player, farmId) then
 			if purchasedFarm then
 				data.mainFarms[farmId] = nil
@@ -108,6 +116,12 @@ local function apply(player: Player, action: unknown, target: unknown): (boolean
 			error("Profile selection failed")
 		end
 		data.cash -= charge
+		if progression and next(returnSpeeds) ~= nil then
+			progression.returnEnded = true
+			for id, speeds in returnSpeeds do
+				FarmMath.preserveGrowthProgress(FarmProfiles.view(data, id), speeds, returnNow)
+			end
+		end
 		committed = true
 		if charge > 0 then
 			TelemetryService.economy(player, "farm", charge, data.cash)

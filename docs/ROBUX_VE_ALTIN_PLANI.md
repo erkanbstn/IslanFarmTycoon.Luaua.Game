@@ -1,6 +1,27 @@
 # Altın, Robux marketi ve rebirth seviyeleri planı
 
-Durum: **plan** (kod yok). `docs/REBIRTH_PLANI.md` ile birlikte okunur. Sayılar taslaktır; `scripts/simulate-*.py` ile ayarlanır.
+Durum: **altın, kalıcı sahiplik ve ürün ödülleri uygulandı**; Creator Hub kimlikleri/fiyatları olmadığı için Robux satışları kapalıdır. Güncel teslim: [REBIRTH_GELISTIRME_RAPORU.md](REBIRTH_GELISTIRME_RAPORU.md), 4 Ekim 2026.
+
+## Güncel satış ve ekonomi sözleşmesi
+
+- Her turun ana ada dahil 24 adası ve altı çiftliği için başlangıç altını 780'dir. Tamamlanma ödülü bir kere verilir; son ödüller rebirth sıfırlamasından önce tahsil edilir. R3/R10 bonuslarıyla 858/936 olabilir.
+- Altın kalıcıdır. Nakit çevirme günlük UTC 200, tur başına 600 ile sınırlıdır; rebirth bugünkü kotayı yenilemez. Bir altın 30 saniyelik kalıcı referans gelir eder. Referans, sahip olunan çiftliklerin en yüksek nötr yetişkin potansiyelidir; geçici Return/tur 2x, görev kaybı ve hava dahil değildir. Önizleme değişirse işlem reddedilir.
+- Üretim, büyüme ve eklenti bekleme süreleri altınla bitirilebilir. Sunucu güncel kalan süreyi, hayvan/iş kimliğini ve önizleme bedelini doğrular; eski işe ait istek yeni işi bitiremez.
+- Mevcut son seviye eşyaların on tanesi ve üç kolaylık ürünü altınla kalıcı edinilebilir. Tek kaynak `Config/Progression.permanentOffers` tablosudur. Altın Taç ve diğer eşyaların mevcut nakit yolları korunmuştur: nakit edinim tur içidir, altın/Robux kalıcıdır. Ayrı yeni mesh veya kozmetik sistemi eklenmedi.
+- Yeni Robux ürünleri: 100/500/1500 altın, tur 2x gelir ve 13 kalıcı teklif. Mevcut gelir paketi kalıcı referans gelirle hesaplanır; mevcut üretimi bitir ürünü korunur. Tüm yeni kimlikler 0'dır; platform fiyatı uydurulmaz.
+- Mevcut 2x geçidi ile tur 2x üst üste 4x olmaz. Takılı eşya × rebirth gelirinin sert tavanı 3'tür; tur/geçit 2x bunun dışındadır. UI gelir etkisinin tavan sonrası ek kazancını gösterir.
+- Makbuz etkisi ve satın alma kimliği aynı kalıcı snapshot içindedir. Kayıt doğrulanmadan `PurchaseGranted` verilmez. Aynı makbuz tekrar ödül vermez. Ayrı ödeme nedeniyle ikinci kalıcı eşya teslimi gerekirse altın eşdeğeri verilir; cüzdan tavanında teslim ertelenir. Aktif 2x veya tamamlanmış turda gelen 2x makbuzu sonraki tur kredisine dönüşür.
+- Rebirth, kalıcı asanın bugünkü kullanımını ve finansal günlükleri korur. Geçmiş kayıtlar opsiyonel alanların güvenli varsayılanıyla yüklenir; sürüm artırıp kullanıcı verisi silme uygulanmadı.
+- R5 ek tılsım yuvası, R10 aura, R25 sipariş yuvası, görünüm sekmesi ve gezgin tüccara yeni ürün eklemek ayrı geliştirme kapsamıdır. Mevcut tüccar ve model sözleşmesi korunur. İlk sürüm mevcut ekipmana işlevsel kalıcı satın alma yolları verir.
+
+## Creator Hub açılış adımları
+
+Ürünleri oluştur, kimlikleri doğru teklif anahtarlarına bağla, Robux fiyatlarını platformda belirle; ardından özel test ortamında gerçek makbuz/reconnect ve aynı ürün tekrar teslimini doğrula. Kimlik 0 olan ürün satışa sunulmaz. Canlı yayın ve yönetici sıfırlaması bu geliştirme sırasında yapılmaz.
+
+## Tarihsel taslak
+
+Aşağıdaki özgün öneriler karar geçmişidir. **Yukarıdaki sözleşme günceldir**; aşağıdaki kaldırılacak nakit yolları, sürüm artırma, görünüm ve ek slot önerileri uygulanmış özellik sayılmaz.
+
 **Eşyaların güncel hali** (`feat/esya-etkileri` dalı, `Config/Items.luau`): artık etkisiz eşya yoktur; 8 şapka (ticari) ve 7 sırt (lojistik) mevcut etki anahtarlarıyla fayda verir, `weather_staff_1/3/5` güçsüz "Çoban Asası" olmuştur (hava gücü yalnızca `weather_staff_inf` Ebedi Hava Asası'ndadır; mevsim asaları 1/3/5/sınırsız kademeli kalmıştır), `golden_crown` (Altın Taç) en pahalı şapkadır ve `incomeBonus` ile geliri doğrudan çarpar. Bu belgedeki eşya satışı ve rebirth kuralları buna göre yazılmıştır; sayılar `Config/Items.luau`'dadır, burada kopyalanmaz.
 **Terim:** **altın** = yeni para birimi; **Altın Hayvan** = mevcut rastgele olay (`Config.GOLDEN`); birbirinden bağımsızdır (bölüm 2b).
 

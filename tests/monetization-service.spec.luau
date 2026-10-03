@@ -54,8 +54,19 @@ return function(createService: any, createHarness: any, createLimiter: any, code
 			h.dirtyCount += 1
 		end
 		h.telemetry = { economy = function() end }
-		h.service =
-			createService(h.game, h.remotes, h.dataService, h.limiter, h.metrics, fakeEnum, h.warn, h.task, h.telemetry)
+		h.service = createService(
+			h.game,
+			h.remotes,
+			h.dataService,
+			h.limiter,
+			h.metrics,
+			fakeEnum,
+			h.warn,
+			h.task,
+			h.telemetry,
+			h.economyService,
+			h.plotService
+		)
 		h.service.init()
 		h.receipt = function(purchaseId: any, productId: number, playerId: number?): any
 			return { PurchaseId = purchaseId, ProductId = productId, PlayerId = playerId or h.player.UserId }
@@ -113,7 +124,7 @@ return function(createService: any, createHarness: any, createLimiter: any, code
 	-- Başarılı makbuz: ödül bir kez verilir, makbuz yazılır, kayıt diske gider
 	local expected = math.floor(
 		math.max(
-			farmMath.computeIncomePerSecond(data) * 3600 * (products.income_pack.incomeHours or 1),
+			farmMath.getPermanentReferenceIncome(data) * 3600 * (products.income_pack.incomeHours or 1),
 			config.PRODUCT_MIN_INCOME_PACK
 		)
 	)
@@ -387,6 +398,95 @@ return function(createService: any, createHarness: any, createLimiter: any, code
 	replaced.service.refreshPasses(replaced.player)
 	assert(next(newProfile.passes) == nil, "an old ownership query cannot mutate a replacement profile")
 	assert(replaced.counters.pushes == 0, "a replaced profile is not pushed by the stale query")
+
+	-- Yeni para ve kalıcı haklar gerçek makbuz yolundan geçer; ikinci makbuz ücretli hakkı yok etmez.
+	local newProducts = {
+		gold_100 = 9101,
+		run_double_income = 9102,
+		permanent_golden_crown = 9103,
+	}
+	local previousIds: { [string]: number } = {}
+	for key, id in newProducts do
+		previousIds[key] = products[key].id
+		products[key].id = id
+	end
+	local gold = setup()
+	assert(
+		gold.service.processReceipt(gold.receipt("gold-first", 9101)) == decision.PurchaseGranted,
+		"first gold delivery is acknowledged after saving"
+	)
+	assert(gold.data.gold == 100, "gold package uses its configured amount")
+	assert(
+		gold.service.processReceipt(gold.receipt("gold-first", 9101)) == decision.PurchaseGranted,
+		"saved gold receipt replay is acknowledged"
+	)
+	assert(gold.data.gold == 100, "gold replay is not a second grant")
+	gold.data.gold = config.PROGRESSION.gold.maxBalance - 50
+	assert(
+		gold.service.processReceipt(gold.receipt("gold-full", 9101)) == decision.NotProcessedYet,
+		"full gold wallet defers delivery"
+	)
+	assert(gold.data.gold == config.PROGRESSION.gold.maxBalance - 50, "paid gold is never silently truncated")
+	assert(not table.find(gold.data.receipts, "gold-full"), "deferred gold leaves no granted marker")
+	gold.data.gold = 0
+	assert(
+		gold.service.processReceipt(gold.receipt("gold-full", 9101)) == decision.PurchaseGranted,
+		"deferred gold receipt is acknowledged after capacity relief"
+	)
+	assert(gold.data.gold == 100, "capacity relief delivers the entire deferred purchase")
+	local run = setup()
+	assert(
+		run.service.processReceipt(run.receipt("run-first", 9102)) == decision.PurchaseGranted,
+		"run bonus receipt is acknowledged"
+	)
+	assert(run.data.progression.runDouble, "run bonus is delivered")
+	assert(
+		run.service.processReceipt(run.receipt("run-first", 9102)) == decision.PurchaseGranted,
+		"run bonus replay is acknowledged"
+	)
+	assert(run.data.progression.doubleCredits == 0, "receipt replay never adds a future run")
+	assert(
+		run.service.processReceipt(run.receipt("run-second", 9102)) == decision.PurchaseGranted,
+		"separate late run bonus delivery is acknowledged"
+	)
+	assert(run.data.progression.doubleCredits == 1, "second late purchase becomes one future run credit")
+	run.fire("RequestPromptProduct", "product", "run_double_income")
+	assert(#run.market.productPrompts == 0, "active run bonus cannot be sold again through the UI")
+	local permanent = setup()
+	permanent.data.inventory.items.golden_crown = true -- bu turda nakitle alınmış, henüz kalıcı değil
+	assert(
+		permanent.service.processReceipt(permanent.receipt("crown-first", 9103)) == decision.PurchaseGranted,
+		"permanent crown delivery is acknowledged"
+	)
+	assert(
+		permanent.data.owned.items.golden_crown and permanent.data.inventory.items.golden_crown,
+		"cash crown can become a permanent owned right"
+	)
+	assert(
+		permanent.service.processReceipt(permanent.receipt("crown-first", 9103)) == decision.PurchaseGranted,
+		"permanent crown replay is acknowledged"
+	)
+	assert(permanent.data.gold == 0, "replayed permanent receipt never creates compensation")
+	assert(
+		permanent.service.processReceipt(permanent.receipt("crown-second", 9103)) == decision.PurchaseGranted,
+		"separately paid duplicate crown is compensated and acknowledged"
+	)
+	assert(
+		permanent.data.gold == config.PROGRESSION.permanentOffers.golden_crown.goldCost,
+		"a separately paid duplicate has its full gold-equivalent value"
+	)
+	permanent.fire("RequestPromptProduct", "product", "permanent_golden_crown")
+	assert(#permanent.market.productPrompts == 0, "owned permanent product has no purchase prompt")
+	local parked = setup()
+	parked.data.permanentParkedIncomeBest = 12345
+	assert(
+		parked.service.processReceipt(parked.receipt("parked-pack", 9001)) == decision.PurchaseGranted,
+		"income pack delivery is acknowledged"
+	)
+	assert(parked.data.cash == 12345 * 3600, "income pack uses the account permanent reference, not active farm")
+	for key, id in previousIds do
+		products[key].id = id
+	end
 
 	products.income_pack.id, products.instant_production.id, passes.double_income.id =
 		saved.income, saved.instant, saved.pass

@@ -406,14 +406,22 @@ return function(codec: any, config: any, farmMath: any, rules: any, logic: any)
 	}
 	local job: any = { uid = "j", readyAt = now, startedAt = now - 10, forgone = 1e9 }
 	local expectedYield = farmMath.getGoodsYield(hugeSave, recipe, now, job)
+	local expectedCompensation = farmMath.getGoodsCompensation(hugeSave, recipe, job, now, expectedYield)
 	assert(expectedYield > 1, "the fixture batch exceeds the one free slot")
 	hugeSave.production[recipe.id] = job
 	local reward = logic.claim(hugeSave, hugeSave, recipe, job, now, farmMath, config, hooks)
 	assert(farmMath.getGoodsAmount(hugeSave, "milk") == hugeCap, "the fitting part is stored")
 	assert(
-		reward == math.floor((expectedYield - 1) * config.GOODS.milk.value * config.GOODS_SELL.rate)
+		reward
+				== math.floor((expectedYield - 1) * config.GOODS.milk.value * config.GOODS_SELL.rate) + expectedCompensation
 			and cashed == reward,
-		"the overflow pays the bulk-sell rate in cash (never more than selling from the barn)"
+		"overflow keeps the bulk-sell rate; capped batch shortfall is compensated separately"
+	)
+	assert(expectedCompensation > 0, "huge opportunity cost is not silently lost at the six-unit cap")
+	assert(
+		expectedYield * config.GOODS.milk.value + expectedCompensation
+			>= math.ceil((job.forgone + farmMath.getFacilityCost(hugeSave, recipe)) * config.PRODUCTION_MIN_RETURN),
+		"nominal batch value plus compensation preserves the opportunity-cost floor"
 	)
 	local other = config.PRODUCTION_RECIPES.packed_milk
 	assert(rules.canStart(startSave, other, farmMath, now), "a full barn does not block cash recipes")

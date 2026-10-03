@@ -40,6 +40,7 @@ local Rewards = require(Shared:WaitForChild("Modules"):WaitForChild("Rewards"))
 local RateLimiter = require(script:WaitForChild("Modules"):WaitForChild("RateLimiter"))
 local SessionLock = require(script:WaitForChild("Modules"):WaitForChild("SessionLock"))
 local Preferences = require(script:WaitForChild("Modules"):WaitForChild("Preferences"))
+local ProgressionService = require(Services:WaitForChild("ProgressionService"))
 
 -- Karakter, veri yüklenip ada atandıktan SONRA yüklenir: böylece oyuncu önce meydanda doğup
 -- sonra ışınlanmaz, doğrudan kendi adasında doğar (default.project.json'da da kapalı).
@@ -89,6 +90,7 @@ ProductionService.init()
 PetService.init()
 AnimalTaskService.init()
 MainFarmService.init()
+ProgressionService.init()
 HubBoardService.init()
 
 local TELEPORT_COOLDOWN = 1.5

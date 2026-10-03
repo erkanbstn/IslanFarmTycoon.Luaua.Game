@@ -28,6 +28,10 @@ function Farm.decode(
 	end
 	local repairs = 0
 	local save: any = {
+		gold = source.gold,
+		owned = source.owned,
+		progression = source.progression,
+		inventory = source.inventory,
 		cash = Common.amount(
 			source.cash,
 			config.getStartingCash(if typeof(source.farmId) == "string" then source.farmId else "1")
@@ -122,14 +126,42 @@ function Farm.decode(
 		offlineEarned = farmMath.computeOfflineEarnings(save, source.lastSeen, now)
 		save.cash = math.min(Common.MAX_MONEY, save.cash + offlineEarned)
 		-- Sen yokken yetişkin olan hayvanlar (dönüş özeti için)
+		local previousStages: { [string]: string } = {}
+		if
+			save.progression
+			and not save.progression.returnEnded
+			and save.progression.returnEndsAt > 0
+			and save.progression.returnEndsAt <= now
+		then
+			for _, animal in save.animals do
+				previousStages[animal.uid] = farmMath.getStage(
+					animal.bornAt,
+					source.lastSeen,
+					farmMath.getGrowthSpeed(save, animal.animalId, animal.zoneId, source.lastSeen)
+				)
+			end
+			local boundary = save.progression.returnEndsAt
+			local speeds = farmMath.snapshotGrowthSpeeds(save, boundary - 0.001)
+			farmMath.preserveGrowthProgress(save, speeds, boundary)
+			for _, animal in save.animals do
+				animal.stage = farmMath.getStage(
+					animal.bornAt,
+					now,
+					farmMath.getGrowthSpeed(save, animal.animalId, animal.zoneId, now)
+				)
+			end
+		end
 		for _, animal in save.animals do
 			if
 				animal.bornAt ~= 0
 				and animal.stage == "adult"
-				and farmMath.getStage(
-						animal.bornAt,
-						source.lastSeen,
-						farmMath.getGrowthSpeed(save, animal.animalId, animal.zoneId)
+				and (
+						previousStages[animal.uid]
+						or farmMath.getStage(
+							animal.bornAt,
+							source.lastSeen,
+							farmMath.getGrowthSpeed(save, animal.animalId, animal.zoneId)
+						)
 					)
 					~= "adult"
 			then

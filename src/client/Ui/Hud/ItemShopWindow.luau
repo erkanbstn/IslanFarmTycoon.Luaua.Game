@@ -26,7 +26,7 @@ export type Shop = {
 	update: (state: PlayerSave) -> (),
 }
 
-function ItemShopWindow.create(screenGui: Instance): Shop
+function ItemShopWindow.create(screenGui: Instance, openPermanent: (() -> ())?): Shop
 	local window = UiKit.window(screenGui, {
 		title = "Eşya Dükkânı",
 		icon = "🎒",
@@ -38,10 +38,16 @@ function ItemShopWindow.create(screenGui: Instance): Shop
 	})
 	UiKit.text(
 		window.list,
-		"Eşyalar bir kez alınır, faydası kalıcıdır. Satın aldıklarını Envanter'den takarsın; her slota bir eşya takılır.",
+		"Nakit eşyalar bu tur içindir. Altın/Robux ile kalıcı sahiplik rebirth'te korunur. Eşyaları Envanter'den takarsın.",
 		"Caption"
 	).LayoutOrder =
 		0
+	if openPermanent then
+		local permanentButton = UiKit.button(window.list, "Kalıcı altın teklifleri", "secondary")
+		permanentButton.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
+		permanentButton.LayoutOrder = 1
+		permanentButton.Activated:Connect(openPermanent)
+	end
 
 	-- Kategori sekmeleri (slot başına): seçili kategorinin eşyaları ızgara karoları olarak gösterilir
 	local cards: { [string]: UiKit.Card } = {}
@@ -75,9 +81,15 @@ function ItemShopWindow.create(screenGui: Instance): Shop
 	local function update(state: PlayerSave)
 		for itemId, card in cards do
 			local item = Config.ITEMS[itemId]
+			local permanent = state.owned ~= nil and state.owned.items[itemId] == true
+			UiKit.setText(card.detail, `{if permanent then "Kalıcı" else "Bu tur"} · {ItemText.describe(item)}`)
 			ItemPreview.mount(card.icon, itemId)
 			if Inventory.owns(state, itemId) then
-				setPurchaseButton(card.action, "Sahipsin", "owned")
+				setPurchaseButton(
+					card.action,
+					if permanent then "Kalıcı olarak sahipsin" else "Sahipsin · Bu tur",
+					"owned"
+				)
 			else
 				setPurchaseButton(
 					card.action,
