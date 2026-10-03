@@ -104,7 +104,7 @@ local function lightsAllowed(part: BasePart): boolean
 end
 
 -- Gerçek ışık yokken fenerin "yandığı" hissi: yarı saydam Neon küre (çarpışmaz, gölge atmaz).
--- Pencereler (NightWindow) zaten parlak renkli yüzeydir, hale almaz.
+-- Pencereler (NightWindow) hale almaz (cam olarak kalır, ışığı PointLight verir).
 local function createHalo(glow: Glow): BasePart
 	local part = glow.part
 	local size = math.clamp(math.max(part.Size.X, part.Size.Y, part.Size.Z) * HALO_SCALE, HALO_MIN_SIZE, HALO_MAX_SIZE)
@@ -172,15 +172,18 @@ local function track(instance: Instance)
 		return
 	end
 	local nightColor = instance:GetAttribute("NightColor")
+	-- Pencere camı (NightWindow) gece de modeldeki cam malzemesi ve rengiyle kalır (düz sarı levhaya dönmez); gece aydınlığını
+	-- parçanın PointLight'ı verir. Yalnızca fenerler (NightLight) parlak Neon olur.
+	local isWindow = CollectionService:HasTag(instance, "NightWindow")
 	local glow: Glow = {
 		part = instance,
 		material = instance.Material,
 		color = instance.Color,
-		nightColor = if typeof(nightColor) == "Color3" then nightColor else instance.Color,
-		-- Pencereler parlak renkli düz malzeme (Neon değil): büyük yüzeylerde ekranı beyaza boğan parıltıyı önler.
-		glowMaterial = if CollectionService:HasTag(instance, "NightWindow")
-			then Enum.Material.SmoothPlastic
-			else Enum.Material.Neon,
+		nightColor = if isWindow
+			then instance.Color
+			elseif typeof(nightColor) == "Color3" then nightColor
+			else instance.Color,
+		glowMaterial = if isWindow then instance.Material else Enum.Material.Neon,
 		lit = false,
 	}
 	glows[instance] = glow

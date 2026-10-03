@@ -1,7 +1,7 @@
 --!strict
 -- Yol haritasından alınan güçlendirmeleri adada bina olarak gösterir (silo, süt makinesi...).
 -- Konum: plot içindeki BuildSpots klasöründe "<upgradeId>" adlı görünmez parça.
--- Bina geometrisi hazır modelden gelir: assets/Buildings/<upgradeId>.rbxmx (ServerStorage.Assets.Buildings; pivot zemine oturur,
+-- Bina geometrisi hazır modelden gelir: assets/Buildings/<upgradeId>.rbxmx (Sv.1-5: assets/BuildingLevels/<upgradeId>_Lv<N>.rbxmx) (ServerStorage.Assets.Buildings; pivot zemine oturur,
 -- tabela tahtası "SignBoard" + 2 "SignPost"). Model yoksa warn verilir ve bina çizilmez (yedek kod kurucusu yoktur).
 -- Parçalar: UpgradeParts (METAL/GOLD, tarifler, faceSign), UpgradeSites (yapım alanı ve seviye işaretleri), UpgradeLevelProps.
 
@@ -26,15 +26,32 @@ type PlayerSave = GameTypes.PlayerSave
 
 local UpgradeVisualService = {}
 
-local VISUAL_VERSION = 2
+local VISUAL_VERSION = 3
 local METAL = UpgradeParts.METAL
 local PRODUCTION_RECIPES = UpgradeParts.PRODUCTION_RECIPES
 local makePart = UpgradeParts.makePart
 local buildSite = UpgradeSites.buildSite
 local applyLevelMarks = UpgradeSites.applyLevelMarks
 
--- Hazır bina modeli (assets/Buildings): çarpışma/sorgu değerleri modeldeki gibi kalır (ince süs ve cam parçaları modelde geçilebilir yapılır)
-local function cloneAsset(upgradeId: string): Model?
+-- Binanın görünen seviyesi: üretim tesislerinde geliştirme seviyesi (0..5), diğerlerinde 0. Seviye değişince bina yeniden kurulur.
+local MAX_VISUAL_LEVEL = 5
+local function visualLevel(upgradeId: string, save: PlayerSave?): number
+	local recipeId = PRODUCTION_RECIPES[upgradeId]
+	if not (recipeId and save) then
+		return 0
+	end
+	return math.min(FarmMath.getExpansionLevel(save, recipeId), MAX_VISUAL_LEVEL)
+end
+
+-- Hazır bina modeli: Sv.0 = assets/Buildings/<id>, Sv.1-5 = assets/BuildingLevels/<id>_Lv<N> (aynı ayak izi/pivot/tabela).
+-- Seviye modeli yoksa Sv.0 modeline düşer. Çarpışma/sorgu değerleri modeldeki gibi kalır (ince süs ve cam parçaları modelde geçilebilir yapılır)
+local function cloneAsset(upgradeId: string, level: number): Model?
+	if level > 0 then
+		local leveled = ModelAssets.clone("BuildingLevels", `{upgradeId}_Lv{level}`)
+		if leveled then
+			return leveled
+		end
+	end
 	return ModelAssets.clone("Buildings", upgradeId)
 end
 
@@ -64,9 +81,9 @@ local function signTextFor(upgradeId: string): SignText?
 	return nil
 end
 
-local function buildUpgrade(upgradeId: string, spot: BasePart, parent: Instance)
+local function buildUpgrade(upgradeId: string, spot: BasePart, parent: Instance, level: number)
 	local base = spot.CFrame
-	local built = cloneAsset(upgradeId)
+	local built = cloneAsset(upgradeId, level)
 	if not built then
 		if not missingWarned[upgradeId] then
 			missingWarned[upgradeId] = true
@@ -82,6 +99,7 @@ local function buildUpgrade(upgradeId: string, spot: BasePart, parent: Instance)
 	end
 	built.Name = upgradeId
 	built:SetAttribute("UpgradeVisualVersion", VISUAL_VERSION)
+	built:SetAttribute("BuildingLevel", level)
 	for _, descendant in built:GetDescendants() do
 		if
 			descendant:IsA("BasePart")
@@ -167,14 +185,22 @@ function UpgradeVisualService.apply(plot: Model, save: PlayerSave?)
 	for _, upgrade in Config.UPGRADES do
 		local owned = save ~= nil and save.purchased[upgrade.id] == true
 		local existing = upgradesFolder:FindFirstChild(upgrade.id)
-		if owned and existing and existing:GetAttribute("UpgradeVisualVersion") ~= VISUAL_VERSION then
+		local level = if owned then visualLevel(upgrade.id, save) else 0
+		if
+			owned
+			and existing
+			and (
+				existing:GetAttribute("UpgradeVisualVersion") ~= VISUAL_VERSION
+				or existing:GetAttribute("BuildingLevel") ~= level
+			)
+		then
 			existing:Destroy()
 			existing = nil
 		end
 		if owned and not existing then
 			local spot = spots:FindFirstChild(upgrade.id)
 			if spot and spot:IsA("BasePart") then
-				buildUpgrade(upgrade.id, spot, upgradesFolder)
+				buildUpgrade(upgrade.id, spot, upgradesFolder, level)
 			end
 		elseif not owned and existing then
 			existing:Destroy()

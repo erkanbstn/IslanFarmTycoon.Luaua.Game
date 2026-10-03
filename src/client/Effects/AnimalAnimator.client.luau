@@ -18,6 +18,19 @@ local NEAR_CHECK_INTERVAL = 0.25
 local WALK_SPEED = 3
 local TURN_SPEED = 4
 
+-- Yüzey desteği: hayvan düz zemin (alan düzlemi) yerine altındaki gerçek katı yüzeyde durur (kaya, teras, basamak üstü...).
+-- Işın hayvanın o anki yüksekliğinin STEP_UP üstünden aşağı iner: çatı/yaprak gibi üstteki parçalar vurulmaz.
+-- Çarpışmasız parçalar (hayvan, tabela, ince süs) RespectCanCollide ile geçilir; oyuncu karakteri atlanır.
+local STEP_UP = 2.5 -- Mevcut yüksekliğin bu kadar üstünden ışın atılır (çıkılabilir basamak)
+local STEP_DROP = 5 -- Mevcut yüksekliğin bu kadar altına kadar destek aranır
+local MAX_STEP = 2.5 -- Hedef noktası mevcut yüksekliğe bundan fazla uzaksa seçilmez
+local PATH_STEP = 2.4 -- Yol boyunca destek örnek aralığı; ardışık örnekler arası fark MAX_STEP'ten büyükse yol kapalıdır
+local SUPPORT_INTERVAL = 0.1 -- Hareket ederken destek yüksekliği bu aralıkla okunur (her kare değil)
+local SUPPORT_SMOOTH = 10 -- Yükseklik geçişi yumuşaklığı (1/sn)
+local supportParams = RaycastParams.new()
+supportParams.FilterType = Enum.RaycastFilterType.Exclude
+supportParams.RespectCanCollide = true
+
 type AnimalState = {
 	model: Model,
 	area: CFrame,
@@ -33,6 +46,11 @@ type AnimalState = {
 	parts: { BasePart }?, -- BulkMoveTo için model parçaları (nil = yeniden kurulacak)
 	offsets: { CFrame }, -- parça CFrame'i, model pivotuna göre
 	slot: number, -- Duran hayvanların yazım kareleri dağılsın diye
+	swims: boolean, -- Suda yaşar (SwimDepthOffset>0): karaya çıkarılmaz, destek aranmaz
+	supported: boolean, -- Başlangıç noktasında altında yüzey bulundu mu (bulunamazsa destek mantığı kapalı: eski sabit yükseklik)
+	support: number, -- Alan düzlemine göre yüzey yüksekliği farkı (yumuşatılmış, yazılan)
+	supportGoal: number, -- Son ölçülen yüzey farkı
+	supportCheckAt: number,
 	radius: number, -- Yatay ayak izi yarıçapı (model sınır kutusundan): hayvanlar birbirinden bu kadar uzak hedef seçer
 }
 
@@ -42,7 +60,8 @@ local random = Random.new()
 
 -- Katı dekor ("AnimalObstacle" etiketi, sunucu IslandSiteParts.markObstacles): hedef noktası ve oraya giden doğru bunların
 -- (payla genişletilmiş) ayak izine düşmez. Liste hedef seçerken (nadir) tazelenir; kare başı iş yoktur.
-local OBSTACLE_MARGIN = 1.3
+local OBSTACLE_MARGIN = 0.4 -- + hayvanın yarıçapının %70'i (büyük türler engelden daha uzak durur)
+local FOOTPRINT_FRONT = 0.8 -- Ön ayak örneği: ayak izi yarıçapının bu katı kadar ileride
 local obstacleCache: { BasePart } = {}
 local obstacleCacheAt = -math.huge
 
@@ -73,7 +92,8 @@ local function blockedAt(state: AnimalState, point: Vector3, obstacles: { BasePa
 	for _, part in obstacles do
 		local localPoint = part.CFrame:PointToObjectSpace(Vector3.new(world.X, part.Position.Y, world.Z))
 		local half = part.Size / 2
-		if math.abs(localPoint.X) < half.X + OBSTACLE_MARGIN and math.abs(localPoint.Z) < half.Z + OBSTACLE_MARGIN then
+		local margin = OBSTACLE_MARGIN + state.radius * 0.7
+		if math.abs(localPoint.X) < half.X + margin and math.abs(localPoint.Z) < half.Z + margin then
 			return true
 		end
 	end
@@ -112,6 +132,65 @@ local function crowdedAt(state: AnimalState, point: Vector3): boolean
 	return false
 end
 
+-- Alan-yerel (x, z) noktasının altındaki katı yüzeyin alan düzlemine göre yüksekliği; `reference` aramanın başladığı fark
+local function supportAt(state: AnimalState, point: Vector3, reference: number): number?
+	local world = state.area:PointToWorldSpace(Vector3.new(point.X, 0, point.Z))
+	local originY = state.area.Position.Y + reference + STEP_UP
+	local origin = Vector3.new(world.X, originY, world.Z)
+	local direction = Vector3.new(0, -(STEP_UP + STEP_DROP), 0)
+	local excluded: { Instance } = {}
+	for _ = 1, 3 do
+		supportParams.FilterDescendantsInstances = excluded
+		local result = Workspace:Raycast(origin, direction, supportParams)
+		if not result then
+			return nil
+		end
+		local model = result.Instance:FindFirstAncestorOfClass("Model")
+		if model and (model:FindFirstChildWhichIsA("Humanoid") or CollectionService:HasTag(model, "Animal")) then
+			table.insert(excluded, model)
+		elseif result.Normal.Y < 0.6 then
+			return nil -- dik duvar/direk yan yüzü: basılabilir yüzey değil
+		else
+			return result.Position.Y - state.area.Position.Y
+		end
+	end
+	return nil
+end
+
+-- Gövde merkezi ve ön ayak noktası birlikte desteklenmeli: ikisinden biri boşluk/aşırı basamaksa nil; yükseklik ikisinin yükseği
+local function footSupport(state: AnimalState, point: Vector3, yaw: number, reference: number): number?
+	local center = supportAt(state, point, reference)
+	if center == nil then
+		return nil
+	end
+	local reach = state.radius * FOOTPRINT_FRONT
+	local front = point + Vector3.new(-math.sin(yaw) * reach, 0, -math.cos(yaw) * reach)
+	local ahead = supportAt(state, front, center)
+	if ahead == nil or math.abs(ahead - center) > MAX_STEP then
+		return nil
+	end
+	return math.max(center, ahead)
+end
+
+-- Hedef noktasında ve oraya giden yolda hayvan basabileceği bir yüzey var mı (basamak farkı MAX_STEP içinde, boşluk yok)
+local function walkable(state: AnimalState, from: Vector3, to: Vector3): boolean
+	if not state.supported then
+		return true
+	end
+	local previous = state.support
+	local steps = math.max(1, math.ceil((to - from).Magnitude / PATH_STEP))
+	for step = 1, steps do
+		local flat = to - from
+		local yaw = math.atan2(-flat.X, -flat.Z)
+		local height = footSupport(state, from:Lerp(to, step / steps), yaw, previous)
+		if height == nil or math.abs(height - previous) > MAX_STEP then
+			return false
+		end
+		previous = height
+	end
+	return true
+end
+
 local function randomPoint(state: AnimalState): Vector3
 	local obstacles = obstaclesNear(state)
 	local fallback = state.position
@@ -123,6 +202,7 @@ local function randomPoint(state: AnimalState): Vector3
 		)
 		if
 			not crowdedAt(state, point)
+			and walkable(state, state.position, point)
 			and (
 				#obstacles == 0
 				or (not blockedAt(state, point, obstacles) and not pathBlocked(state, state.position, point, obstacles))
@@ -184,10 +264,27 @@ local function trackReady(instance: Instance)
 		parts = nil,
 		offsets = {},
 		slot = random:NextInteger(0, 1),
+		swims = false,
+		supported = false,
+		support = 0,
+		supportGoal = 0,
+		supportCheckAt = 0,
 		radius = footprintRadius(instance),
 	}
-	-- İlk karede doğru yerde görünsün
-	instance:PivotTo(area * CFrame.new(position.X, heightOffset, position.Z) * CFrame.Angles(0, yaw, 0))
+	-- Yüzme derinliği olan (suda yaşayan) hayvanlar karaya çıkarılmaz; track (daire) hareketi de sabit yükseklikte kalır
+	local state = states[instance]
+	local swimDepth = instance:GetAttribute("SwimDepthOffset")
+	state.swims = typeof(swimDepth) == "number" and swimDepth > 0
+	if not state.swims then
+		local height = supportAt(state, state.position, 0)
+		if height ~= nil and math.abs(height) <= MAX_STEP then
+			state.supported = true
+			state.support = height
+			state.supportGoal = height
+		end
+	end
+	-- İlk karede doğru yerde görünsün (yüzeyin üstünde)
+	instance:PivotTo(area * CFrame.new(position.X, heightOffset + state.support, position.Z) * CFrame.Angles(0, yaw, 0))
 end
 
 local pending: { [Instance]: { RBXScriptConnection } } = {}
@@ -360,7 +457,41 @@ RunService.PreRender:Connect(function(dt: number)
 
 		state.phase += dt * (if moving then 10 else 2)
 		local bob = if moving then math.abs(math.sin(state.phase)) * 0.25 else math.sin(state.phase) * 0.03
-		local localCf = CFrame.new(state.position.X, state.heightOffset + bob, state.position.Z)
+		if not state.swims then
+			if not state.supported then
+				-- İlk yüklemede/streaming'de yüzey gelmemiş olabilir: yüzey gelene kadar saniyede bir yeniden aranır
+				if now >= state.supportCheckAt then
+					state.supportCheckAt = now + 1
+					local height = supportAt(state, state.position, 0)
+					if height ~= nil and math.abs(height) <= MAX_STEP then
+						state.supported = true
+						state.support, state.supportGoal = height, height
+					end
+				end
+			elseif now >= state.supportCheckAt and (moving or state.support ~= state.supportGoal) then
+				state.supportCheckAt = now + SUPPORT_INTERVAL
+				local height = footSupport(state, state.position, state.yaw, state.support)
+				if height ~= nil and math.abs(height - state.support) <= MAX_STEP then
+					state.supportGoal = height
+				elseif moving then
+					-- Destek kayboldu ya da basamak aşılamaz: dur ve yeniden hedef seç
+					state.target = nil
+					state.waitUntil = now + 1
+					moving = false
+				end
+			end
+			-- Yüzeye geçiş: inişte yumuşak, çıkışta ayak yüzeyin altında kalmaz (hayvan yüzeye girmez)
+			local diff = state.supportGoal - state.support
+			if math.abs(diff) < 0.01 then
+				state.support = state.supportGoal
+			else
+				state.support += diff * math.min(1, SUPPORT_SMOOTH * dt)
+				if diff > 0 then
+					state.support = math.max(state.support, state.supportGoal - 0.1)
+				end
+			end
+		end
+		local localCf = CFrame.new(state.position.X, state.heightOffset + state.support + bob, state.position.Z)
 			* CFrame.Angles(0, state.yaw, 0)
 		-- Duran hayvanın nefes hareketi çok küçüktür: yarım hızda yazmak yeter
 		if moving or (frameCount + state.slot) % 2 == 0 then

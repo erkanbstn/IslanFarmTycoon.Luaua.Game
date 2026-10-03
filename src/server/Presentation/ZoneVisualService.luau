@@ -8,6 +8,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 local WorldDecor = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("WorldDecor"))
 local ModelAssets = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("ModelAssets"))
+local IslandSiteParts = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("IslandSiteParts"))
 
 local ZoneVisualService = {}
 
@@ -114,6 +115,7 @@ function ZoneVisualService.apply(zone: Instance, zoneId: string, unlocked: boole
 		end
 	end)
 	decor.Name = "Decor"
+	IslandSiteParts.markObstacles(decor) -- katı duvar/direk/yemlik: AnimalAnimator hayvanı bunların içine sokmaz
 	decor:SetAttribute("VisualCreatedAt", game:GetService("Workspace"):GetServerTimeNow())
 	-- Çimenli zeminlere çim tutamı ve çiçek (ön/orta şerit; arkadaki barınak ve yemlikler hariç)
 	if ground.Material == Enum.Material.Grass and zoneId ~= "fishpen" then

@@ -20,18 +20,7 @@ SRC = ROOT / "src"
 ASSETS = ROOT / "assets"
 
 # Bilinçli olarak asset'siz kalanlar (kodda kalacak): gerekçe zorunlu.
-ALLOWED_MISSING: dict[str, str] = {
-    "Animals/red_mullet": "İstek 5 (balık çeşitliliği): GPT teslimi bekleniyor; gelince bu satırı sil",
-    "Animals/sea_bream": "İstek 5 (balık çeşitliliği): GPT teslimi bekleniyor; gelince bu satırı sil",
-    "Animals/sardine": "İstek 5 (balık çeşitliliği): GPT teslimi bekleniyor; gelince bu satırı sil",
-    "Animals/bluefish": "İstek 5 (balık çeşitliliği): GPT teslimi bekleniyor; gelince bu satırı sil",
-    "Animals/whiting": "İstek 5 (balık çeşitliliği): GPT teslimi bekleniyor; gelince bu satırı sil",
-    "Animals/turbot": "İstek 5 (balık çeşitliliği): GPT teslimi bekleniyor; gelince bu satırı sil",
-    "Animals/trout": "İstek 5 (balık çeşitliliği): GPT teslimi bekleniyor; gelince bu satırı sil",
-    "Animals/salmon": "İstek 5 (balık çeşitliliği): GPT teslimi bekleniyor; gelince bu satırı sil",
-    "Animals/koi": "İstek 5 (balık çeşitliliği): GPT teslimi bekleniyor; gelince bu satırı sil",
-    "Animals/tuna": "İstek 5 (balık çeşitliliği): GPT teslimi bekleniyor; gelince bu satırı sil",
-}
+ALLOWED_MISSING: dict[str, str] = {}
 # Koda bağlanmamış (harita kurucuları) klasörler: bilgi amaçlı, hata sayılmaz.
 UNWIRED_FOLDERS: set[str] = set()
 FORBIDDEN_CLASSES = {
@@ -72,6 +61,10 @@ def expected() -> dict[str, set[str]]:
         | set(re.findall(r'building = "(\w+)"', species_cfg))
         | {"silo", "milk_machine", "auto_collector", "egg_factory", "golden_horseshoe"}
     )
+
+    # Bina seviyeleri: üretim tesisleri (silo/süt makinesi/otomatik toplayıcı/yumurta fabrikası/tekne hariç) x Sv.1-5 (BuildingLevels/<id>_Lv<N>)
+    leveled = exp["Buildings"] - {"silo", "milk_machine", "auto_collector", "egg_factory", "golden_horseshoe", "fishing_boat"}
+    exp["BuildingLevels"] = {f"{b}_Lv{i}" for b in leveled for i in range(1, 6)}
 
     # Bölge dekoru: ana adada tema eki (starter/pasture x 6 çiftlik teması), elle yazılan bölgeler + tür tablosundaki her bölge (<tür>_pen)
     themes = int(re.search(r"MAIN_FARM_LIMIT = (\d+)", read(SRC / "shared/Config/Core.luau")).group(1))
@@ -128,7 +121,7 @@ def expected() -> dict[str, set[str]]:
     exp["HomeModels"] = {
         "Beehives", "Farmhouse", "Granary", "MarketStall", "Orchard", "VegetableGarden", "Well", "Windmill",
     } | {f"Landmark_{kind}" for kind in ("cherry", "daisy", "pine", "rose", "sunflower", "tulip")}
-    exp["HubProps"] = {"Bench", "Fountain", "Planter_seed2"} | {f"Vendor_{a}" for a in ("orders", "roadmap", "store", "travel")}
+    exp["HubProps"] = {"Bench", "Fountain", "Planter_seed2", "SpawnPlaza"} | {f"Vendor_{a}" for a in ("orders", "roadmap", "store", "travel")}
     exp["HubModels"] = {"HubTitleBoard", "HubTravelBoard", "HubPlayerBoard", "Hub_Statue", "Hub_Banner"}
     exp["BridgeModels"] = {"BridgeModule_2", "BridgeModule_8"}
     exp["SignModels"] = {"IslandSign", "PlotSign", "SaleMarker", "Signpost_Direction", "SpecialtySign"}

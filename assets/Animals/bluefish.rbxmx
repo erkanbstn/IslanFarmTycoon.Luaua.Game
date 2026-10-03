@@ -1,0 +1,663 @@
+<?xml version='1.0' encoding='utf-8'?>
+<roblox version="4">
+  <Meta name="ExplicitAutoJoints">true</Meta>
+  <Item class="Model" referent="RBX_bluefish">
+    <Properties>
+      <string name="Name">bluefish</string>
+      <Ref name="PrimaryPart">RBX_bluefish_0</Ref>
+      <OptionalCoordinateFrame name="WorldPivotData">
+        <CFrame>
+          <X>0.00000000</X>
+          <Y>0.00000000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.00000000</R00>
+          <R01>0.00000000</R01>
+          <R02>0.00000000</R02>
+          <R10>0.00000000</R10>
+          <R11>1.00000000</R11>
+          <R12>0.00000000</R12>
+          <R20>0.00000000</R20>
+          <R21>0.00000000</R21>
+          <R22>1.00000000</R22>
+        </CFrame>
+      </OptionalCoordinateFrame>
+    </Properties>
+    <Item class="Part" referent="RBX_bluefish_0">
+      <Properties>
+        <string name="Name">Body</string>
+        <Vector3 name="Size">
+          <X>0.47306327</X>
+          <Y>0.54936380</Y>
+          <Z>1.09872761</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.00000000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.00000000</R00>
+          <R01>0.00000000</R01>
+          <R02>0.00000000</R02>
+          <R10>0.00000000</R10>
+          <R11>1.00000000</R11>
+          <R12>0.00000000</R12>
+          <R20>0.00000000</R20>
+          <R21>0.00000000</R21>
+          <R22>1.00000000</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.49411765</R>
+          <G>0.62745098</G>
+          <B>0.67843137</B>
+        </Color3>
+        <token name="Material">272</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBX_bluefish_1">
+      <Properties>
+        <string name="Name">HeadSlope</string>
+        <Vector3 name="Size">
+          <X>0.52189561</X>
+          <Y>0.23653164</Y>
+          <Z>0.45780317</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.11826582</X>
+          <Y>-0.00549364</Y>
+          <Z>-0.77826539</Z>
+          <R00>0.00000000</R00>
+          <R01>-1.00000000</R01>
+          <R02>0.00000000</R02>
+          <R10>1.00000000</R10>
+          <R11>0.00000000</R11>
+          <R12>0.00000000</R12>
+          <R20>0.00000000</R20>
+          <R21>0.00000000</R21>
+          <R22>1.00000000</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.49411765</R>
+          <G>0.62745098</G>
+          <B>0.67843137</B>
+        </Color3>
+        <token name="Material">272</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBX_bluefish_2">
+      <Properties>
+        <string name="Name">HaunchSlope</string>
+        <Vector3 name="Size">
+          <X>0.46695923</X>
+          <Y>0.23653164</Y>
+          <Z>0.45780317</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.11826582</X>
+          <Y>-0.01373410</Y>
+          <Z>0.77826539</Z>
+          <R00>-0.00000000</R00>
+          <R01>-1.00000000</R01>
+          <R02>0.00000000</R02>
+          <R10>-1.00000000</R10>
+          <R11>0.00000000</R11>
+          <R12>0.00000000</R12>
+          <R20>-0.00000000</R20>
+          <R21>-0.00000000</R21>
+          <R22>-1.00000000</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.49411765</R>
+          <G>0.62745098</G>
+          <B>0.67843137</B>
+        </Color3>
+        <token name="Material">272</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBX_bluefish_3">
+      <Properties>
+        <string name="Name">HeadSlope</string>
+        <Vector3 name="Size">
+          <X>0.52189561</X>
+          <Y>0.23653164</Y>
+          <Z>0.45780317</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.11826582</X>
+          <Y>-0.00549364</Y>
+          <Z>-0.77826539</Z>
+          <R00>0.00000000</R00>
+          <R01>1.00000000</R01>
+          <R02>0.00000000</R02>
+          <R10>-1.00000000</R10>
+          <R11>0.00000000</R11>
+          <R12>0.00000000</R12>
+          <R20>0.00000000</R20>
+          <R21>0.00000000</R21>
+          <R22>1.00000000</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.49411765</R>
+          <G>0.62745098</G>
+          <B>0.67843137</B>
+        </Color3>
+        <token name="Material">272</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBX_bluefish_4">
+      <Properties>
+        <string name="Name">HaunchSlope</string>
+        <Vector3 name="Size">
+          <X>0.46695923</X>
+          <Y>0.23653164</Y>
+          <Z>0.45780317</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.11826582</X>
+          <Y>-0.01373410</Y>
+          <Z>0.77826539</Z>
+          <R00>-0.00000000</R00>
+          <R01>1.00000000</R01>
+          <R02>0.00000000</R02>
+          <R10>1.00000000</R10>
+          <R11>0.00000000</R11>
+          <R12>0.00000000</R12>
+          <R20>-0.00000000</R20>
+          <R21>0.00000000</R21>
+          <R22>-1.00000000</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.49411765</R>
+          <G>0.62745098</G>
+          <B>0.67843137</B>
+        </Color3>
+        <token name="Material">272</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_bluefish_5">
+      <Properties>
+        <string name="Name">TailPeduncle</string>
+        <Vector3 name="Size">
+          <X>0.19868658</X>
+          <Y>0.28566918</Y>
+          <Z>0.42728296</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.00000000</Y>
+          <Z>1.05294729</Z>
+          <R00>1.00000000</R00>
+          <R01>0.00000000</R01>
+          <R02>0.00000000</R02>
+          <R10>0.00000000</R10>
+          <R11>1.00000000</R11>
+          <R12>0.00000000</R12>
+          <R20>0.00000000</R20>
+          <R21>0.00000000</R21>
+          <R22>1.00000000</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.49411765</R>
+          <G>0.62745098</G>
+          <B>0.67843137</B>
+        </Color3>
+        <token name="Material">272</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_bluefish_6">
+      <Properties>
+        <string name="Name">Belly</string>
+        <Vector3 name="Size">
+          <X>0.38791189</X>
+          <Y>0.03815026</Y>
+          <Z>1.00716697</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>-0.27773392</Y>
+          <Z>-0.02289016</Z>
+          <R00>1.00000000</R00>
+          <R01>0.00000000</R01>
+          <R02>0.00000000</R02>
+          <R10>0.00000000</R10>
+          <R11>1.00000000</R11>
+          <R12>0.00000000</R12>
+          <R20>0.00000000</R20>
+          <R21>0.00000000</R21>
+          <R22>1.00000000</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.80392157</R>
+          <G>0.84705882</G>
+          <B>0.81568627</B>
+        </Color3>
+        <token name="Material">272</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_bluefish_7">
+      <Properties>
+        <string name="Name">Eye</string>
+        <Vector3 name="Size">
+          <X>0.08850861</X>
+          <Y>0.08850861</Y>
+          <Z>0.08850861</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.16557215</X>
+          <Y>0.07141729</Y>
+          <Z>-0.73248507</Z>
+          <R00>1.00000000</R00>
+          <R01>0.00000000</R01>
+          <R02>0.00000000</R02>
+          <R10>0.00000000</R10>
+          <R11>1.00000000</R11>
+          <R12>0.00000000</R12>
+          <R20>0.00000000</R20>
+          <R21>0.00000000</R21>
+          <R22>1.00000000</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.08235294</R>
+          <G>0.11372549</G>
+          <B>0.10980392</B>
+        </Color3>
+        <token name="Material">272</token>
+        <token name="Shape">0</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_bluefish_8">
+      <Properties>
+        <string name="Name">Eye</string>
+        <Vector3 name="Size">
+          <X>0.08850861</X>
+          <Y>0.08850861</Y>
+          <Z>0.08850861</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.16557215</X>
+          <Y>0.07141729</Y>
+          <Z>-0.73248507</Z>
+          <R00>1.00000000</R00>
+          <R01>0.00000000</R01>
+          <R02>0.00000000</R02>
+          <R10>0.00000000</R10>
+          <R11>1.00000000</R11>
+          <R12>0.00000000</R12>
+          <R20>0.00000000</R20>
+          <R21>0.00000000</R21>
+          <R22>1.00000000</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.08235294</R>
+          <G>0.11372549</G>
+          <B>0.10980392</B>
+        </Color3>
+        <token name="Material">272</token>
+        <token name="Shape">0</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_bluefish_9">
+      <Properties>
+        <string name="Name">Mouth</string>
+        <Vector3 name="Size">
+          <X>0.10407392</X>
+          <Y>0.02441617</Y>
+          <Z>0.02746819</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>-0.08240457</Y>
+          <Z>-1.01479702</Z>
+          <R00>1.00000000</R00>
+          <R01>0.00000000</R01>
+          <R02>0.00000000</R02>
+          <R10>0.00000000</R10>
+          <R11>1.00000000</R11>
+          <R12>0.00000000</R12>
+          <R20>0.00000000</R20>
+          <R21>0.00000000</R21>
+          <R22>1.00000000</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.21568627</R>
+          <G>0.22352941</G>
+          <B>0.19215686</B>
+        </Color3>
+        <token name="Material">272</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBX_bluefish_10">
+      <Properties>
+        <string name="Name">Tail</string>
+        <Vector3 name="Size">
+          <X>0.05341037</X>
+          <Y>0.45780317</Y>
+          <Z>0.45780317</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>-0.18312127</Y>
+          <Z>1.41918982</Z>
+          <R00>-1.00000000</R00>
+          <R01>-0.00000000</R01>
+          <R02>0.00000000</R02>
+          <R10>0.00000000</R10>
+          <R11>-1.00000000</R11>
+          <R12>0.00000000</R12>
+          <R20>0.00000000</R20>
+          <R21>0.00000000</R21>
+          <R22>1.00000000</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.15686275</R>
+          <G>0.27450980</G>
+          <B>0.36862745</B>
+        </Color3>
+        <token name="Material">272</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBX_bluefish_11">
+      <Properties>
+        <string name="Name">Tail</string>
+        <Vector3 name="Size">
+          <X>0.05341037</X>
+          <Y>0.45780317</Y>
+          <Z>0.45780317</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.18312127</Y>
+          <Z>1.41918982</Z>
+          <R00>1.00000000</R00>
+          <R01>-0.00000000</R01>
+          <R02>0.00000000</R02>
+          <R10>0.00000000</R10>
+          <R11>1.00000000</R11>
+          <R12>0.00000000</R12>
+          <R20>0.00000000</R20>
+          <R21>0.00000000</R21>
+          <R22>1.00000000</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.15686275</R>
+          <G>0.27450980</G>
+          <B>0.36862745</B>
+        </Color3>
+        <token name="Material">272</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBX_bluefish_12">
+      <Properties>
+        <string name="Name">DorsalFin</string>
+        <Vector3 name="Size">
+          <X>0.04272830</X>
+          <Y>0.30520211</Y>
+          <Z>0.51884359</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.39981477</Y>
+          <Z>0.04578032</Z>
+          <R00>1.00000000</R00>
+          <R01>0.00000000</R01>
+          <R02>0.00000000</R02>
+          <R10>0.00000000</R10>
+          <R11>1.00000000</R11>
+          <R12>0.00000000</R12>
+          <R20>0.00000000</R20>
+          <R21>0.00000000</R21>
+          <R22>1.00000000</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.15686275</R>
+          <G>0.27450980</G>
+          <B>0.36862745</B>
+        </Color3>
+        <token name="Material">272</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBX_bluefish_13">
+      <Properties>
+        <string name="Name">Fin</string>
+        <Vector3 name="Size">
+          <X>0.03357223</X>
+          <Y>0.19838137</Y>
+          <Z>0.36624254</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.26491543</X>
+          <Y>-0.05493638</Y>
+          <Z>0.06104042</Z>
+          <R00>0.76484219</R00>
+          <R01>-0.64421769</R01>
+          <R02>0.00000000</R02>
+          <R10>0.64421769</R10>
+          <R11>0.76484219</R11>
+          <R12>0.00000000</R12>
+          <R20>0.00000000</R20>
+          <R21>0.00000000</R21>
+          <R22>1.00000000</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.15686275</R>
+          <G>0.27450980</G>
+          <B>0.36862745</B>
+        </Color3>
+        <token name="Material">272</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="WedgePart" referent="RBX_bluefish_14">
+      <Properties>
+        <string name="Name">Fin</string>
+        <Vector3 name="Size">
+          <X>0.03357223</X>
+          <Y>0.19838137</Y>
+          <Z>0.36624254</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.26491543</X>
+          <Y>-0.05493638</Y>
+          <Z>0.06104042</Z>
+          <R00>0.76484219</R00>
+          <R01>0.64421769</R01>
+          <R02>0.00000000</R02>
+          <R10>-0.64421769</R10>
+          <R11>0.76484219</R11>
+          <R12>0.00000000</R12>
+          <R20>0.00000000</R20>
+          <R21>0.00000000</R21>
+          <R22>1.00000000</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.15686275</R>
+          <G>0.27450980</G>
+          <B>0.36862745</B>
+        </Color3>
+        <token name="Material">272</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_bluefish_15">
+      <Properties>
+        <string name="Name">LateralStripe</string>
+        <Vector3 name="Size">
+          <X>0.01831213</X>
+          <Y>0.06867048</Y>
+          <Z>0.94612655</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.24263568</X>
+          <Y>0.06592366</Y>
+          <Z>0.00000000</Z>
+          <R00>1.00000000</R00>
+          <R01>0.00000000</R01>
+          <R02>0.00000000</R02>
+          <R10>0.00000000</R10>
+          <R11>1.00000000</R11>
+          <R12>0.00000000</R12>
+          <R20>0.00000000</R20>
+          <R21>0.00000000</R21>
+          <R22>1.00000000</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.15686275</R>
+          <G>0.27450980</G>
+          <B>0.36862745</B>
+        </Color3>
+        <token name="Material">272</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="RBX_bluefish_16">
+      <Properties>
+        <string name="Name">LateralStripe</string>
+        <Vector3 name="Size">
+          <X>0.01831213</X>
+          <Y>0.06867048</Y>
+          <Z>0.94612655</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.24263568</X>
+          <Y>0.06592366</Y>
+          <Z>0.00000000</Z>
+          <R00>1.00000000</R00>
+          <R01>0.00000000</R01>
+          <R02>0.00000000</R02>
+          <R10>0.00000000</R10>
+          <R11>1.00000000</R11>
+          <R12>0.00000000</R12>
+          <R20>0.00000000</R20>
+          <R21>0.00000000</R21>
+          <R22>1.00000000</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.15686275</R>
+          <G>0.27450980</G>
+          <B>0.36862745</B>
+        </Color3>
+        <token name="Material">272</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <float name="Transparency">0</float>
+        <float name="Reflectance">0</float>
+      </Properties>
+    </Item>
+  </Item>
+</roblox>

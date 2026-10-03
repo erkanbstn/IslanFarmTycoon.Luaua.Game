@@ -120,15 +120,31 @@ local function buildHub(parent: Instance)
 	placeHubDecor("Hub_Statue", onRing(300, 14))
 	placeHubDecor("Hub_Banner", onRing(330, 33))
 
+	-- Doğma noktası: işlev SpawnLocation'da (görünmez); görünüm hazır model (assets/HubProps/SpawnPlaza: taş disk + bronz kenar).
+	-- Üst yüzeyler eşit (0.3 stud) olsun diye SpawnLocation ince ve zeminle aynı yükseklikte durur.
+	local spawnPosition = onRing(330, 20) -- merkez çeşmeye ayrıldı
 	local spawn = Instance.new("SpawnLocation")
 	spawn.Name = "HubSpawn"
-	spawn.Size = Vector3.new(10, 0.4, 10)
-	spawn.CFrame = CFrame.new(onRing(330, 20) + Vector3.new(0, 0.2, 0)) -- merkez çeşmeye ayrıldı
+	spawn.Size = Vector3.new(10, 0.2, 10)
+	spawn.CFrame = CFrame.new(spawnPosition + Vector3.new(0, 0.2, 0))
 	spawn.Anchored = true
 	spawn.Neutral = true
 	spawn.Duration = 0
-	spawn.Color = Color3.fromRGB(240, 200, 80)
+	spawn.Transparency = 1
+	spawn.CastShadow = false
+	for _, child in spawn:GetChildren() do
+		if child:IsA("Decal") or child:IsA("Texture") then
+			child:Destroy()
+		end
+	end
 	spawn.Parent = hub
+	local plaza = ModelAssets.clone("HubProps", "SpawnPlaza")
+	if plaza then
+		plaza:PivotTo(CFrame.new(spawnPosition))
+		plaza.Parent = hub
+	else
+		warn("[HubBuilder] assets/HubProps/SpawnPlaza.rbxmx bulunamadı; doğma platformu çizilmedi")
+	end
 
 	-- Tabela iki köprünün arasına, meydanın ortasına bakacak şekilde
 	local betweenBridges = math.pi / Config.MAP_PLOT_COUNT

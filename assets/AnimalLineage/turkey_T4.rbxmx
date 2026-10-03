@@ -1,0 +1,247 @@
+<?xml version='1.0' encoding='utf-8'?>
+<roblox version="4">
+  <Meta name="ExplicitAutoJoints">true</Meta>
+  <Item class="Model" referent="MODEL">
+    <Properties>
+      <string name="Name">turkey_T4</string>
+      <OptionalCoordinateFrame name="WorldPivotData">
+        <CFrame>
+          <X>0.00000000</X>
+          <Y>0.00000000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.00000000</R00>
+          <R01>0.00000000</R01>
+          <R02>0.00000000</R02>
+          <R10>0.00000000</R10>
+          <R11>1.00000000</R11>
+          <R12>0.00000000</R12>
+          <R20>0.00000000</R20>
+          <R21>0.00000000</R21>
+          <R22>1.00000000</R22>
+        </CFrame>
+      </OptionalCoordinateFrame>
+    </Properties>
+    <Item class="Part" referent="PART0">
+      <Properties>
+        <string name="Name">Lineage_DiamondFanPinion0</string>
+        <Vector3 name="Size">
+          <X>0.08262000</X>
+          <Y>0.04500000</Y>
+          <Z>0.27565198</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.10404000</X>
+          <Y>0.77250000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.00000000</R00>
+          <R01>0.00000000</R01>
+          <R02>0.00000000</R02>
+          <R10>0.00000000</R10>
+          <R11>1.00000000</R11>
+          <R12>0.00000000</R12>
+          <R20>0.00000000</R20>
+          <R21>0.00000000</R21>
+          <R22>1.00000000</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.21960784</R>
+          <G>0.82745098</G>
+          <B>0.82352941</B>
+        </Color3>
+        <token name="Material">1088</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">false</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="PART1">
+      <Properties>
+        <string name="Name">Lineage_DiamondFanTip0</string>
+        <Vector3 name="Size">
+          <X>0.06120000</X>
+          <Y>0.04500000</Y>
+          <Z>0.09188399</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.10404000</X>
+          <Y>0.81750000</Y>
+          <Z>0.07350720</Z>
+          <R00>1.00000000</R00>
+          <R01>0.00000000</R01>
+          <R02>0.00000000</R02>
+          <R10>0.00000000</R10>
+          <R11>1.00000000</R11>
+          <R12>0.00000000</R12>
+          <R20>0.00000000</R20>
+          <R21>0.00000000</R21>
+          <R22>1.00000000</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.21960784</R>
+          <G>0.82745098</G>
+          <B>0.82352941</B>
+        </Color3>
+        <token name="Material">1088</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">false</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="PART2">
+      <Properties>
+        <string name="Name">Lineage_DiamondFanPinion1</string>
+        <Vector3 name="Size">
+          <X>0.08262000</X>
+          <Y>0.04500000</Y>
+          <Z>0.33537658</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.77250000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.00000000</R00>
+          <R01>0.00000000</R01>
+          <R02>0.00000000</R02>
+          <R10>0.00000000</R10>
+          <R11>1.00000000</R11>
+          <R12>0.00000000</R12>
+          <R20>0.00000000</R20>
+          <R21>0.00000000</R21>
+          <R22>1.00000000</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.21960784</R>
+          <G>0.82745098</G>
+          <B>0.82352941</B>
+        </Color3>
+        <token name="Material">1088</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">false</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="PART3">
+      <Properties>
+        <string name="Name">Lineage_DiamondFanTip1</string>
+        <Vector3 name="Size">
+          <X>0.06120000</X>
+          <Y>0.04500000</Y>
+          <Z>0.09188399</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.81750000</Y>
+          <Z>0.07350720</Z>
+          <R00>1.00000000</R00>
+          <R01>0.00000000</R01>
+          <R02>0.00000000</R02>
+          <R10>0.00000000</R10>
+          <R11>1.00000000</R11>
+          <R12>0.00000000</R12>
+          <R20>0.00000000</R20>
+          <R21>0.00000000</R21>
+          <R22>1.00000000</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.21960784</R>
+          <G>0.82745098</G>
+          <B>0.82352941</B>
+        </Color3>
+        <token name="Material">1088</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">false</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="PART4">
+      <Properties>
+        <string name="Name">Lineage_DiamondFanPinion2</string>
+        <Vector3 name="Size">
+          <X>0.08262000</X>
+          <Y>0.04500000</Y>
+          <Z>0.39510118</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.10404000</X>
+          <Y>0.77250000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.00000000</R00>
+          <R01>0.00000000</R01>
+          <R02>0.00000000</R02>
+          <R10>0.00000000</R10>
+          <R11>1.00000000</R11>
+          <R12>0.00000000</R12>
+          <R20>0.00000000</R20>
+          <R21>0.00000000</R21>
+          <R22>1.00000000</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.21960784</R>
+          <G>0.82745098</G>
+          <B>0.82352941</B>
+        </Color3>
+        <token name="Material">1088</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">false</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="PART5">
+      <Properties>
+        <string name="Name">Lineage_DiamondFanTip2</string>
+        <Vector3 name="Size">
+          <X>0.06120000</X>
+          <Y>0.04500000</Y>
+          <Z>0.09188399</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.10404000</X>
+          <Y>0.81750000</Y>
+          <Z>0.07350720</Z>
+          <R00>1.00000000</R00>
+          <R01>0.00000000</R01>
+          <R02>0.00000000</R02>
+          <R10>0.00000000</R10>
+          <R11>1.00000000</R11>
+          <R12>0.00000000</R12>
+          <R20>0.00000000</R20>
+          <R21>0.00000000</R21>
+          <R22>1.00000000</R22>
+        </CoordinateFrame>
+        <Color3 name="Color">
+          <R>0.21960784</R>
+          <G>0.82745098</G>
+          <B>0.82352941</B>
+        </Color3>
+        <token name="Material">1088</token>
+        <token name="Shape">1</token>
+        <bool name="Anchored">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CastShadow">false</bool>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+  </Item>
+</roblox>
