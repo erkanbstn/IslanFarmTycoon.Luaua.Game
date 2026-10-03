@@ -1,7 +1,7 @@
 # Rebirth planı
 
 Durum: **plan** (kod yok). Kararlar kullanıcıyla netleşti (aşağıda "Kararlar"); sayılar taslaktır, `simulate-tiers.py`/`simulate-economy.py` rebirth desteğiyle ayarlanır.
-İlgili belgeler: `docs/ZORLUK_VE_FIYAT.md` (çiftlik süreleri), `docs/DURUM_RAPORU.md` (K2 Robux), `.cursor/rules/economy-data.mdc` (kayıt şeması).
+İlgili belgeler: `docs/ROBUX_VE_ALTIN_PLANI.md` (eşya etkileri, altın, Robux marketi; Robux ile alınanlar ve altın rebirth'te kalır), `docs/ZORLUK_VE_FIYAT.md` (çiftlik süreleri), `docs/DURUM_RAPORU.md` (K2 Robux), `.cursor/rules/economy-data.mdc` (kayıt şeması).
 
 ## 1. Amaç
 Altı çiftliği bitiren oyuncu, oyunu baştan oynarken **her turda bir öncekinden hızlı ama farklı** ilerlesin; aynı ilk saatleri aynı biçimde tekrar yaşayıp sıkılmasın.
@@ -72,7 +72,7 @@ Havuz tamamen dolunca (8 etki x 5 = 40 rebirth) prestij kozmetik seçimi çıkar
 ## 9. Robux ile ilişki
 - **Tur boyunca 2x gelir** (dev ürünü, ucuz): `save.rebirth.run` altında tutulur, rebirth'te sıfırlanır; oyuncu her turda tekrar alır. Kalıcı geçit olarak satılmaz.
 - **Üretimi tamamla** (dev ürünü, ucuz) ve kısa süreli güçlendirme: tur içi, rebirth'te sıfırlanır.
-- **Kozmetik** (şapka, kanat, aura, çekiç görünümü): rebirth'te kalır, Robux'la satılabilir. İşlevsel eşyalar (çekiç, tılsım) nakit ekonomisinde kalır ve rebirth'te sıfırlanır; Robux'la "hemen al" seçeneği yalnızca kozmetik için.
+- **Eşyalar** (karar güncellendi, bkz. `ROBUX_VE_ALTIN_PLANI.md`): saf kozmetik eşya kalmaz, hepsi etki verir. Nakitle alınanlar rebirth'te sıfırlanır; en üst seviye eşyalar yalnızca Robux'la satılır ve **kalıcıdır**. Altın hesap düzeyinde kalır.
 - **Satılmaz:** rebirth'in kendisi, rebirth etkisi, doğrudan çiftlik/yükseltme açılışı.
 
 ## 10. Uygulama adımları
