@@ -571,8 +571,11 @@ local function sendState(player: Player, session: Session)
 		return if farmPlotResolver then farmPlotResolver(player, id) else nil
 	end)
 	local offers = if mainFarmOffersResolver then mainFarmOffersResolver() else {}
-	Remotes.get("PlayerState")
-		:FireClient(player, FarmProfiles.clientState(data, summaries, offers), session.packetRevision)
+	Remotes.get("PlayerState"):FireClient(
+		player,
+		FarmProfiles.clientState(data, summaries, offers, FarmMath.getParkedIncomeBest(data, os.time())),
+		session.packetRevision
+	)
 end
 
 -- Kayıt/kirli işareti hemen güncellenir; istemciye gönderim oyuncu başına birleştirilir:

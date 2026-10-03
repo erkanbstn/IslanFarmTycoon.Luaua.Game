@@ -106,7 +106,7 @@ end
 -- Tam `mainFarms` taşınmaz; yalnızca ortak FarmMath hesaplarının (ahır kapasitesi, ürün teklifleri) okuduğu hafif görünüm gider:
 -- park edilmiş çiftlik için `barnLevel`, `purchased`, `unlockedIslands`; etkin çiftlik için yalnızca `barnLevel` (gerisi kökten okunur).
 -- Sunucudaki `data` değiştirilmez; yüzeysel kopya döner (alt tablolar paylaşılır, gönderimde serileşir).
-function FarmProfiles.clientState(data: any, summaries: { any }, offers: { any }): any
+function FarmProfiles.clientState(data: any, summaries: { any }, offers: { any }, parkedIncomeBest: number?): any
 	local payload = {}
 	for key, value in data do
 		if key ~= "mainFarms" then
@@ -128,6 +128,8 @@ function FarmProfiles.clientState(data: any, summaries: { any }, offers: { any }
 	payload.mainFarms = light
 	payload.mainFarmSummaries = summaries
 	payload.mainFarmOffers = offers
+	-- Park edilmiş çiftliklerin en yüksek geliri (sunucuda hesaplanır): istemci referans geliri (günlük/mevsim ödülü, sipariş tavanı) bununla bulur
+	payload.parkedIncomeBest = parkedIncomeBest
 	return payload
 end
 

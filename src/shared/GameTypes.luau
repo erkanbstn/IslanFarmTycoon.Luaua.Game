@@ -73,6 +73,7 @@ export type PlayerSave = {
 	reducedMotion: boolean?, -- Hareketi azalt tercihi; nil = kapalı
 	language: string?, -- Seçilen arayüz dili (Config.LANGUAGES kodu); nil = Roblox dilinden algıla
 	mainFarmOffers: { { id: string, name: string, icon: string, ownerUserId: number? } }?,
+	parkedIncomeBest: number?, -- Yalnızca istemci yükü: park edilmiş çiftliklerin en yüksek geliri (FarmMath.getReferenceIncome)
 	mainFarms: { [string]: any }, -- sunucuda tam kayıt; istemci yükünde yalnızca hafif görünüm (barnLevel/purchased/unlockedIslands)
 	mainFarmSummaries: { MainFarmSummary }?,
 	production: { [string]: ProductionJob },

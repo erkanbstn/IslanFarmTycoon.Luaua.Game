@@ -82,7 +82,7 @@ return {
 	-- DAILY_MINUTES dakikalık karşılığı x seri çarpanıdır (en az DAILY_MIN_REWARD): geç oyunda da anlamlı kalır.
 	DAILY_REWARD_MULTIPLIERS = { 1, 1.2, 1.5, 2, 2.5, 3, 4 },
 
-	DAILY_MINUTES = 3,
+	DAILY_MINUTES = 2,
 
 	DAILY_MIN_REWARD = 250,
 

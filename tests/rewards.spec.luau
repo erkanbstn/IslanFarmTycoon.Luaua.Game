@@ -256,5 +256,69 @@ return function(Rewards: any, Config: any, FarmMath: any)
 		end
 	end
 
+	-- Referans gelir: etkin çiftlik değil, sahip olunan çiftlikler arasındaki en yüksek gelir (günlük/mevsim ödülü, sipariş tavanı)
+	local function farmRecord(cows: number): any
+		local animals = {}
+		for index = 1, cows do
+			table.insert(
+				animals,
+				{ uid = `ref-{index}`, animalId = "cow", zoneId = "starter", bornAt = 0, stage = "adult" }
+			)
+		end
+		return {
+			purchased = {},
+			animals = animals,
+			barnLevel = 1,
+			unlockedIslands = {},
+			unlockedZones = { starter = true },
+			expansions = {},
+			lineage = {},
+		}
+	end
+	local small: any = save()
+	small.animals = farmRecord(1).animals
+	small.unlockedZones = { starter = true }
+	small.activeMainFarmId = "1"
+	small.mainFarms = { ["1"] = {}, ["2"] = farmRecord(10) }
+	local alone: any = save()
+	alone.animals = farmRecord(10).animals
+	alone.unlockedZones = { starter = true }
+	local activeIncome = FarmMath.computeIncomePerSecond(small)
+	local richIncome = FarmMath.computeIncomePerSecond(alone)
+	assert(richIncome > activeIncome, "the parked farm out-earns the active one in the fixture")
+	assert(
+		math.abs(FarmMath.getReferenceIncome(small) - richIncome) < 1e-9,
+		"the reference income is the best income among owned farms, not the active farm's"
+	)
+	assert(
+		math.abs(FarmMath.getParkedIncomeBest(small) - richIncome) < 1e-9,
+		"the parked best is computed from full farm records"
+	)
+	local clientView: any = save()
+	clientView.animals = small.animals
+	clientView.unlockedZones = { starter = true }
+	clientView.mainFarms =
+		{ ["1"] = { barnLevel = 1 }, ["2"] = { barnLevel = 1, purchased = {}, unlockedIslands = {} } }
+	assert(
+		FarmMath.getReferenceIncome(clientView) == FarmMath.computeIncomePerSecond(clientView),
+		"the client's light view cannot see parked animals: only the active farm without the payload"
+	)
+	clientView.parkedIncomeBest = richIncome
+	assert(
+		math.abs(FarmMath.getReferenceIncome(clientView) - richIncome) < 1e-9,
+		"the server's parkedIncomeBest lets the client reach the same reference"
+	)
+	assert(
+		Rewards.dailyAmount(small, 1) == Rewards.dailyAmount(clientView, 1)
+			and Rewards.dailyAmount(small, 1)
+				== math.floor(math.max(richIncome * Config.DAILY_MINUTES * 60, Config.DAILY_MIN_REWARD)),
+		"the daily reward follows the reference income on server and client"
+	)
+	assert(
+		Rewards.seasonalReward(small)
+			== math.max(Config.SEASONAL_MIN_REWARD, math.floor(richIncome * Config.SEASONAL_REWARD_SECONDS)),
+		"the seasonal reward follows the reference income"
+	)
+
 	print("PASS rewards: daily streak, wrap, reward scaling and achievement progress")
 end

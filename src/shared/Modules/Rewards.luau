@@ -37,7 +37,7 @@ end
 -- Ödül: gelir x DAILY_MINUTES dakika x seri çarpanı; en az DAILY_MIN_REWARD.
 function Rewards.dailyAmount(save: any, streak: number): number
 	local multiplier = Config.DAILY_REWARD_MULTIPLIERS[math.clamp(streak, 1, #Config.DAILY_REWARD_MULTIPLIERS)]
-	local income = FarmMath.computeIncomePerSecond(save)
+	local income = FarmMath.getReferenceIncome(save)
 	local base = math.max(income * Config.DAILY_MINUTES * 60, Config.DAILY_MIN_REWARD)
 	return math.floor(base * multiplier)
 end
@@ -154,7 +154,7 @@ function Rewards.newSeasonalGoal(save: any, number: number): SeasonalGoal
 	local def = Rewards.seasonalDef(number)
 	local target: number
 	if def.metric == "earned" then
-		local income = FarmMath.computeIncomePerSecond(save)
+		local income = FarmMath.getReferenceIncome(save)
 		target = math.max(def.minTarget or 1, roundSignificant(income * Config.SEASON_SECONDS * (def.factor or 0.3)))
 	else
 		target = def.target or 1
@@ -194,7 +194,7 @@ end
 
 -- Ödül alındığı andaki gelire göre hesaplanır
 function Rewards.seasonalReward(save: any): number
-	local income = FarmMath.computeIncomePerSecond(save)
+	local income = FarmMath.getReferenceIncome(save)
 	return math.max(Config.SEASONAL_MIN_REWARD, math.floor(income * Config.SEASONAL_REWARD_SECONDS))
 end
 

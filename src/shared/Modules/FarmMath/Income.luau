@@ -222,6 +222,61 @@ function Income.previewGoodsYield(save: PlayerSave, recipe: Config.ProductionRec
 	return amount
 end
 
+-- Park edilmiş (etkin olmayan) çiftliğin geliri: FarmProfiles.view ile aynı hesap düzeyi alanlar (geçit, envanter, hava) ve çiftlik numarası
+-- (tema) üstüne okunur; kayıt DEĞİŞTİRİLMEZ. Yalnızca tam kayıtlı (hayvan listesi olan) çiftlikler hesaplanır, istemcinin hafif görünümü atlanır.
+function Income.getParkedFarmIncome(save: PlayerSave, farmId: string, farm: any, now: number?): number
+	if typeof(farm) ~= "table" or typeof(farm.animals) ~= "table" then
+		return 0
+	end
+	local root: any = save
+	local view: any = setmetatable({}, {
+		__index = function(_, key: string): any
+			if key == "farmId" then
+				return farmId
+			elseif key == "passes" then
+				return root.passes
+			elseif key == "inventory" then
+				return root.inventory
+			elseif key == "envOverride" then
+				return root.envOverride
+			elseif key == "cash" then
+				return root.cash
+			end
+			return farm[key]
+		end,
+	})
+	return Income.computeIncomePerSecond(view, now)
+end
+
+-- Sahip olunan park edilmiş çiftlikler arasındaki en yüksek gelir (sunucuda hesaplanır, istemciye `parkedIncomeBest` ile gider:
+-- istemci park edilmiş çiftliğin hayvanlarını görmez). Tam kayıt yoksa 0.
+function Income.getParkedIncomeBest(save: PlayerSave, now: number?): number
+	local farms = (save :: any).mainFarms
+	if typeof(farms) ~= "table" then
+		return 0
+	end
+	local liveId = (save :: any).farmId or save.activeMainFarmId
+	local best = 0
+	for id, farm in farms do
+		if id ~= liveId then
+			best = math.max(best, Income.getParkedFarmIncome(save, id, farm, now))
+		end
+	end
+	return best
+end
+
+-- Referans gelir: hesabın ödül/tavan ölçüsü = etkin çiftliğin canlı geliri ile park edilmiş çiftliklerin en yükseğinin büyüğü.
+-- Böylece 6. çiftliği olan oyuncu başka bir çiftlikteyken günlük/mevsim ödülünde ve sipariş tavanında mahrum kalmaz. Sunucu tam kayıttan hesaplar;
+-- istemci park edilmiş kısmı yükteki `parkedIncomeBest`ten alır (yoksa yalnızca etkin çiftlik).
+function Income.getReferenceIncome(save: PlayerSave, now: number?): number
+	local parked = Income.getParkedIncomeBest(save, now)
+	local sent = (save :: any).parkedIncomeBest
+	if typeof(sent) == "number" and sent == sent and sent > parked then
+		parked = sent
+	end
+	return math.max(Income.computeIncomePerSecond(save, now), parked)
+end
+
 -- Çevrimdışı kazanç oranı (eşya/ada bonusu dahil) ve en çok sayılan süre (saat). Pasif Gelir ikisini de artırır.
 function Income.getOfflineTerms(save: PlayerSave): (number, number)
 	local upgraded = Core.hasOfflineIncome(save)

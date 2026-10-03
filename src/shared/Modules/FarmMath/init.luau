@@ -135,6 +135,8 @@ FarmMath.estimateForgoneIncome = Income.estimateForgoneIncome
 FarmMath.previewGoodsYield = Income.previewGoodsYield
 FarmMath.computeIncomePerSecond = Income.computeIncomePerSecond
 FarmMath.computeIncomeOverInterval = Income.computeIncomeOverInterval
+FarmMath.getReferenceIncome = Income.getReferenceIncome
+FarmMath.getParkedIncomeBest = Income.getParkedIncomeBest
 FarmMath.computeOfflineEarnings = Income.computeOfflineEarnings
 FarmMath.getOfflineTerms = Income.getOfflineTerms
 -- Animals

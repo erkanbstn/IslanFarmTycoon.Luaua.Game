@@ -137,7 +137,7 @@ function Contracts.offers(save: PlayerSave, now: number, bonus: number?): { Offe
 	local window = Contracts.window(now)
 	local cap = Goods.getGoodsCap(save)
 	-- Tek siparişin ödül tavanı (gelirin birkaç dakikası); sınır Config/Economy.luau ECONOMY_LIMITS.maxRewardMinutes ile aynı ölçüdür
-	local rewardCap = Income.computeIncomePerSecond(save, now) * 60 * Config.GOODS_CONTRACTS.rewardCapMinutes
+	local rewardCap = Income.getReferenceIncome(save, now) * 60 * Config.GOODS_CONTRACTS.rewardCapMinutes
 	-- Gelir her saniye oynar; tavan %25'lik basamaklara yuvarlanır ki panodaki adetler (ve sunucunun teslimde yeniden hesapladığı adetler) titremesin.
 	if rewardCap >= 1 then
 		rewardCap = 1.25 ^ math.floor(math.log(rewardCap, 1.25))

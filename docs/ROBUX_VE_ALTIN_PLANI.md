@@ -31,17 +31,17 @@ Altının paraya çevrilmesi ve "N dakikalık gelir" paketleri **etkin çiftliğ
 - **Birikim koruması:** altın kalıcı ve birikir; sınırsız birikip tek seferde paraya çevrilerek geç turları anlamsızlaştırmasın diye çevirme **günlük ve tur başına sınırlıdır** (taslak: günde en çok 200, turda en çok 600 altın). Sink'ler (3) birikimi doğal olarak tüketir.
 - **Kayıt:** `gold` hesap alanı (`SaveCodec/Account`, `SessionLock.VERSION` artar). Çevirme/hızlı bitir/satın alma sunucuda, `RequestGuard` + hız sınırı + `requestId`; `PlayerDataService.trySpend` benzeri tek adımlık tahsilat.
 
-## 2b. Aynı sorun başka yerlerde (ayrı düzeltme önerisi)
-Bugün şu hesaplar **etkin çiftliğin** gelirini kullanıyor; 6. çiftliği olan oyuncu başka çiftlikteyken aynı mahrumiyeti yaşar:
+## 2b. Aynı sorun başka yerlerde (**yapıldı**, `fix/referans-gelir`)
+`FarmMath.getReferenceIncome` yazıldı ve altın/Robux işinden bağımsız olarak şu yerlere bağlandı (altın ve para paketi hâlâ plandadır). Eskiden **etkin çiftliğin** gelirini kullanıyorlardı; 6. çiftliği olan oyuncu başka çiftlikteyken mahrum kalıyordu:
 | Yer | Bugün | Öneri |
 |---|---|---|
-| Günlük ödül (`Rewards.dailyAmount`) | etkin çiftlik geliri x 3 dk | referans gelir |
-| Mevsim hedefi ödülü (`Rewards.seasonalReward`/hedef) | etkin çiftlik | referans gelir |
-| Sipariş ödül tavanı (`Contracts.offers` `rewardCapMinutes`) | etkin çiftlik; yeni çiftlikte adetler 1'e iner | referans gelir (istemci eşitliği için `save.referenceIncome` sunucudan gelir) |
-| Gelir paketi (`MonetizationService.incomePack`) | etkin çiftlik | referans gelir |
+| Günlük ödül (`Rewards.dailyAmount`) | etkin çiftlik geliri x 3 dk | **referans gelir (yapıldı)** |
+| Mevsim hedefi ve ödülü (`Rewards.newSeasonalGoal`/`seasonalReward`) | etkin çiftlik | **referans gelir (yapıldı)** |
+| Sipariş ödül tavanı (`Contracts.offers` `rewardCapMinutes`) | etkin çiftlik; yeni çiftlikte adetler 1'e iner | **referans gelir (yapıldı)**; istemci eşitliği için sunucu `parkedIncomeBest` gönderir |
+| Gelir paketi (`MonetizationService.incomePack`) | etkin çiftlik | referans gelir (Robux işi, **sonraya bırakıldı**) |
 | Altın Hayvan (`Golden`, olay) | etkin çiftliğin toplam geliri | **kalır**: süreli bir olaydır (her oyuncuya özel döngülerde pencere açılır, alınmazsa o döngü kaybolur; değerler `Config.GOLDEN`), kalan süre geri sayımı istemcide görünür. Referans gelire bağlanmaz ve **altın (para birimi) kazandırmaz** |
-| Çevrimdışı kazanç | yalnızca etkin çiftlik (bilinen sınır, `SaveCodec`) | referans gelire bağlanabilir (altın hesabından bağımsız, ayrı karar; "Açık kararlar") |
-`FarmMath.getReferenceIncome` tek yerden yazılır; yukarıdakiler ona bağlanır. Sipariş tavanında istemci/sunucu eşitliği için hesap sunucuda yapılıp client state'e yazılır (tavan %25'lik basamaklara yuvarlandığı için titremez). Bu düzeltme altın işinden bağımsız yapılabilir (ayrı yönerge).
+| Çevrimdışı kazanç | **her çiftlik ayrı hesaplanıp toplanır** (`SaveCodec/Farm.decode`, çiftlik başına `lastSeen`; sim yalnızca etkin çiftliği modeller) | **bağlanmadı, gerek yok**: zaten tüm çiftlikleri topluyor (iki çiftlikli denemede ~4x), referansa bağlamak (en yüksek tek çiftlik) kazancı azaltırdı |
+`FarmMath.getReferenceIncome` (etkin çiftlik canlı geliri ile park edilmiş çiftliklerin en yükseğinin büyüğü) tek yerden yazılır; sunucu park edilmiş çiftlikleri tam kayıttan hesaplar, istemciye `parkedIncomeBest` olarak gider (`FarmProfiles.clientState`, `PlayerDataService.sendState`). Sipariş tavanı %25'lik basamaklara yuvarlandığı için titremez. Test: `tests/rewards.spec.luau`.
 
 ## 3. Robux Marketi
 Dükkândaki "Destek paketleri" **Robux Marketi** penceresine dönüşür (`StoreSection` genişler); sekmeler:
@@ -105,7 +105,7 @@ Rozet gösterimi: `StatsPanel`'de para satırı altında (`UiKit.iconChip` + `Ui
 | para, çiftlikler, hayvanlar, yükseltmeler, ırk, **nakitle alınan tüm eşyalar** (çekiç, Çoban Asaları, alt asa/tılsım kademeleri, şapka, sırt) ve yükseltme/yardımcı/toplayıcı, başarımlar, ahır stoğu, sözleşmeler, tur içi Robux ürünleri | **altın**, Robux/altınla alınan kalıcı eşya (son seviye eşyalar, Altın Taç dahil) ve kolaylıklar, Görünüm satın alımları, rebirth sayısı/etkileri/rozetleri, ayarlar, makbuz kayıtları |
 
 ## 8. Uygulama sırası
-0. **`FarmMath.getReferenceIncome`** (bölüm 1b/2b), `mainFarmSummaries[].incomePerSecond`, istemci eşitliği testi.
+0. **`FarmMath.getReferenceIncome`** (bölüm 1b/2b): **yapıldı** (`parkedIncomeBest` ile; `mainFarmSummaries` alanı gerekmedi). Altın/para paketi bu işlevi kullanacak.
 1. **Altın:** `GameTypes` + `SaveCodec/Account` (`gold`), `SessionLock.VERSION`, `FarmMath.isIslandComplete`, kazanım olayı, `Services/GoldService` (çevir, hızlı bitir, satın alma), HUD altın göstergesi, testler (kazanım yalnızca sunucuda, çevirme sınırı, atomik tahsilat).
 2. **Robux Marketi:** `Config/Shop.luau` yeni ürünler (altın/para paketleri, tur ürünleri), `MonetizationService` etkileri, `StoreSection` sekmeleri, makbuz testleri.
 3. **Kalıcı sahiplik:** `owned` işareti (Robux/altın), son seviye eşya ve kolaylık çift fiyat, Görünüm sekmesi.
@@ -117,7 +117,7 @@ Rozet gösterimi: `StatsPanel`'de para satırı altında (`UiKit.iconChip` + `Ui
 2. **Kalıcı gelir çarpanı sınırı:** eşya x rebirth için x3,0 önerisi (bölüm 4b). Taç tek başına x2 olduğundan rebirth gelir etkisi sınırın hemen altında kalıyor; alternatif: rebirth gelir etkisini küçültüp büyüme/indirim gibi diğer etkilere kaydırmak.
 3. **Tur süresi tabanı** eşyasız oyuncu için ölçülsün, Robux hızlandırıcıları taban altına inebilsin mi? (Önerim: evet.)
 4. **Son seviye eşya fiyatları** (altın ve Robux) ileride artırılabilir; özellikle Altın Taç, Altın Bereket Muskası, Altın Kanatlar. Fiyat kullanıcıya aittir, Config'e bağlanır.
-5. **Çevrimdışı kazanç** referans gelire bağlansın mı? (Önerim: evet, ayrı ve küçük bir düzeltme; altın hesabıyla ilgisi yok.)
+5. **Çevrimdışı kazanç:** karar verildi, referansa bağlanmadı; mevcut davranış (tüm çiftlikler toplanır) kalır. (Çözüldü.)
 6. **Görünüm sekmesinin altınla alınabilen alt kümesi** olsun mu?
 7. **Seviye dönüm noktası kazanımları** (ek tılsım yuvası, panoya slot) uygulamada ayrıntılandırılır; kullanıcı onaylar.
 8. Altın miktarları, çevirme oranı ve limitleri sim ile ayarlanır; Robux fiyatları ve paket büyüklükleri kullanıcıya aittir.
