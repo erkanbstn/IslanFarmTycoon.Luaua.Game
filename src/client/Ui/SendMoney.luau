@@ -64,8 +64,6 @@ local function create(): UiKit.Window
 		anchor = Vector2.new(0.5, 0.5),
 		position = UDim2.fromScale(0.5, 0.5),
 	})
-	created.frame.BackgroundColor3 = UiKit.Color.Surface
-	created.frame.BackgroundTransparency = 0
 	heading = UiKit.text(created.list, "", "Heading");
 	(heading :: TextLabel).LayoutOrder = 1
 	balance = UiKit.text(created.list, "", "Caption");
@@ -76,7 +74,7 @@ local function create(): UiKit.Window
 	amountBox = box
 	local quick = Instance.new("Frame")
 	quick.BackgroundTransparency = 1
-	quick.Size = UDim2.new(1, 0, 0, 38)
+	quick.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
 	quick.LayoutOrder = 4
 	quick.Parent = created.list
 	UiKit.list(quick, 6, true)
@@ -96,7 +94,7 @@ local function create(): UiKit.Window
 	message = UiKit.text(created.list, "", "Caption");
 	(message :: TextLabel).LayoutOrder = 5
 	local send = UiKit.button(created.list, "Gönder", "primary")
-	send.Size = UDim2.new(1, 0, 0, 44)
+	send.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
 	send.LayoutOrder = 6
 	sendButton = send
 	send.Activated:Connect(function()

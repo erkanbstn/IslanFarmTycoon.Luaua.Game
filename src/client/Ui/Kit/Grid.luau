@@ -65,7 +65,7 @@ function Grid.tile(
 	frame.LayoutOrder = order
 	frame.Parent = parent
 	Base.corner(frame, Tokens.Radius.Card)
-	Base.stroke(frame, 0.94)
+	Base.stroke(frame, 0.5)
 	Base.padding(frame, 8)
 	local layout = Base.list(frame, 4)
 	layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
@@ -98,6 +98,8 @@ function Grid.autoGrid(parent: Instance, order: number, columns: number?): Frame
 	layout.SortOrder = Enum.SortOrder.LayoutOrder
 	layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
 	layout.VerticalAlignment = Enum.VerticalAlignment.Top
+	-- Satırdaki kartlar eşit uzar; Fill, kaydırma alanının yüksekliğine sıkıştırır.
+	layout.ItemLineAlignment = Enum.ItemLineAlignment.Stretch
 	layout.Padding = UDim.new(0, GAP)
 	layout.Parent = host
 	return host
@@ -129,7 +131,7 @@ function Grid.autoTile(grid: Frame, order: number, icon: string, options: TileOp
 	frame.AutomaticSize = Enum.AutomaticSize.Y
 	frame.Parent = grid
 	Base.corner(frame, Tokens.Radius.Card)
-	Base.stroke(frame, 0.94)
+	Base.stroke(frame, 0.5)
 	Base.padding(frame, if compact then 6 else 8)
 	local layout = Base.list(frame, if compact then 3 else 4)
 	layout.HorizontalAlignment = Enum.HorizontalAlignment.Center

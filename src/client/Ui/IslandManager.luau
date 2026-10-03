@@ -204,7 +204,7 @@ local function create(): UiKit.Window
 	screen.Parent = player:WaitForChild("PlayerGui")
 	local root = UiKit.screenRoot(screen)
 	local created = UiKit.window(root, {
-		title = "Ana Çiftlikler ve Adalar",
+		title = "Adalar",
 		icon = "🧭",
 		tint = UiKit.Color.Blue,
 		width = 360,
@@ -217,6 +217,15 @@ local function create(): UiKit.Window
 	-- Bu pencerenin önünde görünen bildirim alanı: yetersiz bakiye, satın alma sonucu vb.
 	local notify = UiKit.toastHost(root)
 	notifyHook = notify
+	local details = UiKit.disclosure(created.list, 15, "Ayrıntılar")
+	UiKit.text(details.body, "Kasa ve altın ortaktır; hayvanlar, yükseltmeler ve depolar çiftliğe aittir.", "Body").LayoutOrder =
+		1
+	UiKit.text(
+		details.body,
+		"Çiftlik değiştirince önceki çiftliğin çalışmaya devam eder. Küçük adalar yalnızca etkin çiftliği geliştirir.",
+		"Body"
+	).LayoutOrder =
+		2
 	local info = UiKit.text(created.list, "", "Caption")
 	info.LayoutOrder = 0
 	local feedback = UiKit.text(created.list, "", "Caption")
@@ -233,47 +242,11 @@ local function create(): UiKit.Window
 	end
 	local ownedList = section(3)
 	local ownedCards: { [string]: UiKit.Card } = {}
-	-- Etkin çiftlik kartındaki ok: bu çiftliğe bağlı küçük adalar kartın altında açılır/kapanır.
-	local specialtyOpen = false
-	local applySpecialtyOpen: () -> () = function() end
-	local arrows: { [string]: TextButton } = {}
 	for index = 1, LIMIT do
 		local id = tostring(index)
 		local card = UiKit.card(ownedList, index, "🏝️")
-		card.frame.BackgroundColor3 = UiKit.Color.SurfaceRaised
 		card.frame.Visible = false
 		ownedCards[id] = card
-		local row = card.icon.Parent :: Frame
-		local texts = card.title.Parent :: Frame
-		texts.Size = UDim2.new(1, -96, 0, 0)
-		local arrow = Instance.new("TextButton")
-		arrow.Name = "SpecialtyArrow"
-		arrow.AnchorPoint = Vector2.new(1, 0)
-		arrow.Position = UDim2.new(1, 0, 0, 5)
-		arrow.Size = UDim2.fromOffset(32, 32)
-		arrow.BackgroundColor3 = UiKit.Color.Surface
-		arrow.Text = ""
-		arrow.AutoButtonColor = true
-		arrow.Visible = false
-		arrow.Parent = row
-		UiKit.corner(arrow, 8)
-		-- Aşağı bakan ok (çizilmiş iki çubuk); kapalıyken sağa döner
-		for _, side in { -1, 1 } do
-			local bar = Instance.new("Frame")
-			bar.AnchorPoint = Vector2.new(0.5, 0.5)
-			bar.Size = UDim2.fromOffset(12, 3)
-			bar.Position = UDim2.new(0.5, side * 3.5, 0.5, -1)
-			bar.Rotation = -side * 45
-			bar.BackgroundColor3 = UiKit.Color.Gold
-			bar.BorderSizePixel = 0
-			bar.Parent = arrow
-			UiKit.corner(bar, 2)
-		end
-		arrow.Activated:Connect(function()
-			specialtyOpen = not specialtyOpen
-			applySpecialtyOpen()
-		end)
-		arrows[id] = arrow
 		card.action.Activated:Connect(function()
 			if card.action.Active then
 				submit("select", id)
@@ -311,7 +284,6 @@ local function create(): UiKit.Window
 	for index = 1, Config.MAP_PLOT_COUNT do
 		local id = tostring(index)
 		local card = UiKit.autoTile(freeGrid, index, "🌴")
-		card.frame.BackgroundColor3 = UiKit.Color.SurfaceRaised
 		freeCards[id] = card
 		card.action.Activated:Connect(function()
 			if card.action.Active and isKnown(id) and not isOwned(id) then
@@ -354,7 +326,6 @@ local function create(): UiKit.Window
 	-- Küçük adalar artık kendi sekmesinde (ok ile açılan kutu kalktı); görünürlüğü sekme belirler
 	specialtyBox.LayoutOrder = 7
 	specialtyBox.Parent = created.list
-	applySpecialtyOpen = function() end
 	local specialtyCards: { [string]: UiKit.Card } = {}
 	for index, id in Config.FARM_ISLAND_ORDER do
 		if id == "home" then
@@ -362,8 +333,9 @@ local function create(): UiKit.Window
 		end
 		local island = Config.FARM_ISLANDS[id]
 		local card = UiKit.autoTile(specialtyGrid, index, island.icon)
-		card.frame.BackgroundColor3 = UiKit.Color.SurfaceRaised
 		specialtyCards[id] = card
+		local islandDetails = UiKit.disclosure(card.frame, 6, "Ayrıntılar")
+		UiKit.text(islandDetails.body, island.trait, "Caption")
 		card.action.Activated:Connect(function()
 			local state = ClientState.get()
 			if not state or not card.action.Active or blocked() then
@@ -404,7 +376,7 @@ local function create(): UiKit.Window
 		end)
 	end
 	local hub = UiKit.button(created.list, "Meydana git", "primary")
-	hub.Size = UDim2.new(1, 0, 0, 36)
+	hub.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
 	hub.LayoutOrder = 10
 	hub.Activated:Connect(function()
 		if blocked() then
@@ -481,7 +453,12 @@ local function create(): UiKit.Window
 				child:Destroy()
 			end
 		end
-		UiKit.text(visits, "Diğer oyuncuların adalarını ziyaret edebilirsin; onlara dokunamazsın.", "Caption").LayoutOrder =
+		local visitDetails = UiKit.disclosure(visits, 2, "Ayrıntılar")
+		UiKit.text(
+			visitDetails.body,
+			"Diğer oyuncuların adalarını ziyaret edebilirsin; onlara dokunamazsın.",
+			"Caption"
+		).LayoutOrder =
 			0
 		local visitGrid = UiKit.autoGrid(visits, 1)
 		for index = 1, Config.MAP_PLOT_COUNT do
@@ -498,7 +475,6 @@ local function create(): UiKit.Window
 				or (plot and plot:GetAttribute("MainFarmId"))
 			local card = UiKit.autoTile(visitGrid, index, "👤", { compact = true })
 			card.frame.Name = `Visit_{ownerId}`
-			card.frame.BackgroundColor3 = UiKit.Color.SurfaceRaised
 			setAvatar(card.icon, ownerId)
 			card.title.TextWrapped = false
 			card.title.TextTruncate = Enum.TextTruncate.AtEnd
@@ -541,11 +517,7 @@ local function create(): UiKit.Window
 		offerById = offersById(state)
 		local farms = summaries(state)
 		local activeId = (state :: any).activeMainFarmId or "1"
-		local activeName = `Ana Çiftlik {activeId}`
-		info.Text =
-			`Etkin: {activeName} · Bölüm: {IslandContext.name()} · Çiftlik {#farms}/{LIMIT}\nKasa {FarmMath.formatMoney(
-				state.cash
-			)} bütün ana çiftliklerinde ortaktır.`
+		UiKit.setText(info, `Çiftlik {activeId} · {IslandContext.name()} · {#farms}/{LIMIT}`)
 		feedback.Text = resultMessage
 		feedback.Visible = resultMessage ~= ""
 		feedback.TextColor3 = if pending
@@ -563,12 +535,12 @@ local function create(): UiKit.Window
 			end
 			card.frame.Visible = true
 			local isActive = farm.id == activeId
-			local physicalName = nameOf(farm.id)
 			card.title.Text = `Ana Çiftlik {farm.id}` .. (if isActive then " · Etkin" else "")
 			local stored = if isActive then state.stored else farm.stored
-			card.detail.Text = `{farm.animalCount} hayvan · {farm.purchasedCount} yatırım · Depo {FarmMath.formatMoney(
-				stored
-			)}\n` .. (if physicalName then `Konum: {physicalName}` else "Park halinde; seçince adanda açılır.")
+			UiKit.setText(
+				card.detail,
+				`{farm.animalCount} hayvan · {farm.purchasedCount} yatırım · Depo {FarmMath.formatMoney(stored)}`
+			)
 			card.action.Text = if pending
 				then "İşleniyor"
 				elseif isActive then "Etkin çiftliğe dön"
@@ -576,9 +548,10 @@ local function create(): UiKit.Window
 			UiKit.setVariant(card.action, if unavailable then "disabled" else "primary")
 		end
 		local atLimit = #farms >= LIMIT
-		buyInfo.Text = if atLimit
-			then `En fazla {LIMIT} ana çiftliğin olabilir.`
-			else "Bir çiftlik teması seç; her temanın kendi fiyatı vardır (ilerledikçe pahalı ve zor). Satın alınca adan o çiftliğe dönüşür; önceki çiftliğin park edilir ve çalışmaya devam eder."
+		UiKit.setText(
+			buyInfo,
+			if atLimit then `En fazla {LIMIT} ana çiftliğin olabilir.` else "Sıradaki çiftliğini seç."
+		)
 		-- Sahip olunan en yüksek tema: ondan iki ya da daha fazla ileri tema "çok zor" etiketi alır (fiyat ve süre kademesi tema numarasından gelir)
 		local highestOwned = 0
 		for _, farm in farms do
@@ -600,9 +573,10 @@ local function create(): UiKit.Window
 				card.detail.Text, card.action.Text = "Bu çiftlik teması henüz senin değil.", "Çiftlik sınırı"
 			elseif typeof(cardPrice) == "number" then
 				local veryHard = (tonumber(id) or 1) >= highestOwned + 2
-				card.detail.Text = if veryHard
-					then "Çok zor: önce daha kolay çiftlikleri al. Hayvanları ve yatırımları ayrı gelişir; kasa ve depo ortaktır."
-					else "Hayvanları ve yatırımları ayrı gelişir; kasa ve depo ortaktır."
+				UiKit.setText(
+					card.detail,
+					if veryHard then "Çok zor: önceki çiftliklerden sonra önerilir." else "Yeni çiftlik"
+				)
 				card.action.Text = if pending then "İşleniyor" else `Satın al · {FarmMath.formatMoney(cardPrice)}`
 				variant = if state.cash >= cardPrice then "primary" else "warning"
 			else
@@ -610,8 +584,7 @@ local function create(): UiKit.Window
 			end
 			UiKit.setVariant(card.action, if unavailable then "disabled" else variant)
 		end
-		specialtyInfo.Text =
-			`Bu üç küçük ada yalnızca {activeName}'i geliştirir ({Config.getTheme(activeId).displayName}). Seçili bölüm: {IslandContext.name()}.`
+		UiKit.setText(specialtyInfo, Config.getTheme(activeId).displayName)
 		local themeIslands = FarmMath.themeIslands(state)
 		for id, card in specialtyCards do
 			local island = Config.FARM_ISLANDS[id]
@@ -620,15 +593,18 @@ local function create(): UiKit.Window
 			card.title.Text = island.displayName .. (if id == IslandContext.get() then " · Seçili" else "")
 			local variant: UiKit.Variant = "primary"
 			if state.unlockedIslands[id] then
-				card.detail.Text = island.trait
+				card.detail.Visible = false
 				card.action.Text = if travelling then "Geçiş bekleniyor" else "Küçük adaya git"
 			else
 				local upgrade = island.upgradeId and Config.getUpgrade(island.upgradeId)
 				local status, missing = FarmMath.getUpgradeStatus(state, island.upgradeId or "")
 				local needs = if upgrade and status ~= "locked" then HudCommon.goodsNeedText(state, upgrade) else nil
-				card.detail.Text = island.trait
-					.. (if status == "locked" then `\nÖnce: {table.concat(missing, ", ")}` else "")
-					.. (if needs then `\n{needs}` else "")
+				card.detail.Visible = status == "locked" or needs ~= nil
+				UiKit.setText(
+					card.detail,
+					(if status == "locked" then `Önce: {table.concat(missing, ", ")}` else "")
+						.. (if needs then `\n{needs}` else "")
+				)
 				card.action.Text = if upgrade
 					then `Küçük adayı aç · {FarmMath.formatMoney(FarmMath.getUpgradeCost(state, upgrade))}`
 					else "Kilitli"

@@ -46,6 +46,18 @@ function RoadmapWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Road
 	IslandTabs.add(roadmapWindow)
 
 	local upgradeCards: { [string]: UiKit.Card } = {}
+	local disclosures: { UiKit.Disclosure } = {}
+	local lastContext = ""
+	local function resetDetails()
+		for _, detail in disclosures do
+			detail.setExpanded(false)
+		end
+	end
+	roadmapWindow.frame:GetPropertyChangedSignal("Visible"):Connect(function()
+		if not roadmapWindow.isOpen() then
+			resetDetails()
+		end
+	end)
 	type ExtensionHudRow = { row: Frame, add: TextButton, remove: TextButton }
 	local extensionHudRows: { [string]: ExtensionHudRow } = {}
 	local stageMeta: { [number]: TextLabel } = {}
@@ -65,9 +77,10 @@ function RoadmapWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Road
 				then `Ada özelliği: {islandConfig.trait}`
 				else stage.description
 			if caption then
-				local captionLabel = UiKit.text(roadmapWindow.list, caption, "Caption")
-				captionLabel.LayoutOrder = order
-				table.insert(stageGroups[stageIndex], captionLabel)
+				local information = UiKit.disclosure(roadmapWindow.list, order, "Ayrıntılar")
+				UiKit.text(information.body, caption, "Caption")
+				table.insert(disclosures, information)
+				table.insert(stageGroups[stageIndex], information.frame)
 				order += 1
 			end
 
@@ -94,6 +107,7 @@ function RoadmapWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Road
 				card.title.Text = upgrade.displayName
 				tileOrder += 1
 				upgradeCards[upgrade.id] = card
+				table.insert(disclosures, UiKit.cardDetails(card, "Ayrıntılar"))
 				card.action.Activated:Connect(function()
 					if card.action.Active then
 						PurchaseController.submit("RequestBuyUpgrade", upgrade.id)
@@ -128,16 +142,18 @@ function RoadmapWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Road
 	end
 
 	local function updateRoadmap(state: PlayerSave, content: boolean)
+		local context =
+			`{state.activeMainFarmId}:{IslandContext.get()}:{if state.progression then state.progression.run else 0}`
+		if context ~= lastContext then
+			lastContext = context
+			resetDetails()
+		end
 		local progress = Progression.progress(state)
-		UiKit.setText(
-			rebirthGoal,
-			`Uzun hedef: {progress.farmsComplete}/{progress.farmsTotal} çiftliği tamamla. Rebirth ile kalıcı etki kazanıp yeni tura başlarsın.`
-		)
+		UiKit.setText(rebirthGoal, `Rebirth: {progress.farmsComplete}/{progress.farmsTotal} çiftlik`)
 		local selectedIsland = IslandContext.get()
 		IslandTabs.update(state)
 		if content then
-			roadmapInfo.Text =
-				`{IslandContext.name()} · Tüm aşamalar ve ilerlemen. Alışveriş için Yükseltmeler (U)`
+			UiKit.setText(roadmapInfo, IslandContext.name())
 		end
 		local ownedPerStage: { [number]: number } = {}
 		local totalPerStage: { [number]: number } = {}

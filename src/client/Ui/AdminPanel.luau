@@ -126,14 +126,23 @@ local function create(parent: Instance): UiKit.Window
 		anchor = Vector2.new(0.5, 0.5),
 		position = UDim2.fromScale(0.5, 0.5),
 	})
+	local panelDetails = UiKit.disclosure(created.list, 9, "Ayrıntılar")
 	UiKit.text(
-		created.list,
+		panelDetails.body,
 		"Para işlemleri yalnızca kendi kasanı değiştirir. Hava, mevsim, saat ve ışıklar bu sunucudaki herkesi etkiler.",
 		"Caption"
 	).LayoutOrder =
 		1
-	local persistence = UiKit.text(created.list, "", "Caption")
+	local persistence = UiKit.text(panelDetails.body, "", "Caption")
 	persistence.LayoutOrder = 2
+	local persistenceWarning = UiKit.text(
+		created.list,
+		"Kayıtsız test: para değişiklikleri bu oturum sonunda saklanmaz.",
+		"Caption",
+		UiKit.Color.Orange
+	)
+	persistenceWarning.LayoutOrder = 2
+	persistenceWarning.Visible = false
 	local status = UiKit.text(created.list, "", "Body")
 	status.RichText = false
 	status.LayoutOrder = 3
@@ -198,7 +207,7 @@ local function create(parent: Instance): UiKit.Window
 	local function row(order: number): Frame
 		local frame = Instance.new("Frame")
 		frame.BackgroundTransparency = 1
-		frame.Size = UDim2.new(1, 0, 0, 44)
+		frame.Size = UDim2.new(1, 0, 0, math.max(UiKit.TouchTarget, 56))
 		frame.LayoutOrder = order
 		frame.Parent = page
 		UiKit.list(frame, 6, true)
@@ -292,8 +301,9 @@ local function create(parent: Instance): UiKit.Window
 	local seasonStatus = UiKit.text(page, "", "Caption")
 	seasonStatus.LayoutOrder = 14
 	choices("setSeason", seasons, 15)
+	local worldDetails = UiKit.disclosure(page, 33, "Ayrıntılar")
 	UiKit.text(
-		page,
+		worldDetails.body,
 		"Otomatik seçeneği ilgili yönetici seçimini kaldırıp normal döngüyü sürdürür.",
 		"Caption"
 	).LayoutOrder =
@@ -325,32 +335,35 @@ local function create(parent: Instance): UiKit.Window
 	heading(page, "Gece ışıkları").LayoutOrder = 24
 	local lightStatus = UiKit.text(page, "", "Caption")
 	lightStatus.LayoutOrder = 25
+	local lightDiagnostics = UiKit.text(worldDetails.body, "", "Caption")
+	lightDiagnostics.LayoutOrder = 19
 	choices("setLights", lightModes, 26)
 	heading(page, "Işık parlaklığı").LayoutOrder = 28
 	local levelStatus = UiKit.text(page, "", "Caption")
 	levelStatus.LayoutOrder = 29
 	choices("setLightLevel", lightLevels, 30)
 	page = pages.test
-	heading(page, "Test araçları (yalnızca kendi çiftliğin)").LayoutOrder = 33
+	heading(page, "Kendi çiftliğin").LayoutOrder = 33
+	local testDetails = UiKit.disclosure(page, 49, "Ayrıntılar")
 	UiKit.text(
-		page,
+		testDetails.body,
 		'Açma ve doldurma, seçili (bulunduğun) ada ya da bütün adalar içindir (kilitli ada seçilemediği için "Bütün adalar" onları da açar). Hayvanları yetişkin yapmak büyüme animasyonunu, açmak tabela ve eklentileri, doldurmak yoğunluğu denemek içindir. Para harcamaz.',
 		"Caption"
 	).LayoutOrder =
 		34
-	choices("maxAll", { { id = "now", label = "Hepsini aç, büyüt ve doldur (bütün adalar)" } }, 35)
+	choices("maxAll", { { id = "now", label = "Bütün adaları tamamla" } }, 35)
 	choices("growAll", { { id = "now", label = "Bütün hayvanları büyüt" } }, 36)
 	choices("unlockIslands", {
-		{ id = "now", label = "Bu adadaki her şeyi aç (eklentiler dahil)" },
-		{ id = "all", label = "Bütün adalardaki her şeyi aç" },
+		{ id = "now", label = "Bu adayı aç" },
+		{ id = "all", label = "Bütün adaları aç" },
 	}, 37)
 	choices("fillSlots", {
-		{ id = "now", label = "Bu adadaki bütün slotları hayvanla doldur" },
-		{ id = "all", label = "Bütün adaları hayvanla doldur" },
+		{ id = "now", label = "Bu adayı doldur" },
+		{ id = "all", label = "Bütün adaları doldur" },
 	}, 38)
 	heading(page, "Rastgele olaylar (test)").LayoutOrder = 39
 	UiKit.text(
-		page,
+		testDetails.body,
 		"Olaylar normalde rastgele gelir; bunlar hemen görmek içindir. Altın hayvan ve tüccar yalnızca senin profilinde çıkar, kaydedilmez.",
 		"Caption"
 	).LayoutOrder =
@@ -358,10 +371,10 @@ local function create(parent: Instance): UiKit.Window
 	choices("forceMerchant", { { id = "now", label = "Gezgin tüccarı çağır" } }, 41)
 	choices("forceGolden", { { id = "now", label = "Altın hayvanı çağır" } }, 42)
 	choices("completeSeason", { { id = "now", label = "Mevsim hedefini tamamla" } }, 43)
-	choices("resetEvents", { { id = "now", label = "Olayları ve mevsim hedefini sıfırla" } }, 44)
+	choices("resetEvents", { { id = "now", label = "Olayları sıfırla" } }, 44)
 	heading(page, "Envanter (test)").LayoutOrder = 45
 	choices("fillBarn", { { id = "now", label = "Ahır deposunu doldur" } }, 48)
-	choices("grantItems", { { id = "now", label = "Bütün eşyaları ver (takmaz)" } }, 46)
+	choices("grantItems", { { id = "now", label = "Bütün eşyaları ver" } }, 46)
 	choices("clearItems", { { id = "now", label = "Envanteri boşalt" } }, 47)
 
 	-- Tehlikeli bölge: bütün oyuncuların verisini sıfırlar (kayıtlar silinmez: veri çağı artar, eski kayıt arşivlenir; ayrıntı DataResetService)
@@ -418,7 +431,7 @@ local function create(parent: Instance): UiKit.Window
 			local label = if other == player then `{other.DisplayName} (ben)` else other.DisplayName
 			local button = UiKit.button(playerList, label, if other == selectedTarget then "primary" else "secondary")
 			fit(button)
-			button.Size = UDim2.new(1, 0, 0, 34)
+			button.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
 			button.LayoutOrder = index
 			button.Activated:Connect(function()
 				selectedTarget = other
@@ -528,7 +541,8 @@ local function create(parent: Instance): UiKit.Window
 		local ramp = lightingNumber("NightLightRamp")
 		local parts = lightingNumber("NightLightParts")
 		local sources = lightingNumber("NightLightSources")
-		lightStatus.Text =
+		lightStatus.Text = `Seçim: {choiceLabel(lightModes, selectedLights)}`
+		lightDiagnostics.Text =
 			`Seçim: {choiceLabel(lightModes, selectedLights)} · Şu an ışıklar %{ramp} · Yakında {parts} lamba/pencere, {sources} ışık kaynağı`
 		levelStatus.Text = `Seçim: {choiceLabel(lightLevels, selectedLevel :: string)}`
 		weatherStatus.Text = `Seçim: {choiceLabel(weather, selectedWeather)}`
@@ -536,6 +550,8 @@ local function create(parent: Instance): UiKit.Window
 		persistence.Text = if player:GetAttribute("DataPersistent") == false
 			then "Kayıtsız test: para değişiklikleri bu oturum sonunda saklanmaz."
 			else "Para değişiklikleri aktif profilin normal kayıt akışında saklanır."
+		persistenceWarning.Visible = player:GetAttribute("DataPersistent") == false
+		status.Visible = pending ~= nil or resultSuccess ~= nil
 		status.Text = resultText
 		status.TextColor3 = if resultSuccess == false
 			then UiKit.Color.Red
@@ -553,8 +569,8 @@ local function create(parent: Instance): UiKit.Window
 			if not busy and not selected then
 				-- Seçilmemiş düğme yüzeyden vurgu rengine doğru tonlanır (işlem düğmeleri daha canlı)
 				local accent = ACTION_ACCENT[control.action] or UiKit.Color.Blue
-				control.button.BackgroundColor3 =
-					UiKit.Color.SurfaceRaised:Lerp(accent, if control.value == nil then 0.8 else 0.5)
+				control.button.BackgroundColor3 = accent
+				control.button.TextColor3 = UiKit.Color.OnAccent
 			end
 		end
 	end

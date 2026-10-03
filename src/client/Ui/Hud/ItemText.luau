@@ -91,6 +91,13 @@ function ItemText.describe(item: Config.ItemConfig): string
 	return table.concat(parts, "\n")
 end
 
+-- Ana fayda kartta kalır; açılan bölüm yalnızca ek etkileri ve eksileri gösterir.
+function ItemText.additional(item: Config.ItemConfig): string
+	local description = ItemText.describe(item)
+	local splitAt = string.find(description, "\n", 1, true)
+	return if splitAt then string.sub(description, splitAt + 1) else ""
+end
+
 -- Bir slotun eşyaları, ITEM_ORDER sırasıyla
 function ItemText.itemsOfSlot(slotId: string): { Config.ItemConfig }
 	local result: { Config.ItemConfig } = {}

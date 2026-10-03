@@ -68,9 +68,68 @@ function Controls.button(parent: Instance, text: string, variant: Variant): Text
 	b.Selectable = true
 	b.Parent = parent
 	Base.corner(b, Tokens.Radius.Button)
+	Base.stroke(b, 0.64)
 	Controls.setVariant(b, variant)
 	addPressFeedback(b)
 	return b
+end
+
+export type Disclosure = {
+	frame: Frame,
+	body: Frame,
+	button: TextButton,
+	setExpanded: (boolean) -> (),
+	isExpanded: () -> boolean,
+}
+
+-- Açıklamalar ve ikincil işlemler istenince açılır; ana aksiyon dışarıda kalır.
+function Controls.disclosure(parent: Instance, order: number, title: string): Disclosure
+	local frame = Instance.new("Frame")
+	frame.Name = "Disclosure"
+	frame.BackgroundTransparency = 1
+	frame.Size = UDim2.new(1, 0, 0, 0)
+	frame.AutomaticSize = Enum.AutomaticSize.Y
+	frame.LayoutOrder = order
+	frame.Parent = parent
+	Base.list(frame, 6)
+	local button = Controls.button(frame, title, "secondary")
+	button.Name = "DisclosureToggle"
+	button.Size = UDim2.new(1, 0, 0, Tokens.TouchTarget)
+	button.AutomaticSize = Enum.AutomaticSize.Y
+	Base.padding(button, 8, 6)
+	button.LayoutOrder = 0
+	button.TextSize = Tokens.TextSize.Button
+	local body = Instance.new("Frame")
+	body.Name = "DisclosureBody"
+	body.BackgroundTransparency = 1
+	body.Size = UDim2.new(1, 0, 0, 0)
+	body.AutomaticSize = Enum.AutomaticSize.Y
+	body.LayoutOrder = 1
+	body.Visible = false
+	body.Parent = frame
+	Base.list(body, 6)
+	local expanded = false
+	local function setExpanded(value: boolean)
+		if expanded == value then
+			return
+		end
+		expanded = value
+		body.Visible = value
+		button:SetAttribute("Expanded", value)
+		Controls.setVariant(button, if value then "accent" else "secondary")
+	end
+	button.Activated:Connect(function()
+		setExpanded(not expanded)
+	end)
+	return {
+		frame = frame,
+		body = body,
+		button = button,
+		setExpanded = setExpanded,
+		isExpanded = function(): boolean
+			return expanded
+		end,
+	}
 end
 
 -- Yönlendirme vurgusu: hedef düğmenin çevresinde yavaşça yanıp sönen altın çerçeve.
@@ -430,6 +489,15 @@ export type Card = {
 	status: TextLabel, -- Sağ üstte kırmızı durum yazısı ("Dolu", "Kilitli"): düğme yerine; boşken gizli
 }
 
+function Controls.cardDetails(card: Card, title: string): Disclosure
+	local details = Controls.disclosure(card.frame, card.action.LayoutOrder + 1, title)
+	card.detail.Parent = details.body
+	card.detail.LayoutOrder = 0
+	card.detail.Size = UDim2.new(1, 0, 0, 0)
+	card.detail.AutomaticSize = Enum.AutomaticSize.Y
+	return details
+end
+
 -- Kartın sağ üst köşesindeki durum yazısı. parent bir düzen (UIListLayout) altındaysa sıfır yükseklikli bir tutucuya konur.
 function Controls.statusLabel(parent: Instance): TextLabel
 	local label = Base.text(parent, "", "Caption", Tokens.Color.Red)
@@ -462,7 +530,7 @@ function Controls.card(parent: Instance, order: number, icon: string): Card
 	frame.LayoutOrder = order
 	frame.Parent = parent
 	Base.corner(frame, Tokens.Radius.Card)
-	Base.stroke(frame, 0.94)
+	Base.stroke(frame, 0.5)
 	Base.padding(frame, 12)
 	Base.list(frame, 8)
 	local row = Instance.new("Frame")
@@ -488,7 +556,9 @@ function Controls.card(parent: Instance, order: number, icon: string): Card
 	detail.LayoutOrder = 2
 
 	local action = Controls.button(frame, "", "primary")
-	action.Size = UDim2.new(1, 0, 0, 40)
+	action.Size = UDim2.new(1, 0, 0, Tokens.TouchTarget)
+	action.AutomaticSize = Enum.AutomaticSize.Y
+	Base.padding(action, 8, 6)
 	action.LayoutOrder = 2
 
 	local status = Controls.statusLabel(frame)

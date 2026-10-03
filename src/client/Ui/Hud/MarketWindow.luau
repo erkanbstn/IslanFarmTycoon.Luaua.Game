@@ -37,8 +37,20 @@ function MarketWindow.create(
 		anchor = Vector2.new(0.5, 0.5),
 		position = UDim2.fromScale(0.5, 0.5),
 	})
-	local wallet = UiKit.text(window.list, "", "Heading", UiKit.Color.Green)
-	wallet.LayoutOrder = 0
+	local walletRow = Instance.new("Frame")
+	walletRow.Name = "GoldWallet"
+	walletRow.BackgroundTransparency = 1
+	walletRow.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
+	walletRow.AutomaticSize = Enum.AutomaticSize.Y
+	walletRow.LayoutOrder = 0
+	walletRow.Parent = window.list
+	local walletIcon = UiKit.iconChip(walletRow, "🪙", 36, UiKit.Color.Gold)
+	walletIcon.Name = "GoldIcon"
+	walletIcon.AnchorPoint = Vector2.new(0, 0.5)
+	walletIcon.Position = UDim2.fromScale(0, 0.5)
+	local wallet = UiKit.text(walletRow, "", "Heading", UiKit.Color.Green)
+	wallet.Position = UDim2.new(0, UiKit.TouchTarget, 0, 0)
+	wallet.Size = UDim2.new(1, -UiKit.TouchTarget, 0, UiKit.TouchTarget)
 	local pages: { [string]: Frame } = {}
 	for _, id in { "featured", "gold", "cash", "permanent", "run", "convert", "finish" } do
 		local page = Instance.new("Frame")
@@ -73,20 +85,32 @@ function MarketWindow.create(
 	for id, page in pages do
 		page.Visible = id == selectedPage
 	end
+	UiKit.text(pages.convert, "Altın miktarını seç ve alacağın parayı kontrol et.", "Body").LayoutOrder = 0
+	local conversionGuide = UiKit.disclosure(pages.convert, 9, "Altın nasıl çalışır?")
 	UiKit.text(
-		pages.convert,
+		conversionGuide.body,
 		`İlk ücretsiz altın: bir adanın tüm yükseltmelerini tamamla. Ada başına {Config.PROGRESSION.gold.island} altın, tamamlanan çiftlik için ayrıca {Config.PROGRESSION.gold.farm} altın kazanırsın.`,
 		"Body"
 	).LayoutOrder =
 		0
-	UiKit.text(pages.convert, "Altın Hayvan olayı oyun parası verir; altın cüzdanından ayrıdır.", "Caption").LayoutOrder =
+	UiKit.text(
+		conversionGuide.body,
+		"Altın Hayvan olayı oyun parası verir; altın cüzdanından ayrıdır.",
+		"Caption"
+	).LayoutOrder =
 		1
 	UiKit.text(
-		pages.convert,
+		conversionGuide.body,
 		"Altın rebirth'te kalır. Paraya çevirmek yerine kalıcı eşya için biriktirebilirsin.",
 		"Body"
 	).LayoutOrder =
 		2
+	UiKit.text(
+		conversionGuide.body,
+		"Tutar, en yüksek kalıcı çiftlik gelirinden hesaplanır; geçici 2x ve Geri Dönüş bonusu dahil değildir.",
+		"Caption"
+	).LayoutOrder =
+		3
 	local amountInput = UiKit.textInput(pages.convert, "Çevrilecek altın miktarı")
 	amountInput.Text = "1"
 	amountInput.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
@@ -98,9 +122,9 @@ function MarketWindow.create(
 	convert.LayoutOrder = 5
 	local quoteNote = UiKit.text(pages.convert, "", "Caption")
 	quoteNote.LayoutOrder = 6
-	local perkSummary = UiKit.text(pages.convert, "", "Caption")
+	local perkSummary = UiKit.text(conversionGuide.body, "", "Caption")
 	perkSummary.LayoutOrder = 7
-	local returnSummary = UiKit.text(pages.convert, "", "Caption")
+	local returnSummary = UiKit.text(conversionGuide.body, "", "Caption")
 	returnSummary.LayoutOrder = 8
 	local quotedAmount: number? = nil
 	local quotedCash: number? = nil
@@ -114,8 +138,11 @@ function MarketWindow.create(
 	end)
 
 	local storeUpdates: { [string]: (PlayerSave) -> () } = {}
+	local storeResets: { () -> () } = {}
 	for _, category in { "featured", "gold", "cash", "permanent", "run" } do
-		storeUpdates[category] = StoreSection.create(pages[category], category)
+		local updateStore, resetStore = StoreSection.create(pages[category], category)
+		storeUpdates[category] = updateStore
+		table.insert(storeResets, resetStore)
 	end
 
 	UiKit.text(
@@ -215,12 +242,7 @@ function MarketWindow.create(
 			if cash and amount then `{amount} altın → {FarmMath.formatMoney(cash)}` else "Paraya çevir",
 			if cash then "primary" else "disabled"
 		)
-		UiKit.setText(
-			quoteNote,
-			if cash
-				then "Tutar, en yüksek kalıcı çiftlik gelirinden hesaplanır; geçici 2x ve Geri Dönüş bonusu dahil değildir."
-				else QUOTE_ERRORS[code or ""] or "Altın miktarını kontrol et."
-		)
+		UiKit.setText(quoteNote, if cash then "" else QUOTE_ERRORS[code or ""] or "Altın miktarını kontrol et.")
 		local updateStore = storeUpdates[selectedPage]
 		if updateStore then
 			updateStore(state)
@@ -296,6 +318,14 @@ function MarketWindow.create(
 	amountInput:GetPropertyChangedSignal("Text"):Connect(function()
 		if current then
 			update(current)
+		end
+	end)
+	window.frame:GetPropertyChangedSignal("Visible"):Connect(function()
+		if not window.isOpen() then
+			conversionGuide.setExpanded(false)
+			for _, resetStore in storeResets do
+				resetStore()
+			end
 		end
 	end)
 	return {

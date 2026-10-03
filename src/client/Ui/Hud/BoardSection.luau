@@ -22,8 +22,11 @@ function BoardSection.create(list: Instance): (PlayerSave?) -> ()
 	-- Ahır siparişleri: ürün merkezlerinin ahır deposuna koyduğu ürünler para karşılığı teslim edilir (yol haritasından bağımsız)
 	local CONTRACT_ORDER = 10
 	local _, contractMeta = UiKit.sectionHeader(list, "Ahır siparişleri", CONTRACT_ORDER)
-	local contractNote = UiKit.text(list, "", "Caption", Color.TextMuted)
-	contractNote.LayoutOrder = CONTRACT_ORDER + 1
+	local information = UiKit.disclosure(list, CONTRACT_ORDER + 1, "Ayrıntılar")
+	local contractNote = UiKit.text(information.body, "", "Caption", Color.TextMuted)
+	local empty =
+		UiKit.text(list, "Bir ürün merkezi kurunca ahır siparişleri açılır (Üretim penceresi).", "Body")
+	empty.LayoutOrder = CONTRACT_ORDER + 1
 	local contractCards: { UiKit.Card } = {}
 	local contractOffers: { FarmMath.ContractOffer } = {}
 	-- Siparişler ızgara karolarıdır: aşağı uzayan liste yerine yan yana, daha çok teklif görünür. Esnek karo: altı çeşitlik "Dev Karma"
@@ -45,6 +48,8 @@ function BoardSection.create(list: Instance): (PlayerSave?) -> ()
 		local bonus = Environment.getSeason().orderBonus or 0
 		local offers = FarmMath.getContractOffers(state, now, bonus)
 		local hasCenter = #offers > 0
+		information.frame.Visible = hasCenter
+		empty.Visible = not hasCenter
 		local left = math.ceil(FarmMath.getContractSecondsLeft(now))
 		contractMeta.Text = if hasCenter then `{math.floor(left / 60)}:{string.format("%02d", left % 60)}` else ""
 		local pending = PurchaseController.isPending()

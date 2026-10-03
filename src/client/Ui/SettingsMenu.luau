@@ -28,7 +28,8 @@ local function create(parent: Instance): UiKit.Window
 		anchor = Vector2.new(0.5, 0.5),
 		position = UDim2.fromScale(0.5, 0.5),
 	})
-	UiKit.text(created.list, "Tercihlerin hesabına kaydedilir. Gelirini ve oyun hızını değiştirmez.", "Caption").LayoutOrder =
+	local details = UiKit.disclosure(created.list, 20, "Ayrıntılar")
+	UiKit.text(details.body, "Tercihlerin hesabına kaydedilir. Gelirini ve oyun hızını değiştirmez.", "Caption").LayoutOrder =
 		1
 	-- Başlık iki dilli: dili yanlış seçen oyuncu da menüyü bulabilsin.
 	UiKit.text(created.list, "Dil / Language", "Heading").LayoutOrder = 2
@@ -44,6 +45,7 @@ local function create(parent: Instance): UiKit.Window
 	grid.SortOrder = Enum.SortOrder.LayoutOrder
 	grid.Parent = languageGrid
 	local languageButtons: { [string]: TextButton } = {}
+	local languageNames: { [string]: TextLabel } = {}
 	for index, code in Config.LANGUAGE_ORDER do
 		local language = Config.LANGUAGES[code]
 		local button = UiKit.button(languageGrid, "", "secondary")
@@ -57,6 +59,7 @@ local function create(parent: Instance): UiKit.Window
 		name.TextTruncate = Enum.TextTruncate.AtEnd
 		name.Active = false
 		languageButtons[code] = button
+		languageNames[code] = name
 		button.Activated:Connect(function()
 			Localization.set(code)
 		end)
@@ -82,10 +85,15 @@ local function create(parent: Instance): UiKit.Window
 	UiKit.text(created.list, "Grafik kalitesi", "Heading").LayoutOrder = 4
 	local choices = Instance.new("Frame")
 	choices.BackgroundTransparency = 1
-	choices.Size = UDim2.new(1, 0, 0, 44)
+	choices.Size = UDim2.new(1, 0, 0, 0)
+	choices.AutomaticSize = Enum.AutomaticSize.Y
 	choices.LayoutOrder = 5
 	choices.Parent = created.list
-	UiKit.list(choices, 6, true)
+	local qualityGrid = Instance.new("UIGridLayout")
+	qualityGrid.CellSize = UDim2.new(0.5, -4, 0, UiKit.TouchTarget)
+	qualityGrid.CellPadding = UDim2.fromOffset(8, 8)
+	qualityGrid.SortOrder = Enum.SortOrder.LayoutOrder
+	qualityGrid.Parent = choices
 	local buttons: { [string]: TextButton } = {}
 	for index, option in
 		{
@@ -96,7 +104,7 @@ local function create(parent: Instance): UiKit.Window
 		}
 	do
 		local button = UiKit.button(choices, option.title, "secondary")
-		button.Size = UDim2.new(1 / 4, -5, 1, 0)
+		button.Size = UDim2.new(0.5, -4, 0, UiKit.TouchTarget)
 		button.TextScaled = false
 		button.TextSize = UiKit.TextSize.Button
 		button.LayoutOrder = index
@@ -107,8 +115,10 @@ local function create(parent: Instance): UiKit.Window
 			Remotes.get("RequestSetGraphics"):FireServer(option.id)
 		end)
 	end
-	local qualityInfo = UiKit.text(created.list, "", "Caption")
-	qualityInfo.LayoutOrder = 6
+	local qualityInfo = UiKit.text(details.body, "", "Caption")
+	qualityInfo.LayoutOrder = 2
+	local qualityStatus = UiKit.text(created.list, "", "Caption")
+	qualityStatus.LayoutOrder = 6
 	UiKit.text(created.list, "Hareket", "Heading").LayoutOrder = 7
 	local motion = UiKit.button(created.list, "", "secondary")
 	motion.Size = UDim2.new(1, 0, 0, 44)
@@ -117,7 +127,7 @@ local function create(parent: Instance): UiKit.Window
 		player:SetAttribute("ReducedMotion", player:GetAttribute("ReducedMotion") ~= true)
 	end)
 	UiKit.text(
-		created.list,
+		details.body,
 		"Hareketi azaltınca kuşlar, süs balıkları, hayvan gezinmesi ve şimşek kapanır; yağış azalır.",
 		"Caption"
 	).LayoutOrder =
@@ -132,6 +142,7 @@ local function create(parent: Instance): UiKit.Window
 		local selected = Localization.get()
 		for code, button in languageButtons do
 			UiKit.setVariant(button, if code == selected then "primary" else "secondary")
+			languageNames[code].TextColor3 = if code == selected then UiKit.Color.OnAccent else UiKit.Color.Text
 			-- Seçili dil tekrar tıklanabilir kalsın (kaydı yeniden gönderir); yalnızca renk değişir.
 			button.Active = true
 		end
@@ -143,14 +154,15 @@ local function create(parent: Instance): UiKit.Window
 			-- Seçili seçenek tekrar tıklanabilir; diğer seçeneklere geçiş her zaman açık.
 			UiKit.setVariant(button, if id == selected then "primary" else "secondary")
 		end
-		qualityInfo.Text = descriptions[selected]
+		UiKit.setText(qualityInfo, descriptions[selected])
+		qualityStatus.Visible = selected == "auto"
 		if selected == "auto" then
 			local tierNames: { [string]: string } = { low = "Düşük", medium = "Orta", high = "Yüksek" }
 			local current = player:GetAttribute("EffectsQuality")
-			qualityInfo.Text ..= `\nŞu an: {tierNames[current :: string] or "Orta"}`
+			UiKit.setText(qualityStatus, `Şu an: {tierNames[current :: string] or "Orta"}`)
 		end
 		local reduced = player:GetAttribute("ReducedMotion") == true
-		motion.Text = if reduced then "Hareketi azalt: Açık" else "Hareketi azalt: Kapalı"
+		UiKit.setText(motion, if reduced then "Hareketi azalt: Açık" else "Hareketi azalt: Kapalı")
 		UiKit.setVariant(motion, if reduced then "primary" else "secondary")
 	end
 	local function refreshVolume()

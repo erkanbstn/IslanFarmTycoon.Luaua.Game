@@ -26,7 +26,7 @@ end
 function Base.stroke(parent: Instance, transparency: number?): UIStroke
 	local s = Instance.new("UIStroke")
 	s.Color = Tokens.Color.Stroke
-	s.Transparency = transparency or 0.9
+	s.Transparency = transparency or 0.55
 	s.Thickness = 1
 	s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 	s.Parent = parent
@@ -58,6 +58,7 @@ function Base.textInput(parent: Instance, placeholder: string): TextBox
 	input.TextXAlignment = Enum.TextXAlignment.Left
 	input.Parent = parent
 	Base.corner(input, Tokens.Radius.Button)
+	Base.stroke(input, 0.58)
 	Base.padding(input, 12, 0)
 	return input
 end
@@ -125,6 +126,36 @@ function Base.iconChip(parent: Instance, icon: string, size: number, tint: Color
 	chip.Parent = parent
 	Base.corner(chip, math.floor(size * 0.28))
 	Base.padding(chip, math.floor(size * 0.16))
+	-- Coin emojisi bazı Roblox yazı tiplerinde Robux işareti olarak çizilir.
+	if icon == "🪙" then
+		chip.Text = ""
+		local coin = Instance.new("Frame")
+		coin.Name = "GoldCoin"
+		coin.AnchorPoint = Vector2.new(0.5, 0.5)
+		coin.Position = UDim2.fromScale(0.5, 0.5)
+		coin.Size = UDim2.fromScale(0.76, 0.76)
+		coin.BackgroundColor3 = Tokens.Color.GoldLight
+		coin.BorderSizePixel = 0
+		coin.Parent = chip
+		local aspect = Instance.new("UIAspectRatioConstraint")
+		aspect.AspectRatio = 1
+		aspect.DominantAxis = Enum.DominantAxis.Height
+		aspect.Parent = coin
+		Base.corner(coin, size)
+		local rim = Base.stroke(coin, 0.1)
+		rim.Color = Tokens.Color.Gold
+		local face = Instance.new("Frame")
+		face.Name = "CoinFace"
+		face.AnchorPoint = Vector2.new(0.5, 0.5)
+		face.Position = UDim2.fromScale(0.5, 0.5)
+		face.Size = UDim2.fromScale(0.65, 0.65)
+		face.BackgroundTransparency = 1
+		face.BorderSizePixel = 0
+		face.Parent = coin
+		Base.corner(face, size)
+		local inner = Base.stroke(face, 0.25)
+		inner.Color = Tokens.Color.Gold
+	end
 	return chip
 end
 
@@ -138,7 +169,7 @@ function Base.panel(parent: Instance): Frame
 	f.BackgroundTransparency = 0
 	f.Parent = parent
 	Base.corner(f, Tokens.Radius.Panel)
-	Base.stroke(f, 0.78)
+	Base.stroke(f, 0.35)
 	-- Üstten alta hafif renk geçişi: düz gri yerine canlı, derinlikli yüzey
 	local gradient = Instance.new("UIGradient")
 	gradient.Color = ColorSequence.new(Tokens.Color.Panel, Tokens.Color.Panel:Lerp(Tokens.Color.PreviewMint, 0.14))
@@ -174,18 +205,19 @@ function Base.sectionHeader(parent: Instance, text: string, order: number): (Tex
 	local row = Instance.new("Frame")
 	row.BackgroundTransparency = 1
 	row.Size = UDim2.new(1, 0, 0, 28)
+	row.AutomaticSize = Enum.AutomaticSize.Y
 	row.LayoutOrder = order
 	row.Parent = parent
 
 	local title = Base.text(row, text, "Heading", Tokens.Color.Gold)
-	title.AutomaticSize = Enum.AutomaticSize.None
-	title.Size = UDim2.new(1, -60, 1, 0)
+	title.AutomaticSize = Enum.AutomaticSize.Y
+	title.Size = UDim2.new(1, -60, 0, 28)
 
 	local meta = Base.text(row, "", "Caption")
 	meta.AutomaticSize = Enum.AutomaticSize.None
 	meta.AnchorPoint = Vector2.new(1, 0)
 	meta.Position = UDim2.fromScale(1, 0)
-	meta.Size = UDim2.new(0, 60, 1, 0)
+	meta.Size = UDim2.new(0, 60, 0, 28)
 	meta.TextXAlignment = Enum.TextXAlignment.Right
 	return title, meta
 end

@@ -9,6 +9,7 @@ local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath")
 local UiKit = require(script.Parent.Parent:WaitForChild("UiKit"))
 local PurchaseController = require(script.Parent.Parent.Parent:WaitForChild("Core"):WaitForChild("PurchaseController"))
 local HudCommon = require(script.Parent:WaitForChild("HudCommon"))
+local EffectsSection = require(script.Parent:WaitForChild("EffectsSection"))
 
 type PlayerSave = GameTypes.PlayerSave
 local RebirthWindow = {}
@@ -51,7 +52,7 @@ end
 
 function RebirthWindow.create(parent: Instance): { window: UiKit.Window, update: (PlayerSave) -> () }
 	local window = UiKit.window(parent, {
-		title = "Rebirth",
+		title = "İlerleme",
 		icon = "🔄",
 		tint = UiKit.Color.Gold,
 		width = 500,
@@ -59,13 +60,47 @@ function RebirthWindow.create(parent: Instance): { window: UiKit.Window, update:
 		anchor = Vector2.new(0.5, 0.5),
 		position = UDim2.fromScale(0.5, 0.5),
 	})
-	local overview = UiKit.text(window.list, "", "Heading")
+	local current: PlayerSave? = nil
+	local selected: string? = nil
+	local viewedRun: number? = nil
+	local confirmationRun: number? = nil
+	local update: (PlayerSave) -> () = function(_state: PlayerSave) end
+	local effectsPage = Instance.new("Frame")
+	effectsPage.Name = "CurrentEffects"
+	effectsPage.BackgroundTransparency = 1
+	effectsPage.Size = UDim2.new(1, 0, 0, 0)
+	effectsPage.AutomaticSize = Enum.AutomaticSize.Y
+	effectsPage.LayoutOrder = 1
+	effectsPage.Parent = window.list
+	UiKit.list(effectsPage, 8)
+	local effects = EffectsSection.create(effectsPage)
+	local rebirthPage = Instance.new("Frame")
+	rebirthPage.Name = "RebirthContent"
+	rebirthPage.BackgroundTransparency = 1
+	rebirthPage.Size = UDim2.new(1, 0, 0, 0)
+	rebirthPage.AutomaticSize = Enum.AutomaticSize.Y
+	rebirthPage.LayoutOrder = 1
+	rebirthPage.Visible = false
+	rebirthPage.Parent = window.list
+	UiKit.list(rebirthPage, 8)
+	UiKit.tabs(window.list, 0, {
+		{ id = "effects", label = "Etkiler" },
+		{ id = "rebirth", label = "Rebirth" },
+	}, function(id: string)
+		effectsPage.Visible = id == "effects"
+		rebirthPage.Visible = id == "rebirth"
+		confirmationRun = nil
+		if current then
+			update(current)
+		end
+	end)
+	local overview = UiKit.text(rebirthPage, "", "Heading")
 	overview.Name = "RebirthOverview"
 	overview.LayoutOrder = 0
-	local target = UiKit.text(window.list, "", "Body")
+	local target = UiKit.text(rebirthPage, "", "Body")
 	target.Name = "RebirthRequirements"
 	target.LayoutOrder = 1
-	local milestone = UiKit.text(window.list, "", "Body", UiKit.Color.Green)
+	local milestone = UiKit.text(rebirthPage, "", "Body", UiKit.Color.Green)
 	milestone.Name = "NextMilestone"
 	milestone.LayoutOrder = 2
 	local choicePage = Instance.new("Frame")
@@ -74,7 +109,7 @@ function RebirthWindow.create(parent: Instance): { window: UiKit.Window, update:
 	choicePage.Size = UDim2.new(1, 0, 0, 0)
 	choicePage.AutomaticSize = Enum.AutomaticSize.Y
 	choicePage.LayoutOrder = 4
-	choicePage.Parent = window.list
+	choicePage.Parent = rebirthPage
 	UiKit.list(choicePage, 8)
 	local journeyPage = Instance.new("Frame")
 	journeyPage.Name = "RebirthJourney"
@@ -83,9 +118,9 @@ function RebirthWindow.create(parent: Instance): { window: UiKit.Window, update:
 	journeyPage.AutomaticSize = Enum.AutomaticSize.Y
 	journeyPage.LayoutOrder = 4
 	journeyPage.Visible = false
-	journeyPage.Parent = window.list
+	journeyPage.Parent = rebirthPage
 	UiKit.list(journeyPage, 8)
-	UiKit.tabs(window.list, 3, {
+	UiKit.tabs(rebirthPage, 3, {
 		{ id = "choice", label = "Etki Seç" },
 		{ id = "journey", label = "30 Rebirth Yolculuğu" },
 	}, function(id: string)
@@ -105,11 +140,6 @@ function RebirthWindow.create(parent: Instance): { window: UiKit.Window, update:
 	choiceNote.LayoutOrder = 1
 	local choiceGrid = UiKit.autoGrid(choicePage, 2, 2)
 	local choices: { [string]: UiKit.Card } = {}
-	local current: PlayerSave? = nil
-	local selected: string? = nil
-	local viewedRun: number? = nil
-	local confirmationRun: number? = nil
-	local update: (PlayerSave) -> ()
 	for index, id in Config.PROGRESSION.perkOrder do
 		local card = UiKit.autoTile(choiceGrid, index, "⭐", { compact = true })
 		UiKit.setText(card.title, PERK_NAMES[id])
@@ -145,13 +175,13 @@ function RebirthWindow.create(parent: Instance): { window: UiKit.Window, update:
 		UiKit.Color.Red
 	)
 	lost.LayoutOrder = 4
-	UiKit.text(
+	local kept = UiKit.text(
 		choicePage,
 		"Kalacak: altın, kalıcı ve rebirth ödülü eşyalar, kolaylıklar, kalıcı geçitler, rebirth etkileri, günlük giriş serisi ve ayarlar.",
 		"Body",
 		UiKit.Color.Green
-	).LayoutOrder =
-		5
+	)
+	kept.LayoutOrder = 5
 	local returnNotice = UiKit.text(choicePage, "", "Body")
 	returnNotice.LayoutOrder = 6
 	local begin = UiKit.button(choicePage, "Etki seç ve sıfırla", "disabled")
@@ -221,6 +251,9 @@ function RebirthWindow.create(parent: Instance): { window: UiKit.Window, update:
 		if not window.isOpen() then
 			return
 		end
+		if effectsPage.Visible then
+			effects.update(state)
+		end
 		local count = if record then record.count else 0
 		local maximumRebirth = Config.PROGRESSION.maxRebirth
 		local summary = Progression.progress(state)
@@ -251,8 +284,9 @@ function RebirthWindow.create(parent: Instance): { window: UiKit.Window, update:
 		choiceGrid.Visible = not complete
 		choiceNote.Visible = not complete
 		selection.Visible = not complete
-		lost.Visible = not complete
-		returnNotice.Visible = not complete
+		lost.Visible = not complete and confirmationRun ~= nil
+		kept.Visible = not complete and confirmationRun ~= nil
+		returnNotice.Visible = not complete and confirmationRun ~= nil
 		for level, row in journeyRows do
 			local reward = Progression.getMilestone(level)
 			if reward then
@@ -338,6 +372,7 @@ function RebirthWindow.create(parent: Instance): { window: UiKit.Window, update:
 	window.frame:GetPropertyChangedSignal("Visible"):Connect(function()
 		if not window.isOpen() then
 			confirmationRun = nil
+			effects.reset()
 		elseif current then
 			update(current)
 		end

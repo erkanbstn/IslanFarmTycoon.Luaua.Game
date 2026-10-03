@@ -66,6 +66,8 @@ function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 	end
 
 	local animalCards: { [string]: UiKit.Card } = {}
+	local detailsById: { [string]: any } = {}
+	local fullDetails: { [string]: TextLabel } = {}
 	-- Irk geliştirme: sahip olunan her türün kartında ikinci düğme (oyun sonu para harcama yolu)
 	local lineageRows: { [string]: Frame } = {}
 	local lineageButtons: { [string]: TextButton } = {}
@@ -75,6 +77,9 @@ function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 	for index, animalId in Config.ANIMAL_ORDER do
 		local card = UiKit.autoTile(animalGrid, index, Config.ANIMALS[animalId].icon)
 		animalCards[animalId] = card
+		local details = UiKit.disclosure(card.frame, 6, "Ayrıntılar")
+		detailsById[animalId] = details
+		fullDetails[animalId] = UiKit.text(details.body, "", "Caption")
 		local lineageRow = Instance.new("Frame")
 		lineageRow.Name = "LineageRow"
 		lineageRow.BackgroundTransparency = 1
@@ -83,7 +88,7 @@ function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 		lineageRow.LayoutOrder = 4
 		card.action.LayoutOrder = 5
 		lineageRow.Visible = false
-		lineageRow.Parent = card.frame
+		lineageRow.Parent = details.body
 		UiKit.list(lineageRow, 4)
 		local lineageButton = UiKit.button(lineageRow, "", "secondary")
 		lineageButton.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
@@ -111,7 +116,7 @@ function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 			end
 		end)
 		-- Ürünle satın al: depodaki ürünlerin değeri (GOODS_BARTER.rate) hayvanın fiyatını karşılıyorsa tek hayvan takasla alınır
-		local barterButton = UiKit.button(card.frame, "", "secondary")
+		local barterButton = UiKit.button(details.body, "", "secondary")
 		barterButton.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
 		barterButton.AutomaticSize = Enum.AutomaticSize.Y
 		barterButton.TextSize = UiKit.TextSize.Button
@@ -184,15 +189,19 @@ function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 		end
 	end)
 
+	local lastContext: string? = nil
 	local function updateShop(state: PlayerSave, content: boolean)
+		local context =
+			`{state.activeMainFarmId}:{IslandContext.get()}:{if state.progression then state.progression.run else 1}`
+		if context ~= lastContext then
+			for _, details in detailsById do
+				details.setExpanded(false)
+			end
+			lastContext = context
+		end
 		updateMerchant(state)
 		if content then
-			shopInfo.Text =
-				`Açık bölgelerdeki hayvanlar listelenir (ada seçimi dükkânı gizlemez). Yavru doğar, büyüdükçe kazanç artar.\nIrk geliştirme: her seviye o türün gelirini +%{math.round(
-					Config.LINEAGE.incomePerLevel * 100
-				)} artırır.\nÜrünle al: depodaki ürünler değerinin %{math.round(
-					Config.GOODS_BARTER.rate * 100
-				)}'i kadar sayılır (ahır deposu).`
+			UiKit.setText(shopInfo, "Hayvan al ve çiftliğinin gelirini büyüt.")
 		end
 		for index, animalId in Config.ANIMAL_ORDER do
 			local card = animalCards[animalId]
@@ -246,9 +255,18 @@ function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 						then ` · Mevsim/hava: +%{percent}`
 						elseif percent < 0 then ` · Mevsim/hava: -%{-percent}`
 						else ""
-					card.detail.Text = `{animalConfig.product} · Yetişkin +${FarmMath.formatRate(income)}/sn{effect}`
+					UiKit.setText(card.detail, `Yetişkin +${FarmMath.formatRate(income)}/sn`)
+					UiKit.setText(
+						fullDetails[animalId],
+						`{animalConfig.product} · Yetişkin +${FarmMath.formatRate(income)}/sn{effect}\nHayvanlar yavru doğar, büyüdükçe daha çok kazandırır.\nIrk geliştirme: her seviye o türün gelirini +%{math.round(
+							Config.LINEAGE.incomePerLevel * 100
+						)} artırır.\nÜrünle al: depodaki ürünler değerinin %{math.round(
+							Config.GOODS_BARTER.rate * 100
+						)}'i kadar sayılır (ahır deposu).`
+					)
 				else
-					card.detail.Text = reason or ""
+					UiKit.setText(card.detail, reason or "")
+					UiKit.setText(fullDetails[animalId], reason or "")
 				end
 			end
 			if not zoneId then
@@ -312,6 +330,13 @@ function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 		end)
 	end
 
+	shopWindow.frame:GetPropertyChangedSignal("Visible"):Connect(function()
+		if not shopWindow.isOpen() then
+			for _, details in detailsById do
+				details.setExpanded(false)
+			end
+		end
+	end)
 	return { window = shopWindow, update = updateShop }
 end
 

@@ -226,6 +226,11 @@ return function(createController: any, createRebirthWindow: any)
 			getEquippedBonus = function(): number
 				return 2
 			end,
+		},
+		{
+			create = function(): any
+				return { update = function() end, reset = function() end }
+			end,
 		}
 	)
 	local panel = rebirth.create(root)

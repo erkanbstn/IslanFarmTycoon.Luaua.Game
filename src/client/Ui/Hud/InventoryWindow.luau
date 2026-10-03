@@ -47,15 +47,11 @@ function InventoryWindow.create(screenGui: Instance): Panel
 		anchor = Vector2.new(0.5, 0.5),
 		position = UDim2.fromScale(0.5, 0.5),
 	})
-	UiKit.text(
-		window.list,
-		"Ürünler ahır deposunda birikir. Nakit eşyalar bu tur içindir; kalıcı altın/Robux sahipliği rebirth'te kalır. Her slota bir eşya takılır.",
-		"Caption"
-	).LayoutOrder = GOODS_ORDER
-		- 1
+	UiKit.text(window.list, "Ürünlerini sat veya eşyalarını tak.", "Caption").LayoutOrder = GOODS_ORDER - 1
 
 	-- Sekmeler: Ahır Deposu | Takılı | Eşyalarım (her sekme kendi sayfası; öğeler ızgara karolarıdır)
 	local pages: { [string]: Frame } = {}
+	local disclosures: { any } = {}
 	local function newPage(id: string): Frame
 		local page = Instance.new("Frame")
 		page.Name = id
@@ -71,6 +67,9 @@ function InventoryWindow.create(screenGui: Instance): Panel
 	end
 	local goodsPage, equippedPage, ownedPage = newPage("goods"), newPage("equipped"), newPage("owned")
 	local function showPage(id: string)
+		for _, details in disclosures do
+			details.setExpanded(false)
+		end
 		for pageId, page in pages do
 			page.Visible = pageId == id
 		end
@@ -130,11 +129,17 @@ function InventoryWindow.create(screenGui: Instance): Panel
 	UiKit.sectionHeader(equippedPage, "Takılı eşyalar", SLOTS_ORDER)
 	local slotGrid = UiKit.autoGrid(equippedPage, SLOTS_ORDER + 1, 2)
 	local slotCards: { [string]: UiKit.Card } = {}
+	local slotDetails: { [string]: TextLabel } = {}
+	local slotPanels: { [string]: any } = {}
 	for index, slotId in Config.ITEM_SLOT_ORDER do
 		local slot = Config.ITEM_SLOTS[slotId]
 		local card = UiKit.autoTile(slotGrid, index, slot.icon, { compact = true })
 		card.title.Text = slot.displayName
 		slotCards[slotId] = card
+		local details = UiKit.disclosure(card.frame, 6, "Ayrıntılar")
+		table.insert(disclosures, details)
+		slotDetails[slotId] = UiKit.text(details.body, "", "Caption")
+		slotPanels[slotId] = details
 		card.action.Activated:Connect(function()
 			local state = ClientState.get()
 			local itemId = if state then Inventory.equippedId(state, slotId) else nil
@@ -195,6 +200,7 @@ function InventoryWindow.create(screenGui: Instance): Panel
 	emptyText.LayoutOrder = OWNED_ORDER + 2
 	local ownedGrid = UiKit.autoGrid(ownedPage, OWNED_ORDER + 3, 2)
 	local ownedCards: { [string]: UiKit.Card } = {}
+	local ownedDetails: { [string]: TextLabel } = {}
 	for position, itemId in Config.ITEM_ORDER do
 		local item = Config.ITEMS[itemId]
 		local card = UiKit.autoTile(ownedGrid, position, item.icon, { compact = true })
@@ -203,8 +209,16 @@ function InventoryWindow.create(screenGui: Instance): Panel
 		ItemPreview.mount(card.icon, itemId)
 		card.frame.Visible = false
 		ownedCards[itemId] = card
+		local details = UiKit.disclosure(card.frame, 6, "Ayrıntılar")
+		table.insert(disclosures, details)
+		ownedDetails[itemId] = UiKit.text(details.body, ItemText.describe(item), "Caption")
 		card.action.Activated:Connect(function()
 			if card.action.Active then
+				local state = ClientState.get()
+				if state and not Inventory.isEquipped(state, itemId) and not details.isExpanded() then
+					details.setExpanded(true)
+					return
+				end
 				PurchaseController.submit("RequestEquipItem", itemId)
 			end
 		end)
@@ -230,6 +244,9 @@ function InventoryWindow.create(screenGui: Instance): Panel
 	end
 	UiKit.tabs(ownedPage, OWNED_ORDER + 1, categoryEntries, function(categoryId: string)
 		selectedCategory = categoryId
+		for _, details in disclosures do
+			details.setExpanded(false)
+		end
 		filterOwned(lastState)
 	end)
 
@@ -250,13 +267,22 @@ function InventoryWindow.create(screenGui: Instance): Panel
 		return options, Environment.getWeather().id
 	end
 
+	local lastContext: string? = nil
 	local function update(state: PlayerSave)
+		local context = `{state.activeMainFarmId}:{if state.progression then state.progression.run else 1}`
+		if context ~= lastContext then
+			for _, details in disclosures do
+				details.setExpanded(false)
+			end
+			lastContext = context
+		end
 		local now = Workspace:GetServerTimeNow()
 		-- Ahır deposu
 		local cap = FarmMath.getGoodsCap(state)
 		local fullGoods = FarmMath.getFullGoods(state)
 		for goodId, card in goodsCards do
 			local amount = FarmMath.getGoodsAmount(state, goodId)
+			card.frame.Visible = amount > 0
 			local worth = FarmMath.formatMoney(amount * Config.GOODS[goodId].value)
 			card.detail.Text = if table.find(fullGoods, goodId)
 				then `{amount}/{cap} · Depo dolu · Değer {worth}`
@@ -280,24 +306,30 @@ function InventoryWindow.create(screenGui: Instance): Panel
 			end
 		end
 		goodsMeta.Text = FarmMath.formatMoney(FarmMath.getGoodsWorth(state))
-		goodsNote.Text =
-			`Hızlı satış ürün değerinin %{math.round(Config.GOODS_SELL.rate * 100)}'ini öder; ahır siparişi her zaman daha çok kazandırır.`
+		goodsNote.Text = if FarmMath.getGoodsWorth(state) <= 0
+			then "Ahır deposunda henüz ürün yok. Üretimden ürün kazanabilirsin."
+			else `Hızlı satış ürün değerinin %{math.round(Config.GOODS_SELL.rate * 100)}'ini öder; ahır siparişi her zaman daha çok kazandırır.`
 		-- Takılı eşyalar
 		for slotId, card in slotCards do
 			local itemId = Inventory.equippedId(state, slotId)
 			local item = if itemId then Config.ITEMS[itemId] else nil
 			if item then
+				slotPanels[slotId].frame.Visible = true
 				card.icon.Text = item.icon
 				ItemPreview.mount(card.icon, itemId)
 				card.title.Text = item.displayName
 				UiKit.setText(
-					card.detail,
-					`{if state.owned and state.owned.items[itemId :: string] then "Kalıcı" else "Bu tur"} · {ItemText.describe(
+					slotDetails[slotId],
+					`{if state.owned and state.owned.items[itemId :: string] then "Kalıcı" else "Bu tur"} · {ItemText.slotNotice(
 						item
-					)}`
+					)}\n{ItemText.additional(item)}`
 				)
+				UiKit.setText(card.detail, string.match(ItemText.describe(item), "[^\n]+") or "")
 				setPurchaseButton(card.action, "Çıkar", "secondary")
 			else
+				slotPanels[slotId].frame.Visible = false
+				slotPanels[slotId].setExpanded(false)
+				UiKit.setText(slotDetails[slotId], "")
 				card.icon.Text = Config.ITEM_SLOTS[slotId].icon
 				ItemPreview.mount(card.icon, nil)
 				card.title.Text = Config.ITEM_SLOTS[slotId].displayName
@@ -310,11 +342,12 @@ function InventoryWindow.create(screenGui: Instance): Panel
 			local owned = Inventory.owns(state, itemId)
 			if owned then
 				UiKit.setText(
-					card.detail,
-					`{if state.owned and state.owned.items[itemId] then "Kalıcı" else "Bu tur"} · {ItemText.describe(
+					ownedDetails[itemId],
+					`{if state.owned and state.owned.items[itemId] then "Kalıcı" else "Bu tur"} · {ItemText.slotNotice(
 						Config.ITEMS[itemId]
-					)}`
+					)}\n{ItemText.additional(Config.ITEMS[itemId])}`
 				)
+				UiKit.setText(card.detail, string.match(ItemText.describe(Config.ITEMS[itemId]), "[^\n]+") or "")
 				ItemPreview.mount(card.icon, itemId)
 				setPurchaseButton(
 					card.action,
@@ -365,6 +398,13 @@ function InventoryWindow.create(screenGui: Instance): Panel
 		end
 	end)
 
+	window.frame:GetPropertyChangedSignal("Visible"):Connect(function()
+		if not window.isOpen() then
+			for _, details in disclosures do
+				details.setExpanded(false)
+			end
+		end
+	end)
 	return { window = window, update = update }
 end
 

@@ -73,6 +73,7 @@ function RewardsSection.create(
 	-- Sekmeler: Günlük (günlük ödül + mevsim hedefi) | Başarımlar (uzun liste; alınabilirler üstte)
 	local currentTab = "daily"
 	local achievementCards: { [string]: UiKit.Card } = {}
+	local achievementProgress: { [string]: (number, Color3) -> () } = {}
 	local claimableHeader = UiKit.sectionHeader(list, "Alınabilir başarımlar", 0)
 	local claimableHeaderRow = claimableHeader.Parent :: GuiObject
 	local hasClaimable = false
@@ -106,6 +107,10 @@ function RewardsSection.create(
 		card.frame.Visible = false
 		UiKit.setText(card.title, achievement.displayName)
 		achievementCards[achievement.id] = card
+		UiKit.cardDetails(card, "Ayrıntılar")
+		local bar, setProgress = UiKit.progressBar(card.frame, 6)
+		bar.LayoutOrder = 3
+		achievementProgress[achievement.id] = setProgress
 		card.action.Activated:Connect(function()
 			if card.action.Active then
 				PurchaseController.submit("RequestClaimAchievement", achievement.id)
@@ -186,7 +191,8 @@ function RewardsSection.create(
 			local text = if achievement.metric == "earned"
 				then `{FarmMath.formatMoney(shown)}/{FarmMath.formatMoney(achievement.target)}`
 				else `{math.floor(shown)}/{achievement.target}`
-			UiKit.setText(card.detail, `{achievement.description} · {text}`)
+			UiKit.setText(card.detail, achievement.description)
+			achievementProgress[achievement.id](shown / math.max(1, achievement.target), UiKit.Color.Green)
 			if owned then
 				UiKit.setText(card.action, "Alındı")
 				UiKit.setVariant(card.action, "owned")

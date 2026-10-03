@@ -49,6 +49,7 @@ function StatsPanel.create(screenGui: Instance): Hud
 		local row = Instance.new("Frame")
 		row.BackgroundTransparency = 1
 		row.Size = UDim2.new(1, 0, 0, 40)
+		row.AutomaticSize = Enum.AutomaticSize.Y
 		row.LayoutOrder = order
 		row.Parent = parent
 
@@ -56,8 +57,7 @@ function StatsPanel.create(screenGui: Instance): Hud
 
 		local texts = Instance.new("Frame")
 		texts.BackgroundTransparency = 1
-		texts.AnchorPoint = Vector2.new(0, 0.5)
-		texts.Position = UDim2.new(0, 50, 0.5, 0)
+		texts.Position = UDim2.fromOffset(50, 0)
 		texts.Size = UDim2.new(1, -50, 0, 0)
 		texts.AutomaticSize = Enum.AutomaticSize.Y
 		texts.Parent = row
@@ -65,7 +65,15 @@ function StatsPanel.create(screenGui: Instance): Hud
 		return texts
 	end
 
-	local cashTexts = statRow(stats, 1, "💰", Color.Green)
+	local cashBlock = Instance.new("Frame")
+	cashBlock.Name = "Wallet"
+	cashBlock.BackgroundTransparency = 1
+	cashBlock.Size = UDim2.new(1, 0, 0, 0)
+	cashBlock.AutomaticSize = Enum.AutomaticSize.Y
+	cashBlock.LayoutOrder = 1
+	cashBlock.Parent = stats
+	UiKit.list(cashBlock, 4)
+	local cashTexts = statRow(cashBlock, 1, "💰", Color.Green)
 	local cashLabel = UiKit.text(cashTexts, "$0", "Display", Color.Green)
 	cashLabel.LayoutOrder = 1
 	-- Para toplayınca kasadaki sayı hafifçe zıplar
@@ -82,12 +90,32 @@ function StatsPanel.create(screenGui: Instance): Hud
 	end
 	local incomeLabel = UiKit.text(cashTexts, "+$0/sn", "Caption")
 	incomeLabel.LayoutOrder = 2
-	local progressionButton = UiKit.button(cashTexts, "Altın: 0 · R0", "secondary")
+	local progressionButton = UiKit.button(cashBlock, "", "secondary")
+	progressionButton.Name = "GoldWallet"
 	progressionButton.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
-	progressionButton.LayoutOrder = 3
-	progressionButton.TextColor3 = Color.Green
-	local cashRow = cashTexts.Parent :: Frame
-	cashRow.Size = UDim2.new(1, 0, 0, 92)
+	progressionButton.LayoutOrder = 2
+	local goldIcon = UiKit.iconChip(progressionButton, "🪙", 30, Color.Gold)
+	goldIcon.Name = "GoldIcon"
+	goldIcon.AnchorPoint = Vector2.new(0, 0.5)
+	goldIcon.Position = UDim2.new(0, 6, 0.5, 0)
+	local goldAmount = UiKit.text(progressionButton, "0", "Body", Color.Green)
+	goldAmount.Name = "GoldAmount"
+	goldAmount.FontFace = UiKit.Font.Bold
+	goldAmount.AutomaticSize = Enum.AutomaticSize.None
+	goldAmount.Position = UDim2.fromOffset(44, 0)
+	goldAmount.Size = UDim2.new(1, -92, 1, 0)
+	goldAmount.TextWrapped = false
+	goldAmount.TextTruncate = Enum.TextTruncate.AtEnd
+	goldAmount.TextYAlignment = Enum.TextYAlignment.Center
+	local rebirthLevel = UiKit.text(progressionButton, "R0", "Caption", Color.TextMuted)
+	rebirthLevel.Name = "RebirthLevel"
+	rebirthLevel.AutomaticSize = Enum.AutomaticSize.None
+	rebirthLevel.AnchorPoint = Vector2.new(1, 0)
+	rebirthLevel.Position = UDim2.new(1, -6, 0, 0)
+	rebirthLevel.Size = UDim2.new(0, 40, 1, 0)
+	rebirthLevel.TextWrapped = false
+	rebirthLevel.TextXAlignment = Enum.TextXAlignment.Right
+	rebirthLevel.TextYAlignment = Enum.TextYAlignment.Center
 
 	local barnTexts = statRow(stats, 2, "🏚️", Color.Red)
 	local barnLabel = UiKit.text(barnTexts, "", "Heading")
@@ -106,7 +134,7 @@ function StatsPanel.create(screenGui: Instance): Hud
 
 	local storageHeader = Instance.new("Frame")
 	storageHeader.BackgroundTransparency = 1
-	storageHeader.Size = UDim2.new(1, 0, 0, 20)
+	storageHeader.Size = UDim2.new(1, 0, 0, UiKit.TextSize.Heading + 6)
 	storageHeader.LayoutOrder = 1
 	storageHeader.Parent = storageBlock
 	local storageTitle = UiKit.text(storageHeader, "Depo", "Heading")
@@ -118,6 +146,8 @@ function StatsPanel.create(screenGui: Instance): Hud
 	storageValue.Position = UDim2.fromScale(1, 0)
 	storageValue.Size = UDim2.fromScale(0.6, 1)
 	storageValue.TextXAlignment = Enum.TextXAlignment.Right
+	storageValue.TextWrapped = false
+	storageValue.TextTruncate = Enum.TextTruncate.AtEnd
 
 	local storageBar, setStorageBar = UiKit.progressBar(storageBlock, 10)
 	storageBar.LayoutOrder = 2
@@ -164,10 +194,8 @@ function StatsPanel.create(screenGui: Instance): Hud
 		local cap = FarmMath.getStorageCap(state)
 		local barnConfig = FarmMath.getBarnConfig(state)
 		animateCash(state.cash)
-		UiKit.setText(
-			progressionButton,
-			`Altın: {state.gold or 0} · R{if state.progression then state.progression.count else 0}`
-		)
+		UiKit.setText(goldAmount, tostring(state.gold or 0))
+		UiKit.setText(rebirthLevel, `R{if state.progression then state.progression.count else 0}`)
 		UiKit.setText(incomeLabel, `+${FarmMath.formatRate(income)}/sn gelir`)
 		UiKit.setText(barnLabel, barnConfig.displayName)
 		local ownedIslands, totalIslands = FarmMath.countIslands(state)

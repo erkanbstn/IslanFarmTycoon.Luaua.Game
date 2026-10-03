@@ -67,12 +67,19 @@ function UpgradesWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Upg
 	nextIslandButton.Visible = false
 	nextIslandButton.Activated:Connect(IslandManager.open)
 	local directUpgradeCards: { [string]: UiKit.Card } = {}
+	local directDetails: { [string]: UiKit.Disclosure } = {}
+	local requirements: { [string]: TextLabel } = {}
 	-- Kartlar 2 sütunlu esnek ızgaradır (alt alta uzun liste yerine)
 	local upgradeGrid = UiKit.autoGrid(upgradesWindow.list, 3)
 	for index, upgrade in Config.UPGRADES do
 		local card = UiKit.autoTile(upgradeGrid, index + 1, upgrade.icon)
 		card.title.Text = upgrade.displayName
 		directUpgradeCards[upgrade.id] = card
+		directDetails[upgrade.id] = UiKit.cardDetails(card, "Ayrıntılar")
+		local needed = UiKit.text(card.frame, "", "Caption", Color.Orange)
+		needed.LayoutOrder = 3
+		needed.Visible = false
+		requirements[upgrade.id] = needed
 		card.action.Activated:Connect(function()
 			if card.action.Active then
 				PurchaseController.submit("RequestBuyUpgrade", upgrade.id)
@@ -84,11 +91,17 @@ function UpgradesWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Upg
 	local EXPANSION_ORDER = 1000
 	local expansionHeader = UiKit.sectionHeader(upgradesWindow.list, "Geliştirmeler", EXPANSION_ORDER)
 	local expansionCards: { [string]: UiKit.Card } = {}
+	local expansionDetails: { [string]: UiKit.Disclosure } = {}
+	local expansionSummary: { [string]: TextLabel } = {}
 	local expansionGrid = UiKit.autoGrid(upgradesWindow.list, EXPANSION_ORDER + 1)
 	for index, targetId in Config.BUILD_ORDER do
 		local card = UiKit.autoTile(expansionGrid, EXPANSION_ORDER + index, Config.BUILD_TARGETS[targetId].icon)
 		card.frame.Visible = false
 		expansionCards[targetId] = card
+		expansionDetails[targetId] = UiKit.cardDetails(card, "Ayrıntılar")
+		local summary = UiKit.text(card.frame, "", "Caption")
+		summary.LayoutOrder = 3
+		expansionSummary[targetId] = summary
 		card.action.Activated:Connect(function()
 			if card.action.Active then
 				PurchaseController.submit("RequestExpandZone", targetId)
@@ -151,7 +164,9 @@ function UpgradesWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Upg
 				local nextLevel = FarmMath.getNextBuildLevel(state, targetId)
 				card.title.Text =
 					`{Config.getBuildTargetName(targetId, state.activeMainFarmId)} · Sv.{level}/{Config.BUILD_UPGRADES.maxLevel}`
-				card.detail.Text = if nextLevel then effectText(zone, nextLevel) else "Tüm seviyeler tamamlandı"
+				local text = if nextLevel then effectText(zone, nextLevel) else "Tüm seviyeler tamamlandı"
+				UiKit.setText(card.detail, text)
+				UiKit.setText(expansionSummary[targetId], string.match(text, "[^\n]+") or "")
 			end
 			if status == "max" then
 				UiKit.setCardStatus(card, nil)
@@ -174,12 +189,24 @@ function UpgradesWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Upg
 		(expansionHeader.Parent :: GuiObject).Visible = any and currentTab == "expansions"
 	end
 
+	local lastContext = ""
 	local function updateUpgrades(state: PlayerSave, content: boolean)
+		local context =
+			`{state.activeMainFarmId}:{IslandContext.get()}:{if state.progression then state.progression.run else 0}`
+		if context ~= lastContext then
+			lastContext = context
+			for _, details in directDetails do
+				details.setExpanded(false)
+			end
+			for _, details in expansionDetails do
+				details.setExpanded(false)
+			end
+		end
 		updateExpansions(state, content)
 		local remaining = 0
 		local selectedIsland = IslandContext.get()
 		if content then
-			upgradesInfo.Text = `{IslandContext.name()} · Ada değiştirmek için sekmeleri kullan`
+			UiKit.setText(upgradesInfo, IslandContext.name())
 			upgradesEmpty.Text =
 				`{IslandContext.name()} yükseltmeleri tamamlandı. Sıradaki yatırımını seçmek için Adalar'ı aç.`
 		end
@@ -199,6 +226,8 @@ function UpgradesWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Upg
 			if content then
 				card.frame.Visible = status ~= "owned" and currentTab == tabId
 				local needs = if status == "locked" then nil else HudCommon.goodsNeedText(state, upgrade)
+				UiKit.setText(requirements[upgrade.id], needs or "")
+				requirements[upgrade.id].Visible = needs ~= nil
 				card.detail.Text = if status == "locked"
 					then `Önce: {table.concat(missing, ", ")}`
 					elseif needs then `{upgrade.description}\n{needs}`
@@ -237,13 +266,22 @@ function UpgradesWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Upg
 				end
 				if pendingUpgrade and pendingIsland then
 					local pendingIslandName = Config.FARM_ISLANDS[pendingIsland].displayName
-					upgradesEmpty.Text =
-						`Bu adada açık yükseltme kalmadı. Sırada: {pendingUpgrade.displayName} ({pendingIslandName} — Adalar menüsünden o adayı seç, Yol Haritası'na bak).`
+					UiKit.setText(upgradesEmpty, `Sırada: {pendingUpgrade.displayName} · {pendingIslandName}`)
 				end
 			end
 			upgradesInfo.Visible = true
 		end
 	end
+	upgradesWindow.frame:GetPropertyChangedSignal("Visible"):Connect(function()
+		if not upgradesWindow.isOpen() then
+			for _, details in directDetails do
+				details.setExpanded(false)
+			end
+			for _, details in expansionDetails do
+				details.setExpanded(false)
+			end
+		end
+	end)
 
 	refreshTab = function()
 		local state = ClientState.get()

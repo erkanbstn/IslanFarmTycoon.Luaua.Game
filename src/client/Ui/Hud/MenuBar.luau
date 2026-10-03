@@ -115,7 +115,7 @@ function MenuBar.create(screenGui: Instance, onUnlocked: ((message: string) -> (
 	storeButton.Visible = true
 	local goldButton = UiKit.menuButton(sideBar, "🪙", "Altın", Color.Gold, nil)
 	goldButton.Visible = false
-	local rebirthButton = UiKit.menuButton(sideBar, "🔄", "Rebirth", Color.Gold, nil)
+	local rebirthButton = UiKit.menuButton(sideBar, "⭐", "İlerleme", Color.Gold, nil)
 	rebirthButton.Visible = false
 
 	-- Çubuk içi sıra

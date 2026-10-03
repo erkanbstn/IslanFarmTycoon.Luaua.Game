@@ -41,14 +41,22 @@ function GoalCard.create(stats: Frame, onboarding: Onboarding.Hud, banner: Onboa
 	UiKit.corner(islandCard, UiKit.Radius.Card)
 	UiKit.stroke(islandCard, 0.6).Color = Color.Gold
 	UiKit.padding(islandCard, 10)
+	UiKit.list(islandCard, 6)
 
-	local islandChip = UiKit.iconChip(islandCard, "🏝️", 40, Color.Gold)
+	local islandRow = Instance.new("Frame")
+	islandRow.Name = "IslandOverview"
+	islandRow.BackgroundTransparency = 1
+	islandRow.Size = UDim2.new(1, 0, 0, 40)
+	islandRow.AutomaticSize = Enum.AutomaticSize.Y
+	islandRow.LayoutOrder = 1
+	islandRow.Parent = islandCard
+	local islandChip = UiKit.iconChip(islandRow, "🏝️", 40, Color.Gold)
 	local islandTexts = Instance.new("Frame")
 	islandTexts.BackgroundTransparency = 1
 	islandTexts.Position = UDim2.fromOffset(50, 0)
 	islandTexts.Size = UDim2.new(1, -50, 0, 0)
 	islandTexts.AutomaticSize = Enum.AutomaticSize.Y
-	islandTexts.Parent = islandCard
+	islandTexts.Parent = islandRow
 	UiKit.list(islandTexts, 1)
 	local islandHeader = UiKit.text(islandTexts, "SIRADAKİ ADA", "Caption", Color.Gold)
 	islandHeader.FontFace = UiKit.Font.Bold
@@ -57,6 +65,8 @@ function GoalCard.create(stats: Frame, onboarding: Onboarding.Hud, banner: Onboa
 	islandName.LayoutOrder = 2
 	local islandTrait = UiKit.text(islandTexts, "", "Caption")
 	islandTrait.LayoutOrder = 3
+	local islandDetails = UiKit.disclosure(islandCard, 2, "Ayrıntılar")
+	islandTrait.Parent = islandDetails.body
 	local islandEta = UiKit.text(islandTexts, "", "Caption", Color.Text)
 	islandEta.LayoutOrder = 4
 
@@ -77,6 +87,8 @@ function GoalCard.create(stats: Frame, onboarding: Onboarding.Hud, banner: Onboa
 	goalLabel.LayoutOrder = 2
 	local goalDetail = UiKit.text(goalCard, "", "Caption")
 	goalDetail.LayoutOrder = 3
+	local goalDetails = UiKit.disclosure(goalCard, 4, "Ayrıntılar")
+	goalDetail.Parent = goalDetails.body
 
 	local function updateGoalMain(state: PlayerSave, income: number)
 		goalTitle.Text = "SIRADAKİ HEDEF"
@@ -317,8 +329,10 @@ function GoalCard.create(stats: Frame, onboarding: Onboarding.Hud, banner: Onboa
 		updateGoalMain(state, income)
 		-- Üst ortadaki görev şeridi ilk adımlarda aynı metni gösterir (metin kaynağı yukarıdaki kart)
 		if Onboarding.stepFor(state) ~= 0 then
+			goalCard.Visible = false
 			banner.show(goalTitle.Text, goalLabel.Text)
 		else
+			goalCard.Visible = true
 			banner.hide()
 		end
 		-- Yeni oyuncuda hedef kartı tek başına yönlendirir; bekleyen işler deneyimli oyuncuda eklenir
@@ -327,7 +341,7 @@ function GoalCard.create(stats: Frame, onboarding: Onboarding.Hud, banner: Onboa
 		end
 		local chores = pendingChores(state)
 		if #chores > 0 then
-			goalDetail.Text ..= "\n" .. table.concat(chores, "\n")
+			goalDetail.Text ..= "\n" .. chores[1]
 		end
 	end
 

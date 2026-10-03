@@ -37,5 +37,15 @@ return function(createItemText: any)
 		string.find(text.slotNotice({ slot = "charm" }), "Muska", 1, true),
 		"slot replacement notice identifies the actual slot"
 	)
+	local additional = text.additional({ effects = { facilitySpeed = 0.15 }, tradeoffs = { goodsYield = 0.05 } })
+	assert(
+		not string.find(additional, "Üretim süresi", 1, true),
+		"details do not repeat the benefit already visible on the card"
+	)
+	assert(string.find(additional, "Ürün merkezi verimi: -%5", 1, true), "extra details retain the real penalty")
+	assert(
+		text.additional({ effects = { incomeBonus = 0.1 } }) == "",
+		"single-effect items do not manufacture duplicate details"
+	)
 	print("PASS item text: benefits, discounts, slower growth, three real penalties and slot opportunity cost")
 end

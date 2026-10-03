@@ -24,12 +24,21 @@ Katman: `src/client/Ui/` (UiKit, FarmHud, `Hud/*`, paneller, `IslandManager`, `I
 - Buton varyantı: primary=alınabilir, warning=para yetmiyor, disabled=kilitli/dolu, owned=alındı.
 - Dünyadaki tabela: `WorldUi.tag` / `WorldUi.sign`, güncelleme `setTag` / `setSignText`.
 
+## Bilgiyi gerektiğinde göster
+
+- İlk görünümde başlık, kısa sonuç, fiyat ve ana aksiyon kalır. Açıklama, ayrıntılı formül ve ikincil işlemler `UiKit.disclosure(parent, order, title)` içinde varsayılan kapalıdır; mevcut kart açıklaması için `UiKit.cardDetails` kullanılabilir.
+- Detay düğmesi dokunma/gamepad hedefini korur. İncelenen çiftlik, tur veya ürün değişince eski inceleme kapatılır. Para/ürün gereksinimi, gerçek eşya eksileri ve geri alınamaz işlem uyarıları ilgili işlemden önce gösterilir.
+- Aktif etkiler ve 30 seviye kazanımları aynı **İlerleme** penceresinin Etkiler/Rebirth sekmelerindedir. Sahip olunan fakat takılı olmayan ekipman aktif bonus diye sunulmaz. Ayrıntılı kaynak hesapları yalnız ilgili bölüm açılınca yapılır.
+- Yeni oyuncunun görev şeridi ile sol hedef kartında aynı talimatı iki kez gösterme; görev şeridi açıkken sol hedef kartı gizlenir.
+- Kart ayrıntısı tüm kart genişliğine yayılır. Esnek ızgaralarda satır hizalaması `ItemLineAlignment.Stretch` kullanır; kaydırmalı otomatik içerik yüksekliğini sıkıştıran `VerticalFlex.Fill` kullanılmaz. Eşitlik için boş düğme veya sabit büyük yükseklik ekleme.
+- Bir ürünün karttaki ana faydasını ayrıntıda tekrar etme. Alternatif ödeme ayrıntıda gösterilebilir; ana fiyat ve inceleme/satın alma niyeti ilk bakışta anlaşılır kalır.
+
 ## HUD yerleşim bölgeleri (FarmHud) — çakışma olmasın
 | Bölge | İçerik |
 |---|---|
 | Sol orta | `Stats` paneli (sola kayarak kapanır; sağ kenarında sekme): ada adı, para+gelir, ahır, depo, mevsim/hava kartı, sıradaki hedef ve sıradaki ada |
 | Üst orta | `MenuTop` karo çubuğu: Pazar, Yükseltmeler, Yol Haritası, Üretim, Adalar (bildirimler bunun altında) |
-| Sağ orta | `MenuSide` karo sütunu: Envanter, Ödüller, Market (kimlik 0 iken katalog görünür, ödeme kapalı), Rebirth (hazırsa), Adama Dön, Ayarlar, (yönetici) Yönetici |
+| Sağ orta | `MenuSide` karo sütunu: Envanter, Ödüller, Market (kimlik 0 iken katalog görünür, ödeme kapalı), İlerleme (ilk hayvan veya rebirth sonrası), Adama Dön, Ayarlar, (yönetici) Yönetici |
 | Sağ (pencere) | Pazar / Yol Haritası / Yükseltmeler pencereleri (`WINDOW_POSITION`) |
 | Orta (pencere) | Ödüller, Sipariş Panosu, Market (Robux katalog, kalıcı altın teklifleri, altın çevirme ve hızlı bitirme), Eşya Dükkânı, Envanter. UiKit pencere kaydıyla birbirini kapatır; meydan satıcıları ve pazar tezgâhı ilgili pencereyi açar |
 | Üst orta | Bildirimler (toast) |
@@ -55,6 +64,7 @@ Katman: `src/client/Ui/` (UiKit, FarmHud, `Hud/*`, paneller, `IslandManager`, `I
   remote `RequestSetPreference`, sunucu `Modules/Preferences`): yeni tercih eklerken oraya ekle (roblox-save-schema + roblox-add-remote).
   Ortam, hayvan ve müzik `Soundscape.client`.
 - Para her yerde `FarmMath.formatMoney` ile yazılır (küçük tutarlar tam, büyükler `$12.4K`/`$3.1M` gibi kısaltılır; eşik fonksiyonda). Kendi biçimlendiricini yazma.
+- Altın cüzdanı `UiKit.iconChip` içinde `🪙` ile gösterilir; bileşen bu simgeyi GUI şekilleriyle çizer (platformun emoji/Robux glifine güvenmez). Uzun fiyat ve açıklama doğal büyür; kullanıcıya görünen miktarı taşırma.
 - Bildirimler `toastHost` ile gösterilir; aynı metin ve türde duran bildirim yenisini eklemez, "×N" rozeti artar. Aynı bildirimi elle tekrar süzme.
 
 ## Performans

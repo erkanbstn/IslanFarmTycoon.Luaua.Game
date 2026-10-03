@@ -1,5 +1,5 @@
 --!strict
-return function(createStore: any, createMarket: any)
+return function(createStore: any, createMarket: any, createItemShop: any)
 	local function signal(): any
 		local callbacks = {}
 		return {
@@ -53,6 +53,34 @@ return function(createStore: any, createMarket: any)
 	end
 	local buttons, cards, inputs, tabCallbacks = {}, {}, {}, {}
 	local ui: any = { Color = {}, TouchTarget = 44, list = function() end, autoGrid = node }
+	local disclosures = {}
+	local labels = {}
+	local icons = {}
+	ui.iconChip = function(parent: any, icon: string): any
+		local object = node()
+		object.Parent = parent
+		object.Text = icon
+		table.insert(icons, object)
+		return object
+	end
+	ui.disclosure = function(parent: any): any
+		local expanded = false
+		local body = node()
+		body.Visible = false
+		local result = {
+			frame = node(),
+			body = body,
+			isExpanded = function(): boolean
+				return expanded
+			end,
+			setExpanded = function(value: boolean)
+				expanded = value
+				body.Visible = value
+			end,
+		}
+		disclosures[parent] = result
+		return result
+	end
 	ui.setText = function(target: any, text: string)
 		target.Text = text
 	end
@@ -60,21 +88,24 @@ return function(createStore: any, createMarket: any)
 		target.variant = variant
 		target.Active = variant ~= "owned" and variant ~= "disabled"
 	end
-	ui.text = function(_parent: any, text: string): any
+	ui.text = function(parent: any, text: string): any
 		local object = node()
+		object.Parent = parent
 		object.Text = text
+		table.insert(labels, object)
 		return object
 	end
-	ui.button = function(_parent: any, text: string, variant: string): any
+	ui.button = function(parent: any, text: string, variant: string): any
 		local object = node()
+		object.Parent = parent
 		object.Text = text
 		ui.setVariant(object, variant)
 		table.insert(buttons, object)
 		return object
 	end
 	ui.autoTile = function(): any
-		local card =
-			{ frame = node(), icon = node(), title = node(), detail = node(), action = ui.button(nil, "", "primary") }
+		local card = { frame = node(), icon = node(), title = node(), detail = node() } :: any
+		card.action = ui.button(card.frame, "", "primary")
 		table.insert(cards, card)
 		return card
 	end
@@ -106,7 +137,17 @@ return function(createStore: any, createMarket: any)
 	end
 	local dimensions = { new = function() end, fromScale = function() end }
 	local definition: any = {
-		ITEMS = { artisan_staff = { price = 20000, displayName = "Zanaat Asası", icon = "staff" } },
+		ITEMS = {
+			artisan_staff = {
+				id = "artisan_staff",
+				slot = "staff",
+				price = 20000,
+				displayName = "Zanaat Asası",
+				icon = "staff",
+			},
+		},
+		ITEM_SLOT_ORDER = { "staff" },
+		ITEM_SLOTS = { staff = { displayName = "Asa", icon = "staff" } },
 		PRODUCT_MIN_INCOME_PACK = 500,
 		PRODUCTS = {
 			passes = {
@@ -114,7 +155,7 @@ return function(createStore: any, createMarket: any)
 					id = 0,
 					effect = "autoCollect",
 					displayName = "Toplayıcı",
-					description = "Kalıcı",
+					description = "Para kendiliğinden kasana gelir",
 					icon = "robot",
 				},
 			},
@@ -132,7 +173,7 @@ return function(createStore: any, createMarket: any)
 					effect = "permanentOffer",
 					offerId = "auto_collect",
 					displayName = "Toplayıcı",
-					description = "Kalıcı",
+					description = "Para kendiliğinden kasana gelir",
 					icon = "robot",
 				},
 				gold_100 = {
@@ -146,6 +187,7 @@ return function(createStore: any, createMarket: any)
 			},
 		},
 		PROGRESSION = {
+			milestones = {},
 			permanentOffers = {
 				artisan_staff = { id = "artisan_staff", kind = "item", itemId = "artisan_staff", goldCost = 350 },
 				auto_collect = { id = "auto_collect", kind = "convenience", goldCost = 300 },
@@ -155,6 +197,7 @@ return function(createStore: any, createMarket: any)
 		},
 	}
 	local requests = {}
+	local prompts = {}
 	local controller = {
 		isPending = function(): boolean
 			return false
@@ -166,8 +209,8 @@ return function(createStore: any, createMarket: any)
 	local remotes = {
 		get = function(): any
 			return {
-				FireServer = function()
-					error("ID0 product must not prompt")
+				FireServer = function(_self: any, kind: string, key: string)
+					table.insert(prompts, { kind = kind, key = key })
 				end,
 			}
 		end,
@@ -218,6 +261,9 @@ return function(createStore: any, createMarket: any)
 		describe = function(): string
 			return "Üretim hızı +%15"
 		end,
+		additional = function(): string
+			return "Ürün merkezi verimi: -%5"
+		end,
 		slotNotice = function(): string
 			return "Yuva: Asa · Takılı eşyanın yerine geçer."
 		end,
@@ -242,8 +288,22 @@ return function(createStore: any, createMarket: any)
 		end
 		assert(card.action.variant == "disabled", "ID0 catalogue is visible but every Robux action is disabled")
 	end
+	assert(
+		collectorCard.detail.Text == "Para kendiliğinden kasana gelir",
+		"permanent upgrades explain their benefit instead of gamepass jargon"
+	)
+	local collectorDetail: any = nil
+	for _, label in labels do
+		if label.Parent == disclosures[collectorCard.frame].body then
+			collectorDetail = label
+		end
+	end
+	assert(
+		collectorDetail and collectorDetail.Text ~= collectorCard.detail.Text,
+		"upgrade details add persistence information instead of repeating the summary"
+	)
 	for _, button in buttons do
-		if button.Text == "350 altın · Kalıcı" then
+		if button.Text == "İncele · 350 altın · Kalıcı" then
 			staffGold = button
 		end
 	end
@@ -251,24 +311,141 @@ return function(createStore: any, createMarket: any)
 		staffCard and staffGold and #previews == 1,
 		"existing model is mounted and gold route is available without Robux ID"
 	)
+	assert(
+		staffGold.Parent == staffCard.frame and staffCard.action.Parent == disclosures[staffCard.frame].body,
+		"gold offer has one exterior CTA; the alternative Robux action belongs inside details"
+	)
+	assert(collectorCard.action.Parent == collectorCard.frame, "pass without a gold offer keeps its exterior CTA")
 	staffCard.action.Activated.fire()
-	assert(#requests == 0, "disabled Robux action never sends a paid request")
+	assert(#requests == 0 and #prompts == 0, "disabled Robux action never sends a paid request")
+	assert(
+		not disclosures[staffCard.frame].isExpanded() and staffGold.Text == "İncele · 350 altın · Kalıcı",
+		"product starts with an explicit review action"
+	)
+	staffGold.Activated.fire()
+	assert(
+		#requests == 0
+			and disclosures[staffCard.frame].isExpanded()
+			and staffGold.Text == "Satın al · 350 altın · Kalıcı",
+		"first purchase intention exposes full effects and slot cost without debiting"
+	)
 	staffGold.Activated.fire()
 	assert(
 		#requests == 1 and requests[1].detail.offerId == "artisan_staff",
 		"gold action uses canonical offer identifier"
 	)
+	save.progression.run = 2
+	update(save)
+	assert(not disclosures[staffCard.frame].isExpanded(), "changing run collapses an old financial review")
+	definition.PRODUCTS.products.permanent_artisan_staff.id = 123
+	update(save)
+	staffCard.action.Activated.fire()
+	assert(
+		#prompts == 0 and disclosures[staffCard.frame].isExpanded(),
+		"ready Robux alternative first reveals the same effect and penalty review"
+	)
+	staffCard.action.Activated.fire()
+	assert(
+		#prompts == 1 and prompts[1].kind == "product" and prompts[1].key == "permanent_artisan_staff",
+		"reviewed Robux alternative requests the actual platform prompt"
+	)
+	definition.PRODUCTS.products.permanent_artisan_staff.id = 0
 	save.owned.items.artisan_staff = true
 	save.owned.conveniences.auto_collect = true
 	update(save)
 	assert(
 		staffCard.action.variant == "owned" and staffGold.variant == "owned",
-		"permanent ownership disables both currencies"
+		"permanent ownership disables both currencies with one exterior owned label"
 	)
 	assert(
 		collectorCard.action.variant == "owned",
 		"permanent gold collector also owns equivalent gamepass functionality"
 	)
+	local itemText = {
+		describe = function(): string
+			return "Üretim süresi: -%15\nÜrün merkezi verimi: -%5"
+		end,
+		additional = function(): string
+			return "Ürün merkezi verimi: -%5"
+		end,
+		slotNotice = function(): string
+			return "Yuva: Asa · Takılı eşyanın yerine geçer."
+		end,
+		itemsOfSlot = function(): any
+			return { definition.ITEMS.artisan_staff }
+		end,
+	}
+	local cashShop = createItemShop(
+		engine,
+		definition,
+		mathModule,
+		{
+			owns = function(state: any, id: string): boolean
+				return state.inventory.items[id] == true
+			end,
+		},
+		ui,
+		{
+			submit = function(remote: string, id: string)
+				table.insert(requests, { remote = remote, action = id })
+			end,
+		},
+		common,
+		itemText,
+		{ mount = function() end },
+		dimensions,
+		dimensions
+	)
+	local cashPanel = cashShop.create(root)
+	local cashState: any = {
+		activeMainFarmId = "1",
+		cash = 20000,
+		progression = { run = 1 },
+		owned = { items = {} },
+		inventory = { items = {} },
+	}
+	cashPanel.update(cashState)
+	local cashCard = cards[#cards]
+	assert(
+		not disclosures[cashCard.frame].isExpanded() and cashCard.action.Text == "İncele · $ 20000",
+		"cash item starts with an explicit review action"
+	)
+	assert(
+		not string.find(cashCard.detail.Text, "Ürün merkezi verimi", 1, true),
+		"summary shows one benefit without dumping every effect"
+	)
+	local beforeCash = #requests
+	local fullCashDetail: any = nil
+	for _, label in labels do
+		if label.Parent == disclosures[cashCard.frame].body then
+			fullCashDetail = label
+		end
+	end
+	assert(
+		fullCashDetail
+			and string.find(fullCashDetail.Text, "Ürün merkezi verimi: -%5", 1, true)
+			and string.find(fullCashDetail.Text, "Takılı eşyanın yerine geçer.", 1, true),
+		"review preserves real penalty and slot replacement notice"
+	)
+	assert(
+		not string.find(fullCashDetail.Text, "Üretim süresi: -%15", 1, true),
+		"details exclude the main benefit already visible on the card"
+	)
+	cashCard.action.Activated.fire()
+	assert(
+		#requests == beforeCash
+			and disclosures[cashCard.frame].isExpanded()
+			and cashCard.action.Text == "Satın al · $ 20000",
+		"cash purchase first reveals penalty and slot replacement before payment"
+	)
+	cashCard.action.Activated.fire()
+	assert(
+		#requests == beforeCash + 1 and requests[#requests].remote == "RequestBuyItem",
+		"cash purchase remains available after review"
+	)
+	cashState.progression.run = 2
+	cashPanel.update(cashState)
+	assert(not disclosures[cashCard.frame].isExpanded(), "cash review collapses after a new run")
 	local market = createMarket(
 		engine,
 		definition,
@@ -287,6 +464,17 @@ return function(createStore: any, createMarket: any)
 	local panel = market.create(root)
 	panel.update(save)
 	panel.open("gold")
+	assert(#icons == 1 and icons[1].Text == "🪙", "market wallet renders a gold coin chip")
+	local wallet: any = nil
+	for _, label in labels do
+		if label.Parent == icons[1].Parent then
+			wallet = label
+		end
+	end
+	assert(
+		wallet and wallet.Text == `Altın: {save.gold} · Rebirth'te kalır`,
+		"wallet amount and persistence text stay in the coin's shared row"
+	)
 	local goldCard: any = nil
 	for _, card in cards do
 		if card.frame.Name == "gold_100" then
@@ -306,9 +494,12 @@ return function(createStore: any, createMarket: any)
 		end
 	end
 	assert(convert and convert.Active, "converter quotes within the unified market")
+	local beforeConversion = #requests
 	convert.Activated.fire()
 	assert(
-		requests[2].action == "convert" and requests[2].detail.amount == 3 and requests[2].detail.expectedCash == 90,
+		requests[beforeConversion + 1].action == "convert"
+			and requests[beforeConversion + 1].detail.amount == 3
+			and requests[beforeConversion + 1].detail.expectedCash == 90,
 		"conversion submits exact displayed quote through run-aware controller"
 	)
 	inputs[1].Text = "1.5"

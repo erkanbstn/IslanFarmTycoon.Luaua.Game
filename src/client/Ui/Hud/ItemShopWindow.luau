@@ -42,12 +42,7 @@ function ItemShopWindow.create(screenGui: Instance, openPermanent: (() -> ())?):
 		anchor = Vector2.new(0.5, 0.5),
 		position = UDim2.fromScale(0.5, 0.5),
 	})
-	UiKit.text(
-		window.list,
-		"Nakit eşyalar bu tur içindir. Altın/Robux ile kalıcı sahiplik rebirth'te korunur. Eşyaları Envanter'den takarsın.",
-		"Caption"
-	).LayoutOrder =
-		0
+	UiKit.text(window.list, "Bu tur için bir eşya seç. Kalıcı seçenekler Market'te.", "Caption").LayoutOrder = 0
 	if openPermanent then
 		local permanentButton = UiKit.button(window.list, "Kalıcı altın teklifleri", "secondary")
 		permanentButton.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
@@ -57,6 +52,10 @@ function ItemShopWindow.create(screenGui: Instance, openPermanent: (() -> ())?):
 
 	-- Kategori sekmeleri (slot başına): seçili kategorinin eşyaları ızgara karoları olarak gösterilir
 	local cards: { [string]: UiKit.Card } = {}
+	local current: PlayerSave? = nil
+	local update: (PlayerSave) -> ()
+	local detailsById: { [string]: any } = {}
+	local fullLabels: { [string]: TextLabel } = {}
 	local grids: { [string]: Frame } = {}
 	local tabEntries: { { id: string, label: string } } = {}
 	for slotIndex, slotId in Config.ITEM_SLOT_ORDER do
@@ -70,27 +69,56 @@ function ItemShopWindow.create(screenGui: Instance, openPermanent: (() -> ())?):
 			ItemPreview.mount(card.icon, item.id)
 			card.title.Text = item.displayName
 			card.detail.Text = ItemText.describe(item)
+			local details = UiKit.disclosure(card.frame, 6, "Ayrıntılar")
+			detailsById[item.id] = details
+			details.body:GetPropertyChangedSignal("Visible"):Connect(function()
+				if current then
+					update(current)
+				end
+			end)
+			fullLabels[item.id] = UiKit.text(details.body, "", "Caption")
 			cards[item.id] = card
 			card.action.Activated:Connect(function()
 				if card.action.Active and not item.rewardOnly then
+					if not details.isExpanded() then
+						details.setExpanded(true)
+						return
+					end
 					PurchaseController.submit("RequestBuyItem", item.id)
 				end
 			end)
 		end
 	end
 	UiKit.tabs(window.list, 5, tabEntries, function(slotId: string)
+		for _, details in detailsById do
+			details.setExpanded(false)
+		end
 		for gridSlot, grid in grids do
 			grid.Visible = gridSlot == slotId
 		end
 	end)
 
-	local function update(state: PlayerSave)
+	local lastContext: string? = nil
+	update = function(state: PlayerSave)
+		current = state
+		local context = `{state.activeMainFarmId}:{if state.progression then state.progression.run else 1}`
+		if context ~= lastContext then
+			lastContext = context
+			for _, details in detailsById do
+				details.setExpanded(false)
+			end
+			lastContext = context
+		end
 		for itemId, card in cards do
 			local item = Config.ITEMS[itemId]
 			local permanent = state.owned ~= nil and state.owned.items[itemId] == true
+			UiKit.setText(fullLabels[itemId], `{ItemText.slotNotice(item)}\n{ItemText.additional(item)}`)
 			UiKit.setText(
 				card.detail,
-				`{if permanent then "Kalıcı" else "Bu tur"} · {ItemText.slotNotice(item)}\n{ItemText.describe(item)}`
+				`{if permanent then "Kalıcı" elseif item.rewardOnly then "Rebirth ödülü" else "Bu tur"} · {string.match(
+					ItemText.describe(item),
+					"[^\n]+"
+				) or ""}`
 			)
 			ItemPreview.mount(card.icon, itemId)
 			if Inventory.owns(state, itemId) then
@@ -100,18 +128,27 @@ function ItemShopWindow.create(screenGui: Instance, openPermanent: (() -> ())?):
 					"owned"
 				)
 			elseif item.rewardOnly then
-				UiKit.setText(card.detail, `Rebirth ödülü · {ItemText.slotNotice(item)}\n{ItemText.describe(item)}`)
+				UiKit.setText(fullLabels[itemId], `{ItemText.slotNotice(item)}\n{ItemText.additional(item)}`)
 				setPurchaseButton(card.action, `R{rewardLevels[itemId] or 0} ödülü · Oynayarak kazan`, "disabled")
 			else
 				setPurchaseButton(
 					card.action,
-					FarmMath.formatMoney(item.price),
+					`{if detailsById[itemId].isExpanded() then "Satın al" else "İncele"} · {FarmMath.formatMoney(
+						item.price
+					)}`,
 					if state.cash >= item.price then "primary" else "warning"
 				)
 			end
 		end
 	end
 
+	window.frame:GetPropertyChangedSignal("Visible"):Connect(function()
+		if not window.isOpen() then
+			for _, details in detailsById do
+				details.setExpanded(false)
+			end
+		end
+	end)
 	return { window = window, update = update }
 end
 

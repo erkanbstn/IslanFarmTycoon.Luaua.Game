@@ -83,18 +83,22 @@ local function create(parent: Instance): UiKit.Window
 		anchor = Vector2.new(0.5, 0.5),
 		position = UDim2.fromScale(0.5, 0.5),
 	})
+	UiKit.text(created.list, "Bir parti başlat veya hazır ödülünü teslim al.", "Caption").LayoutOrder = 0
+	local guide = UiKit.disclosure(created.list, 1000, "Üretim nasıl çalışır?")
 	UiKit.text(
-		created.list,
+		guide.body,
 		"Tesise yetişkin hayvanlarını ver: iş boyunca gelir getirmezler, bitince ödülle birlikte geri dönerler. Süre çıkışta da ilerler; teslim etmeden yeni parti başlamaz.",
 		"Caption"
 	).LayoutOrder =
 		0
-	UiKit.text(created.list, "Ürün partilerinde yüksek gelir farkı nakitle tamamlanır.", "Caption").LayoutOrder = 0
+	UiKit.text(guide.body, "Ürün partilerinde yüksek gelir farkı nakitle tamamlanır.", "Caption").LayoutOrder = 0
 	local selectedLabel = UiKit.text(created.list, "", "Heading")
 	selectedLabel.LayoutOrder = 1
 	local showAll = UiKit.button(created.list, "Adadaki tüm tesisleri göster", "secondary")
-	showAll.Size = UDim2.new(1, 0, 0, 34)
-	showAll.LayoutOrder = 19
+	showAll.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
+	showAll.AutomaticSize = Enum.AutomaticSize.Y
+	showAll.TextSize = UiKit.TextSize.Button
+	showAll.LayoutOrder = 1001
 	showAll.Visible = false
 	showAll.Activated:Connect(function()
 		focusedUpgrade = nil
@@ -102,11 +106,13 @@ local function create(parent: Instance): UiKit.Window
 		refresh()
 	end)
 	local changeIsland = UiKit.button(created.list, "Adalarımı yönet", "primary")
-	changeIsland.Size = UDim2.new(1, 0, 0, 36)
-	changeIsland.LayoutOrder = 20
+	changeIsland.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
+	changeIsland.AutomaticSize = Enum.AutomaticSize.Y
+	changeIsland.TextSize = UiKit.TextSize.Button
+	changeIsland.LayoutOrder = 1002
 	changeIsland.Activated:Connect(IslandManager.open)
 	local feedback = UiKit.text(created.list, "", "Caption")
-	feedback.LayoutOrder = 1
+	feedback.LayoutOrder = 2
 	-- Ada sekmeleri (diğer pencerelerle aynı): adaya gitmeden her adanın tesislerine geçilir
 	IslandTabs.add(created)
 	type Entry = {
@@ -116,16 +122,22 @@ local function create(parent: Instance): UiKit.Window
 		fill: (number, Color3) -> (),
 		options: { TextButton },
 		repeatToggle: TextButton,
+		details: any,
+		detailsLabel: TextLabel,
 	}
 	local entries: { [string]: Entry } = {}
 	for index, id in Config.PRODUCTION_ORDER do
 		local recipe = Config.PRODUCTION_RECIPES[id]
 		local card = UiKit.card(created.list, index + 2, recipe.icon)
 		card.title.Text = recipe.displayName
+		local details = UiKit.disclosure(card.frame, 20, "Ayrıntılar")
+		local detailsLabel = UiKit.text(details.body, recipe.description, "Caption")
 		local progress, fill = UiKit.progressBar(card.frame, 5)
 		progress.LayoutOrder = 3
 		local keep = UiKit.button(card.frame, "Civcivi kümese ekle", "primary")
-		keep.Size = UDim2.new(1, 0, 0, 36)
+		keep.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
+		keep.AutomaticSize = Enum.AutomaticSize.Y
+		keep.TextSize = UiKit.TextSize.Button
 		keep.LayoutOrder = 4
 		keep.Visible = false
 		-- Para tesisi: her parti seçeneği için bir başlatma butonu (ücretsiz; ne kadar hayvan isterse o kadar kazandırır)
@@ -133,7 +145,9 @@ local function create(parent: Instance): UiKit.Window
 		local recipeOptions: { Config.ProductionOptionConfig } = recipe.options or {}
 		for optionIndex, option in recipeOptions do
 			local button = UiKit.button(card.frame, option.displayName, "primary")
-			button.Size = UDim2.new(1, 0, 0, 36)
+			button.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
+			button.AutomaticSize = Enum.AutomaticSize.Y
+			button.TextSize = UiKit.TextSize.Button
 			button.LayoutOrder = 5 + optionIndex
 			button.Visible = false
 			table.insert(optionButtons, button)
@@ -145,8 +159,10 @@ local function create(parent: Instance): UiKit.Window
 			end)
 		end
 		-- Yardımcı (pet) varsa "otomatik tekrar": hazır partiyi yardımcı teslim alır ve aynı seçenekle yenisini başlatır
-		local repeatToggle = UiKit.button(card.frame, "Otomatik tekrar", "secondary")
-		repeatToggle.Size = UDim2.new(1, 0, 0, 32)
+		local repeatToggle = UiKit.button(details.body, "Otomatik tekrar", "secondary")
+		repeatToggle.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
+		repeatToggle.AutomaticSize = Enum.AutomaticSize.Y
+		repeatToggle.TextSize = UiKit.TextSize.Button
 		repeatToggle.LayoutOrder = 5
 		repeatToggle.Visible = false
 		repeatToggle.Activated:Connect(function()
@@ -169,6 +185,8 @@ local function create(parent: Instance): UiKit.Window
 			fill = fill,
 			options = optionButtons,
 			repeatToggle = repeatToggle,
+			details = details,
+			detailsLabel = detailsLabel,
 		}
 		card.action.Activated:Connect(function()
 			local state = ClientState.get()
@@ -205,6 +223,7 @@ local function create(parent: Instance): UiKit.Window
 		end
 		return count
 	end
+	local lastContext: string? = nil
 	render = function()
 		if not created.isOpen() then
 			return
@@ -212,6 +231,16 @@ local function create(parent: Instance): UiKit.Window
 		local state = ClientState.get()
 		if not state then
 			return
+		end
+		local context = `{state.activeMainFarmId}:{IslandContext.get()}:{if state.progression
+			then state.progression.run
+			else 1}:{focusedUpgrade or ""}`
+		if context ~= lastContext then
+			for _, entry in entries do
+				entry.details.setExpanded(false)
+			end
+			guide.setExpanded(false)
+			lastContext = context
 		end
 		feedback.Text = message
 		local focusedBuilding = if focusedUpgrade then Config.getUpgrade(focusedUpgrade) else nil
@@ -230,11 +259,12 @@ local function create(parent: Instance): UiKit.Window
 			local recipe = Config.PRODUCTION_RECIPES[id]
 			local entry = entries[id]
 			local card = entry.card
+			local detailText = ""
 			local recipeUpgrade = Config.getUpgrade(recipe.upgradeId)
 			card.frame.Visible = recipe.island == IslandContext.get()
 				and (recipeUpgrade == nil or FarmMath.isUpgradeInTheme(state, recipeUpgrade))
 				and (focusedUpgrade == nil or recipe.upgradeId == focusedUpgrade)
-			card.frame.LayoutOrder = if focused == id then 2 else index + 3
+			card.frame.LayoutOrder = if focused == id then 3 else index + 4
 			entry.keep.Visible = false
 			entry.progress.Visible = false
 			card.action.Visible = true
@@ -277,7 +307,7 @@ local function create(parent: Instance): UiKit.Window
 						working += 1
 					end
 				end
-				card.detail.Text = if remaining > 0
+				detailText = if remaining > 0
 					then `{recipe.description}\nKalan: {math.floor(remaining / 60)}:{string.format(
 						"%02d",
 						remaining % 60
@@ -298,7 +328,7 @@ local function create(parent: Instance): UiKit.Window
 				local upgrade = Config.getUpgrade(recipe.upgradeId)
 				local status, missing = FarmMath.getUpgradeStatus(state, recipe.upgradeId)
 				local needs = if upgrade and status ~= "locked" then HudCommon.goodsNeedText(state, upgrade) else nil
-				card.detail.Text = `{recipe.description}\n`
+				detailText = `{recipe.description}\n`
 					.. (if status == "locked"
 						then `Önce: {table.concat(missing, ", ")}`
 						else "Önce üretim tesisini kur.")
@@ -314,7 +344,7 @@ local function create(parent: Instance): UiKit.Window
 				local adults = FarmMath.countProductionAdults(state, recipe, now)
 				local busy = busyAnimals(state, recipe, now)
 				local busyLine = if busy > 0 then `\nBaşka görevde: {busy}` else ""
-				card.detail.Text =
+				detailText =
 					`{recipe.description}\nBoştaki yetişkin hayvan: {adults}{busyLine}\nBaşlatma ücretsiz; hayvanlar iş boyunca gelirsiz çalışır, bitince döner.`
 				card.action.Visible = false
 				for optionIndex, option in recipe.options do
@@ -330,7 +360,7 @@ local function create(parent: Instance): UiKit.Window
 					)
 					button.Visible = true
 					button.Text =
-						`{option.displayName} · {option.requiredAdults} hayvan · {duration} sn · +{FarmMath.formatMoney(
+						`{option.displayName}\n{option.requiredAdults} hayvan · {duration} sn · +{FarmMath.formatMoney(
 							shownReward
 						)}`
 					UiKit.setVariant(
@@ -355,16 +385,15 @@ local function create(parent: Instance): UiKit.Window
 					local amount = FarmMath.getGoodsYield(state, recipe, now, preview)
 					local space = FarmMath.getGoodsSpace(state, good.id)
 					hasSpace = space >= math.min(math.max(recipe.goodsAmount or 0, amount), FarmMath.getGoodsCap(state))
-					card.detail.Text =
+					detailText =
 						`{recipe.description}\n{duration} sn · {good.displayName} · +{amount}\nAhır deposu: {FarmMath.getGoodsAmount(
 							state,
 							good.id
 						)}/{FarmMath.getGoodsCap(state)}\nYetişkin hayvan: {adults}/{recipe.requiredAdults}{bonusLine}{busyLine}\nHayvanlar iş boyunca gelirsiz çalışır, bitince döner.`
 				else
 					local shownReward = FarmMath.getProductionReward(state, recipe, now, preview)
-					card.detail.Text = `{recipe.description}\n{duration} sn · Satış {FarmMath.formatMoney(
-						shownReward
-					)}\nYetişkin hayvan: {adults}/{recipe.requiredAdults}{bonusLine}{busyLine}\nHayvanlar iş boyunca gelirsiz çalışır, bitince döner.`
+					detailText =
+						`{recipe.description}\n{duration} sn · Satış {FarmMath.formatMoney(shownReward)}\nYetişkin hayvan: {adults}/{recipe.requiredAdults}{bonusLine}{busyLine}\nHayvanlar iş boyunca gelirsiz çalışır, bitince döner.`
 				end
 				card.action.Text = if hasSpace then `Başlat · {FarmMath.formatMoney(startCost)}` else "Depo dolu"
 				variant = if adults < recipe.requiredAdults or not hasSpace
@@ -372,10 +401,30 @@ local function create(parent: Instance): UiKit.Window
 					elseif state.cash >= startCost then "primary"
 					else "warning"
 			end
+			UiKit.setText(entry.detailsLabel, detailText)
+			local lines = string.split(detailText, "\n")
+			local summary = if #lines > 1 and lines[1] == recipe.description then lines[2] else lines[1]
+			if not state.purchased[recipe.upgradeId] and #lines > 1 and lines[1] == recipe.description then
+				summary = table.concat(lines, "\n", 2)
+			end
+			UiKit.setText(
+				card.detail,
+				if job or not state.purchased[recipe.upgradeId]
+					then summary
+					else `{summary}\nYetişkin hayvan: {FarmMath.countProductionAdults(state, recipe, now)}/{recipe.requiredAdults}\nHayvanlar iş boyunca gelir getirmez.`
+			)
 			UiKit.setVariant(card.action, if blocked then "disabled" else variant)
 		end
 	end
-	created.frame:GetPropertyChangedSignal("Visible"):Connect(refresh)
+	created.frame:GetPropertyChangedSignal("Visible"):Connect(function()
+		if not created.isOpen() then
+			for _, entry in entries do
+				entry.details.setExpanded(false)
+			end
+			guide.setExpanded(false)
+		end
+		refresh()
+	end)
 	return created
 end
 

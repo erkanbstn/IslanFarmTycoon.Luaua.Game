@@ -34,16 +34,19 @@ function SeasonBar.create(stats: Instance): Bar
 
 	local seasonHeader = Instance.new("Frame")
 	seasonHeader.BackgroundTransparency = 1
-	seasonHeader.Size = UDim2.new(1, 0, 0, 20)
+	seasonHeader.Size = UDim2.new(1, 0, 0, 28)
+	seasonHeader.AutomaticSize = Enum.AutomaticSize.Y
 	seasonHeader.LayoutOrder = 1
 	seasonHeader.Parent = seasonBar
-	local seasonChip = UiKit.iconChip(seasonHeader, "", 20, Color.Green)
+	local seasonChip = UiKit.iconChip(seasonHeader, "", 24, Color.Green)
+	seasonChip.AnchorPoint = Vector2.new(0, 0.5)
+	seasonChip.Position = UDim2.fromScale(0, 0.5)
 	local seasonTitle = UiKit.text(seasonHeader, "", "Caption")
-	seasonTitle.AutomaticSize = Enum.AutomaticSize.None
-	seasonTitle.Position = UDim2.fromOffset(26, 0)
-	seasonTitle.Size = UDim2.new(1, -26, 1, 0)
-	seasonTitle.TextWrapped = false
-	seasonTitle.TextTruncate = Enum.TextTruncate.AtEnd
+	seasonTitle.AutomaticSize = Enum.AutomaticSize.Y
+	seasonTitle.Position = UDim2.fromOffset(32, 0)
+	seasonTitle.Size = UDim2.new(1, -32, 0, 0)
+	seasonTitle.TextYAlignment = Enum.TextYAlignment.Center
+	seasonTitle.TextWrapped = true
 	local seasonClock = UiKit.text(seasonBar, "", "Caption", Color.Gold)
 	seasonClock.LayoutOrder = 2
 	seasonClock.TextWrapped = false
@@ -54,23 +57,26 @@ function SeasonBar.create(stats: Instance): Bar
 
 	local seasonFooter = Instance.new("Frame")
 	seasonFooter.BackgroundTransparency = 1
-	seasonFooter.Size = UDim2.new(1, 0, 0, 20)
+	seasonFooter.Size = UDim2.new(1, 0, 0, 28)
+	seasonFooter.AutomaticSize = Enum.AutomaticSize.Y
 	seasonFooter.LayoutOrder = 4
 	seasonFooter.Parent = seasonBar
-	local weatherChip = UiKit.iconChip(seasonFooter, "", 20, Color.Blue)
+	local weatherChip = UiKit.iconChip(seasonFooter, "", 24, Color.Blue)
+	weatherChip.AnchorPoint = Vector2.new(0, 0.5)
+	weatherChip.Position = UDim2.fromScale(0, 0.5)
 	local weatherTitle = UiKit.text(seasonFooter, "", "Caption", Color.Text)
-	weatherTitle.AutomaticSize = Enum.AutomaticSize.None
-	weatherTitle.Position = UDim2.fromOffset(26, 0)
-	weatherTitle.Size = UDim2.new(1, -26, 1, 0)
-	weatherTitle.TextWrapped = false
-	weatherTitle.TextTruncate = Enum.TextTruncate.AtEnd
+	weatherTitle.AutomaticSize = Enum.AutomaticSize.Y
+	weatherTitle.Position = UDim2.fromOffset(32, 0)
+	weatherTitle.Size = UDim2.new(1, -32, 0, 0)
+	weatherTitle.TextYAlignment = Enum.TextYAlignment.Center
+	weatherTitle.TextWrapped = true
 	local nextSeasonLabel = UiKit.text(seasonBar, "", "Caption")
 	nextSeasonLabel.LayoutOrder = 5
 
 	-- Açılır/kapanır "Etkiler" bölümü: mevsimin, havanın ve ikisinin toplam gelir etkisi (hayvan başına)
 	local toggle = UiKit.button(seasonBar, "Etkileri göster", "secondary")
 	toggle.Name = "EffectsToggle"
-	toggle.Size = UDim2.new(1, 0, 0, 26)
+	toggle.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
 	toggle.TextSize = UiKit.TextSize.Caption
 	toggle.LayoutOrder = 6
 	-- Uzun listeler küçük ekranlarda paneli taşırmasın: sabit yükseklikte kaydırılır
@@ -101,21 +107,25 @@ function SeasonBar.create(stats: Instance): Bar
 	local function addRow(icon: string, name: string, value: number, order: number)
 		local row = Instance.new("Frame")
 		row.BackgroundTransparency = 1
-		row.Size = UDim2.new(1, 0, 0, 18)
+		row.Size = UDim2.new(1, 0, 0, 24)
 		row.LayoutOrder = order
 		row.Parent = details
-		UiKit.iconChip(row, icon, 18, Color.SurfaceRaised)
+		local chip = UiKit.iconChip(row, icon, 18, Color.SurfaceRaised)
+		chip.AnchorPoint = Vector2.new(0, 0.5)
+		chip.Position = UDim2.fromScale(0, 0.5)
 		local label = UiKit.text(row, name, "Caption")
 		label.AutomaticSize = Enum.AutomaticSize.None
 		label.Position = UDim2.fromOffset(24, 0)
-		label.Size = UDim2.new(1, -78, 1, 0)
+		label.Size = UDim2.new(1, -90, 1, 0)
 		label.TextWrapped = false
 		label.TextTruncate = Enum.TextTruncate.AtEnd
 		local amount = UiKit.text(row, percent(value), "Caption", if value >= 0 then Color.Green else Color.Red)
 		amount.AutomaticSize = Enum.AutomaticSize.None
 		amount.AnchorPoint = Vector2.new(1, 0)
 		amount.Position = UDim2.new(1, 0, 0, 0)
-		amount.Size = UDim2.fromOffset(52, 18)
+		amount.Size = UDim2.fromOffset(64, 24)
+		amount.TextYAlignment = Enum.TextYAlignment.Center
+		label.TextYAlignment = Enum.TextYAlignment.Center
 		amount.TextXAlignment = Enum.TextXAlignment.Right
 	end
 	local function addModifierRows(modifiers: { [string]: number }, order: number): number
