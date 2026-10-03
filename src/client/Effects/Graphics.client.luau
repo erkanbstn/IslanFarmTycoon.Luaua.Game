@@ -148,7 +148,7 @@ end
 
 local appliedTier: Tier? = nil
 local function refresh()
-	local tier = resolvedTier()
+	local tier: Tier = resolvedTier()
 	if player:GetAttribute("EffectsQuality") ~= tier then
 		player:SetAttribute("EffectsQuality", tier)
 	end

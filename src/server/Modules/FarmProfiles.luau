@@ -109,7 +109,7 @@ end
 function FarmProfiles.clientState(data: any, summaries: { any }, offers: { any }, parkedIncomeBest: number?): any
 	local payload = {}
 	for key, value in data do
-		if key ~= "mainFarms" then
+		if key ~= "mainFarms" and key ~= "receipts" and key ~= "transfers" then
 			payload[key] = value
 		end
 	end

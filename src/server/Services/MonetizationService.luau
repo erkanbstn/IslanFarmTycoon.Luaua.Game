@@ -18,6 +18,7 @@ local Remotes = require(Shared:WaitForChild("Remotes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 
 local PlayerDataService = require(script.Parent:WaitForChild("PlayerDataService"))
+local TelemetryService = require(script.Parent:WaitForChild("TelemetryService"))
 local RateLimiter = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("RateLimiter"))
 local ReceiptLog = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("ReceiptLog"))
 local Metrics = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("Metrics"))
@@ -55,7 +56,8 @@ function MonetizationService.refreshPasses(player: Player, attempt: number?)
 	if not data then
 		return
 	end
-	local previous = data.passes or {}
+	-- Sorgular yield eder; satın alma olayı aynı tabloyu bu sırada değiştirebilir.
+	local previous = table.clone(data.passes or {})
 	local failed = false
 	local passes: { [string]: boolean } = {}
 	for key, pass in Config.PRODUCTS.passes do
@@ -75,8 +77,15 @@ function MonetizationService.refreshPasses(player: Player, attempt: number?)
 	end
 	-- Oyuncu ayrılmış ya da kayıt oturumu kapanmış olabilir (yield sonrası yeniden doğrula).
 	local current = PlayerDataService.tryGet(player)
-	if not current then
+	if not current or current ~= data then
 		return
+	end
+	-- Sorgu başladıktan sonra doğrulanan yeni sahipliği eski false yanıtıyla silme.
+	local currentPasses: { [string]: boolean } = current.passes or {}
+	for key, owned in currentPasses do
+		if owned and not previous[key] then
+			passes[key] = true
+		end
 	end
 	current.passes = passes
 	PlayerDataService.pushState(player)
@@ -87,19 +96,33 @@ function MonetizationService.refreshPasses(player: Player, attempt: number?)
 end
 
 -- Desteklenen ürün etkileri tek kaynaktır: processReceipt yalnızca burada olanları işler.
-local productEffects: { [string]: (player: Player, data: any, product: Config.ProductConfig) -> boolean } = {
-	instantProduction = function(player, data)
+local function incomePackAmount(data: any, product: Config.ProductConfig): number
+	local income = FarmMath.computeIncomePerSecond(data)
+	return math.floor(math.max(income * 3600 * (product.incomeHours or 1), Config.PRODUCT_MIN_INCOME_PACK))
+end
+
+-- Kalıcı etki yield etmez ve Roblox/presentation servisi çağırmaz; makbuzla aynı blokta uygulanır.
+local productEffects: { [string]: (data: any, product: Config.ProductConfig) -> boolean } = {
+	instantProduction = function(data)
+		-- Bozuk iş listesini mutasyondan önce doğrula; yarım uygulanmış etki yeniden ödüllendirilmesin.
+		if typeof(data.production) ~= "table" then
+			return false
+		end
+		for _, job in data.production do
+			if typeof(job) ~= "table" then
+				return false
+			end
+		end
 		for _, job in data.production do
 			job.readyAt = 0
 		end
-		PlayerDataService.pushState(player)
 		return true
 	end,
-	incomePack = function(player, data, product)
-		local income = FarmMath.computeIncomePerSecond(data)
-		local amount = math.max(income * 3600 * (product.incomeHours or 1), Config.PRODUCT_MIN_INCOME_PACK)
-		PlayerDataService.addCash(player, math.floor(amount), "iap")
-		PlayerDataService.pushState(player)
+	incomePack = function(data, product)
+		local amount = incomePackAmount(data, product)
+		local cash = math.min(1e15, data.cash + amount)
+		local lifetimeEarned = math.min(1e18, (data.lifetimeEarned or 0) + amount)
+		data.cash, data.lifetimeEarned = cash, lifetimeEarned
 		return true
 	end,
 }
@@ -108,10 +131,26 @@ local function isSupported(effect: any): boolean
 	return typeof(effect) == "string" and productEffects[effect] ~= nil
 end
 
-local function applyProduct(player: Player, data: any, product: Config.ProductConfig): boolean
+local function applyProduct(data: any, product: Config.ProductConfig): boolean
 	local effect = product.effect
 	local handler = if effect ~= nil then productEffects[effect] else nil
-	return handler ~= nil and handler(player, data, product)
+	return handler ~= nil and handler(data, product)
+end
+
+-- Bildirim/telemetri hatası kalıcı ödülü ve tekrar korumasını geri almamalı.
+local function presentProduct(player: Player, data: any, product: Config.ProductConfig)
+	local ok, message = pcall(function()
+		if product.effect == "incomePack" then
+			PlayerDataService.pushEconomy(player)
+			TelemetryService.economy(player, "iap", incomePackAmount(data, product), data.cash)
+		end
+		PlayerDataService.pushState(player)
+		Metrics.increment("ProductsGranted")
+		Remotes.get("Notify"):FireClient(player, `{product.displayName} etkinleştirildi!`, "success")
+	end)
+	if not ok then
+		warn(`[Monetization] Ödül uygulandı, sunum başarısız user={player.UserId}: {message}`)
+	end
 end
 
 -- Roblox aynı makbuzu tekrar gönderebilir; ödül yalnızca ilk kez verilir.
@@ -127,6 +166,11 @@ function MonetizationService.processReceipt(receiptInfo: any): Enum.ProductPurch
 	if not data or player:GetAttribute("WorldReady") ~= true then
 		return Enum.ProductPurchaseDecision.NotProcessedYet
 	end
+	-- Eski yedekteki makbuz geçmişi eksik olabilir; elle uzlaştırılmadan yeni/tekrar ödül verme.
+	if data.transfers and data.transfers.quarantined then
+		warn(`[Monetization] Finansal kayıt uzlaştırma bekliyor user={player.UserId}; makbuz bekletildi`)
+		return Enum.ProductPurchaseDecision.NotProcessedYet
+	end
 	local _, product = findProduct(receiptInfo.ProductId)
 	if not product then
 		warn(`[Monetization] Bilinmeyen ürün {tostring(receiptInfo.ProductId)}; makbuz işlenmedi`)
@@ -137,16 +181,22 @@ function MonetizationService.processReceipt(receiptInfo: any): Enum.ProductPurch
 		return Enum.ProductPurchaseDecision.NotProcessedYet
 	end
 	local id = receiptInfo.PurchaseId
-	-- Makbuz önce yazılır, sonra ödül verilir: çökme ya da tekrar aynı ödülü ikinci kez üretmez.
+	-- Makbuz ve etki bellekte yield etmeden birlikte uygulanır; save ikisini aynı görüntüyle yazar.
 	-- Ödül verilemezse makbuz günlükten çıkar; Roblox yeniden denediğinde ödül gerçekten verilir.
 	local outcome = ReceiptLog.grant(data, id, function(): boolean
-		return applyProduct(player, data, product)
+		return applyProduct(data, product)
 	end)
-	if outcome == "failed" then
+	if outcome == "full" then
+		Metrics.increment("ReceiptCapacityBlocked")
+		warn(
+			`[Monetization] Makbuz kapasitesi dolu user={player.UserId}; yeni ödül kalıcı günlük genişletilene kadar bekliyor`
+		)
+		return Enum.ProductPurchaseDecision.NotProcessedYet
+	elseif outcome == "failed" then
 		return Enum.ProductPurchaseDecision.NotProcessedYet
 	elseif outcome == "granted" then
-		Metrics.increment("ProductsGranted")
-		Remotes.get("Notify"):FireClient(player, `{product.displayName} etkinleştirildi!`, "success")
+		PlayerDataService.markDirty(player)
+		presentProduct(player, data, product)
 	end
 	-- PurchaseGranted yalnızca kayıt diske yazıldıysa; yazılamazsa Roblox makbuzu yeniden gönderir
 	-- ve yukarıdaki kontrol ödülü tekrar vermeden yeniden kaydetmeyi dener.
@@ -174,11 +224,8 @@ function MonetizationService.init()
 			if not key or not data then
 				return
 			end
-			local passes = data.passes
-			if not passes then
-				passes = {}
-				data.passes = passes
-			end
+			local passes: { [string]: boolean } = data.passes or {}
+			data.passes = passes
 			passes[key] = true
 			Metrics.increment("PassesPurchased")
 			PlayerDataService.pushState(player)

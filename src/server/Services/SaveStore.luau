@@ -12,6 +12,7 @@ local Config = require(Shared:WaitForChild("Config"))
 local SessionLock = require(script.Parent.Parent.Modules.SessionLock)
 local Metrics = require(script.Parent.Parent.Modules.Metrics)
 local SaveBackup = require(script.Parent.Parent.Modules.SaveBackup)
+local TransferLedger = require(script.Parent.Parent.Modules.TransferLedger)
 
 export type Operation = {
 	payload: { [string]: any },
@@ -346,6 +347,84 @@ function SaveStore.recoverFromBackup(
 		end
 	end
 	return nil
+end
+
+-- Kuyruk yalnız borç+outbox profil snapshot'ı doğrulandıktan sonra yayımlanır.
+local memoryInboxes: { [number]: { [string]: TransferLedger.Entry } } = {}
+local function inboxKey(userId: number): string
+	return `__transfer_inbox_{userId}`
+end
+
+function SaveStore.publishTransfer(id: string, entry: TransferLedger.Entry): boolean
+	if nonpersistent then
+		local nextInbox = TransferLedger.publish(memoryInboxes[entry.targetId], id, entry)
+		if not nextInbox then
+			return false
+		end
+		memoryInboxes[entry.targetId] = nextInbox
+		return true
+	end
+	local activeStore = store
+	if not activeStore then
+		return false
+	end
+	local accepted = false
+	local ok = pcall(function()
+		activeStore:UpdateAsync(inboxKey(entry.targetId), function(raw)
+			local nextInbox = TransferLedger.publish(raw, id, entry)
+			accepted = nextInbox ~= nil
+			return nextInbox
+		end)
+	end)
+	return ok and accepted
+end
+
+function SaveStore.readTransferInbox(userId: number): { [string]: TransferLedger.Entry }?
+	if nonpersistent then
+		return TransferLedger.parseInbox(memoryInboxes[userId])
+	end
+	local activeStore = store
+	if not activeStore then
+		return nil
+	end
+	local ok, raw = pcall(function()
+		return activeStore:GetAsync(inboxKey(userId))
+	end)
+	return if ok then TransferLedger.parseInbox(raw) else nil
+end
+
+function SaveStore.ackTransfers(userId: number, ids: { string }): boolean
+	local function remove(raw: unknown): { [string]: TransferLedger.Entry }?
+		local inbox = TransferLedger.parseInbox(raw)
+		if not inbox then
+			return nil
+		end
+		for _, id in ids do
+			inbox[id] = nil
+		end
+		return inbox
+	end
+	if nonpersistent then
+		local inbox = remove(memoryInboxes[userId])
+		if not inbox then
+			return false
+		end
+		memoryInboxes[userId] = inbox
+		return true
+	end
+	local activeStore = store
+	if not activeStore then
+		return false
+	end
+	local accepted = false
+	local ok = pcall(function()
+		activeStore:UpdateAsync(inboxKey(userId), function(raw)
+			local inbox = remove(raw)
+			accepted = inbox ~= nil
+			return inbox
+		end)
+	end)
+	return ok and accepted
 end
 
 return SaveStore

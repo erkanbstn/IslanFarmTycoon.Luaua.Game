@@ -1,10 +1,15 @@
 --!strict
 -- Satın alma makbuz günlüğü (saf): Roblox aynı makbuzu birden fazla kez gönderebilir; ödül yalnızca bir kez
--- verilmelidir. Günlük kayıtta tutulur ve sınırlıdır (en eski silinir).
+-- verilmelidir. Eski kimlikler silinmez; kapasite dolduğunda yeni ödül kayıt büyütmeden bekletilir.
 
 local ReceiptLog = {}
 
-ReceiptLog.MAX = 200
+-- En uzun kimliklerde yaklaşık 860 KB JSON: çiftlik verisi için kayıt bütçesi bırakır.
+ReceiptLog.MAX = 20000
+
+function ReceiptLog.isFull(save: any): boolean
+	return save.receipts ~= nil and #save.receipts >= ReceiptLog.MAX
+end
 
 function ReceiptLog.has(save: any, id: string): boolean
 	local receipts = save.receipts
@@ -24,10 +29,10 @@ function ReceiptLog.add(save: any, id: string): boolean
 	if table.find(receipts, id) then
 		return false
 	end
-	table.insert(receipts, id)
-	while #receipts > ReceiptLog.MAX do
-		table.remove(receipts, 1)
+	if ReceiptLog.isFull(save) then
+		return false
 	end
+	table.insert(receipts, id)
 	return true
 end
 
@@ -40,11 +45,15 @@ function ReceiptLog.remove(save: any, id: string)
 	end
 end
 
--- Makbuzu yazar ve ödülü uygular. "duplicate": zaten işlenmiş; "granted": ödül verildi; "failed": ödül verilemedi
+-- Makbuzu yazar ve ödülü uygular. "duplicate": zaten işlenmiş; "granted": ödül verildi; "full": kapasite dolu;
+-- "failed": ödül verilemedi
 -- (makbuz günlükten çıkarılır, ödülsüz "işlenmiş" görünmez).
 function ReceiptLog.grant(save: any, id: string, apply: () -> boolean): string
 	if ReceiptLog.has(save, id) then
 		return "duplicate"
+	end
+	if ReceiptLog.isFull(save) then
+		return "full"
 	end
 	if not ReceiptLog.add(save, id) then
 		return "failed"

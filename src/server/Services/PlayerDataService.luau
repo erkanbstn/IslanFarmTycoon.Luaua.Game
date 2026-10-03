@@ -377,6 +377,11 @@ function PlayerDataService.load(player: Player): PlayerSave?
 	player:SetAttribute("DataDirty", true)
 	player:SetAttribute("DataRecovered", session.recovered)
 	if session.recovered then
+		-- Eski yedek finansal işlem işaretlerini kaybetmiş olabilir; yeniden ödeme otomatik yapılmaz.
+		local recoveredData = assert(session.data, "Recovered profile data missing")
+		local transfers: GameTypes.WalletTransfers = recoveredData.transfers or { outbox = {}, received = {} }
+		recoveredData.transfers = transfers
+		transfers.quarantined = true
 		PlayerDataService.requestSave(player) -- asıl kayıt kısa sürede yedekten düzelir
 	end
 	return session.data
@@ -414,12 +419,22 @@ function PlayerDataService.save(player: Player): boolean
 	local deadline = SaveStore.deadlineAfter(SAVE_BUDGET)
 	-- Önceki başarısız yazımdan kalan eski anlık görüntü (pending) yeniden gönderilir; bu, sonradan olan değişiklikleri
 	-- içermez. Başarılı sayılması için güncel veriyi taşıyan bir yazım daha gerekir (bırakma yolundaki gibi).
-	local stale = session.pending
-	local written = write(player, session, false, deadline)
-	if written and stale and not stale.release then
-		return write(player, session, false, deadline)
+	local checkpoint = session.packetRevision
+	repeat
+		if not write(player, session, false, deadline) then
+			return false
+		end
+	until session.savedPacketRevision >= checkpoint
+	return true
+end
+
+-- Kalıcı işlem işareti, ağ gönderimi hata verse bile kayıt checkpoint'ine girer.
+function PlayerDataService.markDirty(player: Player)
+	local session = sessions[player]
+	if session and session.status == "Active" then
+		session.packetRevision += 1
+		player:SetAttribute("DataDirty", true)
 	end
-	return written
 end
 
 function PlayerDataService.requestSave(player: Player)
@@ -609,12 +624,13 @@ function PlayerDataService.pushEconomy(player: Player)
 	end
 	player:SetAttribute("DataDirty", true)
 	updateLeaderstat(session, data)
+	-- Paket birleştirilse de snapshot'tan sonraki ekonomik değişiklik kayıt revizyonuna yansır.
+	session.packetRevision += 1
 	if session.statePending then
 		-- Bekleyen PlayerState zaten güncel parayı/depoyu taşır; araya giren EconomyTick istemcide revizyon boşluğu açıp
 		-- gereksiz tam durum isteği doğurur.
 		return
 	end
-	session.packetRevision += 1
 	Remotes.get("EconomyTick"):FireClient(player, data.cash, data.stored, session.packetRevision, data.activeMainFarmId)
 end
 

@@ -55,6 +55,30 @@ end
 
 -- Yetişkin ve boşta hayvanlar (açık bölgede, tarifin türlerinden; eklentide duranlar ve başka bir tesise verilmiş
 -- olanlar sayılmaz; bu tarifin kendi işine verilmiş olanlar dönecekleri için sayılır). En yaşlıdan başlayarak sıralı.
+local function isAvailableAdult(
+	save: PlayerSave,
+	recipe: Config.ProductionRecipeConfig,
+	animal: GameTypes.AnimalRecord,
+	now: number,
+	speeds: { [string]: number }
+): boolean
+	local task = Counts.getActiveTask(animal, now)
+	if
+		not save.unlockedZones[animal.zoneId]
+		or not table.find(recipe.animalIds, animal.animalId)
+		or (task ~= nil and not (task.kind == "production" and task.id == recipe.id))
+	then
+		return false
+	end
+	local cacheKey = `{animal.animalId}|{animal.zoneId}`
+	local speed = speeds[cacheKey]
+	if speed == nil then
+		speed = Production.getGrowthSpeed(save, animal.animalId, animal.zoneId)
+		speeds[cacheKey] = speed
+	end
+	return Core.getStage(animal.bornAt, now, speed :: number) == "adult"
+end
+
 local function idleAdults(
 	save: PlayerSave,
 	recipe: Config.ProductionRecipeConfig,
@@ -63,21 +87,7 @@ local function idleAdults(
 	local result: { GameTypes.AnimalRecord } = {}
 	local speeds: { [string]: number } = {}
 	for _, animal in save.animals do
-		local task = Counts.getActiveTask(animal, now)
-		if
-			not save.unlockedZones[animal.zoneId]
-			or not table.find(recipe.animalIds, animal.animalId)
-			or (task ~= nil and not (task.kind == "production" and task.id == recipe.id))
-		then
-			continue
-		end
-		local cacheKey = `{animal.animalId}|{animal.zoneId}`
-		local speed = speeds[cacheKey]
-		if speed == nil then
-			speed = Production.getGrowthSpeed(save, animal.animalId, animal.zoneId)
-			speeds[cacheKey] = speed
-		end
-		if Core.getStage(animal.bornAt, now, speed :: number) == "adult" then
+		if isAvailableAdult(save, recipe, animal, now, speeds) then
 			table.insert(result, animal)
 		end
 	end
@@ -91,7 +101,14 @@ local function idleAdults(
 end
 
 function Production.countProductionAdults(save: PlayerSave, recipe: Config.ProductionRecipeConfig, now: number): number
-	return #idleAdults(save, recipe, now)
+	local count = 0
+	local speeds: { [string]: number } = {}
+	for _, animal in save.animals do
+		if isAvailableAdult(save, recipe, animal, now, speeds) then
+			count += 1
+		end
+	end
+	return count
 end
 
 -- Tesise verilecek hayvanlar: boştaki yetişkinlerden seçilen partinin gerektirdiği sayıda (yetmiyorsa nil)

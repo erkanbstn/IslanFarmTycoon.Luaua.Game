@@ -40,11 +40,21 @@ return function(createState: any)
 			return node
 		end,
 	}
+	local warnings, notified = 0, 0
 	local state = createState(engine, remotes, { spawn = function() end }, {
 		clock = function(): number
 			return 100
 		end,
-	}, function() end)
+	}, function(message: string)
+		assert(message:find("failing listener", 1, true) ~= nil, "Listener failures must retain their diagnostic")
+		warnings += 1
+	end)
+	local disconnect = state.onChanged(function()
+		error("failing listener")
+	end)
+	state.onChanged(function()
+		notified += 1
+	end)
 	local function snapshot(id: string, cash: number, stored: number, revision: number)
 		packets.PlayerState.OnClientEvent.fire({ activeMainFarmId = id, cash = cash, stored = stored }, revision)
 	end
@@ -71,6 +81,14 @@ return function(createState: any)
 	packets.EconomyTick.OnClientEvent.fire(550, 18, 16, "1")
 	assert(state.get().stored == 18, "matching active tick updates normal progression")
 	assert(snapshotRequests > 0, "cross-farm unknown structural context requests a fresh snapshot")
+	assert(warnings > 0 and warnings == notified, "A failed listener must not interrupt other listeners")
+	disconnect()
+	local previousWarnings = warnings
+	packets.EconomyTick.OnClientEvent.fire(560, 19, 17, "1")
+	assert(
+		warnings == previousWarnings and notified == previousWarnings + 1,
+		"Disconnected failures must stop without removing healthy listeners"
+	)
 	print(
 		"PASS client farm state: actual source interleaved structural/economy packets preserve wallet and isolate farm storage"
 	)

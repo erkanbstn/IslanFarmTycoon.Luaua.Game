@@ -4,7 +4,7 @@
 -- yönlü işaretler; hayvanın parçası olarak taşınır, nabız/işaret animasyonu bu dosyada). Bu modeller varsa isim etiketi gizlenir;
 -- yoksa (geçiş dönemi) eski gösterge sürer: etiketin kenarlığı yeşil/kırmızı.
 -- Sinyal `FarmMath.getSeasonEffect` ile hesaplanır (Mevsim çubuğu ile aynı hesap) ve OLAY tabanlıdır:
--- mevsim/hava/bölge uyumu/hayvan listesi değişince yeniden hesaplanır; zamanlayıcı ya da kare başı iş yoktur.
+-- mevsim/hava/bölge uyumu/hayvan listesi değişince yeniden hesaplanır. Yalnız ışıma animasyonu 15 Hz çalışır.
 
 local CollectionService = game:GetService("CollectionService")
 local RunService = game:GetService("RunService")
@@ -20,12 +20,14 @@ local StartupGate = require(Core:WaitForChild("StartupGate"))
 local ClientModelAssets = require(Core:WaitForChild("ClientModelAssets"))
 local EffectSettings = require(Core:WaitForChild("EffectSettings"))
 
+local SeasonGlow = require(script.Parent:WaitForChild("SeasonGlow"))
+
 local Color = UiTheme.Color
 
 local STROKE_NAME = "SeasonStroke"
 local STROKE_THICKNESS = 2.5
 
-local tracked: { [Model]: boolean } = {}
+local tracked: { [Model]: RBXScriptConnection } = {}
 
 local GLOW_NAME = "SeasonGlow"
 local GLOW_TEMPLATES = {
@@ -33,7 +35,7 @@ local GLOW_TEMPLATES = {
 	bad = ClientModelAssets.find("Season", "SeasonGlow_Bad"),
 }
 local USE_GLOW = GLOW_TEMPLATES.good ~= nil and GLOW_TEMPLATES.bad ~= nil
-local glows: { [Model]: Model } = {}
+local glows: { [Model]: SeasonGlow.Glow } = {}
 
 -- Işıma hayvanın ayak izine ölçeklenir (model birim yarıçaplı) ve hayvanın zemin/su seviyesine konur; hayvanın parçası olarak taşınır
 local function buildGlow(model: Model, kind: string): Model?
@@ -56,7 +58,6 @@ local function buildGlow(model: Model, kind: string): Model?
 	glow:PivotTo(CFrame.new(body.Position.X, y, body.Position.Z) * CFrame.Angles(0, math.atan2(-look.X, -look.Z), 0))
 	for _, part in glow:GetDescendants() do
 		if part:IsA("BasePart") then
-			part:SetAttribute("BaseTransparency", part.Transparency)
 			part.Anchored = true
 			part.CanCollide, part.CanQuery, part.CanTouch = false, false, false
 		end
@@ -66,7 +67,8 @@ local function buildGlow(model: Model, kind: string): Model?
 end
 
 local function applyGlow(model: Model, signal: number)
-	local existing: Model? = glows[model]
+	local record = glows[model]
+	local existing: Model? = if record then record.model else nil
 	if existing and not existing.Parent then
 		existing = nil
 		glows[model] = nil
@@ -80,7 +82,7 @@ local function applyGlow(model: Model, signal: number)
 	if kind and not existing then
 		local glow = buildGlow(model, kind)
 		if glow then
-			glows[model] = glow
+			glows[model] = SeasonGlow.capture(glow)
 		end
 	end
 end
@@ -99,43 +101,14 @@ RunService.Heartbeat:Connect(function(dt: number)
 		return
 	end
 	local low = EffectSettings.quality() == "low"
-	if low or EffectSettings.reducedMotion() then
-		-- Düşük kalite: yalnız taban (işaretler gizli, saydamlık sabit); hareketi azalt: sabit işaretler kalır, animasyon yok
-		for _, glow in glows do
-			for _, part in glow:GetDescendants() do
-				if part:IsA("BasePart") then
-					local base = part:GetAttribute("BaseTransparency") :: number
-					part.Transparency = if low and part.Name:sub(1, 5) == "Mark_" then 1 else base
-				end
-			end
-		end
-		return
-	end
+	local reduced = EffectSettings.reducedMotion()
 	local now = os.clock()
 	for model, glow in glows do
-		if not glow.Parent then
+		if not glow.model.Parent then
 			glows[model] = nil
 			continue
 		end
-		local rising = glow:GetAttribute("Kind") == "good"
-		for _, part in glow:GetDescendants() do
-			if not part:IsA("BasePart") then
-				continue
-			end
-			local base = part:GetAttribute("BaseTransparency") :: number
-			local name = part.Name
-			if name == "Glow" then
-				part.Transparency = math.clamp(base + math.sin(now * 2.2) * 0.1, 0, 1)
-			elseif name:sub(1, 5) == "Mark_" then
-				-- İşaretler sırayla yanıp söner: iyi durumda aşağıdan yukarı, kötüde yukarıdan aşağı
-				local index = tonumber(name:sub(6)) or 1
-				local phase = if rising then index else (5 - index)
-				part.Transparency = math.clamp(base + (1 - base) * (0.5 - 0.5 * math.sin(now * 3 - phase * 0.9)), 0, 1)
-			elseif name:sub(1, 5) == "Ring_" then
-				local index = tonumber(name:sub(6)) or 1
-				part.Transparency = math.clamp(base + math.sin(now * 2.2 - index * 0.8) * 0.08, 0, 1)
-			end
-		end
+		SeasonGlow.update(glow, now, low, reduced)
 	end
 end)
 
@@ -198,13 +171,12 @@ end
 
 -- Hayvan görselleri: etiket eklenince/çıkınca izle (StreamingEnabled parçaları sonradan getirir/kaldırır)
 local function onAdded(instance: Instance)
-	if not instance:IsA("Model") then
+	if not instance:IsA("Model") or tracked[instance] then
 		return
 	end
-	tracked[instance] = true
 	apply(instance)
 	-- Etiket model ile birlikte ya da biraz sonra gelebilir
-	instance.DescendantAdded:Connect(function(descendant: Instance)
+	tracked[instance] = instance.DescendantAdded:Connect(function(descendant: Instance)
 		if descendant.Name == "Pill" then
 			apply(instance)
 		end
@@ -216,8 +188,16 @@ task.spawn(function()
 	CollectionService:GetInstanceAddedSignal("Animal"):Connect(onAdded)
 	CollectionService:GetInstanceRemovedSignal("Animal"):Connect(function(instance: Instance)
 		if instance:IsA("Model") then
-			tracked[instance] = nil
-			glows[instance] = nil
+			local connection = tracked[instance]
+			if connection then
+				connection:Disconnect()
+				tracked[instance] = nil
+			end
+			local glow = glows[instance]
+			if glow then
+				glow.model:Destroy()
+				glows[instance] = nil
+			end
 		end
 	end)
 	for _, instance in CollectionService:GetTagged("Animal") do

@@ -53,12 +53,19 @@ export type InventoryData = {
 	uses: { [string]: { day: number, count: number, last: number } },
 }
 
+export type WalletTransfers = {
+	outbox: { [string]: { senderId: number, targetId: number, amount: number, epoch: number } },
+	received: { [string]: boolean },
+	quarantined: boolean?,
+}
+
 export type PlayerSave = {
 	activeMainFarmId: string,
 	farmId: string?, -- Yalnızca etkin olmayan çiftlik görünümlerinde: o çiftliğin numarası (tema için)
 	adminForce: { [string]: any }?, -- Yönetici olay test araçları (çalışma anı; kaydedilmez)
 	passes: { [string]: boolean }?, -- Doğrulanmış oyun geçitleri (kaydedilmez; sunucu MarketplaceService'ten yazar)
 	receipts: { string }?, -- İşlenmiş satın alma makbuz kimlikleri (çift ödemeyi önler)
+	transfers: WalletTransfers?, -- Kalıcı gönderim ve tekrar koruması; istemciye gönderilmez.
 	lifetimeEarned: number?, -- Ömür boyu kazanç (başarımlar için)
 	epoch: number?, -- Veri çağı: yönetici "herkesi sıfırla" ile artan genel sayıyla uyuşmayan kayıt temiz yeni oyun olur (SaveStore.getEpoch)
 	daily: { day: number, streak: number }?, -- Günlük ödül: son alınan gün (UTC gün numarası) ve seri

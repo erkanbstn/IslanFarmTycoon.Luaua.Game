@@ -25,9 +25,11 @@ type Entry = {
 	done: Frame,
 	label: TextLabel,
 	setFill: (number, Color3) -> (),
+	destroying: RBXScriptConnection?,
 }
 
 local entries: { [Model]: Entry } = {}
+local waiting: { [Model]: RBXScriptConnection } = {}
 
 local function formatTime(seconds: number): string
 	local whole = math.max(0, math.ceil(seconds))
@@ -105,7 +107,7 @@ local function createEntry(model: Model, anchor: BasePart): Entry
 	doneLabel.LayoutOrder = 2
 
 	local entry: Entry = { gui = gui, running = running, done = done, label = label, setFill = setFill }
-	model.Destroying:Connect(function()
+	entry.destroying = model.Destroying:Connect(function()
 		gui:Destroy()
 	end)
 	return entry
@@ -159,7 +161,7 @@ local function update(model: Model, entry: Entry)
 end
 
 local function track(instance: Instance)
-	if not instance:IsA("Model") or entries[instance] then
+	if not instance:IsA("Model") or entries[instance] or waiting[instance] then
 		return
 	end
 	local anchor = instance:FindFirstChild("JobAnchor")
@@ -168,11 +170,12 @@ local function track(instance: Instance)
 		return
 	end
 	-- Parçalar sonradan yüklenebilir (streaming): anchor gelince kurulur.
-	local connection: RBXScriptConnection? = nil
-	connection = instance.ChildAdded:Connect(function(child: Instance)
+	waiting[instance] = instance.ChildAdded:Connect(function(child: Instance)
 		if child.Name == "JobAnchor" and child:IsA("BasePart") and not entries[instance] then
+			local connection = waiting[instance]
 			if connection then
 				connection:Disconnect()
+				waiting[instance] = nil
 			end
 			entries[instance] = createEntry(instance, child)
 		end
@@ -183,21 +186,29 @@ local function untrack(instance: Instance)
 	if not instance:IsA("Model") then
 		return
 	end
+	local connection = waiting[instance]
+	if connection then
+		connection:Disconnect()
+		waiting[instance] = nil
+	end
 	local entry = entries[instance]
 	if entry then
+		if entry.destroying then
+			entry.destroying:Disconnect()
+		end
 		entry.gui:Destroy()
 		entries[instance] = nil
 	end
 end
 
-CollectionService:GetInstanceAddedSignal(TAG):Connect(track)
-CollectionService:GetInstanceRemovedSignal(TAG):Connect(untrack)
+local added = CollectionService:GetInstanceAddedSignal(TAG):Connect(track)
+local removed = CollectionService:GetInstanceRemovedSignal(TAG):Connect(untrack)
 for _, instance in CollectionService:GetTagged(TAG) do
 	track(instance)
 end
 
 local elapsed = 0
-RunService.Heartbeat:Connect(function(dt: number)
+local heartbeat = RunService.Heartbeat:Connect(function(dt: number)
 	elapsed += dt
 	if elapsed < UPDATE_SECONDS then
 		return
@@ -209,5 +220,17 @@ RunService.Heartbeat:Connect(function(dt: number)
 		else
 			untrack(model)
 		end
+	end
+end)
+
+script.Destroying:Connect(function()
+	added:Disconnect()
+	removed:Disconnect()
+	heartbeat:Disconnect()
+	for model in waiting do
+		untrack(model)
+	end
+	for model in entries do
+		untrack(model)
 	end
 end)

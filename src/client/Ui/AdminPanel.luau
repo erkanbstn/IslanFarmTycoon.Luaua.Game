@@ -610,12 +610,10 @@ function AdminPanel.open(parent: Instance)
 		current.frame:Destroy()
 		current = nil
 	end
-	if not current then
-		current = create(parent)
-		window = current
-	end
+	local active: UiKit.Window = current or create(parent)
+	window = active
 	refresh()
-	current.open()
+	active.open()
 end
 
 return AdminPanel

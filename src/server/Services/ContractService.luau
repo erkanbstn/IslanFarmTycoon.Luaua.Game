@@ -76,12 +76,7 @@ function ContractService.init()
 				return
 			end
 			local ok, message = ContractService.tryFulfill(player, key)
-			if message == nil and not ok and typeof(requestId) == "number" then
-				message = "Çok hızlı işlem yapıyorsun; biraz bekle."
-			end
-			if message and typeof(requestId) == "number" then
-				Remotes.get("PurchaseResult"):FireClient(player, requestId, ok, message)
-			end
+			RequestGuard.reply(player, requestId, ok, message)
 		end)
 
 	Remotes.get("RequestSellGoods").OnServerEvent

@@ -1,7 +1,6 @@
 --!strict
 -- Hayvanları bölgelerin zemininde ızgara halinde gösterir.
--- Kendi modelini kullanmak için: ServerStorage.Assets.Animals içine "cow", "horse", "chicken"
--- adında Model koy (Toolbox'tan da olur). Yoksa kodla basit bloklardan hayvan yapılır.
+-- Hayvan geometrisi repodaki assets/Animals modellerinden gelir; eksik model görünümü çizilmez.
 
 -- Parçalar: AnimalModels (model üretimi), AnimalPlacement (yerleşim), AnimalLabels (ad/ırk etiketi).
 

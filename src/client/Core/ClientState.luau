@@ -23,7 +23,10 @@ local function emit(structural: boolean)
 		return
 	end
 	for listener in listeners do
-		local ok, err = pcall(listener, state, structural)
+		local ok, err = pcall(function(): boolean
+			listener(state, structural)
+			return true
+		end)
 		if not ok then
 			warn(`[ClientState] {err}`)
 		end

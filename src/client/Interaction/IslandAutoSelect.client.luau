@@ -108,7 +108,10 @@ task.spawn(function()
 	while true do
 		task.wait(CHECK_INTERVAL)
 		-- Tek bir hata döngüyü öldürmesin; sonraki turda yeniden denenir.
-		local ok, err = pcall(check)
+		local ok, err = pcall(function(): boolean
+			check()
+			return true
+		end)
 		if not ok then
 			warn(`[IslandAutoSelect] {err}`)
 		end

@@ -82,14 +82,15 @@ function Animals.getBulkPrice(save: PlayerSave, animalId: string, count: number)
 	return total
 end
 
-function Animals.findReplaceableFish(save: PlayerSave): GameTypes.AnimalRecord?
+function Animals.findReplaceableFish(save: PlayerSave, now: number?): GameTypes.AnimalRecord?
 	for _, animal in save.animals do
 		local zone = Config.ZONES[animal.zoneId]
 		if
 			animal.animalId == "anchovy"
+			and Counts.getActiveTask(animal, now) == nil
 			and save.unlockedZones[animal.zoneId]
 			and zone
-			and table.find(zone.allowedAnimals, "seabass")
+			and Counts.zoneAllows(save, zone, "seabass")
 		then
 			return animal
 		end

@@ -314,6 +314,15 @@ return function(Inventory: any, Config: any, FarmMath: any, SaveCodec: any, Sess
 	FarmProfiles.capture(data)
 	local view = FarmProfiles.view(data, "1")
 	assert(view.inventory == data.inventory, "the active view shares the account inventory")
+	data.receipts = { "paid-receipt" }
+	data.transfers = { outbox = { pending = {} }, received = { completed = true } }
+	local payload = FarmProfiles.clientState(data, {}, {}, 123)
+	assert(payload.receipts == nil and payload.transfers == nil, "private financial ledgers stay out of client packets")
+	assert(payload.cash == data.cash and payload.inventory == data.inventory, "public account state remains available")
+	assert(
+		data.receipts[1] == "paid-receipt" and data.transfers.received.completed,
+		"packet filtering preserves server ledgers"
+	)
 	assert(SessionLock.isFinite(1), "sanity")
 	print("PASS inventory: definitions, equipping, staff uses, economy effects and save validation")
 end

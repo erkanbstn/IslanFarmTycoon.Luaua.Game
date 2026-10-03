@@ -316,6 +316,38 @@ return function(createService: any, Config: any, saveVersion: number)
 	assert(t.store.raw.cash == Config.STARTING_CASH + 55, "serialized release uses newest snapshot")
 	assert(t.store.raw._revision == 2, "one normal save and one final save")
 
+	-- Bekleyen tam paket ekonomik değişimi birleştirirken devam eden kayıt eski snapshot'ı temiz sayamaz.
+	t = loaded()
+	t.service.pushState(t.player)
+	t.call(function() end) -- ilk tam paketi gönder; sonraki paket 0,25 sn bekler
+	t.service.pushState(t.player)
+	t.store.actions = { { delay = 2 } }
+	saveDone = false
+	t.tasks.spawn(function()
+		assert(t.service.save(t.player), "the original snapshot is saved")
+		saveDone = true
+	end)
+	t.runUntil(function(): boolean
+		return t.store.calls == 2
+	end)
+	t.service.addCash(t.player, 25)
+	assert(#t.economy == 0, "the pending full packet still coalesces the economy update")
+	t.runUntil(function(): boolean
+		return saveDone
+	end)
+	assert(t.store.raw.cash == Config.STARTING_CASH, "the in-flight snapshot predates the cash change")
+	assert(t.player.attributes.DataDirty == true, "cash changed during a save must remain dirty")
+	assert(
+		t.call(function()
+			return t.service.save(t.player)
+		end),
+		"the next save persists the later cash"
+	)
+	assert(
+		t.store.raw.cash == Config.STARTING_CASH + 25 and t.player.attributes.DataDirty == false,
+		"latest save is clean"
+	)
+
 	-- Yükleme sırasında ayrılma: sonradan Active/hayalet profil oluşmamalı.
 	t = fixture()
 	t.store.actions = { { delay = 2 } }
@@ -542,6 +574,14 @@ return function(createService: any, Config: any, saveVersion: number)
 	end)
 	assert(recovered, "a corrupt primary opens from the backup")
 	assert(recovered.cash == Config.STARTING_CASH + 15, "newest backup is used")
+	assert(recovered.transfers.quarantined == true, "a recovered financial history must block automated replay")
+	assert(
+		t.call(function()
+			return t.service.save(t.player)
+		end),
+		"recovery quarantine is persisted"
+	)
+	assert(t.store.raw.transfers.quarantined == true, "financial quarantine survives subsequent login")
 	assert(
 		t.player.attributes.DataRecovered == true and t.metrics.counters.ProfileRecovered == 1,
 		"recovery is flagged"

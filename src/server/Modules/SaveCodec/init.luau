@@ -9,6 +9,7 @@ local Goods = require(script.Goods)
 local Inventory = require(script.Inventory)
 local Account = require(script.Account)
 local Farm = require(script.Farm)
+local TransferLedger = require(script.Parent.TransferLedger)
 
 local SaveCodec = {}
 
@@ -115,11 +116,16 @@ function SaveCodec.decode(
 	data.epoch = if typeof(source.epoch) == "number" then source.epoch else nil
 	data.inventory = Inventory.decode(source.inventory, config)
 	Account.decodeLedger(source, data, config)
+	data.transfers = TransferLedger.decode(source.transfers)
+	if not data.transfers then
+		return nil, 0, "Aktarım kaydı geçersiz; orijinal kayıt korunuyor"
+	end
 	return data, earnedTotal, nil, repairTotal, grownTotal
 end
 
 function SaveCodec.encode(save: any, now: number): { [string]: any }
 	FarmProfiles.capture(save)
+	local transfers = assert(TransferLedger.decode(save.transfers), "Invalid transfer ledger; original save preserved")
 	local farms = {}
 	for id, farm in save.mainFarms do
 		farms[id] = Farm.encode(farm, now)
@@ -144,7 +150,8 @@ function SaveCodec.encode(save: any, now: number): { [string]: any }
 		inventory = Inventory.encode(save.inventory),
 		goods = Goods.encodeGoods(save.goods),
 		contracts = Goods.encodeContracts(save.contracts),
-		receipts = save.receipts,
+		receipts = if save.receipts then table.clone(save.receipts) else nil,
+		transfers = transfers,
 		lastSeen = now,
 	}
 end

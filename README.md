@@ -218,13 +218,14 @@ bir şekilde haritanın altına düşülürse karakter kendi adasına ışınlan
 
 ## Görseller / Asset'ler
 
-Hepsi kodla basit parçalardan yapılır, ama kendi modellerini koyabilirsin
-(Studio'da `ServerStorage.Assets` altına, ya da `assets/` klasörüne `.rbxm` olarak):
+Görünen geometri repodaki `assets/` ve `client-assets/` model dosyalarından gelir;
+Rojo bunları sırasıyla `ServerStorage.Assets` ve `ReplicatedStorage.ClientAssets` altına taşır.
+Model üretimi ve teslim kuralları için [model sözleşmesine](docs/MODEL_SOZLESMESI.md) bak:
 
 - `Assets/Animals/<hayvan id>` (ör. `cow`, `goat`; kimlikler `Config.ANIMALS`) → hayvan modelleri (Model, önü -Z yönüne baksın)
 - `Assets/Buildings/<upgrade id>` → ör. `silo`, `milk_machine`, `auto_collector`, `egg_factory`, `golden_horseshoe`
 
-Model yoksa kodla yapılan yedek görünüm kullanılır. Hayvan ve bina klonlarındaki Script,
+Model yoksa uyarı verilir ve o görünüm çizilmez; `scripts/check-assets.py` eksikleri hata sayar. Hayvan ve bina klonlarındaki Script,
 LocalScript ve ModuleScript'ler dünyaya eklenmeden temizlenir; kaynak şablon değiştirilmez.
 Eski `ReplicatedStorage.Assets` konumu geçiş için desteklenir, yeni modelleri ServerStorage'a koy.
 

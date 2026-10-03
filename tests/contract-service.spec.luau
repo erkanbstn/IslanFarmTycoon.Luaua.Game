@@ -230,6 +230,22 @@ return function(
 	assert(notReady and not notReady.ok, "a farm that is not ready cannot deliver")
 	worldReady = true
 
+	-- Yeni istek kimlikleri işlem sınırını aşsa da cevap trafiği sınırlı kalır.
+	clockNow += 1
+	sequence += 1
+	request.OnServerEvent.fire(player, "x", sequence, data.activeMainFarmId)
+	local throttleRepliesBefore = #results
+	local throttleCashBefore, throttlePushesBefore, throttleSavesBefore = data.cash, pushes, saves
+	for _ = 1, 100 do
+		sequence += 1
+		request.OnServerEvent.fire(player, "x", sequence, data.activeMainFarmId)
+	end
+	assert(#results == throttleRepliesBefore + 1, "a burst produces only one throttle reply")
+	assert(
+		data.cash == throttleCashBefore and pushes == throttlePushesBefore and saves == throttleSavesBefore,
+		"throttled deliveries change no account state"
+	)
+
 	-- ---------------------------------------------------------------- hızlı boşaltma (Hepsini sat / Yarısını sat)
 	local function sell(goodsId: any, mode: any, target: any?, farmId: any?): any
 		clockNow += 1

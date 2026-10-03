@@ -10,14 +10,24 @@ return function(ReceiptLog: any, FarmMath: any, Config: any, SaveCodec: any)
 	assert(#save.receipts == 1, "duplicate did not grow the log")
 	assert(not ReceiptLog.add(save, ""), "empty ids are rejected")
 	assert(not ReceiptLog.add(save, string.rep("x", 41)), "oversized ids are rejected")
-	for index = 1, ReceiptLog.MAX + 50 do
+	for index = 1, 250 do
 		ReceiptLog.add(save, `id{index}`)
 	end
-	assert(#save.receipts == ReceiptLog.MAX, "the log is bounded")
-	assert(
-		not ReceiptLog.has(save, "r1") and ReceiptLog.has(save, `id{ReceiptLog.MAX + 50}`),
-		"oldest receipts are dropped first"
-	)
+	assert(#save.receipts == 251 and ReceiptLog.has(save, "r1"), "more than 200 purchases never evict an old receipt")
+	local full: any = { receipts = table.create(ReceiptLog.MAX) }
+	for index = 1, ReceiptLog.MAX do
+		full.receipts[index] = `full{index}`
+	end
+	assert(not ReceiptLog.add(full, "new"), "a full ledger rejects new receipts without eviction")
+	assert(#full.receipts == ReceiptLog.MAX and ReceiptLog.has(full, "full1"), "capacity never removes old receipts")
+	local capacityApplied = false
+	assert(ReceiptLog.grant(full, "new", function(): boolean
+		capacityApplied = true
+		return true
+	end) == "full" and not capacityApplied, "capacity blocks rewards before applying them")
+	assert(ReceiptLog.grant(full, "full1", function(): boolean
+		error("duplicate must not apply")
+	end) == "duplicate", "a full ledger still acknowledges old receipts")
 
 	-- Ödül verilemezse makbuz günlükte kalmaz; başarıda kalır, tekrar "duplicate" döner
 	local grantSave: any = {}
@@ -89,7 +99,7 @@ return function(ReceiptLog: any, FarmMath: any, Config: any, SaveCodec: any)
 
 	-- Kayıtta makbuzlar: geçerli olanlar korunur, sahtesi elenir
 	local raw = SaveCodec.encode(farm(), 1000)
-	raw.receipts = { "a1", "b2", 5, "", string.rep("z", 60), { "x" } }
+	raw.receipts = { "a1", "b2", "a1", 5, "", string.rep("z", 60), { "x" } }
 	local decoded = assert(SaveCodec.decode(raw, Config, FarmMath, 2000, function()
 		return "u"
 	end))
@@ -108,10 +118,37 @@ return function(ReceiptLog: any, FarmMath: any, Config: any, SaveCodec: any)
 	raw.receipts = big
 	assert(#assert(SaveCodec.decode(raw, Config, FarmMath, 2000, function()
 		return "u"
-	end)).receipts == 200, "loaded receipts are bounded")
+	end)).receipts == 500, "loading never evicts valid receipt history")
+	raw.receipts = full.receipts
+	table.insert(raw.receipts, "legacy-over-capacity")
+	local over = assert(SaveCodec.decode(raw, Config, FarmMath, 2000, function()
+		return "u"
+	end))
+	assert(#over.receipts == ReceiptLog.MAX + 1, "over-capacity existing history is preserved")
+	assert(not ReceiptLog.add(over, "new"), "over-capacity profiles cannot grow the receipt ledger")
+	local reloaded = assert(SaveCodec.decode(SaveCodec.encode(over, 2000), Config, FarmMath, 2000, function()
+		return "u"
+	end))
+	assert(
+		ReceiptLog.has(reloaded, "full1") and ReceiptLog.has(reloaded, "legacy-over-capacity"),
+		"save/reload preserves every tombstone"
+	)
 	local kept = farm()
 	kept.receipts = { "keep1" }
 	assert(SaveCodec.encode(kept, 1000).receipts[1] == "keep1", "receipts survive saves")
+	local checkpoint = SaveCodec.encode(kept, 1000)
+	local checkpointCash = checkpoint.cash
+	assert(ReceiptLog.grant(kept, "later-receipt", function(): boolean
+		kept.cash += 100
+		return true
+	end) == "granted", "a later receipt updates the live profile")
+	assert(
+		checkpoint.cash == checkpointCash and #checkpoint.receipts == 1,
+		"a pending snapshot cannot gain a receipt marker without its matching cash"
+	)
+	assert(not table.find(checkpoint.receipts, "later-receipt"), "encoded receipts are detached from subsequent grants")
+	ReceiptLog.remove(kept, "keep1")
+	assert(checkpoint.receipts[1] == "keep1", "live receipt removal cannot alter the pending snapshot")
 	assert(SaveCodec.encode(farm(), 1000).passes == nil, "passes are runtime only and never saved")
 	print("PASS monetization: receipt log, pass effects, receipt save bounds")
 end

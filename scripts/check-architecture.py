@@ -40,7 +40,6 @@ CLIENT_RULES = {
 # (dosya, hedef katman): bilinçli istisna. Gerekçe yanında.
 ALLOW = {
     # Görsel servisler oyuncu durumunu okumak için servislere bağlanır; döngüyü kırmak için YALNIZCA tembel (işlev içi) require.
-    ("src/server/Presentation/ExtensionVisualService.luau", "Services"),
     ("src/server/Presentation/CollectorVisualService.luau", "Services"),
 }
 

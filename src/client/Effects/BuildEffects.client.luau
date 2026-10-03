@@ -27,7 +27,7 @@ type Spark = { part: BasePart, origin: Vector3, velocity: Vector3, born: number,
 type Dust = { part: BasePart, origin: Vector3, velocity: Vector3, born: number, startSize: number }
 local pops: { [Model]: Pop } = {}
 local candidates: { [Model]: Candidate } = {}
-local played: { [Model]: boolean } = setmetatable({}, { __mode = "k" })
+local played = setmetatable({} :: { [Model]: boolean }, { __mode = "k" })
 local activePops = 0
 local candidateCount = 0
 local random = Random.new()
@@ -47,7 +47,8 @@ for _ = 1, MAX_SPARKLES do
 	part.CastShadow = false
 	part.Transparency = 1
 	part.Parent = sparkleFolder
-	table.insert(sparks, { part = part, origin = Vector3.zero, velocity = Vector3.zero, born = -math.huge, life = 0 })
+	local spark: Spark = { part = part, origin = Vector3.zero, velocity = Vector3.zero, born = -math.huge, life = 0 }
+	table.insert(sparks, spark)
 end
 
 local dustFolder = Instance.new("Folder")
@@ -66,10 +67,8 @@ for _ = 1, MAX_DUST do
 	part.CastShadow = false
 	part.Transparency = 1
 	part.Parent = dustFolder
-	table.insert(
-		dustPuffs,
-		{ part = part, origin = Vector3.zero, velocity = Vector3.zero, born = -math.huge, startSize = 1 }
-	)
+	local dust: Dust = { part = part, origin = Vector3.zero, velocity = Vector3.zero, born = -math.huge, startSize = 1 }
+	table.insert(dustPuffs, dust)
 end
 
 -- Kurulum tozu: yapının zeminine halka biçiminde yayılıp sönen toz bulutları

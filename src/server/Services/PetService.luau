@@ -113,7 +113,10 @@ function PetService.init()
 		while true do
 			task.wait(TICK_SECONDS)
 			for _, player in Players:GetPlayers() do
-				local ok, err = pcall(tick, player)
+				local ok, err = pcall(function(): boolean
+					tick(player)
+					return true
+				end)
 				if not ok then
 					warn(`[Pet] {err}`)
 				end

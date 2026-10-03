@@ -76,7 +76,10 @@ function IslandTabs.refreshSafe()
 		return
 	end
 	for _, updateTabs in updaters do
-		local ok, err = pcall(updateTabs, state)
+		local ok, err = pcall(function(): boolean
+			updateTabs(state)
+			return true
+		end)
 		if not ok then
 			warn(`[FarmHud] Ada sekmeleri güncellenemedi: {err}`)
 		end

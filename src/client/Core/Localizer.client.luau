@@ -21,6 +21,7 @@ local PROPERTIES: { [string]: { string } } = {
 }
 
 local tracked: { [Instance]: { [string]: Entry } } = setmetatable({}, { __mode = "k" }) :: any
+local watchedRoots: { [Instance]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 
 local function refresh(instance: Instance, property: string)
 	local entries = tracked[instance]
@@ -60,6 +61,10 @@ local function watch(instance: Instance)
 end
 
 local function watchTree(root: Instance)
+	if watchedRoots[root] then
+		return
+	end
+	watchedRoots[root] = true
 	for _, descendant in root:GetDescendants() do
 		watch(descendant)
 	end
@@ -79,16 +84,16 @@ Localization.onChanged(function()
 	end
 end)
 
--- Dünyada yalnızca tabela yüzeylerinin (BillboardGui/SurfaceGui) altı izlenir; Workspace'in geri kalanında
--- TextLabel bulunmaz, o yüzden her parça için ata taraması yapılmaz.
+-- Tabela yüzeyleri ve dünyadaki etkileşim yazıları izlenir; her parça için ata taraması yapılmaz.
 local function watchWorldGui(instance: Instance)
+	if instance:IsA("ProximityPrompt") then
+		watch(instance)
+		return
+	end
 	if not (instance:IsA("BillboardGui") or instance:IsA("SurfaceGui")) then
 		return
 	end
-	for _, descendant in instance:GetDescendants() do
-		watch(descendant)
-	end
-	instance.DescendantAdded:Connect(watch)
+	watchTree(instance)
 end
 
 watchTree(playerGui)

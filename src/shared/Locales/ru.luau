@@ -1267,4 +1267,8 @@ return {
 	["Yönetici sana {} verdi"] = "Администратор дал тебе {1}",
 	["Yönetici kasandan {} aldı"] = "Администратор забрал у тебя {1}",
 	["Yönetici kasanı {} yaptı"] = "Администратор установил твои деньги на {1}",
+	["Aktarım kuyruğu dolu. Bekleyen işlemler tamamlanınca yeniden dene."] = "Очередь переводов заполнена. Попробуй снова, когда ожидающие переводы завершатся.",
+	["Alıcı para alma sınırına ulaştı. Devam etmek için oyun geliştiricisinin desteği gerekiyor."] = "Получатель достиг лимита получения денег. Для продолжения требуется помощь разработчика игры.",
+	["Aktarım kuyruğa alındı. Kayıt hizmeti hazır olunca otomatik tamamlanacak."] = "Перевод поставлен в очередь. Он завершится автоматически, когда служба сохранения будет готова.",
+	["Kurtarılan kaydın aktarım geçmişi inceleme bekliyor."] = "История переводов восстановленного сохранения ожидает проверки.",
 }

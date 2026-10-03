@@ -192,9 +192,10 @@ function AnimalService.tryReplaceFish(player: Player, uid: unknown): (boolean, s
 		local zone = Config.ZONES[animal.zoneId]
 		if
 			animal.animalId ~= "anchovy"
+			or FarmMath.getActiveTask(animal, DateTime.now().UnixTimestampMillis / 1000) ~= nil
 			or not zone
 			or not data.unlockedZones[animal.zoneId]
-			or not table.find(zone.allowedAnimals, "seabass")
+			or not FarmMath.zoneAllows(data, zone, "seabass")
 		then
 			return false, "Bu balık büyük balıkla değiştirilemez"
 		end

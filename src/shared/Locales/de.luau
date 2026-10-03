@@ -1269,4 +1269,8 @@ return {
 	["Yönetici sana {} verdi"] = "Der Admin hat dir {1} gegeben",
 	["Yönetici kasandan {} aldı"] = "Der Admin hat dir {1} abgenommen",
 	["Yönetici kasanı {} yaptı"] = "Der Admin hat dein Guthaben auf {1} gesetzt",
+	["Aktarım kuyruğu dolu. Bekleyen işlemler tamamlanınca yeniden dene."] = "Die Übertragungswarteschlange ist voll. Versuche es erneut, sobald ausstehende Übertragungen abgeschlossen sind.",
+	["Alıcı para alma sınırına ulaştı. Devam etmek için oyun geliştiricisinin desteği gerekiyor."] = "Der Empfänger hat das Limit für den Geldempfang erreicht. Um fortzufahren, ist Unterstützung durch den Spieleentwickler erforderlich.",
+	["Aktarım kuyruğa alındı. Kayıt hizmeti hazır olunca otomatik tamamlanacak."] = "Die Übertragung ist vorgemerkt. Sie wird automatisch abgeschlossen, sobald der Speicherdienst bereit ist.",
+	["Kurtarılan kaydın aktarım geçmişi inceleme bekliyor."] = "Der Übertragungsverlauf des wiederhergestellten Spielstands wartet auf Prüfung.",
 }

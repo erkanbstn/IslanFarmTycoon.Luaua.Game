@@ -126,11 +126,13 @@ function Account.decodeLedger(source: any, data: any, config: any)
 		end
 	end
 	data.achievements = achievements
-	-- İşlenmiş satın alma makbuzları: yalnızca sınırlı sayıda kısa metin kimliği kabul edilir.
+	-- Eski geçerli kimlikler kırpılmaz: silinmiş makbuzun yeniden gelmesi ikinci ödül üretir.
 	local receipts: { string } = {}
+	local seen: { [string]: boolean } = {}
 	if typeof(source.receipts) == "table" then
 		for _, id in source.receipts do
-			if typeof(id) == "string" and #id > 0 and #id <= 40 and #receipts < 200 then
+			if typeof(id) == "string" and #id > 0 and #id <= 40 and not seen[id] then
+				seen[id] = true
 				table.insert(receipts, id)
 			end
 		end

@@ -1268,4 +1268,8 @@ return {
 	["Yönetici sana {} verdi"] = "The admin gave you {1}",
 	["Yönetici kasandan {} aldı"] = "The admin took {1} from your cash",
 	["Yönetici kasanı {} yaptı"] = "The admin set your cash to {1}",
+	["Aktarım kuyruğu dolu. Bekleyen işlemler tamamlanınca yeniden dene."] = "The transfer queue is full. Try again after pending transfers finish.",
+	["Alıcı para alma sınırına ulaştı. Devam etmek için oyun geliştiricisinin desteği gerekiyor."] = "The recipient has reached the money receiving limit. Help from the game developer is required to continue.",
+	["Aktarım kuyruğa alındı. Kayıt hizmeti hazır olunca otomatik tamamlanacak."] = "The transfer is queued. It will finish automatically when the save service is ready.",
+	["Kurtarılan kaydın aktarım geçmişi inceleme bekliyor."] = "The recovered save's transfer history is awaiting review.",
 }

@@ -92,7 +92,9 @@ local function show(model: Model, text: string)
 		local fade = TweenService:Create(bubble.label, info, { TextTransparency = 1, TextStrokeTransparency = 1 })
 		fade.Completed:Once(function()
 			bubble.gui.Enabled = false
-			bubble.gui.Adornee = nil
+			-- API tanımı Adornee'yi zorunlu sayar; havuza dönerken gerçek boş hedefi koru.
+			local target = (bubble.gui :: unknown) :: { Adornee: Instance? }
+			target.Adornee = nil
 			bubble.label.TextStrokeTransparency = 0.6
 			bubble.busy = false
 		end)

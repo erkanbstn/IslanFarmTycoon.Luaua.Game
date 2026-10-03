@@ -366,6 +366,40 @@ return function(
 	fish.data.cash = 1e6
 	local missing = fish.fire("RequestReplaceFish", "no-such-animal", fish.nextId(), fish.data.activeMainFarmId)
 	assert(missing and missing.ok == false and fish.data.cash == 1e6, "an unknown fish uid is refused")
+	local workingFish: any = {
+		uid = "working-fish",
+		animalId = "anchovy",
+		zoneId = "fishpen",
+		bornAt = 0,
+		stage = "adult",
+	}
+	fish.data.unlockedZones.fishpen = true
+	table.insert(fish.data.animals, workingFish)
+	for _, kind in { "production", "extension" } do
+		workingFish.task = { kind = kind, id = "fish_dispatch", startedAt = fish.now, endsAt = fish.now + 120 }
+		assert(farmMath.findReplaceableFish(fish.data, fish.now) == nil, "a busy fish is hidden from replacement")
+		local refusedFish = fish.fire("RequestReplaceFish", workingFish.uid, fish.nextId(), fish.data.activeMainFarmId)
+		assert(
+			refusedFish
+				and refusedFish.ok == false
+				and fish.data.cash == 1e6
+				and fish.data.animals[#fish.data.animals] == workingFish
+				and workingFish.task ~= nil,
+			"replacement cannot remove a task animal or spend money"
+		)
+	end
+	workingFish.task.endsAt = fish.now
+	assert(farmMath.findReplaceableFish(fish.data, fish.now) == workingFish, "a returned fish can be replaced")
+	local replacementPrice = farmMath.getFishReplacementPrice(fish.data)
+	local replacedFish = fish.fire("RequestReplaceFish", workingFish.uid, fish.nextId(), fish.data.activeMainFarmId)
+	assert(
+		replacedFish
+			and replacedFish.ok == true
+			and fish.data.cash == 1e6 - replacementPrice
+			and fish.data.animals[#fish.data.animals].animalId == "seabass"
+			and fish.data.animals[#fish.data.animals].task == nil,
+		"replacement resumes after the task ends and charges the server price"
+	)
 	print(
 		"PASS animal service: actual service ownership, no-cash, replay, stale farm, throttling, sell, merchant and fish guards"
 	)

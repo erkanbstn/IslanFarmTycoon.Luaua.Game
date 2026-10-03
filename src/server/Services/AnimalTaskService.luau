@@ -52,7 +52,10 @@ function AnimalTaskService.sweep(player: Player, now: number): boolean
 	end
 	PlayerDataService.pushState(player)
 	PlayerDataService.requestSave(player)
-	local ok, err = pcall(PlotService.refreshPlayerWorld, player)
+	local ok, err = pcall(function(): boolean
+		PlotService.refreshPlayerWorld(player)
+		return true
+	end)
 	if not ok then
 		warn(`[AnimalTask] Hayvanlar döndü fakat görünüm yenilenemedi: {err}`)
 	end
@@ -70,7 +73,10 @@ function AnimalTaskService.init()
 			local now = DateTime.now().UnixTimestampMillis / 1000
 			for _, player in Players:GetPlayers() do
 				if player:GetAttribute("WorldReady") == true and PlayerDataService.tryGet(player) then
-					local ok, err = pcall(AnimalTaskService.sweep, player, now)
+					local ok, err = pcall(function(): boolean
+						AnimalTaskService.sweep(player, now)
+						return true
+					end)
 					if not ok then
 						warn(`[AnimalTask] {err}`)
 					end

@@ -16,21 +16,23 @@ local IslandSpecialization = require(script.Parent.Parent:WaitForChild("World"):
 local ModelAssets = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("ModelAssets"))
 local ExtensionAreas = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("ExtensionAreas"))
 
-local function plotService()
-	return require(script.Parent.Parent:WaitForChild("Services"):WaitForChild("PlotService"))
-end
+export type Actions = {
+	getOwner: (Model) -> Player?,
+	tryBuy: (Player, unknown) -> (boolean, string?),
+	tryAssign: (Player, string) -> (boolean, string?),
+	tryUnassign: (Player, string) -> (boolean, string?),
+}
 
-local function extensionService()
-	return require(script.Parent.Parent:WaitForChild("Services"):WaitForChild("ExtensionService"))
-end
-
-local function upgradeService()
-	return require(script.Parent.Parent:WaitForChild("Services"):WaitForChild("UpgradeService"))
-end
+local actions: Actions? = nil
 
 type PlayerSave = GameTypes.PlayerSave
 
 local ExtensionVisualService = {}
+
+-- Servis bağımlılıkları giriş noktasında verilir; görseller Services modüllerini yüklemez.
+function ExtensionVisualService.configure(handlers: Actions)
+	actions = handlers
+end
 
 local function getIslandModel(plot: Model, islandId: string): Model?
 	local islands = plot:FindFirstChild("Islands")
@@ -103,10 +105,11 @@ local function attachPrompts(
 		configurePrompt(buy)
 		buy.Parent = promptAnchor
 		buy.Triggered:Connect(function(player: Player)
-			if plotService().getOwner(plot) ~= player then
+			local handlers = actions
+			if not handlers or handlers.getOwner(plot) ~= player then
 				return
 			end
-			local ok, err = upgradeService().tryBuy(player, upgradeId)
+			local ok, err = handlers.tryBuy(player, upgradeId)
 			if ok then
 				local upgrade = Config.getUpgrade(upgradeId)
 				if upgrade then
@@ -152,19 +155,21 @@ local function attachPrompts(
 	unassign.Parent = promptAnchor
 
 	assign.Triggered:Connect(function(player: Player)
-		if plotService().getOwner(plot) ~= player then
+		local handlers = actions
+		if not handlers or handlers.getOwner(plot) ~= player then
 			return
 		end
-		local ok, err = extensionService().tryAssign(player, extensionId)
+		local ok, err = handlers.tryAssign(player, extensionId)
 		if not ok and err then
 			Remotes.get("Notify"):FireClient(player, err, "error")
 		end
 	end)
 	unassign.Triggered:Connect(function(player: Player)
-		if plotService().getOwner(plot) ~= player then
+		local handlers = actions
+		if not handlers or handlers.getOwner(plot) ~= player then
 			return
 		end
-		local ok, err = extensionService().tryUnassign(player, extensionId)
+		local ok, err = handlers.tryUnassign(player, extensionId)
 		if not ok and err then
 			Remotes.get("Notify"):FireClient(player, err, "error")
 		end

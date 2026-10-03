@@ -42,16 +42,13 @@ local Vector2 = {
 }
 local cfmt = {
 	__mul = function(a, b)
-		return setmetatable(
-			{
-				Position = Vector3.new(
-					a.Position.X + b.Position.X,
-					a.Position.Y + b.Position.Y,
-					a.Position.Z + b.Position.Z
-				),
-			},
-			getmetatable(a)
-		)
+		return setmetatable({
+			Position = Vector3.new(
+				a.Position.X + b.Position.X,
+				a.Position.Y + b.Position.Y,
+				a.Position.Z + b.Position.Z
+			),
+		}, getmetatable(a))
 	end,
 }
 local CFrame = {

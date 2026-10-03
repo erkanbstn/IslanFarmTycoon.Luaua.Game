@@ -115,7 +115,10 @@ local function act(player: Player, action: unknown, recipeId: unknown, detail: u
 	PlayerDataService.pushState(player)
 	PlayerDataService.requestSave(player)
 	-- Hayvanlar tesise girdi/çıktı ve bina üstündeki ilerleme çubuğu değişti: dünya yenilenir.
-	local visualOk, visualError = pcall(PlotService.refreshPlayerWorld, player)
+	local visualOk, visualError = pcall(function(): boolean
+		PlotService.refreshPlayerWorld(player)
+		return true
+	end)
 	if not visualOk then
 		warn(`[Production] Üretim kaydedildi fakat görünüm yenilenemedi: {visualError}`)
 	end

@@ -1204,7 +1204,7 @@
         <float name="Reflectance">0</float>
       </Properties>
     </Item>
-    <Item class="Part" referent="RUSTIC_33">
+    <Item class="Part" referent="RUSTIC_38">
       <Properties>
         <string name="Name">CanopyBeam</string>
         <Vector3 name="Size">
@@ -1241,7 +1241,7 @@
         <float name="Reflectance">0</float>
       </Properties>
     </Item>
-    <Item class="Part" referent="RUSTIC_34">
+    <Item class="Part" referent="RUSTIC_39">
       <Properties>
         <string name="Name">BackShelf</string>
         <Vector3 name="Size">

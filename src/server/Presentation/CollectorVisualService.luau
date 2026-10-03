@@ -86,7 +86,10 @@ function CollectorVisualService.init()
 	task.spawn(function()
 		while true do
 			task.wait(UPDATE_SECONDS)
-			local ok, err = pcall(refreshAll)
+			local ok, err = pcall(function(): boolean
+				refreshAll()
+				return true
+			end)
 			if not ok then
 				warn(`[CollectorVisual] {err}`)
 			end

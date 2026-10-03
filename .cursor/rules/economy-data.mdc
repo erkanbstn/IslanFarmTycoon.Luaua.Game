@@ -26,11 +26,15 @@ Rakamlar (süre, fiyat, oran, sayı) bu dosyaya kopyalanmaz: ilgili `Config` ana
   Başka servis DataStore kullanmaz (`check-architecture.py` denetler). Ayrıntılı iş akışı: `roblox-save-schema` skill'i.
 - Çiftlik düzeyi mi hesap düzeyi mi: çiftlik başına alanlar `FarmProfiles`'taki `FIELDS` listesindedir (`tier`, `stored`, `purchased`, `lineage`, `expansions`, `animals`,
   `production`, `autoRepeat`, `barnLevel`, `unlockedIslands`, `unlockedZones`). Hesap düzeyi alanlar kökte durur ve `SaveCodec/Account` (+ `Goods`, `Inventory`) normalleştirir:
-  `cash`, `lifetimeEarned`, `daily`, `achievements`, `seasonal`, `merchant`, `golden`, `inventory`, `goods`, `contracts`, `receipts`, `language`, `graphics`, `audio`, `reducedMotion`.
+  `cash`, `lifetimeEarned`, `daily`, `achievements`, `seasonal`, `merchant`, `golden`, `inventory`, `goods`, `contracts`, `receipts`, `transfers`, `language`, `graphics`, `audio`, `reducedMotion`.
   Çalışma anı alanlar (`passes`, `envOverride`, `adminForce`) kaydedilmez; `FarmProfiles.view` gerekenleri etkin olmayan çiftliğe taşır. Hepsi opsiyoneldir:
   eksik alan varsayılanla yüklenir, geçersizi atılır.
 - `lifetimeEarned` yalnızca `addCash` ve otomatik toplama ile artar. İade (`PlayerDataService.addRefund`) kazanç/başarım sayacına girmez.
 - Ürün kimlikleri `Config.PRODUCTS` (`id = 0` satışta değil). `MonetizationService.processReceipt` makbuzu `ReceiptLog` ile bir kez işler; `PurchaseGranted` yalnızca kayıt başarılıysa döner.
+- Makbuz geçmişi ve aktarım tekrar kimlikleri silinmez; kapasite dolunca yeni işlem durur. Sınırlar `ReceiptLog` ve `TransferLedger` içindedir. `FarmProfiles.clientState` bu özel günlükleri ağ paketine koymaz.
+- Para aktarımı: borç + `transfers.outbox` aynı hesap kaydında kalıcılaştırılır; `SaveStore` alıcı inbox'ına aynı kimlikle idempotent yayımlar. Alıcı nakit + `transfers.received` işaretini kaydetmeden inbox silinmez. Ayrı anahtarlar atomik değildir; yeniden deneme ve işaretler uzlaştırır. Testler `transfer-ledger`, `transfer-service`, `save-store-transfer` spec dosyalarındadır.
+- Yedekten kurtarmada `transfers.quarantined` kalıcıdır; aktarım ve makbuz işleme elle mali uzlaştırmaya kadar durur. Yedek, asıl kayıttaki son mali işaretleri içermeyebilir; karantinayı incelemeden kaldırma.
+- Eski kayıt biçimini değiştirmeyen opsiyonel hesap alanı eklemede sürüm aynı kalabilir: alan yoksa güvenli varsayılan, bozuksa orijinali koruyan ret ve eski kayıt testi şarttır. Sırf alan eklemek için VERSION artırmak mevcut decoder'da eski ilerlemeyi sıfırlar.
 
 Değişiklikten sonra: `python scripts/run-tests.py`.
 

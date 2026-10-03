@@ -76,7 +76,7 @@ local function updateAmbience()
 	local warmSeason = season == "spring" or season == "summer"
 
 	fadeTo("birds", if warmSeason and calm and night < 0.3 then 1 else 0)
-	fadeTo("wind", if (not warmSeason and weather ~= "snow") or weather == "cloudy" or storming then 1 else 0.3)
+	fadeTo("wind", if weather == "cloudy" or storming or (not warmSeason and weather ~= "snow") then 1 else 0.3)
 	fadeTo("rain", if raining then 1 elseif storming and not layers.storm then 1 else 0)
 	fadeTo("storm", if storming then 1 else 0)
 	fadeTo("night", if night > 0.5 and not storming then 1 else 0)

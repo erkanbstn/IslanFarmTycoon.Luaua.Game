@@ -17,7 +17,8 @@ Kayıt kaybı geri alınamaz; her adımı test et.
 - [ ] 3. Aynı parçada encode (hesap alanları SaveCodec/init.luau encode'unda kökte listelenir)
 - [ ] 4. Yeni hesap için varsayılan: SaveCodec.newFarm(config, farmMath, now, newUid, farmId, tier) / FarmProfiles
       (SaveCodec/Farm.decode çiftlik numarasını `farmId` ile alır: başlangıç hayvanı temaya göre)
-- [ ] 5. Şema biçimi değiştiyse SessionLock.VERSION +1 (tek kaynak) ve eski sürümden göç
+- [ ] 5. Şema biçimi değiştiyse SessionLock.VERSION +1 (tek kaynak) ve eski sürümden göç;
+      uyumlu opsiyonel hesap alanı için sürümü koruma koşulları `.cursor/rules/economy-data.mdc` içindedir.
 - [ ] 6. tests/data.spec.luau: eski kayıt → yeni, bozuk değer, gelecekteki sürüm reddi
 - [ ] 7. python scripts/run-tests.py (SaveCodec klasörüne dosya eklediysen scripts/run-tests.py SAVE_CODEC_PARTS)
 ```

@@ -151,7 +151,10 @@ function EconomyService.settlePlayer(player: Player)
 end
 
 function EconomyService.stopPlayer(player: Player)
-	local ok, err = pcall(EconomyService.settlePlayer, player)
+	local ok, err = pcall(function(): boolean
+		EconomyService.settlePlayer(player)
+		return true
+	end)
 	lastIncomeAt[player] = nil
 	if not ok then
 		warn(`[Economy] Son gelir hesaplanamadı: {err}`)

@@ -48,7 +48,14 @@ return function(createService: any, createHarness: any, createLimiter: any, code
 				callback(player, passId, purchased)
 			end
 		end
-		h.service = createService(h.game, h.remotes, h.dataService, h.limiter, h.metrics, fakeEnum, h.warn, h.task)
+		h.dataService.pushEconomy = function() end
+		h.dirtyCount = 0
+		h.dataService.markDirty = function()
+			h.dirtyCount += 1
+		end
+		h.telemetry = { economy = function() end }
+		h.service =
+			createService(h.game, h.remotes, h.dataService, h.limiter, h.metrics, fakeEnum, h.warn, h.task, h.telemetry)
 		h.service.init()
 		h.receipt = function(purchaseId: any, productId: number, playerId: number?): any
 			return { PurchaseId = purchaseId, ProductId = productId, PlayerId = playerId or h.player.UserId }
@@ -69,6 +76,13 @@ return function(createService: any, createHarness: any, createLimiter: any, code
 	local h = setup()
 	assert(h.market.ProcessReceipt == h.service.processReceipt, "init wires the receipt callback")
 	local data = h.data
+	local quarantined = setup()
+	quarantined.data.transfers = { outbox = {}, received = {}, quarantined = true }
+	assert(
+		quarantined.service.processReceipt(quarantined.receipt("backup-replay", 9001)) == decision.NotProcessedYet,
+		"a recovered backup cannot re-award an uncertain purchase history"
+	)
+	assert(quarantined.data.cash == 0 and quarantined.counters.saves == 0, "quarantine performs no receipt mutation")
 
 	-- Geçersiz makbuzlar ödül vermez
 	assert(h.service.processReceipt(nil) == decision.NotProcessedYet, "a non-table receipt is not processed")
@@ -142,6 +156,142 @@ return function(createService: any, createHarness: any, createLimiter: any, code
 	assert(not (data.receipts and table.find(data.receipts, "r4")), "a failed grant leaves no receipt behind")
 	data.production = savedHandlerData
 
+	-- Yan etki hataları uygulanmış ödülün makbuzunu silemez; tekrar nakit ya da yeni işleri ödüllendirmez.
+	local presentation = setup()
+	presentation.dataService.pushEconomy = function()
+		error("client presentation unavailable")
+	end
+	assert(
+		presentation.service.processReceipt(presentation.receipt("presentation-error", 9001))
+			== decision.PurchaseGranted,
+		"presentation failures preserve a granted receipt"
+	)
+	assert(
+		presentation.data.cash == expected and presentation.data.lifetimeEarned == expected,
+		"presentation failure keeps the complete persisted reward"
+	)
+	assert(presentation.dirtyCount == 1, "the receipt checkpoint is marked before fallible presentation")
+	assert(
+		presentation.service.processReceipt(presentation.receipt("presentation-error", 9001))
+			== decision.PurchaseGranted,
+		"presentation failures preserve a granted receipt"
+	)
+	assert(presentation.data.cash == expected, "a presentation error cannot cause a second payout")
+	for _, failure in { "telemetry", "notify" } do
+		local sideEffect = setup()
+		local function fail()
+			error(`{failure} unavailable`)
+		end
+		if failure == "telemetry" then
+			sideEffect.telemetry.economy = fail
+		else
+			sideEffect.remotes.get("Notify").FireClient = fail
+		end
+		assert(
+			sideEffect.service.processReceipt(sideEffect.receipt(`error-{failure}`, 9001)) == decision.PurchaseGranted,
+			`{failure} errors keep the receipt acknowledged`
+		)
+		assert(
+			sideEffect.service.processReceipt(sideEffect.receipt(`error-{failure}`, 9001)) == decision.PurchaseGranted,
+			`{failure} errors keep the receipt acknowledged`
+		)
+		assert(
+			sideEffect.data.cash == expected and sideEffect.dirtyCount == 1,
+			`{failure} failures cannot replay a reward`
+		)
+	end
+	local instantError = setup()
+	instantError.data.production = { { readyAt = 1234 } }
+	instantError.dataService.pushState = function()
+		error("state push failed")
+	end
+	assert(
+		instantError.service.processReceipt(instantError.receipt("instant-error", 9002)) == decision.PurchaseGranted,
+		"push failure preserves instant-product acknowledgment"
+	)
+	instantError.data.production = { { readyAt = 9999 } }
+	assert(
+		instantError.service.processReceipt(instantError.receipt("instant-error", 9002)) == decision.PurchaseGranted,
+		"push failure preserves instant-product acknowledgment"
+	)
+	assert(instantError.data.production[1].readyAt == 9999, "a failed push cannot finish newly started jobs on replay")
+	local partial = setup()
+	partial.data.production = { { readyAt = 4444 }, "invalid-job" }
+	assert(
+		partial.service.processReceipt(partial.receipt("invalid-production", 9002)) == decision.NotProcessedYet,
+		"invalid production defers the receipt"
+	)
+	assert(partial.data.production[1].readyAt == 4444, "invalid jobs are detected before any mutation")
+
+	-- Kaydedilmiş ödülün platform onayı kaybolabilir; 201 yeni makbuz ve oturum yeniden yükleme sonrası tekrar.
+	local replay = setup()
+	assert(
+		replay.service.processReceipt(replay.receipt("pending-old", 9001)) == decision.PurchaseGranted,
+		"initial reward is saved"
+	)
+	for index = 1, 201 do
+		assert(
+			replay.service.processReceipt(replay.receipt(`later-{index}`, 9001)) == decision.PurchaseGranted,
+			"later rewards are saved"
+		)
+	end
+	local persisted = codec.encode(replay.data, replay.now)
+	local restarted = setup()
+	local restored = assert(codec.decode(persisted, config, farmMath, replay.now, function()
+		return "restored-uid"
+	end))
+	restarted.dataService.tryGet = function(): any
+		return restored
+	end
+	local restoredCash = restored.cash
+	assert(
+		restarted.service.processReceipt(restarted.receipt("pending-old", 9001)) == decision.PurchaseGranted,
+		"old pending receipt is acknowledged after restart"
+	)
+	assert(
+		restored.cash == restoredCash and restarted.metricCounts.ProductsGranted == nil,
+		"saved replay survives restart and 201 later receipts"
+	)
+
+	-- Yazılmadan çöküş: yeni oturum yalnız son kalıcı görüntüyü görür; yeniden deneme bir kez ödüllendirir.
+	local crashed = setup()
+	local beforeCrash = codec.encode(crashed.data, crashed.now)
+	beforeCrash.receipts = table.clone(crashed.data.receipts or {})
+	crashed.saveOk = false
+	assert(
+		crashed.service.processReceipt(crashed.receipt("unsaved", 9001)) == decision.NotProcessedYet,
+		"unsaved reward is not acknowledged"
+	)
+	local afterCrash = setup()
+	local restoredBefore = assert(codec.decode(beforeCrash, config, farmMath, crashed.now, function()
+		return "before-crash-uid"
+	end))
+	afterCrash.dataService.tryGet = function(): any
+		return restoredBefore
+	end
+	assert(
+		afterCrash.service.processReceipt(afterCrash.receipt("unsaved", 9001)) == decision.PurchaseGranted,
+		"restarted retry persists the reward"
+	)
+	assert(restoredBefore.cash == expected, "an unsaved crash neither loses nor doubles persisted cash")
+
+	local capacity = setup()
+	capacity.data.receipts = table.create(20000)
+	for index = 1, 20000 do
+		capacity.data.receipts[index] = `capacity-{index}`
+	end
+	assert(
+		capacity.service.processReceipt(capacity.receipt("over-capacity", 9001)) == decision.NotProcessedYet,
+		"new receipt is deferred at capacity"
+	)
+	assert(capacity.data.cash == 0 and capacity.counters.saves == 0, "full ledger does not grant or save a new reward")
+	assert(capacity.metricCounts.ReceiptCapacityBlocked == 1, "capacity deferral has a diagnostic counter")
+	assert(
+		capacity.service.processReceipt(capacity.receipt("capacity-1", 9001)) == decision.PurchaseGranted,
+		"duplicate is acknowledged at capacity"
+	)
+	assert(capacity.data.cash == 0, "old receipts can be acknowledged even at capacity")
+
 	-- Ürün istemi: istemci yalnızca anahtar gönderir; kimlik sunucuda çözülür
 	local prompt = setup()
 	local function request(kind: any, key: any): any
@@ -214,6 +364,29 @@ return function(createService: any, createHarness: any, createLimiter: any, code
 	assert(refreshed.data.passes.double_income == true, "retries keep the pass while the service is down")
 	assert(#refreshed.delays == 0, "retries are bounded")
 	refreshed.market.UserOwnsGamePassAsync = realQuery
+
+	-- Yield sırasında satın alma tamamlanırsa eski false yanıtı yeni sahipliği silemez.
+	local raced = setup()
+	raced.data.passes = {}
+	raced.market.UserOwnsGamePassAsync = function(): boolean
+		raced.finishPass(raced.player, 7001, true)
+		return false
+	end
+	raced.service.refreshPasses(raced.player)
+	assert(raced.data.passes.double_income == true, "a stale query cannot erase a completed purchase")
+
+	-- Eski oturumun sorgusu yeni profil nesnesine sahiplik yazamaz.
+	local replaced = setup()
+	local newProfile = { passes = {} }
+	replaced.market.UserOwnsGamePassAsync = function(): boolean
+		replaced.dataService.tryGet = function(): any
+			return newProfile
+		end
+		return true
+	end
+	replaced.service.refreshPasses(replaced.player)
+	assert(next(newProfile.passes) == nil, "an old ownership query cannot mutate a replacement profile")
+	assert(replaced.counters.pushes == 0, "a replaced profile is not pushed by the stale query")
 
 	products.income_pack.id, products.instant_production.id, passes.double_income.id =
 		saved.income, saved.instant, saved.pass

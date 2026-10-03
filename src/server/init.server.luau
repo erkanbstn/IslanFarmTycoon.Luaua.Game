@@ -29,6 +29,7 @@ local AdminPlayerService = require(Services:WaitForChild("AdminPlayerService"))
 local TransferService = require(Services:WaitForChild("TransferService"))
 local ExtensionService = require(Services:WaitForChild("ExtensionService"))
 local AnimalTaskService = require(Services:WaitForChild("AnimalTaskService"))
+local ExtensionVisualService = require(script:WaitForChild("Presentation"):WaitForChild("ExtensionVisualService"))
 local CollectorVisualService = require(script:WaitForChild("Presentation"):WaitForChild("CollectorVisualService"))
 local BuyPadService = require(Services:WaitForChild("BuyPadService"))
 local EngagementService = require(Services:WaitForChild("EngagementService"))
@@ -47,6 +48,12 @@ Players.CharacterAutoLoads = false
 Players.RespawnTime = 1
 
 Remotes.init()
+ExtensionVisualService.configure({
+	getOwner = PlotService.getOwner,
+	tryBuy = UpgradeService.tryBuy,
+	tryAssign = ExtensionService.tryAssign,
+	tryUnassign = ExtensionService.tryUnassign,
+})
 
 PlayerDataService.init()
 TelemetryService.init()
@@ -56,7 +63,10 @@ SeasonService.init(function()
 		EconomyService.settlePlayer(player)
 	end
 end)
-local mapReady, mapError = pcall(PlotService.init)
+local mapReady, mapError = pcall(function(): boolean
+	PlotService.init()
+	return true
+end)
 if not mapReady then
 	warn(`[Server] Harita hazırlanamadı: {mapError}`)
 end
@@ -309,7 +319,10 @@ local function onPlayerRemoving(player: Player)
 	EconomyService.stopPlayer(player)
 	TelemetryService.onLeaving(player)
 	player:SetAttribute("WorldReady", false)
-	local released, releaseError = pcall(PlotService.release, player)
+	local released, releaseError = pcall(function(): boolean
+		PlotService.release(player)
+		return true
+	end)
 	if not released then
 		warn(`[Server] Ada temizliği başarısız: {releaseError}`)
 	end

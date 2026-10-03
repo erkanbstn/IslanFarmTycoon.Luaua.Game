@@ -159,6 +159,26 @@ return function(
 		"idle adults are picked, never the busy one"
 	)
 	assert(farmMath.pickProductionAnimals(zoneSave, hatchery, now + 130) ~= nil, "returned animals become available")
+	assert(farmMath.countProductionAdults(zoneSave, hatchery, now + 10) == 2, "the count excludes extension stays")
+	assert(farmMath.countProductionAdults(zoneSave, hatchery, now + 130) == 3, "expired stays count again")
+	local ownWorker = addAnimal(zoneSave, "chicken", "poultry", {
+		task = { kind = "production", id = "hatchery", startedAt = now, endsAt = now + 120 },
+	})
+	addAnimal(zoneSave, "chicken", "poultry", {
+		task = { kind = "production", id = "egg_goods", startedAt = now, endsAt = now + 120 },
+	})
+	addAnimal(zoneSave, "chicken", "poultry", { bornAt = now, stage = "adult" })
+	addAnimal(zoneSave, "cow", "starter")
+	addAnimal(zoneSave, "chicken", "poultry", { zoneId = "locked-test-zone" })
+	local orderBefore = table.clone(zoneSave.animals)
+	assert(
+		farmMath.countProductionAdults(zoneSave, hatchery, now + 10) == 3,
+		"the count includes own workers and excludes other tasks, stale adult stages, species and locked zones"
+	)
+	for index, animal in zoneSave.animals do
+		assert(animal == orderBefore[index], "counting does not reorder the save")
+	end
+	assert(ownWorker.task ~= nil, "counting does not release a worker")
 
 	-- Sınır değişmez: bölge dolu iken hayvanlar tesise/eklentiye çıksa da yeni hayvan alınamaz; dönüşte yer sorunu olmaz.
 	local fullSave = newSave()

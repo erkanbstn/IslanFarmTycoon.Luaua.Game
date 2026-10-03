@@ -1269,4 +1269,8 @@ return {
 	["Yönetici sana {} verdi"] = "El administrador te dio {1}",
 	["Yönetici kasandan {} aldı"] = "El administrador te quitó {1}",
 	["Yönetici kasanı {} yaptı"] = "El administrador fijó tu dinero en {1}",
+	["Aktarım kuyruğu dolu. Bekleyen işlemler tamamlanınca yeniden dene."] = "La cola de transferencias está llena. Inténtalo de nuevo cuando terminen las transferencias pendientes.",
+	["Alıcı para alma sınırına ulaştı. Devam etmek için oyun geliştiricisinin desteği gerekiyor."] = "El destinatario ha alcanzado el límite de recepción de dinero. Para continuar, necesitas ayuda del desarrollador del juego.",
+	["Aktarım kuyruğa alındı. Kayıt hizmeti hazır olunca otomatik tamamlanacak."] = "La transferencia está en cola. Se completará automáticamente cuando el servicio de guardado esté listo.",
+	["Kurtarılan kaydın aktarım geçmişi inceleme bekliyor."] = "El historial de transferencias de la partida recuperada está pendiente de revisión.",
 }

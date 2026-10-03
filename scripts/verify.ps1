@@ -63,6 +63,8 @@ try {
 		& $compiler --null @sourceFiles
 	}
 	Invoke-Check "Pure Luau regression tests" { & $Python scripts/run-tests.py --luau $interpreter }
+	Invoke-Check "Visual service identity regression tests" { & $Python scripts/check-visual-identity.py --luau $interpreter }
+	Invoke-Check "Type checker failure and baseline regression tests" { & $Python scripts/test-check-types.py }
 	Invoke-Check "Economy simulation smoke (--smoke parses the JSON itself)" {
 		& $Python scripts/simulate-economy.py --luau $interpreter --persona casual --hours 2 --smoke
 	}
@@ -74,6 +76,7 @@ try {
 	Invoke-Check "Config text translation coverage" { & $Python scripts/check-config-locales.py }
 	Invoke-Check "AI guide consistency" { & $Python scripts/check-ai-docs.py }
 	Invoke-Check "Model asset coverage" { & $Python scripts/check-assets.py }
+	Invoke-Check "Model validator regression tests" { & $Python scripts/test-check-assets.py }
 	Invoke-Check "Pure helper type analysis (SessionLock, SeasonVisuals only)" {
 		& $analyzer src/server/Modules/SessionLock.luau src/shared/Modules/SeasonVisuals.luau
 	}

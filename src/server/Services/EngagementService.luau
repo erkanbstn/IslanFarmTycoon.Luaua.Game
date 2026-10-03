@@ -192,7 +192,10 @@ function EngagementService.init()
 		while true do
 			task.wait(SEASONAL_REFRESH_SECONDS)
 			for _, player in game:GetService("Players"):GetPlayers() do
-				local ok, err = pcall(refreshSeasonal, player, lastSent)
+				local ok, err = pcall(function(): boolean
+					refreshSeasonal(player, lastSent)
+					return true
+				end)
 				if not ok then
 					warn(`[Engagement] Mevsim hedefi güncellenemedi: {err}`)
 				end

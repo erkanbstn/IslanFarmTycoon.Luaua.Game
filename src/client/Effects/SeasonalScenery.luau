@@ -86,10 +86,9 @@ function SeasonalScenery.start(): () -> ()
 		local mesh = Instance.new("SpecialMesh")
 		mesh.MeshType = Enum.MeshType.Sphere
 		mesh.Parent = part
-		table.insert(
-			fragments,
+		local fragment: Fragment =
 			{ part = part, born = -math.huge, life = 0, start = Vector3.zero, drift = Vector3.zero, phase = 0 }
-		)
+		table.insert(fragments, fragment)
 	end
 	for _ = 1, MAX_BRANCH_TREES * BRANCHES_PER_TREE do
 		local part = cosmetic("WinterTwig")
