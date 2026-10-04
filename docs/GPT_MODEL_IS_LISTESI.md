@@ -28,7 +28,7 @@ yükleyici/yerleşim ve harita kaydı kod tarafındadır (`docs/MODEL_SOZLESMESI
 - **Elips (uzun/basık gövde) gerekiyorsa tek yol:** `Block` bir `Part` + onun **çocuğu** olan bir `SpecialMesh` (`MeshType=3` yani Sphere, `Scale=(1,1,1)`, `Offset=(0,0,0)`). Part'ın `Size`'ı elipsoidin boyutudur. SpecialMesh'i **başka amaçla kullanma** (Head/Torso/FileMesh yok); XML'de: `<Item class="SpecialMesh"><Properties><token name="MeshType">3</token></Properties></Item>`.
 - Boyut alanı adı `Size` (büyük S), renk `Color3` (`<Color3 name="Color"><R/><G/><B/></Color3>`, 0-1 arası kayan sayı). `Color3uint8` kullanma.
 - Her parça: `Anchored=true`, `CanTouch=false`. `CanCollide`/`CanQuery`: aksi yazılmadıkça **false**.
-- `Material` sayısal token'dır: Plastic 256, SmoothPlastic 272, Neon 288, Wood 512, WoodPlanks 528, Slate 800, Concrete 816, Granite 832, Brick 848, Cobblestone 880, Rock 896, Sandstone 912, Metal 1088, Grass 1280, Sand 1296, Fabric 1312, Snow 1328, Ice 1536, Glacier 1552, Glass 1568.
+- `Material` sayısal token'dır: Plastic 256, SmoothPlastic 272, Neon 288, Wood 512, WoodPlanks 528, Slate 800, Concrete 816, Granite 832, Brick 848, Cobblestone 880, Rock 896, Sandstone 912, Metal 1088, Grass 1280, LeafyGrass 1284, Sand 1296, Fabric 1312, Snow 1328, Ice 1536, Glacier 1552, Glass 1568.
 - Model'in `WorldPivotData` özelliği (pivot) **mutlaka yazılmalı** (aşağıda her modelin pivotu belirtilmiştir). Pivot yoksa Roblox kutu merkezini kullanır ve model yanlış yere oturur.
 - `PrimaryPart` yalnızca "hareket eden gövde" olan modellerde (kuş, balık...) ve **o modelde belirtilmişse** yazılır; adı genelde `Body`.
 - **Yasak:** Script/LocalScript/ModuleScript, ışık (PointLight/SpotLight/SurfaceLight), SurfaceGui/BillboardGui/ProximityPrompt, MeshPart, (yukarıdaki elips kuralı dışında) SpecialMesh, Decal/Texture, ParticleEmitter, Attribute/Tag, Weld/WeldConstraint.
@@ -64,20 +64,21 @@ Bir ölçü/ad belirsizse **tahmin etme**; sorun maddesini rapora yaz ve en yak�
 
 ---
 
-## 2. Modele DÖNÜŞMEYECEKLER (kodda kalır; GPT'den bu yüzden istenmiyor)
+## 2. Kodda kalan işlevler
 
-| Ne | Neden |
+Görünür tek parçalı nesneler de model şablonudur; parametrik boyut veya animasyon bu kurala istisna değildir.
+
+| Ne | Kodun görevi |
 |---|---|
-| Kıyı buzu pulu, toz bulutu, parıltı, yüzme izi, tekne köpük izi, yıldırım çubuğu, yağış levhaları, su altı çapaları | **Tek parçalık** efekt; her karede boyutu/saydamlığı/konumu değişir. Model katkısı yok |
-| Yosun (kelp), kabarcık | İki parçalı, kod yüksekliği her seferinde ayarlıyor (animasyon); kabarcık tek top |
-| Taş yol (`Path`), çim yaması (`GrassPatches`) | Uzunluk/yarıçap parametrik, düz levha |
-| Ada gövdesi, plaj diski, deniz kayası, dağlar, deniz | Terrain; "donduruldu" kuralı |
-| `Ground`, `IslandBase`, meydan zemini, `SpawnLocation` | Parametrik zemin, öznitelikleri var |
-| Işık, etiket, yazı (`WorldUi`), `ProximityPrompt` | XML taşımaz; kod ekler |
-| Çit uzunluğu (`FenceRun`) | Uzunluk 13 stud; mevcut `Fence_8` yetmez. **İstenirse** `Fence_Module_4.rbxmx` (post + rail, 4 stud) modülü yapılabilir, kod tekrar eder |
-| Kazık (`Pile`) yüksekliği | Deniz tabanına göre değişir |
+| Terrain (ada gövdesi, dağ, deniz) | Arazi hacmi ve malzemesi; Part modeli değildir |
+| Görünmez doğma/çarpışma güvenlik alanları, yağış çapaları | Oyun fiziği ve emitter konumu; dekor değildir |
+| Ada/bölge zemini, kıyı, yol, ton yaması | SurfaceModels şablonunu yerleştirme ve boyutlandırma |
+| Parıltı, toz, mevsim parçası, hale, şimşek | Effects şablonlarını havuzlama, animasyon ve saydamlık |
+| Bina/hayvan/dekor/istemci canlıları | Model seçimi, yerleşim, ölçek ve hareket |
+| Işık, etiket, yazı, ProximityPrompt | Model üzerine işlev ekleme |
 
----
+SurfaceModels ve Effects üreticisi: `tools/models/generate_surfaces_effects.py`.
+Zorunlu fiziksel yüzey şablonu eksik/bozuksa harita kurulumu durur; isteğe bağlı görsel eksikse bir kez uyarılır ve çizilmez.
 
 ---
 

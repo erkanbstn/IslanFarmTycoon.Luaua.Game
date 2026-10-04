@@ -7,7 +7,7 @@
 -- oturduğu için hesaplanandan 1-2 stud yukarıda çıkıp yerdeki ince parçaları (yol, platform, ağıl
 -- zemini) gömüyordu. Kum, üst parçanın altında kalacak şekilde alçak tutulur.
 
--- Parçalar: DecorParts, DecorProps, DecorShore, DecorNature, DecorLights.
+-- Parçalar: DecorProps, DecorShore, DecorNature, DecorLights.
 
 local Props = require(script.Parent:WaitForChild("DecorProps"))
 local Shore = require(script.Parent:WaitForChild("DecorShore"))

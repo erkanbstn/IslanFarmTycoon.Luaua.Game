@@ -118,7 +118,10 @@ function ZoneVisualService.apply(zone: Instance, zoneId: string, unlocked: boole
 	IslandSiteParts.markObstacles(decor) -- katı duvar/direk/yemlik: AnimalAnimator hayvanı bunların içine sokmaz
 	decor:SetAttribute("VisualCreatedAt", game:GetService("Workspace"):GetServerTimeNow())
 	-- Çimenli zeminlere çim tutamı ve çiçek (ön/orta şerit; arkadaki barınak ve yemlikler hariç)
-	if ground.Material == Enum.Material.Grass and zoneId ~= "fishpen" then
+	if
+		(ground.Material == Enum.Material.Grass or ground.Material == Enum.Material.LeafyGrass)
+		and zoneId ~= "fishpen"
+	then
 		local backReserve = ground:GetAttribute("BackReserve")
 		local reserve = if typeof(backReserve) == "number" then backReserve else 4
 		local hz = ground.Size.Z / 2

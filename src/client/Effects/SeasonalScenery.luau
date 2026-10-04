@@ -8,6 +8,7 @@ local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Environment = require(Shared:WaitForChild("Modules"):WaitForChild("Environment"))
+local ClientModelAssets = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("ClientModelAssets"))
 local SeasonVisuals = require(Shared:WaitForChild("Modules"):WaitForChild("SeasonVisuals"))
 local player = Players.LocalPlayer
 local SeasonalScenery = {}
@@ -69,30 +70,22 @@ function SeasonalScenery.start(): () -> ()
 	local folder = Instance.new("Folder")
 	folder.Name = "SeasonalScenery"
 	folder.Parent = Workspace
-	local function cosmetic(name: string): Part
-		local part = Instance.new("Part")
-		part.Name = name
-		part.Anchored = true
-		part.CanCollide, part.CanQuery, part.CanTouch = false, false, false
-		part.CastShadow = false
-		part.Material = Enum.Material.SmoothPlastic
-		part.Transparency = 1
-		part.Parent = folder
-		return part
-	end
 	for _ = 1, MAX_FRAGMENTS do
-		local part = cosmetic("SeasonFragment")
-		part.Size = Vector3.new(0.22, 0.04, 0.42)
-		local mesh = Instance.new("SpecialMesh")
-		mesh.MeshType = Enum.MeshType.Sphere
-		mesh.Parent = part
+		local part = ClientModelAssets.clonePart("Effects", "SeasonFragment")
+		if not part then
+			break
+		end
+		part.Parent = folder
 		local fragment: Fragment =
 			{ part = part, born = -math.huge, life = 0, start = Vector3.zero, drift = Vector3.zero, phase = 0 }
 		table.insert(fragments, fragment)
 	end
 	for _ = 1, MAX_BRANCH_TREES * BRANCHES_PER_TREE do
-		local part = cosmetic("WinterTwig")
-		part.Material = Enum.Material.Wood
+		local part = ClientModelAssets.clonePart("Effects", "WinterTwig")
+		if not part then
+			break
+		end
+		part.Parent = folder
 		table.insert(branches, part)
 	end
 
@@ -171,10 +164,7 @@ function SeasonalScenery.start(): () -> ()
 			end
 			local warmth = sample.autumn * (1 - sample.snow)
 			color = color:Lerp(Color3.fromRGB(165, 146, 80), warmth * 0.45):Lerp(SNOW, sample.snow * 0.94)
-			part.Material = if sample.snow > 0.35
-				then Enum.Material.Snow
-				elseif source.kind == "zoneground" then source.material
-				else Enum.Material.Grass
+			part.Material = if sample.snow > 0.35 then Enum.Material.Snow else source.material
 		elseif source.kind == "evergreen" then
 			color = color:Lerp(SNOW, sample.snow * 0.65)
 		elseif source.kind == "flower" then
@@ -277,7 +267,11 @@ function SeasonalScenery.start(): () -> ()
 					and (tree.Name == "OakTree" or tree.Name == "BirchTree")
 				then "snowcapDeciduous"
 				else "snowprop"
-		elseif instance.Name == "PlotBase" or instance.Name == "IslandBase" then
+		elseif
+			instance.Name == "PlotBase"
+			or instance.Name == "IslandBase"
+			or (instance.Name == "Patch" and instance:FindFirstAncestor("GrassPatches") ~= nil)
+		then
 			kind = "ground"
 		elseif
 			instance.Name == "Ground"
@@ -286,6 +280,7 @@ function SeasonalScenery.start(): () -> ()
 			and parent.Parent.Name == "Zones"
 			and (
 				instance.Material == Enum.Material.Grass
+				or instance.Material == Enum.Material.LeafyGrass
 				or instance.Material == Enum.Material.Sand
 				or instance.Material == Enum.Material.Ground
 			)

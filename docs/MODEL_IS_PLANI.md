@@ -18,11 +18,11 @@ planı (P0 dışa aktarma denemesi, `duck_packer` pilotu, K1–K5 kod kararları
 ## Harita eklentisi ve `MAP_VERSION`
 
 - Binalar/hayvanlar çalışma anında `Presentation/` tarafından kurulur: `MAP_VERSION` artmaz, eklenti yeniden derlenmez.
-- Bölge zemini/çiti (`MapParts.buildZone`) veya `World/` dekoru modelle değişirse `MAP_VERSION` + eklenti gerekir (`roblox-map-change` skill'i).
+- Bölge zemini/çiti (`MapParts.buildZone`) veya `World/` dekoru modelle değişirse `MAP_VERSION` artırılır ve Studio haritası yeniden kurulur; yalnız `plugin/` değişirse eklenti yeniden derlenip Studio yeniden açılır (`roblox-map-change` skill'i).
 
 ## Modele çevrilmeyenler ve riskler
 
-- Kodda kalır: balıkçı teknesi hareketi, bölge zemini, seviye işaretleri, gece lambası sözleşmesi, tabela yazıları (`WorldUi`), Terrain. Ayrıntı: `docs/GPT_MODEL_IS_LISTESI.md` §2.
+- Kodda kalır: model seçimi/yerleşimi/boyutlandırması, animasyon, görünmez işlev çapaları, gece lambası sözleşmesi, tabela yazıları (`WorldUi`) ve Terrain. Ayrıntı: `docs/GPT_MODEL_IS_LISTESI.md` §2.
 - MCP istemcisi açık place'i değiştirebilir; yalnız güvenilir istemci bağla, ajan oturumundan önce place yedeği al (repo dışı).
 - Ad kimliktir: dosya/Model adı yanlışsa oyunda görünmez; `check-assets.py` ilk adımda yakalar.
 - Geri alma: dosyayı Git geçmişinden getir.

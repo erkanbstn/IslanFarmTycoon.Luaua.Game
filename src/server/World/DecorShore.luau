@@ -4,10 +4,7 @@
 
 local CollectionService = game:GetService("CollectionService")
 local Workspace = game:GetService("Workspace")
-local Parts = require(script.Parent:WaitForChild("DecorParts"))
 local ModelAssets = require(script.Parent:WaitForChild("ModelAssets"))
-
-local column = Parts.column
 
 local Shore = {}
 
@@ -34,15 +31,10 @@ function Shore.terrainIsland(
 
 	local sandTop = surfaceY - 1
 	local sandBottom = -2
-	column(
-		parent,
-		"Beach",
-		(radius + beach) * 2,
-		sandTop - sandBottom,
-		CFrame.new(base + Vector3.new(0, (sandTop + sandBottom) / 2, 0)),
-		Color3.fromRGB(226, 208, 158),
-		Enum.Material.Sand
-	)
+	local sand = ModelAssets.part("SurfaceModels", "BeachDisc")
+	sand.Size = Vector3.new(sandTop - sandBottom, (radius + beach) * 2, (radius + beach) * 2)
+	sand.CFrame = CFrame.new(base + Vector3.new(0, (sandTop + sandBottom) / 2, 0)) * sand.CFrame.Rotation
+	sand.Parent = parent
 end
 
 -- Kıyıya yarı gömülü kayalar. angles: adanın yerel açıları (derece, 0 = +Z)
@@ -68,20 +60,19 @@ end
 
 -- Kazık üstü tahtanın içinde, altı deniz tabanının içinde kalır; su altında havada bitmez.
 -- Hazır kazık modeli (assets/ShoreModels/Pile: tek silindir) alınır, boyu yerleşime göre ayarlanır.
-function Shore.pierPile(parent: Instance, position: Vector3, surfaceY: number, seabedY: number): Part
+function Shore.pierPile(parent: Instance, position: Vector3, surfaceY: number, seabedY: number): Part?
 	local top, bottom = surfaceY - 0.3, seabedY - 0.5
 	assert(top > bottom, "İskele tabanı yürüyüş yüzeyinden aşağıda olmalı.")
 	local template = ModelAssets.clone(FOLDER, "Pile")
 	local found = if template then template:FindFirstChildWhichIsA("BasePart") else nil
-	local pile: Part
-	if found and found:IsA("Part") then
-		pile = found
-	else
+	if not found or not found:IsA("Part") then
 		warnMissing("Pile")
-		pile = Instance.new("Part")
-		pile.Name = "Pile"
-		pile.Anchored = true
+		if template then
+			template:Destroy()
+		end
+		return nil
 	end
+	local pile = found
 	local rotation = pile.CFrame.Rotation
 	-- Silindirin ekseni X'tir (dikey durur): uzunluk X'te
 	pile.Size = Vector3.new(top - bottom, pile.Size.Y, pile.Size.Z)

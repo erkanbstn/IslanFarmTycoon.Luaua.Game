@@ -24,7 +24,7 @@ Kural dili: **ZORUNLU** (ihlal = hata/bozuk görünüm), **YASAK**, **ÖNERİ** 
 | Bölge zemini + çit, ana ada/meydan dekoru (`HomeModels`, `HubProps`, `CommonDecor`, `ShoreModels`) | `assets/` dosyaları var | — | `World/MapParts.luau`, `Home*`, `Hub*`, `Decor*` | **Bağlanmadı**: harita yalnızca "Haritayı Kur" ile kurulur, Studio'daki kayıtlı harita zaten modeldir |
 
 
-- **Kod kurucuları kaldırıldı:** model yoksa o görünüm çizilmez (hayvan için pembe yer tutucu kutu; diğerlerinde konsola bir kez uyarı).
+- **Kod kurucuları kaldırıldı:** isteğe bağlı model yoksa o görünüm çizilmez ve konsola bir kez uyarı yazılır; hayvan kaydı korunur. Zorunlu fiziksel yüzey eksik/bozuksa harita kurulumu durur.
   `scripts/check-assets.py` her görünüm için modelin varlığını `verify.ps1`'de denetler. Yapım alanı (`BuildSite`) yalnızca `assets/Buildings/<id>` varsa kurulur (`UpgradeVisualService.hasAsset`).
 - Asset araması tam kimlikle yapılır (takma ad yok): `duck_packer` ve `down_home_center` kendi dosyalarıdır.
 - Rojo: `ServerStorage.Assets` → `assets/` (`default.project.json:12-16`; içinde yalnızca `Animals/.gitkeep`, `Buildings/.gitkeep`).

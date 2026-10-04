@@ -33,6 +33,18 @@ return function(context: any?)
 		local spawnPad = plot:FindFirstChild("Spawn") :: BasePart
 		local landY = spawnPad.Position.Y - spawnPad.Size.Y / 2
 		local theme = Config.getTheme(plotId)
+		local homeBase = plot:FindFirstChild("PlotBase") :: BasePart
+		assert(homeBase.Material == Enum.Material.LeafyGrass, `{plot.Name}: canlı çimen dokusu eksik.`)
+		-- Yüzey yenilenirken karakter/hayvanların üzerinde yürüdüğü fizik korunmalı.
+		assert(homeBase.CanCollide, `{plot.Name}: ana ada zemini katı kalmalı.`)
+		for _, descendant in plot:GetDescendants() do
+			if descendant:IsA("BasePart") and descendant:FindFirstAncestor("GrassPatches") then
+				assert(
+					not descendant.CanCollide and not descendant.CanQuery and not descendant.CastShadow,
+					`{plot.Name}: çimen tonları yürüyüş/ışın/gölge fiziğine katılmamalı.`
+				)
+			end
+		end
 
 		-- Ana ada hayvanı: ağıl ve otlak temanın hayvanını kabul eder, adı ona göre yazılır
 		local zones = plot:FindFirstChild("Zones") :: Folder
@@ -74,6 +86,11 @@ return function(context: any?)
 		local islands = plot:FindFirstChild("Islands") :: Folder
 		assert(#islands:GetChildren() == 3, `{plot.Name}: tam üç küçük ada olmalı.`)
 		for _, island in islands:GetChildren() do
+			local islandBase = island:FindFirstChild("IslandBase") :: BasePart
+			assert(
+				islandBase.Material == Enum.Material.LeafyGrass and islandBase.CanCollide,
+				`{plot.Name}/{island.Name}: çimen görünümü veya yürüyüş zemini bozuk.`
+			)
 			local sign = island:FindFirstChild("IslandSign") :: BasePart
 			assert(sign and not sign.CanCollide, `{plot.Name}/{island.Name}: ada tabelası eksik ya da çarpışıyor.`)
 			assert(

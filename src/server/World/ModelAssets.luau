@@ -46,6 +46,22 @@ function ModelAssets.clone(folderName: string, name: string): Model?
 	return model
 end
 
+-- Zemin/yol gibi tek parça şablonları doğrudan üst modele taşır; fiziksel çekirdek eksikse kurulum durur.
+function ModelAssets.part(folderName: string, name: string): Part
+	local model = ModelAssets.clone(folderName, name)
+	assert(model, `[ModelAssets] assets/{folderName}/{name}.rbxmx zorunlu.`)
+	local children = model:GetChildren()
+	local found = children[1]
+	if #children ~= 1 or not found or not found:IsA("Part") then
+		model:Destroy()
+		error(`[ModelAssets] {folderName}/{name} tek bir Part içermeli.`)
+	end
+	found:SetAttribute("ModelAsset", `{folderName}/{name}`)
+	found.Parent = nil
+	model:Destroy()
+	return found
+end
+
 -- Şablonun kopyasını `cf` pivotuyla `parent` içine koyar (adı şablon adı kalır); şablon yoksa false
 function ModelAssets.place(parent: Instance, folderName: string, name: string, cf: CFrame): boolean
 	local model = ModelAssets.clone(folderName, name)

@@ -13,6 +13,8 @@ local Workspace = game:GetService("Workspace")
 local Environment =
 	require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Modules"):WaitForChild("Environment"))
 
+local ClientModelAssets = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("ClientModelAssets"))
+
 local WeatherPrecip = {}
 -- Player/Studio içeriğinde doğrulanmış 64px daire, 44 alfa seviyesi ve şeffaf köşeler.
 -- Kar yuvarlaktır; yağmur aynı dokuyla ama düşey daraltılmış (Squash) ince iz olarak çizilir ve çok daha hızlı düşer.
@@ -180,9 +182,11 @@ function WeatherPrecip.start(): () -> ()
 	-- Bir kez oluşturulan 20 fizik dışı segment; ekranı beyaza çeviren çift flaş yok.
 	local bolts: { Part } = {}
 	for _ = 1, MAIN_SEGMENTS + BRANCH_SEGMENTS * 2 do
-		local bolt = cosmetic("LightningSegment")
-		bolt.Material = Enum.Material.Neon
-		bolt.Color = Color3.fromRGB(224, 237, 255)
+		local bolt = ClientModelAssets.clonePart("Effects", "LightningSegment")
+		if not bolt then
+			break
+		end
+		bolt.Parent = folder
 		table.insert(bolts, bolt)
 	end
 	local cloudFlash = Instance.new("ColorCorrectionEffect")
@@ -215,7 +219,8 @@ function WeatherPrecip.start(): () -> ()
 	local currentWeather = ""
 	local nextLightning = os.clock() + random:NextNumber(3, 5)
 	local function lightningAllowed(): boolean
-		return currentWeather == "storm"
+		return #bolts == MAIN_SEGMENTS + BRANCH_SEGMENTS * 2
+			and currentWeather == "storm"
 			and player:GetAttribute("ReducedMotion") ~= true
 			and player:GetAttribute("EffectsQuality") ~= "low"
 	end

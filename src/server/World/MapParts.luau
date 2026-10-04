@@ -41,14 +41,12 @@ local function makeDisc(
 	color: Color3,
 	parent: Instance
 ): Part
-	local part = makePart(
-		name,
-		Vector3.new(height, diameter, diameter),
-		center * CFrame.Angles(0, 0, math.rad(90)),
-		color,
-		parent
-	)
-	part.Shape = Enum.PartType.Cylinder
+	local part = ModelAssets.part("SurfaceModels", "GroundDisc")
+	part.Name = name
+	part.Size = Vector3.new(height, diameter, diameter)
+	part.CFrame = center * part.CFrame.Rotation
+	part.Color = color
+	part.Parent = parent
 	return part
 end
 
@@ -171,8 +169,15 @@ local function buildZone(plotModel: Model, islandCf: CFrame, layout: ZoneLayout)
 	local isWater = layout.water == true
 	local surfaceY = if isWater then WATER_Y else SURFACE_Y
 	local center = islandCf * CFrame.new(layout.offset.X, surfaceY + layout.size.Y / 2, layout.offset.Z)
-	local ground = makePart("Ground", layout.size, center, layout.color, zoneModel)
-	ground.Material = layout.material or Enum.Material.Grass
+	local ground = ModelAssets.part("SurfaceModels", "GroundBlock")
+	ground.Name = "Ground"
+	ground.Size = layout.size
+	ground.CFrame = center
+	ground.Color = layout.color
+	ground.Parent = zoneModel
+	ground.Material = if layout.material == nil or layout.material == Enum.Material.Grass
+		then Enum.Material.LeafyGrass
+		else layout.material
 	ground:SetAttribute("OpenColor", layout.color)
 	ground:SetAttribute("BackReserve", layout.backReserve)
 	zoneModel.PrimaryPart = ground

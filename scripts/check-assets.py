@@ -143,6 +143,7 @@ def expected() -> dict[str, set[str]]:
     exp["ShoreModels"] = {"DockDeck_5", "DockTip", "FishCrates", "FisherHut_Lv1", "NetDryingRack", "Pile"}
     exp["ZoneBases"] = {"CollectorPad", "FishWalkway_Module", "ZoneFence_Corner", "ZoneFence_Segment_4"}
     exp["SeasonModels"] = {"SnowCap_Bush", "SnowCap_Oak", "SnowCap_Pine", "Snowman", "IceFloe"}
+    exp["SurfaceModels"] = {"GroundDisc", "GroundBlock", "StonePath", "GrassPatch", "BeachDisc"}
     exp["CommonDecor"] = (
         {f"OakTree_{c}" for c in "ABCD"}
         | {f"PineTree_{c}" for c in "ABC"}
@@ -160,6 +161,7 @@ def expected() -> dict[str, set[str]]:
 
 # İstemci efekt modelleri (client-assets/<klasör>/<ad>): kodda ClientModelAssets ile klonlanır.
 CLIENT_EXPECTED: dict[str, set[str]] = {
+    "Effects": {"Spark", "Dust", "NightHalo", "SeasonFragment", "WinterTwig", "LightningSegment"},
     "Birds": {"Gull", "Songbird"},
     "Fish": {"ReefFish", "ShoreFish_A", "ShoreFish_B"},
     "Sea": {

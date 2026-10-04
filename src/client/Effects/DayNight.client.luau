@@ -14,6 +14,7 @@ local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local EffectSettings = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("EffectSettings"))
+local ClientModelAssets = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("ClientModelAssets"))
 local Presets = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("LightingPresets"))
 local Environment = require(Shared:WaitForChild("Modules"):WaitForChild("Environment"))
 
@@ -105,20 +106,15 @@ end
 
 -- Gerçek ışık yokken fenerin "yandığı" hissi: yarı saydam Neon küre (çarpışmaz, gölge atmaz).
 -- Pencereler (NightWindow) hale almaz (cam olarak kalır, ışığı PointLight verir).
-local function createHalo(glow: Glow): BasePart
+local function createHalo(glow: Glow): BasePart?
 	local part = glow.part
 	local size = math.clamp(math.max(part.Size.X, part.Size.Y, part.Size.Z) * HALO_SCALE, HALO_MIN_SIZE, HALO_MAX_SIZE)
-	local halo = Instance.new("Part")
-	halo.Name = "NightHalo"
-	halo.Shape = Enum.PartType.Ball
+	local halo = ClientModelAssets.clonePart("Effects", "NightHalo")
+	if not halo then
+		return nil
+	end
 	halo.Size = Vector3.new(size, size, size)
-	halo.Material = Enum.Material.Neon
 	halo.Color = glow.nightColor
-	halo.Anchored = true
-	halo.CanCollide = false
-	halo.CanQuery = false
-	halo.CanTouch = false
-	halo.CastShadow = false
 	glow.halo = halo
 	return halo
 end
@@ -131,6 +127,9 @@ local function updateHalo(glow: Glow, show: boolean)
 		return
 	end
 	local halo = glow.halo or createHalo(glow)
+	if not halo then
+		return
+	end
 	halo.CFrame = glow.part.CFrame
 	halo.Transparency = 1 - (1 - HALO_TRANSPARENCY) * math.clamp(ramp * multiplier, 0, 1)
 	halo.Parent = glow.part

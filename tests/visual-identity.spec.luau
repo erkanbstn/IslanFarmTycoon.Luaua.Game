@@ -268,8 +268,12 @@ deps.ExtensionAreas = {
 		return CFrame.new(), Vector3.new(20, 1, 20), "walk"
 	end,
 }
+local missingAnimalModels = {}
 deps.AnimalModels = {
-	createAnimalVisual = function()
+	createAnimalVisual = function(id)
+		if missingAnimalModels[id] then
+			return nil
+		end
 		local model = Instance.new("Model")
 		child(model, "Part", "Body")
 		return model
@@ -409,4 +413,24 @@ assert(
 	a:FindFirstChild("a") == modelA and animals:FindFirstChild("cow_2") == animal2,
 	"barn upgrade retains extension and animal"
 )
-print("PASS visual identity: discounts, jobs, capacities, purchase, animal growth, zone level/lock, barn level")
+local records = table.clone(save.animals)
+missingAnimalModels.goat = true
+missingAnimalModels.cow = true
+save.animals[1].stage = "adult"
+save.animals[2].extensionId = "a"
+refresh()
+assert(#animals:GetChildren() == 0, "missing zone and extension animal models render no placeholder")
+assert(
+	#save.animals == #records and save.animals[1] == records[1] and save.animals[2] == records[2],
+	"missing models never remove or replace animal records"
+)
+missingAnimalModels.goat = nil
+missingAnimalModels.cow = nil
+refresh()
+assert(
+	animals:FindFirstChild("goat_1") and animals:FindFirstChild("cow_2"),
+	"returned assets render on the next refresh without changing animal records"
+)
+print(
+	"PASS visual identity: discounts, jobs, capacities, purchase, animal growth, zone level/lock, barn level, missing models and retry"
+)

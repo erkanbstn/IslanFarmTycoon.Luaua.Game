@@ -3,9 +3,6 @@
 -- WorldDecor cephesi bunları birleştirir; her zaman `WorldDecor.<ad>` ile kullan.
 
 local ModelAssets = require(script.Parent:WaitForChild("ModelAssets"))
-local Parts = require(script.Parent:WaitForChild("DecorParts"))
-
-local part = Parts.part
 
 local Nature = {}
 
@@ -192,10 +189,10 @@ function Nature.scatterProps(
 end
 
 local GRASS_COLORS = {
-	Color3.fromRGB(88, 152, 64),
-	Color3.fromRGB(104, 168, 70),
-	Color3.fromRGB(72, 136, 58),
-	Color3.fromRGB(126, 176, 78),
+	Color3.fromRGB(88, 169, 62),
+	Color3.fromRGB(112, 185, 74),
+	Color3.fromRGB(74, 151, 60),
+	Color3.fromRGB(135, 193, 83),
 }
 
 export type GrassRect = { x: number, z: number, hx: number, hz: number }
@@ -291,21 +288,13 @@ function Nature.grassPatches(
 		local angle = random:NextNumber(0, math.pi * 2)
 		local r = random:NextNumber(minRadius, maxRadius)
 		local diameter = random:NextNumber(6, 14)
-		local tone = random:NextNumber(-14, 16)
-		local p = part(
-			folder,
-			"Patch",
-			Vector3.new(0.05, diameter, diameter),
-			base * CFrame.new(math.cos(angle) * r, 0.03, math.sin(angle) * r) * CFrame.Angles(0, 0, math.rad(90)),
-			Color3.fromRGB(
-				math.clamp(96 + tone, 0, 255),
-				math.clamp(160 + tone, 0, 255),
-				math.clamp(74 + tone * 0.6, 0, 255)
-			),
-			Enum.Material.Grass
-		)
-		p.Shape = Enum.PartType.Cylinder
-		p.CanCollide, p.CanQuery, p.CastShadow = false, false, false
+		local tone = random:NextNumber(-6, 8)
+		local p = ModelAssets.part("SurfaceModels", "GrassPatch")
+		p.Size = Vector3.new(p.Size.X, diameter, diameter)
+		p.CFrame = base * CFrame.new(math.cos(angle) * r, 0.03, math.sin(angle) * r) * p.CFrame.Rotation
+		local tint = p.Color
+		p.Color = Color3.fromRGB(tint.R * 255 + tone, tint.G * 255 + tone, tint.B * 255 + tone * 0.6)
+		p.Parent = folder
 	end
 end
 

@@ -50,9 +50,12 @@ local function buildAnimal(
 	movementStyle: string?,
 	lineageLevel: number,
 	themeKey: string
-): Model
+): Model?
 	local look = Config.getAnimalLook(animal.animalId, themeKey)
 	local visual = createAnimalVisual(look.modelId, animal.stage, tierOf(lineageLevel))
+	if not visual then
+		return nil
+	end
 	visual.Name = `{animal.animalId}_{animal.uid}`
 	-- Parçalar birlikte akar: istemcideki AnimalAnimator parça listesini bir kez çıkarıp topluca taşır; streaming parçaları ayrı
 	-- getirirse geç gelen parça (baş, kanat, bacak) hayvanın yerinde kalıp kopuk görünür.
@@ -108,7 +111,7 @@ local function buildAnimalInArea(
 	movementStyle: string?,
 	lineageLevel: number,
 	themeKey: string
-): Model
+): Model?
 	local ground = Instance.new("Part")
 	ground.Size = Vector3.new(areaSize.X, 1, areaSize.Z)
 	ground.CFrame = areaCf
@@ -180,7 +183,7 @@ function AnimalVisualService.refresh(plot: Model, data: PlayerSave)
 		end
 
 		VisualWorkBudget.step()
-		local visual: Model
+		local visual: Model?
 		if isExtension then
 			local areaCf, areaSize, movement = ExtensionAreas.find(plot, extensionId)
 			local extension = Config.getExtension(extensionId)
@@ -212,6 +215,9 @@ function AnimalVisualService.refresh(plot: Model, data: PlayerSave)
 				lineageLevel,
 				themeKey
 			)
+		end
+		if not visual then
+			continue
 		end
 		if existing then
 			existing:Destroy()

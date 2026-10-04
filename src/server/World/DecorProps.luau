@@ -4,10 +4,7 @@
 -- WorldDecor cephesi bunları birleştirir; her zaman `WorldDecor.<ad>` ile kullan.
 
 local ModelAssets = require(script.Parent:WaitForChild("ModelAssets"))
-local Parts = require(script.Parent:WaitForChild("DecorParts"))
 local ThemePatch = require(script.Parent:WaitForChild("ThemePatch"))
-
-local part = Parts.part
 
 local Props = {}
 
@@ -25,15 +22,10 @@ function Props.path(parent: Instance, from: Vector3, to: Vector3, width: number)
 	local y = from.Y + 0.08 + pathLayer * 0.03
 	local a = Vector3.new(from.X, y, from.Z)
 	local cf = CFrame.lookAt(a + flat / 2, a + flat)
-	local p = part(
-		parent,
-		"Path",
-		Vector3.new(width, 0.16, length + width * 0.6),
-		cf,
-		Color3.fromRGB(150, 145, 135),
-		Enum.Material.Cobblestone
-	)
-	p.CastShadow = false
+	local p = ModelAssets.part("SurfaceModels", "StonePath")
+	p.Size = Vector3.new(width, p.Size.Y, length + width * 0.6)
+	p.CFrame = cf
+	p.Parent = parent
 end
 
 -- Çapraz iki ince levhadan oluşan çim tutamları ve ara sıra çiçekler. Çarpışmaz, sorgulanmaz.

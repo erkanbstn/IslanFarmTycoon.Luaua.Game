@@ -1,9 +1,18 @@
 --!strict
 -- İstemcide çizilen efekt nesnelerinin hazır modelleri: ReplicatedStorage.ClientAssets.<klasör>.<ad> (kaynak: client-assets/).
--- Model yoksa nil döner; çağıran yedek (kod) çizimine düşebilir. Modeller yalnızca parça geometrisi taşır; hareket/renk/ölçek kodda.
+-- Model yoksa nil döner; kod geometrisiyle yedek çizim yapılmaz. Hareket/renk/ölçek kodda yönetilir.
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local ClientModelAssets = {}
+local warnedParts: { [string]: boolean } = {}
+
+local function warnPart(folderName: string, name: string)
+	local key = `{folderName}/{name}`
+	if not warnedParts[key] then
+		warnedParts[key] = true
+		warn(`[ClientModelAssets] client-assets/{key}.rbxmx tek Part şablonu bulunamadı`)
+	end
+end
 
 -- Şablon: ClientAssets.<klasör>.<ad> (Model); yoksa nil
 function ClientModelAssets.find(folderName: string, name: string): Model?
@@ -35,6 +44,34 @@ function ClientModelAssets.clone(folderName: string, name: string): Model?
 		end
 	end
 	return model
+end
+
+-- Tek parçalık havuz şablonu: mesh çocuklarını korur, model sarmalayıcısını bırakmaz.
+function ClientModelAssets.clonePart(folderName: string, name: string): Part?
+	local model = ClientModelAssets.clone(folderName, name)
+	if not model then
+		warnPart(folderName, name)
+		return nil
+	end
+	local part: Part? = nil
+	local valid = true
+	for _, descendant in model:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			if descendant:IsA("Part") and not part then
+				part = descendant
+			else
+				valid = false
+			end
+		end
+	end
+	if not valid or not part then
+		model:Destroy()
+		warnPart(folderName, name)
+		return nil
+	end
+	part.Parent = nil
+	model:Destroy()
+	return part
 end
 
 return ClientModelAssets

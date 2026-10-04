@@ -361,7 +361,7 @@ local function applyIslandState(plot: Model, data: PlayerSave?)
 		if base and base:IsA("BasePart") and base:GetAttribute("Locked") ~= not unlocked then
 			local openColor = base:GetAttribute("OpenColor")
 			base.Color = if unlocked and typeof(openColor) == "Color3" then openColor else LOCKED_ISLAND_COLOR
-			base.Material = Enum.Material.Grass
+			base.Material = Enum.Material.LeafyGrass
 			base:SetAttribute("Locked", not unlocked)
 			-- Satılık flamaları ve taşlar yalnızca kilitli adada görünür.
 			local forSale = island:FindFirstChild("LockedDecor")

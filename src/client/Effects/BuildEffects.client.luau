@@ -2,11 +2,10 @@
 -- Yeni modelleri küçükten büyütür. Animator, BuildPopActive boyunca pivotu değiştirmez.
 -- Yeniden stream edilen eski modeller oynatılmaz; parıltılar sabit bir geometri havuzudur.
 local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
-local UiTheme = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("UiTheme"))
+local ClientModelAssets = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("ClientModelAssets"))
 local EffectSettings = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("EffectSettings"))
 local Sfx = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("Sfx"))
 local localPlayer = Players.LocalPlayer
@@ -36,16 +35,10 @@ sparkleFolder.Name = "BuildSparkles"
 sparkleFolder.Parent = Workspace
 local sparks: { Spark } = {}
 for _ = 1, MAX_SPARKLES do
-	local part = Instance.new("Part")
-	part.Name = "Spark"
-	part.Shape = Enum.PartType.Ball
-	part.Size = Vector3.one * 0.22
-	part.Color = UiTheme.Color.Gold
-	part.Material = Enum.Material.Neon
-	part.Anchored = true
-	part.CanCollide, part.CanTouch, part.CanQuery = false, false, false
-	part.CastShadow = false
-	part.Transparency = 1
+	local part = ClientModelAssets.clonePart("Effects", "Spark")
+	if not part then
+		break
+	end
 	part.Parent = sparkleFolder
 	local spark: Spark = { part = part, origin = Vector3.zero, velocity = Vector3.zero, born = -math.huge, life = 0 }
 	table.insert(sparks, spark)
@@ -56,16 +49,10 @@ dustFolder.Name = "BuildDust"
 dustFolder.Parent = Workspace
 local dustPuffs: { Dust } = {}
 for _ = 1, MAX_DUST do
-	local part = Instance.new("Part")
-	part.Name = "Dust"
-	part.Shape = Enum.PartType.Ball
-	part.Size = Vector3.one
-	part.Color = Color3.fromRGB(214, 200, 176)
-	part.Material = Enum.Material.SmoothPlastic
-	part.Anchored = true
-	part.CanCollide, part.CanTouch, part.CanQuery = false, false, false
-	part.CastShadow = false
-	part.Transparency = 1
+	local part = ClientModelAssets.clonePart("Effects", "Dust")
+	if not part then
+		break
+	end
 	part.Parent = dustFolder
 	local dust: Dust = { part = part, origin = Vector3.zero, velocity = Vector3.zero, born = -math.huge, startSize = 1 }
 	table.insert(dustPuffs, dust)
