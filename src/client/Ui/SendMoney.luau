@@ -1,9 +1,11 @@
 --!strict
 -- "Para gönder" penceresi: alıcı ve tutar seçilir; doğrulama, bakiye düşümü ve alıcıya ekleme sunucudadır (Services/TransferService).
--- Bu arayüz yalnızca ön kontroldür (boş/yetmeyen tutarı sunucuya yollamamak için).
+-- Bu arayüz yalnızca ön kontroldür (boş/yetmeyen tutarı sunucuya yollamamak için). Gönderme izni (PolicyService) sunucudan gelir:
+-- sunucu yalnız bu oyuncunun durumunu bildirir, istemci hiçbir izin değeri üretmez; izin yoksa gönderim kapalıdır ve sebebi gösterilir.
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Remotes = require(Shared:WaitForChild("Remotes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 local UiKit = require(script.Parent:WaitForChild("UiKit"))
 local Core = script.Parent.Parent:WaitForChild("Core")
@@ -23,6 +25,21 @@ local balance: TextLabel? = nil
 local message: TextLabel? = nil
 local amountBox: TextBox? = nil
 local sendButton: TextButton? = nil
+local quickButtons: { TextButton } = {}
+local policyState = "loading" -- "loading" | "allowed" | "restricted" | "unavailable"; sunucudan gelir
+local DEFAULT_MESSAGE = "Gönderilen para sende azalır, alıcıda aynen artar. Geri alınamaz."
+local POLICY_TEXT: { [string]: string } = {
+	loading = "Hesap izinlerin kontrol ediliyor. Birkaç saniye sonra yeniden dene.",
+	restricted = "Hesabında oyuncular arası para gönderimi kullanılamıyor.",
+	unavailable = "Hesap izinleri doğrulanamadı. Biraz sonra yeniden dene.",
+}
+
+local function policyReason(): string?
+	if policyState == "allowed" then
+		return nil
+	end
+	return POLICY_TEXT[policyState] or POLICY_TEXT.unavailable
+end
 
 local function setMessage(text: string, ok: boolean?)
 	local label = message
@@ -41,10 +58,26 @@ local function refresh()
 	if label then
 		label.Text = if state then `Kasan: {FarmMath.formatMoney(state.cash)}` else "Kasan: yükleniyor"
 	end
+	local usable = policyState == "allowed"
 	local button = sendButton
 	if button then
-		UiKit.setVariant(button, if PurchaseController.isPending() then "disabled" else "primary")
+		UiKit.setVariant(button, if PurchaseController.isPending() or not usable then "disabled" else "primary")
 	end
+	for _, quick in quickButtons do
+		UiKit.setVariant(quick, if usable then "secondary" else "disabled")
+	end
+	local box = amountBox
+	if box then
+		box.TextEditable = usable
+	end
+end
+
+local function showPolicy()
+	local reason = policyReason()
+	if reason then
+		setMessage(reason, false)
+	end
+	refresh()
 end
 
 local function create(): UiKit.Window
@@ -84,9 +117,10 @@ local function create(): UiKit.Window
 		local button = UiKit.button(quick, option.label, "secondary")
 		button.Size = UDim2.new(1 / 3, -4, 1, 0)
 		button.LayoutOrder = index
+		table.insert(quickButtons, button)
 		button.Activated:Connect(function()
 			local state = ClientState.get()
-			if state then
+			if state and policyState == "allowed" then
 				box.Text = tostring(math.max(1, math.floor(state.cash * option.share)))
 			end
 		end)
@@ -99,6 +133,11 @@ local function create(): UiKit.Window
 	sendButton = send
 	send.Activated:Connect(function()
 		if PurchaseController.isPending() then
+			return
+		end
+		local reason = policyReason()
+		if reason then
+			setMessage(reason, false) -- sunucu da reddeder; istemci yalnız boşuna istek göndermez
 			return
 		end
 		local state = ClientState.get()
@@ -140,6 +179,24 @@ PurchaseController.Completed:Connect(function(success: boolean, text: string)
 end)
 PurchaseController.Changed:Connect(refresh)
 ClientState.onChanged(refresh)
+Remotes.get("TradePolicyState").OnClientEvent:Connect(function(status: unknown)
+	if status ~= "allowed" and status ~= "restricted" and status ~= "unavailable" and status ~= "loading" then
+		return
+	end
+	local changed = policyState ~= status
+	policyState = status :: string
+	local current = window
+	if current and current.isOpen() then
+		if policyState == "allowed" then
+			if changed then
+				setMessage(DEFAULT_MESSAGE, nil)
+			end
+			refresh()
+		else
+			showPolicy()
+		end
+	end
+end)
 
 function SendMoney.open(userId: number, displayName: string)
 	if not window then
@@ -151,7 +208,12 @@ function SendMoney.open(userId: number, displayName: string)
 	if label then
 		label.Text = `Alıcı: {targetName}`
 	end
-	setMessage("Gönderilen para sende azalır, alıcıda aynen artar. Geri alınamaz.", nil)
+	Remotes.get("RequestTradePolicy"):FireServer()
+	if policyReason() then
+		showPolicy()
+	else
+		setMessage(DEFAULT_MESSAGE, nil)
+	end
 	refresh();
 	(window :: UiKit.Window).open()
 end

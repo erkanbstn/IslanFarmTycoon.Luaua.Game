@@ -24,6 +24,13 @@ panelinde elle yapılır; kod bunları değiştiremez.
 - 6 kişiden fazlası "Sunucuda boş ada kalmadı" mesajıyla düşer; başka sunucuya yönlendir.
 - Gerçek parayla (Robux) satın alma ürünleri, kimlikleri (`Config.PRODUCTS`) 0 iken kapalıdır.
 
+## Para gönderme politikası (PolicyService)
+Studio'da otomatik test edilemez; ayrı test place'inde elle doğrula:
+1. Tek oyuncuyla Para gönder penceresi açılınca birkaç saniye "Hesap izinlerin kontrol ediliyor" görünür, sonra izin durumuna göre açılır/kapanır. Output'ta `[TradePolicy]` uyarısı olmamalı.
+2. İki oyuncu (Test → Clients): ikisi de izinliyse aktarım tamamlanır. Studio bayrağı oyuncu yaşına/bölgeye bağlı olduğundan kısıtlı hesabı yalnız yayındaki sürümde ya da kısıtlı test hesabıyla görebilirsin.
+3. Gönderen kısıtlıysa pencere devre dışı ve gerekçeli; alıcı kısıtlıysa gönderen yalnız "şu anda para gönderilemiyor" görür.
+4. **Creator Dashboard politika anketi:** "Policy API'ye uyuyor → Yes" yalnızca bu sürüm yayına alınıp yukarıdaki adımlar yayındaki oyunda doğrulandıktan sonra seçilir; kodda ya da bu belgede bir seçim yapılmaz.
+
 ## Sorun olursa
 - Çökme/kayıp şüphesi: Output'ta `[Data]` satırları (`SaveRetry`, `ProfileRecovered`, `SaveSize...`), `Diagnostics` sayaçları.
 - Bozuk kayıt yedekten açılır; bozulan kayıt `player_<id>_quarantine` anahtarında durur (silinmez).

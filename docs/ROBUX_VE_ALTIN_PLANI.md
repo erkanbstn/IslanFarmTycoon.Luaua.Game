@@ -3,6 +3,17 @@
 Durum: **altın, kalıcı sahiplik ve ürün ödülleri uygulandı**; 4 Ekim 2026'da 34 Developer Product ve üç geçit kimliği bağlandı (Kalıcı Altın Kanatlar ve Rüzgar Muskası dahil). Gerçek satın alma/reconnect kabul testi ve yayın ayrı adımdır. Güncel teslim: [DEVIR_DURUMU.md](DEVIR_DURUMU.md).
 
 
+## Oyuncular arası para gönderimi ve PolicyService
+
+Nakit paketleri Robux'la satıldığından oyuncudan oyuncuya para gönderimi temkinli bir ürün kararıyla Roblox'un `IsPaidItemTradingAllowed` politikasına bağlanmıştır. Resmî belge bayrağı "Robux veya oyun içi parayla alınan sanal eşyaların oyuncular arası takası" için tanımlar; nakdi kapsamda saymak bu belgenin zorunlu bir yorumu değil, bilinçli bir kısıttır (kapsam dışı sayılırsa kapı tek yerde kaldırılır).
+
+- Sunucu `TradePolicyService`, oyuncu katılınca `PolicyService:GetPolicyInfoForPlayerAsync` çağırır (`pcall`). Değer yalnızca bellekte tutulur, kayda yazılmaz, oyuncu ayrılınca silinir.
+- Yalnızca açıkça `true` izin verir. Yükleniyor, API hatası, eksik/boolean olmayan yanıt ve `false` yeni gönderimi reddeder. Geçici hata 3 denemeyle (2 sn, 5 sn) yeniden denenir; sonra `unavailable`, en erken 30 sn arayla tembel yeniden deneme.
+- `TransferService.trySend` hem göndereni hem alıcıyı sunucuda denetler; istemcinin gönderdiği hiçbir izin değeri okunmaz. Alıcı kısıtlıysa gönderene sebep açıklanmaz ("Bu oyuncuya şu anda para gönderilemiyor.").
+- Önceden kabul edilmiş outbox/inbox kayıtları politika değişse de uzlaştırılır (`reconcile` kapıdan geçmez); borç silinmez.
+- İstemci kendi durumunu `RequestTradePolicy` ile ister, `TradePolicyState` ile alır; başkasının durumu gönderilmez. Para gönderme penceresi izin yoksa devre dışıdır ve sebebi gösterir.
+- Rastgele ücretli ürün (loot kutusu vb.) yoktur; `ArePaidRandomItemsRestricted` için özellik eklenmedi. Böyle bir ürün eklenirse aynı kalıpla sunucuda denetlenmelidir.
+
 ## Güncel satış ve ekonomi sözleşmesi
 
 - Her turun ana ada dahil 24 adası ve altı çiftliği için başlangıç altını 780'dir. Tamamlanma ödülü bir kere verilir; son ödüller rebirth sıfırlamasından önce tahsil edilir. R3/R10 bonuslarıyla 858/936 olabilir.

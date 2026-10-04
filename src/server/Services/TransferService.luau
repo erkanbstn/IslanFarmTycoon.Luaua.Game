@@ -9,6 +9,7 @@ local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath")
 local PlayerDataService = require(script.Parent:WaitForChild("PlayerDataService"))
 local SaveStore = require(script.Parent:WaitForChild("SaveStore"))
 local EconomyService = require(script.Parent:WaitForChild("EconomyService"))
+local TradePolicyService = require(script.Parent:WaitForChild("TradePolicyService"))
 local RequestGuard = require(script.Parent:WaitForChild("RequestGuard"))
 local RateLimiter = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("RateLimiter"))
 local TransferRules = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("TransferRules"))
@@ -150,6 +151,26 @@ function TransferService.reconcile(player: Player, forceInbox: boolean?): boolea
 	return result == true
 end
 
+-- Yalnızca YENİ gönderim bu kapıdan geçer; kabul edilmiş outbox/inbox uzlaştırması (reconcile) politikadan bağımsız tamamlanır.
+-- Karar sunucudaki TradePolicyService önbelleğindendir; istemciden gelen hiçbir değer okunmaz.
+local SENDER_BLOCKED = {
+	loading = "Hesap izinlerin kontrol ediliyor. Birkaç saniye sonra yeniden dene.",
+	restricted = "Hesabında oyuncular arası para gönderimi kullanılamıyor.",
+	unavailable = "Hesap izinleri doğrulanamadı. Biraz sonra yeniden dene.",
+}
+local RECEIVER_BLOCKED = "Bu oyuncuya şu anda para gönderilemiyor."
+
+local function policyProblem(sender: Player, receiver: Player): string?
+	local status = TradePolicyService.status(sender)
+	if status ~= "allowed" then
+		return SENDER_BLOCKED[status] or SENDER_BLOCKED.unavailable
+	end
+	if not TradePolicyService.canTrade(receiver) then
+		return RECEIVER_BLOCKED -- alıcının neden kısıtlı olduğu (yaş/bölge sinyali) gönderene açıklanmaz
+	end
+	return nil
+end
+
 local function ready(player: Player): boolean
 	return PlayerDataService.tryGet(player) ~= nil and player:GetAttribute("WorldReady") == true
 end
@@ -167,6 +188,10 @@ function TransferService.trySend(player: Player, targetUserId: unknown, amount: 
 	local target = Players:GetPlayerByUserId(targetUserId :: number)
 	if not target then
 		return false, "Oyuncu bu sunucuda değil"
+	end
+	local blocked = policyProblem(player, target)
+	if blocked then
+		return false, blocked
 	end
 	if not ready(player) then
 		return false, "Çiftliğin henüz hazır değil"

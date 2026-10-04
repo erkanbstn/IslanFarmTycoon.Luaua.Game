@@ -28,6 +28,8 @@ return function(createService: any, ledger: any, rules: any)
 			players = {},
 			remotes = {},
 			notifications = {},
+			replies = {},
+			policy = {},
 			dirty = {},
 			serial = 0,
 		}
@@ -170,7 +172,20 @@ return function(createService: any, ledger: any, rules: any)
 			end,
 		}
 		local economy = { settlePlayer = function() end }
-		local guard = { reply = function() end }
+		local guard = {
+			reply = function(_player: any, _id: any, ok: boolean, message: string?)
+				table.insert(h.replies, { ok = ok, message = message })
+			end,
+		}
+		-- Sunucudaki politika önbelleğinin yerine geçer; varsayılan: iki oyuncu da "allowed".
+		local policy = {
+			status = function(player: any): string
+				return h.policy[player.UserId] or "allowed"
+			end,
+			canTrade = function(player: any): boolean
+				return (h.policy[player.UserId] or "allowed") == "allowed"
+			end,
+		}
 		local fakeTask = { spawn = function() end, wait = function() end }
 		local fakeOs = {
 			clock = function(): number
@@ -186,6 +201,7 @@ return function(createService: any, ledger: any, rules: any)
 				dataService,
 				store,
 				economy,
+				policy,
 				guard,
 				rate,
 				fakeTask,
@@ -396,7 +412,92 @@ return function(createService: any, ledger: any, rules: any)
 			"quarantine preserves cash and inbox evidence"
 		)
 	end
+	-- PolicyService kapısı: yalnız yeni gönderim engellenir; hiçbir durum/ledger/kayıt değişmez.
+	local function untouched(h: any, label: string)
+		assert(h.profiles[1].cash == 1000 and h.profiles[2].cash == 1000, label .. ": balances unchanged")
+		assert(next(h.profiles[1].transfers.outbox) == nil, label .. ": no outbox entry")
+		assert(next(h.profiles[2].transfers.received) == nil, label .. ": no received tombstone")
+		assert(
+			h.saves == 0 and #h.published == 0 and next(h.inboxes) == nil,
+			label .. ": no save, publish or inbox write"
+		)
+		assert(#h.notifications == 0, label .. ": no money notification")
+		assert(h.total() == 2000, label .. ": value conserved")
+	end
+
+	local both = setup()
+	assert(both.send(100) and both.profiles[2].cash == 1100, "both players allowed: the transfer is delivered")
+
+	local senderMessages = {
+		loading = "Hesap izinlerin kontrol ediliyor. Birkaç saniye sonra yeniden dene.",
+		restricted = "Hesabında oyuncular arası para gönderimi kullanılamıyor.",
+		unavailable = "Hesap izinleri doğrulanamadı. Biraz sonra yeniden dene.",
+	}
+	for status, expected in senderMessages do
+		local h = setup()
+		h.policy[1] = status
+		local ok, message = h.service.trySend(h.players[1], 2, 100)
+		assert(not ok and message == expected, "sender policy " .. status .. " rejects with its own reason")
+		untouched(h, "sender " .. status)
+	end
+	for _, status in { "loading", "restricted", "unavailable" } do
+		local h = setup()
+		h.policy[2] = status
+		local ok, message = h.service.trySend(h.players[1], 2, 100)
+		assert(
+			not ok and message == "Bu oyuncuya şu anda para gönderilemiyor.",
+			"receiver policy " .. status .. " is rejected without revealing why"
+		)
+		untouched(h, "receiver " .. status)
+	end
+	local unknown = setup()
+	unknown.policy[1] = "anything-unexpected"
+	assert(not unknown.send(100), "an unknown policy status never counts as allowed")
+	untouched(unknown, "unknown status")
+
+	-- İstemci sahte izin gönderemez: Remote yalnız (hedef, tutar, requestId) okur, fazla argümanlar yok sayılır.
+	local forged = setup()
+	forged.service.init()
+	forged.policy[1] = "restricted"
+	forged.remotes.RequestSendMoney.OnServerEvent.fire(
+		forged.players[1],
+		2,
+		100,
+		1,
+		true,
+		"allowed",
+		{ IsPaidItemTradingAllowed = true }
+	)
+	assert(forged.replies[1] and forged.replies[1].ok == false, "forged permission arguments cannot enable a transfer")
+	untouched(forged, "forged client permission")
+	forged.policy[1] = nil
+	forged.policy[2] = "restricted"
+	forged.remotes.RequestSendMoney.OnServerEvent.fire(forged.players[1], 2, 100, 2, true)
+	assert(forged.replies[2] and forged.replies[2].ok == false, "forged flags cannot bypass the receiver check")
+	untouched(forged, "forged receiver permission")
+
+	-- Önceden kabul edilmiş bekleyen aktarım, politika sonradan kısıtlansa da güvenle tamamlanır (yeni gönderim değildir).
+	for _, mode in { "failBefore", "failAfter" } do
+		local h = setup()
+		h.publishMode = mode
+		assert(h.send(100), "transfer accepted while both players were allowed")
+		assert(h.profiles[1].cash == 900 and h.total() == 2000, "accepted intent is durable escrow")
+		h.policy[1] = "restricted"
+		h.policy[2] = "unavailable"
+		assert(not h.send(50), "new sends are blocked once the policy changes")
+		h.publishMode = nil
+		h.restart()
+		h.reconcile(1)
+		h.reconcile(2)
+		h.reconcile(2)
+		assert(
+			h.profiles[2].cash == 1100 and h.profiles[1].cash == 900,
+			"pending accepted transfer completes exactly once"
+		)
+		assert(h.total() == 2000, "completed pending transfer conserves value")
+	end
+
 	print(
-		"PASS transfer service: durable cash/escrow, failure before/after writes, restart/replay, concurrent checkpoints and caps"
+		"PASS transfer service: durable cash/escrow, failure before/after writes, restart/replay, concurrent checkpoints, caps and PolicyService gate"
 	)
 end

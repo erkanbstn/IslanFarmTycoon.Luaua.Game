@@ -29,6 +29,9 @@ Remote argümanları: `(değer, requestId, expectedFarmId, ekstra?)`. İşleyici
 ## Finansal önizleme
 - İstemci önizleme fiyatı/teklif kimliği gönderebilir; bu otorite değildir. Sunucu canlı teklifi, turu, hakkı ve tutarı yeniden hesaplar. Kalıcı altın/Robux/rebirth işlemi `PlayerDataService.transactAccount` kalıbını kullanır; makbuz için kayıt doğrulanmadan platform onayı verilmez.
 
+## Oyuncular arası para (PolicyService)
+- Yeni oyuncular arası para/ürün aktarımı `TradePolicyService.status/canTrade` ile gönderen VE alıcı için sunucuda denetlenir; yalnız `"allowed"` izin verir. İstemciden izin değeri okunmaz. Kabul edilmiş outbox/inbox uzlaştırması bu kapıdan geçmez. Ayrıntı: `docs/ROBUX_VE_ALTIN_PLANI.md`.
+
 ## Yönetici
 - Yetki yalnızca `AdminPolicy.isAllowed(player.UserId)`. `IsAdmin` özniteliği sadece UI ipucu.
 - Yeni yönetici eylemi: `AdminPolicy.validAction` + `AdminService` içindeki `execute` + `tests/admin.spec.luau`.

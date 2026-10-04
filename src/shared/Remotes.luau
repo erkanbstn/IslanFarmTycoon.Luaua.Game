@@ -45,6 +45,8 @@ export type EventName =
 	| "RequestAdminAction"
 	| "RequestAdminPlayerAction"
 	| "RequestSendMoney"
+	| "RequestTradePolicy"
+	| "TradePolicyState"
 	| "AdminResult"
 	| "RequestProductionAction"
 	| "ProductionResult"
@@ -65,6 +67,8 @@ local EVENTS = {
 	"RequestSetPreference", -- Client -> Sunucu ses düzeyi/hareket azaltma tercihi (tür, değer); sunucu Modules/Preferences ile doğrular
 	"RequestSetLanguage", -- Client -> Sunucu arayüz dili tercihi (kod); sunucu Config.LANGUAGES ile doğrular
 	"RequestAdminAction", -- Sadece sunucudaki AdminPolicy'nin izin verdiği hesap.
+	"RequestTradePolicy", -- Client -> Sunucu kendi para gönderme iznini sor (argüman yok); sonuç TradePolicyState
+	"TradePolicyState", -- Sunucu -> Client yalnız o oyuncunun durumu ("loading"|"allowed"|"restricted"|"unavailable"); başkasının durumu gönderilmez
 	"AdminResult", -- Sunucu -> yetkili client (requestId, success, message).
 	"RequestAdminPlayerAction", -- Yetkili -> Sunucu başka oyuncuya işlem (targetUserId, action, value, requestId); sonuç AdminResult
 	"RequestSendMoney", -- Client -> Sunucu başka oyuncuya para gönder (targetUserId, amount, requestId); sonuç PurchaseResult
