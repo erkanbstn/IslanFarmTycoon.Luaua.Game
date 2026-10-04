@@ -223,7 +223,7 @@ def main(argv: list[str] | None = None, dependency_reporter=None) -> int:
                "game, BridgeSurface, script, RaycastParams, Enum, Vector3, Instance, os, ColorSequence, Color3, NumberSequence, NumberSequenceKeypoint, warn"),
         module("bridgeBoostSpec", "tests/bridge-boost.spec.luau"),
         module("AnimalAnimatorFactory", "src/client/Effects/AnimalAnimator.client.luau", {"EffectSettings"},
-               "game, EffectSettings, Vector3, CFrame, Random, RaycastParams, Enum, typeof"),
+               "game, EffectSettings, Vector3, CFrame, Random, RaycastParams, Enum, typeof, os"),
         module("animalAnimatorSpec", "tests/animal-animator.spec.luau"),
         module("BoardSectionFactory", "src/client/Ui/Hud/BoardSection.luau",
                {"Config", "GameTypes", "FarmMath", "Environment", "UiKit", "PurchaseController"},

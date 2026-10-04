@@ -84,7 +84,7 @@ local function obstaclesNear(state: AnimalState): { BasePart }
 	local reach = state.halfSize.Magnitude + 8
 	local near: { BasePart } = {}
 	for _, part in obstacleCache do
-		if part.Parent and (part.Position - center).Magnitude <= reach then
+		if part.Parent and part.CanCollide and (part.Position - center).Magnitude <= reach then
 			table.insert(near, part)
 		end
 	end
@@ -268,7 +268,7 @@ local function trackReady(instance: Instance)
 		area = area,
 		halfSize = size / 2,
 		heightOffset = heightOffset,
-		position = if isTrack then Vector3.new(0, 0, size.Z / 2 - 2) else position,
+		position = position,
 		yaw = yaw,
 		target = nil,
 		waitUntil = os.clock() + random:NextNumber(0, 4),
@@ -514,6 +514,9 @@ RunService.PreRender:Connect(function(dt: number)
 					state.target = nil
 					state.waitUntil = now + 1
 					state.stallUntil = now + 1
+					-- Sabit parkur engellenince aynı başarısız adımı sonsuza dek deneme.
+					-- Normal gezinti yalnız destekli ve engelsiz hedefler seçer.
+					state.track = false
 					moving = false
 				end
 			end

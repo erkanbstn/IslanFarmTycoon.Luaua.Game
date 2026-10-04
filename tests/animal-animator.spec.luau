@@ -31,6 +31,24 @@ return function(createAnimator: any)
 	vectorMt.__eq = function(a: any, b: any)
 		return a.X == b.X and a.Y == b.Y and a.Z == b.Z
 	end
+	vectorMt.__mul = function(a: any, b: number): any
+		return vector(a.X * b, a.Y * b, a.Z * b)
+	end
+	vectorMt.__index = function(a: any, key: string): any
+		local magnitude = math.sqrt(a.X * a.X + a.Y * a.Y + a.Z * a.Z)
+		if key == "Magnitude" then
+			return magnitude
+		end
+		if key == "Unit" then
+			return a / magnitude
+		end
+		if key == "Lerp" then
+			return function(self: any, other: any, alpha: number): any
+				return self + (other - self) * alpha
+			end
+		end
+		return nil
+	end
 	local cfMt: any = {}
 	local function cf(x: number?, y: number?, z: number?): any
 		return setmetatable(
@@ -46,6 +64,12 @@ return function(createAnimator: any)
 		PointToWorldSpace = function(a: any, point: any)
 			return a.Position + point
 		end,
+		PointToObjectSpace = function(a: any, point: any): any
+			return point - a.Position
+		end,
+		VectorToWorldSpace = function(_a: any, point: any): any
+			return point
+		end,
 	}
 	cfMt.__mul = function(a: any, b: any)
 		local p = a.Position + b.Position
@@ -55,6 +79,9 @@ return function(createAnimator: any)
 		return a.Position == b.Position
 	end
 	local added, removed, render = signal(), signal(), signal()
+	local obstacles: { any } = {}
+	local now, randomFraction = 0, 0.5
+	local supported, blockRim, reduced = false, false, false
 	local collection = {
 		GetInstanceAddedSignal = function()
 			return added
@@ -62,13 +89,30 @@ return function(createAnimator: any)
 		GetInstanceRemovedSignal = function()
 			return removed
 		end,
-		GetTagged = function()
-			return {}
+		GetTagged = function(_self: any, tag: string)
+			return if tag == "AnimalObstacle" then obstacles else {}
+		end,
+		HasTag = function(): boolean
+			return false
+		end,
+	}
+	local ground = {
+		FindFirstAncestorOfClass = function(): any
+			return nil
 		end,
 	}
 	local workspace = {
-		Raycast = function()
-			return nil
+		CurrentCamera = { CFrame = cf() },
+		Raycast = function(_self: any, origin: any): any
+			if not supported or (blockRim and origin.X < -4) then
+				return nil
+			end
+			return { Instance = ground, Position = vector(origin.X, 0, origin.Z), Normal = vector(0, 1, 0) }
+		end,
+		BulkMoveTo = function(_self: any, parts: any, frames: any)
+			for i, part in parts do
+				part.move(frames[i])
+			end
 		end,
 	}
 	local gameMock = {
@@ -76,7 +120,14 @@ return function(createAnimator: any)
 			return ({ CollectionService = collection, RunService = { PreRender = render }, Workspace = workspace })[name]
 		end,
 	}
-	createAnimator(gameMock, {}, { new = vector }, {
+	createAnimator(gameMock, {
+		reducedMotion = function(): boolean
+			return reduced
+		end,
+		quality = function(): string
+			return "high"
+		end,
+	}, { new = vector }, {
 		new = cf,
 		Angles = function()
 			return cf()
@@ -85,7 +136,7 @@ return function(createAnimator: any)
 		new = function()
 			return {
 				NextNumber = function(_self: any, low: number, high: number)
-					return (low + high) / 2
+					return low + (high - low) * randomFraction
 				end,
 				NextInteger = function()
 					return 0
@@ -96,12 +147,24 @@ return function(createAnimator: any)
 		new = function()
 			return {}
 		end,
-	}, { RaycastFilterType = { Exclude = 0 } }, function(value: any)
+	}, { RaycastFilterType = { Exclude = 0 }, BulkMoveMode = { FireCFrameChanged = 1 } }, function(value: any)
 		return if type(value) == "table" then value.kind or "table" else type(value)
-	end)
-	local function animal(uid: string, area: any, size: any, x: number): any
+	end, {
+		clock = function(): number
+			return now
+		end,
+	})
+	local function animal(uid: string, area: any, size: any, x: number, movement: string?): any
 		local position = area * cf(x, 1, 0)
-		local attributes = { Uid = uid, AreaCFrame = area, AreaSize = size, HeightOffset = 1 }
+		local attributes = { Uid = uid, AreaCFrame = area, AreaSize = size, HeightOffset = 1, MovementStyle = movement }
+		local body = {
+			IsA = function(_self: any, name: string): boolean
+				return name == "BasePart"
+			end,
+			move = function(value: any)
+				position = value
+			end,
+		}
 		local model: any = {
 			Parent = workspace,
 			AttributeChanged = signal(),
@@ -118,6 +181,10 @@ return function(createAnimator: any)
 			end,
 			GetExtentsSize = function()
 				return vector(3, 3, 4)
+			end,
+			GetDescendants = function(): any
+				body.CFrame = position
+				return { body }
 			end,
 			IsDescendantOf = function()
 				return true
@@ -148,5 +215,47 @@ return function(createAnimator: any)
 	for _, model in { old, garden, oldGrow, adult, smallerArea, resized } do
 		removed.fire(model)
 	end
+	supported = true
+	table.insert(obstacles, {
+		Parent = workspace,
+		CanCollide = false,
+		Position = vector(0, 0, 0),
+		Size = vector(40, 3, 40),
+		CFrame = cf(),
+		IsA = function(_self: any, name: string): boolean
+			return name == "BasePart"
+		end,
+	})
+	local horse = animal("track", origin, vector(20, 0, 32), 0, "track")
+	local function frames(count: number)
+		for _ = 1, count do
+			now += 0.1
+			render.fire(0.1)
+		end
+	end
+	frames(1)
+	local start = horse:GetPivot().Position
+	frames(20)
+	assert(
+		(horse:GetPivot().Position - start).Magnitude > 1,
+		"Non-colliding training rails must not freeze the horse's track"
+	)
+	removed.fire(horse)
+	table.clear(obstacles)
+	blockRim = true
+	local trapped = animal("recovery", origin, vector(20, 0, 32), 0, "track")
+	frames(1)
+	local stalled = trapped:GetPivot().Position
+	randomFraction = 0.6
+	frames(90)
+	assert(
+		(trapped:GetPivot().Position - stalled).Magnitude > 0.5,
+		"Blocked oval must recover with safe wandering instead of retrying the same invalid step forever"
+	)
+	local before = trapped:GetPivot().Position
+	reduced = true
+	frames(10)
+	assert(trapped:GetPivot().Position == before, "Motion reduction still stops animation")
+	removed.fire(trapped)
 	print("PASS animal animator: garden transfer, growth continuation and resized-area spawn")
 end
