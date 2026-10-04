@@ -1576,4 +1576,6 @@ return {
 	["Ziyaretin bitmesine {} kaldı. Satın almak için meydandaki tüccara yaklaş."] = "La visita termina en {1}. Acércate al comerciante de la plaza para comprar.",
 	["Normal: {}"] = "Normal: {1}",
 	["Siparişler ve iki parti yedek için üretir; stok yeterliyse bekler, tüketilince sürdürür."] = "Produce para pedidos y una reserva de dos lotes; espera si hay existencias suficientes y continúa cuando se consumen.",
+	["Sayfa {}/{}"] = "Página {1}/{2}",
+	["Rebirth: {}"] = "Renacimientos: {1}",
 }

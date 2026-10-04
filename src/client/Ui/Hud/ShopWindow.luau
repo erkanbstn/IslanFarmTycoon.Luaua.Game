@@ -31,9 +31,9 @@ function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 		title = "Hayvan Pazarı",
 		icon = "🐄",
 		tint = Color.Green,
-		width = 330,
-		maxHeight = 430,
-		anchor = Vector2.new(1, 0.5),
+		width = 600,
+		maxHeight = 560,
+		anchor = Vector2.new(0.5, 0.5),
 		position = WINDOW_POSITION,
 	})
 	local shopInfo =
@@ -46,7 +46,7 @@ function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 	local multiplierRow = Instance.new("Frame")
 	multiplierRow.Name = "Multipliers"
 	multiplierRow.BackgroundTransparency = 1
-	multiplierRow.Size = UDim2.new(1, 0, 0, 32)
+	multiplierRow.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
 	multiplierRow.LayoutOrder = 1
 	multiplierRow.Parent = shopWindow.list
 	UiKit.list(multiplierRow, 4, true)

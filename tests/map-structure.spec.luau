@@ -400,5 +400,33 @@ return function(context: any?)
 	end
 	assert(benches == 3 and planters == 8, "Meydan dekoru eksik (3 bank, 8 çiçeklik).")
 	assert(hub:FindFirstChild("TravelBoard"), "Meydanda Adalar tabelası eksik.")
+
+	-- Model çerçevesi tek başına yeterli değil: iki yönden gelen oyuncu yazıyı görmeli.
+	local function assertSign(modelName: string, partName: string, expectedText: string)
+		local model = hub:FindFirstChild(modelName)
+		local part = model and model:FindFirstChild(partName)
+		assert(part and part:IsA("BasePart"), `{modelName}/{partName}: tabela yüzeyi eksik.`)
+		local faces: { [Enum.NormalId]: boolean } = {}
+		for _, child in (part :: BasePart):GetChildren() do
+			if not child:IsA("SurfaceGui") then
+				continue
+			end
+			local text = child:FindFirstChild("Text", true)
+			assert(
+				text and text:IsA("TextLabel") and text.Text == expectedText,
+				`{modelName}: tabela yazısı eksik/yanlış.`
+			)
+			faces[child.Face] = true
+		end
+		assert(faces[Enum.NormalId.Front] and faces[Enum.NormalId.Back], `{modelName}: iki yüz de okunabilir olmalı.`)
+	end
+	assertSign("HubTitleBoard", "Title", Config.GAME_NAME)
+	assertSign("Hub_Banner", "Banner", "Hoş geldin")
+	local bannerModel = hub:FindFirstChild("Hub_Banner") :: Model
+	for _, name in { "Banner", "Header" } do
+		local surface = bannerModel:FindFirstChild(name) :: BasePart
+		assert(surface and surface.Transparency == 0, `Hub_Banner/{name}: model yüzeyi görünür olmalı.`)
+	end
+
 	print("PASS map structure: themes, signs, vendors and prompts")
 end

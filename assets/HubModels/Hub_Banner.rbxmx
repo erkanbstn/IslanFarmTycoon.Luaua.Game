@@ -123,6 +123,7 @@
         <bool name="CanCollide">false</bool>
         <bool name="CanTouch">false</bool>
         <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
       </Properties>
     </Item>
     <Item class="Part" referent="RBXPART4">
@@ -158,6 +159,7 @@
         <bool name="CanCollide">false</bool>
         <bool name="CanTouch">false</bool>
         <bool name="CanQuery">false</bool>
+        <float name="Transparency">0</float>
       </Properties>
     </Item>
     <Item class="Part" referent="REFRESH_Hub_Banner_1">

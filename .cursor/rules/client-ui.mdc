@@ -39,7 +39,7 @@ Katman: `src/client/Ui/` (UiKit, FarmHud, `Hud/*`, paneller, `IslandManager`, `I
 | Sol orta | `Stats` paneli (sola kayarak kapanır; sağ kenarında sekme): ada adı, para+gelir, ahır, depo, mevsim/hava kartı, sıradaki hedef ve sıradaki ada |
 | Üst orta | `MenuTop` karo çubuğu: Pazar, Yükseltmeler, Yol Haritası, Üretim, Adalar (bildirimler bunun altında) |
 | Sağ orta | `MenuSide` karo sütunu: Envanter, Ödüller, Market (kimlik 0 iken katalog görünür, ödeme kapalı), İlerleme (ilk hayvan veya rebirth sonrası), Adama Dön, Ayarlar, (yönetici) Yönetici |
-| Sağ (pencere) | Pazar / Yol Haritası / Yükseltmeler pencereleri (`WINDOW_POSITION`) |
+| Orta (pencere) | Pazar / Yol Haritası / Yükseltmeler: ortak merkez, geniş içerik; Yol Haritası ada içinde aşama sekmeleri kullanır |
 | Orta (pencere) | Ödüller, Sipariş Panosu, Market (Robux katalog, kalıcı altın teklifleri, altın çevirme ve hızlı bitirme), Eşya Dükkânı, Envanter. UiKit pencere kaydıyla birbirini kapatır; meydan satıcıları ve pazar tezgâhı ilgili pencereyi açar |
 | Üst orta | Bildirimler (toast) |
 | Sağ üst / sol üst | Roblox oyuncu listesi ve sohbet — HUD buraya bir şey koymaz |
@@ -65,7 +65,7 @@ Katman: `src/client/Ui/` (UiKit, FarmHud, `Hud/*`, paneller, `IslandManager`, `I
   Ortam, hayvan ve müzik `Soundscape.client`.
 - Para her yerde `FarmMath.formatMoney` ile yazılır (küçük tutarlar tam, büyükler `$12.4K`/`$3.1M` gibi kısaltılır; eşik fonksiyonda). Kendi biçimlendiricini yazma.
 - Altın cüzdanı `UiKit.iconChip` içinde `🪙` ile gösterilir; bileşen bu simgeyi GUI şekilleriyle çizer (platformun emoji/Robux glifine güvenmez). Uzun fiyat ve açıklama doğal büyür; kullanıcıya görünen miktarı taşırma.
-- Bildirimler `toastHost` ile gösterilir; aynı metin ve türde duran bildirim yenisini eklemez, "×N" rozeti artar. Aynı bildirimi elle tekrar süzme.
+- Bildirimler `toastHost` ile tek ortak Notifications katmanında gösterilir (menülerin üstünde). En fazla iki görünür, altı bekleyen bildirim tutulur; taşmada en eski bekleyen çıkarılır. Aynı metin/tür ×N ile birleştirilir. İsteğe bağlı görünür engeller (üst menü, öğretici, tüccar rozeti) gerçek yükseklikleriyle alan ayırır; kök yok edilince kuyruk ve zamanlayıcılar temizlenir. Ayrı konumlama/tekrar süzme kodu yazma.
 
 ## Performans
 - Durum güncellemesi yapısal (`structural`) ve para değişimi ayrı ele alınır; aynı metni tekrar yazma

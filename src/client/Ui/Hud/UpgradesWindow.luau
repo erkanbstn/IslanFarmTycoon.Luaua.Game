@@ -25,6 +25,7 @@ local UpgradesWindow = {}
 export type Upgrades = {
 	window: UiKit.Window,
 	update: (state: PlayerSave, content: boolean) -> (),
+	focus: (category: string) -> (),
 }
 
 function UpgradesWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Upgrades
@@ -32,9 +33,9 @@ function UpgradesWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Upg
 		title = "Yükseltmeler",
 		icon = "🛠️",
 		tint = Color.Gold,
-		width = 330,
-		maxHeight = 500,
-		anchor = Vector2.new(1, 0.5),
+		width = 600,
+		maxHeight = 560,
+		anchor = Vector2.new(0.5, 0.5),
 		position = WINDOW_POSITION,
 	})
 	local upgradesInfo =
@@ -44,7 +45,7 @@ function UpgradesWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Upg
 	-- Kategori sekmeleri: Yapılar (satın alınacak yükseltmeler) | Geliştirmeler (bölge ve tesis seviyeleri)
 	local currentTab = "upgrades"
 	local refreshTab: (() -> ())? = nil
-	UiKit.tabs(upgradesWindow.list, 0, {
+	local _, chooseTab = UiKit.tabs(upgradesWindow.list, 0, {
 		{ id = "upgrades", label = "Yapılar" },
 		{ id = "levels", label = "Seviyeler" },
 		{ id = "expansions", label = "Geliştirmeler" },
@@ -289,7 +290,21 @@ function UpgradesWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Upg
 			updateUpgrades(state, true)
 		end
 	end
-	return { window = upgradesWindow, update = updateUpgrades }
+	return {
+		window = upgradesWindow,
+		update = updateUpgrades,
+		focus = function(category: string)
+			if category ~= "upgrades" and category ~= "levels" and category ~= "expansions" then
+				return
+			end
+			currentTab = category
+			chooseTab(category)
+			upgradesWindow.list.CanvasPosition = Vector2.zero
+			if refreshTab then
+				refreshTab()
+			end
+		end,
+	}
 end
 
 return UpgradesWindow

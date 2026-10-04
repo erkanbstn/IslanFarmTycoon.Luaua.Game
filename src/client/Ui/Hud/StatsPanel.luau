@@ -92,29 +92,28 @@ function StatsPanel.create(screenGui: Instance): Hud
 	incomeLabel.LayoutOrder = 2
 	local progressionButton = UiKit.button(cashBlock, "", "secondary")
 	progressionButton.Name = "GoldWallet"
-	progressionButton.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
+	progressionButton.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget + 16)
 	progressionButton.LayoutOrder = 2
 	local goldIcon = UiKit.iconChip(progressionButton, "🪙", 30, Color.Gold)
 	goldIcon.Name = "GoldIcon"
 	goldIcon.AnchorPoint = Vector2.new(0, 0.5)
 	goldIcon.Position = UDim2.new(0, 6, 0.5, 0)
-	local goldAmount = UiKit.text(progressionButton, "0", "Body", Color.Green)
+	local goldAmount = UiKit.text(progressionButton, "Altın", "Body", Color.Green)
 	goldAmount.Name = "GoldAmount"
 	goldAmount.FontFace = UiKit.Font.Bold
 	goldAmount.AutomaticSize = Enum.AutomaticSize.None
-	goldAmount.Position = UDim2.fromOffset(44, 0)
-	goldAmount.Size = UDim2.new(1, -92, 1, 0)
+	goldAmount.Position = UDim2.fromOffset(44, 6)
+	goldAmount.Size = UDim2.new(1, -50, 0, 24)
 	goldAmount.TextWrapped = false
 	goldAmount.TextTruncate = Enum.TextTruncate.AtEnd
 	goldAmount.TextYAlignment = Enum.TextYAlignment.Center
-	local rebirthLevel = UiKit.text(progressionButton, "R0", "Caption", Color.TextMuted)
+	local rebirthLevel = UiKit.text(progressionButton, "Rebirth", "Caption", Color.TextMuted)
 	rebirthLevel.Name = "RebirthLevel"
 	rebirthLevel.AutomaticSize = Enum.AutomaticSize.None
-	rebirthLevel.AnchorPoint = Vector2.new(1, 0)
-	rebirthLevel.Position = UDim2.new(1, -6, 0, 0)
-	rebirthLevel.Size = UDim2.new(0, 40, 1, 0)
+	rebirthLevel.Position = UDim2.fromOffset(44, 30)
+	rebirthLevel.Size = UDim2.new(1, -50, 0, 24)
 	rebirthLevel.TextWrapped = false
-	rebirthLevel.TextXAlignment = Enum.TextXAlignment.Right
+	rebirthLevel.TextXAlignment = Enum.TextXAlignment.Left
 	rebirthLevel.TextYAlignment = Enum.TextYAlignment.Center
 
 	local barnTexts = statRow(stats, 2, "🏚️", Color.Red)
@@ -194,8 +193,8 @@ function StatsPanel.create(screenGui: Instance): Hud
 		local cap = FarmMath.getStorageCap(state)
 		local barnConfig = FarmMath.getBarnConfig(state)
 		animateCash(state.cash)
-		UiKit.setText(goldAmount, tostring(state.gold or 0))
-		UiKit.setText(rebirthLevel, `R{if state.progression then state.progression.count else 0}`)
+		UiKit.setText(goldAmount, `Altın: {state.gold or 0}`)
+		UiKit.setText(rebirthLevel, `Rebirth: {if state.progression then state.progression.count else 0}`)
 		UiKit.setText(incomeLabel, `+${FarmMath.formatRate(income)}/sn gelir`)
 		UiKit.setText(barnLabel, barnConfig.displayName)
 		local ownedIslands, totalIslands = FarmMath.countIslands(state)

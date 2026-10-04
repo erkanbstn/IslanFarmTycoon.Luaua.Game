@@ -74,6 +74,10 @@ local function apply(player: Player, action: unknown, target: unknown): (boolean
 		EconomyService.settlePlayer(player)
 	end
 	if action == "select" and farmId == previousFarmId then
+		-- Etkin çiftlik kartı da dönüş yoludur; temayı yenilemeden gerçek varışı doğrula.
+		if not PlotService.teleportToIsland(player, "home") then
+			return false, "Çiftliğin henüz hazır değil."
+		end
 		PlayerDataService.pushState(player)
 		return true, "Ana çiftlik seçildi."
 	end

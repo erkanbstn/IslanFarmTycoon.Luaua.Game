@@ -31,8 +31,8 @@ Gamepad DPad kısayolları `FarmHud.client`'taki `HudGamepadMenu`'dedir. Rozet: 
 ```luau
 local window = UiKit.window(screenGui, {
 	title = "Görevler", icon = "📜", tint = Color.Blue,
-	width = 330, maxHeight = 430,
-	anchor = Vector2.new(1, 0.5), position = WINDOW_POSITION, -- ya da ortada (0.5, 0.5)
+	width = 600, maxHeight = 560,
+	anchor = Vector2.new(0.5, 0.5), position = UDim2.fromScale(0.5, 0.5),
 })
 local card = UiKit.card(window.list, order, "🐄")
 card.title.Text = "..."; card.detail.Text = "..."
@@ -41,7 +41,7 @@ setPurchaseButton(card.action, FarmMath.formatMoney(price), if canAfford then "p
 - Pencere kapalıyken içerik güncelleme; `frame:GetPropertyChangedSignal("Visible")` ile açılınca çiz.
 - Dar ekranda UiKit pencereyi otomatik ortalar ve boyutlar. Sık güncellenen metni `UiKit.setText` ile yaz (Localizer çift yazımı olmaz).
 - İlk görünüm kısa sonuç/fiyat/aksiyon; uzun yardım ve formül `UiKit.disclosure` içinde kapalı başlar. Kartta `UiKit.cardDetails` kullan; tutar, gerçek eksi ve geri alınamaz uyarı işlemden önce görünür kalır. Uzun çeviri ve fiyat doğal yüksekliğe sarılır; sabit yükseklik/boş düğme ile hizalama yapma.
-- Bildirim: `toastHost` aynı metni ×N rozetiyle birleştirir; tekrar süzme kodu yazma.
+- Bildirim: `toastHost(parent, blockers?)` ortak üst katman ve sınırlı kuyruğu kullanır, aynı metni ×N ile birleştirir. Üst menü/öğretici gibi engelleri `{GuiObject}` listesiyle ver; holder konumunu elle yazma.
 
 ## Kontrol listesi
 ```

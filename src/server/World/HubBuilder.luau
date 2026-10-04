@@ -108,17 +108,24 @@ local function buildHub(parent: Instance)
 
 	-- Meydan süsleri (assets/HubModels): heykel ve flama (doğma noktasının arkasında). Köprü girişlerinin bayrakları kullanıcı isteğiyle kaldırıldı.
 	-- Yüzleri meydanın ortasına dönüktür.
-	local function placeHubDecor(name: string, pos: Vector3)
+	local function placeHubDecor(name: string, pos: Vector3): Model?
 		local model = ModelAssets.clone("HubModels", name)
 		if not model then
 			warn(`[HubBuilder] assets/HubModels/{name}.rbxmx bulunamadı; çizilmedi`)
-			return
+			return nil
 		end
 		model:PivotTo(CFrame.lookAt(pos, center))
 		model.Parent = hub
+		return model
 	end
 	placeHubDecor("Hub_Statue", onRing(300, 14))
-	placeHubDecor("Hub_Banner", onRing(330, 33))
+	local bannerModel = placeHubDecor("Hub_Banner", onRing(330, 33))
+	local banner = bannerModel and bannerModel:FindFirstChild("Banner")
+	if banner and banner:IsA("BasePart") then
+		for _, face in { Enum.NormalId.Front, Enum.NormalId.Back } do
+			WorldUi.sign(banner, face, { icon = "🐄", text = "Hoş geldin" })
+		end
+	end
 
 	-- Doğma noktası: işlev SpawnLocation'da (görünmez); görünüm hazır model (assets/HubProps/SpawnPlaza: taş disk + bronz kenar).
 	-- Üst yüzeyler eşit (0.3 stud) olsun diye SpawnLocation ince ve zeminle aynı yükseklikte durur.
@@ -172,11 +179,11 @@ local function buildHub(parent: Instance)
 	end
 
 	-- Karşılama tabelası (direk + tahta)
-	placeBoardModel("HubTitleBoard", CFrame.new())
-	local title = hub:FindFirstChild("Title", true)
+	local titleModel = placeBoardModel("HubTitleBoard", CFrame.new())
+	local title = titleModel and titleModel:FindFirstChild("Title")
 	if title and title:IsA("BasePart") then
 		for _, face in { Enum.NormalId.Front, Enum.NormalId.Back } do
-			WorldUi.sign(title, face, { icon = "🐄", title = "Hoş geldin", text = Config.GAME_NAME })
+			WorldUi.sign(title, face, { text = Config.GAME_NAME })
 		end
 	end
 

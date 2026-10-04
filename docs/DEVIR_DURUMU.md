@@ -35,3 +35,23 @@ Skill-creator quick_validate PyYAML bulunmadığından çalışmadı; proje rehb
 ## Devralma promptu
 
 “Bu Roblox/Luau projesini devral. Önce AGENTS.md, docs/AI_DEVIR_REHBERI.md ve docs/DEVIR_DURUMU.md dosyalarını oku; mevcut dalı ve kullanıcı değişikliklerini koruyarak doctor ve hızlı doğrulamayı çalıştır. Verdiğim görevi ilgili skill/rule'lara göre uygula, davranış testleriyle doğrula ve sonunda gerekli Full/Studio kontrollerini yap. Commit, push, merge, publish veya canlı veri sıfırlamasını yalnızca açık talebimle yap; kısa Türkçe sonuç ver. Görevim: [buraya yapılacak işi yaz].”
+
+## Son arayüz çalışması
+
+Dal `codex/menu-onboarding`, başlangıç `main/789e8c6` temizdi. Pazar/Yükseltmeler/Yol Haritası ortalandı, 600 × 560 mantıksal alan ve UiKit ekran sığdırması kullanıyor. Yol Haritası seçili adada bir aşama gösterir; kalabalık aşamalar altışar yükseltmeli sayfalara ayrılır. Aşama/ada değişiminde sayfa ve ayrıntı sıfırlanır, para güncellemesi seçimi bozmaz.
+
+Öğreticide Atla bütün vurguları ve dünya işaretlerini kapatır. Üretim adımı yeterli yetişkin/para/depo alanı olan parti ister; ilk üretim sonrası aynı oturumda geri gelmez. Genişletme adımı Yükseltmeler'in doğru sekmesini açar. Atla/toplu alım/eklenti aksiyonlarının dokunma hedefleri büyütüldü. Yeni sayfa metni beş dile çevrildi.
+
+Gerçek kaynak regresyonları aşama geçişi, sayfa sınırı, eski kartların gizlenmesi, para/ada bağlamı ve gerçek öğretici iptalini doğrular. Son `verify.ps1 -Mode Full -RequireTypes` başarılı; log `.test-build/menu-final-verify.log`. Studio'da üç pencere merkez ve aynı ölçüyle açıldı, gerçek aşama/sayfa düğmeleri ve Atla tıklandı. Aynı 1914 × 634 viewport, 0,8 kök ölçeği ve taze profilde ilk aşama sayfalama öncesi 1547 px, ilk sayfa sonrası 683 px içerik yüksekliğinde; ikinci sayfa 522 px. Görünen metinlerde taşma yoktu. Geçici 320 × 500 mantıksal pencere (256 × 400 render) kontrolü de taşmasız; gerçek telefon emülasyonu değildir. Play durduruldu, geçici arayüz boyut/isimleri oturumla temizlendi. Commit/push/merge/publish yapılmadı. Gerçek mobil/gamepad kontrolleri ayrı kalır.
+
+## Ada dönüşü, meydan ve bildirim düzeni
+
+Aynı çalışma dalında etkin çiftliğe dönüş artık sunucuda gerçek ana ada ışınlanmasını doğrular; karakter hazır değilse başarı cevabı verilmez. Tema yeniden kurulmaz, dönüş ücreti yoktur. Sol cüzdan şekille çizilmiş altın simgesi yanında Altın miktarını ve ayrı satırda açık Rebirth sayısını gösterir; yeni şablon beş dile çevrildi.
+
+Meydanın Hub_Banner modelindeki saydam yüzeyler açıkça görünür yapıldı, iki yüzüne karşılama yazısı kondu. Sıralama üst tabelası Island Farm Tycoon gösterir; nakit sıralaması korunarak her oyuncunun rebirth sayısı eklendi. Harita sürümü 58; Edit'te buildverify çalıştı, harita/dünya sözleşme testleri geçti. Kalıcı place kaydı için geliştirici Ctrl+S yapmalıdır; yayın yapılmadı.
+
+Bildirimler tüm pencerelerden tek Notifications katmanında (DisplayOrder 20) gelir. İki görünür ve altı bekleyen sınırı, tekrar birleştirme, zamanlayıcı/animasyon iptali ve kök kapanış temizliği var; taşmada en eski bekleyen çıkarılır. Öğretici ve tüccar rozeti görünür gerçek boyutlarıyla bildirimleri aşağı taşır; öğretici kapanınca boşluk kalkar. Tüccar rozeti de öğreticinin altında kalır. Kurallar ve UI skill ortak API için güncellendi.
+
+Gerçek kaynak testleri dönüş/başarısız karakter/ücretsiz dönüş, canlı rebirth sıralaması/legacy sıfır/eski satır temizliği ve 1.000 bildirimlik kuyruğun sınırları/tekrar/animasyon yarışı/ReducedMotion/kapanış senaryolarını doğrular. Studio nonpersistent Play'de gerçek dönüş düğmesi karakteri meydandan kendi ana adasına taşıdı. 12 bildirim gönderildiğinde aynı anda iki kart görünür ve öğretici/tüccarın altında çakışmasızdı; Atla sonrası alan yukarı taşındı ve kuyruk tamamen boşaldı. Cüzdanın iki metni TextFits kontrolünü geçti. Edit ekranında dolu karşılama tabelası görsel olarak incelendi. Play durduruldu; geçici QA isimleri/bildirimleri oturumla temizlendi. Gerçek telefon/gamepad ve çok oyunculu testler bu aşamada yapılmadı.
+
+Son toplu `verify.ps1 -Mode Full -RequireTypes` başarılı; log `.test-build/hud-world-final-verify.log`. Tip analizi sıfır bulgu, beş dilde 1507 anahtar, 761 modelde eksik/bozuk yok; tüm Luau regresyonları, araç testleri, ekonomi/çiftlik simülasyonları ve üç Rojo derlemesi geçti. Selene API indirmesi başarısız olduğunda mevcut önbelleği kullandı, lint sıfır hata/uyarı. Commit, push, merge ve publish yapılmadı.

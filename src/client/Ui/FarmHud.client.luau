@@ -121,7 +121,7 @@ local onboarding = Onboarding.create({
 	roadmap = menu.roadmapButton,
 	production = menu.productionButton,
 })
-local onboardingBanner = OnboardingBanner.create(hudRoot)
+local onboardingBanner = OnboardingBanner.create(hudRoot, Onboarding.skip)
 local goal = GoalCard.create(statsHud.frame, onboarding, onboardingBanner)
 local celebrate = Celebration.create(hudRoot)
 menu.goldButton.Activated:Connect(function()
@@ -177,7 +177,7 @@ end)
 ---------------------------------------------------------------------------
 
 -- Sağ kenarda, sağ menü sütununun (76 px + boşluk) soluna yaslı
-local WINDOW_POSITION = UDim2.new(1, -96, 0.5, 0)
+local WINDOW_POSITION = UDim2.fromScale(0.5, 0.5)
 
 local merchant = MerchantWindow.create(hudRoot)
 local shop = ShopWindow.create(hudRoot, WINDOW_POSITION)
@@ -292,14 +292,8 @@ ContextActionService:BindActionAtPriority(
 	Enum.KeyCode.DPadLeft,
 	Enum.KeyCode.DPadDown
 )
-local showToast = UiKit.toastHost(hudRoot)
+local showToast = UiKit.toastHost(hudRoot, { menu.topBar, onboardingBanner.frame } :: { GuiObject })
 toastRelay.show = showToast
-local toastHolder = hudRoot:FindFirstChild("Toasts") :: Frame
--- Bildirimler üst menü çubuğunun (60 px) altında, sağ menü sütununa ve sol panele taşmadan durur.
-toastHolder.AnchorPoint = Vector2.new(0.5, 0)
--- Gezgin tüccar rozeti (MerchantBadge) menü çubuğunun hemen altındadır; bildirimler onun da altında başlar.
-toastHolder.Position = UDim2.new(0.5, 0, 0, MerchantBadge.TOP + MerchantBadge.HEIGHT + 8)
-toastHolder.Size = UDim2.new(1, -240, 0, 0)
 PurchaseController.Completed:Connect(function(success: boolean, message: string?)
 	-- Adalar penceresi açıkken bildirimi pencerenin kendi bildirim alanı gösterir (üstte, pencerenin önünde)
 	if message and not IslandManager.isOpen() then
@@ -312,7 +306,8 @@ local seasonBar = SeasonBar.create(statsHud.frame)
 -- Altın hayvan belirdiğinde bir kez haber ver (hayvan çiftlikte parlar); tüccar için kalıcı rozet var
 local merchantBadge = MerchantBadge.create(hudRoot, function()
 	showWindow(merchant.window)
-end, showToast)
+end, showToast, onboardingBanner.frame)
+UiKit.toastHost(hudRoot, { merchantBadge.frame } :: { GuiObject })
 local lastGoldenCycle = -1
 local function goldenNotice(state: PlayerSave?)
 	if not state then
@@ -442,6 +437,15 @@ roadmapWindow.frame:GetPropertyChangedSignal("Visible"):Connect(function()
 end)
 upgradesWindow.frame:GetPropertyChangedSignal("Visible"):Connect(function()
 	if upgradesWindow.isOpen() then
+		local state = ClientState.get()
+		if state then
+			local step = Onboarding.stepFor(state)
+			if step == 5 then
+				upgradesHud.focus("expansions")
+			elseif step == 3 then
+				upgradesHud.focus("upgrades")
+			end
+		end
 		redraw()
 	end
 end)

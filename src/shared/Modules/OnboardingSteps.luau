@@ -9,7 +9,7 @@ local FarmMath = require(script.Parent:WaitForChild("FarmMath"))
 
 local OnboardingSteps = {}
 
-export type Progress = { roadmapOpened: boolean? }
+export type Progress = { roadmapOpened: boolean?, skipped: boolean?, productionStarted: boolean? }
 
 -- Bu kadar kazanmış hesap temel adımları (1-3) artık istemez (başka çiftlik açanlar dahil: kazanç hesap düzeyindedir)
 OnboardingSteps.SKIP_BASICS_EARNED = 1500
@@ -46,6 +46,9 @@ end
 
 -- 0 = bitti / gerekmiyor; 1..6 = sıradaki adım
 function OnboardingSteps.stepFor(save: any, progress: Progress?): number
+	if progress and progress.skipped then
+		return 0
+	end
 	local earned = save.lifetimeEarned or 0
 	if earned >= OnboardingSteps.SKIP_ALL_EARNED then
 		return 0
@@ -66,7 +69,8 @@ function OnboardingSteps.stepFor(save: any, progress: Progress?): number
 	if earned < OnboardingSteps.SKIP_BASICS_EARNED and not expanded and not (progress and progress.roadmapOpened) then
 		return 4
 	end
-	local factoryPending = OnboardingSteps.ownsFactory(save) and not hasAny(save.production)
+	local factoryPending = not (progress and progress.productionStarted)
+		and OnboardingSteps.readyFactory(save, os.time()) ~= nil
 	if not expanded then
 		local targetId, cost = OnboardingSteps.cheapestExpansion(save)
 		-- Genişletmeye para yetmiyorken hazır bir tesis varsa önce ilk parti (5. adım 6'yı bekletmesin)
@@ -78,6 +82,31 @@ function OnboardingSteps.stepFor(save: any, progress: Progress?): number
 		return 6
 	end
 	return 0
+end
+
+-- Yönlendirme yalnızca gerçekten başlatılabilir partiye gider; kurulu tesis tek başına yeterli değildir.
+function OnboardingSteps.readyFactory(save: any, now: number): string?
+	for _, id in Config.PRODUCTION_ORDER do
+		local recipe = Config.PRODUCTION_RECIPES[id]
+		if
+			save.purchased[recipe.upgradeId]
+			and save.unlockedIslands[recipe.island]
+			and not save.production[id]
+			and FarmMath.countProductionAdults(save, recipe, now) >= recipe.requiredAdults
+			and save.cash >= FarmMath.getFacilityCost(save, recipe)
+			and (
+				recipe.output ~= "goods"
+				or (
+					recipe.goodsId ~= nil
+					and FarmMath.getGoodsSpace(save, recipe.goodsId)
+						>= math.min(FarmMath.previewGoodsYield(save, recipe, now), FarmMath.getGoodsCap(save))
+				)
+			)
+		then
+			return id
+		end
+	end
+	return nil
 end
 
 -- Temel adımlar (1-3) bitti mi (4-6 ya da hiç adım kalmamış)

@@ -143,7 +143,7 @@ return function(createStats: any, createGoal: any)
 	)
 	assert(
 		goldButton.Text == "" and goldButton.Size.X.Scale == 1 and goldButton.Size.Y.Offset >= ui.TouchTarget,
-		"gold has no redundant text prefix and remains a full touch target"
+		"wallet children own the labels and share a full touch target"
 	)
 	stats.update({
 		cash = 0,
@@ -156,7 +156,14 @@ return function(createStats: any, createGoal: any)
 		unlockedZones = {},
 		unlockedIslands = { home = true },
 	}, 0)
-	assert(goldAmount.Text == "1530" and rebirthLevel.Text == "R30", "live wallet changes update both value labels")
+	assert(
+		goldAmount.Text == "Altın: 1530" and rebirthLevel.Text == "Rebirth: 30",
+		"wallet names both currencies clearly instead of presenting ambiguous zero and R0"
+	)
+	assert(
+		goldAmount.Position.Y.Offset + goldAmount.Size.Y.Offset <= rebirthLevel.Position.Y.Offset,
+		"gold amount and rebirth occupy separate non-overlapping rows"
+	)
 	local bannerTitle = ""
 	local goal = createGoal(gameMock, ui, { new = node }, dimensions, { AutomaticSize = { Y = "Y" } }, {
 		purchaseHint = function()

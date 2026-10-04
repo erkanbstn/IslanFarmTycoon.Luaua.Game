@@ -1,5 +1,5 @@
 --!strict
--- Meydandaki "Sunucu Sıralaması" panosu: sunucudaki oyuncuların kasası ve ada (ana çiftlik) sayısı, para sırasına göre.
+-- Meydandaki "Sunucu Sıralaması" panosu: sunucudaki oyuncuların kasası ve ada (ana çiftlik) sayısı ve rebirth seviyesi, para sırasına göre.
 -- Pano haritada kurulur (HubBuilder); burası yalnızca satırları günceller (değişmeyen metne yazılmaz).
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -16,7 +16,7 @@ local HubBoardService = {}
 local REFRESH_SECONDS = 3
 local initialized = false
 
-type Entry = { name: string, cash: number, farms: number }
+type Entry = { name: string, cash: number, farms: number, rebirth: number }
 
 local function findBoard(): Instance?
 	local world = Workspace:FindFirstChild("World")
@@ -36,6 +36,7 @@ local function refresh()
 				name = player.DisplayName,
 				cash = math.floor(data.cash),
 				farms = #PlayerDataService.getFarmIds(player),
+				rebirth = if data.progression then data.progression.count else 0,
 			})
 		end
 	end
@@ -52,7 +53,7 @@ local function refresh()
 				board,
 				index,
 				`{index}. {entry.name}`,
-				`{FarmMath.formatMoney(entry.cash)} · {entry.farms} ada`
+				`{FarmMath.formatMoney(entry.cash)} · {entry.farms} ada\nRebirth: {entry.rebirth}`
 			)
 		else
 			WorldUi.setBoardRow(board, index, "", "")

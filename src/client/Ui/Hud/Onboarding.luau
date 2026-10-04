@@ -37,6 +37,14 @@ export type Hud = {
 
 -- Oturuma özgü ilerleme (Yol Haritası bu oturumda açıldı mı); kayda yazılmaz
 local progress: OnboardingSteps.Progress = { roadmapOpened = false }
+local cancelGuidance: (() -> ())? = nil
+
+function Onboarding.skip()
+	progress.skipped = true
+	if cancelGuidance then
+		cancelGuidance()
+	end
+end
 
 Onboarding.TOTAL = OnboardingSteps.TOTAL
 
@@ -46,6 +54,9 @@ end
 
 -- 0 = bitti; 1..6 = sıradaki adım
 function Onboarding.stepFor(state: PlayerSave): number
+	if next(state.production) ~= nil then
+		progress.productionStarted = true
+	end
 	return OnboardingSteps.stepFor(state, progress)
 end
 
@@ -71,6 +82,18 @@ function Onboarding.create(buttons: Buttons): Hud
 	local pointUpgrades = UiKit.pointer(buttons.upgrades, "Buraya dokun")
 	local pointRoadmap = UiKit.pointer(buttons.roadmap, "Buraya dokun")
 	local pointProduction = UiKit.pointer(buttons.production, "Buraya dokun")
+	cancelGuidance = function()
+		pulseShop(false)
+		pulseUpgrades(false)
+		pulseRoadmap(false)
+		pulseProduction(false)
+		pointShop(false)
+		pointUpgrades(false)
+		pointRoadmap(false)
+		pointProduction(false)
+		setAttributeIfChanged("TutorialMarker", "")
+		setAttributeIfChanged("TutorialGuide", false)
+	end
 	local function apply(state: PlayerSave, canAffordUpgrade: boolean, upgradeId: string?): number
 		local step = Onboarding.stepFor(state)
 		local expansionAffordable = false

@@ -19,7 +19,7 @@ local MAX_WIDTH = 460
 local TOP_GAP = 14 -- menü çubuğunun üst boşluğu (MenuBar.topBar ile aynı)
 local POINTER_ROOM = 46 -- menü düğmesinin altına inen "Buraya dokun" okuna yer
 
-function OnboardingBanner.create(hudRoot: Instance): Banner
+function OnboardingBanner.create(hudRoot: Instance, onSkip: (() -> ())?): Banner
 	local skipped = false
 
 	local frame = Instance.new("Frame")
@@ -50,12 +50,15 @@ function OnboardingBanner.create(hudRoot: Instance): Banner
 	label.LayoutOrder = 2
 
 	local skip = UiKit.button(frame, "Atla", "secondary")
-	skip.Size = UDim2.fromOffset(72, 26)
+	skip.Size = UDim2.fromOffset(96, UiKit.TouchTarget)
 	skip.TextSize = UiKit.TextSize.Caption
 	skip.LayoutOrder = 3
 	skip.Activated:Connect(function()
 		skipped = true
 		frame.Visible = false
+		if onSkip then
+			onSkip()
+		end
 	end)
 
 	return {

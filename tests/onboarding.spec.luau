@@ -80,10 +80,7 @@ return function(OnboardingSteps: any, Config: any, FarmMath: any)
 	blocked.lifetimeEarned = OnboardingSteps.SKIP_BASICS_EARNED
 	blocked.purchased.barn_2 = true
 	fillStarter(blocked)
-	local recipe0: any = nil
-	for _, candidate in Config.PRODUCTION_RECIPES do
-		recipe0 = recipe0 or candidate
-	end
+	local recipe0 = Config.PRODUCTION_RECIPES.packed_milk
 	blocked.purchased[recipe0.upgradeId] = true
 	blocked.unlockedIslands[recipe0.island] = true
 	local _, expansionCost = OnboardingSteps.cheapestExpansion(blocked)
@@ -93,17 +90,24 @@ return function(OnboardingSteps: any, Config: any, FarmMath: any)
 	assert(OnboardingSteps.stepFor(blocked) == 5, "para yetince 5. adım")
 
 	-- 6: tesis kurulu ve hiç parti yoksa
-	local recipe: any = nil
-	for _, candidate in Config.PRODUCTION_RECIPES do
-		recipe = recipe or candidate
-	end
+	local recipe = Config.PRODUCTION_RECIPES.packed_milk
 	local factory = newSave()
 	factory.lifetimeEarned = OnboardingSteps.SKIP_BASICS_EARNED
 	factory.purchased[recipe.upgradeId] = true
 	factory.unlockedIslands[recipe.island] = true
 	factory.expansions = { starter = 1 }
 	assert(OnboardingSteps.ownsFactory(factory), "tesis kurulu")
-	assert(OnboardingSteps.stepFor(factory) == 6, "ilk parti adımı")
+	assert(OnboardingSteps.stepFor(factory) == 0, "yetişkinsiz tesis üretim öğreticisini açmaz")
+	fillStarter(factory)
+	assert(OnboardingSteps.stepFor(factory) == 6, "yeterli yetişkin varsa ilk parti adımı")
+	assert(OnboardingSteps.readyFactory(factory, 1700000000) == recipe.id, "gerçek başlatılabilir tesis seçilir")
+	assert(OnboardingSteps.stepFor(factory, { skipped = true }) == 0, "atlama bütün yönlendirmeyi kapatır")
+	assert(OnboardingSteps.stepFor(newSave(), { skipped = true }) == 0, "atlama yeni oyuncuyu da durdurur")
 	factory.production[recipe.id] = { readyAt = 1, startedAt = 0 }
 	assert(OnboardingSteps.stepFor(factory) == 0, "parti başlayınca adım biter")
+	factory.production = {}
+	assert(
+		OnboardingSteps.stepFor(factory, { productionStarted = true }) == 0,
+		"teslim sonrası öğretici aynı oturumda geri dönmez"
+	)
 end

@@ -19,6 +19,7 @@ local Color = UiKit.Color
 local MerchantBadge = {}
 
 export type Badge = {
+	frame: TextButton,
 	update: (state: PlayerSave?) -> (),
 }
 
@@ -29,7 +30,8 @@ MerchantBadge.HEIGHT = UiKit.TouchTarget
 function MerchantBadge.create(
 	screenGui: Instance,
 	onOpen: () -> (),
-	notify: (message: string, kind: string?) -> ()
+	notify: (message: string, kind: string?) -> (),
+	banner: GuiObject?
 ): Badge
 	local button = Instance.new("TextButton")
 	button.Name = "MerchantBadge"
@@ -45,6 +47,41 @@ function MerchantBadge.create(
 	button.Visible = false
 	button.ZIndex = 5
 	button.Parent = screenGui
+	local connections: { RBXScriptConnection } = {}
+	local tutorial = banner
+	local function position()
+		local top = MerchantBadge.TOP
+		local current = tutorial
+		if current and current.Parent and current.Visible then
+			local origin = if screenGui:IsA("GuiObject") then (screenGui :: GuiObject).AbsolutePosition.Y else 0
+			top =
+				math.max(top, (current.AbsolutePosition.Y + current.AbsoluteSize.Y - origin) / UiKit.screenScale() + 8)
+		end
+		button.Position = UDim2.new(0.5, 0, 0, top)
+	end
+	if banner then
+		for _, property in { "Visible", "AbsolutePosition", "AbsoluteSize" } do
+			table.insert(connections, banner:GetPropertyChangedSignal(property):Connect(position))
+		end
+		table.insert(
+			connections,
+			banner.Destroying:Connect(function()
+				tutorial = nil
+				for _, connection in connections do
+					connection:Disconnect()
+				end
+				table.clear(connections)
+				position()
+			end)
+		)
+	end
+	button.Destroying:Connect(function()
+		for _, connection in connections do
+			connection:Disconnect()
+		end
+		table.clear(connections)
+	end)
+	position()
 	UiKit.corner(button, 15)
 	local stroke = UiKit.stroke(button, 0.2)
 	stroke.Color = Color.Gold
@@ -83,7 +120,7 @@ function MerchantBadge.create(
 			UiKit.setText(label, `Gezgin tüccar · {string.format("%d:%02d", left // 60, left % 60)}`)
 		end
 	end
-	return { update = update }
+	return { frame = button, update = update }
 end
 
 return MerchantBadge

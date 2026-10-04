@@ -17,6 +17,7 @@ local IslandTabs = require(script.Parent:WaitForChild("IslandTabs"))
 
 type PlayerSave = GameTypes.PlayerSave
 
+local PAGE_SIZE = 6
 local Color = UiKit.Color
 local setPurchaseButton = HudCommon.setPurchaseButton
 
@@ -32,9 +33,9 @@ function RoadmapWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Road
 		title = "Yol Haritası",
 		icon = "🗺️",
 		tint = Color.Blue,
-		width = 330,
-		maxHeight = 430,
-		anchor = Vector2.new(1, 0.5),
+		width = 600,
+		maxHeight = 560,
+		anchor = Vector2.new(0.5, 0.5),
 		position = WINDOW_POSITION,
 	})
 	local roadmapInfo =
@@ -62,8 +63,60 @@ function RoadmapWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Road
 	local extensionHudRows: { [string]: ExtensionHudRow } = {}
 	local stageMeta: { [number]: TextLabel } = {}
 	local stageGroups: { [number]: { GuiObject } } = {}
+	local selectedStage: number? = nil
+	local currentPage = 1
+	local freeGift: UiKit.Card? = nil
+	local refreshStages: (() -> ())? = nil
+	local entries = {}
+	for index in Config.ROADMAP_STAGES do
+		table.insert(entries, { id = tostring(index), label = `Aşama {index}` })
+	end
+	local stageTabs, chooseStage = UiKit.tabs(roadmapWindow.list, 2, entries, function(id: string)
+		selectedStage = tonumber(id)
+		currentPage = 1
+		resetDetails()
+		roadmapWindow.list.CanvasPosition = Vector2.zero
+		if refreshStages then
+			refreshStages()
+		end
+	end)
+	stageTabs.Name = "StageTabs"
+	local pages = Instance.new("Frame")
+	pages.Name = "StagePages"
+	pages.BackgroundTransparency = 1
+	pages.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
+	pages.LayoutOrder = 3
+	pages.Parent = roadmapWindow.list
+	local previous = UiKit.button(pages, "Önceki", "secondary")
+	previous.Name = "PreviousPage"
+	previous.Size = UDim2.new(0.25, -4, 1, 0)
+	local pageLabel = UiKit.text(pages, "", "Caption")
+	pageLabel.Position = UDim2.new(0.25, 4, 0, 0)
+	pageLabel.Size = UDim2.new(0.5, -8, 1, 0)
+	local nextPage = UiKit.button(pages, "Sonraki", "secondary")
+	nextPage.Name = "NextPage"
+	nextPage.Position = UDim2.fromScale(0.75, 0)
+	nextPage.Size = UDim2.new(0.25, -4, 1, 0)
+	local function movePage(delta: number)
+		currentPage += delta
+		resetDetails()
+		roadmapWindow.list.CanvasPosition = Vector2.zero
+		if refreshStages then
+			refreshStages()
+		end
+	end
+	previous.Activated:Connect(function()
+		if previous.Active then
+			movePage(-1)
+		end
+	end)
+	nextPage.Activated:Connect(function()
+		if nextPage.Active then
+			movePage(1)
+		end
+	end)
 	do
-		local order = 1
+		local order = 4
 		for stageIndex, stage in Config.ROADMAP_STAGES do
 			local stageName = stage.name
 			local header, meta = UiKit.sectionHeader(roadmapWindow.list, `Aşama {stageIndex} · {stageName}`, order)
@@ -92,6 +145,7 @@ function RoadmapWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Road
 
 			if stageIndex == 1 then
 				local free = UiKit.autoTile(stageGrid, tileOrder, "🎁")
+				freeGift = free
 				tileOrder += 1
 				free.title.Text = "Başlangıç hediyesi"
 				free.detail.Text = `{Config.BARN_LEVELS[1].displayName}, ana ağıl, ilk hayvanın parası`
@@ -117,16 +171,16 @@ function RoadmapWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Road
 					local row = Instance.new("Frame")
 					row.Name = "ExtensionActions"
 					row.BackgroundTransparency = 1
-					row.Size = UDim2.new(1, 0, 0, 68)
+					row.Size = UDim2.new(1, 0, 0, 2 * UiKit.TouchTarget + 4)
 					row.LayoutOrder = 3
 					row.Visible = false
 					row.Parent = card.frame
 					UiKit.list(row, 4)
 					local add = UiKit.button(row, "Hayvan gönder", "primary")
-					add.Size = UDim2.new(1, 0, 0, 32)
+					add.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
 					add.LayoutOrder = 1
 					local remove = UiKit.button(row, "Geri çağır", "warning")
-					remove.Size = UDim2.new(1, 0, 0, 32)
+					remove.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
 					remove.LayoutOrder = 2
 					local extensionId = upgrade.extensionId :: string
 					add.Activated:Connect(function()
@@ -146,6 +200,9 @@ function RoadmapWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Road
 			`{state.activeMainFarmId}:{IslandContext.get()}:{if state.progression then state.progression.run else 0}`
 		if context ~= lastContext then
 			lastContext = context
+			selectedStage = nil
+			currentPage = 1
+			roadmapWindow.list.CanvasPosition = Vector2.zero
 			resetDetails()
 		end
 		local progress = Progression.progress(state)
@@ -157,6 +214,7 @@ function RoadmapWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Road
 		end
 		local ownedPerStage: { [number]: number } = {}
 		local totalPerStage: { [number]: number } = {}
+		local idsPerStage: { [number]: { string } } = {}
 		for _, upgrade in Config.UPGRADES do
 			local card = upgradeCards[upgrade.id]
 			local relevant = IslandContext.upgradeIsland(upgrade) == selectedIsland
@@ -166,12 +224,14 @@ function RoadmapWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Road
 				continue
 			end
 			local status, missing = FarmMath.getUpgradeStatus(state, upgrade.id)
+			idsPerStage[upgrade.stage] = idsPerStage[upgrade.stage] or {}
+			table.insert(idsPerStage[upgrade.stage], upgrade.id)
 			local extensionRow = extensionHudRows[upgrade.id]
+			totalPerStage[upgrade.stage] = (totalPerStage[upgrade.stage] or 0) + 1
+			if status == "owned" then
+				ownedPerStage[upgrade.stage] = (ownedPerStage[upgrade.stage] or 0) + 1
+			end
 			if content then
-				totalPerStage[upgrade.stage] = (totalPerStage[upgrade.stage] or 0) + 1
-				if status == "owned" then
-					ownedPerStage[upgrade.stage] = (ownedPerStage[upgrade.stage] or 0) + 1
-				end
 				if status == "owned" and upgrade.kind == "extension" and upgrade.extensionId then
 					local extension = Config.getExtension(upgrade.extensionId)
 					local inExt = if extension then FarmMath.countInExtension(state, upgrade.extensionId) else 0
@@ -206,18 +266,67 @@ function RoadmapWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Road
 				card.action.Visible = false
 			end
 		end
-		if content then
+		if not selectedStage or not totalPerStage[selectedStage] then
+			for index in Config.ROADMAP_STAGES do
+				if (totalPerStage[index] or 0) > (ownedPerStage[index] or 0) then
+					selectedStage = index
+					break
+				end
+			end
+			if not selectedStage then
+				for index in Config.ROADMAP_STAGES do
+					if totalPerStage[index] then
+						selectedStage = index
+						break
+					end
+				end
+			end
+		end
+		local ids: { string } = if selectedStage then idsPerStage[selectedStage] or {} else {}
+		local pageCount = math.max(1, math.ceil(#ids / PAGE_SIZE))
+		currentPage = math.clamp(currentPage, 1, pageCount)
+		pages.Visible = pageCount > 1
+		UiKit.setText(pageLabel, `Sayfa {currentPage}/{pageCount}`)
+		UiKit.setVariant(previous, if currentPage > 1 then "secondary" else "disabled")
+		UiKit.setVariant(nextPage, if currentPage < pageCount then "secondary" else "disabled")
+		for index, id in ids do
+			upgradeCards[id].frame.Visible = index > (currentPage - 1) * PAGE_SIZE and index <= currentPage * PAGE_SIZE
+		end
+		if freeGift then
+			freeGift.frame.Visible = currentPage == 1
+		end
+		if selectedStage then
+			chooseStage(tostring(selectedStage))
+		end
+		for _, child in stageTabs:GetChildren() do
+			if child:IsA("TextButton") then
+				child.Visible = (totalPerStage[child.LayoutOrder] or 0) > 0
+			end
+		end
+		do
 			for stageIndex in Config.ROADMAP_STAGES do
 				local stageVisible = (ownedPerStage[stageIndex] or 0) > 0 or (totalPerStage[stageIndex] or 0) > 0
 				stageMeta[stageIndex].Text = `{ownedPerStage[stageIndex] or 0}/{totalPerStage[stageIndex] or 0}`
 				for _, item in stageGroups[stageIndex] do
-					item.Visible = stageVisible
+					item.Visible = stageVisible and stageIndex == selectedStage
 				end
 			end
 		end
 	end
 
-	return { window = roadmapWindow, update = updateRoadmap }
+	local latestState: PlayerSave? = nil
+	refreshStages = function()
+		if latestState then
+			updateRoadmap(latestState, true)
+		end
+	end
+	return {
+		window = roadmapWindow,
+		update = function(state: PlayerSave, content: boolean)
+			latestState = state
+			updateRoadmap(state, content)
+		end,
+	}
 end
 
 return RoadmapWindow

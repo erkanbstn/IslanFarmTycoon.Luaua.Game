@@ -125,6 +125,7 @@ return function(
 	local selectHook: ((string) -> ())? = nil
 	local selected, refreshed = 0, 0
 	local teleports = 0
+	local canTravel = true
 	local plots = {
 		getOwner = function(): any
 			return player
@@ -162,6 +163,15 @@ return function(
 		end,
 		teleportHome = function()
 			teleports += 1
+		end,
+		teleportToIsland = function(traveller: any, islandId: string): boolean
+			assert(traveller == player and islandId == "home", "active return targets the player's own home")
+			if not canTravel then
+				return false
+			end
+			teleports += 1
+			traveller:SetAttribute("SelectedFarmIsland", "home")
+			return true
 		end,
 	}
 	local clock = {
@@ -394,8 +404,33 @@ return function(
 	assert(not fire("buy", "3").ok and data.mainFarms["3"] == nil, "insufficient cash cannot create a farm")
 	assert(pushes == saves + 1 and saves >= 2, "all farm mutations persist")
 	local oldSelected, oldRefreshed = selected, refreshed
-	assert(fire("select", data.activeMainFarmId).ok, "same farm selection succeeds")
+	now += config.MAIN_FARM_SWITCH_COOLDOWN_SECONDS + 0.1
+	economy.settlePlayer(player)
+	local returnTeleports, returnCash, returnSaves = teleports, data.cash, saves
+	player:SetAttribute("SelectedFarmIsland", "poultry")
+	sequence += 1
+	request.OnServerEvent.fire(player, "select", data.activeMainFarmId, sequence)
+	assert(results[#results].ok, "same farm selection succeeds")
+	assert(
+		teleports == returnTeleports + 1 and player:GetAttribute("SelectedFarmIsland") == "home",
+		"active farm return actually teleports from a visit or specialist island"
+	)
+	assert(
+		data.cash == returnCash and saves == returnSaves,
+		"active farm return does not charge or mutate saved farm state"
+	)
 	assert(selected == oldSelected and refreshed == oldRefreshed, "same farm must not bind or render")
+	canTravel = false
+	local returnPushes = pushes
+	player:SetAttribute("SelectedFarmIsland", "poultry")
+	assert(not fire("select", data.activeMainFarmId).ok, "missing character cannot falsely acknowledge arrival")
+	assert(
+		teleports == returnTeleports + 1
+			and pushes == returnPushes
+			and player:GetAttribute("SelectedFarmIsland") == "poultry",
+		"failed active return preserves location and does not publish success"
+	)
+	canTravel = true
 	assert(
 		player:GetAttribute("WorldReady") == true and fakePlot:GetAttribute("WorldTransition") == nil,
 		"successful and failed transitions release readiness flags"

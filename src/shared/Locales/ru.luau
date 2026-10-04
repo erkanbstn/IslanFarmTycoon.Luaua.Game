@@ -1574,4 +1574,6 @@ return {
 	["Ziyaretin bitmesine {} kaldı. Satın almak için meydandaki tüccara yaklaş."] = "До конца визита осталось {1}. Чтобы купить, подойди к торговцу на площади.",
 	["Normal: {}"] = "Обычно: {1}",
 	["Siparişler ve iki parti yedek için üretir; stok yeterliyse bekler, tüketilince sürdürür."] = "Производит для заказов и запаса на две партии; ждёт, если товаров достаточно, и продолжает после расхода.",
+	["Sayfa {}/{}"] = "Страница {1}/{2}",
+	["Rebirth: {}"] = "Перерождения: {1}",
 }

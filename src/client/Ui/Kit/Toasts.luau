@@ -5,6 +5,8 @@
 local TweenService = game:GetService("TweenService")
 local Tokens = require(script.Parent:WaitForChild("Tokens"))
 local Base = require(script.Parent:WaitForChild("Base"))
+local Screen = require(script.Parent:WaitForChild("Screen"))
+local EffectSettings = require(script.Parent.Parent.Parent:WaitForChild("Core"):WaitForChild("EffectSettings"))
 
 local Toasts = {}
 
@@ -60,81 +62,210 @@ local function drawToastMark(parent: Frame, kind: string)
 	end
 end
 
--- Ekranın üst ortasında bildirim yığını. Dönen fonksiyonla bildirim gösterilir.
-function Toasts.toastHost(parent: Instance): (message: string, kind: string?) -> ()
+-- Tüm ekranlar tek kuyruğu paylaşır; bekleyen bildirimler zamanlayıcı/GUI oluşturmaz.
+local MAX_VISIBLE = 2
+local MAX_PENDING = 6
+local GAP = 8
+
+type Entry = {
+	key: string,
+	message: string,
+	kind: string,
+	count: number,
+	toast: CanvasGroup?,
+	label: TextLabel?,
+	badge: TextLabel?,
+	timer: thread?,
+	fade: thread?,
+	tween: Tween?,
+}
+type Host = {
+	holder: Frame,
+	entries: { [string]: Entry },
+	visible: { Entry },
+	pending: { Entry },
+	connections: { RBXScriptConnection },
+	blockers: { [GuiObject]: { RBXScriptConnection } },
+	show: (message: string, kind: string?) -> (),
+	alive: boolean,
+	addBlockers: (blockers: { GuiObject }) -> (),
+}
+local sharedHost: Host? = nil
+
+function Toasts.toastHost(parent: Instance, blockers: { GuiObject }?): (message: string, kind: string?) -> ()
+	if sharedHost and sharedHost.alive then
+		sharedHost.addBlockers(blockers or {})
+		return sharedHost.show
+	end
+	local screen = if parent:IsA("ScreenGui") then parent else parent:FindFirstAncestorOfClass("ScreenGui")
+	local layer: ScreenGui? = nil
+	local container = parent
+	if screen and screen.Parent then
+		local created = Instance.new("ScreenGui")
+		created.Name = "Notifications"
+		created.ResetOnSpawn = false
+		created.DisplayOrder = 20
+		created.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+		created.Parent = screen.Parent
+		layer = created
+		container = Screen.root(created)
+	end
 	local holder = Instance.new("Frame")
 	holder.Name = "Toasts"
 	holder.AnchorPoint = Vector2.new(0.5, 0)
-	holder.Position = UDim2.new(0.5, 0, 0, 12)
-	holder.Size = UDim2.new(1, -24, 0, 0)
+	holder.Position = UDim2.new(0.5, 0, 0, 14 + Tokens.MenuTileSize.Y + GAP)
+	holder.Size = UDim2.new(0.9, 0, 0, 0)
 	holder.AutomaticSize = Enum.AutomaticSize.Y
 	holder.ZIndex = 30
+	holder.BackgroundTransparency = 1
+	holder.Parent = container
 	local widthLimit = Instance.new("UISizeConstraint")
 	widthLimit.MaxSize = Vector2.new(460, 10000)
 	widthLimit.Parent = holder
-	holder.BackgroundTransparency = 1
-	holder.Parent = parent
-	local layout = Base.list(holder, 6)
-	layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-
-	local counter = 0
-	-- Aynı metin ve türdeki bildirim ekranda duruyorsa yenisi eklenmez: "×N" rozeti artar ve süre tazelenir
-	type Entry = { toast: CanvasGroup, label: TextLabel, badge: TextLabel?, count: number, token: number }
-	local active: { [string]: Entry } = {}
-	local function scheduleFade(key: string, entry: Entry)
-		entry.token += 1
-		local mine = entry.token
-		task.delay(2.6, function()
-			if entry.token ~= mine then
-				return
-			end
-			if active[key] == entry then
-				active[key] = nil
-			end
-			if not entry.toast.Parent then
-				return -- taşan kuyrukta silinmişti
-			end
-			TweenService:Create(entry.toast, TweenInfo.new(0.35), { GroupTransparency = 1 }):Play()
-			task.wait(0.35)
-			entry.toast:Destroy()
-		end)
-	end
-	local function makeBadge(entry: Entry, resolvedKind: string): TextLabel
-		local created = Base.text(entry.toast, "", "Body")
-		created.FontFace = Tokens.Font.Bold
-		created.TextColor3 = TOAST_COLORS[resolvedKind]
-		created.AutomaticSize = Enum.AutomaticSize.X
-		created.Size = UDim2.new(0, 0, 0, 24)
-		created.LayoutOrder = 3
-		entry.badge = created
-		entry.label.Size = UDim2.new(1, -74, 0, 24)
-		return created
-	end
-	return function(message: string, kind: string?)
-		local resolvedKind = if kind and TOAST_COLORS[kind] then kind else "info"
-		local key = `{resolvedKind}|{message}`
-		local existing = active[key]
-		if existing and existing.toast.Parent then
-			existing.count += 1
-			local badge: TextLabel = existing.badge or makeBadge(existing, resolvedKind)
-			badge.Text = `×{existing.count}`
-			existing.toast.GroupTransparency = 0
-			scheduleFade(key, existing)
+	Base.list(holder, GAP).HorizontalAlignment = Enum.HorizontalAlignment.Center
+	local host: Host = {
+		holder = holder,
+		entries = {},
+		visible = {},
+		pending = {},
+		connections = {},
+		blockers = {},
+		show = function() end,
+		addBlockers = function() end,
+		alive = true,
+	}
+	sharedHost = host
+	local function reposition()
+		if not host.alive then
 			return
 		end
-		counter += 1
-
-		-- CanvasGroup: tüm bildirim (işaret dahil) tek parça halinde solar
+		local origin = if container:IsA("GuiObject") then (container :: GuiObject).AbsolutePosition.Y else 0
+		local scale = Screen.scale()
+		local top = 14 + Tokens.MenuTileSize.Y + GAP
+		for blocker in host.blockers do
+			if blocker.Parent and blocker.Visible then
+				top = math.max(top, (blocker.AbsolutePosition.Y + blocker.AbsoluteSize.Y - origin) / scale + GAP)
+			end
+		end
+		holder.Position = UDim2.new(0.5, 0, 0, top)
+	end
+	host.addBlockers = function(list: { GuiObject })
+		for _, blocker in list do
+			if host.blockers[blocker] then
+				continue
+			end
+			local watched: { RBXScriptConnection } = {}
+			host.blockers[blocker] = watched
+			for _, property in { "Visible", "AbsolutePosition", "AbsoluteSize" } do
+				table.insert(watched, blocker:GetPropertyChangedSignal(property):Connect(reposition))
+			end
+			table.insert(
+				watched,
+				blocker.Destroying:Connect(function()
+					host.blockers[blocker] = nil
+					for _, connection in watched do
+						connection:Disconnect()
+					end
+					table.clear(watched)
+					reposition()
+				end)
+			)
+		end
+		reposition()
+	end
+	host.addBlockers(blockers or {})
+	if layer then
+		local ownerLayer = layer
+		table.insert(
+			host.connections,
+			parent.Destroying:Connect(function()
+				ownerLayer:Destroy()
+			end)
+		)
+	end
+	local function cancel(entry: Entry)
+		if entry.timer then
+			task.cancel(entry.timer)
+			entry.timer = nil
+		end
+		if entry.fade then
+			task.cancel(entry.fade)
+			entry.fade = nil
+		end
+		if entry.tween then
+			entry.tween:Cancel()
+			entry.tween = nil
+		end
+	end
+	local drain: () -> ()
+	local function remove(entry: Entry)
+		cancel(entry)
+		host.entries[entry.key] = nil
+		local index = table.find(host.visible, entry)
+		if index then
+			table.remove(host.visible, index)
+		end
+		if entry.toast then
+			entry.toast:Destroy()
+			entry.toast = nil
+		end
+		if host.alive then
+			drain()
+		end
+	end
+	local function schedule(entry: Entry)
+		cancel(entry)
+		if entry.toast then
+			entry.toast.GroupTransparency = 0
+		end
+		entry.timer = task.delay(2.6, function()
+			entry.timer = nil
+			if not host.alive then
+				return
+			end
+			if EffectSettings.reducedMotion() then
+				remove(entry)
+				return
+			end
+			local toast = entry.toast
+			if not toast then
+				return
+			end
+			local tween = TweenService:Create(toast, TweenInfo.new(0.35), { GroupTransparency = 1 })
+			entry.tween = tween
+			tween:Play()
+			entry.fade = task.delay(0.35, function()
+				entry.fade = nil
+				remove(entry)
+			end)
+		end)
+	end
+	local function updateBadge(entry: Entry)
+		local toast, label = entry.toast, entry.label
+		if not toast or not label or entry.count <= 1 then
+			return
+		end
+		local badge: TextLabel = entry.badge or Base.text(toast, "", "Body")
+		if not entry.badge then
+			badge.FontFace = Tokens.Font.Bold
+			badge.TextColor3 = TOAST_COLORS[entry.kind]
+			badge.AutomaticSize = Enum.AutomaticSize.X
+			badge.Size = UDim2.new(0, 0, 0, 24)
+			badge.LayoutOrder = 3
+			entry.badge = badge
+			label.Size = UDim2.new(1, -86, 0, 24)
+		end
+		badge.Text = `×{entry.count}`
+	end
+	local function display(entry: Entry)
 		local toast = Instance.new("CanvasGroup")
 		toast.Size = UDim2.new(1, 0, 0, 40)
 		toast.AutomaticSize = Enum.AutomaticSize.Y
 		toast.BackgroundColor3 = Tokens.Color.Panel
 		toast.BackgroundTransparency = 0.05
-		toast.LayoutOrder = counter
 		toast.Parent = holder
 		Base.corner(toast, 19)
-		local accent = Base.stroke(toast, 0.4)
-		accent.Color = TOAST_COLORS[resolvedKind]
+		Base.stroke(toast, 0.4).Color = TOAST_COLORS[entry.kind]
 		local pad = Instance.new("UIPadding")
 		pad.PaddingLeft = UDim.new(0, 8)
 		pad.PaddingRight = UDim.new(0, 16)
@@ -142,40 +273,89 @@ function Toasts.toastHost(parent: Instance): (message: string, kind: string?) ->
 		pad.PaddingBottom = UDim.new(0, 8)
 		pad.Parent = toast
 		Base.list(toast, 10, true)
-
 		local mark = Instance.new("Frame")
 		mark.Size = UDim2.fromOffset(24, 24)
-		mark.BackgroundColor3 = TOAST_COLORS[resolvedKind]
+		mark.BackgroundColor3 = TOAST_COLORS[entry.kind]
 		mark.LayoutOrder = 1
 		mark.Parent = toast
 		Base.corner(mark, 12)
-		drawToastMark(mark, resolvedKind)
-
-		local label = Base.text(toast, message, "Body")
+		drawToastMark(mark, entry.kind)
+		local label = Base.text(toast, entry.message, "Body")
 		label.AutomaticSize = Enum.AutomaticSize.Y
 		label.Size = UDim2.new(1, -34, 0, 24)
 		label.TextWrapped = true
 		label.FontFace = Tokens.Font.Bold
 		label.LayoutOrder = 2
-
-		-- En fazla 4 bildirim
-		local toasts = {}
-		for _, child in holder:GetChildren() do
-			if child:IsA("CanvasGroup") then
-				table.insert(toasts, child)
+		entry.toast, entry.label = toast, label
+		table.insert(host.visible, entry)
+		updateBadge(entry)
+		for index, visible in host.visible do
+			if visible.toast then
+				visible.toast.LayoutOrder = index
 			end
 		end
-		if #toasts > 4 then
-			table.sort(toasts, function(a, b)
-				return a.LayoutOrder < b.LayoutOrder
-			end)
-			toasts[1]:Destroy()
-		end
-
-		local entry: Entry = { toast = toast, label = label, badge = nil, count = 1, token = 0 }
-		active[key] = entry
-		scheduleFade(key, entry)
+		schedule(entry)
 	end
+	drain = function()
+		while host.alive and #host.visible < MAX_VISIBLE and #host.pending > 0 do
+			local nextEntry = table.remove(host.pending, 1)
+			if nextEntry then
+				display(nextEntry)
+			end
+		end
+	end
+	host.show = function(message: string, kind: string?)
+		if not host.alive or message == "" then
+			return
+		end
+		local resolvedKind = if kind and TOAST_COLORS[kind] then kind else "info"
+		local key = `{resolvedKind}|{message}`
+		local existing = host.entries[key]
+		if existing then
+			existing.count = math.min(existing.count + 1, 999)
+			updateBadge(existing)
+			if existing.toast then
+				schedule(existing)
+			end
+			return
+		end
+		if #host.pending >= MAX_PENDING then
+			local dropped = table.remove(host.pending, 1)
+			if dropped then
+				host.entries[dropped.key] = nil
+			end
+		end
+		local entry: Entry = { key = key, message = message, kind = resolvedKind, count = 1 }
+		host.entries[key] = entry
+		table.insert(host.pending, entry)
+		drain()
+	end
+	table.insert(
+		host.connections,
+		holder.Destroying:Connect(function()
+			host.alive = false
+			for _, entry in host.entries do
+				cancel(entry)
+			end
+			table.clear(host.entries)
+			table.clear(host.visible)
+			table.clear(host.pending)
+			for _, watched in host.blockers do
+				for _, connection in watched do
+					connection:Disconnect()
+				end
+			end
+			table.clear(host.blockers)
+			for _, connection in host.connections do
+				connection:Disconnect()
+			end
+			table.clear(host.connections)
+			if sharedHost == host then
+				sharedHost = nil
+			end
+		end)
+	)
+	return host.show
 end
 
 return Toasts
