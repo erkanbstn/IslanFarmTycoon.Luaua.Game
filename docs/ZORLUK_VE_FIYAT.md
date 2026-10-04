@@ -3,16 +3,16 @@
 Oyundaki bütün fiyatlar **tek bir hesaptan** çıkar: `FarmMath.getPrice(save, kind, id, level)` (`src/shared/Modules/FarmMath/Pricing.luau`).
 Gösterilen fiyat (arayüz, tabela, buton) ile sunucunun tahsil ettiği fiyat aynı işlevden gelir; hiçbir yerde elle çarpan yazılmaz.
 Kurallar ve rakamlar `src/shared/Config/Difficulty.luau` içindedir; bu belge gerekçeyi açıklar, rakamları tutmaz (sürüm kaymasın). Ölçülen değerler
-`docs/DURUM_RAPORU.md` §4 ve `scripts/simulate-tiers.py` çıktısındadır.
+aynı koşullarda yeniden çalıştırılan `scripts/simulate-tiers.py` çıktısındadır.
 
-Rebirth, seviye/ırk zincirleri hariç **temel** yükseltmeleri ister. `simulate-tiers.py` tarihsel tüm-yükseltme metriğini korur; yeni `scripts/simulate-rebirth.py` temel koşulu ve kalıcı altın/etki senaryolarını ölçer. Güncel koşullar, takvim/aktif süre ayrımı ve sonuçlar `docs/REBIRTH_GELISTIRME_RAPORU.md` içindedir. İki metriğin süreleri aynı ilerleme politikası varsayılmadan karşılaştırılmaz.
+Rebirth ilk beş tur temel yükseltmeleri, sonraki turlar kademeli soy/tesis/genişletme hedeflerini ister; karar Config.PROGRESSION.completionRequirements ve Progression.canRebirth içindedir. `simulate-tiers.py` tarihsel tüm-yükseltme metriğini korur; yeni `scripts/simulate-rebirth.py` temel koşulu ve kalıcı altın/etki senaryolarını ölçer. Güncel koşullar, takvim/aktif süre ayrımı ve sonuçlar `docs/DEVIR_DURUMU.md` içindedir. İki metriğin süreleri aynı ilerleme politikası varsayılmadan karşılaştırılmaz.
 
 ## Kademe = tema numarası
 
 Çiftliğin zorluk kademesi **temanın numarasıdır** (`Pricing.getTier`: etkin çiftlik numarası = `THEMES` sırası; tek yer). Alım sırası serbesttir: oyuncu istediği temayı
 alır, ama fiyat, çarpan, ada primi ve ürün gereksinimi o **temaya** bağlıdır; çiftlik satın alma bedeli de temanın sırasına göredir
 (`MAIN_FARM_PRICES[tema]`, `FarmMath.getPrice(save, "farm", nil, tema)`). 6. temayı ikinci alan oyuncu 6. temanın fiyatını öder; kayıtta `tier` alanı yoktur.
-En kötü alım sırası (önce en zor tema) ölçülür ve DURUM_RAPORU'nda raporlanır: hiçbir sıralama artan sıradan daha hızlı bitmez.
+Farklı alım sırasını güncel kaynak ve aynı persona ile yeniden ölç; tarihsel ölçümü her strateji için garanti sayma.
 
 ## Formül
 
@@ -50,7 +50,7 @@ oturum kısaltır, böylece Çiftlik 2 (birikmiş kasa yüzünden aynı oturum s
 
 **Ada ritmi.** Çiftlik 1'de ilk/orta/geç ada tamamlamanın ~%4 / %16 / %42'sinde açılır (12 / 46 / 118 dk). Çiftlik 2-6'da hedef orantıdır (ideal; satın almadan sonra dk):
 ilk ada ~18 / 26 / 39 / 57 / 83, orta ~67 / 101 / 152 / 227 / 341, geç ~173 / 259 / 389 / 583 / 874. Kollar: `islandPremium` (üç sıra için `perTier`, `power`), `slotSpread`, ürün gereksinimi.
-Sim ölçümü ve en kötü sıra DURUM_RAPORU §4'tedir.
+Sim ölçümü ve farklı sıra karşılaştırması güncel kaynakla yeniden üretilir.
 
 ## Açılışlar ürün de ister (goodsCost)
 
@@ -85,7 +85,7 @@ Para/ürün akışlarının büyüklüğü tek bir kuralla bağlıdır; "bu say�
 - **Hızlı satış/takas oranı** (`GOODS_SELL/BARTER.rate`) ürün değerinin ölçeğini yansıtır (değer ~2,3x asgari getiri): bir partiyi satmak `PRODUCTION_MAX_RETURN`ı aşmaz, takas satışı aşmaz.
 - **Ürün merkezi tarifinin `reward` alanı tesis ölçeğidir** (geliştirme fiyatı tabanı); değerden bağımsız olduğundan değer ayarı fiyat temposunu (Çiftlik 1 referansı) bozmaz.
 - **Bilinen denge bedeli**: sipariş payı (casual, 7 gün) ~%9,3'ten ~%5'e indi (değer çarpanı ~2,3: en pahalı ürün ~130K; 1 et 1M gibi uçuk fiyat çıkmasın diye bilinçli); hardcore payı ~%9. Gelir tabanı kalktığı için pay artık yalnızca değer çarpanıyla ayarlanır; çarpan büyüdükçe
-  tek tek sipariş gelirin dakikalarına yaklaşır (orta evrede en çok ~14 dk): ödün "Açık sorular"dadır (`docs/DURUM_RAPORU.md`).
+  tek tek sipariş gelirin dakikalarına yaklaşır (güncel tavan Config.GOODS_CONTRACTS içindedir) (git geçmişindeki eski üretim-tüccar denge notu).
 
 ## Yeni içerik eklerken
 

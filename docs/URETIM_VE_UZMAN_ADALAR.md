@@ -1,7 +1,6 @@
 # Üretim ve uzman adalar
 
-Harita sürümü `MapBuilder.luau` içindeki `MAP_VERSION`'dır. Oyun yayında olmadığından kayıt göçü yoktur: tema/ada/hayvan kimlikleri değişince `SessionLock.VERSION`
-artar ve eski sürüm kayıt çökmeden temiz yeni oyuna döner (`SaveCodec.decode`).
+Harita sürümü `MapBuilder.luau` içindeki `MAP_VERSION`'dır. Kayıt kimlikleri değişince sürümü otomatik artırıp veriyi sıfırlama. Uyumluluk, taşıma ve finansal hakların korunmasını kayıt şeması skill'iyle değerlendir; `SaveCodec.decode` sürüm uyumsuzluğunda yeni profil oluşturabilir.
 Haritada `Config.MAP_PLOT_COUNT` kadar takımada oyuncu başına birer fiziksel adadır; oyuncu birden fazla çiftlik (tema)
 satın alabilir ve etkin olanı kendi adasında çizilir; her çiftliğin ana ve küçük adaları ayrı ilerler. Ayrıntılar
 [Ana çiftlikler](ANA_CIFTLIKLER.md) belgesindedir.
@@ -10,7 +9,7 @@ satın alabilir ve etkin olanı kendi adasında çizilir; her çiftliğin ana ve
 
 Tesis satın al → yeterli yetişkin hayvanı yetiştir → parti seçeneğini (küçük/standart/büyük) seç, varsa masrafı öde →
 üretim süresini bekle → ürünü sat (para tesisleri), depoya al (ürün merkezleri) veya kuluçkadaki civcivi kümese ekle →
-yeni parti başlat. Pasif hayvan geliri devam eder. Yetişkin hayvanlar üretim girdisi olarak tüketilmez.
+yeni parti başlat. Göreve atanmış hayvanların gelir etkisi gerçek FarmMath hesabından gelir; tüm pasif gelirin değişmeden süreceği varsayılmaz. Yetişkin hayvanlar üretim girdisi olarak tüketilmez.
 
 Tesis listesi, gereken yetişkin sayısı, süre, masraf ve ödül **tek kaynaktan** okunur: `Config.PRODUCTION_ORDER` sırasıyla
 `Config.PRODUCTION_RECIPES` (`src/shared/Config/Production.luau`; parti seçenekleri `options`). Tesisi açan yükseltmeler ve

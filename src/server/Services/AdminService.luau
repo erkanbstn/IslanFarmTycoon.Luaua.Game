@@ -87,7 +87,9 @@ local function maxFarmView(
 				expansions[zoneId] = Config.BUILD_UPGRADES.maxLevel
 				if grow and fill then
 					view.lineage = view.lineage or {}
-					view.lineage[zoneId] = Config.LINEAGE.maxLevel
+					for _, animalId in Config.getZoneAnimals(zone, farmId) do
+						view.lineage[animalId] = Config.LINEAGE.maxLevel
+					end
 				end
 			end
 		end

@@ -6,6 +6,10 @@ Cursor `.cursor/rules/*.mdc` dosyalarını otomatik yükler; Claude yüklemez. `
 **"Dokunduğun yere göre okunacak kural dosyası"** tablosuna bak: dokunacağın dosyanın satırındaki
 kural dosyasını **bir kez** oku (hepsini baştan okuma). Tablo yalnızca `AGENTS.md`'de tutulur.
 
+## Tek kaynak ve hızlı başlangıç
+
+Kurallar `.cursor/rules/*.mdc`, iş akışları `.cursor/skills/<ad>/SKILL.md` içindedir (`.claude/skills/` yönlendirmedir). Oturumu `python scripts/triage.py` ile başlat; görev→komut tarifleri `docs/HIZLI_AKSIYON.md`, hızlı kontrol tablosu `AGENTS.md` içindedir.
+
 ## Mimari
 
 Yeni dosya açmadan önce `docs/MIMARI.md` (katmanlar: sunucu `Modules → World → Presentation → Services`, istemci `Core → Effects → Ui → Interaction`).
@@ -16,8 +20,6 @@ Yeni dosya açmadan önce `docs/MIMARI.md` (katmanlar: sunucu `Modules → World
 `roblox-add-remote`, `roblox-add-ui`, `roblox-add-content`, `roblox-map-change`,
 `roblox-localize`, `roblox-save-schema`, `roblox-verify`.
 
-## Çalışma biçimi
-- Kapsamlı iş: yalnızca ilgili dosyayı ve en yakın tüketicisini/testini aç; repoyu baştan tarama.
-- Değişiklik sonrası hızlı döngü: `stylua src tests plugin` → `selene src plugin tests` → `python scripts/run-tests.py`.
-  Commit öncesi: `powershell -ExecutionPolicy Bypass -File scripts/verify.ps1`.
-- Studio'da görülmesi gerekenleri (HUD, ışık, harita yeniden kurulumu) kullanıcıya ayrıca yaz.
+## Devralma ve doğrulama
+
+Yeni oturum için `docs/AI_DEVIR_REHBERI.md`; doğrulama için `roblox-verify` skill'ini kullan. Araç komutlarını burada çoğaltma. Önce hedef kaynak, tüketici ve testini izle; geniş çaplı inceleme istendiyse kapsamı aşamalara ayır. Studio'da gerçekten çalıştırılan ve bekleyen kontrolleri ayır.

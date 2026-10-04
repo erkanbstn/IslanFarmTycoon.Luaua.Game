@@ -40,6 +40,7 @@ setPurchaseButton(card.action, FarmMath.formatMoney(price), if canAfford then "p
 ```
 - Pencere kapalıyken içerik güncelleme; `frame:GetPropertyChangedSignal("Visible")` ile açılınca çiz.
 - Dar ekranda UiKit pencereyi otomatik ortalar ve boyutlar. Sık güncellenen metni `UiKit.setText` ile yaz (Localizer çift yazımı olmaz).
+- İlk görünüm kısa sonuç/fiyat/aksiyon; uzun yardım ve formül `UiKit.disclosure` içinde kapalı başlar. Kartta `UiKit.cardDetails` kullan; tutar, gerçek eksi ve geri alınamaz uyarı işlemden önce görünür kalır. Uzun çeviri ve fiyat doğal yüksekliğe sarılır; sabit yükseklik/boş düğme ile hizalama yapma.
 - Bildirim: `toastHost` aynı metni ×N rozetiyle birleştirir; tekrar süzme kodu yazma.
 
 ## Kontrol listesi
@@ -53,6 +54,6 @@ setPurchaseButton(card.action, FarmMath.formatMoney(price), if canAfford then "p
       sağ üst (oyuncu listesi) ve sol üst (sohbet) boş
 - [ ] Yeni metinler tüm `Locales/` sözlüklerinde; etiketler kısa (menü karosu `UiKit.MenuTileSize`)
 - [ ] Dokunma hedefi >= `UiKit.TouchTarget`, yazı >= `UiKit.MinTextSize`; sığdırmada `UiKit.viewport()` (ham `camera.ViewportSize` değil)
-- [ ] `python scripts/check-locales.py --strict-literals` temiz
-- [ ] Studio'da 1920x1080, 1366x768 ve telefon emülatöründe görsel kontrol (kullanıcıya hatırlat)
+- [ ] `python scripts/check-locales.py --strict-literals` ve `python scripts/check-config-locales.py` temiz; interpolasyon atomları kaynakta ayrıca incelendi
+- [ ] Studio'da 1920x1080, 1366x768 ve telefon emülatöründe görsel kontrol (çalıştırılmadıysa raporda açıkça belirt)
 ```

@@ -6,13 +6,13 @@ description: Changes the generated island map, decor, lamps or build spots in Ma
 # Harita değişikliği
 
 ## Karar: place'e kaydedilen mi, çalışma anında mı?
-- `src/server/World/` (MapBuilder, MapLayout, MapParts, MapMountains, IslandBuilder (+ IslandLayout/IslandSiteParts), SatelliteBuilder, HubBuilder, WorldDecor (cephe; parçalar `Decor*`), HomeBuildings, HubNpcs, IslandSpecialization, BarnVisualService) → place'e kaydedilir →
+- `src/server/World/` (MapBuilder, MapLayout, MapParts, MapMountains, IslandBuilder (+ IslandLayout/IslandSiteParts), SatelliteBuilder, HubBuilder, WorldDecor (cephe; parçalar `Decor*`), HomeBuildings, HubNpcs, IslandSpecialization) → place'e kaydedilir →
   **`MapBuilder.luau` içindeki `MAP_VERSION` +1** ve Studio'da yeniden kurulum gerekir. Sunucu açılışında tema şablonları (`ServerStorage.ThemeTemplates`) sürüme bağlı yeniden kurulur.
 - `src/server/Presentation/` (hayvan, bölge, yükseltme, eklenti, toplama görselleri; tesis seviye halkaları, bölge bayrakları) → sunucu her oturumda
   kurar → sürüm gerekmez.
 - Klasör adı/yapısı ya da `plugin/` değiştiyse eklentiyi yeniden üret: `rojo build plugin.project.json --plugin IslandFarmTycoonHarita.rbxm` (Studio'yu yeniden başlat; eklenti yalnızca açılışta yüklenir).
 - Yalnızca `src/`/`tests/`/`assets/` değiştiyse eklenti ve Studio yeniden açılmaz (Rojo senkronu yeter; testler `ServerStorage.MapSpecs`'ten gelir).
-- Görsel (geometri) **modelden** gelir: yeni/değişen şekil için `assets/` modeli (GPT/Studio, `docs/MODEL_SOZLESMESI.md`), kodda `ModelAssets.clone/place`; kodda `makePart` ile geometri yazma (bkz. `world-map.mdc` "Model tabanlı görseller").
+- Görsel (geometri) **modelden** gelir: yeni/değişen şekil için `assets/` modeli (`docs/MODEL_SOZLESMESI.md` iş akışı), kodda `ModelAssets.clone/place`; kodda `makePart` ile geometri yazma (bkz. `world-map.mdc` "Model tabanlı görseller").
 
 ## Adımlar
 ```
@@ -43,5 +43,7 @@ Etiket olmadan ışık hep açık kalır ve yönetici panelinden kontrol edileme
 ## Sorun giderme
 - "Harita sürümü uyumsuz" → place eski; "Haritayı Kur" + kaydet.
 - Işık görünmüyor → etiket var mı, `PointLight` parçanın doğrudan çocuğu mu, gece gerçekten
-  karanlık mı (DayNight NIGHT tablosu), Bloom eşiği Neon'u bastırıyor mu.
+  karanlık mı (`Lighting.Presets` ve `Environment.NIGHT_CURVE`), Bloom eşiği Neon'u bastırıyor mu.
 - Yönetici paneli: Saat = Gece, Işıklar = hep açık, Parlaklık = Güçlü ile hızlı test.
+
+Çalışma anı tüccar tezgâhı gibi durum görselleri Presentation katmanındadır; kayıtlı harita sürümünü yalnız gerçek statik içerik değişirse artır. Ayrı test place'indeki kurulum canlı place kaydını güncellemez; test/publish sınırları `roblox-verify` içinde.

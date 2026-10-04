@@ -14,7 +14,6 @@ local WorldUi = require(Shared:WaitForChild("WorldUi"))
 
 local IslandSpecialization = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("IslandSpecialization"))
 local ModelAssets = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("ModelAssets"))
-local ExtensionAreas = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("ExtensionAreas"))
 
 export type Actions = {
 	getOwner: (Model) -> Player?,
@@ -297,10 +296,6 @@ function ExtensionVisualService.apply(plot: Model, save: PlayerSave?)
 		end
 		attachPrompts(plot, model, extensionId, upgrade.id, owned, save)
 	end
-end
-
-function ExtensionVisualService.findExtensionArea(plot: Model, extensionId: string): (CFrame?, Vector3?, string?)
-	return ExtensionAreas.find(plot, extensionId)
 end
 
 return ExtensionVisualService

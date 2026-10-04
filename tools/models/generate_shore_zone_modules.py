@@ -1,4 +1,4 @@
-"""Export the dock, fence, and fish walkway modules requested in GPT_ILETISIM."""
+"""Export the dock, fence, and fish walkway modules requested during the earlier model-agent exchange (see git history)."""
 
 from __future__ import annotations
 

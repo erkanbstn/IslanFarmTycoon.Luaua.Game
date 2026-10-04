@@ -36,10 +36,6 @@ function IslandContext.setPreview(islandId: string?)
 	changed:Fire()
 end
 
-function IslandContext.isPreview(): boolean
-	return preview ~= nil
-end
-
 -- Panellerin gösterdiği ada: önizleme varsa o, yoksa sunucudaki seçili ada
 function IslandContext.get(): string
 	return preview or IslandContext.selected()
@@ -53,18 +49,6 @@ end
 -- Yükseltmenin hangi ada sekmesinde listeleneceği (ahır ve ana ada bonusları her zaman "home").
 function IslandContext.upgradeIsland(upgrade: Config.UpgradeConfig): string
 	return Config.getUpgradeIsland(upgrade)
-end
-
-function IslandContext.hasAnimal(animalId: string): boolean
-	for _, zone in Config.ZONES do
-		if
-			zone.island == IslandContext.get()
-			and Config.zoneAllows(zone, animalId, player:GetAttribute("ActiveMainFarmId") :: string?)
-		then
-			return true
-		end
-	end
-	return false
 end
 
 return IslandContext

@@ -9,6 +9,8 @@ Roblox instance/world tests remain in the isolated test.project.json Studio plac
 from __future__ import annotations
 
 import argparse
+import importlib.util
+import json
 from pathlib import Path
 import re
 import shutil
@@ -21,6 +23,30 @@ ROOT = Path(__file__).resolve().parents[1]
 REQUIRE_LINE = re.compile(
     r"^local (\w+) =\s+require\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)\r?$", re.MULTILINE
 )
+
+
+def type_only_dependencies(source: str, dependencies: set[str]) -> list[str]:
+    """Recognize imports used only in Luau type declarations/annotations."""
+    result = []
+    for dependency in sorted(dependencies):
+        occurrences = []
+        for line in source.splitlines():
+            code = line.split("--", 1)[0]
+            for match in re.finditer(rf"\b{re.escape(dependency)}\b", code):
+                prefix = code[:match.start()]
+                annotation = bool(
+                    re.match(r"\s*(?:export\s+)?type\b", prefix)
+                    or re.search(r"::\s*[\w\[\]{}:,.?|<> ]*$", prefix)
+                    or re.match(r"\s*(?:local\s+)?function\s+[\w.:]+\([^)]*$", prefix)
+                    or (re.match(r"\s*(?:local\s+)?function\s+[\w.:]+\(.*\)\s*:[^=]*$", prefix) and not re.search(r"\breturn\b", prefix))
+                    or re.match(r"\s*\)\s*:\s*[\w\[\]{}:,.?|<> ]*$", prefix)
+                    or re.match(r"\s*local\s+\w+\s*:[^=]*$", prefix)
+                    or re.match(r"\s*\w+\s*:\s*[\w\[\]{}:,.?|<> ]*$", prefix)
+                )
+                occurrences.append(annotation)
+        if occurrences and all(occurrences):
+            result.append(dependency)
+    return result
 
 
 def module(name: str, path: str, dependencies: set[str] | None = None, factory_args: str = "") -> str:
@@ -40,9 +66,11 @@ def module(name: str, path: str, dependencies: set[str] | None = None, factory_a
         raise ValueError(f"Dependency mismatch in {path}: expected {expected}, found {found}")
     if re.search(r"\brequire\s*\(", source):
         raise ValueError(f"Unresolved require in {path}; the runner only substitutes complete require lines")
+    metadata = "-- Harness module: " + json.dumps({"name": name, "path": path, "dependencies": sorted(expected), "factory_args": factory_args, "type_only_dependencies": type_only_dependencies(source, expected)}) + "\n"
+    finish = f"\n-- Harness endmodule: {name}\n"
     if factory_args:
-        return f"-- Source: {path}\nlocal {name} = function({factory_args})\n{source}\nend\n"
-    return f"-- Source: {path}\nlocal {name} = (function()\n{source}\nend)()\n"
+        return metadata + f"-- Source: {path}\nlocal {name} = function({factory_args})\n{source}\nend\n" + finish
+    return metadata + f"-- Source: {path}\nlocal {name} = (function()\n{source}\nend)()\n" + finish
 
 
 CONFIG_PARTS = [
@@ -66,7 +94,7 @@ def config_bundle(freeze: bool = True) -> str:
     init = module("ConfigInit", "src/shared/Config/init.luau", set(CONFIG_PARTS))
     if not freeze:
         init = init.replace("return table.freeze(Config)", "return Config")
-    return "".join(["local Config = (function()\n", parts, init, "\nreturn ConfigInit\nend)()\n"])
+    return "".join(["-- Harness scope: Config\nlocal Config = (function()\n", parts, init, "\nreturn ConfigInit\nend)()\n-- Harness endscope: Config\n"])
 
 
 FARM_MATH_PARTS = ["Format", "Core", "Goods", "Recipes", "Counts", "Pricing", "Islands", "Lineage", "Expansion", "Production", "Income", "Contracts", "Animals"]
@@ -87,7 +115,7 @@ def farm_math_bundle() -> str:
         path = f"src/shared/Modules/FarmMath/{name}.luau"
         parts += module(name, path, _declared_dependencies(path))
     init = module("FarmMathInit", "src/shared/Modules/FarmMath/init.luau", set(FARM_MATH_PARTS))
-    return "".join(["local FarmMath = (function()\n", parts, init, "\nreturn FarmMathInit\nend)()\n"])
+    return "".join(["-- Harness scope: FarmMath\nlocal FarmMath = (function()\n", parts, init, "\nreturn FarmMathInit\nend)()\n-- Harness endscope: FarmMath\n"])
 
 
 SAVE_CODEC_PARTS = ["Common", "Goods", "Tasks", "Inventory", "Production", "Animals", "Account", "Financial", "Farm"]
@@ -107,19 +135,63 @@ def save_codec_bundle() -> str:
         "src/server/Modules/SaveCodec/init.luau",
         _declared_dependencies("src/server/Modules/SaveCodec/init.luau"),
     )
-    return "".join(["local SaveCodec = (function()\n", parts, init, "\nreturn SaveCodecInit\nend)()\n"])
+    return "".join(["-- Harness scope: SaveCodec\nlocal SaveCodec = (function()\n", parts, init, "\nreturn SaveCodecInit\nend)()\n-- Harness endscope: SaveCodec\n"])
 
 
-def main() -> int:
+SPEC_CALL = re.compile(r"^(\w+Spec)\(")
+MODULE_META = re.compile(r"^-- Harness module: (\{.*\})$", re.MULTILINE)
+
+
+def normalize_spec(value: str) -> str:
+    """'hud-layout', 'hud-layout.spec.luau', 'tests/hud-layout.spec.luau' and 'hudLayoutSpec' -> 'hudlayout'."""
+    stem = value.replace("\\", "/").rsplit("/", 1)[-1].lower()
+    stem = re.sub(r"\.spec\.luau$|\.luau$", "", stem)
+    stem = re.sub(r"[^a-z0-9]", "", stem)
+    return stem[:-4] if stem.endswith("spec") and len(stem) > 4 else stem
+
+
+def spec_catalog(pieces: list[str]) -> dict[str, set[str]]:
+    """Invocation name (e.g. 'hudLayoutSpec') -> accepted --only aliases (from the real module() metadata)."""
+    catalog: dict[str, set[str]] = {}
+    for piece in pieces:
+        match = MODULE_META.match(piece)
+        if not match:
+            continue
+        meta = json.loads(match.group(1))
+        if meta["name"].endswith("Spec") and meta["path"].startswith("tests/"):
+            catalog[meta["name"]] = {normalize_spec(meta["name"]), normalize_spec(meta["path"])}
+    return catalog
+
+
+def select_specs(pieces: list[str], only: list[str]) -> tuple[list[str], list[str]]:
+    """Drop invocations of unselected specs; module definitions stay (cheap, keeps load order). Returns (pieces, unknown)."""
+    catalog = spec_catalog(pieces)
+    wanted = {normalize_spec(item) for entry in only for item in entry.split(",") if item.strip()}
+    known = set().union(*catalog.values()) if catalog else set()
+    unknown = sorted(name for name in wanted if name not in known)
+    chosen = {name for name, aliases in catalog.items() if aliases & wanted}
+    kept = []
+    for piece in pieces:
+        call = SPEC_CALL.match(piece)
+        if call and call.group(1) not in chosen:
+            continue
+        kept.append(piece)
+    return kept, unknown
+
+
+def main(argv: list[str] | None = None, dependency_reporter=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--luau", help="Path to the standalone Luau interpreter (not Lua)")
-    args = parser.parse_args()
+    parser.add_argument("--check-dependencies", action="store_true", help="Check actual harness imports and lexical module order without running Luau or writing generated files")
+    parser.add_argument("--only", action="append", default=[], metavar="SPEC", help="Run only these specs (repeatable or comma separated; e.g. --only hud-layout,admin). Subset result is not the full suite")
+    parser.add_argument("--list", action="store_true", help="List spec names accepted by --only and exit (no Luau needed)")
+    args = parser.parse_args(argv)
     executable = args.luau or shutil.which("luau")
     if executable is None:
         bundled = ROOT / ".tools" / "luau" / ("luau.exe" if sys.platform == "win32" else "luau")
         if bundled.is_file():
             executable = str(bundled)
-    if executable is None:
+    if executable is None and not args.check_dependencies and not args.list:
         parser.error("Luau interpreter missing. Install Luau 0.740 or provide --luau PATH.")
 
     pieces = [
@@ -143,7 +215,7 @@ def main() -> int:
                "game, UiKit, IslandContext, Instance, UDim2, Vector2, Enum"),
         module("GoalCardFactory", "src/client/Ui/Hud/GoalCard.luau",
                {"Config", "GameTypes", "FarmMath", "IslandContext", "UiKit", "HudCommon", "Onboarding", "OnboardingBanner", "OnboardingSteps"},
-               "game, UiKit, Instance, UDim2, Enum, HudCommon"),
+               "game, UiKit, Instance, UDim2, Enum, HudCommon, IslandContext, Onboarding, OnboardingSteps"),
         module("hudLayoutSpec", "tests/hud-layout.spec.luau"),
         module("progressionSpec", "tests/progression.spec.luau"),
         module("ControlsFactory", "src/client/Ui/Kit/Controls.luau", {"Sfx", "Tokens", "Base"},
@@ -185,6 +257,8 @@ def main() -> int:
         save_codec_bundle(),
         module("Rebirth", "src/server/Modules/Rebirth.luau"),
         module("financialRebirthSpec", "tests/financial-rebirth.spec.luau"),
+        module("ScenarioFixtures", "tests/studio/ScenarioFixtures.luau"),
+        module("studioScenariosSpec", "tests/studio-scenarios.spec.luau"),
         module("Rewards", "src/shared/Modules/Rewards.luau", {"Config", "FarmMath"}),
         module("Inventory", "src/shared/Modules/Inventory.luau", {"Config"}),
         module("Merchant", "src/shared/Modules/Merchant.luau", {"Config", "Inventory"}),
@@ -300,8 +374,8 @@ def main() -> int:
                "game, task, script, FarmMath, Environment, UiTheme, ClientState, StartupGate, ClientModelAssets, EffectSettings, SeasonGlow"),
         module("seasonSignalSpec", "tests/season-signal.spec.luau"),
         module("ExtensionVisualFactory", "src/server/Presentation/ExtensionVisualService.luau",
-               {"Config", "Remotes", "GameTypes", "FarmMath", "InstanceUtil", "JobMarks", "WorldUi", "IslandSpecialization", "ModelAssets", "ExtensionAreas"},
-               "game, script, Instance, Vector3, Vector2, CFrame, Enum, DateTime, Config, Remotes, GameTypes, FarmMath, InstanceUtil, JobMarks, WorldUi, IslandSpecialization, ModelAssets, ExtensionAreas"),
+               {"Config", "Remotes", "GameTypes", "FarmMath", "InstanceUtil", "JobMarks", "WorldUi", "IslandSpecialization", "ModelAssets"},
+               "game, script, Instance, Vector3, Vector2, CFrame, Enum, DateTime, Config, Remotes, GameTypes, FarmMath, InstanceUtil, JobMarks, WorldUi, IslandSpecialization, ModelAssets"),
         module("extensionVisualSpec", "tests/extension-visual.spec.luau"),
         module("serviceHarnessFactory", "tests/service-harness.luau"),
         "local function serviceHarness(createLimiter, codec, config, farmMath)\n"
@@ -338,6 +412,7 @@ def main() -> int:
         module("requestGuardSpec", "tests/request-guard.spec.luau"),
         "dataSpec(SessionLock, SaveCodec, Config, FarmMath)\n",
         "financialRebirthSpec(SaveCodec, Config, FarmMath, Progression, Rebirth)\n",
+        "studioScenariosSpec(ScenarioFixtures, SaveCodec, Config, FarmMath, Progression)\n",
         "progressionSpec(Progression, FarmMath, Config, SaveCodec)\n",
         "progressionUiSpec(PurchaseControllerFactory, RebirthWindowFactory)\n",
         "marketProductsSpec(Config, FarmMath, SaveCodec, Inventory)\n",
@@ -368,7 +443,7 @@ def main() -> int:
         "seasonsSpec(SeasonVisuals, EnvironmentFactory, Config)\n",
         "plotStartupSpec(PlotServiceFactory, Config)\n",
         "islandTravelSpec(PlotServiceFactory, Config)\n",
-        "adminSpec(AdminPolicy, AdminServiceFactory, RateLimiterFactory, Config)\n",
+        "adminSpec(AdminPolicy, AdminServiceFactory, RateLimiterFactory, Config, FarmMath)\n",
         "seasonAdminSpec(SeasonServiceFactory, EnvironmentFactory, RateLimiterFactory, Config)\n",
         "productionSpec(ProductionServiceFactory, RateLimiterFactory, ProductionRules, SaveCodec, Config, FarmMath, ProductionLogic)\n",
         "mainFarmSpec(MainFarmServiceFactory, EconomyServiceFactory, RateLimiterFactory, FarmProfiles, SaveCodec, Config, FarmMath)\n",
@@ -396,14 +471,37 @@ def main() -> int:
         "buyPadServiceSpec(BuyPadServiceFactory, UpgradeServiceFactory, serviceHarness, RateLimiterFactory, SaveCodec, Config, FarmMath)\n",
         "requestGuardSpec(serviceHarness, RateLimiterFactory, SaveCodec, Config, FarmMath)\n",
     ]
+    if args.check_dependencies:
+        sys.dont_write_bytecode = True
+        spec = importlib.util.spec_from_file_location("test_dependency_checker", ROOT / "scripts/check-test-dependencies.py")
+        assert spec and spec.loader
+        checker = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(checker)
+        return (dependency_reporter or checker.report)(checker.check_bundle("\n".join(pieces)))
+    if args.list:
+        for name, aliases in sorted(spec_catalog(pieces).items()):
+            print(f"{','.join(sorted(aliases))}	{name}")
+        return 0
+    if args.only:
+        pieces, unknown = select_specs(pieces, args.only)
+        if unknown:
+            print(f"Unknown spec(s): {', '.join(unknown)}. Use --list.", file=sys.stderr)
+            return 2
     output = ROOT / ".test-build" / "run.luau"
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text("\n".join(pieces), encoding="utf-8")
     result = subprocess.run([executable, str(output)], cwd=ROOT, check=False)
     if result.returncode == 0:
-        print("Pure Luau regression suite passed. Roblox runtime/world tests require Studio.", flush=True)
+        scope = "Selected pure Luau specs passed (SUBSET, not the full suite)." if args.only else "Pure Luau regression suite passed."
+        print(scope + " Roblox runtime/world tests require Studio.", flush=True)
     return result.returncode
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except (ValueError, OSError) as error:
+        if "--check-dependencies" in sys.argv:
+            print(f"TD001: {error}")
+            raise SystemExit(1)
+        raise

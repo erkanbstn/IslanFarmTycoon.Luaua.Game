@@ -21,17 +21,6 @@ local CONVENIENCE_BENEFITS: { [string]: string } = {
 	pet_goods = "Ürün partilerini teslim alır",
 }
 
-function StoreSection.isForSale(): boolean
-	for _, group in { Config.PRODUCTS.passes, Config.PRODUCTS.products } do
-		for _, product in group do
-			if product.id ~= 0 then
-				return true
-			end
-		end
-	end
-	return false
-end
-
 local function categoryFor(kind: string, product: Config.ProductConfig): string
 	if product.effect == "goldPack" then
 		return "gold"

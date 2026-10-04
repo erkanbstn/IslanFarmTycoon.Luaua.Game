@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the remaining models in docs/GPT_MODEL_IS_LISTESI.md."""
+"""Generate the remaining models from the archived list in docs/GPT_MODEL_IS_LISTESI.md (see git history)."""
 
 from __future__ import annotations
 

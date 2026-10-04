@@ -3,7 +3,7 @@
 Bu belge, kod kurucusu yerine yapılıp `ServerStorage.Assets` (`assets/`) altına konan bir modelin **kodun beklediği her
 şeyi** karşılaması için kuralları verir. **Durum (2026-10-02):** kod kurucuları silindi, görünen geometri artık yalnızca modellerden gelir;
 aşağıdaki "kod kurucusu" ve satır numarası anlatımları tarihsel bağlamdır, güncel yükleyiciler `World/ModelAssets` ve `Core/ClientModelAssets`'tir
-(model yoksa görünüm çizilmez, `scripts/check-assets.py` eksikte kırmızı olur). İş akışı: `docs/MODEL_IS_PLANI.md`; üretici ajan sözleşmesi ve istek defteri: `docs/GPT_MODEL_IS_LISTESI.md`, `docs/GPT_ILETISIM.md`.
+(model yoksa görünüm çizilmez, `scripts/check-assets.py` eksikte kırmızı olur). İş akışı: `docs/MODEL_IS_PLANI.md`; üretici ajan sözleşmesi: `docs/GPT_MODEL_IS_LISTESI.md`.
 `PrimaryPart` verilmiş modelde pivot PrimaryPart merkezidir (WorldPivotData yok sayılır).
 
 Kural dili: **ZORUNLU** (ihlal = hata/bozuk görünüm), **YASAK**, **ÖNERİ** (kodda sınır yok, stil/performans kararı).

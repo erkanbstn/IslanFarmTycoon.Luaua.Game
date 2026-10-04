@@ -5,10 +5,10 @@ description: Adds or rebalances game content through the Config/ folder in this 
 
 # İçerik ekleme / denge
 
-Tek kaynak `src/shared/Config/` (`init.luau` birleştirir; veri: `Upgrades`, `Animals` = hayvan/bölge, `Islands` = ada/tema/yol haritası/ahır, `Production`, `Goods`, `Shop`, `Items`, `Weather`, `Economy`, `Core`).
+Tek kaynak `src/shared/Config/` (`init.luau` birleştirir; veri: `Upgrades`, `Animals` = hayvan/bölge, `Islands` = ada/tema/yol haritası/ahır, `Production`, `Goods`, `Shop`, `Items`, `Progression`, `Weather`, `Economy`, `Core`).
 Önce benzer mevcut kaydı bul ve aynı alanları doldur (tipler `Config/Types.luau`; `Config.ZoneConfig` gibi yeniden dışa aktarılır).
 
-**Görsel kuralı:** geometri her zaman `assets/` modelinden gelir (yedek kod kurucusu yoktur, model yoksa görünüm çizilmez ve `check-assets.py` kırmızı olur); kod yalnızca yazı, etkileşim, ışık etiketi ve yerleşimi ekler. Model sözleşmesi: `docs/MODEL_SOZLESMESI.md`; model üretimi için `docs/GPT_MODEL_IS_LISTESI.md` / `docs/GPT_ILETISIM.md` (iş defteri).
+**Görsel kuralı:** geometri her zaman `assets/` modelinden gelir (yedek kod kurucusu yoktur, model yoksa görünüm çizilmez ve `check-assets.py` kırmızı olur); kod yalnızca yazı, etkileşim, ışık etiketi ve yerleşimi ekler. Model sözleşmesi: `docs/MODEL_SOZLESMESI.md`; model üretimi için `docs/GPT_MODEL_IS_LISTESI.md`.
 
 ## Nereye ne eklenir
 | İçerik | Config | Ek dokunuş |
@@ -33,12 +33,14 @@ Tek kaynak `src/shared/Config/` (`init.luau` birleştirir; veri: `Upgrades`, `An
 - [ ] 4. displayName, description, trait, product metinlerinin çevirisi (en/de/ru/es/pt)
 - [ ] 5. Kayıt etkisi: yeni kalıcı alan varsa roblox-save-schema skill'i
 - [ ] 6. Test: tests/economy.spec.luau (fiyat/gelir), goods/production/contracts gerekiyorsa
-- [ ] 7. Fiyat/gelir değiştiyse `python scripts/simulate-economy.py` (çıktıdaki ada süreleri ve `TÜM YÜKSELTMELER` hedefleri korunmalı; ölçüm kuralları `economy-data.mdc` "Ölçüm")
+- [ ] 7. Fiyat/gelir değiştiyse önce/sonra aynı koşullu simülasyon karşılaştırması (`roblox-verify` "Ekonomi karşılaştırması"); süre/getiri farkını ve maliyetini raporla.
 - [ ] 8. roblox-verify
 ```
 
 ## Denge ipuçları
-- Gelir (`FarmMath/Income.luau`) = `baseIncomePerSecond` × ahır çarpanı × (1 + güçlendirmeler) × (1 + ırk) × (1 + eşya) × mevsim/hava × oyun geçidi × evre çarpanı (`STAGE_INCOME_MULTIPLIER`); ırk ve eşya ayrı çarpandır, toplanmaz.
+- Gelir ve fiyatı elde çoğaltma: `FarmMath.computeIncomePerSecond/getPrice`, kalıcı referans için `getPermanentReferenceIncome`. Eşya/rebirth sınırı ve gerçek eksiler `Core`/`Progression` hesaplarına dahildir; ölçüm canlı sonuçla yapılır.
 - Ana ada hayvanı temaya göre değişir: bölge iznini `Config.zoneAllows`, `incomeBoost.home` ile ana hayvan güçlendirmesi.
 - Yol haritası sırası `ROADMAP_STAGES` ve `requires` ile; kilitli kart "Önce: ..." gösterir.
 - Tema ve mevsim değiştiyse README'deki tema/mevsim tablolarını da güncelle.
+
+Kalıcı eşya teklifi `Config/Progression.permanentOffers`, Robux kataloğu `Config/Shop`, terminal rebirth ödülü `milestones` kaynağından gelir. Ödüle özel ekipmanı satışa koyma; ürün kimliği 0 satış kapalı demektir. Yeni etki UI fayda/eksi metni ve actual hesap testiyle birlikte değerlendirilir.

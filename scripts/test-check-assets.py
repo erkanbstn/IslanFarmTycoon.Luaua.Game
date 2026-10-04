@@ -93,6 +93,25 @@ class AssetCheckTests(unittest.TestCase):
             root.find(".//Item[@class='PointLight']/Properties/float[@name='Range']").text = "nan"
         self.assertTrue(any("Range" in problem for problem in self.inspect("client-assets/Sea/DiverChest.rbxmx", mutate)))
 
+    def test_orphan_models_are_reported(self):
+        with tempfile.TemporaryDirectory() as directory:
+            assets = Path(directory) / "assets"
+            client = Path(directory) / "client-assets"
+            for rel in ("Animals/cow.rbxmx", "Animals/ghost.rbxmx", "Mystery/x.rbxmx", "Animals/sub/deep.rbxmx"):
+                (assets / rel).parent.mkdir(parents=True, exist_ok=True)
+                (assets / rel).write_text("<roblox/>")
+            (client / "Birds").mkdir(parents=True)
+            (client / "Birds" / "Gull.rbxmx").write_text("<roblox/>")
+            (client / "Birds" / "Dodo.rbxmx").write_text("<roblox/>")
+            found = CHECK.orphan_models({"Animals": {"cow"}}, assets, client)
+        self.assertEqual(sorted(found), sorted([
+            "assets/Animals/ghost.rbxmx", "assets/Mystery/x.rbxmx", "assets/Animals/sub/deep.rbxmx",
+            "client-assets/Birds/Dodo.rbxmx",
+        ]))
+
+    def test_repository_has_no_orphan_models(self):
+        self.assertEqual(CHECK.orphan_models(CHECK.expected()), [])
+
 
 if __name__ == "__main__":
     unittest.main()

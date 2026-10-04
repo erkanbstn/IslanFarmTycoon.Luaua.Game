@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the five P1 map models from docs/GPT_MODEL_IS_LISTESI.md."""
+"""Generate the five P1 map models from the archived P1 list in docs/GPT_MODEL_IS_LISTESI.md (see git history)."""
 
 from __future__ import annotations
 

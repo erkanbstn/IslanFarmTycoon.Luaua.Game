@@ -1,5 +1,7 @@
 # Island Farm Tycoon
 
+AI ile devralma: önce [AGENTS.md](AGENTS.md), ardından [devir rehberi](docs/AI_DEVIR_REHBERI.md) ve [güncel durum](docs/DEVIR_DURUMU.md). Günlük kontrol `powershell -ExecutionPolicy Bypass -File scripts/verify-fast.ps1 -RequireTypes`; son teslimde `scripts/verify.ps1 -Mode Full -RequireTypes`.
+
 Rojo + Luau ile yazılan Roblox çiftlik tycoon oyunu. Her oyuncunun kendi adası var.
 
 ## Kurulum (bir kez)
@@ -86,10 +88,10 @@ hatasından ayrıdır.
 4d. **Mevsim hedefi:** Ödüller penceresinde her mevsimde (`Config.SEASON_SECONDS`) yeni bir hedef vardır (`Config.SEASONAL_GOALS`): bahar ve sonbaharda para kazan, yaz ve kışta yatırım yap
    (hayvan, yükseltme, ırk veya alan genişletme). Tamamlayınca ödülü al; mevsim değişince alınmamış hedef kaybolur. Ödül gelire göre ölçeklenir.
 4e. **Gezgin tüccar (rastgele olay):** Her oyuncuya ayrı zamanlarda, sunucu saatinden türeyen ziyaret pencerelerinde gelir (`Config.MERCHANT`: dönem, süre, olasılık). Geldiğinde bildirim çıkar ve
-   Pazar penceresinin en üstünde, satın alınabilen pahalı hayvanlardan biri sınırlı adetle, indirimle sunulur. Her ziyarette bir kez alınabilir.
+   meydandaki fiziksel tüccardan indirimli tur ekipmanları alınabilir. Teklif, ziyaret döngüsü, fiyat ve yakınlık sunucuda doğrulanır; aynı teklif döngü başına bir kez alınır.
 4f. **Altın hayvan (rastgele olay):** Her oyuncuya ayrı zamanlarda, kısa pencerelerde (`Config.GOLDEN`), etkin çiftliğindeki yetişkin bir hayvan
    altın gibi parlar. Üstündeki **Topla** düğmesine basınca çiftliğinin toplam gelirinin `GOLDEN.rewardSeconds` saniyelik karşılığını alırsın; her pencerede bir kez.
-4h. **Envanter ve eşyalar:** Meydandaki **Usta Ömer**'den (Eşya Dükkânı) oyun parasıyla eşya alırsın; bir kez alınır, faydası kalıcıdır. **Envanter** (B) beş slotluktur:
+4h. **Envanter ve eşyalar:** Meydandaki **Usta Ömer**'den (Eşya Dükkânı) oyun parasıyla tur ekipmanı alırsın; rebirth ile sıfırlanır. Marketten altın veya Robux ile edinilen kalıcı teklifler rebirth sonrası korunur; kimliği 0 olan Robux ürünleri kapalıdır. **Envanter** (B) beş slotluktur:
    **Alet** (çekiç: yükseltme maliyetlerinden indirim), **Asa** (mevsim ya da hava değiştirme gücü: günde 1 / 3 / 5 kez ya da sınırsız, her kullanım arası kısa bekleme),
    **Muska** (depo, büyüme hızı ya da gelir bonusu; yalnızca biri takılır), **Başlık** ve **Sırt** (görünüm eşyaları, karakterde görünür). Slot başına bir eşya takılır; boş slota
    satın alınan eşya otomatik takılır. Asa ile seçilen mevsim tam süre (`Config.SEASON_SECONDS`) **yalnızca sana** uygulanır: gelirin, gökyüzü/hava efektlerin ve HUD'un o mevsimi gösterir, süre bitince dünyanın
@@ -199,7 +201,7 @@ Sol paneldeki küçük hava kartı ilerleme çubuğu, kalan dakika/saniye ve hav
 geniş ekranda sıradaki mevsim de görünür. Bildirimler ayrı alandadır.
 
 HUD yerleşimi: sol ortada para/depo/mevsim/hedef paneli (sola kayarak kapanır); üst ortada menü çubuğu (Pazar, Yükseltmeler, Yol Haritası, Üretim, Adalar),
-sağ ortada menü sütunu (Envanter, Ödüller, Adama Dön, Ayarlar, yetkili hesapta Yönetici). Karolar kademeli açılır. Ayrıntı: `AGENTS.md` "Arayüz (UI) standardı".
+sağ ortada menü sütunu (Envanter, Ödüller, Adama Dön, Ayarlar, yetkili hesapta Yönetici). Karolar kademeli açılır. Ayrıntı: `.cursor/rules/client-ui.mdc`.
 
 Mevsimlerin hayvan gelir çarpanları (`incomeModifiers`), olası hava türleri (`weather`) ve sipariş bonusu `Config.SEASONS`'tadır;
 havanın gelir etkisi `Config.WEATHER`'dadır. Sayılar bu belgede tutulmaz.
@@ -247,14 +249,14 @@ src/
   shared/Modules/FarmMath  → sunucu ve client'ın ortak hesapları
   shared/Locales           → çeviriler (tr kaynak; en, de, ru, es, pt)
 tests/    → saf Luau testleri (python scripts/run-tests.py) ve Studio harita testleri
-scripts/  → verify.ps1, run-tests.py, check-*.py, simulate-economy.py, setup-types.ps1
+scripts/  → doctor.py, verify.ps1 / verify-fast.ps1, run-tests.py, check-*.py (rehber, mimari, hijyen, varlık...), simulate-*.py, compare-economy.py, studio-qa.py, setup-types.ps1
 plugin/   → Studio harita eklentisi (MapTool)
 docs/     → mimari ve konu belgeleri (telemetri, sesler, yayın...)
 ```
 
 Ayrıntı ve bağımlılık kuralları: [docs/MIMARI.md](docs/MIMARI.md).
 
-AI araçları için kurallar: `AGENTS.md`
+AI araçları için kurallar: `AGENTS.md` (kurallar `.cursor/rules`, skill'ler `.cursor/skills`; oturum başı `python scripts/triage.py`, görev tarifleri `docs/HIZLI_AKSIYON.md`).
 
 ## Doğrulama ve geliştirme durumu
 
@@ -270,7 +272,7 @@ Rokit araçlarına ek olarak resmi [Luau 0.740](https://github.com/luau-lang/lua
 paketindeki `luau`, `luau-compile`, `luau-analyze` gereklidir. Paketini `.tools/luau` altına aç
 veya `-LuauDirectory` ile başka konum ver. Araçlar repoya eklenmez.
 Kontrol; biçim (StyLua), lint (Selene), kaynak sözdizimi derlemesi, saf Luau regresyon testleri, ekonomi simülasyonu duman testi,
-çeviri kapsamı, yapay zeka rehberi tutarlılığı, mimari bağımlılık kuralları, tip analizi ve oyun/eklenti/test place derlemelerini çalıştırır.
+çeviri kapsamı, yapay zeka rehberi tutarlılığı, depo hijyeni (ölü referans/yetim dosya), mimari bağımlılık kuralları, tip analizi ve oyun/eklenti/test place derlemelerini çalıştırır.
 Tip analizi için `powershell scripts/setup-types.ps1` ile `.tools/luau-lsp` kurulur (`python scripts/check-types.py`; mevcut bulgular
 `scripts/types-baseline.json` tabanındadır, yeni bulgu hata sayılır). Araç yoksa `verify.ps1` bu adımı uyarıyla atlar; temiz klonda atlamayı hata yapmak için `-RequireTypes` ekle.
 Bu, gerçek Studio testinin yerine geçmez. Depoda CI yapılandırması yoktur; kontroller yerelde çalıştırılır.

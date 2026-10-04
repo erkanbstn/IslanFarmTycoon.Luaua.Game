@@ -1,5 +1,5 @@
 --!strict
-return function(policy: any, createService: any, createLimiter: any, config: any)
+return function(policy: any, createService: any, createLimiter: any, config: any, realFarmMath: any)
 	assert(policy.isAllowed(11641916529), "verified owner UserId must be authorized")
 	for _, value in { 0, -1, 11641916530, "11641916529", "Geo_Geyo", 0 / 0, math.huge, {} } do
 		assert(not policy.isAllowed(value), "no name, coercion or other account can authorize admin")
@@ -462,6 +462,8 @@ return function(policy: any, createService: any, createLimiter: any, config: any
 	assert(data.purchased.island_goat == true, "unlock all opens every island of the theme")
 	now += 1
 	data.animals = {}
+	-- Verify maxAll with the real derived island/zone mapping, beyond the narrow command mock.
+	farmMath.applyDerived = realFarmMath.applyDerived
 	fire(owner, "maxAll", "now", 221)
 	assert(results[#results].ok and #data.animals > 0, "maxAll opens, grows and fills every island")
 	local farmCount = 0
@@ -469,11 +471,15 @@ return function(policy: any, createService: any, createLimiter: any, config: any
 		farmCount += 1
 	end
 	assert(farmCount == config.MAIN_FARM_LIMIT, "maxAll adds every missing main farm for free")
-	for zoneId in data.unlockedZones do
-		assert(
-			data.lineage[zoneId] == config.LINEAGE.maxLevel,
-			"maxAll completes unlocked zone lineage for rebirth testing"
-		)
+	for farmId, farm in data.mainFarms do
+		for zoneId in farm.unlockedZones do
+			for _, animalId in config.getZoneAnimals(config.ZONES[zoneId], farmId) do
+				assert(
+					realFarmMath.getLineageLevel(farm, animalId) == config.LINEAGE.maxLevel,
+					"maxAll completes authoritative animal lineage in every farm for rebirth testing"
+				)
+			end
+		end
 	end
 	for _, animal in data.animals do
 		assert(animal.stage == "adult", "maxAll animals are adult")

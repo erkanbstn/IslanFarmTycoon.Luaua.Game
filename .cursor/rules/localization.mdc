@@ -27,4 +27,5 @@ Yeni/değişen metin → aynı Türkçe anahtarı **tüm sözlük dosyalarına**
 - Başlangıç dili Roblox sistem dilinden (`LocaleId`) seçilir, desteklenmiyorsa İngilizce; Ayarlar'dan seçilen dil hesapta saklanır. Dil mantığını burada çoğaltma: `shared/Localization`.
 - Dünyadaki tabelalar (`WorldUi`, NPC tabelaları `HubNpcs` blurb/title, yön tabelaları) da aynı sözlükle çevrilir; harita yeniden kurulmadan çeviri güncellenir.
 - Dinamik metin (`Sv.{level}`, `+{} kapasite`...) için şablon anahtar ekle; parçalı metinleri (" · ", satır sonu) ayrı ayrı çevir.
-- Toplu ekleme betiği yazarken Python `r'...'` ve Write aracı kullan; bash heredoc ters eğik çizgiyi bozar.
+- Strict literal taraması tüm interpolasyon/yardımcı çağrılarını keşfetmez. Yeni kaynak şablonlarını ve " · "/satır sonuyla bölünen atomları ayrıca incele; Config için `python scripts/check-config-locales.py` koş. Eşit anahtar sayısı çeviri kalitesini veya metnin ekrana sığmasını kanıtlamaz.
+- Toplu ekleme betiğinde UTF-8 ve gerçek satır sonlarını koru; shell kaçışının metni değiştirmediğini denetle.

@@ -65,7 +65,7 @@ Yeni servis dosyasıysa `src/server/Services/<Ad>Service.luau` olarak aç ve `sr
 - Satın alma/tekil işlem: `PurchaseController.submit("RequestFeedAnimal", uid, extra?)` — bekleyen istek,
   ortak artan kimlik, `expectedFarmId` (etkin çiftlik), zaman aşımı ve `PurchaseResult` eşleşmesini hazır yapar;
   sunucuya `(uid, requestId, expectedFarmId, extra)` gider.
-- Basit tetik: `Remotes.get("X"):FireServer(...)`. Client hiçbir zaman fiyat/adet göndermez.
+- Basit tetik: `Remotes.get("X"):FireServer(...)`. Client gönderilen önizleme tutarı/adedi otorite sayılmaz; sunucu canlı hesabı ve izin verilen sınırı yeniden doğrular.
 
 ## 4. Metinler
 Tüm ret/başarı mesajları tam Türkçe cümle, emojisiz; `src/shared/Locales/` altındaki tüm sözlüklere ekle
@@ -76,4 +76,4 @@ Tüm ret/başarı mesajları tam Türkçe cümle, emojisiz; `src/shared/Locales/
 - Servis testi: `tests/animal-service.spec.luau` / `tests/upgrade-service.spec.luau` gibi, `tests/service-harness.luau` ile
   (gerçek servis + gerçek `RequestGuard`, sahte Roblox sınırları); `scripts/run-tests.py`'ye kaydet. Sahte oyuncuyla:
   geçersiz tip, kimliksiz/tekrar requestId, yanlış `expectedFarmId`, hız sınırı, veri yokken, başarı.
-- `roblox-verify` skill'i ile doğrula.
+- Gerçek kaynak modülünün bağımlılığını `python scripts/check-test-dependencies.py` ile denetle; `roblox-verify` skill'iyle doğrula.

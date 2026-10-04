@@ -305,19 +305,6 @@ function MapBuilder.validate()
 	assert(count == Config.MAP_PLOT_COUNT, `[Map] {Config.MAP_PLOT_COUNT} ada bekleniyor; {count} bulundu.`)
 end
 
-local function hasValidPlots(_plotsFolder: Instance): boolean
-	local ok = pcall(MapBuilder.validate)
-	return ok
-end
-
-function MapBuilder.warnIfNoPlots()
-	local plotsFolder = Workspace:FindFirstChild("Plots")
-	if plotsFolder and hasValidPlots(plotsFolder) then
-		return
-	end
-	warn("[Map] Workspace'te ada yok. Studio'da 'Island Farm Tycoon → Haritayı Kur' butonuna bas.")
-end
-
 local function getOrCreate(parent: Instance, className: string): Instance
 	local existing = parent:FindFirstChildOfClass(className)
 	if existing then

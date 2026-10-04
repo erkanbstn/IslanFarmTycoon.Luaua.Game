@@ -7,10 +7,13 @@ Denetimler:
   * Her .cursor/skills/<ad>/SKILL.md ile .claude/skills/<ad>/SKILL.md eşleşir (aynı ad/açıklama, doğru yönlendirme).
   * AGENTS.md ve CLAUDE.md tüm skill adlarını listeler.
   * Rehber dosyalarında geçen repo yolları (src/..., tests/..., .cursor/... ) gerçekten vardır.
+  * Tek kaynak: kural/skill yalnız .cursor altında; .claude/skills kısa yönlendirme; giriş dosyaları ortak çıpaları (triage, HIZLI_AKSIYON, MIMARI) anar;
+    AGENTS.md hızlı kontrol tablosu bütün giriş komutlarını listeler. Test için kök AI_DOCS_ROOT ile değiştirilebilir.
 """
 
 from __future__ import annotations
 
+import os
 import re
 import sys
 from pathlib import Path
@@ -18,7 +21,7 @@ from pathlib import Path
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(os.environ.get("AI_DOCS_ROOT") or Path(__file__).resolve().parent.parent)
 errors: list[str] = []
 
 
@@ -197,6 +200,67 @@ if architecture.exists():
             for name in sorted(listed):
                 if name[:1].isupper() and name.lower() not in existing_everywhere:
                     fail(f"docs/MIMARI.md: {directory.name}/ satırındaki `{name}` src altında yok (silinmiş ya da yeniden adlandırılmış)")
+
+# ---------------------------------------------------------------- tek kaynak: kural/skill yalnız .cursor altında
+# Başka yerde kural/skill kaynağı açılırsa AI'lar farklı yerlere bakar; yönlendirmeler de kaynağın kopyasına dönüşmemeli.
+STRAY_DIRS = (".claude/rules", ".claude/commands", ".claude/agents", ".cursor/commands", ".github/instructions", ".github/prompts")
+for stray in STRAY_DIRS:
+    if (ROOT / stray).exists():
+        fail(f"{stray}: ikinci kural/skill kaynağı; içeriği .cursor/rules veya .cursor/skills altına taşı")
+for path in relative_files:
+    if path.endswith(".mdc") and not path.startswith(".cursor/rules/"):
+        fail(f"{path}: kural dosyası .cursor/rules dışında")
+    if path.endswith("/SKILL.md") and not path.startswith((".cursor/skills/", ".claude/skills/")):
+        fail(f"{path}: skill dosyası .cursor/skills dışında")
+    if path.startswith(".claude/skills/") and not path.endswith("/SKILL.md"):
+        fail(f"{path}: .claude/skills altında yalnız SKILL.md yönlendirmesi olmalı")
+    if path.startswith(".cursor/skills/") and path.count("/") == 2:
+        fail(f"{path}: skill klasörü dışında dosya")
+REDIRECT_BODY_LINES = 10
+if claude_skills.exists():
+    for redirect in sorted(claude_skills.glob("*/SKILL.md")):
+        body = re.sub(r"^---\n.*?\n---\n", "", read(redirect), count=1, flags=re.S).strip().splitlines()
+        if len(body) > REDIRECT_BODY_LINES:
+            fail(f"{redirect.relative_to(ROOT).as_posix()}: yönlendirme {len(body)} satır (> {REDIRECT_BODY_LINES}); talimatı .cursor/skills altında tut")
+
+# ---------------------------------------------------------------- giriş dosyaları ortak çıpaları göstermeli
+ANCHORS = (".cursor/rules", ".cursor/skills", "scripts/triage.py", "docs/HIZLI_AKSIYON.md", "docs/AI_DEVIR_REHBERI.md", "docs/MIMARI.md")
+for name in ("CLAUDE.md", ".cursorrules", ".github/copilot-instructions.md"):
+    path = ROOT / name
+    if path.exists():
+        text = read(path)
+        for anchor in ANCHORS:
+            if anchor not in text:
+                fail(f"{name}: '{anchor}' çıpasını anmıyor (tek kaynağa yönlendirmeli)")
+
+# ---------------------------------------------------------------- AGENTS.md hızlı kontrol tablosu
+QUICK_COMMANDS = (
+    "scripts/triage.py",
+    "scripts/doctor.py",
+    "scripts/smoke-quick.py",
+    "scripts/check-repo-hygiene.py",
+    "scripts/check-ai-docs.py",
+    "scripts/verify-fast.ps1",
+    "scripts/verify.ps1",
+    "scripts/check-assets.py",
+)
+if agents.exists():
+    for command in QUICK_COMMANDS:
+        if command not in agents_text:
+            fail(f"AGENTS.md hızlı kontrol tablosu {command} komutunu listelemiyor")
+        elif not (ROOT / command).exists():
+            fail(f"AGENTS.md: {command} dosyası yok")
+    if "Hızlı kontrol komutları" not in agents_text or "Tek kaynak haritası" not in agents_text:
+        fail("AGENTS.md 'Tek kaynak haritası' veya 'Hızlı kontrol komutları' bölümü eksik")
+    for doc in ("docs/HIZLI_AKSIYON.md", "docs/AI_DEVIR_REHBERI.md", "docs/DEVIR_DURUMU.md"):
+        if not (ROOT / doc).exists():
+            fail(f"{doc} yok")
+    handover = ROOT / "docs" / "AI_DEVIR_REHBERI.md"
+    if handover.exists():
+        text = read(handover)
+        for command in ("scripts/triage.py", "scripts/doctor.py", "scripts/check-repo-hygiene.py"):
+            if command not in text:
+                fail(f"docs/AI_DEVIR_REHBERI.md {command} komutunu anmıyor")
 
 if errors:
     print("Yapay zeka rehber dosyaları tutarsız:")

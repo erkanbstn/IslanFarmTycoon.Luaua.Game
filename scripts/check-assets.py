@@ -3,7 +3,7 @@
 
 Görünen geometri hazır modellerden gelir; eksik asset = o görünüm çizilmez.
 Ayrıca XML sağlığı (ad, yasak sınıf, PrimaryPart, parça sayısı) ve
-koda hiç bağlanmamış asset klasörleri raporlanır.
+koda hiç bağlanmamış asset klasörleri raporlanır. Beklenmeyen fazla .rbxmx (orphan) hata sayılır.
 
 Kullanım: python scripts/check-assets.py [--strict-unwired]
 Çıkış kodu 1: eksik/bozuk asset var. İzinli boşluklar ALLOWED_MISSING içinde, gerekçesiyle.
@@ -176,6 +176,23 @@ CLIENT_EXPECTED: dict[str, set[str]] = {
 
 # Kullanıcı kararıyla gerçek ışık taşıyan tek istemci dip modelleri (devamlı açık küçük PointLight): her modelde tam bir tane.
 LIGHT_MODELS = {("Sea", "DiverChest"), ("Sea", "ReefArch"), ("Sea", "SeaAnemone")}
+
+
+def orphan_models(exp: dict[str, set[str]], assets: Path | None = None, client_root: Path | None = None) -> list[str]:
+    """Beklenen listede olmayan fazla .rbxmx dosyaları (bilinmeyen klasör dahil), kök göreli yollarla."""
+    assets = assets or ASSETS
+    client_root = client_root or ROOT / "client-assets"
+    found: list[str] = []
+    for base, expected_by_folder in ((assets, exp), (client_root, CLIENT_EXPECTED)):
+        if not base.is_dir():
+            continue
+        for path in sorted(base.glob("*/*.rbxmx")):
+            if path.stem not in expected_by_folder.get(path.parent.name, set()):
+                found.append(f"{base.name}/{path.parent.name}/{path.name}")
+        for path in sorted(base.rglob("*.rbxmx")):
+            if path.parent.parent != base:
+                found.append(f"{base.name}/{path.relative_to(base).as_posix()}")
+    return found
 
 
 def numeric_components(element: ET.Element | None, keys: str | tuple[str, ...]) -> list[float] | None:
@@ -399,6 +416,10 @@ def main() -> int:
             failed = True
         for m in sorted(have - need):
             print(f"         ? koda karşılığı bulunamayan asset: {m}")
+    orphans = orphan_models(exp)
+    for orphan in orphans:
+        print(f"FAZLA  {orphan}: kodun hiçbir yolla yüklemediği model (sil veya beklenen listeye bağla)")
+        failed = True
     print()
     bad = 0
     for path in sorted(list(ASSETS.glob("*/*.rbxmx")) + list((ROOT / "client-assets").glob("*/*.rbxmx"))):
@@ -413,7 +434,7 @@ def main() -> int:
         print(f"BAĞLANMAMIŞ klasörler (haritayı kuran kod okumuyor): {counts}")
         if strict_unwired:
             failed = True
-    print(f"\nÖzet: {total_expected} beklenen görünüm, {total_missing} eksik, {bad} bozuk dosya.")
+    print(f"\nÖzet: {total_expected} beklenen görünüm, {total_missing} eksik, {bad} bozuk dosya, {len(orphans)} fazla model.")
     return 1 if failed else 0
 
 

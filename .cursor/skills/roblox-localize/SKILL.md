@@ -15,13 +15,14 @@ description: Adds or fixes translations for this Roblox project's Turkish source
 6. Doğrula:
    ```
    python scripts/check-locales.py --strict-literals
+   python scripts/check-config-locales.py
    ```
    Anahtar eşitliği hatası = bir dilde eksik anahtar. Literal uyarısı = sözlükte karşılığı olmayan
-   UI metni (Localizer bölerek çeviremiyorsa oyunda Türkçe kalır).
+   UI metni (Localizer bölerek çeviremiyorsa oyunda Türkçe kalır). Tarama tüm interpolasyon/yardımcı başlıklarını yakalamaz; yeni kaynak şablonlarını ve parçalı atomları ayrıca incele. Kapsam başarısı gerçek çeviri kalitesi/telefon yerleşimini kanıtlamaz.
 
 ## Yeni dil
 `Config.LANGUAGES` + `Config.LANGUAGE_ORDER`'a (`Config/Core.luau`) kod ekle → `Locales/<kod>.luau` (en.luau'yu kopyala) → `UiKit.flag` için
 `Ui/Kit/Flags.luau` içindeki `flagPainters[<kod>]` çiz → `scripts/check-locales.py` içindeki `LANGS`'a ekle.
 
 ## Toplu ekleme
-Çok sayıda anahtar için küçük bir Python betiği yaz (Write aracıyla; bash heredoc ters eğik çizgiyi bozar): mevcut anahtarları oku, eksikleri sözlük dosyalarının sonuna ekle, `check-locales.py --strict-literals` ile doğrula.
+Çok sayıda anahtar için UTF-8 yazan küçük bir betik kullan (shell kaçışı ve satır sonunu kontrol et): mevcut anahtarları oku, eksikleri sözlük dosyalarının sonuna ekle, `check-locales.py --strict-literals` ile doğrula.

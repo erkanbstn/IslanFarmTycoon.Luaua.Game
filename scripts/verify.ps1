@@ -1,4 +1,6 @@
 param(
+	[ValidateSet("Fast", "Full")]
+	[string]$Mode = "Full",
 	[string]$LuauDirectory = "",
 	[string]$Python = "python",
 	# CI/temiz klon: luau-lsp yoksa tip denetimini atlamak yerine hata ver
@@ -62,25 +64,34 @@ try {
 		$sourceFiles = Get-ChildItem -LiteralPath src,plugin,tests -Recurse -File -Filter *.luau | Select-Object -ExpandProperty FullName
 		& $compiler --null @sourceFiles
 	}
+	Invoke-Check "Harness dependency and lexical order checks" { & $Python scripts/check-test-dependencies.py }
+	Invoke-Check "AI tooling regression tests" { & $Python tests/tooling.spec.py }
+	Invoke-Check "Economy comparison regression tests" { & $Python scripts/test-compare-economy.py }
+	Invoke-Check "Studio QA generation regression tests" { & $Python scripts/test-studio-qa.py }
 	Invoke-Check "Pure Luau regression tests" { & $Python scripts/run-tests.py --luau $interpreter }
 	Invoke-Check "Visual service identity regression tests" { & $Python scripts/check-visual-identity.py --luau $interpreter }
 	Invoke-Check "Type checker failure and baseline regression tests" { & $Python scripts/test-check-types.py }
-	Invoke-Check "Simulation completion stopping regression tests" { & $Python tests/simulation-stop.spec.py }
-	Invoke-Check "Economy simulation smoke (--smoke parses the JSON itself)" {
-		& $Python scripts/simulate-economy.py --luau $interpreter --persona casual --hours 2 --smoke
+	if ($Mode -eq "Full") {
+		Invoke-Check "Simulation completion stopping regression tests" { & $Python tests/simulation-stop.spec.py --luau $interpreter }
+		Invoke-Check "Economy simulation smoke (--smoke parses the JSON itself)" {
+			& $Python scripts/simulate-economy.py --luau $interpreter --persona casual --hours 2 --smoke
+		}
+		Invoke-Check "Rebirth economy simulation smoke" {
+			& $Python scripts/simulate-economy.py --luau $interpreter --persona casual --hours 2 --completion basic --rebirth 1 --perks income:1 --starting-gold 780 --gold-policy equipment --smoke
+		}
+		# Uçuk değer denetimi: parti miktarı, ürün değeri/taban, sipariş ödülü/değer ve gelir dakikası, kademe fiyat tavanı (ECONOMY_LIMITS)
+		Invoke-Check "Economy audit (absurd values)" { & $Python scripts/audit-economy.py --luau $interpreter --check }
+		# Çiftlik tamamlama süresi tema 1 -> 6 her oyuncu tipinde KESİN artar; tüm çiftlikler bitince simülasyon durur.
+		Invoke-Check "Tier completion times grow with the theme (sim)" { & $Python scripts/simulate-tiers.py --luau $interpreter --personas ideal,casual,idle --assert-monotonic }
 	}
-	Invoke-Check "Rebirth economy simulation smoke" {
-		& $Python scripts/simulate-economy.py --luau $interpreter --persona casual --hours 2 --completion basic --rebirth 1 --perks income:1 --starting-gold 780 --gold-policy equipment --smoke
-	}
-	# Uçuk değer denetimi: parti miktarı, ürün değeri/taban, sipariş ödülü/değer ve gelir dakikası, kademe fiyat tavanı (ECONOMY_LIMITS)
-	Invoke-Check "Economy audit (absurd values)" { & $Python scripts/audit-economy.py --luau $interpreter --check }
-	# Çiftlik tamamlama süresi tema 1 -> 6 her oyuncu tipinde KESİN artar; tüm çiftlikler bitince simülasyon durur.
-	Invoke-Check "Tier completion times grow with the theme (sim)" { & $Python scripts/simulate-tiers.py --personas ideal,casual,idle --assert-monotonic }
 	Invoke-Check "Locale key parity and UI literal coverage" { & $Python scripts/check-locales.py --strict-literals }
 	Invoke-Check "Config text translation coverage" { & $Python scripts/check-config-locales.py }
 	Invoke-Check "AI guide consistency" { & $Python scripts/check-ai-docs.py }
-	Invoke-Check "Model asset coverage" { & $Python scripts/check-assets.py }
-	Invoke-Check "Model validator regression tests" { & $Python scripts/test-check-assets.py }
+	Invoke-Check "Repository hygiene (dead references, orphans, tracked junk)" { & $Python scripts/check-repo-hygiene.py }
+	if ($Mode -eq "Full") {
+		Invoke-Check "Model asset coverage" { & $Python scripts/check-assets.py }
+		Invoke-Check "Model validator regression tests" { & $Python scripts/test-check-assets.py }
+	}
 	Invoke-Check "Pure helper type analysis (SessionLock, SeasonVisuals only)" {
 		& $analyzer src/server/Modules/SessionLock.luau src/shared/Modules/SeasonVisuals.luau
 	}
@@ -97,17 +108,19 @@ try {
 		$skipped.Add("Type analysis")
 		Write-Warning "Type analysis SKIPPED: .tools/luau-lsp is missing, so new type findings can slip through. Install: powershell scripts/setup-types.ps1"
 	}
-	Invoke-Check "Game Rojo build" { & $rojo build default.project.json -o .test-build/game.rbxlx }
-	Invoke-Check "Plugin Rojo build" { & $rojo build plugin.project.json -o .test-build/plugin.rbxmx }
-	Invoke-Check "Studio test Rojo build" { & $rojo build test.project.json -o .test-build/tests.rbxlx }
-	# Harita eklentisi Rojo ile güncellenmez: plugin/ eklenti dosyasından yeniyse derlenmemiş demektir.
-	$installedPlugin = if ($env:LOCALAPPDATA) { Join-Path $env:LOCALAPPDATA "Roblox/Plugins/IslandFarmTycoonHarita.rbxm" } else { "" }
-	if ($installedPlugin -and (Test-Path -LiteralPath $installedPlugin)) {
-		$pluginSources = @(Get-ChildItem -LiteralPath plugin -Recurse -File) + @(Get-Item -LiteralPath plugin.project.json)
-		$newestSource = $pluginSources | Sort-Object LastWriteTime -Descending | Select-Object -First 1
-		if ($newestSource.LastWriteTime -gt (Get-Item -LiteralPath $installedPlugin).LastWriteTime) {
-			$skipped.Add("Installed Studio plugin is older than plugin/")
-			Write-Warning "Studio map plugin may be stale ($($newestSource.Name) is newer than the installed .rbxm). Rebuild: rojo build plugin.project.json --plugin IslandFarmTycoonHarita.rbxm"
+	if ($Mode -eq "Full") {
+		Invoke-Check "Game Rojo build" { & $rojo build default.project.json -o .test-build/game.rbxlx }
+		Invoke-Check "Plugin Rojo build" { & $rojo build plugin.project.json -o .test-build/plugin.rbxmx }
+		Invoke-Check "Studio test Rojo build" { & $rojo build test.project.json -o .test-build/tests.rbxlx }
+		# Harita eklentisi Rojo ile güncellenmez: plugin/ eklenti dosyasından yeniyse derlenmemiş demektir.
+		$installedPlugin = if ($env:LOCALAPPDATA) { Join-Path $env:LOCALAPPDATA "Roblox/Plugins/IslandFarmTycoonHarita.rbxm" } else { "" }
+		if ($installedPlugin -and (Test-Path -LiteralPath $installedPlugin)) {
+			$pluginSources = @(Get-ChildItem -LiteralPath plugin -Recurse -File) + @(Get-Item -LiteralPath plugin.project.json)
+			$newestSource = $pluginSources | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+			if ($newestSource.LastWriteTime -gt (Get-Item -LiteralPath $installedPlugin).LastWriteTime) {
+				$skipped.Add("Installed Studio plugin is older than plugin/")
+				Write-Warning "Studio map plugin may be stale ($($newestSource.Name) is newer than the installed .rbxm). Rebuild: rojo build plugin.project.json --plugin IslandFarmTycoonHarita.rbxm"
+			}
 		}
 	}
 } finally {
@@ -120,4 +133,8 @@ if ($failures.Count -gt 0) {
 if ($skipped.Count -gt 0) {
 	Write-Warning ("Automated checks passed, but NOT everything ran: " + ($skipped -join "; "))
 }
-Write-Host "All automated checks passed. Studio multiplayer, DataStore fault and device tests remain separate."
+if ($Mode -eq "Fast") {
+	Write-Host "Fast checks passed. Full mode additionally runs simulations/economy audit, assets and Rojo builds. Studio checks remain separate."
+} else {
+	Write-Host "All Full automated checks passed. Studio multiplayer, DataStore fault and device tests remain separate."
+}

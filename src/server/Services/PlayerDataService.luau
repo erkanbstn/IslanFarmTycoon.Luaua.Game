@@ -402,16 +402,6 @@ function PlayerDataService.takeOfflineSummary(player: Player): (number, number)
 	return earned, grown
 end
 
-function PlayerDataService.takeOfflineEarnings(player: Player): number
-	local session = sessions[player]
-	if not session then
-		return 0
-	end
-	local amount = session.offlineEarned
-	session.offlineEarned = 0
-	return amount
-end
-
 function PlayerDataService.save(player: Player): boolean
 	local session = sessions[player]
 	if not session or session.status ~= "Active" or not session.data then

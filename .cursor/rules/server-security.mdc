@@ -26,6 +26,9 @@ Remote argümanları: `(değer, requestId, expectedFarmId, ekstra?)`. İşleyici
 8. **Sonuç**: `RequestGuard.reply(player, requestId, ok, mesaj)` — kimlik varsa `PurchaseResult`, yoksa `Notify`.
    Servise özel sonuç Remote'u (`MainFarmResult`, `ProductionResult`...) kendi servisindeki kalıbı izler.
 
+## Finansal önizleme
+- İstemci önizleme fiyatı/teklif kimliği gönderebilir; bu otorite değildir. Sunucu canlı teklifi, turu, hakkı ve tutarı yeniden hesaplar. Kalıcı altın/Robux/rebirth işlemi `PlayerDataService.transactAccount` kalıbını kullanır; makbuz için kayıt doğrulanmadan platform onayı verilmez.
+
 ## Yönetici
 - Yetki yalnızca `AdminPolicy.isAllowed(player.UserId)`. `IsAdmin` özniteliği sadece UI ipucu.
 - Yeni yönetici eylemi: `AdminPolicy.validAction` + `AdminService` içindeki `execute` + `tests/admin.spec.luau`.
@@ -36,7 +39,7 @@ Remote argümanları: `(değer, requestId, expectedFarmId, ekstra?)`. İşleyici
 
 ## Yasaklar
 - `src/shared` içine gizli değer/anahtar koyma (client görür).
-- Client'tan gelen fiyat/adet/pozisyonu doğrudan kullanma; mesafe gerekiyorsa sunucu karakterden ölçer (`PlotService.isNearPlot(player, radius)`; örnek: altın hayvan `Config.GOLDEN.claimRadius`).
+- Client'tan gelen fiyat/adet/pozisyonu doğrudan kullanma; mesafe gerekiyorsa sunucu karakterden ölçer (`PlotService.isNearPlot(player, radius)`; örnek: altın hayvan `Config.GOLDEN.claimRadius`, tüccar alımı `InventoryService.tryBuyMerchantItem`).
 
 ## Katmanlar
 - Remote ve ödeme mantığı yalnızca `src/server/Services/`'te. `Presentation/` kayıt nesnesini okuyup dünyayı çizer, para/kayıt yazmaz; `World/` statik harita ve oyun servislerine bağlanmaz (bkz. `docs/MIMARI.md`).

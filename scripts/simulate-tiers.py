@@ -77,6 +77,7 @@ def format_duration(minutes: float | None) -> str:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--personas", default="ideal", help="Virgülle: ideal,casual,idle,hardcore")
+    parser.add_argument("--luau", help="Path to the standalone Luau interpreter forwarded to every simulation")
     parser.add_argument("--days", type=float, default=0, help="Simüle edilecek süre (gün); 0 = oyuncu tipine göre")
     parser.add_argument("--mults", default="", help="Deneme: kademe çiftlik çarpanları (virgülle)")
     parser.add_argument("--premium", default="", help="Deneme: ada açılış primi (perTier:power, virgülle 3 sıra için)")
@@ -93,6 +94,8 @@ def main() -> int:
     sys.stdout.reconfigure(encoding="utf-8")
     personas = [name.strip() for name in args.personas.split(",") if name.strip()]
     extra: list[str] = []
+    if args.luau:
+        extra += ["--luau", args.luau]
     if args.premium:
         extra += ["--premium", args.premium]
     if args.goods_tier is not None:

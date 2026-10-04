@@ -157,11 +157,54 @@ return function(createStats: any, createGoal: any)
 		unlockedIslands = { home = true },
 	}, 0)
 	assert(goldAmount.Text == "1530" and rebirthLevel.Text == "R30", "live wallet changes update both value labels")
+	local bannerTitle = ""
 	local goal = createGoal(gameMock, ui, { new = node }, dimensions, { AutomaticSize = { Y = "Y" } }, {
 		purchaseHint = function()
 			return ""
 		end,
-	}).create(stats.frame, {}, {})
+		upgradeAffordable = function()
+			return false
+		end,
+	}, {
+		get = function()
+			return "home"
+		end,
+	}, {
+		stepFor = function()
+			return 1
+		end,
+	}, {
+		cheapestExpansion = function()
+			return nil
+		end,
+	}).create(stats.frame, {
+		apply = function()
+			return 1
+		end,
+	}, {
+		show = function(title)
+			bannerTitle = title
+		end,
+		hide = function()
+			error("Fresh player banner must remain visible")
+		end,
+	})
+	goal.updateGoal({
+		cash = 75,
+		stored = 0,
+		barnLevel = 1,
+		activeMainFarmId = "1",
+		purchased = {},
+		animals = {},
+		unlockedZones = {},
+		unlockedIslands = { home = true },
+		expansions = {},
+		lineage = {},
+		production = {},
+		inventory = { items = {}, equipped = {}, uses = {} },
+		progression = { count = 0 },
+	}, 0)
+	assert(not goal.card.Visible and bannerTitle == "İLK ADIMLAR 1/6", "fresh goal updates the onboarding banner")
 	assert(goal.card.Parent == stats.frame and #disclosures == 2, "goal and island cards retain their HUD context")
 	local islandDisclosure = disclosures[1]
 	assert(

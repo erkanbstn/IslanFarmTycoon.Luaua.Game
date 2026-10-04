@@ -88,7 +88,7 @@ kurulu ürün merkezlerinin ürünlerini sunar (çiftlik çeşitliliği doğal o
   yetişmeli ama "alınır alınmaz" açılmamalı; orta ve geç ada kademeyle birlikte uzar. Kollar: `DIFFICULTY.slotSpread`, ada sırası ağırlıkları, açılış ürün gereksinimi.
 - Uygulanan ayar (`Config/Difficulty.luau`): çiftlik çarpanları 1 / 5,9 / 16,8 / 34,8 / 62,7 / 125; ada açılış primi erken x32, orta x3,3-5, geç x2,8 (tema 2+); Çiftlik 1 öğreticidir (açılışlar ürün istemez,
   `goods.tutorialSteps = 3`), ürün gereksinimi Çiftlik 2'de başlar. Böylece çiftlik süresi ideal/casual/idle personada tema 1 -> 6 kesin artar ve ada ritmi kademeyle ölçeklenir.
-- Ölçülen değerler (tema başına süre, ada ritmi, en kötü alım sırası): `docs/DURUM_RAPORU.md` §4 ve `ZORLUK_VE_FIYAT.md` (`scripts/simulate-tiers.py` çıktısı).
+- Ölçülen değerler (tema başına süre, ada ritmi, en kötü alım sırası): güncel `scripts/simulate-tiers.py` çıktısı ve `ZORLUK_VE_FIYAT.md` içindedir.
 
 ## Kayıt
 

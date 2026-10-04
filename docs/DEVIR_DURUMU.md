@@ -1,0 +1,37 @@
+# Güncel devir durumu
+
+4 Ekim 2026. Başlangıç rehberi `AGENTS.md` ve `AI_DEVIR_REHBERI.md`; güncel davranış kaynağı Config, FarmMath, servisler ve testlerdir.
+
+## Teslim edilen yapı
+
+- Main `3349e54`: 30 rebirth, altın/kalıcı sahiplik, geniş market, ilerleme/etki ekranı, arayüz düzenlemeleri, üretim-talep dengesi ve meydandaki indirimli ekipman tüccarı.
+- Çalışma dalı `codex/ai-calisma-araclari`: doctor, Fast/Full doğrulama, harness bağımlılık kontrolü, ekonomi karşılaştırması ve izole Studio senaryoları. Admin maxAll hayvan kimliğiyle soy seviyesi yazıyor; GoalCard test bağımlılıkları tamamlandı. Bu aşama 4 Ekim 2026'da main'e yerel olarak fast-forward birleştirildi; push edilmedi. `feat/roblox-ceviri` bilerek dışarıda: Locales/Localization.luau kaldıran bu dal birleşirken `src/shared/Locales` ve `check-locales`/hijyen çeviri anahtarı denetimiyle çakışır, o zaman bu denetimler yeni çeviri düzenine uyarlanmalı.
+- Son Full `-RequireTypes` başarılı; tip bulgusu sıfır, model kapsamı 761 görünümde eksik/bozuk yok. Fast yaklaşık 7,5 saniye. 19 tooling (hijyen dahil), 8 karşılaştırma, 5 QA Python testi ve saf Luau regresyonları geçti.
+- Kayıtsız Studio'da fresh/merchant/production ve altı çiftlikli R29/R30 profilleri çalıştı. R29 rebirth açılıyor, R30 kapanıyor. QA kapalı ve eski requestId reddediliyor. Bunlar gerçek 30 tur oynama veya gerçek ödeme testi değildir.
+- Altı saatlik aynı hardcore senaryosu, ikişer tekrar: AI araçları öncesi/sonrası oyun ölçümleri aynı. 3,729/3,724 saniyelik proses farkı performans kazancı sayılmaz.
+
+## Temizlik
+
+Geçici Studio QA scriptleri ve StudioQaEnabled özniteliği kalmadı. Başlangıçta mevcut StudioNonPersistentData=true koruma bayrağı korunuyor. Otomatik onay denetimi bu bayrağın kaldırılmasını sonraki Studio Play kalıcı kayıt kullanabileceği için reddetti; kaldırma için kullanıcı onayı isteniyor. Edit'teki `_ModelSwapBackup` klasörü (17.458 alt nesne: eski Plots/World, Terrain kopyaları ve EmptyIslandTest) kaldırıldı; mevcut Workspace.Plots/World korundu. Undo waypoint oluşturuldu. Studio değişikliği kaydedilmedi/yayınlanmadı; kalıcı tutmak için geliştirici Edit'te kontrol edip kaydetmelidir.
+
+Yinelenen 12 tarihsel inceleme/ilerleme raporu aktif docs alanından .cleanup-archive/2026-10-04 altına taşındı; iki render günlüğü de arşivlendi. Arşiv git dışında, yerel olarak geri alınabilir. Eski plan taslakları kaldırıldı. Gerekli açık riskler aşağıya taşındı; takipli eski dosyalar ayrıca Git geçmişinden bulunabilir. Yaklaşık 126 MB üretilmiş test çıktısı, geçici derlemeler, sourcemap ve Python önbellekleri temizlendi. Son temizlikte Fast -RequireTypes, rehber/model denetimleri ve git diff --check geçti; oyun kaynakları bu temizlikte değiştirilmedi. Önceki Full başarılıydı; çıktı dosyaları artık yeniden üretilmelidir. Kullanılan modeller, üretici kaynakları, sözleşmeler ve çalıştırılabilir test/QA araçları korundu.
+
+İkinci temizlik (4 Ekim 2026, aynı gün): ~900 satırlık `GPT_ILETISIM.md` iş günlüğü, `GPT_MODEL_IS_LISTESI.md` teslim listeleri ve pilot dönemi `MODEL_IS_PLANI.md` tamamlandıkları için kısa güncel sürümlere indirildi; özgün metinler yerel `.cleanup-archive/2026-10-04/docs/` ve Git geçmişindedir. Uygulanmış tek seferlik model yama betikleri (`fix_animal_torso_slopes`, `fix_bridge_well_safety`, `fix_spawn_plaza_clearance`, `refresh_tile_roofs`, `fix_tree_trunk_collision`) silindi; yeniden çalıştırılabilir üreticiler kaldı. Tüketicisi olmayan `Ui/Hud/ProgressionWindow.luau` uyumluluk modülü silindi. Eski/yetim kalan belgeler `AI_DEVIR_REHBERI.md` dizinine bağlandı. Yeniden bayatlamayı yakalamak için `scripts/check-repo-hygiene.py` (ölü yol/bağlantı, yetim belge/betik/modül, izlenen çöp, 400 satır sınırı, olmayan commit kimliği) eklendi; Fast ve Full içinde çalışır, testi `tests/tooling.spec.py`.
+
+Üçüncü tur (4 Ekim 2026, alt ajanlarla): Kullanılmayan `IslandContext.isPreview/hasAnimal`, `StoreSection.isForSale`, `PlayerDataService.takeOfflineEarnings`, `MapBuilder.warnIfNoPlots` ve beş dilde aynı 50 çeviri anahtarı (1555 → 1505) silindi. Ölü Remote, yorumlu kod ve tüketicisiz Config bulunmadı. `check-assets.py` fazla/bilinmeyen model dosyasını hata sayar (761 görünüm, 0 fazla). Hızlı başlangıç araçları: `python scripts/triage.py` (değişen dosyalara göre kural, skill ve en küçük kontrol komutları; `--run`, `--json`), `python scripts/smoke-quick.py --only ad` / `run-tests.py --only ad --list` (saf Luau alt kümesi, saniyeler) ve `docs/HIZLI_AKSIYON.md` görev→komut tarifleri. Şüpheli bırakılanlar: yalnız testlerde kullanılan `PlotService.getFarmId`, `Config.getAnimalTheme`, `Config.getIslandAnimal`, `Inventory.ownedCount`, boş `Remotes.FUNCTIONS` şablonu ve ~187 dinamik olabilecek çeviri anahtarı. Sonra işi bitmiş `GPT_ILETISIM.md`, `HAYVAN_YUZEY_DENETIMI.md`, `REBIRTH_30_DOGRULAMA.md` ve `URETIM_TUCCAR_DENGE.md` de silindi (yerel arşivde ve Git geçmişinde). Hijyen denetimi sonradan ölü fonksiyon, yorumlu kod, yarım Remote ve ölü çeviri anahtarını da yakalar hâle geldi; ilk koşuda yakaladığı `ExtensionVisualService.findExtensionArea` (ve ona bağlı `ExtensionAreas` require/test bağımlılığı) silindi. Full `-RequireTypes` bu turdan sonra geçti.
+
+## Yayın öncesi somut kalan işler
+
+1. Creator Hub ürün kimliklerini ve fiyatlarını belirle; kimliği 0 olan Robux ürünleri kapalı. Ayrı test ortamında gerçek makbuz/tekrar giriş ve çift ödeme korumasını doğrula.
+2. Studio iki oyuncu: aktarım, çiftlik geçişi, streaming, ayrılma/yeniden giriş. Mobil/gamepad, uzun oturum belleği ve MicroProfiler/FPS ölçümü ayrı yapılmalı.
+3. Ayrı test DataStore'unda gecikme, yanıt kaybı, kapanış ve kota senaryoları; SaveFailed, ReceiptCapacityBlocked, mali günlük ve inbox boyutlarını izle. QA fixture'ları kayıt yazmadığından bunları kanıtlamaz.
+4. Mali günlük 20.000 kayda ulaşınca yeni işlem güvenli biçimde durur. Eski kimlikleri silmeden kalıcı arşiv protokolü gerekir. Geçmiş eski kodun sildiği makbuzlar veya geri alınmış bakiyeler otomatik uzlaştırılamaz; karantina kanıtlarıyla manuel inceleme gerekir.
+5. Bekleyen aktarım hemen teslim garantisi vermez. Sunucu inbox yayımından önce kapanırsa kayıtlı outbox gönderenin sonraki girişinde sürdürülür; kapasite veya nakit tavanı geciktirebilir. Borcu otomatik silme. Yeni mali alanları tanımayan eski codec'e dönmek hak kaybı yaratabilir.
+6. Model/Studio kabulü: R15 `season_staff_inf` + `golden_crown` birlikte takılınca `Equip_head`/`Equip_staff` kesişiyor (R6'da yok); alt parçalar ölçülüp model düzeltilmeli, 8 asa × 8 başlık R6/R15'te taranmalı. Hayvan yüzey takibi (`AnimalAnimator.supportAt`) kodlandı ama 26 tür × 3 yaş, eklenti kapasiteleri ve streaming Play kabulü yapılmadı.
+7. Ses kimlikleri, gerçek cihazdaki çeviri/arayüz görünümü ve ayrı lobi kararı ilgili tasarım belgeleriyle değerlendirilir. Eski raporlardaki model/locale sayıları güncel doğrulama yerine kullanılmaz.
+
+Skill-creator quick_validate PyYAML bulunmadığından çalışmadı; proje rehber/frontmatter/yönlendirme kontrolü geçti. Selene API indirme yerine mevcut önbelleği kullandı, lint sıfır hata.
+
+## Devralma promptu
+
+“Bu Roblox/Luau projesini devral. Önce AGENTS.md, docs/AI_DEVIR_REHBERI.md ve docs/DEVIR_DURUMU.md dosyalarını oku; mevcut dalı ve kullanıcı değişikliklerini koruyarak doctor ve hızlı doğrulamayı çalıştır. Verdiğim görevi ilgili skill/rule'lara göre uygula, davranış testleriyle doğrula ve sonunda gerekli Full/Studio kontrollerini yap. Commit, push, merge, publish veya canlı veri sıfırlamasını yalnızca açık talebimle yap; kısa Türkçe sonuç ver. Görevim: [buraya yapılacak işi yaz].”

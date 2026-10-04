@@ -1,6 +1,6 @@
 # Yayınlama ve arkadaşlarla test
 
-Kod tarafı hazırdır (kayıt, yedek, 6 oyunculu ada atama, yetki, satın alma kapalı ürünler). Aşağıdakiler Studio/Roblox
+Otomatik kontrollerin kapsamı ve kalan gerçek ortam testleri DEVIR_DURUMU.md içindedir. Aşağıdakiler Studio/Roblox
 panelinde elle yapılır; kod bunları değiştiremez.
 
 ## Yayınlamadan önce (Studio)
@@ -31,6 +31,6 @@ panelinde elle yapılır; kod bunları değiştiremez.
 ## Yayındaki oyunu güncelleme
 1. Studio'da **Rojo ile bağlan** (`rojo serve` + eklenti Connect), kod değişikliklerini senkronla.
 2. Harita/yerleşim değiştiyse (MAP_VERSION arttıysa) **Haritayı Kur → Doğrula**; kodla harita uyumsuzsa oyun yeni sürümde oyuncuyu atar.
-3. Tek başına bir deneme yap (Test), sonra **Dosya → Roblox'a Yayınla** (Publish to Roblox). Kayıt şemasındaki eski kayıtlar otomatik göç eder.
-4. Açık sunucular eski sürümle çalışmaya devam eder. Yeni sürümü hemen görmek için Yaratıcı Merkezi'nde oyunun **Server management** (Sunucu yönetimi) bölümünden **Shut down all servers** de; oyuncular yeniden girer. Kapanışta kayıtlar yazılır (`BindToClose`), ilerleme kaybolmaz.
+3. Tek başına bir deneme yap (Test), sonra **Dosya → Roblox'a Yayınla** (Publish to Roblox). Kayıt şeması uyumluluğunu ve mali hakları ayrı test ortamında doğrula; sürüm değiştirmek otomatik göç garantisi vermez.
+4. Açık sunucular eski sürümle çalışmaya devam eder. Yeni sürümü hemen görmek için Yaratıcı Merkezi'nde oyunun **Server management** (Sunucu yönetimi) bölümünden **Shut down all servers** de; oyuncular yeniden girer. Kapanışta kayıt denenir (`BindToClose`); kota, kesinti ve belirsiz yazım durumlarını izle, kayıpsızlık garantisi verme.
 5. Arkadaşlarla oynarken büyük güncellemeyi, oyun boşken yap; kapanış 30 saniyeye kadar sürebilir.

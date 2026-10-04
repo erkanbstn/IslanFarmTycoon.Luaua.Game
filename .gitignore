@@ -8,6 +8,8 @@ sourcemap.json
 .tools/
 .test-build/
 build/
+# Geri alinabilir yerel temizlik arsivi; aktif proje ve AI rehberlerine dahil degil.
+.cleanup-archive/
 !assets/**/*.rbxm
 !assets/**/*.rbxmx
 !client-assets/**/*.rbxm

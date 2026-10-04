@@ -1,5 +1,6 @@
 """Opt-in tier simulation stopping preserves real completion milestones."""
 
+import argparse
 import json
 from pathlib import Path
 import subprocess
@@ -9,12 +10,17 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 SIMULATION = ROOT / "scripts" / "simulate-economy.py"
+LUAU: str | None = None
+
+
+def simulation_command(*arguments: str) -> list[str]:
+    return [sys.executable, str(SIMULATION), *(["--luau", LUAU] if LUAU else []), *arguments]
 
 
 class SimulationStopTests(unittest.TestCase):
     def simulate(self, *arguments: str) -> dict:
         result = subprocess.run(
-            [sys.executable, str(SIMULATION), "--json", *arguments],
+            simulation_command("--json", *arguments),
             cwd=ROOT,
             capture_output=True,
             check=False,
@@ -25,7 +31,7 @@ class SimulationStopTests(unittest.TestCase):
     def test_requires_full_sequential_completion(self):
         for arguments in [[], ["--finish-first", "--completion", "basic"]]:
             result = subprocess.run(
-                [sys.executable, str(SIMULATION), "--stop-after-farms", *arguments],
+                simulation_command("--stop-after-farms", *arguments),
                 cwd=ROOT,
                 capture_output=True,
                 check=False,
@@ -50,4 +56,8 @@ class SimulationStopTests(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("--luau")
+    options, remaining = parser.parse_known_args()
+    LUAU = options.luau
+    unittest.main(argv=[sys.argv[0], *remaining])
