@@ -102,11 +102,26 @@ return function(createBase: any, createGrid: any)
 	local tokens = {
 		Color = { Text = 1, TextMuted = 2, Gold = 3, GoldLight = 4, Surface = 5, Stroke = 6 },
 		Font = { Body = 1, Bold = 2 },
-		TextSize = { Caption = 14, Body = 16, Button = 15 },
+		TextSize = { Caption = 14, Body = 16, Button = 15, Title = 24 },
 		Radius = { Card = 10, Button = 8 },
 		TouchTarget = 44,
 	}
 	local base = createBase(tokens, instance, dim, size, enum, {}, dim)
+	local empty = base.emptyState({}, "📦", "Complete", "Nothing left to buy")
+	assert(
+		empty.title.TextSize == 24 and empty.description.TextSize == 16,
+		"empty states use a prominent heading and readable body"
+	)
+	assert(
+		empty.title.TextXAlignment == enum.TextXAlignment.Center and empty.description.TextWrapped,
+		"empty state copy stays centered and wraps"
+	)
+	local emptyLayout = empty.frame:FindFirstChildOfClass("UIListLayout")
+	assert(
+		emptyLayout.HorizontalAlignment == enum.HorizontalAlignment.Center
+			and emptyLayout.VerticalAlignment == enum.VerticalAlignment.Center,
+		"empty state contents share a centered layout"
+	)
 	local detailsHost = { Name = "DisclosureBody" }
 	local explanation = base.text(detailsHost, "Long explanation", "Caption", tokens.Color.TextMuted)
 	assert(explanation.TextSize == tokens.TextSize.Body, "opened explanations use readable body size")

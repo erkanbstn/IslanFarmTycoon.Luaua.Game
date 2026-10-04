@@ -29,12 +29,15 @@ function MerchantWindow.create(parent: Instance): { window: UiKit.Window, update
 	})
 	local summary = UiKit.text(window.list, "", "Body")
 	summary.LayoutOrder = 0
-	UiKit.text(
+	local hint = UiKit.text(
 		window.list,
 		"Ziyaret başına bir eşya seçebilirsin. Nakit eşyalar rebirth'te sıfırlanır.",
 		"Caption"
-	).LayoutOrder =
-		1
+	)
+	hint.LayoutOrder = 1
+	local empty = UiKit.emptyState(window.list, "🧳", "", "")
+	empty.frame.LayoutOrder = 0
+	empty.frame.Size = UDim2.new(1, 0, 1, -12)
 	local travel = UiKit.button(window.list, "Tüccara git", "secondary")
 	travel.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
 	travel.LayoutOrder = 2
@@ -128,6 +131,25 @@ function MerchantWindow.create(parent: Instance): { window: UiKit.Window, update
 			end
 		end
 		travel.Visible = status.visit ~= nil and not status.bought and #status.offers > 0
+		local hasOffers = status.visit ~= nil and not status.bought and #status.offers > 0
+		summary.Visible = hasOffers
+		hint.Visible = hasOffers
+		grid.Visible = hasOffers
+		empty.frame.Visible = not hasOffers
+		UiKit.setText(
+			empty.title,
+			if not status.visit
+				then "Tüccar yolda"
+				elseif status.bought then "Bu ziyaret tamamlandı"
+				else "Tüm tüccar eşyalarına sahipsin"
+		)
+		UiKit.setText(
+			empty.description,
+			if not status.visit
+				then "Gezgin tüccar şu an yolda. Geldiğinde rozetinden haberdar olursun."
+				elseif status.bought then "Bu ziyarette eşyanı aldın. Yeni teklifler bir sonraki ziyarette."
+				else "Bu tur tüccarın satabileceği tüm eşyalara sahipsin. Rebirth sonrası yeni tur eşyalarını burada indirimli alabilirsin."
+		)
 		local left = if status.visit then math.max(0, math.ceil(status.visit.endsAt - now)) else 0
 		UiKit.setText(
 			summary,

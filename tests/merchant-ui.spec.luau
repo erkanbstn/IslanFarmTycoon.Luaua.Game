@@ -54,6 +54,11 @@ return function(createMerchant: any, merchant: any, config: any, farmMath: any)
 		table.insert(labels, label)
 		return label
 	end
+	local empty: any
+	ui.emptyState = function(parent: any, _icon: string, title: string, description: string): any
+		empty = { frame = node(), title = ui.text(parent, title), description = ui.text(parent, description) }
+		return empty
+	end
 	ui.button = function(parent: any, text: string): any
 		local button = node()
 		button.Parent = parent
@@ -207,6 +212,26 @@ return function(createMerchant: any, merchant: any, config: any, farmMath: any)
 		assert(not card.frame.Visible, "one purchase exhausts this visit's catalogue")
 	end
 	assert(not buttons[1].Visible, "completed visit does not offer another purchase trip")
+	assert(
+		empty.frame.Visible and empty.title.Text == "Bu ziyaret tamamlandı",
+		"completed visit gets a distinct readable state"
+	)
+	assert(not labels[1].Visible and not labels[2].Visible, "completed visit hides transaction instructions")
+	state.merchant = nil
+	for _, itemId in config.ITEM_ORDER do
+		state.inventory.items[itemId] = true
+	end
+	panel.update(state)
+	assert(
+		empty.frame.Visible and empty.title.Text == "Tüm tüccar eşyalarına sahipsin",
+		"fully owned catalogue is explained instead of left blank"
+	)
+	state.adminForce = nil
+	while merchant.status(state, 777, now).visit do
+		now += 60
+	end
+	panel.update(state)
+	assert(empty.frame.Visible and empty.title.Text == "Tüccar yolda", "absent merchant has its own empty state")
 	print(
 		"PASS merchant UI: finite live catalog, lazy previews, explicit review, exact quote, travel and exhausted visit"
 	)

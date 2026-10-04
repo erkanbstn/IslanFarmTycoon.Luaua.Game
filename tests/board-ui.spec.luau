@@ -33,6 +33,9 @@ return function(createBoard: any)
 			return { frame = node(), body = node() }
 		end,
 		text = node,
+		emptyState = function(): any
+			return { frame = node() }
+		end,
 		autoGrid = node,
 		autoTile = function(): any
 			card = { frame = node(), title = node(), detail = node(), icon = node(), action = node() }

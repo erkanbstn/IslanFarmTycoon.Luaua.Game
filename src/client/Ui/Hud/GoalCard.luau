@@ -10,6 +10,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local GameTypes = require(Shared:WaitForChild("GameTypes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
+local Progression = require(Shared:WaitForChild("Modules"):WaitForChild("Progression"))
 local IslandContext = require(script.Parent.Parent.Parent:WaitForChild("Core"):WaitForChild("IslandContext"))
 local UiKit = require(script.Parent.Parent:WaitForChild("UiKit"))
 local HudCommon = require(script.Parent:WaitForChild("HudCommon"))
@@ -92,6 +93,22 @@ function GoalCard.create(stats: Frame, onboarding: Onboarding.Hud, banner: Onboa
 
 	local function updateGoalMain(state: PlayerSave, income: number)
 		goalTitle.Text = "SIRADAKİ HEDEF"
+		local progress = Progression.progress(state)
+		if progress.canRebirth then
+			goalTitle.Text = "REBIRTH HAZIR"
+			goalLabel.Text = "Altı çiftliği tamamladın"
+			goalDetail.Text = "Rebirth menüsünden kalıcı ödülünü seçerek yeni tura başlayabilirsin."
+			return
+		elseif
+			state.progression
+			and state.progression.count >= Config.PROGRESSION.maxRebirth
+			and progress.farmsComplete == progress.farmsTotal
+		then
+			goalTitle.Text = "YOLCULUK TAMAMLANDI"
+			goalLabel.Text = "Tüm rebirth seviyelerini ve çiftliklerini tamamladın"
+			goalDetail.Text = "Siparişlere, üretime ve çiftliğini kişiselleştirmeye devam edebilirsin."
+			return
+		end
 		-- İlk adımlar: hayvan al → parayı topla → ilk yükseltme (durumdan türetilir, vurgular Onboarding'de)
 		local cheapest: Config.UpgradeConfig? = nil
 		for _, upgrade in Config.UPGRADES do
@@ -337,6 +354,17 @@ function GoalCard.create(stats: Frame, onboarding: Onboarding.Hud, banner: Onboa
 		end
 		-- Yeni oyuncuda hedef kartı tek başına yönlendirir; bekleyen işler deneyimli oyuncuda eklenir
 		if Onboarding.stepFor(state) ~= 0 then
+			return
+		end
+		local progress = Progression.progress(state)
+		if
+			progress.canRebirth
+			or (
+				state.progression
+				and state.progression.count >= Config.PROGRESSION.maxRebirth
+				and progress.farmsComplete == progress.farmsTotal
+			)
+		then
 			return
 		end
 		local chores = pendingChores(state)

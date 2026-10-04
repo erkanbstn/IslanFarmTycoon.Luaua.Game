@@ -92,6 +92,9 @@ return function(createStats: any, createGoal: any)
 		end,
 	}
 	local service = node()
+	service.GetServerTimeNow = function(): number
+		return 100
+	end
 	service.LocalPlayer = player
 	local gameMock = {
 		GetService = function(): any
@@ -194,6 +197,7 @@ return function(createStats: any, createGoal: any)
 		"gold amount and rebirth occupy separate non-overlapping rows"
 	)
 	local bannerTitle = ""
+	local step = 1
 	local goal = createGoal(gameMock, ui, { new = node }, dimensions, { AutomaticSize = { Y = "Y" } }, {
 		purchaseHint = function()
 			return ""
@@ -207,7 +211,7 @@ return function(createStats: any, createGoal: any)
 		end,
 	}, {
 		stepFor = function()
-			return 1
+			return step
 		end,
 	}, {
 		cheapestExpansion = function()
@@ -215,14 +219,14 @@ return function(createStats: any, createGoal: any)
 		end,
 	}).create(stats.frame, {
 		apply = function()
-			return 1
+			return step
 		end,
 	}, {
 		show = function(title)
 			bannerTitle = title
 		end,
 		hide = function()
-			error("Fresh player banner must remain visible")
+			assert(step == 0, "Fresh player banner must remain visible")
 		end,
 	})
 	goal.updateGoal({
@@ -241,6 +245,35 @@ return function(createStats: any, createGoal: any)
 		progression = { count = 0 },
 	}, 0)
 	assert(not goal.card.Visible and bannerTitle == "İLK ADIMLAR 1/6", "fresh goal updates the onboarding banner")
+	step = 0
+	local complete: any = {
+		activeMainFarmId = "1",
+		cash = 1e12,
+		production = {},
+		goods = {},
+		purchased = {},
+		animals = {},
+		inventory = { items = {}, equipped = {}, uses = {} },
+		progression = { count = 29 },
+		progressionStatus = { canRebirth = true, farmsComplete = 6, farmsTotal = 6 },
+	}
+	goal.updateGoal(complete, 0)
+	local function hasGoalText(text: string): boolean
+		for _, object in objects do
+			if object.Parent == goal.card and object.Text == text then
+				return true
+			end
+		end
+		return false
+	end
+	assert(
+		goal.card.Visible and hasGoalText("REBIRTH HAZIR"),
+		"rebirth ready takes priority over unbought optional expansions"
+	)
+	complete.progression.count = 30
+	complete.progressionStatus.canRebirth = false
+	goal.updateGoal(complete, 0)
+	assert(hasGoalText("YOLCULUK TAMAMLANDI"), "terminal completed run never suggests another rebirth or optional goal")
 	assert(goal.card.Parent == stats.frame and #disclosures == 2, "goal and island cards retain their HUD context")
 	local islandDisclosure = disclosures[1]
 	assert(

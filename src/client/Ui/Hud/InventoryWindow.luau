@@ -207,13 +207,14 @@ function InventoryWindow.create(screenGui: Instance): Panel
 	for _, slotId in Config.ITEM_SLOT_ORDER do
 		table.insert(categoryEntries, { id = slotId, label = Config.ITEM_SLOTS[slotId].displayName })
 	end
-	local emptyText = UiKit.text(
+	local emptyState = UiKit.emptyState(
 		ownedPage,
-		"Henüz eşyan yok. Meydandaki Usta Ömer'den eşya alabilirsin.",
-		"Body",
-		Color.TextMuted
+		"🎒",
+		"Henüz eşyan yok",
+		"Henüz eşyan yok. Meydandaki Usta Ömer'den eşya alabilirsin."
 	)
-	emptyText.LayoutOrder = OWNED_ORDER + 2
+	local emptyText = emptyState.description
+	emptyState.frame.LayoutOrder = OWNED_ORDER + 2
 	local ownedGrid = UiKit.autoGrid(ownedPage, OWNED_ORDER + 3, 2)
 	local ownedCards: { [string]: UiKit.Card } = {}
 	local ownedDetails: { [string]: TextLabel } = {}
@@ -250,7 +251,8 @@ function InventoryWindow.create(screenGui: Instance): Panel
 			anyVisible = anyVisible or visible
 		end
 		ownedGrid.Visible = anyVisible
-		emptyText.Visible = not anyVisible
+		emptyState.frame.Visible = not anyVisible
+		UiKit.setText(emptyState.title, if anyOwned then "Bu kategori boş" else "Henüz eşyan yok")
 		UiKit.setText(
 			emptyText,
 			if anyOwned

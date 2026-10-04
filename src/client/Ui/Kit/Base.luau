@@ -120,6 +120,34 @@ function Base.setText(label: TextLabel | TextButton, text: string)
 	target.Text = text
 end
 
+-- Boş ve tamamlanmış listeler: okunaklı başlık, kısa açıklama ve ortak hizalama.
+function Base.emptyState(
+	parent: Instance,
+	icon: string,
+	title: string,
+	description: string
+): { frame: Frame, title: TextLabel, description: TextLabel }
+	local frame = Instance.new("Frame")
+	frame.Name = "EmptyState"
+	frame.BackgroundTransparency = 1
+	frame.Size = UDim2.new(1, 0, 0, 220)
+	frame.AutomaticSize = Enum.AutomaticSize.Y
+	frame.Parent = parent
+	Base.padding(frame, 16, 24)
+	local layout = Base.list(frame, 12)
+	layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	layout.VerticalAlignment = Enum.VerticalAlignment.Center
+	local chip = Base.iconChip(frame, icon, 52, Tokens.Color.Gold)
+	chip.LayoutOrder = 0
+	local heading = Base.text(frame, title, "Title")
+	heading.TextXAlignment = Enum.TextXAlignment.Center
+	heading.LayoutOrder = 1
+	local body = Base.text(frame, description, "Body")
+	body.TextXAlignment = Enum.TextXAlignment.Center
+	body.LayoutOrder = 2
+	return { frame = frame, title = heading, description = body }
+end
+
 -- Emoji için sabit boyutlu, renkli zeminli ikon kutusu
 function Base.iconChip(parent: Instance, icon: string, size: number, tint: Color3?): TextLabel
 	local chip = Instance.new("TextLabel")

@@ -1,5 +1,11 @@
 # Güncel devir durumu
 
+## Boş ve tamamlanmış arayüzler (4 Ekim 2026)
+
+Başlangıç temiz `main` (`7f269d1`). HUD artık isteğe bağlı kuluçka yerine rebirth hazırlığını öncelikli gösterir; R30 ve altı tamamlanmış çiftlik için son durum ayrıdır. Bu durumlarda üretim başlatma önerisi eklenmez. Ortak UiKit.emptyState; tüccarın üç boş durumu, envanter/kategori, açılmamış siparişler ve tamamlanan yapıları merkezlenmiş ikon, başlık ve açıklamayla gösterir. Gereksiz alışveriş talimatları ve başka yatırım yokken yatırım butonu gizlenir. Metinler beş dilde tamamlandı; HUD, tüccar ve ortak bileşen regresyonları genişletildi.
+
+Doğrulama: `.test-build/completed-ui-fast.log` (Fast, zorunlu tip analizi). Full ve Studio görsel kontrolü bu görevde çalıştırılmadı. Rojo sonrası rebirth hazır/R30, tüccarın boş durumları ve dar ekranda uzun çeviriler gözle kontrol edilmeli. Değişiklikler yerel; bu görevde commit/push/publish yapılmadı.
+
 4 Ekim 2026. Başlangıç rehberi `AGENTS.md` ve `AI_DEVIR_REHBERI.md`; güncel davranış kaynağı Config, FarmMath, servisler ve testlerdir.
 
 ## Teslim edilen yapı

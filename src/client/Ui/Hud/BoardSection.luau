@@ -24,8 +24,13 @@ function BoardSection.create(list: Instance): (PlayerSave?) -> ()
 	local _, contractMeta = UiKit.sectionHeader(list, "Ahır siparişleri", CONTRACT_ORDER)
 	local information = UiKit.disclosure(list, CONTRACT_ORDER + 1, "Ayrıntılar")
 	local contractNote = UiKit.text(information.body, "", "Caption", Color.TextMuted)
-	local empty =
-		UiKit.text(list, "Bir ürün merkezi kurunca ahır siparişleri açılır (Üretim penceresi).", "Body")
+	local emptyState = UiKit.emptyState(
+		list,
+		"📦",
+		"Siparişler henüz açılmadı",
+		"Bir ürün merkezi kurunca ahır siparişleri açılır (Üretim penceresi)."
+	)
+	local empty = emptyState.frame
 	empty.LayoutOrder = CONTRACT_ORDER + 1
 	local contractCards: { UiKit.Card } = {}
 	local contractOffers: { FarmMath.ContractOffer } = {}

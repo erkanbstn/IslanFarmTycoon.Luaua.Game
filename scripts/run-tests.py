@@ -214,7 +214,7 @@ def main(argv: list[str] | None = None, dependency_reporter=None) -> int:
                {"Config", "GameTypes", "FarmMath", "IslandContext", "UiKit"},
                "game, UiKit, IslandContext, Instance, UDim2, Vector2, Enum"),
         module("GoalCardFactory", "src/client/Ui/Hud/GoalCard.luau",
-               {"Config", "GameTypes", "FarmMath", "IslandContext", "UiKit", "HudCommon", "Onboarding", "OnboardingBanner", "OnboardingSteps"},
+               {"Config", "GameTypes", "FarmMath", "Progression", "IslandContext", "UiKit", "HudCommon", "Onboarding", "OnboardingBanner", "OnboardingSteps"},
                "game, UiKit, Instance, UDim2, Enum, HudCommon, IslandContext, Onboarding, OnboardingSteps"),
         module("hudLayoutSpec", "tests/hud-layout.spec.luau"),
         module("BridgeSurface", "src/client/Core/BridgeSurface.luau"),

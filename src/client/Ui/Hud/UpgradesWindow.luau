@@ -7,6 +7,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local GameTypes = require(Shared:WaitForChild("GameTypes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
+local Progression = require(Shared:WaitForChild("Modules"):WaitForChild("Progression"))
 local UiKit = require(script.Parent.Parent:WaitForChild("UiKit"))
 local ClientState = require(script.Parent.Parent.Parent:WaitForChild("Core"):WaitForChild("ClientState"))
 local PurchaseController = require(script.Parent.Parent.Parent:WaitForChild("Core"):WaitForChild("PurchaseController"))
@@ -60,13 +61,15 @@ function UpgradesWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Upg
 			refreshTab()
 		end
 	end)
-	local upgradesEmpty = UiKit.text(
+	local completed = UiKit.emptyState(
 		upgradesWindow.list,
-		"Tüm yükseltmeleri aldın. Çiftliğini hayvanlarla büyütmeye devam edebilirsin.",
-		"Body"
+		"✅",
+		"Yapılar tamamlandı",
+		"Bu adanın yapılarını tamamladın. Diğer sekmelerden seviyeleri ve geliştirmeleri inceleyebilirsin."
 	)
-	upgradesEmpty.LayoutOrder = 1
-	upgradesEmpty.Visible = false
+	local upgradesEmpty = completed.description
+	completed.frame.LayoutOrder = 1
+	completed.frame.Visible = false
 	local nextIslandButton = UiKit.button(upgradesWindow.list, "Adalar'da sıradaki yatırımı seç", "primary")
 	nextIslandButton.Size = UDim2.new(1, 0, 0, 42)
 	nextIslandButton.LayoutOrder = 2
@@ -224,8 +227,11 @@ function UpgradesWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Upg
 		end
 		if content then
 			UiKit.setText(upgradesInfo, islandTabs.name())
-			upgradesEmpty.Text =
-				`{islandTabs.name()} yükseltmeleri tamamlandı. Sıradaki yatırımını seçmek için Adalar'ı aç.`
+			UiKit.setText(
+				upgradesEmpty,
+				"Bu adanın yapılarını tamamladın. Diğer sekmelerden seviyeleri ve geliştirmeleri inceleyebilirsin."
+			)
+			UiKit.setText(completed.title, "Yapılar tamamlandı")
 		end
 		for index, upgrade in Config.UPGRADES do
 			local card = directUpgradeCards[upgrade.id]
@@ -265,8 +271,8 @@ function UpgradesWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Upg
 			end
 		end
 		if content then
-			upgradesEmpty.Visible = remaining == 0 and currentTab == "upgrades"
-			nextIslandButton.Visible = remaining == 0 and currentTab == "upgrades"
+			completed.frame.Visible = remaining == 0 and currentTab == "upgrades"
+			nextIslandButton.Visible = false
 			if remaining == 0 then
 				local pendingUpgrade: Config.UpgradeConfig? = nil
 				local pendingIsland: string? = nil
@@ -284,6 +290,15 @@ function UpgradesWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Upg
 				if pendingUpgrade and pendingIsland then
 					local pendingIslandName = Config.FARM_ISLANDS[pendingIsland].displayName
 					UiKit.setText(upgradesEmpty, `Sırada: {pendingUpgrade.displayName} · {pendingIslandName}`)
+					nextIslandButton.Visible = currentTab == "upgrades"
+				end
+				if Progression.canRebirth(state) then
+					UiKit.setText(completed.title, "REBIRTH HAZIR")
+					UiKit.setText(
+						upgradesEmpty,
+						"Rebirth menüsünden kalıcı ödülünü seçerek yeni tura başlayabilirsin."
+					)
+					nextIslandButton.Visible = false
 				end
 			end
 			upgradesInfo.Visible = true
