@@ -56,6 +56,12 @@ local CFrame = {
 		return setmetatable({ Position = Vector3.new(x or 0, y or 0, z or 0) }, cfmt)
 	end,
 }
+cfmt.__index = function(_, key)
+	if key == "Rotation" then
+		return CFrame.new()
+	end
+	return nil
+end
 CFrame.Angles = function()
 	return CFrame.new()
 end
@@ -170,6 +176,15 @@ local DateTime = {
 	end,
 }
 local factories = {}
+local Random = {
+	new = function()
+		return {
+			NextInteger = function(_, minimum)
+				return minimum
+			end,
+		}
+	end,
+}
 -- SOURCE_FACTORIES
 local deps = { GameTypes = {}, Remotes = {}, UiTheme = { Color = { Gold = {} } }, Shared = service }
 deps.InstanceUtil = {
@@ -186,6 +201,13 @@ deps.WorldUi = {
 deps.WorldDecor = { markNightWindow = function() end, grassTufts = function() end, optimize = function() end }
 deps.IslandSiteParts = { markObstacles = function() end }
 deps.ModelAssets = {
+	part = function()
+		local patch = Instance.new("Part")
+		patch.Name = "Patch"
+		patch.Size = Vector3.new(0.05, 10, 10)
+		patch.CanCollide, patch.CanQuery = false, false
+		return patch
+	end,
 	clone = function(_, name)
 		local model = Instance.new("Model")
 		model.Name = name
@@ -347,6 +369,27 @@ local animals = plot:FindFirstChild("Animals")
 local animal1, animal2 = animals:FindFirstChild("goat_1"), animals:FindFirstChild("cow_2")
 local initialBarn = plot:FindFirstChild("Barn")
 local decor, flags = starter:FindFirstChild("Decor"), starter:FindFirstChild("LevelFlags")
+local wetPatches = decor:FindFirstChild("GrassPatches")
+assert(
+	wetPatches and #wetPatches:GetChildren() == 12,
+	"Wet ground needs four distributed groups with three overlapping lobes"
+)
+assert(
+	wetPatches:GetAttribute("WetBounds") == starter:FindFirstChild("Ground").Size,
+	"Wet patches must use actual zone bounds"
+)
+for _, patch in wetPatches:GetChildren() do
+	assert(patch.Transparency == 1, "Dry wet patches must be fully hidden")
+	assert(not patch.CanCollide and not patch.CanQuery, "Wet patches must not interfere with movement or raycasts")
+	assert(
+		patch.Position.Y > starter:FindFirstChild("Ground").Position.Y + starter:FindFirstChild("Ground").Size.Y / 2,
+		"Wet patches must sit above the zone ground"
+	)
+	assert(
+		patch:GetAttribute("WetGroup") and patch:GetAttribute("WetLobe"),
+		"Wet patches need independent group and lobe metadata"
+	)
+end
 local decor2, flags2 = secondZone:FindFirstChild("Decor"), secondZone:FindFirstChild("LevelFlags")
 save.money = 999
 save.price = 80

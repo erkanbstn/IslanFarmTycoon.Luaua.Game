@@ -30,7 +30,7 @@ local PART_PROPERTIES = {
 	"LeftSurface",
 	"RightSurface",
 }
-local POSITION_CFRAMES = { AreaCFrame = true, IslandFrame = true }
+local POSITION_CFRAMES = { AreaCFrame = true, IslandFrame = true, WetFrame = true }
 local POSITION_VECTORS = { PathStart = true, PathEnd = true }
 local FOLIAGE_NAMES: { [string]: boolean } = {
 	Leaves = true,

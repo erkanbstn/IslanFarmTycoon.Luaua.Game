@@ -187,8 +187,9 @@ local function buildSatellite(
 		islandModel
 	)
 	-- Ada yüzeyi: tam düz parça (kilitliyken PlotService toprak rengine çevirir)
-	base.Material = Enum.Material.LeafyGrass
-	base:SetAttribute("OpenColor", layout.groundColor)
+	base.Material = Enum.Material.Grass
+	base.Color = layout.groundColor:Lerp(Color3.fromRGB(91, 133, 73), 0.55)
+	base:SetAttribute("OpenColor", base.Color)
 	base:SetAttribute("Radius", SATELLITE_RADIUS)
 	islandModel.PrimaryPart = base
 

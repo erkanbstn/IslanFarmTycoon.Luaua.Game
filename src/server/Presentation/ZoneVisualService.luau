@@ -122,6 +122,26 @@ function ZoneVisualService.apply(zone: Instance, zoneId: string, unlocked: boole
 		(ground.Material == Enum.Material.Grass or ground.Material == Enum.Material.LeafyGrass)
 		and zoneId ~= "fishpen"
 	then
+		-- Ada tabanındaki yamalar yükseltilmiş ağılların altında kalır.
+		local wetPatches = Instance.new("Folder")
+		wetPatches.Name = "GrassPatches"
+		wetPatches.Parent = decor
+		wetPatches:SetAttribute("WetFrame", origin)
+		wetPatches:SetAttribute("WetBounds", ground.Size)
+		wetPatches:SetAttribute("WetSeed", Random.new():NextInteger(1, 1000000))
+		wetPatches:SetAttribute("WetGrid", true)
+		for group = 1, 4 do
+			for lobe = 1, 3 do
+				local patch = ModelAssets.part("SurfaceModels", "GrassPatch")
+				patch.CFrame = origin * CFrame.new(0, 0.025, 0) * patch.CFrame.Rotation
+				patch.Color = ground.Color
+				patch.Material = Enum.Material.Grass
+				patch.Transparency = 1
+				patch:SetAttribute("WetGroup", group)
+				patch:SetAttribute("WetLobe", lobe)
+				patch.Parent = wetPatches
+			end
+		end
 		local backReserve = ground:GetAttribute("BackReserve")
 		local reserve = if typeof(backReserve) == "number" then backReserve else 4
 		local hz = ground.Size.Z / 2

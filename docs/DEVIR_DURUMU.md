@@ -284,3 +284,53 @@ Başlangıç a787e30 main ve temiz çalışma ağacıdır; önceki merge sonras�
 Gerçek AnimalAnimator kaynağını çalıştıran test genişletildi: çarpışmasız parkur korkuluğu altında 20 kare hareket, engellenen oval sonrası 90 karede güvenli ilerleme, ReducedMotion durdurması ve mevcut eklenti transferi/büyüme/alan değişimi. Önceki engel filtresinin .test-build/animal-animator-before.luau varyantı yeni testte beklenen biçimde başarısız oldu; eski sabit track davranışının .test-build/animal-track-stall-before.luau varyantı da engelli oval testinde başarısız. Kaynak düzeltmeleriyle hedefli test ve Fast -RequireTypes başarılı (.test-build/extension-motion-final.log): bütün saf regresyonlar, biçim/lint/tip, dil/mimari/rehber/hijyen kontrolleri geçti. Oyun testi kullanıcı tercihi gereği yapılmadı.
 
 Kullanıcı main aktarımını onayladı. Main ile origin/main aynı tabanda; değişiklikler doğrudan main üzerinde commit/push edilir. Full -RequireTypes başlatıldı (.test-build/extension-motion-main-final.log), ancak kullanıcı beklemeden aktarım istediği için kademe simülasyonu sırasında durduruldu; Full başarılı sayılmaz. Geçmiş hedefli/Fast sonuçları geçerlidir. Roblox publish ve veri reseti yapılmaz.
+
+
+## Mesh içermeyen yeni çayır tasarımı — 4 Ekim 2026
+
+Önceki üç deneme kullanıcı talebiyle geri alındı; yeni tasarım d330b96 tabanından başlar. GrassTuft modelleri baştan oluşturuldu: yedi ince, farklı boyda/yönde dik WedgePart yaprak; çiçekli modelde yerleşik Part gövde ve dört yapraklı küçük kır çiçeği. MeshPart/SpecialMesh/harici mesh kullanılmaz. Ada zeminleri Grass dokulu, sakin ada renkleri; bölge ve ada OpenColor aynı yeni paleti saklar, PlotService kilit güncellemesi Grass malzemesini korur. Statik tutam sayısı %30 azaltılır, annulus yerleşimi 12 tohumlu çayır kümesinde yoğunlaşır; yol/bina kaçınması 1 stud payla korunur. Rectangular bölge yerleşimi mevcut sınırlarını korur. Ada yamaları seyrek, saydam oval Grass yüzeyidir. Modelde çarpışma/sorgu/gölge yok; yeni hareket döngüsü eklenmez. MAP_VERSION 62: Rojo sonrası Haritayı Kur ve Ctrl+S gerekir. Test/derleme/Studio/görsel kabul kullanıcı isteğiyle çalıştırılmadı, performans ölçülmedi. Commit/push/publish yapılmadı.
+
+
+### Yağmurda bölgesel ıslanma — 4 Ekim 2026
+
+SeasonalScenery mevcut GrassPatches yüzeylerini yağmur/fırtınada 20 saniyede farklı eşiklerle koyulaştırır ve opaklaştırır; hava açılınca 45 saniyede kurutur. Yeni parça veya kare başı dünya taraması yok; mevcut saniyelik yenileme ve bütçeli kaynak kuyruğu kullanılır. Kar oranı ıslaklığı bastırır. Kapanış/stream temizliğinde yama saydamlığı ve kaynak malzemesi geri yüklenir. Sadece istemci görünümü, ekonomi/fizik değişmez; MAP_VERSION ilave artmaz. Kaynak hava Environment üzerinden sunucu/asa hava akışını izler. Önceki çayır haritası için MAP_VERSION 62 kurulum gereği devam eder. Kullanıcının test açmama tercihi korunur; test/Studio/görsel kabul yapılmadı. Commit/push/publish yok.
+
+
+### Koyu yeşil palet — 4 Ekim 2026
+
+Kullanıcı isteğiyle ana ada tabanı ve uzman ada/bölge ortak tonu RGB(91,133,73) oldu; tutamların dört tonu ve oval yamalar da koyulaştırıldı. Yerleşim, model şekli ve yağmur geçişi korunur. MAP_VERSION 63: Haritayı Kur + Ctrl+S gerekir. Kullanıcının test açmama tercihiyle test/görsel kontrol yapılmadı. Commit/push/publish yok.
+
+
+### Islanma görünürlüğü — 4 Ekim 2026
+
+Kullanıcı yağmur görünümünü göremediğini bildirdi. İlk ıslanma yalnız statik ada tabanı GrassPatches yüzeyindeydi; yükseltilmiş bölge zemini bu yamaları örtebilir. ZoneVisualService her açık kara hayvan alanının gerçek üst yüzüne dört çarpışmasız mevcut GrassPatch şablonu ekler. Kuru halde Transparency=1, yağmurda koyulaşıp görünür; karda ıslaklık bastırılır. Islanma 20 yerine 8 saniyede belirginleşir, kuruma 45 saniye kalır. Yağış parçacığı sistemi değiştirilmedi; kullanıcının damlaları mı ıslaklığı mı göremediği kesinleşmedi. Bölge dekoru sunucuda üretildiği için yeni Play gerekir, bu ekleme MAP_VERSION artışı gerektirmez. Test/Studio çalıştırılmadı, commit/push/publish yok.
+
+
+### Düzensiz ve değişen yağmur öbekleri — 4 Ekim 2026
+
+Kullanıcı sabit yuvarlak yerleşimi reddetti. Bölge başına dört sabit yama yerine iki grup halinde altı saydam, farklı boy/yön/ofsette örtüşen oval kullanılır. ZoneVisualService sınır/pivot/tohum özniteliklerini şablon parçalarına verir; SeasonalScenery açık bölge sınırının içinde konumlandırır. Zemin tamamen kuruduktan sonraki yeni yağmurda rastgele yerleşim yenilenir; yağış boyunca ve henüz kurumamış yeniden yağışta öbekler yer değiştirmez. Stream ile tekrar gelen aynı grup mevcut döngüde aynı yerleşimi kullanır. Kapanışta kaynak boyut/konum/saydamlık geri yüklenir. Ek maliyet bölge başına iki parçadır, kare başı yerleşim/üretim yok. İlk görsel kabul ve test kullanıcıda; test/Studio çalıştırılmadı. Statik ada palet değişimi için MAP_VERSION 63 kurulum gereği korunur; bu runtime ekleme ek sürüm artışı gerektirmez. Commit/push/publish yok.
+
+
+### Sabit oval zemin yamalarının kaldırılması — 4 Ekim 2026
+
+Ekran görüntüsündeki kalıcı oval lekelerin kaynağı World/MapParts addIslandGrass içindeki grassPatches üretimidir. Çağrı, WorldDecor ihracı ve tüketicisiz DecorNature fonksiyonu kaldırıldı. SurfaceModels/GrassPatch modeli runtime yağmur öbeklerinde kullanıldığı için korunur. SeasonalScenery yalnız runtime GrassPatches öbeklerini ıslatır; hava koşulu rain veya storm olduğundan fırtına da desteklenir. MAP_VERSION 64: eski place içindeki sabit yamaları kaldırmak için Haritayı Kur + Ctrl+S gerekir. Test/Studio kontrolü kullanıcı tercihiyle yapılmadı; commit/push/publish yok.
+
+
+### Islanma Studio testi ve kış düzeltmesi — 4 Ekim 2026
+
+Kullanıcı artık oyun testi istedi. Doğru Studio Ada Tarım Zengini / place 102047004387802 üzerinde Rojo kaynaklarının WetGroup/placeWetPatch içerdiği doğrulandı. Play kayıtsızdır (Workspace.StudioNonPersistentData=true, player.DataPersistent=false); fixture/satın alma/reset kullanılmadı. İlk durumda winter/snow vardı; eski amount*(1-sample.snow) ifadesi kar örtüsünde ıslanmayı sıfırlıyordu. Yaz yağmurunda gerçek altı client parçasının Transparency=0.55 ve koyu renk aldığı ölçüldü. Kod düzeltilerek yağmurda karlı zeminde de çözülmüş koyu alanlar gösterilir; wet amount kar oranıyla çarpılmaz, ıslak parçanın malzemesi Grass olur, kuruyunca kar malzemesi geri gelir.
+
+Yeni kaynakla yeniden Play: tam kar örtüsü snow=1 + rain altında gerçek altı client yamasının saydamlığı 0.55 ve malzemesi Grass; assertion PASS winter rain. Weather=storm ile altı görünür parça assertion PASS storm. Weather=sunny sonrası kuruma sonunda altı parça Transparency=1; snapshot altı parçada tam kuruma; bağımsız uzun test sonucu aşağıda. Test hava öznitelikleri yalnız Play oturumunda değiştirildi; Play durduruldu. Ekran yakalama HUD ile boş dünya görüntüsü döndürdüğünden renk/şeklin gerçek render görsel kabulü doğrulanamadı; saydamlık, renk, malzeme, sayım ve üst yüz konumu runtime kanıtıdır.
+
+visual-identity gerçek ZoneVisualService testine altı lobe/grup, kuru gizlilik, actual sınır, zemin üstünde yükseklik ve çarpışma/sorgu koruması assertionları eklendi; Random ve SurfaceModels.part mockları yeni bağımlılığa tamamlandı. İlk Fast biçim ve eksik mock yüzünden durdu; bunlar düzeltilerek son Fast -RequireTypes başarılı (.test-build/wet-ground-fast-final.log), visual identity başarılı, check-assets 812 görünüm / 0 eksik-bozuk-fazla. Full uzun ekonomi simülasyonu çalıştırılmadı. Commit/push/publish yapılmadı; kayıtlı map için önceki MAP_VERSION 64 gereği devam eder.
+
+Son bağımsız client entegrasyon testi hava özniteliklerini yalnız kayıtsız Play içinde sabit tutarak tamamlandı: tam kışta 10 saniye rain, 10 saniye storm, 48 saniye sunny. Workspace.WetGroundTest JSON ok=true; rain ve storm için altı parçanın tamamında Transparency=0.55 / Material=Grass, sunny için altısında Transparency=1. Üç aşamadaki gerçek parça assertionları geçti (rain PASS, storm PASS, sunny PASS). Otomatik hava geçişinin test anını değiştirmesini engellemek için test boyunca yerel hava öznitelikleri yenilendi; oyun kaydı/ödül/ekonomi değiştirilmedi. Play tekrar durduruldu, test öznitelikleri ve geçici hava değişimleri oturumla silindi. Son rehber/hijyen ve diff kontrolleri geçti.
+
+
+## Ada geneline yayılan ıslanma ve gerçek ekran görüntüsü — 4 Ekim 2026
+
+Kullanıcı öbeklerin tek noktada küçük kalmasını reddetti ve SS istedi. Önceki öbekler yalnız açık hayvan alanında iki gruptu. Yeni World/MapParts kuru halde gizli GrassPatch şablonlarını açık ada zeminine yayar: ana adada hedef 8, uzman adada hedef 5 grup, grup başına üç örtüşen oval. Merkezler en az 17 stud ayrı, ada kenarından 11 stud içeride, yol/bina/bölge kaçınma dikdörtgenlerinin dışında seçilir; lobların bir kısmı kenar yapılarının altına taşarsa üst geometri tarafından doğal örtülür. Başta aşırı geniş kaçınma payı ana adalarda sıfır grup üretti; Studio sayımıyla saptanıp merkez kaçınmasına geçildi. Son Edit sayımı altı ana adada 8, on sekiz uzman adada 5 grup doğruladı. Ağıllarda iki yerine dört farklı çeyreğe yayılmış grup ve daha geniş loblar vardır. WetAnchor sınırlandırılmış konum çevresinde yağmur döngüsünde yerel yön/boyut değişimine izin verir. Statik görünür lekeler geri gelmez: kuru saydamlık=1.
+
+MAP_VERSION 65. Studio Haritayı Kur/buildverify ile harita yenilendi. Yapı testi önce eski LeafyGrass beklentisini yakaladı; yeni Grass malzemesi ve katı zemin kontrolü birlikte güncellendi. Ardından tema şablonu başka adaya geçince WetFrame yeniden konumlanmıyordu; gerçek ThemePatch POSITION_CFRAMES listesine WetFrame eklendi. WetSeed dünya konumundan bağımsız sabit ada türü/sayı tohumu oldu; WetAnchor yerel koordinatta kalır. Son Studio buildverify: MapBuilder.validate, MapStructureSpec ve dünya testleri başarılı. Bu düzeltmeler için test beklentisi gevşetilmedi.
+
+Kayıtsız Play gerçek client testinde yağmurda ana adanın 24 lobu görünür, 8 grup, en yakın iki grup ~19.98 stud. Gerçek oyun ekran görüntüsü .test-build/wet-ground-rain.png: karakterin sağında, ağacın solunda düzensiz koyu ıslak alan görülür. Önceki boş yakalama bu denemede normal oyuncu kamerası/karakter konumu ile aşıldı; screenshot üzerine çizim/sahte görsel eklenmedi. Son Fast -RequireTypes başarılı (.test-build/wet-spread-final.log), tip/lint bulgusu sıfır. Play durduruldu. Full uzun simülasyon çalıştırılmadı. Ek statik şablon maliyeti ana ada başına 24, uzman ada başına 15 fizik dışı parça, açık hayvan alanı başına 12 parça; FPS ölçümü yapılmadı. Kullanıcı Studio haritasını Ctrl+S ile kaydetmeli. Commit/push/publish yapılmadı.

@@ -336,10 +336,10 @@ local function buildIsland(plotIndex: number, islandCf: CFrame, theme: number?):
 		ISLAND_RADIUS * 2,
 		4,
 		islandCf * CFrame.new(0, SURFACE_Y - 2, 0),
-		Color3.fromRGB(92, 174, 76),
+		Color3.fromRGB(91, 133, 73),
 		plotModel
 	)
-	base.Material = Enum.Material.LeafyGrass
+	base.Material = Enum.Material.Grass
 	base:SetAttribute("OpenColor", base.Color)
 
 	local zonesFolder = Instance.new("Folder")

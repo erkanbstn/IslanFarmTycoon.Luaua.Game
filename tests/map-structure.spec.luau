@@ -34,7 +34,7 @@ return function(context: any?)
 		local landY = spawnPad.Position.Y - spawnPad.Size.Y / 2
 		local theme = Config.getTheme(plotId)
 		local homeBase = plot:FindFirstChild("PlotBase") :: BasePart
-		assert(homeBase.Material == Enum.Material.LeafyGrass, `{plot.Name}: canlı çimen dokusu eksik.`)
+		assert(homeBase.Material == Enum.Material.Grass, `{plot.Name}: doğal çimen dokusu eksik.`)
 		-- Yüzey yenilenirken karakter/hayvanların üzerinde yürüdüğü fizik korunmalı.
 		assert(homeBase.CanCollide, `{plot.Name}: ana ada zemini katı kalmalı.`)
 		for _, descendant in plot:GetDescendants() do
@@ -88,7 +88,7 @@ return function(context: any?)
 		for _, island in islands:GetChildren() do
 			local islandBase = island:FindFirstChild("IslandBase") :: BasePart
 			assert(
-				islandBase.Material == Enum.Material.LeafyGrass and islandBase.CanCollide,
+				islandBase.Material == Enum.Material.Grass and islandBase.CanCollide,
 				`{plot.Name}/{island.Name}: çimen görünümü veya yürüyüş zemini bozuk.`
 			)
 			local sign = island:FindFirstChild("IslandSign") :: BasePart

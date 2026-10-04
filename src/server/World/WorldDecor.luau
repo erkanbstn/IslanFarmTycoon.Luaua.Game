@@ -42,7 +42,6 @@ WorldDecor.bush = Nature.bush
 WorldDecor.flowerPatch = Nature.flowerPatch
 WorldDecor.grassTufts = Nature.grassTufts
 WorldDecor.scatterProps = Nature.scatterProps
-WorldDecor.grassPatches = Nature.grassPatches
 -- DecorLights
 WorldDecor.lamp = Lights.lamp
 WorldDecor.markNightWindow = Lights.markNightWindow

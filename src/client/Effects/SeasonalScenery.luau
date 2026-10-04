@@ -29,6 +29,9 @@ type Source = {
 	color: Color3,
 	material: Enum.Material,
 	modifier: number,
+	transparency: number,
+	wetPatch: boolean,
+	frame: CFrame,
 	size: Vector3,
 	phase: number,
 	tween: Tween?,
@@ -128,6 +131,58 @@ function SeasonalScenery.start(): () -> ()
 
 	local currentSeason = Environment.getSeason().id
 	local currentSample = SeasonVisuals.sample(currentSeason, Environment.getSeasonProgress())
+	local wetness = 0
+	local wetCycle = 0
+	local wasRaining = false
+	local function placeWetPatch(source: Source)
+		local part = source.part
+		local parent = part.Parent
+		if not source.wetPatch or not parent then
+			return
+		end
+		local frame = parent:GetAttribute("WetFrame")
+		local bounds = parent:GetAttribute("WetBounds")
+		local seed = parent:GetAttribute("WetSeed")
+		local group = part:GetAttribute("WetGroup")
+		local lobe = part:GetAttribute("WetLobe")
+		if
+			typeof(frame) ~= "CFrame"
+			or typeof(bounds) ~= "Vector3"
+			or typeof(seed) ~= "number"
+			or typeof(group) ~= "number"
+			or typeof(lobe) ~= "number"
+		then
+			return
+		end
+		local rng = Random.new(seed + wetCycle * 997 + group * 137)
+		local diameterLimit = part:GetAttribute("WetDiameter")
+		local diameter = if typeof(diameterLimit) == "number"
+			then diameterLimit * rng:NextNumber(0.85, 1)
+			else math.min(bounds.X, bounds.Z) * rng:NextNumber(0.3, 0.36)
+		local margin = diameter * 0.8
+		local hx = math.max(0, bounds.X / 2 - margin)
+		local hz = math.max(0, bounds.Z / 2 - margin)
+		local x, z = rng:NextNumber(-hx, hx), rng:NextNumber(-hz, hz)
+		local anchor = part:GetAttribute("WetAnchor")
+		if typeof(anchor) == "Vector3" then
+			x, z = anchor.X + rng:NextNumber(-0.8, 0.8), anchor.Z + rng:NextNumber(-0.8, 0.8)
+		elseif parent:GetAttribute("WetGrid") == true then
+			-- Ayrı çeyreklerdeki gruplar tek küçük noktada toplanamaz.
+			x = hx * (if group % 2 == 0 then 1 else -1) * rng:NextNumber(0.65, 0.95)
+			z = hz * (if group > 2 then 1 else -1) * rng:NextNumber(0.65, 0.95)
+		end
+		-- Aynı grubun üç farklı ovali örtüşerek düzensiz bir ıslak alan oluşturur.
+		for _ = 1, lobe do
+			rng:NextNumber()
+		end
+		local angle = rng:NextNumber(0, math.pi * 2)
+		local offset = diameter * rng:NextNumber(0.1, 0.24)
+		part.Size = Vector3.new(source.size.X, diameter * rng:NextNumber(0.65, 1), diameter * rng:NextNumber(0.35, 0.6))
+		part.CFrame = frame
+			* CFrame.new(x + math.cos(angle) * offset, 0.025 + lobe * 0.008, z + math.sin(angle) * offset)
+			* CFrame.Angles(0, angle, 0)
+			* frame:ToObjectSpace(source.frame).Rotation
+	end
 	local function updateSource(source: Source)
 		if source.plot and source.plot:GetAttribute("WorldTransition") == true then
 			if source.tween then
@@ -165,6 +220,16 @@ function SeasonalScenery.start(): () -> ()
 			local warmth = sample.autumn * (1 - sample.snow)
 			color = color:Lerp(Color3.fromRGB(165, 146, 80), warmth * 0.45):Lerp(SNOW, sample.snow * 0.94)
 			part.Material = if sample.snow > 0.35 then Enum.Material.Snow else source.material
+			if source.wetPatch then
+				-- Yağmur karlı zeminde de koyu, çözülmüş öbekler bırakır.
+				local amount = math.clamp((wetness - source.phase * 0.25) / 0.75, 0, 1)
+				local damp = Color3.new(source.color.R * 0.42, source.color.G * 0.5, source.color.B * 0.55)
+				color = color:Lerp(damp, amount)
+				if amount > 0.05 then
+					part.Material = source.material
+				end
+				part.Transparency = source.transparency + (0.55 - source.transparency) * amount
+			end
 		elseif source.kind == "evergreen" then
 			color = color:Lerp(SNOW, sample.snow * 0.65)
 		elseif source.kind == "flower" then
@@ -328,6 +393,9 @@ function SeasonalScenery.start(): () -> ()
 			color = if typeof(baseColor) == "Color3" then baseColor else instance.Color,
 			material = instance.Material,
 			modifier = instance.LocalTransparencyModifier,
+			transparency = instance.Transparency,
+			wetPatch = instance.Name == "Patch" and instance:FindFirstAncestor("GrassPatches") ~= nil,
+			frame = instance.CFrame,
 			size = if typeof(baseSize) == "Vector3" then baseSize else instance.Size,
 			-- Aynı çiçeğin sapı ve başı aynı X/Z'dedir; birlikte kaybolup geri gelmelidir.
 			phase = stablePhase(
@@ -373,6 +441,7 @@ function SeasonalScenery.start(): () -> ()
 			)
 		end
 		sources[instance] = source
+		placeWetPatch(source)
 		queueSource(source)
 	end
 	local function remove(instance: Instance)
@@ -391,6 +460,11 @@ function SeasonalScenery.start(): () -> ()
 			connection:Disconnect()
 		end
 		instance.LocalTransparencyModifier = source.modifier
+		if source.wetPatch then
+			instance.Transparency = source.transparency
+			instance.Size = source.size
+			instance.CFrame = source.frame
+		end
 		if source.kind == "bush" then
 			instance.Size = source.size
 		end
@@ -401,7 +475,7 @@ function SeasonalScenery.start(): () -> ()
 		elseif instance:GetAttribute("Locked") ~= true then
 			local original = instance:GetAttribute("OpenColor")
 			instance.Color = if typeof(original) == "Color3" then original else source.color
-			instance.Material = Enum.Material.Grass
+			instance.Material = source.material
 		end
 		sources[instance] = nil
 	end
@@ -434,6 +508,16 @@ function SeasonalScenery.start(): () -> ()
 			end
 			refreshElapsed += dt
 			if refreshElapsed >= 1 then
+				local weather = Environment.getWeather().id
+				local raining = weather == "rain" or weather == "storm"
+				if raining and not wasRaining and wetness <= 0.01 then
+					wetCycle += 1
+					for _, source in sources do
+						placeWetPatch(source)
+					end
+				end
+				wasRaining = raining
+				wetness = math.clamp(wetness + refreshElapsed * (if raining then 1 / 8 else -1 / 45), 0, 1)
 				refreshElapsed = 0
 				refresh()
 			end

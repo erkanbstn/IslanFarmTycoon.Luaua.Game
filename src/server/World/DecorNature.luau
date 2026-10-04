@@ -189,10 +189,10 @@ function Nature.scatterProps(
 end
 
 local GRASS_COLORS = {
-	Color3.fromRGB(88, 169, 62),
-	Color3.fromRGB(112, 185, 74),
-	Color3.fromRGB(74, 151, 60),
-	Color3.fromRGB(135, 193, 83),
+	Color3.fromRGB(78, 129, 65),
+	Color3.fromRGB(96, 145, 73),
+	Color3.fromRGB(68, 116, 57),
+	Color3.fromRGB(111, 155, 81),
 }
 
 export type GrassRect = { x: number, z: number, hx: number, hz: number }
@@ -217,16 +217,27 @@ function Nature.grassTufts(parent: Instance, base: CFrame, spec: GrassSpec): Fol
 	folder.Name = "GrassTufts"
 	folder.Parent = parent
 	local avoid: { GrassRect } = spec.avoid or {}
-	local flowerChance = spec.flowerChance or 0.12
+	local flowerChance = spec.flowerChance or 0.16
+	local clusters: { { x: number, z: number } } = {}
+	if spec.maxRadius then
+		for _ = 1, 12 do
+			local angle = random:NextNumber(0, math.pi * 2)
+			local minR = spec.minRadius or 0
+			local r = math.sqrt(random:NextNumber(minR * minR, spec.maxRadius * spec.maxRadius))
+			table.insert(clusters, { x = math.cos(angle) * r, z = math.sin(angle) * r })
+		end
+	end
 	local placed, attempts = 0, 0
 	while placed < spec.count and attempts < spec.count * 8 do
 		attempts += 1
 		local x, z
 		if spec.maxRadius then
 			local minR = spec.minRadius or 0
-			local angle = random:NextNumber(0, math.pi * 2)
-			local r = math.sqrt(random:NextNumber(minR * minR, spec.maxRadius * spec.maxRadius))
-			x, z = math.cos(angle) * r, math.sin(angle) * r
+			local cluster = clusters[random:NextInteger(1, #clusters)]
+			x, z = cluster.x + random:NextNumber(-6, 6), cluster.z + random:NextNumber(-6, 6)
+			if x * x + z * z < minR * minR or x * x + z * z > spec.maxRadius * spec.maxRadius then
+				continue
+			end
 		else
 			local halfX = spec.halfX or 10
 			x = random:NextNumber(-halfX, halfX)
@@ -234,7 +245,7 @@ function Nature.grassTufts(parent: Instance, base: CFrame, spec: GrassSpec): Fol
 		end
 		local blocked = false
 		for _, rect in avoid do
-			if math.abs(x - rect.x) < rect.hx and math.abs(z - rect.z) < rect.hz then
+			if math.abs(x - rect.x) < rect.hx + 1 and math.abs(z - rect.z) < rect.hz + 1 then
 				blocked = true
 				break
 			end
@@ -244,7 +255,7 @@ function Nature.grassTufts(parent: Instance, base: CFrame, spec: GrassSpec): Fol
 		end
 		placed += 1
 		local yaw = random:NextNumber(0, math.pi)
-		local height = random:NextNumber(0.7, 1.3)
+		local height = random:NextNumber(0.75, 1.15)
 		local color = GRASS_COLORS[random:NextInteger(1, #GRASS_COLORS)]
 		local withFlower = random:NextNumber() < flowerChance
 		local tuft = ModelAssets.clone(FOLDER, if withFlower then "GrassTuft_Flower" else "GrassTuft")
@@ -256,7 +267,7 @@ function Nature.grassTufts(parent: Instance, base: CFrame, spec: GrassSpec): Fol
 			break
 		end
 		ModelAssets.eachNamed(tuft, { "Tuft" }, function(blade: BasePart)
-			blade.Color = color
+			blade.Color = color:Lerp(blade.Color, 0.25)
 		end)
 		if withFlower then
 			local bloomColor = FLOWER_COLORS[random:NextInteger(1, #FLOWER_COLORS)]
@@ -269,33 +280,6 @@ function Nature.grassTufts(parent: Instance, base: CFrame, spec: GrassSpec): Fol
 		tuft.Parent = folder
 	end
 	return folder
-end
-
--- Düz çimen zeminde renk çeşitliliği: hafif farklı tonda, çok ince yassı daireler.
-function Nature.grassPatches(
-	parent: Instance,
-	base: CFrame,
-	count: number,
-	minRadius: number,
-	maxRadius: number,
-	seed: number
-)
-	local random = Random.new(seed)
-	local folder = Instance.new("Folder")
-	folder.Name = "GrassPatches"
-	folder.Parent = parent
-	for _ = 1, count do
-		local angle = random:NextNumber(0, math.pi * 2)
-		local r = random:NextNumber(minRadius, maxRadius)
-		local diameter = random:NextNumber(6, 14)
-		local tone = random:NextNumber(-6, 8)
-		local p = ModelAssets.part("SurfaceModels", "GrassPatch")
-		p.Size = Vector3.new(p.Size.X, diameter, diameter)
-		p.CFrame = base * CFrame.new(math.cos(angle) * r, 0.03, math.sin(angle) * r) * p.CFrame.Rotation
-		local tint = p.Color
-		p.Color = Color3.fromRGB(tint.R * 255 + tone, tint.G * 255 + tone, tint.B * 255 + tone * 0.6)
-		p.Parent = folder
-	end
 end
 
 return Nature

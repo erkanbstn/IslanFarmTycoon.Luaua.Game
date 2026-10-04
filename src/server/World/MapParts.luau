@@ -176,9 +176,12 @@ local function buildZone(plotModel: Model, islandCf: CFrame, layout: ZoneLayout)
 	ground.Color = layout.color
 	ground.Parent = zoneModel
 	ground.Material = if layout.material == nil or layout.material == Enum.Material.Grass
-		then Enum.Material.LeafyGrass
+		then Enum.Material.Grass
 		else layout.material
-	ground:SetAttribute("OpenColor", layout.color)
+	if ground.Material == Enum.Material.Grass then
+		ground.Color = layout.color:Lerp(Color3.fromRGB(91, 133, 73), 0.55)
+	end
+	ground:SetAttribute("OpenColor", ground.Color)
 	ground:SetAttribute("BackReserve", layout.backReserve)
 	zoneModel.PrimaryPart = ground
 
@@ -353,14 +356,60 @@ local function addIslandGrass(
 			table.insert(avoid, { x = layout.signOffset.X, z = layout.signOffset.Z, hx = 5, hz = 4 })
 		end
 	end
-	WorldDecor.grassPatches(parent, surfaceCf, math.floor(count / 10), 8, radius - 12, seed)
 	WorldDecor.grassTufts(parent, surfaceCf, {
-		count = count,
+		count = math.floor(count * 0.7),
 		seed = seed + 1,
 		minRadius = 6,
 		maxRadius = radius - 9,
 		avoid = avoid,
 	})
+	-- Kuru havada gizli öbekler açık ada zemininde birbirinden uzak tutulur.
+	local wetPatches = Instance.new("Folder")
+	local wetRandom = Random.new(seed + 711)
+	wetPatches.Name = "GrassPatches"
+	wetPatches:SetAttribute("WetFrame", surfaceCf)
+	wetPatches:SetAttribute("WetBounds", Vector3.new(radius * 2, 0, radius * 2))
+	wetPatches:SetAttribute("WetSeed", #islandId * 711 + count * 137)
+	wetPatches.Parent = parent
+	local anchors: { Vector3 } = {}
+	local target = if islandId == "home" then 8 else 5
+	for _ = 1, 400 do
+		if #anchors >= target then
+			break
+		end
+		local angle = wetRandom:NextNumber(0, math.pi * 2)
+		local r = math.sqrt(wetRandom:NextNumber(0, (radius - 11) ^ 2))
+		local anchor = Vector3.new(math.cos(angle) * r, 0, math.sin(angle) * r)
+		local blocked = false
+		for _, rect in avoid do
+			if math.abs(anchor.X - rect.x) < rect.hx and math.abs(anchor.Z - rect.z) < rect.hz then
+				blocked = true
+				break
+			end
+		end
+		for _, other in anchors do
+			if (anchor - other).Magnitude < 17 then
+				blocked = true
+				break
+			end
+		end
+		if blocked then
+			continue
+		end
+		table.insert(anchors, anchor)
+		for lobe = 1, 3 do
+			local patch = ModelAssets.part("SurfaceModels", "GrassPatch")
+			patch.CFrame = surfaceCf * CFrame.new(anchor) * patch.CFrame.Rotation
+			patch.Color = Color3.fromRGB(91, 133, 73)
+			patch.Material = Enum.Material.Grass
+			patch.Transparency = 1
+			patch:SetAttribute("WetAnchor", anchor)
+			patch:SetAttribute("WetDiameter", 12)
+			patch:SetAttribute("WetGroup", #anchors)
+			patch:SetAttribute("WetLobe", lobe)
+			patch.Parent = wetPatches
+		end
+	end
 	-- Kaya, kütük, mantar, kabak, saz, palmiye... (assets/CommonDecor): yaklaşık her 7 çim tutamı için 1 süs
 	WorldDecor.scatterProps(parent, surfaceCf, {
 		count = math.floor(count / 7),
