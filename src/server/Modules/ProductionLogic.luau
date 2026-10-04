@@ -12,6 +12,7 @@ export type Hooks = {
 	settle: () -> (),
 	trySpend: (amount: number) -> boolean,
 	addCash: (amount: number) -> (),
+	addRefund: ((amount: number) -> ())?,
 	newUid: () -> string,
 }
 
@@ -64,6 +65,45 @@ function ProductionLogic.start(
 		startCost = startCost,
 		optionId = batch.optionId,
 	}
+	return true, nil
+end
+
+-- Yalnız devam eden aynı parti iptal edilir; kaçırılmış gelir/ürün ödülü değil, fiilen ödenen ücret iade edilir.
+function ProductionLogic.cancel(farm: any, recipe: any, jobUid: string, now: number, hooks: Hooks): (boolean, string?)
+	local job = farm.production[recipe.id]
+	if not job or job.uid ~= jobUid then
+		return false, "Bu üretim zaten teslim alındı veya artık bulunamıyor."
+	end
+	if type(job.readyAt) ~= "number" or job.readyAt ~= job.readyAt or job.readyAt == math.huge then
+		return false, "Geçersiz üretim kaydı."
+	end
+	if now >= job.readyAt then
+		return false, "Tamamlanan üretim iptal edilemez; ödülünü teslim alabilirsin."
+	end
+	local refund = if job.startCost == nil then 0 else job.startCost
+	if
+		type(refund) ~= "number"
+		or refund ~= refund
+		or refund < 0
+		or refund > 1e15
+		or (refund > 0 and not hooks.addRefund)
+	then
+		return false, "Geçersiz üretim kaydı."
+	end
+	hooks.settle()
+	-- Gelir kapatma kancası kaydı yenilemişse eski parti üzerinde işlem yapılmaz.
+	if farm.production[recipe.id] ~= job or job.uid ~= jobUid or now >= job.readyAt then
+		return false, "Bu üretim zaten teslim alındı veya artık bulunamıyor."
+	end
+	ProductionLogic.releaseAnimals(farm, recipe.id)
+	farm.production[recipe.id] = nil
+	if farm.autoRepeat then
+		farm.autoRepeat[recipe.id] = nil
+	end
+	local addRefund = hooks.addRefund
+	if refund > 0 and addRefund then
+		addRefund(refund)
+	end
 	return true, nil
 end
 

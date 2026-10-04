@@ -61,6 +61,24 @@ return function(createBase: any, createGrid: any)
 		TouchTarget = 44,
 	}
 	local base = createBase(tokens, instance, dim, size, enum, {}, dim)
+	local detailsHost = { Name = "DisclosureBody" }
+	local explanation = base.text(detailsHost, "Long explanation", "Caption", tokens.Color.TextMuted)
+	assert(explanation.TextSize == tokens.TextSize.Body, "opened explanations use readable body size")
+	assert(
+		explanation.TextColor3 == tokens.Color.Text and explanation.LineHeight == 1.2,
+		"details have contrast and line spacing"
+	)
+	assert(
+		explanation.TextWrapped and explanation.AutomaticSize == enum.AutomaticSize.Y,
+		"narrow details wrap and grow without shrinking text"
+	)
+	local colored = base.text(detailsHost, "Warning", "Caption", tokens.Color.Gold)
+	assert(colored.TextColor3 == tokens.Color.Gold, "explicit semantic colors are preserved")
+	local caption = base.text({}, "Short caption", "Caption")
+	assert(
+		caption.TextSize == tokens.TextSize.Caption and caption.TextColor3 == tokens.Color.TextMuted,
+		"ordinary captions stay compact"
+	)
 	local icon = base.iconChip({}, "🪙", 30, tokens.Color.Gold)
 	assert(icon.Text == "", "gold must use geometry instead of a platform-dependent emoji glyph")
 	local coin, aspect

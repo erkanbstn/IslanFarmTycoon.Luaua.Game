@@ -25,6 +25,7 @@ export type EventName =
 	| "RequestBuyItem"
 	| "RequestEquipItem"
 	| "RequestUseItem"
+	| "WeatherQueueOffer"
 	| "RequestBuyAnimal"
 	| "RequestReplaceFish"
 	| "RequestSellAnimal"
@@ -57,7 +58,7 @@ local EVENTS = {
 	"RequestRebirth", -- perkId, requestId, expectedFarmId, detail (expectedRun zorunlu)
 	"RequestMainFarmAction", -- buy physicalPlotId / select logicalFarmId, requestId
 	"MainFarmResult", -- requestId, success, message
-	"RequestProductionAction", -- start/sell/keep, recipeId, jobUid?, requestId
+	"RequestProductionAction", -- start/sell/keep/cancel/auto, recipeId, jobUid?, requestId, expectedFarmId, detail?
 	"ProductionResult", -- requestId, success, message
 	"RequestExtensionAction", -- assign / unassign, extensionId
 	"RequestSetGraphics", -- Client -> Sunucu grafik tercihi (auto/low/medium/high); sunucu Config.GRAPHICS_MODES ile doğrular
@@ -78,7 +79,8 @@ local EVENTS = {
 	"RequestClaimGolden", -- Client -> Sunucu altın hayvan ödülünü al (_, requestId, expectedFarmId)
 	"RequestBuyItem", -- Client -> Sunucu eşya satın al (itemId, requestId)
 	"RequestEquipItem", -- Client -> Sunucu eşyayı tak / çıkar (itemId, requestId)
-	"RequestUseItem", -- Client -> Sunucu asa gücünü kullan (itemId, requestId, expectedFarmId, argüman: mevsim/hava kimliği)
+	"RequestUseItem", -- itemId, requestId, expectedFarmId, seçim kimliği veya {weatherId, queueToken} / {queueAction="cancel"}
+	"WeatherQueueOffer", -- Sunucu -> Client hava sırası önizlemesi/durumu (offer|queued|closed); kullanım hakkı başlamadan harcanmaz
 	"RequestBuyAnimal", -- Client -> Sunucu hayvan satın alma (animalId)
 	"RequestSellAnimal", -- Client -> Sunucu hayvan sat (animalId, requestId, expectedFarmId); fiyat ve hayvan sunucuda seçilir
 	"RequestReplaceFish", -- Client -> Sunucu hamsiyi levrekle değiştir (uid, requestId)

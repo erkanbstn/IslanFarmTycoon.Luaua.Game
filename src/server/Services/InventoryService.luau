@@ -321,14 +321,20 @@ function InventoryService.tryUse(player: Player, itemId: unknown, argument: unkn
 	if typeof(itemId) ~= "string" or not RateLimiter.validId(itemId) or not Config.ITEMS[itemId] then
 		return false, "Bilinmeyen eşya"
 	end
-	if typeof(argument) ~= "string" or not RateLimiter.validId(argument) then
-		return false, "Geçersiz seçim"
-	end
 	local data = ready(player)
 	if not data then
 		return false, "Veri henüz yüklenmedi"
 	end
 	local item = Config.ITEMS[itemId]
+	local queueDetail = if typeof(argument) == "table" then argument :: any else nil
+	if queueDetail and item.power and item.power.kind == "weather" and queueDetail.queueAction == "cancel" then
+		return SeasonService.cancelQueuedWeather(player)
+	end
+	local selection = if queueDetail then queueDetail.weatherId else argument
+	if typeof(selection) ~= "string" or not RateLimiter.validId(selection) then
+		return false, "Geçersiz seçim"
+	end
+	local choice = selection :: string
 	local now = nowSeconds()
 	local allowed, reason = Inventory.canUse(data, itemId, now)
 	if not allowed then
@@ -342,26 +348,61 @@ function InventoryService.tryUse(player: Player, itemId: unknown, argument: unkn
 	if power.kind == "season" then
 		local season: Config.SeasonConfig? = nil
 		for _, candidate in Config.SEASONS do
-			if candidate.id == argument then
+			if candidate.id == choice then
 				season = candidate
 			end
 		end
 		if not season then
 			return false, "Bilinmeyen mevsim"
 		end
-		if currentSeason.id == argument then
+		if currentSeason.id == choice then
 			return false, "Zaten bu mevsimdesin"
 		end
 		EconomyService.settlePlayer(player) -- geçen süre eski mevsimin çarpanıyla kapanır
 		-- Yeni mevsimin havası mevsim havuzundan kendiliğinden seçilir; eski hava geçersiz kılması silinir
-		data.envOverride = { seasonId = argument, seasonEndsAt = now + Config.SEASON_SECONDS }
+		data.envOverride = { seasonId = choice, seasonEndsAt = now + Config.SEASON_SECONDS }
 		message = `Mevsim değişti: {season.displayName}`
 	else
-		local weather = Config.WEATHER[argument]
+		local weather = Config.WEATHER[choice]
 		if not weather then
 			return false, "Bilinmeyen hava"
 		end
-		local changed, errorMessage = SeasonService.setPlayerWeather(argument)
+		if SeasonService.hasQueuedWeather(player) then
+			return false, "Zaten hava sırasında bekliyorsun."
+		end
+		if queueDetail then
+			if typeof(queueDetail.queueToken) ~= "string" or not RateLimiter.validId(queueDetail.queueToken) then
+				return false, "Geçersiz seçim"
+			end
+			local expectedRun = if data.progression then data.progression.run else 0
+			return SeasonService.confirmWeatherQueue(
+				player,
+				itemId,
+				choice,
+				queueDetail.queueToken,
+				function(): (boolean, string?)
+					local currentData = ready(player)
+					if
+						not currentData
+						or (if currentData.progression then currentData.progression.run else 0) ~= expectedRun
+					then
+						return false, "Veri henüz yüklenmedi"
+					end
+					return Inventory.canUse(currentData, itemId, nowSeconds())
+				end,
+				function()
+					local currentData = assert(ready(player))
+					Inventory.recordUse(currentData, itemId, nowSeconds())
+					PlayerDataService.pushState(player)
+					PlayerDataService.requestSave(player)
+					Metrics.increment("ItemPowersUsed")
+				end
+			)
+		end
+		if SeasonService.isWandWeatherBusy() then
+			return SeasonService.offerWeatherQueue(player, itemId, choice)
+		end
+		local changed, errorMessage = SeasonService.setPlayerWeather(choice, player)
 		if not changed then
 			return false, errorMessage
 		end
@@ -417,12 +458,20 @@ function InventoryService.init()
 	end)
 	Remotes.get("RequestUseItem").OnServerEvent
 		:Connect(
-			function(player: Player, itemId: unknown, requestId: unknown, _expectedFarmId: unknown, argument: unknown)
+			function(player: Player, itemId: unknown, requestId: unknown, expectedFarmId: unknown, argument: unknown)
 				if not RateLimiter.acceptRequest(player, requestId) then
 					return
 				end
+				if not RequestGuard.activeFarm(player, requestId, expectedFarmId) then
+					return
+				end
 				local ok, message = InventoryService.tryUse(player, itemId, argument)
-				RequestGuard.reply(player, requestId, ok, message)
+				-- Teklif kendi penceresini açar; bildirimsiz cevap pending kilidini kaldırır.
+				if ok and message == nil then
+					Remotes.get("PurchaseResult"):FireClient(player, requestId, true)
+				else
+					RequestGuard.reply(player, requestId, ok, message)
+				end
 			end
 		)
 

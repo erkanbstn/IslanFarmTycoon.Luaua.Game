@@ -101,13 +101,18 @@ function Controls.disclosure(parent: Instance, order: number, title: string): Di
 	button.TextSize = Tokens.TextSize.Button
 	local body = Instance.new("Frame")
 	body.Name = "DisclosureBody"
-	body.BackgroundTransparency = 1
+	body.BackgroundColor3 = Tokens.Color.SurfaceRaised
+	body.BackgroundTransparency = 0
+	body.BorderSizePixel = 0
 	body.Size = UDim2.new(1, 0, 0, 0)
 	body.AutomaticSize = Enum.AutomaticSize.Y
 	body.LayoutOrder = 1
 	body.Visible = false
 	body.Parent = frame
-	Base.list(body, 6)
+	Base.corner(body, Tokens.Radius.Card)
+	Base.stroke(body, 0.65)
+	Base.padding(body, 10, 8)
+	Base.list(body, 8)
 	local expanded = false
 	local function setExpanded(value: boolean)
 		if expanded == value then
@@ -495,6 +500,9 @@ function Controls.cardDetails(card: Card, title: string): Disclosure
 	card.detail.LayoutOrder = 0
 	card.detail.Size = UDim2.new(1, 0, 0, 0)
 	card.detail.AutomaticSize = Enum.AutomaticSize.Y
+	card.detail.TextSize = Tokens.TextSize.Body
+	card.detail.TextColor3 = Tokens.Color.Text
+	card.detail.LineHeight = 1.2
 	return details
 end
 

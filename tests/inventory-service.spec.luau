@@ -26,6 +26,36 @@ return function(
 		local sharedWeatherCalls = 0
 		local sharedWeatherId: string? = nil
 		h.seasonService = {
+			hasQueuedWeather = function(): boolean
+				return h.weatherQueued == true
+			end,
+			isWandWeatherBusy = function(): boolean
+				return h.weatherBusy == true
+			end,
+			offerWeatherQueue = function(): (boolean, string?)
+				h.weatherOffers = (h.weatherOffers or 0) + 1
+				return true, nil
+			end,
+			confirmWeatherQueue = function(
+				_player: any,
+				_item: string,
+				_weather: string,
+				token: string,
+				validate: any,
+				started: any
+			): (boolean, string?)
+				if token ~= "ticket" then
+					return false, "invalid ticket"
+				end
+				h.weatherQueued = true
+				h.validateWeather = validate
+				h.startWeather = started
+				return true, nil
+			end,
+			cancelQueuedWeather = function(): (boolean, string?)
+				h.weatherQueued = false
+				return true, nil
+			end,
 			setPlayerWeather = function(id: string): (boolean, string?)
 				sharedWeatherCalls += 1
 				if h.weatherRejected then
@@ -343,6 +373,48 @@ return function(
 		assert(weather.data.envOverride == nil, "weather power creates no personal override")
 		local count = weather.weatherCalls()
 		assert(not useWeather().ok and weather.weatherCalls() == count, "cooldown blocks further global mutation")
+	end
+	do
+		local queued = setup()
+		queued.data.cash = 1e12
+		local queuedStaff = itemOf(function(candidate: any): boolean
+			return candidate.power ~= nil and candidate.power.kind == "weather" and candidate.price > 0
+		end)
+		assert(buy(queued, queuedStaff.id).ok, "queue staff acquired")
+		queued.weatherBusy = true
+		local function request(detail: any, farm: string?): any
+			return queued.fire(
+				"RequestUseItem",
+				queuedStaff.id,
+				queued.nextId(),
+				farm or queued.data.activeMainFarmId,
+				detail
+			)
+		end
+		assert(not request("rain", "wrong-farm").ok and queued.weatherOffers == nil, "stale farm cannot offer a queue")
+		assert(request("rain").ok and queued.weatherOffers == 1, "busy weather offers confirmation")
+		assert(queued.metricCounts.ItemPowersUsed == nil, "offer consumes no rights")
+		assert(not request({ weatherId = "rain", queueToken = "forged" }).ok, "forged confirmation rejected")
+		assert(request({ weatherId = "rain", queueToken = "ticket" }).ok, "valid confirmation queues")
+		assert(queued.metricCounts.ItemPowersUsed == nil, "confirmation consumes no rights")
+		assert(not request("rain").ok, "already queued cannot add another choice")
+		assert(queued.validateWeather(), "queued staff eligible while equipped")
+		assert(queued.fire("RequestEquipItem", queuedStaff.id, queued.nextId()).ok, "staff can be unequipped")
+		assert(not queued.validateWeather(), "unequipping invalidates queued activation")
+		assert(request({ queueAction = "cancel" }).ok, "unequipped staff can cancel queue")
+		assert(queued.metricCounts.ItemPowersUsed == nil, "cancellation consumes no rights")
+		assert(queued.fire("RequestEquipItem", queuedStaff.id, queued.nextId()).ok, "staff can be re-equipped")
+		assert(request({ weatherId = "rain", queueToken = "ticket" }).ok, "re-equipped staff queues")
+		local run = queued.data.progression.run
+		queued.data.progression.run += 1
+		assert(not queued.validateWeather(), "rebirth invalidates previous run queue")
+		queued.data.progression.run = run
+		assert(queued.validateWeather())
+		queued.startWeather()
+		assert(
+			queued.metricCounts.ItemPowersUsed == 1 and not queued.validateWeather(),
+			"activation charges once and cooldown applies"
+		)
 	end
 	print(
 		"PASS inventory service: actual service purchase, equip, staff power, ownership, replay and throttling guards"

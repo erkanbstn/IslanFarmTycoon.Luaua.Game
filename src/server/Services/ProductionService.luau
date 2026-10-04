@@ -32,20 +32,26 @@ local function hooksFor(player: Player): ProductionLogic.Hooks
 		addCash = function(amount: number)
 			PlayerDataService.addCash(player, amount, "production")
 		end,
+		addRefund = function(amount: number)
+			PlayerDataService.addRefund(player, amount, "refund")
+		end,
 		newUid = function(): string
 			return HttpService:GenerateGUID(false)
 		end,
 	}
 end
 
--- detail: "start" için para tesisinin parti kimliği (yoksa ilk seçenek), "sell"/"keep" için teslim alınacak işin uid'i,
+-- detail: "start" için para tesisinin parti kimliği (yoksa ilk seçenek), "sell"/"keep"/"cancel" için işin uid'i,
 -- "auto": parti kimliği ("off" kapat, "fill" ürün deposu, nil sipariş stoğu).
 local function act(player: Player, action: unknown, recipeId: unknown, detail: unknown): (boolean, string)
 	if not RateLimiter.validId(recipeId) then
 		return false, "Geçersiz üretim."
 	end
 	local recipe = Config.PRODUCTION_RECIPES[recipeId :: string]
-	if not recipe or (action ~= "start" and action ~= "sell" and action ~= "keep" and action ~= "auto") then
+	if
+		not recipe
+		or (action ~= "start" and action ~= "sell" and action ~= "keep" and action ~= "auto" and action ~= "cancel")
+	then
 		return false, "Bilinmeyen üretim işlemi."
 	end
 	if detail ~= nil and not RateLimiter.validId(detail) then
@@ -99,6 +105,11 @@ local function act(player: Player, action: unknown, recipeId: unknown, detail: u
 		if data.autoRepeat[recipe.id] ~= nil and data.autoRepeat[recipe.id] ~= "fill" then
 			data.autoRepeat[recipe.id] = optionId or "default"
 		end
+	elseif action == "cancel" then
+		local cancelled, reason = ProductionLogic.cancel(data, recipe, jobUid :: string, now, hooks)
+		if not cancelled then
+			return false, reason or "Üretim iptal edilemedi."
+		end
 	else
 		local job = data.production[recipe.id]
 		if not job or job.uid ~= jobUid then
@@ -135,6 +146,9 @@ local function act(player: Player, action: unknown, recipeId: unknown, detail: u
 			elseif action == "auto" then (if detail == "off"
 				then "Otomatik tekrar kapandı."
 				else "Otomatik tekrar açıldı.")
+			elseif
+				action == "cancel"
+			then "Üretim iptal edildi; ödenen ücret iade edildi ve otomatik tekrar kapatıldı."
 			elseif action == "keep" then "Yeni civciv kümese eklendi!"
 			elseif goodsMessage ~= "" then goodsMessage
 			else `Üretim satıldı: {FarmMath.formatMoney(reward)}`

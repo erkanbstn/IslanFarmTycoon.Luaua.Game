@@ -17,6 +17,7 @@ local PurchaseController = require(script.Parent.Parent.Parent:WaitForChild("Cor
 local HudCommon = require(script.Parent:WaitForChild("HudCommon"))
 local ItemText = require(script.Parent:WaitForChild("ItemText"))
 local ItemPreview = require(script.Parent:WaitForChild("ItemPreview"))
+local WeatherQueuePrompt = require(script.Parent:WaitForChild("WeatherQueuePrompt"))
 
 type PlayerSave = GameTypes.PlayerSave
 
@@ -38,6 +39,7 @@ local WEATHER_ORDER = { "sunny", "cloudy", "rain", "storm", "snow" }
 local POWER_BUTTONS = 5
 
 function InventoryWindow.create(screenGui: Instance): Panel
+	local weatherQueue = WeatherQueuePrompt.create(screenGui)
 	local window = UiKit.window(screenGui, {
 		title = "Envanter",
 		icon = "🎒",
@@ -66,6 +68,10 @@ function InventoryWindow.create(screenGui: Instance): Panel
 		return page
 	end
 	local goodsPage, equippedPage, ownedPage = newPage("goods"), newPage("equipped"), newPage("owned")
+	local weatherQueueButton = UiKit.button(equippedPage, "Hava sıram", "secondary")
+	weatherQueueButton.LayoutOrder = POWER_ORDER + 2
+	weatherQueueButton.Visible = false
+	weatherQueueButton.Activated:Connect(weatherQueue.open)
 	local function showPage(id: string)
 		for _, details in disclosures do
 			details.setExpanded(false)
@@ -293,6 +299,7 @@ function InventoryWindow.create(screenGui: Instance): Panel
 
 	local lastContext: string? = nil
 	local function update(state: PlayerSave)
+		weatherQueueButton.Visible = weatherQueue.hasEntry()
 		local context = `{state.activeMainFarmId}:{if state.progression then state.progression.run else 1}`
 		if context ~= lastContext then
 			for _, details in disclosures do

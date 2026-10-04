@@ -41,7 +41,7 @@ local function refresh()
 	end
 end
 
--- detail: "start" için para tesisinin parti kimliği, "sell"/"keep" için işin uid'i
+-- detail: "start" için para tesisinin parti kimliği, "sell"/"keep"/"cancel" için işin uid'i
 local function submit(action: string, recipeId: string, detail: string?)
 	if pending or os.clock() < nextSendAt or PurchaseController.isPending() then
 		return
@@ -132,6 +132,7 @@ local function create(parent: Instance): UiKit.Window
 	type Entry = {
 		card: UiKit.Card,
 		keep: TextButton,
+		cancel: TextButton,
 		progress: Frame,
 		fill: (number, Color3) -> (),
 		options: { TextButton },
@@ -170,6 +171,18 @@ local function create(parent: Instance): UiKit.Window
 		keep.TextSize = UiKit.TextSize.Button
 		keep.LayoutOrder = 4
 		keep.Visible = false
+		local cancel = UiKit.button(card.frame, "Üretimi iptal et", "secondary")
+		cancel.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
+		cancel.AutomaticSize = Enum.AutomaticSize.Y
+		cancel.LayoutOrder = 5
+		cancel.Visible = false
+		cancel.Activated:Connect(function()
+			local state = ClientState.get()
+			local job = state and state.production and state.production[id]
+			if job and cancel.Active then
+				submit("cancel", id, job.uid)
+			end
+		end)
 		-- Para tesisi: her parti seçeneği için bir başlatma butonu (ücretsiz; ne kadar hayvan isterse o kadar kazandırır)
 		local optionButtons: { TextButton } = {}
 		local recipeOptions: { Config.ProductionOptionConfig } = recipe.options or {}
@@ -224,6 +237,7 @@ local function create(parent: Instance): UiKit.Window
 		entries[id] = {
 			card = card,
 			keep = keep,
+			cancel = cancel,
 			progress = progress,
 			fill = fill,
 			options = optionButtons,
@@ -320,6 +334,7 @@ local function create(parent: Instance): UiKit.Window
 			end
 			card.frame.LayoutOrder = if focused == id then 3 else index + 4
 			entry.keep.Visible = false
+			entry.cancel.Visible = false
 			entry.progress.Visible = false
 			card.action.Visible = true
 			for _, button in entry.options do
@@ -365,6 +380,15 @@ local function create(parent: Instance): UiKit.Window
 			end
 			if job then
 				local remaining = math.max(0, math.ceil(job.readyAt - now))
+				entry.cancel.Visible = remaining > 0
+				if entry.cancel.Visible then
+					local refund = job.startCost or 0
+					UiKit.setText(
+						entry.cancel,
+						if refund > 0 then `İptal et · İade {FarmMath.formatMoney(refund)}` else "Üretimi iptal et"
+					)
+					UiKit.setVariant(entry.cancel, if blocked then "disabled" else "secondary")
+				end
 				entry.progress.Visible = true
 				entry.fill(1 - remaining / FarmMath.getFacilityDuration(state, recipe, job.optionId), UiKit.Color.Green)
 				local working = 0

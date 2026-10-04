@@ -27,6 +27,7 @@ Katman: `src/client/Ui/` (UiKit, FarmHud, `Hud/*`, paneller, `IslandManager`, `I
 
 - İlk görünümde başlık, kısa sonuç, fiyat ve ana aksiyon kalır. Açıklama, ayrıntılı formül ve ikincil işlemler `UiKit.disclosure(parent, order, title)` içinde varsayılan kapalıdır; mevcut kart açıklaması için `UiKit.cardDetails` kullanılabilir.
 - Detay düğmesi dokunma/gamepad hedefini korur. İncelenen çiftlik, tur veya ürün değişince eski inceleme kapatılır. Para/ürün gereksinimi, gerçek eşya eksileri ve geri alınamaz işlem uyarıları ilgili işlemden önce gösterilir.
+- Ayrıntı gövdesi ortak `DisclosureBody` stilini kullanır: mint yüzey, ince kenar, iç boşluk ve rahat satır aralığı. `UiKit.text(details.body, ..., "Caption")` içeride Body boyutuna ve ana metin rengine yükselir; özel uyarı/fiyat renkleri korunur. `cardDetails` taşınan kart açıklamasını aynı okunabilir stile getirir. Ayrıntıya elle küçük yazı boyutu verme.
 - Aktif etkiler ve 30 seviye kazanımları aynı **İlerleme** penceresinin Etkiler/Rebirth sekmelerindedir. Sahip olunan fakat takılı olmayan ekipman aktif bonus diye sunulmaz. Ayrıntılı kaynak hesapları yalnız ilgili bölüm açılınca yapılır.
 - Yeni oyuncunun görev şeridi ile sol hedef kartında aynı talimatı iki kez gösterme; görev şeridi açıkken sol hedef kartı gizlenir.
 - Kart ayrıntısı tüm kart genişliğine yayılır. Esnek ızgaralarda satır hizalaması `ItemLineAlignment.Stretch` kullanır; kaydırmalı otomatik içerik yüksekliğini sıkıştıran `VerticalFlex.Fill` kullanılmaz. Eşitlik için boş düğme veya sabit büyük yükseklik ekleme.

@@ -90,6 +90,8 @@ return function(createService: any, createLimiter: any, rules: any, codec: any, 
 	local hasPlot = true
 	local saves, pushes, refreshes, settlements = 0, 0, 0, 0
 	local visualFailure = false
+	local refunds, incomePaid = 0, 0
+	local settleMutation: (() -> ())? = nil
 	local dataService = {
 		tryGet = function(target: any): any
 			return if active and target == player then data else nil
@@ -102,7 +104,13 @@ return function(createService: any, createLimiter: any, rules: any, codec: any, 
 			return true
 		end,
 		addCash = function(_target: any, value: number)
+			incomePaid += value
 			data.cash = math.min(1e15, data.cash + value)
+		end,
+		addRefund = function(_target: any, value: number, reason: string)
+			assert(reason == "refund", "production cancellation uses the registered refund telemetry category")
+			refunds += value
+			data.cash += value
 		end,
 		pushState = function()
 			pushes += 1
@@ -118,6 +126,9 @@ return function(createService: any, createLimiter: any, rules: any, codec: any, 
 		{
 			settlePlayer = function()
 				settlements += 1
+				if settleMutation then
+					settleMutation()
+				end
 			end,
 		},
 		{
@@ -484,8 +495,123 @@ return function(createService: any, createLimiter: any, rules: any, codec: any, 
 		large.reward / large.requiredAdults > small.reward / small.requiredAdults,
 		"more animals pay more per animal"
 	)
+	-- İptal: ürün/para/kuluçka partileri aynı uid ile yalnız çalışırken ve bir kez bırakılabilir.
+	for _, recipeId in { "milk_goods", "packed_milk", "hatchery" } do
+		reset()
+		local cashBeforeStart = data.cash
+		assert(fire("start", recipeId, nil).ok, "cancellable recipe starts")
+		local cancelledJob = data.production[recipeId]
+		local paid = cancelledJob.startCost or 0
+		data.autoRepeat[recipeId] = "default"
+		local beforeRefund, beforeIncome = refunds, incomePaid
+		assert(not fire("cancel", recipeId, nil).ok, "cancel requires a job uid")
+		assert(not fire("cancel", recipeId, "stale-job").ok, "stale cancellation cannot affect another batch")
+		local walletDuring = data.cash
+		now += 0.6
+		sequence += 1
+		request.OnServerEvent.fire(player, "cancel", recipeId, cancelledJob.uid, sequence, "2")
+		assert(
+			not results[#results].ok and data.production[recipeId] == cancelledJob and data.cash == walletDuring,
+			"cancellation for an old active farm cannot mutate wallet or pending job"
+		)
+		for _, badUid in { false, {}, 17 } do
+			assert(
+				not fire("cancel", recipeId, badUid).ok and data.production[recipeId] == cancelledJob,
+				"malformed cancellation uid cannot release a batch"
+			)
+		end
+		assert(fire("cancel", recipeId, cancelledJob.uid).ok, "running batch can be cancelled")
+		local cancellationSequence = sequence
+		local replyCount = #results
+		now += 0.6
+		request.OnServerEvent.fire(
+			player,
+			"cancel",
+			recipeId,
+			cancelledJob.uid,
+			cancellationSequence,
+			data.activeMainFarmId
+		)
+		assert(#results == replyCount, "replayed cancellation request is discarded before another response or refund")
+		assert(
+			data.cash == cashBeforeStart and refunds == beforeRefund + paid,
+			"only actual paid start cost is refunded"
+		)
+		assert(incomePaid == beforeIncome, "cancel pays neither income nor forgone-income compensation")
+		assert(
+			data.production[recipeId] == nil and data.autoRepeat[recipeId] == nil,
+			"cancel removes job and stops helper restart"
+		)
+		for _, animal in data.animals do
+			assert(not animal.task, "cancel releases assigned animals")
+		end
+		local cashAfter = data.cash
+		assert(
+			not fire("cancel", recipeId, cancelledJob.uid).ok and data.cash == cashAfter,
+			"cancel cannot refund twice"
+		)
+		assert(fire("start", recipeId, nil).ok, "player can immediately choose a new batch")
+		local newJob = data.production[recipeId]
+		assert(
+			not fire("cancel", recipeId, cancelledJob.uid).ok and data.production[recipeId] == newJob,
+			"old uid cannot cancel replacement job"
+		)
+		now = newJob.readyAt
+		assert(
+			not fire("cancel", recipeId, newJob.uid).ok and data.production[recipeId] == newJob,
+			"ready batch must be claimed, not refunded"
+		)
+	end
+	reset()
+	assert(fire("start", "milk_goods", nil).ok, "historically priced cancellation starts")
+	local historicalJob = data.production.milk_goods
+	local originalCost = historicalJob.startCost
+	-- Kayıt eski/indirimli ödemeyi taşıyabilir; güncel tarif bedeli iade otoritesi değildir.
+	historicalJob.startCost = originalCost / 2
+	data.cash += originalCost / 2
+	local historicalWallet, historicalRefunds, historicalIncome = data.cash, refunds, incomePaid
+	assert(fire("cancel", "milk_goods", historicalJob.uid).ok, "historically discounted running job can be cancelled")
+	assert(
+		data.cash == historicalWallet + historicalJob.startCost
+			and refunds == historicalRefunds + historicalJob.startCost,
+		"historical discounted payment refunds recorded cost rather than current configured price"
+	)
+	assert(incomePaid == historicalIncome, "historical refund is not newly earned money")
+	reset()
+	assert(fire("start", "milk_goods", nil).ok, "malformed refund fixture starts")
+	local invalidJob = data.production.milk_goods
+	local validPaid = invalidJob.startCost
+	for _, invalidPaid in { false, -1, math.huge, 0 / 0, "100", 1e15 + 1 } do
+		invalidJob.startCost = invalidPaid
+		local wallet = data.cash
+		assert(
+			not fire("cancel", "milk_goods", invalidJob.uid).ok
+				and data.cash == wallet
+				and data.production.milk_goods == invalidJob,
+			"invalid refund never mutates job or wallet"
+		)
+	end
+	invalidJob.startCost = validPaid
+	local wallet = data.cash
+	settleMutation = function()
+		data.production.milk_goods = nil
+	end
+	assert(
+		not fire("cancel", "milk_goods", invalidJob.uid).ok and data.cash == wallet,
+		"settlement replacing job prevents stale refund"
+	)
+	settleMutation = nil
+	reset()
+	assert(fire("start", "milk_goods", nil).ok, "legacy job fixture starts")
+	local legacyJob = data.production.milk_goods
+	legacyJob.startCost = nil
+	wallet = data.cash
+	assert(
+		fire("cancel", "milk_goods", legacyJob.uid).ok and data.cash == wallet,
+		"legacy job lacking recorded payment never invents refund"
+	)
 	assert(saves == pushes and saves > 0 and settlements > 0, "each mutation pushes and schedules persistence")
 	print(
-		"PASS production: actual service ownership, adult/price checks, replay, timed claims, incubation capacity, persistence and schema4 migration"
+		"PASS production: actual service ownership, adult/price checks, replay, timed claims, cancellation refunds/replay, incubation capacity, persistence and schema4 migration"
 	)
 end

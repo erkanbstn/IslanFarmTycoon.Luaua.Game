@@ -79,15 +79,23 @@ export type TextStyle = "Display" | "Title" | "Heading" | "Body" | "Caption"
 
 -- Standart yazı. style boyutu ve yazı tipini belirler; yükseklik otomatik.
 function Base.text(parent: Instance, text: string, style: TextStyle, color: Color3?): TextLabel
+	-- Açılan ayrıntı ana içeriktir; küçük dipnot stili ve soluk varsayılan renk kullanılmaz.
+	local inDetails = parent.Name == "DisclosureBody"
+	local resolvedStyle = if inDetails and style == "Caption" then "Body" else style
 	local label = Instance.new("TextLabel")
 	label.BackgroundTransparency = 1
 	label.Text = text
-	label.TextSize = Tokens.TextSize[style]
+	label.TextSize = Tokens.TextSize[resolvedStyle]
 	label.FontFace = if style == "Display" or style == "Title"
 		then Tokens.Font.Display
 		elseif style == "Heading" then Tokens.Font.Bold
 		else Tokens.Font.Body
-	label.TextColor3 = color or (if style == "Caption" then Tokens.Color.TextMuted else Tokens.Color.Text)
+	label.TextColor3 = if inDetails and (color == nil or color == Tokens.Color.TextMuted)
+		then Tokens.Color.Text
+		else color or (if style == "Caption" then Tokens.Color.TextMuted else Tokens.Color.Text)
+	if inDetails then
+		label.LineHeight = 1.2
+	end
 	label.TextXAlignment = Enum.TextXAlignment.Left
 	label.TextYAlignment = Enum.TextYAlignment.Center
 	label.TextWrapped = true

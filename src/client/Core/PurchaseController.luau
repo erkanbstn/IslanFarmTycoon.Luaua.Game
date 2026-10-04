@@ -33,6 +33,9 @@ export type Detail = {
 	uid: string?,
 	expectedCost: number?,
 	expectedEndsAt: number?,
+	weatherId: string?,
+	queueToken: string?,
+	queueAction: string?,
 }
 
 function PurchaseController.submit(
