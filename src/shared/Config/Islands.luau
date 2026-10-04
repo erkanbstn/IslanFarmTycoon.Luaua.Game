@@ -6,10 +6,11 @@ local Types = require(script.Parent:WaitForChild("Types"))
 local Species = require(script.Parent:WaitForChild("Species"))
 
 local data = {
-	-- Bir hayvanın her evrede kaldığı süre (saniye). Yetişkin olunca tam gelir verir.
+	-- Bir hayvanın her evrede kaldığı süre (saniye). Yetişkin olunca tam gelir verir. Taban 20 dk (yavru 400 + genç 800);
+	-- Yem Silosu ve Hızlı Büyüme ile ~7-10 dk. Tüm türler/adalar/çiftlikler için aynıdır (fiyat/ada sırasına göre ölçeklenmez).
 	GROWTH_SECONDS = {
-		calf = 800,
-		young = 1600,
+		calf = 400,
+		young = 800,
 	},
 
 	-- Büyüme hızı birleşimi (FarmMath.getGrowthSpeed): her kaynağın artısı (çarpan - 1) TOPLANIR; toplam artı

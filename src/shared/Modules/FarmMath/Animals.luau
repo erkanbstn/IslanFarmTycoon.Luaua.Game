@@ -19,9 +19,10 @@ function Animals.getAnimalPrice(save: PlayerSave, animalId: string): number
 	return Pricing.getPrice(save, "animal", animalId)
 end
 
--- Yeni alınan hayvanın doğum zamanı: çiftlikteki ilk STARTER_ADULT_ANIMALS hayvan yetişkin (bornAt = 0), sonrakiler yavru.
-function Animals.getNewAnimalBornAt(save: PlayerSave, now: number): number
-	if #save.animals < Config.STARTER_ADULT_ANIMALS then
+-- Yeni alınan hayvanın doğum zamanı: çiftlikte o türden ilk STARTER_ADULT_ANIMALS hayvan yetişkin (bornAt = 0), sonrakiler yavru.
+-- Tür bazlıdır: her yeni adanın ilk hayvanları (ör. ilk 3 tavuk) üretimi beklemeden başlatır.
+function Animals.getNewAnimalBornAt(save: PlayerSave, now: number, animalId: string): number
+	if Counts.countAnimals(save, animalId) < Config.STARTER_ADULT_ANIMALS then
 		return 0
 	end
 	return now

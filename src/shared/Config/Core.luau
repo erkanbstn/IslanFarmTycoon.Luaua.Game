@@ -69,8 +69,8 @@ return {
 	-- ilk hayvan, çiftliğin ana hayvanını (inek/tavuk/ördek) tam alacak kadar parayla alınır (Config.getStartingCash).
 	STARTING_COW_COUNT = 0,
 
-	-- Çiftlikteki ilk bu kadar hayvan yetişkin doğar (bornAt = 0): ilk dakikada "vay" anı, gelir hemen tam hızda başlar.
-	-- Yalnızca hayvan sayısı bunun altındayken alınanlara uygulanır; kayıt şeması değişmez (bornAt = 0 zaten yetişkin demektir).
+	-- Her TÜRÜN çiftlikteki ilk bu kadar hayvanı yetişkin doğar (bornAt = 0): ilk dakikada "vay" anı, her yeni adada üretim hemen başlar.
+	-- Yalnızca o türden sahip olunan sayı bunun altındayken alınanlara uygulanır; kayıt şeması değişmez (bornAt = 0 zaten yetişkin demektir).
 	STARTER_ADULT_ANIMALS = 3,
 
 	-- İnek (en ucuz ana hayvan) fiyatı: Config.getStartingCash temaya göre ana hayvanın fiyatını verir.

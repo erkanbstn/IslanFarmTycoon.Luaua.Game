@@ -36,8 +36,8 @@ local function addAnimals(data: any, animalId: string, amount: number)
 		if not targetZone then
 			break -- Çağıran boş yer denetimini yapmış olmalı
 		end
-		-- Çiftliğin ilk hayvanları yetişkin doğar (bornAt = 0), sonrakiler yavru
-		local bornAt = FarmMath.getNewAnimalBornAt(data, now)
+		-- Her türün çiftlikteki ilk hayvanları yetişkin doğar (bornAt = 0), sonrakiler yavru
+		local bornAt = FarmMath.getNewAnimalBornAt(data, now, animalId)
 		table.insert(data.animals, {
 			uid = HttpService:GenerateGUID(false),
 			animalId = animalId,

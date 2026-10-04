@@ -1000,11 +1000,11 @@ return function(FarmMath: any, Config: any, Environment: any)
 		near(cash, 140)
 		near(stored, 0)
 	end
-	-- Açılış: çiftliğin ilk STARTER_ADULT_ANIMALS hayvanı yetişkin doğar (bornAt = 0), sonrakiler yavru
+	-- Açılış: her türün çiftlikteki ilk STARTER_ADULT_ANIMALS hayvanı yetişkin doğar (bornAt = 0), sonrakiler yavru
 	do
 		local opening = { animals = {} }
 		for index = 1, Config.STARTER_ADULT_ANIMALS + 2 do
-			local bornAt = FarmMath.getNewAnimalBornAt(opening, start)
+			local bornAt = FarmMath.getNewAnimalBornAt(opening, start, "cow")
 			if index <= Config.STARTER_ADULT_ANIMALS then
 				assert(bornAt == 0 and FarmMath.getStage(bornAt, start, 1) == "adult", `animal {index} starts adult`)
 			else
@@ -1015,6 +1015,27 @@ return function(FarmMath: any, Config: any, Environment: any)
 			end
 			table.insert(opening.animals, { uid = `o-{index}`, animalId = "cow", zoneId = "starter", bornAt = bornAt })
 		end
+		-- Yeni ada: inekler sürüyle dolu olsa da ilk tavuklar yetişkin başlar (üretim beklemez); 4. tavuk yavrudur.
+		for index = 1, Config.STARTER_ADULT_ANIMALS + 1 do
+			local bornAt = FarmMath.getNewAnimalBornAt(opening, start, "chicken")
+			if index <= Config.STARTER_ADULT_ANIMALS then
+				assert(bornAt == 0, `chicken {index} on a new island starts adult even with a full cow herd`)
+			else
+				assert(bornAt == start, "the fourth chicken is a calf")
+			end
+			table.insert(
+				opening.animals,
+				{ uid = `c-{index}`, animalId = "chicken", zoneId = "poultry", bornAt = bornAt }
+			)
+		end
+		-- Sayım türe göre: bir tür satılıp sayı düşünce o tür için yeniden başlangıç hakkı doğar, diğer türler etkilenmez.
+		assert(FarmMath.getNewAnimalBornAt(opening, start, "cow") == start, "cows beyond the starter count stay calves")
+		assert(FarmMath.getNewAnimalBornAt(opening, start, "goat") == 0, "a species with no animals yet starts adult")
 	end
+	-- Büyüme süresi: yavru + genç = 20 dk taban; Yem Silosu (x2) ile 10 dk
+	assert(
+		Config.GROWTH_SECONDS.calf == 400 and Config.GROWTH_SECONDS.young == 800,
+		"base growth is 400s calf + 800s young"
+	)
 	print("PASS economy: growth boundaries, integrated offline/elapsed income, cap, growth upgrade, fish pricing")
 end

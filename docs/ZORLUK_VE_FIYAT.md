@@ -87,6 +87,14 @@ Para/ürün akışlarının büyüklüğü tek bir kuralla bağlıdır; "bu say�
 - **Bilinen denge bedeli**: sipariş payı (casual, 7 gün) ~%9,3'ten ~%5'e indi (değer çarpanı ~2,3: en pahalı ürün ~130K; 1 et 1M gibi uçuk fiyat çıkmasın diye bilinçli); hardcore payı ~%9. Gelir tabanı kalktığı için pay artık yalnızca değer çarpanıyla ayarlanır; çarpan büyüdükçe
   tek tek sipariş gelirin dakikalarına yaklaşır (güncel tavan Config.GOODS_CONTRACTS içindedir) (git geçmişindeki eski üretim-tüccar denge notu).
 
+## Hayvan büyümesi (4 Ekim 2026)
+
+- Taban süre `Config.GROWTH_SECONDS`: yavru 400 sn + genç 800 sn = **20 dk**, bütün tür/ada/çiftliklerde aynı (eskiden 40 dk). Yem Silosu (x2) ve Hızlı Büyüme Sv.1-3, bölge geliştirmeleri, muska ve perklerle hız `GROWTH_SPEED_CAP` (4) altında artar; tam geliştirilmiş çiftlikte yeni hayvan ~7 dk'da yetişkin olur.
+- **Her türün çiftlikteki ilk `STARTER_ADULT_ANIMALS` (3) hayvanı yetişkin doğar** (`FarmMath.getNewAnimalBornAt(save, now, animalId)`): her yeni adanın üretimi ilk dakikadan başlar; 4. ve sonrası yavrudur. Kayıt şeması değişmez (`bornAt = 0` zaten yetişkin).
+- Hızlanan ilk çiftlik, simülasyonun "her çiftlik bir öncekinden uzun" değişmezini en pasif oyuncu tipinde (idle, 12 saatlik oturumlar) eşitliğe düşürdü; Çiftlik 2 maliyet çarpanı 5,9 → 6,4 yapıldı (ideal çiftlik 2 süresi 7,0 → 7,6 sa; hedef 6,9). `simulate-tiers.py --assert-monotonic` yeniden geçer.
+- Neden: büyüme süresi gelir dengesinin değil bekleme hissinin kapısıdır. Üretim tarifleri 40-120 sn sürerken yeni tavuk adasında 20+ dk yetişkin beklemek gerekiyordu.
+- Ölçüm (aynı koşullar, `compare-economy.py`, 2 tekrar, Çiftlik 1): hardcore `--session 0 --hours 6`: ilk büyüyen yetişkin 22,6 → 12,6 dk; at adası 28,5 → 23,4; keçi adası 52,6 → 44,8; Çiftlik 2 alımı 87,2 → 75,9 dk; ilk çiftliğin yükseltmeleri ~%14-18 daha erken; Çiftlik 1 geliri 6. saatte +%1,4 (Çiftlik 3 anlık geliri alım zamanına bağlı dalgalanır, kararlı bir fark değildir). Casual (3 x 20 dk oturum / gün): ilk büyüyen yetişkin ilk oturumda 12,8 dk'da (eskiden 480. dk, ikinci oturum); ada açılış zamanları oturum aralığına bağlı olduğundan aynı. Sim oyuncu davranışı ya da gerçek FPS/oynanış değildir.
+
 ## Yeni içerik eklerken
 
 1. Yeni hayvan: `Config/Species.luau` satırı (sıra profilini seç; rakamlar profilden gelir) + `THEMES` + görsel satırları (`docs/ADA_TASARIMI.md`).

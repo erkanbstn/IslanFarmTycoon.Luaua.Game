@@ -282,7 +282,7 @@ local uidCounter = 0
 local function buyAnimal(animalId: string, zoneId: string)
 	uidCounter += 1
 	save.cash -= FarmMath.getAnimalPrice(save, animalId)
-	local bornAt = FarmMath.getNewAnimalBornAt(save, now)
+	local bornAt = FarmMath.getNewAnimalBornAt(save, now, animalId)
 	table.insert(save.animals, { uid = `sim-{uidCounter}`, animalId = animalId, zoneId = zoneId, bornAt = bornAt, stage = if bornAt == 0 then "adult" else "calf" })
 	actions += 1
 	invested()

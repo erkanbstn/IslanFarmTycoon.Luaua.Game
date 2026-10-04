@@ -24,7 +24,7 @@ local TIME_GROWTH = 1.5
 -- ama 6. çiftlik (~35 sa ideal, hepsi ~96 sa) casual oyunda haftalar içinde biter.
 -- costMultipliers bu hedeflere `python scripts/simulate-tiers.py` / `simulate-economy.py --farms 6 --finish-first --mults ...` ile ayarlanır; maliyet ile süre doğrusal değildir
 -- (park edilmiş çiftlik geliri ve birikim): çarpan kademe başına ~2x büyür (1, 6.6, 17.6, 34.8, 62.7, 107.5).
-local COST_MULTIPLIERS = { 1, 5.9, 16.8, 34.8, 62.7, 125 }
+local COST_MULTIPLIERS = { 1, 6.4, 16.8, 34.8, 62.7, 125 }
 
 -- Kademe başına en pahalı tek kalemin (yükseltme, hayvan, yapı geliştirme) tavanı: `scripts/audit-economy.py` (bölüm C) ve `tests/goods.spec` bunu denetler.
 -- Tavan, fiyat tablosunun doğal sonucudur (çarpan x yazılı taban); aşılırsa fiyat/çarpan değişimi ya da yeni içerik "uçuk" büyüklüğe çıkmış demektir.

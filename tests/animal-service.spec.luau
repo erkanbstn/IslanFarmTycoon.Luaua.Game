@@ -34,11 +34,17 @@ return function(createService: any, createHarness: any, createLimiter: any, code
 	assert(data.cash == 7, "exactly the server-computed price is spent")
 	assert(#data.animals == animalsBefore + 1, "one animal is added")
 	local starterCount = config.STARTER_ADULT_ANIMALS
+	local cowsBeforeBuy = 0
+	for index = 1, animalsBefore do
+		if data.animals[index].animalId == "cow" then
+			cowsBeforeBuy += 1
+		end
+	end
 	local newest = data.animals[#data.animals]
 	assert(
-		newest.stage == (if animalsBefore < starterCount then "adult" else "calf")
-			and (newest.bornAt == 0) == (animalsBefore < starterCount),
-		"the farm's first animals are bought adult, later ones as calves"
+		newest.stage == (if cowsBeforeBuy < starterCount then "adult" else "calf")
+			and (newest.bornAt == 0) == (cowsBeforeBuy < starterCount),
+		"the farm's first animals of each species are bought adult, later ones as calves"
 	)
 	assert(
 		h.counters.pushes == 1 and h.counters.saves == 1 and h.counters.refreshes == 1,

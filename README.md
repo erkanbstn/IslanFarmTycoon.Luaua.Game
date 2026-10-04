@@ -77,7 +77,7 @@ hatasından ayrıdır.
    Satın alınca alan kalkar, yerine bina kurulur.
 3. Hayvanlar her saniye **depoya** para üretir. Adadaki **yeşil platforma** basınca para kasaya geçer.
    Depo dolarsa üretim durur → oyuncu geri gelip toplamalı (ya da Otomatik Toplayıcı almalı).
-4. **Hayvan Pazarı:** Açık bölgelerindeki hayvanlar (tema ve açılan adalara göre: inek, tavuk, ördek, at, koyun, keçi, domuz, hamsi, levrek). Yavru doğarlar → Genç → Yetişkin; her aşamanın gelir çarpanı `Config.STAGE_INCOME_MULTIPLIER`'dadır.
+4. **Hayvan Pazarı:** Açık bölgelerindeki hayvanlar (tema ve açılan adalara göre: inek, tavuk, ördek, at, koyun, keçi, domuz, hamsi, levrek). Yavru doğarlar → Genç → Yetişkin (taban 20 dk, `Config.GROWTH_SECONDS`); her türün çiftlikteki ilk 3 hayvanı yetişkin doğar; her aşamanın gelir çarpanı `Config.STAGE_INCOME_MULTIPLIER`'dadır.
    Aynı türden aldıkça fiyat `Config.ANIMAL_PRICE_GROWTH` kadar artar.
 4b. **Irk geliştirme:** Pazar'da sahip olduğun her hayvan türünün kartında ikinci düğme vardır. Her seviye o türün gelirini artırır (`Config.LINEAGE`: seviye başına bonus, en yüksek seviye);
    maliyet her seviyede üstel büyür. Seviyeler çiftlik başınadır ve kayıtlıdır. Bu, yol haritası bittikten sonra da para harcama yoludur. Geliştirilmiş hayvanın üstünde kademe renginde (bronz, gümüş, altın, elmas) bir yıldız ve seviye rozeti görünür.
