@@ -45,7 +45,7 @@ function StatsPanel.create(screenGui: Instance): Hud
 	dataHealth.Visible = false
 
 	-- İkon kutusu + yanında alt alta yazılar (dönen çerçeveye yazılar eklenir)
-	local function statRow(parent: Instance, order: number, icon: string, tint: Color3): Frame
+	local function statRow(parent: Instance, order: number, icon: string, tint: Color3): (Frame, TextLabel)
 		local row = Instance.new("Frame")
 		row.BackgroundTransparency = 1
 		row.Size = UDim2.new(1, 0, 0, 40)
@@ -53,7 +53,7 @@ function StatsPanel.create(screenGui: Instance): Hud
 		row.LayoutOrder = order
 		row.Parent = parent
 
-		UiKit.iconChip(row, icon, 40, tint)
+		local chip = UiKit.iconChip(row, icon, 40, tint)
 
 		local texts = Instance.new("Frame")
 		texts.BackgroundTransparency = 1
@@ -62,7 +62,7 @@ function StatsPanel.create(screenGui: Instance): Hud
 		texts.AutomaticSize = Enum.AutomaticSize.Y
 		texts.Parent = row
 		UiKit.list(texts, 0)
-		return texts
+		return texts, chip
 	end
 
 	local cashBlock = Instance.new("Frame")
@@ -116,7 +116,9 @@ function StatsPanel.create(screenGui: Instance): Hud
 	rebirthLevel.TextXAlignment = Enum.TextXAlignment.Left
 	rebirthLevel.TextYAlignment = Enum.TextYAlignment.Center
 
-	local barnTexts = statRow(stats, 2, "🏚️", Color.Red)
+	local barnTexts, barnIcon = statRow(stats, 2, "🛖", Color.Gold)
+	barnIcon.Name = "BarnIcon"
+	local barnIcons = { "🛖", "🏠", "🏡", "🏰" }
 	local barnLabel = UiKit.text(barnTexts, "", "Heading")
 	barnLabel.LayoutOrder = 1
 	local barnDetail = UiKit.text(barnTexts, "", "Caption")
@@ -192,6 +194,7 @@ function StatsPanel.create(screenGui: Instance): Hud
 		)
 		local cap = FarmMath.getStorageCap(state)
 		local barnConfig = FarmMath.getBarnConfig(state)
+		barnIcon.Text = barnIcons[math.clamp(state.barnLevel, 1, #barnIcons)]
 		animateCash(state.cash)
 		UiKit.setText(goldAmount, `Altın: {state.gold or 0}`)
 		UiKit.setText(rebirthLevel, `Rebirth: {if state.progression then state.progression.count else 0}`)

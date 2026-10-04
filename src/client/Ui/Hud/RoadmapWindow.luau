@@ -44,7 +44,12 @@ function RoadmapWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Road
 	local rebirthGoal = UiKit.text(roadmapWindow.list, "", "Caption", Color.Gold)
 	rebirthGoal.LayoutOrder = 1
 
-	IslandTabs.add(roadmapWindow)
+	local refreshStages: (() -> ())? = nil
+	local islandTabs = IslandTabs.add(roadmapWindow, function()
+		if refreshStages then
+			refreshStages()
+		end
+	end)
 
 	local upgradeCards: { [string]: UiKit.Card } = {}
 	local disclosures: { UiKit.Disclosure } = {}
@@ -66,7 +71,6 @@ function RoadmapWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Road
 	local selectedStage: number? = nil
 	local currentPage = 1
 	local freeGift: UiKit.Card? = nil
-	local refreshStages: (() -> ())? = nil
 	local entries = {}
 	for index in Config.ROADMAP_STAGES do
 		table.insert(entries, { id = tostring(index), label = `Aşama {index}` })
@@ -196,8 +200,9 @@ function RoadmapWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Road
 	end
 
 	local function updateRoadmap(state: PlayerSave, content: boolean)
+		islandTabs.update(state)
 		local context =
-			`{state.activeMainFarmId}:{IslandContext.get()}:{if state.progression then state.progression.run else 0}`
+			`{state.activeMainFarmId}:{islandTabs.get()}:{if state.progression then state.progression.run else 0}`
 		if context ~= lastContext then
 			lastContext = context
 			selectedStage = nil
@@ -207,10 +212,9 @@ function RoadmapWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Road
 		end
 		local progress = Progression.progress(state)
 		UiKit.setText(rebirthGoal, `Rebirth: {progress.farmsComplete}/{progress.farmsTotal} çiftlik`)
-		local selectedIsland = IslandContext.get()
-		IslandTabs.update(state)
+		local selectedIsland = islandTabs.get()
 		if content then
-			UiKit.setText(roadmapInfo, IslandContext.name())
+			UiKit.setText(roadmapInfo, islandTabs.name())
 		end
 		local ownedPerStage: { [number]: number } = {}
 		local totalPerStage: { [number]: number } = {}

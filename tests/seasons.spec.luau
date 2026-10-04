@@ -75,6 +75,8 @@ return function(visuals: any, createEnvironment: any, config: any)
 		local sawUp, sawDown, sawNeutral = false, false, false
 		for _, season in config.SEASONS do
 			for weatherId in config.WEATHER do
+				attributes.Weather = weatherId
+				attributes.WandWeatherActive = true
 				local override = {
 					seasonId = season.id,
 					seasonEndsAt = math.huge,
@@ -102,6 +104,8 @@ return function(visuals: any, createEnvironment: any, config: any)
 				end
 			end
 		end
+		attributes.WandWeatherActive = false
+		attributes.Weather = nil
 		assert(sawUp and sawDown and sawNeutral, "config must contain rising, falling and neutral animals")
 	end
 	assert(environment.getNextSeason(summer).id == "autumn", "the next season follows the overridden one")
@@ -111,8 +115,8 @@ return function(visuals: any, createEnvironment: any, config: any)
 	)
 	local rain = { weatherId = "rain", weatherEndsAt = now + 50 }
 	assert(
-		environment.getWeather(rain).id == "rain" and environment.getSeason(rain).id == "winter",
-		"a weather override keeps the world season"
+		environment.getWeather(rain).id == environment.getWeather().id and environment.getSeason(rain).id == "winter",
+		"legacy personal weather cannot hide the shared weather"
 	)
 	assert(
 		environment.getWeather({ weatherId = "rain", weatherEndsAt = now - 1 }).id == environment.getWeather().id,

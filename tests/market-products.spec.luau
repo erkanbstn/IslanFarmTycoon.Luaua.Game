@@ -33,7 +33,7 @@ return function(Config: any, FarmMath: any, SaveCodec: any, Inventory: any)
 		local product = assert(Config.PRODUCTS.products[`permanent_{id}`], `Robux configuration exists for {id}`)
 		assert(offer.itemId == id and offer.goldCost > 0, "each new item has a free permanent gold route")
 		assert(product.effect == "permanentOffer" and product.offerId == id, "Robux grants the same permanent right")
-		assert(product.id == 0, "unconfigured products cannot request a Robux purchase")
+		assert(product.id == (offer.robuxProductId or 0), "Robux catalogue uses the permanent offer's configured ID")
 		assert(Config.ITEMS[id].effects.incomeBonus == nil, "specialist choices do not add an income stack")
 	end
 	local save = fresh()

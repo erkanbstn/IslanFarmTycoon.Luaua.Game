@@ -144,6 +144,7 @@ export type DifficultyGoods = {
 export type ItemSlotConfig = { id: string, displayName: string, icon: string }
 export type ItemLook = { attach: string } -- attach: head | back | hip | chest | hand (geometri `assets/Items/<id>` modelindedir)
 export type ItemEffects = {
+	movementSpeed: number?, -- Yürüme ve koşma artısı; takılı kaynaklar ortak üst sınıra tabidir.
 	upgradeDiscount: number?, -- Bütün yükseltme maliyetlerinden indirim (0.1 = %10)
 	storageBonus: number?, -- Depo kapasitesi (0.15 = +%15)
 	growthSpeed: number?, -- Büyüme hızı çarpanı (1.15 = %15 daha hızlı)
@@ -227,6 +228,8 @@ export type UpgradeConfig = {
 	requires: { string },
 	kind: string, -- "barn" | "zone" | "island" | "boost" | "extension" | "level"
 	leveled: boolean?, -- kind == "level": seviyeli zincir; yol haritası "tamamlandı" sayımına girmez
+	optionalForCompletion: boolean?, -- İsteğe bağlı içerik; çiftlik/ada/rebirth tamamlanmasını engellemez.
+	costCurve: boolean?, -- false: taban nakit fiyatı hazırdır; kademe/ada/rebirth çarpanları yine uygulanır.
 	barnLevel: number?, -- kind == "barn"
 	zoneId: string?, -- kind == "zone"
 	islandId: string?, -- kind == "island"

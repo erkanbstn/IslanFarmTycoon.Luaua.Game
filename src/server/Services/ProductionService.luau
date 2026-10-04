@@ -39,7 +39,7 @@ local function hooksFor(player: Player): ProductionLogic.Hooks
 end
 
 -- detail: "start" için para tesisinin parti kimliği (yoksa ilk seçenek), "sell"/"keep" için teslim alınacak işin uid'i,
--- "auto" için tekrar partisi kimliği ("off" = kapat; yoksa varsayılan)
+-- "auto": parti kimliği ("off" kapat, "fill" ürün deposu, nil sipariş stoğu).
 local function act(player: Player, action: unknown, recipeId: unknown, detail: unknown): (boolean, string)
 	if not RateLimiter.validId(recipeId) then
 		return false, "Geçersiz üretim."
@@ -56,7 +56,11 @@ local function act(player: Player, action: unknown, recipeId: unknown, detail: u
 			return false, "Geçersiz üretim seçeneği."
 		end
 	elseif action == "auto" then
-		if detail ~= "off" and not ProductionRules.validOption(recipe, FarmMath, detail) then
+		if
+			detail ~= "off"
+			and not (detail == "fill" and recipe.output == "goods")
+			and not ProductionRules.validOption(recipe, FarmMath, detail)
+		then
 			return false, "Geçersiz üretim seçeneği."
 		end
 	elseif detail == nil then
@@ -77,6 +81,9 @@ local function act(player: Player, action: unknown, recipeId: unknown, detail: u
 		if detail == "off" then
 			data.autoRepeat[recipe.id] = nil
 		else
+			if not data.purchased[recipe.upgradeId] or not data.unlockedIslands[recipe.island] then
+				return false, "Önce bu üretim binasını açmalısın."
+			end
 			local kind = FarmMath.petKindFor(recipe)
 			if not kind or not FarmMath.hasPet(data, kind) then
 				return false, "Bunun için önce yardımcı almalısın."
@@ -89,7 +96,7 @@ local function act(player: Player, action: unknown, recipeId: unknown, detail: u
 			return false, reason or "Üretim başlatılamadı."
 		end
 		-- Tekrar açıksa son elle seçilen parti tekrarlanır
-		if data.autoRepeat[recipe.id] ~= nil then
+		if data.autoRepeat[recipe.id] ~= nil and data.autoRepeat[recipe.id] ~= "fill" then
 			data.autoRepeat[recipe.id] = optionId or "default"
 		end
 	else

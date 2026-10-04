@@ -15,9 +15,18 @@ return function(createItemText: any)
 	})
 	local description = text.describe({
 		slot = "charm",
-		effects = { contractBonus = 0.25, upgradeDiscount = 0.10, growthSpeed = 0.8 },
+		effects = { movementSpeed = 0.15, contractBonus = 0.25, upgradeDiscount = 0.10, growthSpeed = 0.8 },
 		tradeoffs = { offlineBonus = 0.20, facilitySpeed = 0.08, goodsYield = 0.06 },
 	})
+	local weatherDescription = text.describe({ power = { kind = "weather", usesPerDay = 1 } })
+	assert(
+		string.find(weatherDescription, "Sunucudaki herkes etkilenir", 1, true),
+		"weather staff scope is clear before buying or using it"
+	)
+	assert(
+		string.find(description, "Yürüme ve koşma hızı: +%15", 1, true),
+		"movement benefit covers walking and sprinting"
+	)
 	assert(
 		string.find(description, "Ahır siparişi ödülü: +%25", 1, true),
 		"advertised contract benefit keeps its sign"

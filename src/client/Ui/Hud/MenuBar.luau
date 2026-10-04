@@ -15,13 +15,12 @@ local Config = require(Shared:WaitForChild("Config"))
 local GameTypes = require(Shared:WaitForChild("GameTypes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 local Progression = require(Shared:WaitForChild("Modules"):WaitForChild("Progression"))
-local IslandContext = require(script.Parent.Parent.Parent:WaitForChild("Core"):WaitForChild("IslandContext"))
 local UiKit = require(script.Parent.Parent:WaitForChild("UiKit"))
 local SettingsMenu = require(script.Parent.Parent:WaitForChild("SettingsMenu"))
 local AdminPanel = require(script.Parent.Parent:WaitForChild("AdminPanel"))
 local ProductionPanel = require(script.Parent.Parent:WaitForChild("ProductionPanel"))
 local IslandManager = require(script.Parent.Parent:WaitForChild("IslandManager"))
-local HudCommon = require(script.Parent:WaitForChild("HudCommon"))
+local ActionBadges = require(script.Parent:WaitForChild("ActionBadges"))
 local Onboarding = require(script.Parent:WaitForChild("Onboarding"))
 local OnboardingSteps = require(Shared:WaitForChild("Modules"):WaitForChild("OnboardingSteps"))
 
@@ -199,22 +198,15 @@ function MenuBar.create(screenGui: Instance, onUnlocked: ((message: string) -> (
 	local setInventoryBadge = UiKit.badge(inventoryButton) -- dolmak üzere olan ahır deposu ürünleri
 
 	local function updateProductionBadge(state: PlayerSave?)
-		local ready = 0
-		if state and state.production then
-			for recipeId, job in state.production do
-				local recipe = Config.PRODUCTION_RECIPES[recipeId]
-				if recipe and job.readyAt <= Workspace:GetServerTimeNow() then -- bütün adaların hazır partileri sayılır
-					ready += 1
-				end
-			end
-		end
+		local ready = if state then ActionBadges.production(state, Workspace:GetServerTimeNow()) else 0
 		setProductionBadge(ready)
 	end
 
 	local function updateBadges(state: PlayerSave)
 		updateProductionBadge(state)
 		setInventoryBadge(#FarmMath.getFullGoods(state))
-		local animals, upgrades = 0, 0
+		local animals = 0
+		local upgrades = ActionBadges.upgrades(state)
 		for _, animalId in Config.ANIMAL_ORDER do
 			if
 				FarmMath.hasUnlockedAnimalZone(state, animalId)
@@ -222,25 +214,6 @@ function MenuBar.create(screenGui: Instance, onUnlocked: ((message: string) -> (
 				and state.cash >= FarmMath.getAnimalPrice(state, animalId)
 			then
 				animals += 1
-			end
-		end
-		for _, upgrade in Config.UPGRADES do
-			if
-				upgrade.kind ~= "island"
-				and IslandContext.upgradeIsland(upgrade) == IslandContext.get()
-				and FarmMath.getUpgradeStatus(state, upgrade.id) == "available"
-				and HudCommon.upgradeAffordable(state, upgrade)
-			then
-				upgrades += 1
-			end
-		end
-		-- Açık adadaki alınabilir geliştirmeler de rozete sayılır (yoksa oyuncu bunları fark etmez)
-		for targetId, target in Config.BUILD_TARGETS do
-			if target.island == IslandContext.get() then
-				local status, _, cost = FarmMath.getExpansionStatus(state, targetId)
-				if status == "available" and state.cash >= cost then
-					upgrades += 1
-				end
 			end
 		end
 		-- Tek önerilen adım parlar: önce yükseltme (kalıcı ilerleme), yoksa hayvan. Yol haritası

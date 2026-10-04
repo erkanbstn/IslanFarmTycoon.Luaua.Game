@@ -13,6 +13,18 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		table.insert(order, item.id)
 	end
 
+	-- Hız odaklı muska: ekonomik muska yuvasından vazgeçerek daha rahat ulaşım.
+	add({
+		id = "wind_charm",
+		displayName = "Rüzgar Muskası",
+		icon = "📿",
+		slot = "charm",
+		price = 550000,
+		effects = { movementSpeed = 0.15, offlineBonus = 0.03 },
+		tradeoffs = { goodsYield = 0.03 },
+		look = { attach = "chest" },
+	})
+
 	-- Aletler: tüm yükseltme maliyetlerinden kalıcı indirim
 	add({
 		id = "copper_hammer",
@@ -47,7 +59,13 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🔨",
 		slot = "tool",
 		price = 2500000,
-		effects = { upgradeDiscount = 0.2, expansionDiscount = 0.12, sellBonus = 0.12, facilitySpeed = 0.08 },
+		effects = {
+			movementSpeed = 0.02,
+			upgradeDiscount = 0.2,
+			expansionDiscount = 0.12,
+			sellBonus = 0.12,
+			facilitySpeed = 0.08,
+		},
 		look = { attach = "hip" },
 	})
 
@@ -88,7 +106,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🪄",
 		slot = "staff",
 		price = 6000000,
-		effects = { contractBonus = 0.1 },
+		effects = { movementSpeed = 0.03, contractBonus = 0.1 },
 		power = { kind = "season" },
 		look = { attach = "hand" },
 	})
@@ -125,7 +143,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🪄",
 		slot = "staff",
 		price = 4000000,
-		effects = { goodsYield = 0.1 },
+		effects = { movementSpeed = 0.03, goodsYield = 0.1 },
 		power = { kind = "weather", usesPerDay = 1 },
 		look = { attach = "hand" },
 	})
@@ -238,7 +256,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🎩",
 		slot = "head",
 		price = 30000000,
-		effects = { incomeBonus = 1, sellBonus = 0.04 },
+		effects = { movementSpeed = 0.03, incomeBonus = 1, sellBonus = 0.04 },
 		look = { attach = "head" },
 	})
 
@@ -276,7 +294,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🧥",
 		slot = "back",
 		price = 1000000,
-		effects = { incomeBonus = 0.06, offlineBonus = 0.1 },
+		effects = { movementSpeed = 0.1, incomeBonus = 0.06, offlineBonus = 0.1 },
 		look = { attach = "back" },
 	})
 
@@ -410,7 +428,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "📿",
 		slot = "charm",
 		price = 1800000,
-		effects = { storageBonus = 0.6, goodsYield = 0.08 },
+		effects = { movementSpeed = 0.04, storageBonus = 0.6, goodsYield = 0.08 },
 		look = { attach = "chest" },
 	})
 	add({
@@ -437,7 +455,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🧥",
 		slot = "back",
 		price = 1800000,
-		effects = { offlineBonus = 0.2, storageBonus = 0.25 },
+		effects = { movementSpeed = 0.08, offlineBonus = 0.2, storageBonus = 0.25 },
 		look = { attach = "back" },
 	})
 	add({
@@ -446,7 +464,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🧥",
 		slot = "back",
 		price = 1300000,
-		effects = { facilitySpeed = 0.08, goodsYield = 0.08 },
+		effects = { movementSpeed = 0.04, facilitySpeed = 0.08, goodsYield = 0.08 },
 		look = { attach = "back" },
 	})
 	add({

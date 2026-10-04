@@ -49,9 +49,24 @@ local function buildSatelliteDecor(islandId: string, parent: Instance, cf: CFram
 		WorldDecor.lamp(parent, at(corner.X, corner.Y) * CFrame.Angles(0, if corner.X > 0 then math.pi else 0, 0))
 	end
 	local look = IslandLooks[islandId]
+	local function reservedForExtension(x: number, z: number): boolean
+		for _, extension in IslandSpecialization.EXTENSIONS do
+			if
+				extension.island == islandId
+				and math.abs(x - extension.areaOffset.X) < extension.areaSize.X / 2 + 8
+				and math.abs(z - extension.areaOffset.Z) < extension.areaSize.Z / 2 + 8
+			then
+				return true
+			end
+		end
+		return false
+	end
 	if look and look.props then
 		-- Veri odaklı süsler (Çiftlik 2'den sonraki adalar): IslandLooks[ada].props
 		for index, item in look.props do
+			if reservedForExtension(item.x, item.z) then
+				continue
+			end
 			local seed = item.seed or (seedFrom(cf) + index * 7)
 			local spot = at(item.x, item.z)
 			if item.kind == "oak" then
@@ -107,17 +122,28 @@ local function buildSatelliteDecor(islandId: string, parent: Instance, cf: CFram
 	end
 	IslandSpecialization.build(parent, islandId, cf * CFrame.new(0, SURFACE_Y, 0))
 	local layoutZone = if SATELLITE_TYPES[islandId] then SATELLITE_TYPES[islandId].zone else nil
+	local avoidRects = {
+		{ x = 0, z = -31, hx = 4, hz = 23 }, -- köprü yolu
+		{ x = 18, z = 37, hx = 12, hz = 8 }, -- üretim binası yeri
+		{ x = -18, z = 37, hx = 12, hz = 8 }, -- ürün merkezi yeri
+	}
+	for _, extension in IslandSpecialization.EXTENSIONS do
+		if extension.island == islandId then
+			table.insert(avoidRects, {
+				x = extension.areaOffset.X,
+				z = extension.areaOffset.Z,
+				hx = extension.areaSize.X / 2 + 3,
+				hz = extension.areaSize.Z / 2 + 8,
+			})
+		end
+	end
 	addIslandGrass(
 		parent,
 		cf * CFrame.new(0, SURFACE_Y, 0),
 		islandId,
 		SATELLITE_RADIUS,
 		if layoutZone then { layoutZone } else {},
-		{
-			{ x = 0, z = -31, hx = 4, hz = 23 }, -- köprü yolu
-			{ x = 18, z = 37, hx = 12, hz = 8 }, -- üretim binası yeri
-			{ x = -18, z = 37, hx = 12, hz = 8 }, -- ürün merkezi yeri
-		},
+		avoidRects,
 		45,
 		seedFrom(cf)
 	)

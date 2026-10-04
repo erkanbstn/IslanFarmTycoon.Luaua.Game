@@ -23,8 +23,8 @@ local function create(parent: Instance): UiKit.Window
 		title = "Ayarlar",
 		icon = "⚙️",
 		tint = UiKit.Color.Blue,
-		width = 380,
-		maxHeight = 520,
+		width = 480,
+		maxHeight = 560,
 		anchor = Vector2.new(0.5, 0.5),
 		position = UDim2.fromScale(0.5, 0.5),
 	})
@@ -200,8 +200,8 @@ end
 
 function SettingsMenu.toggle(parent: Instance)
 	local current = window
-	if current and current.isOpen() then
-		current.close()
+	if current then
+		UiKit.toggleWindow(current)
 		return
 	end
 	SettingsMenu.open(parent)
@@ -209,7 +209,7 @@ end
 
 function SettingsMenu.open(parent: Instance)
 	local current = window
-	if current and current.frame.Parent ~= parent then
+	if current and (current.ownerParent or current.frame.Parent) ~= parent then
 		current.frame:Destroy()
 		current = nil
 	end

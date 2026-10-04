@@ -10,7 +10,7 @@ local CollectionService = game:GetService("CollectionService")
 local JobMarks = {}
 
 local TAG = "JobSite"
-local ATTRIBUTES = { "JobKind", "JobStartedAt", "JobEndsAt", "JobCount", "JobCapacity", "JobLabel" }
+local ATTRIBUTES = { "JobKind", "JobStartedAt", "JobEndsAt", "JobCount", "JobCapacity", "JobLabel", "JobRecipeId" }
 
 -- İlerleme çubuğunun bağlanacağı görünmez nokta: verilen parçanın (tabela) ya da modelin üstünde.
 function JobMarks.ensureAnchor(model: Model, near: BasePart?, height: number?): Instance
@@ -51,7 +51,7 @@ end
 function JobMarks.setProduction(
 	model: Instance,
 	job: { readyAt: number, startedAt: number? }?,
-	recipe: { duration: number, displayName: string? }
+	recipe: { id: string?, duration: number, displayName: string? }
 )
 	if not job then
 		JobMarks.clear(model)
@@ -61,6 +61,7 @@ function JobMarks.setProduction(
 	model:SetAttribute("JobStartedAt", job.startedAt or (job.readyAt - recipe.duration))
 	model:SetAttribute("JobEndsAt", job.readyAt)
 	model:SetAttribute("JobLabel", recipe.displayName)
+	model:SetAttribute("JobRecipeId", recipe.id)
 	model:SetAttribute("JobCount", nil)
 	model:SetAttribute("JobCapacity", nil)
 end
@@ -76,6 +77,7 @@ function JobMarks.setExtension(model: Instance, count: number, capacity: number,
 	model:SetAttribute("JobEndsAt", endsAt)
 	model:SetAttribute("JobCount", count)
 	model:SetAttribute("JobCapacity", capacity)
+	model:SetAttribute("JobRecipeId", nil)
 end
 
 -- Eklentide duran hayvanlar: sayı ve en erken dönecek olanın süresi (kayıttan; görsel imzası için de kullanılır)

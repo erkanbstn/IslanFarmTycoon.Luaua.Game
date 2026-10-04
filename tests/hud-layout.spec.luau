@@ -118,8 +118,11 @@ return function(createStats: any, createGoal: any)
 		end,
 	}
 	local stats = createStats(gameMock, ui, context, { new = node }, dimensions, vectors, enumeration).create(node())
-	local goldButton, goldIcon, goldAmount, rebirthLevel: any = nil, nil, nil, nil
+	local goldButton, goldIcon, goldAmount, rebirthLevel, barnIcon: any = nil, nil, nil, nil, nil
 	for _, object in objects do
+		if object.Name == "BarnIcon" then
+			barnIcon = object
+		end
 		if object.Name == "GoldWallet" then
 			goldButton = object
 		end
@@ -160,6 +163,32 @@ return function(createStats: any, createGoal: any)
 		goldAmount.Text == "Altın: 1530" and rebirthLevel.Text == "Rebirth: 30",
 		"wallet names both currencies clearly instead of presenting ambiguous zero and R0"
 	)
+	assert(barnIcon and barnIcon.Text == "🛖", "starter barn is modest rather than ruined")
+	local seenIcons = { [barnIcon.Text] = true }
+	for level = 2, 4 do
+		stats.update({
+			cash = 0,
+			gold = 0,
+			stored = 0,
+			barnLevel = level,
+			purchased = {},
+			animals = {},
+			unlockedZones = {},
+			unlockedIslands = { home = true },
+		}, 0)
+		assert(not seenIcons[barnIcon.Text], "each barn upgrade has a different HUD icon")
+		seenIcons[barnIcon.Text] = true
+	end
+	stats.update({
+		cash = 0,
+		stored = 0,
+		barnLevel = 1,
+		purchased = {},
+		animals = {},
+		unlockedZones = {},
+		unlockedIslands = { home = true },
+	}, 0)
+	assert(barnIcon.Text == "🛖", "farm reset restores starter barn icon")
 	assert(
 		goldAmount.Position.Y.Offset + goldAmount.Size.Y.Offset <= rebirthLevel.Position.Y.Offset,
 		"gold amount and rebirth occupy separate non-overlapping rows"

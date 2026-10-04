@@ -12,8 +12,13 @@ function Production.decodeAutoRepeat(source: any, save: any, config: any, farmMa
 		for recipeId, optionId in source.autoRepeat do
 			local recipe = if typeof(recipeId) == "string" then config.PRODUCTION_RECIPES[recipeId] else nil
 			local kind = if recipe then farmMath.petKindFor(recipe) else nil
-			local optionOk = typeof(optionId) == "string"
-				and (optionId == "default" or farmMath.findProductionOption(recipe, optionId) ~= nil)
+			local optionOk = recipe ~= nil
+				and typeof(optionId) == "string"
+				and (
+					optionId == "default"
+					or (optionId == "fill" and recipe.output == "goods")
+					or farmMath.findProductionOption(recipe, optionId) ~= nil
+				)
 			if recipe and kind and farmMath.hasPet(save, kind) and optionOk then
 				save.autoRepeat[recipe.id] = optionId
 			else

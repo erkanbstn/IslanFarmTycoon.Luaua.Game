@@ -4,6 +4,8 @@
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+local BridgeSurface = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("BridgeSurface"))
 
 local player = Players.LocalPlayer
 
@@ -16,12 +18,12 @@ local params = RaycastParams.new()
 params.FilterType = Enum.RaycastFilterType.Exclude
 params.IgnoreWater = true
 
-type Wind = { trails: { Trail }, root: BasePart }
+type Wind = { trails: { Trail }, attachments: { Attachment }, root: BasePart }
 local wind: Wind? = nil
 local lastOnBridgeAt = -math.huge
 local elapsed = 0
 
-local function destroyWind()
+local function disableWind()
 	if wind then
 		for _, trail in wind.trails do
 			trail.Enabled = false
@@ -29,9 +31,22 @@ local function destroyWind()
 	end
 end
 
+local function destroyWind()
+	if wind then
+		for _, trail in wind.trails do
+			trail:Destroy()
+		end
+		for _, attachment in wind.attachments do
+			attachment:Destroy()
+		end
+		wind = nil
+	end
+end
+
 -- Kök parçaya üç çizgi: iki yan ve bir üst (hepsi arkaya doğru solar)
 local function buildWind(root: BasePart): Wind
 	local trails: { Trail } = {}
+	local attachments: { Attachment } = {}
 	for _, offset in { Vector3.new(-1.3, 0.6, 0.4), Vector3.new(1.3, 0.6, 0.4), Vector3.new(0, 1.8, 0.4) } do
 		local first = Instance.new("Attachment")
 		first.Name = "WindStart"
@@ -41,6 +56,8 @@ local function buildWind(root: BasePart): Wind
 		second.Name = "WindEnd"
 		second.Position = offset + Vector3.new(0, 0.5, 0)
 		second.Parent = root
+		table.insert(attachments, first)
+		table.insert(attachments, second)
 		local trail = Instance.new("Trail")
 		trail.Name = "WindStreak"
 		trail.Attachment0, trail.Attachment1 = first, second
@@ -62,7 +79,7 @@ local function buildWind(root: BasePart): Wind
 		trail.Parent = root
 		table.insert(trails, trail)
 	end
-	return { trails = trails, root = root }
+	return { trails = trails, attachments = attachments, root = root }
 end
 
 local function windAllowed(): boolean
@@ -75,12 +92,13 @@ local function update()
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 	if not character or not root or not root:IsA("BasePart") or not humanoid or humanoid.Health <= 0 then
 		player:SetAttribute("OnBridge", false)
+		lastOnBridgeAt = -math.huge
 		destroyWind()
 		return
 	end
 	params.FilterDescendantsInstances = { character }
-	local hit = workspace:Raycast(root.Position, Vector3.new(0, -RAY_LENGTH, 0), params)
-	local onBridgeNow = hit ~= nil and hit.Instance.Name == "Bridge"
+	local hit = Workspace:Raycast(root.Position, Vector3.new(0, -RAY_LENGTH, 0), params)
+	local onBridgeNow = hit ~= nil and BridgeSurface.isDeck(hit.Instance)
 	local now = os.clock()
 	if onBridgeNow then
 		lastOnBridgeAt = now
@@ -92,17 +110,18 @@ local function update()
 	local moving = root.AssemblyLinearVelocity.Magnitude > MIN_MOVE_SPEED
 	if onBridge and moving and windAllowed() then
 		if not wind or wind.root ~= root or not wind.root.Parent then
+			destroyWind()
 			wind = buildWind(root)
 		end
 		for _, trail in (wind :: Wind).trails do
 			trail.Enabled = true
 		end
 	else
-		destroyWind()
+		disableWind()
 	end
 end
 
-RunService.Heartbeat:Connect(function(dt: number)
+local heartbeat = RunService.Heartbeat:Connect(function(dt: number)
 	elapsed += dt
 	if elapsed < CHECK_SECONDS then
 		return
@@ -116,8 +135,22 @@ RunService.Heartbeat:Connect(function(dt: number)
 	end
 end)
 
-player.CharacterAdded:Connect(function()
-	wind = nil
+local characterAdded = player.CharacterAdded:Connect(function()
+	destroyWind()
 	lastOnBridgeAt = -math.huge
+	player:SetAttribute("OnBridge", false)
+end)
+
+local characterRemoving = player.CharacterRemoving:Connect(function()
+	destroyWind()
+	lastOnBridgeAt = -math.huge
+	player:SetAttribute("OnBridge", false)
+end)
+
+script.Destroying:Connect(function()
+	heartbeat:Disconnect()
+	characterAdded:Disconnect()
+	characterRemoving:Disconnect()
+	destroyWind()
 	player:SetAttribute("OnBridge", false)
 end)

@@ -55,7 +55,7 @@ function RebirthWindow.create(parent: Instance): { window: UiKit.Window, update:
 		title = "İlerleme",
 		icon = "🔄",
 		tint = UiKit.Color.Gold,
-		width = 500,
+		width = 600,
 		maxHeight = 600,
 		anchor = Vector2.new(0.5, 0.5),
 		position = UDim2.fromScale(0.5, 0.5),

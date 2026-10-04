@@ -6,6 +6,7 @@
 local ContextActionService = game:GetService("ContextActionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
@@ -19,6 +20,7 @@ local FOV_TWEEN = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirectio
 
 local localPlayer = Players.LocalPlayer
 local sprinting = false
+local cameraTween: Tween? = nil
 
 local function getHumanoid(): Humanoid?
 	local character = localPlayer.Character
@@ -30,15 +32,26 @@ local function apply()
 	local onBridge = localPlayer:GetAttribute("OnBridge") == true
 	if humanoid then
 		local base = if sprinting then Config.SPRINT_SPEED else Config.WALK_SPEED
-		humanoid.WalkSpeed = if onBridge then base * Config.BRIDGE_SPEED_MULTIPLIER else base
+		local value = localPlayer:GetAttribute("MovementSpeedMultiplier")
+		local equipment = if typeof(value) == "number" and value == value
+			then math.clamp(value, 1, 1 + Config.MOVEMENT_SPEED_BONUS_CAP)
+			else 1
+		humanoid.WalkSpeed = base * equipment * (if onBridge then Config.BRIDGE_SPEED_MULTIPLIER else 1)
 	end
 	local camera = Workspace.CurrentCamera
 	if camera then
 		local fov = if sprinting then SPRINT_FOV elseif onBridge then BRIDGE_FOV else NORMAL_FOV
-		TweenService:Create(camera, FOV_TWEEN, { FieldOfView = fov }):Play()
+		if cameraTween then
+			cameraTween:Cancel()
+		end
+		local tween = TweenService:Create(camera, FOV_TWEEN, { FieldOfView = fov })
+		cameraTween = tween
+		tween:Play()
 	end
 end
 localPlayer:GetAttributeChangedSignal("OnBridge"):Connect(apply)
+localPlayer:GetAttributeChangedSignal("MovementSpeedMultiplier"):Connect(apply)
+Workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(apply)
 
 local function setSprinting(value: boolean)
 	if sprinting == value then
@@ -62,6 +75,10 @@ local function onAction(_name: string, state: Enum.UserInputState, input: InputO
 	return Enum.ContextActionResult.Pass
 end
 
+UserInputService.WindowFocusReleased:Connect(function()
+	setSprinting(false)
+end)
+
 ContextActionService:BindAction(ACTION, onAction, true, Enum.KeyCode.LeftShift, Enum.KeyCode.ButtonL3)
 ContextActionService:SetTitle(ACTION, "Koş")
 -- Roblox'un zıplama düğmesi sağ altta (en fazla ~90 px, alttan ~110 px'e kadar); koşu düğmesi onun hemen üstünde durur, çakışmaz.
@@ -71,7 +88,7 @@ ContextActionService:SetPosition(ACTION, UDim2.new(1, -120, 1, -205))
 localPlayer.CharacterAdded:Connect(function(character: Model)
 	sprinting = false
 	local humanoid = character:WaitForChild("Humanoid", 10)
-	if humanoid and humanoid:IsA("Humanoid") then
+	if localPlayer.Character == character and humanoid and humanoid:IsA("Humanoid") then
 		apply()
 	end
 end)

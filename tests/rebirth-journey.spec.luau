@@ -14,7 +14,7 @@ return function(Config: any, FarmMath: any, Progression: any, SaveCodec: any, In
 			local id = tostring(index)
 			local farm: any = if index == 1 then data else { purchased = {}, expansions = {}, lineage = {} }
 			for _, upgrade in Config.UPGRADES do
-				if not upgrade.leveled and Config.upgradeInTheme(upgrade, id) then
+				if not upgrade.leveled and not upgrade.optionalForCompletion and Config.upgradeInTheme(upgrade, id) then
 					farm.purchased[upgrade.id] = true
 				end
 			end
@@ -24,6 +24,40 @@ return function(Config: any, FarmMath: any, Progression: any, SaveCodec: any, In
 		end
 		return data
 	end
+	local optional = {}
+	for _, upgrade in Config.UPGRADES do
+		if upgrade.optionalForCompletion then
+			table.insert(optional, upgrade)
+		end
+	end
+	assert(#optional == 13, "all new animal gardens are optional completion content")
+	for _, upgrade in optional do
+		local present = false
+		for index = 1, Config.MAIN_FARM_LIMIT do
+			local id = tostring(index)
+			if Config.upgradeInTheme(upgrade, id) then
+				present = true
+				local root = fresh()
+				local farm = if index == 1 then root else root.mainFarms[id]
+				farm.farmId = id
+				assert(not farm.purchased[upgrade.id], "journey never purchases optional garden")
+				assert(
+					FarmMath.getUpgradeStatus(farm, upgrade.id) == "available",
+					"optional garden remains purchasable after normal progression"
+				)
+				assert(
+					upgrade.cost > 0 and Config.ROADMAP_STAGES[upgrade.stage],
+					"optional garden has a real price and roadmap stage"
+				)
+				assert(
+					Progression.isIslandComplete(root, Config.getUpgradeIsland(upgrade), id),
+					"optional garden does not withhold island completion gold"
+				)
+			end
+		end
+		assert(present, "every optional garden belongs to a playable theme")
+	end
+
 	assert(#Config.PROGRESSION.milestones == 30, "every attainable level has a reward")
 	for count = 0, 29 do
 		local data = fresh()
@@ -62,6 +96,12 @@ return function(Config: any, FarmMath: any, Progression: any, SaveCodec: any, In
 	end
 	local data = fresh()
 	data.progression.count = 30
+	for index = 1, Config.MAIN_FARM_LIMIT do
+		assert(
+			Progression.isFarmComplete(data, tostring(index)),
+			"terminal R30 farm completion also excludes optional content"
+		)
+	end
 	assert(
 		not Progression.canRebirth(data) and not Progression.canChoosePerk(data, "income"),
 		"R30 prevents another reset"

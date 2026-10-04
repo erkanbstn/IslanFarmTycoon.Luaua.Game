@@ -13,6 +13,7 @@ return function(EffectSummary: any, Config: any, FarmMath: any, SaveCodec: any, 
 	FarmMath.applyDerived(save)
 	local initial = EffectSummary.snapshot(save, now)
 	assert(initial.income == FarmMath.computeIncomePerSecond(save, now), "summary shows actual current farm income")
+	assert(initial.movementMultiplier == 1, "summary preserves base movement when no equipment is worn")
 	assert(#initial.sources == 0, "closed source disclosure skips counterfactual calculations")
 	Inventory.grant(save, "golden_crown")
 	local owned = EffectSummary.snapshot(save, now, true)
@@ -30,6 +31,10 @@ return function(EffectSummary: any, Config: any, FarmMath: any, SaveCodec: any, 
 	save.progression.perks.income = 5
 	local equippedId = save.inventory.equipped.back
 	local capped = EffectSummary.snapshot(save, now, true)
+	assert(
+		capped.movementMultiplier == FarmMath.getMovementSpeedMultiplier(save),
+		"movement summary uses actual equipped calculation"
+	)
 	assert(
 		capped.incomeCapped and capped.incomeFactor == Config.PROGRESSION.permanentIncomeCap,
 		"actual joint cap is displayed"

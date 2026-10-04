@@ -207,8 +207,8 @@ local function create(): UiKit.Window
 		title = "Adalar",
 		icon = "🧭",
 		tint = UiKit.Color.Blue,
-		width = 360,
-		maxHeight = 470,
+		width = 540,
+		maxHeight = 560,
 		anchor = Vector2.new(0.5, 0.5),
 		position = UDim2.fromScale(0.5, 0.5),
 	})
@@ -658,8 +658,8 @@ function IslandManager.isOpen(): boolean
 end
 
 function IslandManager.toggle()
-	if IslandManager.isOpen() then
-		(window :: UiKit.Window).close()
+	if window then
+		UiKit.toggleWindow(window :: UiKit.Window)
 	else
 		IslandManager.open()
 	end

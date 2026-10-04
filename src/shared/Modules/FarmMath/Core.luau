@@ -124,6 +124,25 @@ function Core.getEquippedBonus(save: PlayerSave, key: string): number
 	return total
 end
 
+-- Yalnız geçerli yuvada takılı ve sahip olunan eşyalar hız verir; yığılma ulaşımı bozmaz.
+function Core.getMovementSpeedMultiplier(save: PlayerSave): number
+	local total = 0
+	local inventory = save.inventory
+	local owned = (save :: any).owned
+	if inventory and inventory.equipped then
+		for slot, id in inventory.equipped do
+			local item = Config.ITEMS[id]
+			local permanent = owned and owned.items and owned.items[id] == true
+			local hasItem = (inventory.items and inventory.items[id] == true) or permanent
+			local bonus = if item and item.effects then item.effects.movementSpeed else nil
+			if item and item.slot == slot and hasItem and typeof(bonus) == "number" and isFinite(bonus) then
+				total += math.max(0, bonus)
+			end
+		end
+	end
+	return 1 + math.clamp(total, 0, Config.MOVEMENT_SPEED_BONUS_CAP)
+end
+
 -- Satın alınmış yükseltmelerin aynı anahtarlı faydaları toplamı (ör. ada özellikleri: facilitySpeed, sellBonus...)
 function Core.getUpgradeBonus(save: PlayerSave, key: string): number
 	local total = 0

@@ -84,6 +84,8 @@ uydu fabrika (18,0,37) / merkez (-18,0,37) `MapLayout.luau:158-159`.
 
 ### 3c. Bölge/ağıl dekoru, eklenti, seviye süsleri (köprü yok)
 
+Sonraki çiftliklerin 13 uzman hayvan bahçesi `tools/models/generate_animal_gardens.py` ile yeniden üretilebilir. `assets/Extensions/<tür>_garden` ve iki `assets/ExtensionCapacity/CapacityProps_<tür>_garden_Cap3|4` modeli vardır; pivot ada yüzeyinin merkezidir. Hayvan alanı ada yerelinde X=-29, Z=0, 18×28 stud'dur; çit/sığınak/kapasite süsleri bu alanın dışında kalır. `map-structure.spec.luau` gerçek model geometrisiyle bu sınırı denetler. Modeller tek başına adaya yerleştirilmez; `IslandLayout` ile `ExtensionVisualService` satın alma ve görevlendirme durumunu çizer.
+
 | Tür | Bugün | Model yapılacaksa önce gereken kod (plan K4) |
 |---|---|---|
 | Ağıl dekoru (`Decor`) | assets/ZoneDecor/Decor_<bölge>; pivot = zemin üst ortası, -Z ön | `ZoneVisualService.luau:117-130`'a `Assets/Zones/<zoneId>` araması + `IslandSiteParts.markObstacles` |

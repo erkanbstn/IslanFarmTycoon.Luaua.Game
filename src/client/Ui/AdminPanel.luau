@@ -121,7 +121,7 @@ local function create(parent: Instance): UiKit.Window
 		title = "Yönetici",
 		icon = "🛠️",
 		tint = UiKit.Color.Orange,
-		width = 400,
+		width = 540,
 		maxHeight = 620,
 		anchor = Vector2.new(0.5, 0.5),
 		position = UDim2.fromScale(0.5, 0.5),
@@ -610,8 +610,8 @@ end
 
 function AdminPanel.toggle(parent: Instance)
 	local current = window
-	if current and current.isOpen() then
-		current.close()
+	if current then
+		UiKit.toggleWindow(current)
 		return
 	end
 	AdminPanel.open(parent)
@@ -622,7 +622,7 @@ function AdminPanel.open(parent: Instance)
 		return
 	end
 	local current = window
-	if current and current.frame.Parent ~= parent then
+	if current and (current.ownerParent or current.frame.Parent) ~= parent then
 		current.frame:Destroy()
 		current = nil
 	end

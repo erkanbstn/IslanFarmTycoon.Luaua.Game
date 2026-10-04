@@ -36,21 +36,21 @@ return {
 	PRODUCTS = {
 		passes = {
 			double_income = {
-				id = 0,
+				id = 2006571073,
 				displayName = "2 Kat Gelir",
 				description = "Bütün hayvanların geliri 2 kat",
 				icon = "💎",
 				incomeMultiplier = 2,
 			},
 			auto_collector = {
-				id = 0,
+				id = 2006031063,
 				displayName = "Otomatik Toplayıcı",
 				description = "Para kendiliğinden kasana gelir",
 				icon = "🤖",
 				autoCollect = true,
 			},
 			extra_storage = {
-				id = 0,
+				id = 2008089149,
 				displayName = "Ekstra Depo",
 				description = "Depo kapasitesi +%50",
 				icon = "📦",
@@ -59,7 +59,7 @@ return {
 		} :: { [string]: Types.ProductConfig },
 		products = {
 			gold_50 = {
-				id = 0,
+				id = 3716413753,
 				displayName = "50 Altın",
 				description = "Altın rebirth sonrasında kalır",
 				icon = "🪙",
@@ -68,7 +68,7 @@ return {
 				lifetime = "permanent",
 			},
 			gold_3000 = {
-				id = 0,
+				id = 3716413945,
 				displayName = "3000 Altın",
 				description = "Altın rebirth sonrasında kalır",
 				icon = "🪙",
@@ -77,7 +77,7 @@ return {
 				lifetime = "permanent",
 			},
 			instant_growth = {
-				id = 0,
+				id = 3716414040,
 				displayName = "Yavruları Büyüt",
 				description = "Etkin çiftlikte genç hayvanları büyütür; teslimde genç yoksa 50 altın verir",
 				icon = "🌱",
@@ -86,7 +86,7 @@ return {
 				lifetime = "run",
 			},
 			gold_100 = {
-				id = 0,
+				id = 3716413795,
 				displayName = "100 Altın",
 				description = "Altın rebirth sonrasında kalır",
 				icon = "🪙",
@@ -95,7 +95,7 @@ return {
 				lifetime = "permanent",
 			},
 			gold_500 = {
-				id = 0,
+				id = 3716413819,
 				displayName = "500 Altın",
 				description = "Altın rebirth sonrasında kalır",
 				icon = "🪙",
@@ -104,7 +104,7 @@ return {
 				lifetime = "permanent",
 			},
 			gold_1500 = {
-				id = 0,
+				id = 3716413928,
 				displayName = "1500 Altın",
 				description = "Altın rebirth sonrasında kalır",
 				icon = "🪙",
@@ -113,7 +113,7 @@ return {
 				lifetime = "permanent",
 			},
 			run_double_income = {
-				id = 0,
+				id = 3716414021,
 				displayName = "Bu Tur 2 Kat Gelir",
 				description = "Teslim edildiği turda geçerli; rebirth ile sona erer",
 				icon = "⚡",
@@ -121,7 +121,7 @@ return {
 				lifetime = "run",
 			},
 			income_pack_small = {
-				id = 0,
+				id = 3716413959,
 				displayName = "15 Dakikalık Gelir",
 				description = "Kalıcı referans gelirinin 15 dakikalık karşılığı",
 				icon = "💰",
@@ -130,7 +130,7 @@ return {
 				lifetime = "run",
 			},
 			income_pack_large = {
-				id = 0,
+				id = 3716414002,
 				displayName = "3 Saatlik Gelir",
 				description = "Kalıcı referans gelirinin 3 saatlik karşılığı",
 				icon = "💰",
@@ -139,7 +139,7 @@ return {
 				lifetime = "run",
 			},
 			income_pack = {
-				id = 0,
+				id = 3716413976,
 				displayName = "1 Saatlik Gelir",
 				description = "Anında 1 saatlik gelir kazan",
 				icon = "💰",

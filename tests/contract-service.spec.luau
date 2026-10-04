@@ -207,6 +207,35 @@ return function(
 				== math.floor(small.worth * small.rewardFactor * (1.5 + farmMath.getBonus(data, "contractBonus"))),
 		"the season bonus applies"
 	)
+	assert(cashReasons[#cashReasons] == "order", "delivery is credited as order income, not a refundable sale")
+
+	-- Balık siparişi: tam istenen stok teslimde sıfırlanır fakat nakit aynı işlemde artar.
+	now += config.GOODS_CONTRACTS.seconds
+	local fishOffer: any = nil
+	for _, candidate in offers() do
+		if #candidate.lines == 1 and candidate.lines[1].goodsId == "fish" then
+			fishOffer = candidate
+			break
+		end
+	end
+	assert(fishOffer, "the built fish center supplies a guaranteed fish order")
+	data.goods = {}
+	farmMath.addGoods(data, "fish", fishOffer.lines[1].amount)
+	local fishCashBefore, fishPushesBefore, fishSavesBefore = data.cash, pushes, saves
+	local fishResult = fire(fishOffer.key)
+	assert(fishResult and fishResult.ok and fishOffer.reward > 0, "a stocked fish order is paid successfully")
+	assert(farmMath.getGoodsAmount(data, "fish") == 0, "the exact fish stock is consumed")
+	assert(data.cash == fishCashBefore + fishOffer.reward, "fish proceeds go directly to cash")
+	assert(farmMath.isContractDone(data, fishOffer), "completion is written only after successful delivery")
+	assert(
+		pushes == fishPushesBefore + 1 and saves == fishSavesBefore + 1,
+		"fish cash and completion are pushed and saved"
+	)
+	local fishReplay = fire(fishOffer.key)
+	assert(
+		not fishReplay.ok and data.cash == fishCashBefore + fishOffer.reward,
+		"repeating the completed fish order cannot pay again"
+	)
 
 	-- Mevsim "yatırım" hedefi: sipariş teslimi de sayılır (yeni hayvan/yükseltme kalmayan geç oyunda hedef ulaşılabilir kalır)
 	now += config.SEASON_SECONDS -- sonraki mevsim (yatırım mevsimi)

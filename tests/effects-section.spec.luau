@@ -67,6 +67,7 @@ return function(createEffectsSection: any)
 				income = 200,
 				incomeFactor = 3,
 				growthSpeed = 2,
+				movementMultiplier = 1.15,
 				offlineRate = 0.5,
 				offlineHours = 2,
 				passFactor = 2,
@@ -110,7 +111,7 @@ return function(createEffectsSection: any)
 	}
 	local module = createEffectsSection(
 		engine,
-		{ PROGRESSION = { maxRebirth = 30, permanentIncomeCap = 3 } },
+		{ MOVEMENT_SPEED_BONUS_CAP = 0.25, PROGRESSION = { maxRebirth = 30, permanentIncomeCap = 3 } },
 		summary,
 		mathModule,
 		environment,

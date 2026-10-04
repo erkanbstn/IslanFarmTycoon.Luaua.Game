@@ -76,19 +76,25 @@ function BoardSection.create(list: Instance): (PlayerSave?) -> ()
 			if not offer then
 				continue
 			end
+			local done = FarmMath.isContractDone(state, offer)
 			local lines: { string } = {}
-			for _, line in offer.lines do
-				local good = Config.GOODS[line.goodsId]
-				table.insert(
-					lines,
-					`{good.displayName} · {FarmMath.getGoodsAmount(state, line.goodsId)}/{line.amount}`
-				)
+			if done then
+				-- Teslim sonrası stok azalır; tamamlanan slot yeni ürün/ödülle de değişebilir.
+				table.insert(lines, "Bu sipariş bu turda zaten teslim edildi")
+			else
+				for _, line in offer.lines do
+					local good = Config.GOODS[line.goodsId]
+					table.insert(
+						lines,
+						`{good.displayName} · {FarmMath.getGoodsAmount(state, line.goodsId)}/{line.amount}`
+					)
+				end
+				table.insert(lines, `Ödül: {FarmMath.formatMoney(offer.reward)}`)
 			end
-			table.insert(lines, `Ödül: {FarmMath.formatMoney(offer.reward)}`)
 			card.icon.Text = Config.GOODS[offer.lines[1].goodsId].icon
 			card.title.Text = offer.displayName
 			card.detail.Text = table.concat(lines, "\n")
-			if FarmMath.isContractDone(state, offer) then
+			if done then
 				card.action.Text = "Teslim edildi"
 				UiKit.setVariant(card.action, "owned")
 			elseif FarmMath.canFulfillContract(state, offer) then

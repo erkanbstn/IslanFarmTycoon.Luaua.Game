@@ -17,7 +17,7 @@ for index = 1, Config.MAIN_FARM_LIMIT do
 	local required: { string } = {}
 	local islands: { [string]: { string } } = {}
 	for _, upgrade in Config.UPGRADES do
-		if not upgrade.leveled and Config.upgradeInTheme(upgrade, id) then
+		if not upgrade.leveled and not upgrade.optionalForCompletion and Config.upgradeInTheme(upgrade, id) then
 			table.insert(required, upgrade.id)
 			local island = Config.getUpgradeIsland(upgrade)
 			if island then

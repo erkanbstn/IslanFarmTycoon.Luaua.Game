@@ -128,6 +128,7 @@ return function(codec: any, config: any, farmMath: any, logic: any)
 	local buffered = newData()
 	buffered.barnLevel = #config.BARN_LEVELS
 	buffered.autoRepeat = { milk_goods = "default" }
+	local bufferedStartCash = buffered.cash
 	local paused = false
 	local lastTime = now
 	for step = 1, 120 do
@@ -138,6 +139,7 @@ return function(codec: any, config: any, farmMath: any, logic: any)
 		end
 	end
 	local bufferedAmount = farmMath.getGoodsAmount(buffered, "milk")
+	local bufferedCost = bufferedStartCash - buffered.cash
 	assert(paused and bufferedAmount > 0, "repeated production pauses when demand and reserve are covered")
 	assert(
 		bufferedAmount < farmMath.getGoodsCap(buffered),
@@ -153,7 +155,66 @@ return function(codec: any, config: any, farmMath: any, logic: any)
 		resumed.started == 1 and buffered.production.milk_goods ~= nil,
 		"stock consumption resumes production automatically"
 	)
-	print(`MEASURE automated milk: 120 ticks stock={bufferedAmount}; capacity={farmMath.getGoodsCap(buffered)}`)
+	print(
+		`MEASURE automated milk: 120 ticks stock={bufferedAmount}; capacity={farmMath.getGoodsCap(buffered)}; startCost={bufferedCost}`
+	)
+
+	-- Aynı koşullarda isteğe bağlı depo modu sipariş tamponunu aşar, tam parti sığmadığında bekler.
+	local filling = newData()
+	filling.barnLevel = #config.BARN_LEVELS
+	filling.autoRepeat = { milk_goods = "fill" }
+	local fillStartCash = filling.cash
+	for step = 1, 120 do
+		run(filling, now + step * 120)
+	end
+	local fillAmount = farmMath.getGoodsAmount(filling, "milk")
+	local fillCost = fillStartCash - filling.cash
+	local fillUnits =
+		math.min(farmMath.previewGoodsYield(filling, goodsRecipe, lastTime), farmMath.getGoodsCap(filling))
+	assert(fillAmount > bufferedAmount, "fill mode builds stock beyond order demand")
+	assert(
+		farmMath.getGoodsSpace(filling, "milk") < fillUnits,
+		"fill mode stops only when the next whole batch will not fit"
+	)
+	assert(filling.production.milk_goods == nil, "no wasteful batch starts when space is exhausted")
+	assert(fillCost > bufferedCost, "extra stock consumes extra starting costs")
+	assert(run(filling, lastTime + 1).started == 0, "a full barn remains paused without repeated spending")
+	farmMath.sellGoods(filling, "milk", "all")
+	assert(run(filling, lastTime + 2).started == 1, "selling stock resumes the selected fill mode")
+	print(
+		`MEASURE fill milk: 120 ticks stock={fillAmount}; capacity={farmMath.getGoodsCap(filling)}; startCost={fillCost}`
+	)
+
+	-- Yüksek verimli parti başlangıç ahırından büyük olsa da yardımcı başlayabilmeli.
+	-- Teslimde sığan ürün tutulur, taşan miktar elle teslimle aynı kurala göre nakit olur.
+	local smallBarn = newData()
+	smallBarn.barnLevel = 1
+	smallBarn.autoRepeat = { milk_goods = "default" }
+	local smallCap = farmMath.getGoodsCap(smallBarn)
+	-- Kapasite sınırını gelecekteki içerik/verim değişikliğinden bağımsız zorla.
+	local oversizedMath = table.clone(farmMath)
+	oversizedMath.previewGoodsYield = function(): number
+		return smallCap + 1
+	end
+	oversizedMath.getGoodsYield = function(): number
+		return smallCap + 1
+	end
+	local function oversizedRun(at: number): any
+		return logic.runPets(smallBarn, { "1" }, function(): any
+			return smallBarn
+		end, { "milk_goods" }, at, oversizedMath, config, hooksFor(smallBarn))
+	end
+	assert(oversizedRun(now).started == 1, "oversized batch starts in empty barn")
+	local smallReady = smallBarn.production.milk_goods.readyAt + 1
+	local smallClaim = oversizedRun(smallReady)
+	assert(farmMath.getGoodsAmount(smallBarn, "milk") == smallCap, "oversized delivery fills available space")
+	assert(
+		smallClaim.cash > 0 and smallBarn.production.milk_goods == nil,
+		"overflow pays once and the full barn pauses"
+	)
+	assert(oversizedRun(smallReady + 2).cash == 0, "oversized job cannot pay twice")
+	farmMath.sellGoods(smallBarn, "milk", "all")
+	assert(oversizedRun(smallReady + 4).started == 1, "emptying the barn resumes automatically")
 
 	-- Depo doluysa ürün partisi bekler (boşa gitmez)
 	local full = newData()
@@ -216,7 +277,7 @@ return function(codec: any, config: any, farmMath: any, logic: any)
 	bogus.mainFarms = table.clone(snap.mainFarms)
 	bogus.mainFarms["1"] = table.clone(snap.mainFarms["1"])
 	bogus.mainFarms["1"].autoRepeat =
-		{ packed_milk = "huge", milk_goods = "default", ghost = "default", hatchery = "default" }
+		{ packed_milk = "huge", milk_goods = "default", ghost = "not-an-option", hatchery = "default" }
 	local repaired = assert(codec.decode(bogus, config, farmMath, now, uid), "a bad repeat record is repaired")
 	assert(
 		repaired.autoRepeat.packed_milk == nil and repaired.autoRepeat.ghost == nil,
@@ -224,6 +285,24 @@ return function(codec: any, config: any, farmMath: any, logic: any)
 	)
 	assert(repaired.autoRepeat.hatchery == "default", "a hatchery repeat is a valid cash-pet repeat")
 	assert(repaired.autoRepeat.milk_goods == "default", "a valid repeat is kept")
+	stored.autoRepeat.milk_goods = "fill"
+	stored.autoRepeat.packed_milk = "fill"
+	local fillReload = assert(codec.decode(codec.encode(stored, now), config, farmMath, now, uid))
+	assert(fillReload.autoRepeat.milk_goods == "fill", "goods fill policy survives saving")
+	assert(fillReload.autoRepeat.packed_milk == nil, "fill is not a valid cash batch option")
+
+	-- Kalıcı yardımcı hakkı, tur yükseltmesi olmadan kayıt sonrası otomatik ayarı korur.
+	local permanent = newData()
+	permanent.purchased.pet_cash_lv1, permanent.purchased.pet_goods_lv1 = nil, nil
+	permanent.owned.conveniences.pet_cash, permanent.owned.conveniences.pet_goods = true, true
+	permanent.autoRepeat = { packed_milk = "small", milk_goods = "default" }
+	local permanentReload =
+		assert(codec.decode(codec.encode(permanent, now), config, farmMath, now, uid), "permanent helpers reload")
+	assert(
+		permanentReload.autoRepeat.packed_milk == "small" and permanentReload.autoRepeat.milk_goods == "default",
+		"permanent helper choices survive reload without run upgrades"
+	)
+	assert(run(permanentReload, now).started == 2, "both permanent helper kinds restart production")
 
 	-- Kuluçka (output = chicken): para yardımcısı partiyi teslim alır (civciv kümeye eklenir) ve tekrar başlatır
 	do

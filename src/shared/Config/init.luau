@@ -64,6 +64,7 @@ local Config = {
 	AUTOSAVE_SECONDS = Core.AUTOSAVE_SECONDS,
 	WALK_SPEED = Core.WALK_SPEED,
 	SPRINT_SPEED = Core.SPRINT_SPEED,
+	MOVEMENT_SPEED_BONUS_CAP = Core.MOVEMENT_SPEED_BONUS_CAP,
 	BRIDGE_SPEED_MULTIPLIER = Core.BRIDGE_SPEED_MULTIPLIER,
 	STARTING_COW_COUNT = Core.STARTING_COW_COUNT,
 	STARTER_ADULT_ANIMALS = Core.STARTER_ADULT_ANIMALS,
@@ -383,6 +384,7 @@ do
 				icon = base.icon,
 				stage = base.stage,
 				cost = math.floor(base.cost * (0.5 + level)),
+				costCurve = base.costCurve,
 				requires = { if level == 1 then base.id else `{base.id}_cap{level - 1}` },
 				kind = "level",
 				leveled = true,
@@ -491,7 +493,7 @@ end
 
 -- Tüm yükseltme maliyetlerine eğriyi bir kez uygula (seviye zincirleri dahil)
 for _, upgrade in Config.UPGRADES do
-	upgrade.cost = curvedCost(upgrade.cost)
+	upgrade.cost = if upgrade.costCurve == false then upgrade.cost else curvedCost(upgrade.cost)
 end
 -- Ek ana çiftlikler de aynı eğriyle (yazılı değerler taban fiyattır); ilki ücretsizdir
 for index, price in Config.MAIN_FARM_PRICES do

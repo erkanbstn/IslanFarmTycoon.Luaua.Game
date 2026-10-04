@@ -6,6 +6,11 @@ return function(createBase: any, createGrid: any)
 			local attributes = {}
 			local object = {
 				ClassName = class,
+				Activated = {
+					Connect = function(self: any, callback: any)
+						self.fire = callback
+					end,
+				},
 				SetAttribute = function(_self: any, name: string, value: any)
 					attributes[name] = value
 				end,
@@ -13,6 +18,14 @@ return function(createBase: any, createGrid: any)
 					return attributes[name]
 				end,
 			}
+			object.FindFirstChildOfClass = function(self: any, kind: string): any
+				for _, child in objects do
+					if child.Parent == self and child.ClassName == kind then
+						return child
+					end
+				end
+				return nil
+			end
 			table.insert(objects, object)
 			return object
 		end,
@@ -71,6 +84,11 @@ return function(createBase: any, createGrid: any)
 		button = function(parent: any): any
 			return { Parent = parent }
 		end,
+		badge = function(button: any): any
+			return function(count: number)
+				button.badgeCount = count
+			end
+		end,
 	}, instance, size, dim, enum)
 	local host = grid.autoGrid({}, 0, 2)
 	for _, object in objects do
@@ -88,5 +106,44 @@ return function(createBase: any, createGrid: any)
 		tile.action.AutomaticSize == enum.AutomaticSize.Y and tile.action.Size[4] >= tokens.TouchTarget,
 		"purchase actions wrap at a full touch target"
 	)
+	local selections = {}
+	local row, selectTab, setBadge = grid.tabs(
+		{},
+		0,
+		{ { id = "first", label = "First" }, { id = "second", label = "Second" } },
+		function(id: string)
+			table.insert(selections, id)
+		end
+	)
+	local first, second
+	for _, object in objects do
+		if object.ClassName == "TextButton" and object.Parent == row then
+			if object.Text == "First" then
+				first = object
+			else
+				second = object
+			end
+		end
+	end
+	first.Activated.fire()
+	assert(#selections == 0, "already selected tab does not rerender content")
+	second.Activated.fire()
+	second.Activated.fire()
+	assert(#selections == 1 and selections[1] == "second", "new tab changes immediately and repeated clicks are no-ops")
+	selectTab("first")
+	first.Activated.fire()
+	assert(#selections == 1, "programmatic selection is silent and synchronizes repeat click suppression")
+	selectTab("unknown")
+	first.Activated.fire()
+	assert(#selections == 1, "invalid selection cannot clear the selected tab")
+	setBadge("second", 2)
+	assert(second.badgeCount == 2 and first.badgeCount == nil, "tab counts belong to their own button")
+	assert(second:FindFirstChildOfClass("UIPadding").PaddingRight[2] == 34, "badge reserves label space")
+	setBadge("second", 0)
+	assert(
+		second.badgeCount == 0 and second:FindFirstChildOfClass("UIPadding").PaddingRight[2] == 14,
+		"zero clears count and restores space"
+	)
+	assert(#selections == 1, "updating badges never changes selected tab")
 	print("PASS UI kit layout: round drawn gold, natural card height, stretched rows and wrapped actions")
 end

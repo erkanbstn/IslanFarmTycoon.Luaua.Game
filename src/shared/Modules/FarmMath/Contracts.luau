@@ -324,8 +324,18 @@ function Contracts.readyCount(save: PlayerSave, now: number, bonus: number?): nu
 	return count
 end
 
--- Otomatik ürün üretimi bütün ahırı doldurmaz; bekleyen siparişleri ve birkaç yedek partiyi karşılar.
-function Contracts.productionTarget(save: PlayerSave, goodsId: string, batchUnits: number, now: number): number
+-- Varsayılan sipariş stoğu; isteğe bağlı depo modu ortak kapasiteyi hedefler.
+function Contracts.productionTarget(
+	save: PlayerSave,
+	goodsId: string,
+	batchUnits: number,
+	now: number,
+	goodsHolder: PlayerSave?,
+	fillToCapacity: boolean?
+): number
+	if fillToCapacity then
+		return Goods.getGoodsCap(goodsHolder or save)
+	end
 	local demand = 0
 	for _, offer in Contracts.offers(save, now) do
 		if not Contracts.isDone(save, offer) then
@@ -336,7 +346,7 @@ function Contracts.productionTarget(save: PlayerSave, goodsId: string, batchUnit
 			end
 		end
 	end
-	return math.min(Goods.getGoodsCap(save), demand + batchUnits * Config.GOODS_CONTRACTS.reserveBatches)
+	return math.min(Goods.getGoodsCap(goodsHolder or save), demand + batchUnits * Config.GOODS_CONTRACTS.reserveBatches)
 end
 
 return Contracts

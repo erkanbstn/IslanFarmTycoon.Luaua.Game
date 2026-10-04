@@ -81,7 +81,12 @@ function EffectsSection.create(parent: Frame): { update: (PlayerSave) -> (), res
 		UiKit.setText(cards[4].detail, `%{rounded(summary.offlineRate * 100)} · {summary.offlineHours} saat`)
 		local season = Environment.getSeason(save.envOverride)
 		local weather = Environment.getWeather(save.envOverride)
-		local active = { `{season.displayName} · {weather.displayName}` }
+		local active = {
+			`{season.displayName} · {weather.displayName}`,
+			`Yürüme ve koşma: +%{rounded((summary.movementMultiplier - 1) * 100)} · Eşya sınırı +%{math.round(
+				Config.MOVEMENT_SPEED_BONUS_CAP * 100
+			)}`,
+		}
 		if summary.passFactor > 1 then
 			table.insert(
 				active,

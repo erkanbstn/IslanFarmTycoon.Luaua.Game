@@ -11,6 +11,7 @@ local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath")
 local Rewards = require(Shared:WaitForChild("Modules"):WaitForChild("Rewards"))
 local UiKit = require(script.Parent.Parent:WaitForChild("UiKit"))
 local PurchaseController = require(script.Parent.Parent.Parent:WaitForChild("Core"):WaitForChild("PurchaseController"))
+local ActionBadges = require(script.Parent:WaitForChild("ActionBadges"))
 
 type PlayerSave = GameTypes.PlayerSave
 
@@ -80,6 +81,7 @@ function RewardsSection.create(
 	claimableHeaderRow.Visible = false
 	local achievementsSummary = "Başarımlar"
 	local tabsRow: Frame
+	local setTabBadge: (string, number) -> ()
 	local function refreshTabs()
 		local daily = currentTab == "daily"
 		dailyCard.frame.Visible = daily
@@ -94,13 +96,15 @@ function RewardsSection.create(
 			end
 		end
 	end
-	tabsRow = UiKit.tabs(list, -1, {
+	local row, _, badge = UiKit.tabs(list, -1, {
 		{ id = "daily", label = "Günlük" },
 		{ id = "achievements", label = "Başarımlar" },
 	}, function(id: string)
 		currentTab = id
 		refreshTabs()
 	end)
+	tabsRow = row
+	setTabBadge = badge
 	local achievementGrid = UiKit.autoGrid(list, 21)
 	for index, achievement in Config.ACHIEVEMENTS do
 		local card = UiKit.autoTile(achievementGrid, index, achievement.icon)
@@ -121,14 +125,18 @@ function RewardsSection.create(
 	local rewardSignature = ""
 	local function updateBadge(state: PlayerSave)
 		local now = Workspace:GetServerTimeNow()
-		local status = Rewards.dailyStatus(state.daily, now)
-		setRewardsBadge(Rewards.claimableCount(state, now) + (if status.canClaim then 1 else 0))
+		local total, daily, achievements = ActionBadges.rewards(state, now)
+		setRewardsBadge(total)
+		setTabBadge("daily", daily)
+		setTabBadge("achievements", achievements)
 	end
 	local function updateRewards(state: PlayerSave)
 		local now = Workspace:GetServerTimeNow()
 		updateSeasonal(state, now)
 		local status = Rewards.dailyStatus(state.daily, now)
-		local claimable = Rewards.claimableCount(state, now)
+		local total, daily, claimable = ActionBadges.rewards(state, now)
+		setTabBadge("daily", daily)
+		setTabBadge("achievements", claimable)
 		local parts: { string } = { tostring(status.canClaim), tostring(status.streak), tostring(claimable) }
 		local claimed = 0
 		for _, achievement in Config.ACHIEVEMENTS do
@@ -142,7 +150,7 @@ function RewardsSection.create(
 		table.insert(parts, tostring(pending))
 		table.insert(parts, tostring(if status.canClaim then Rewards.dailyAmount(state, status.nextStreak) else 0))
 		local signature = table.concat(parts, "|")
-		setRewardsBadge(claimable + (if status.canClaim then 1 else 0))
+		setRewardsBadge(total)
 		if signature == rewardSignature then
 			return
 		end

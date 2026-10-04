@@ -557,6 +557,9 @@ local data = {
 
 -- Hayvan türü tablosundan gelen tarifler (para fabrikası + ürün merkezi; Config/Species.luau)
 local species = Species.get()
+for id, extension in species.extensions do
+	data.EXTENSIONS[id] = extension
+end
 for id, recipe in species.recipes do
 	data.PRODUCTION_RECIPES[id] = recipe
 end

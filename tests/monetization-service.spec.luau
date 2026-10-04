@@ -5,18 +5,22 @@ return function(createService: any, createHarness: any, createLimiter: any, code
 	local decision = { NotProcessedYet = "NotProcessedYet", PurchaseGranted = "PurchaseGranted" }
 	local fakeEnum = { ProductPurchaseDecision = decision }
 
-	-- Ürün kimlikleri Creator Hub'da oluşturulana kadar 0'dır (kapalı); test için geçici olarak açılır.
+	-- Makbuz/hata senaryoları canlı katalogdan bağımsız kimliklerle çalışır; kapalı geçitler açıkça kurulur.
 	local products = config.PRODUCTS.products
 	local passes = config.PRODUCTS.passes
 	local saved = {
 		income = products.income_pack.id,
 		instant = products.instant_growth.id,
 		pass = passes.double_income.id,
+		autoPass = passes.auto_collector.id,
+		storagePass = passes.extra_storage.id,
 		effect = products.income_pack.effect,
 	}
 	products.income_pack.id = 9001
 	products.instant_growth.id = 9002
 	passes.double_income.id = 7001
+	passes.auto_collector.id = 0
+	passes.extra_storage.id = 0
 
 	local function setup(): any
 		local h = harness.new()
@@ -579,6 +583,50 @@ return function(createService: any, createHarness: any, createLimiter: any, code
 
 	products.income_pack.id, products.instant_growth.id, passes.double_income.id =
 		saved.income, saved.instant, saved.pass
+	passes.auto_collector.id, passes.extra_storage.id = saved.autoPass, saved.storagePass
+
+	-- Gerçek katalog kimliklerinin her biri doğru ödüle gider; aynı makbuz ikinci ödül vermez.
+	for key, product in products do
+		if product.id == 0 then
+			continue
+		end
+		local live = setup()
+		live.data.permanentParkedIncomeBest = 100
+		local receipt = live.receipt(`catalogue-{key}`, product.id)
+		assert(live.service.processReceipt(receipt) == decision.PurchaseGranted, `configured {key} is delivered`)
+		if product.effect == "goldPack" or product.effect == "instantGrowth" then
+			assert(live.data.gold == product.goldAmount, `configured {key} grants the correct gold amount`)
+		elseif product.effect == "incomePack" then
+			assert(live.data.cash == 100 * 3600 * product.incomeHours, `configured {key} grants its income duration`)
+		elseif product.effect == "runDouble" then
+			assert(live.data.progression.runDouble, "configured run bonus activates")
+		elseif product.effect == "permanentOffer" then
+			local offer = config.PROGRESSION.permanentOffers[product.offerId]
+			local rights = if offer.kind == "item" then live.data.owned.items else live.data.owned.conveniences
+			assert(rights[product.offerId], `configured {key} grants the corresponding permanent right`)
+		end
+		local savedGold, savedCash, savedCount = live.data.gold, live.data.cash, live.counters.saves
+		assert(live.service.processReceipt(receipt) == decision.PurchaseGranted, `configured {key} replay acknowledged`)
+		assert(
+			live.data.gold == savedGold
+				and live.data.cash == savedCash
+				and live.counters.saves == savedCount + 1
+				and #live.data.receipts == 1
+				and live.data.progression.doubleCredits == 0
+				and live.metricCounts.ProductsGranted == 1,
+			`configured {key} replay checkpoints the receipt without a second reward or presentation`
+		)
+	end
+	for key, product in passes do
+		if product.id == 0 then
+			continue
+		end
+		local live = setup()
+		live.fire("RequestPromptProduct", "pass", key)
+		assert(#live.market.passPrompts == 1 and live.market.passPrompts[1].id == product.id, `configured {key} prompt`)
+		live.finishPass(live.player, product.id, true)
+		assert(live.data.passes[key], `configured {key} activates the correct pass`)
+	end
 	print(
 		"PASS monetization service: actual service receipts (no double pay, save-gated), prompts, passes and unreleased products"
 	)

@@ -608,6 +608,7 @@ return function(Config: any, FarmMath: any)
 	-- Eşya etkileri: her eşyanın katkısı var, anahtarlar motorun bildiği listeden, slot içinde fiyat ↔ güç tutarlı
 	do
 		local KNOWN_EFFECTS = {
+			movementSpeed = 0.5,
 			upgradeDiscount = 1,
 			expansionDiscount = 1,
 			sellBonus = 1,

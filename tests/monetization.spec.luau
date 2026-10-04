@@ -87,8 +87,18 @@ return function(ReceiptLog: any, FarmMath: any, Config: any, SaveCodec: any)
 		FarmMath.computeIncomePerSecond(pass) == baseIncome and not FarmMath.hasAutoCollect(pass),
 		"unknown passes do nothing"
 	)
-	for key, product in Config.PRODUCTS.passes do
-		assert(typeof(product.id) == "number" and product.id >= 0, `pass {key} id must be a non-negative number`)
+	local configuredIds: { [number]: string } = {}
+	for kind, catalogue in Config.PRODUCTS do
+		for key, product in catalogue do
+			assert(
+				typeof(product.id) == "number" and product.id >= 0 and product.id % 1 == 0 and product.id < 2 ^ 53,
+				`{kind}/{key} ID must be an exact non-negative integer`
+			)
+			if product.id ~= 0 then
+				assert(not configuredIds[product.id], `{kind}/{key} cannot reuse another purchase ID`)
+				configuredIds[product.id] = `{kind}/{key}`
+			end
+		end
 	end
 	assert(Config.PRODUCTS.products.instant_production == nil, "production instant completion is not a paid product")
 	for key, product in Config.PRODUCTS.products do

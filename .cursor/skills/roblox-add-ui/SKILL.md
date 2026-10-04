@@ -39,8 +39,9 @@ card.title.Text = "..."; card.detail.Text = "..."
 setPurchaseButton(card.action, FarmMath.formatMoney(price), if canAfford then "primary" else "warning")
 ```
 - Pencere kapalıyken içerik güncelleme; `frame:GetPropertyChangedSignal("Visible")` ile açılınca çiz.
-- Dar ekranda UiKit pencereyi otomatik ortalar ve boyutlar. Sık güncellenen metni `UiKit.setText` ile yaz (Localizer çift yazımı olmaz).
+- Fareli geniş ekranda başlıktan sürükleme/çoklu pencere ortaktır; menü `toggleWindow` ile varsayılan konuma döner, dünya `showWindow` ile konumu koruyup öne getirir. X kendi penceresini, ESC/B yalnız öndekini kapatır. Dar ekranda UiKit pencereyi otomatik ortalar ve tek pencere boyutlar. Sık güncellenen metni `UiKit.setText` ile yaz (Localizer çift yazımı olmaz).
 - İlk görünüm kısa sonuç/fiyat/aksiyon; uzun yardım ve formül `UiKit.disclosure` içinde kapalı başlar. Kartta `UiKit.cardDetails` kullan; tutar, gerçek eksi ve geri alınamaz uyarı işlemden önce görünür kalır. Uzun çeviri ve fiyat doğal yüksekliğe sarılır; sabit yükseklik/boş düğme ile hizalama yapma.
+- Ada sekmesi `IslandTabs.add` yerel bağlamını kullanır; bir pencerenin seçimini başka açık pencereye yayma. Robux fiyatı istemcide `Core/ProductPrices` üzerinden alınır; sayfa yok edilince fiyat dinleyicisini kopar. Nakit eşya alımında bu tur/rebirth'te silinme ayrımını göster.
 - Bildirim: `toastHost(parent, blockers?)` ortak üst katman ve sınırlı kuyruğu kullanır, aynı metni ×N ile birleştirir. Üst menü/öğretici gibi engelleri `{GuiObject}` listesiyle ver; holder konumunu elle yazma.
 
 ## Kontrol listesi
@@ -57,3 +58,5 @@ setPurchaseButton(card.action, FarmMath.formatMoney(price), if canAfford then "p
 - [ ] `python scripts/check-locales.py --strict-literals` ve `python scripts/check-config-locales.py` temiz; interpolasyon atomları kaynakta ayrıca incelendi
 - [ ] Studio'da 1920x1080, 1366x768 ve telefon emülatöründe görsel kontrol (çalıştırılmadıysa raporda açıkça belirt)
 ```
+
+- Ortak pencere/sekme değişikliğinde windows.spec ve ui-kit-layout.spec regresyonlarını çalıştır; sürükleme ölçeği, kenar sınırı, daralma, katman sırası, kapanış yarışı ve yok etme temizliğini doğrula. Yeni pencere açılışı yalnız kendi içeriğini günceller.

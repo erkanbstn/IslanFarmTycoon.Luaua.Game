@@ -44,3 +44,5 @@ Tek kaynak `src/shared/Config/` (`init.luau` birleştirir; veri: `Upgrades`, `An
 - Tema ve mevsim değiştiyse README'deki tema/mevsim tablolarını da güncelle.
 
 Kalıcı eşya teklifi `Config/Progression.permanentOffers`, Robux kataloğu `Config/Shop`, terminal rebirth ödülü `milestones` kaynağından gelir. Ödüle özel ekipmanı satışa koyma; ürün kimliği 0 satış kapalı demektir. Yeni etki UI fayda/eksi metni ve actual hesap testiyle birlikte değerlendirilir.
+
+Yeni isteğe bağlı yan içerikte `UpgradeConfig.optionalForCompletion` rebirth ve ada-altın tamamlanma hesabından çıkarır; yol haritasında ve satın alma akışında kalır. Mevcut zorunlu içerikleri gerekçesiz opsiyonel yapma. `costCurve=false` yalnız bu içerikte genel taban maliyet eğrisini atlar; kademe/ada/rebirth çarpanları devam eder, kapasite türevleri bunu devralır. Liste fiyatı yerine gerçek Config/FarmMath sonucu ve bonusun geri ödeme süresini test et. Yeni hareket etkisi `movementSpeed` yalnız takılı/sahipli ekipmandan `FarmMath.getMovementSpeedMultiplier` ile toplanır; sunucu uygulaması ve toplam tavan test edilmelidir.

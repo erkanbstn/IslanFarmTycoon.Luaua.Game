@@ -10,6 +10,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local UiKit = require(script.Parent.Parent:WaitForChild("Ui"):WaitForChild("UiKit"))
+local ProductionPanel = require(script.Parent.Parent:WaitForChild("Ui"):WaitForChild("ProductionPanel"))
 
 local TAG = "JobSite"
 local UPDATE_SECONDS = 0.25
@@ -22,10 +23,11 @@ local playerGui = localPlayer:WaitForChild("PlayerGui")
 type Entry = {
 	gui: BillboardGui,
 	running: Frame,
-	done: Frame,
+	done: TextButton,
 	label: TextLabel,
 	setFill: (number, Color3) -> (),
 	destroying: RBXScriptConnection?,
+	activated: RBXScriptConnection?,
 }
 
 local entries: { [Model]: Entry } = {}
@@ -70,6 +72,7 @@ local function createEntry(model: Model, anchor: BasePart): Entry
 	gui.LightInfluence = 0
 	gui.ResetOnSpawn = false
 	gui.Enabled = false
+	gui.Active = true
 	gui.Parent = playerGui
 
 	local panel = Instance.new("Frame")
@@ -94,7 +97,10 @@ local function createEntry(model: Model, anchor: BasePart): Entry
 	track.LayoutOrder = 2
 
 	-- Bitince: yeşil tik + "Hazır"
-	local done = Instance.new("Frame")
+	local done = Instance.new("TextButton")
+	done.Name = "ReadyProduction"
+	done.Text = ""
+	done.AutoButtonColor = false
 	done.Size = UDim2.fromScale(1, 1)
 	done.BackgroundTransparency = 1
 	done.Visible = false
@@ -107,6 +113,23 @@ local function createEntry(model: Model, anchor: BasePart): Entry
 	doneLabel.LayoutOrder = 2
 
 	local entry: Entry = { gui = gui, running = running, done = done, label = label, setFill = setFill }
+	entry.activated = done.Activated:Connect(function()
+		local recipeId = model:GetAttribute("JobRecipeId")
+		local owner: Instance? = model
+		while owner and owner:GetAttribute("OwnerUserId") == nil do
+			owner = owner.Parent
+		end
+		if
+			entry.gui.Enabled
+			and done.Visible
+			and owner
+			and owner:GetAttribute("OwnerUserId") == localPlayer.UserId
+			and owner:GetAttribute("MainFarmId") == localPlayer:GetAttribute("ActiveMainFarmId")
+			and typeof(recipeId) == "string"
+		then
+			ProductionPanel.openFocused(recipeId)
+		end
+	end)
 	entry.destroying = model.Destroying:Connect(function()
 		gui:Destroy()
 	end)
@@ -193,6 +216,9 @@ local function untrack(instance: Instance)
 	end
 	local entry = entries[instance]
 	if entry then
+		if entry.activated then
+			entry.activated:Disconnect()
+		end
 		if entry.destroying then
 			entry.destroying:Disconnect()
 		end

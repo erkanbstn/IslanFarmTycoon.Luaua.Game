@@ -99,6 +99,46 @@ return function(
 	)
 
 	-- ------------------------------------------------------------------ yapılandırma ve kapasite
+	-- Yeni bahçeler her temanın kendi hayvanına bağlı; hiçbiri bedava hayvan/ürün üretmez.
+	local newGardens = 0
+	for id, extension in config.EXTENSIONS do
+		local upgrade = assert(config.getExtensionUpgrade(id))
+		if upgrade.optionalForCompletion then
+			newGardens += 1
+			local gardenSave = newSave()
+			local matchingFarm: string? = nil
+			for index, theme in config.THEMES do
+				if table.find(theme.satellites, extension.island) then
+					matchingFarm = tostring(index)
+				end
+			end
+			assert(matchingFarm, `garden {id} must be playable on a farm`)
+			gardenSave.farmId = matchingFarm
+			farmMath.applyDerived(gardenSave)
+			local animal = addAnimal(gardenSave, extension.animalId, extension.sourceZoneId)
+			local base = farmMath.computeIncomeOverInterval(gardenSave, now, now + 360, true)
+			assert(base > 0, `garden {id} has productive animals`)
+			animal.extensionId = id
+			animal.task = { kind = "extension", id = id, startedAt = now, endsAt = now + 360 }
+			near(
+				farmMath.computeIncomeOverInterval(gardenSave, now, now + 360, true),
+				base * (1 + extension.incomeBonus),
+				`garden {id} earns only the configured bonus`
+			)
+			near(
+				farmMath.computeIncomeOverInterval(gardenSave, now + 360, now + 720, true),
+				base,
+				`garden {id} bonus expires without extending the stay`
+			)
+			local referenceRate = config.ANIMALS[extension.animalId].baseIncomePerSecond
+			near(
+				upgrade.cost / (extension.capacity * referenceRate * extension.incomeBonus),
+				1800,
+				"base payback is 30 min"
+			)
+		end
+	end
+	assert(newGardens == 13, "thirteen previously missing specialist gardens are available")
 	for id, extension in config.EXTENSIONS do
 		assert(extension.capacity == 2, `extension {id} starts with 2 animals`)
 		assert(extension.stayDuration > 0 and extension.incomeBonus > 0, `extension {id} has a timed bonus`)

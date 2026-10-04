@@ -53,11 +53,12 @@ local function pickWeather(season: Config.SeasonConfig): Config.WeatherConfig
 	return Config.WEATHER.sunny
 end
 
-local function setWeather(weather: Config.WeatherConfig, announce: boolean)
+local function setWeather(weather: Config.WeatherConfig, announce: boolean, fromWand: boolean?)
 	local now = os.time()
 	weatherEndsAt = now + random:NextInteger(Config.WEATHER_SECONDS_MIN, Config.WEATHER_SECONDS_MAX)
 	settleBeforeChange()
 	Environment.setWeather(weather, weatherEndsAt)
+	ReplicatedStorage:SetAttribute("WandWeatherActive", fromWand == true)
 	if announce then
 		local effects = Environment.describeModifiers(weather.incomeModifiers)
 		notifyAll(
@@ -86,7 +87,9 @@ local function update(announce: boolean)
 			-- Etkilerin tam listesi bildirimi şişirmesin: ayrıntı Mevsim çubuğundaki "Etkileri göster"de
 			notifyAll(`{season.displayName} geldi! Etkilere göz at (Mevsim çubuğu)`)
 		end
-		if seasonChanged then
+		if
+			seasonChanged and not (ReplicatedStorage:GetAttribute("WandWeatherActive") == true and now < weatherEndsAt)
+		then
 			-- Mevsim değişse de yöneticinin sabitlediği hava korunur.
 			setWeather(if adminWeatherId then Config.WEATHER[adminWeatherId] else pickWeather(season), false)
 			return
@@ -98,6 +101,27 @@ local function update(announce: boolean)
 		local nextWeather = if adminWeatherId then Config.WEATHER[adminWeatherId] else pickWeather(season)
 		setWeather(nextWeather, announce and nextWeather.id ~= previous.id)
 	end
+end
+
+-- Sahiplik, takılı eşya ve kullanım hakkını InventoryService doğrular.
+function SeasonService.setPlayerWeather(id: string): (boolean, string?)
+	local weather = Config.WEATHER[id]
+	if not weather then
+		return false, "Bilinmeyen hava"
+	end
+	if adminWeatherId then
+		return false, "Yönetici havayı sabitledi; şu anda değiştiremezsin"
+	end
+	-- Hava tüm sunucuyu etkiler; oyuncunun özel mevsimi seçimi genişletemez.
+	if not Environment.getSeason({}).weather[id] then
+		return false, "Bu hava bu mevsimde seçilemez"
+	end
+	local currentId = ReplicatedStorage:GetAttribute("Weather")
+	if currentId == id then
+		return false, "Hava zaten böyle"
+	end
+	setWeather(weather, true, true)
+	return true, nil
 end
 
 -- Yetkilendirme çağıran AdminService'dedir; istemci bu sunucu modülüne erişemez.

@@ -14,7 +14,33 @@ return function(
 	local harness = createHarness(createLimiter, codec, config, farmMath)
 	local function setup(): any
 		local h = harness.new()
+		local attributes: { [string]: any } = {}
+		local originalGet = h.player.GetAttribute
+		h.player.SetAttribute = function(_player: any, name: string, value: any)
+			attributes[name] = value
+		end
+		h.player.GetAttribute = function(player: any, name: string): any
+			return if attributes[name] ~= nil then attributes[name] else originalGet(player, name)
+		end
 		local environment = createEnvironment(h.game)
+		local sharedWeatherCalls = 0
+		local sharedWeatherId: string? = nil
+		h.seasonService = {
+			setPlayerWeather = function(id: string): (boolean, string?)
+				sharedWeatherCalls += 1
+				if h.weatherRejected then
+					return false, "Bu hava bu mevsimde seçilemez"
+				end
+				sharedWeatherId = id
+				return true, nil
+			end,
+		}
+		h.weatherCalls = function(): number
+			return sharedWeatherCalls
+		end
+		h.weatherId = function(): string?
+			return sharedWeatherId
+		end
 		local service = createService(
 			h.game,
 			h.remotes,
@@ -33,7 +59,8 @@ return function(
 					return nil
 				end,
 			},
-			merchant
+			merchant,
+			h.seasonService
 		)
 		service.configureMerchantProximity(function(): boolean
 			return h.near ~= false
@@ -54,6 +81,15 @@ return function(
 	local function buy(h: any, itemId: any, requestId: any?): any
 		return h.fire("RequestBuyItem", itemId, requestId or h.nextId())
 	end
+	do
+		local speed = setup()
+		speed.data.cash = 1e9
+		assert(buy(speed, "wind_charm").ok, "speed item can be earned with regular cash")
+		assert(speed.player:GetAttribute("MovementSpeedMultiplier") == 1.15, "server publishes owned equipped speed")
+		assert(speed.fire("RequestEquipItem", "wind_charm", speed.nextId()).ok, "speed item can be removed")
+		assert(speed.player:GetAttribute("MovementSpeedMultiplier") == 1, "server removes speed when unequipped")
+	end
+
 	-- Eşya tüccarı: aynı sunucu teklifi, eski fiyat/döngü ve uzaktan ödeme korunur.
 	local trader = setup()
 	local tdata = trader.data
@@ -279,6 +315,35 @@ return function(
 		"the staff cooldown or daily allowance holds"
 	)
 	assert(power.data.envOverride.seasonId == target, "a refused use leaves the season untouched")
+	-- Hava asası özel kayıt üretmez; küresel servise yalnız yetkili kullanım ulaşır.
+	do
+		local weather = setup()
+		weather.data.cash = 1e12
+		local weatherStaff = itemOf(function(candidate: any): boolean
+			return candidate.power ~= nil and candidate.power.kind == "weather" and candidate.price > 0
+		end)
+		local function useWeather(): any
+			return weather.fire(
+				"RequestUseItem",
+				weatherStaff.id,
+				weather.nextId(),
+				weather.data.activeMainFarmId,
+				"rain"
+			)
+		end
+		assert(not useWeather().ok and weather.weatherCalls() == 0, "unowned weather staff cannot mutate the server")
+		assert(buy(weather, weatherStaff.id).ok, "weather staff bought and equipped")
+		weather.weatherRejected = true
+		assert(
+			not useWeather().ok and weather.metricCounts.ItemPowersUsed == nil,
+			"global validation failure consumes no use"
+		)
+		weather.weatherRejected = false
+		assert(useWeather().ok and weather.weatherId() == "rain", "authorized use forwards to the shared weather timer")
+		assert(weather.data.envOverride == nil, "weather power creates no personal override")
+		local count = weather.weatherCalls()
+		assert(not useWeather().ok and weather.weatherCalls() == count, "cooldown blocks further global mutation")
+	end
 	print(
 		"PASS inventory service: actual service purchase, equip, staff power, ownership, replay and throttling guards"
 	)

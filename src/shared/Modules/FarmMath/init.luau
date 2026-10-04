@@ -35,6 +35,7 @@ FarmMath.getPerkBonus = Core.getPerkBonus
 FarmMath.getMilestoneBonus = Core.getMilestoneBonus
 FarmMath.isReturnActive = Core.isReturnActive
 FarmMath.getEquippedBonus = Core.getEquippedBonus
+FarmMath.getMovementSpeedMultiplier = Core.getMovementSpeedMultiplier
 FarmMath.getBonus = Core.getBonus
 FarmMath.hasPet = Core.hasPet
 FarmMath.hasOfflineIncome = Core.hasOfflineIncome

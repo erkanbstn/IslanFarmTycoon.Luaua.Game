@@ -19,6 +19,7 @@ return function(createStore: any, createMarket: any, createItemShop: any)
 		local properties = {}
 		return setmetatable({
 			Activated = signal(),
+			Destroying = signal(),
 			GetPropertyChangedSignal = function(_self: any, key: string): any
 				changed[key] = changed[key] or signal()
 				return changed[key]
@@ -55,6 +56,7 @@ return function(createStore: any, createMarket: any, createItemShop: any)
 	local ui: any = { Color = {}, TouchTarget = 44, list = function() end, autoGrid = node }
 	local disclosures = {}
 	local labels = {}
+	local textWrites: { [any]: number } = {}
 	local icons = {}
 	ui.iconChip = function(parent: any, icon: string): any
 		local object = node()
@@ -82,6 +84,7 @@ return function(createStore: any, createMarket: any, createItemShop: any)
 		return result
 	end
 	ui.setText = function(target: any, text: string)
+		textWrites[target] = (textWrites[target] or 0) + 1
 		target.Text = text
 	end
 	ui.setVariant = function(target: any, variant: string)
@@ -229,6 +232,7 @@ return function(createStore: any, createMarket: any, createItemShop: any)
 			return 1
 		end,
 	}
+	local conversionQuotes = 0
 	local progression = {
 		canRebirth = function(): boolean
 			return false
@@ -243,6 +247,7 @@ return function(createStore: any, createMarket: any, createItemShop: any)
 			return nil
 		end,
 		goldCashQuote = function(save: any, amount: number): (number?, string?)
+			conversionQuotes += 1
 			if amount <= 0 or amount % 1 ~= 0 then
 				return nil, "invalid_amount"
 			end
@@ -253,21 +258,39 @@ return function(createStore: any, createMarket: any, createItemShop: any)
 		end,
 	}
 	local previews = {}
-	local store = createStore(engine, definition, remotes, mathModule, progression, ui, {
-		mount = function(_icon: any, id: string)
-			table.insert(previews, id)
-		end,
-	}, {
-		describe = function(): string
-			return "Üretim hızı +%15"
-		end,
-		additional = function(): string
-			return "Ürün merkezi verimi: -%5"
-		end,
-		slotNotice = function(): string
-			return "Yuva: Asa · Takılı eşyanın yerine geçer."
-		end,
-	}, controller, common, dimensions)
+	local store = createStore(
+		engine,
+		definition,
+		remotes,
+		mathModule,
+		progression,
+		ui,
+		{
+			mount = function(_icon: any, id: string)
+				table.insert(previews, id)
+			end,
+		},
+		{
+			describe = function(): string
+				return "Üretim hızı +%15"
+			end,
+			additional = function(): string
+				return "Ürün merkezi verimi: -%5"
+			end,
+			slotNotice = function(): string
+				return "Yuva: Asa · Takılı eşyanın yerine geçer."
+			end,
+		},
+		controller,
+		common,
+		dimensions,
+		{
+			Changed = signal(),
+			get = function(): (number, string)
+				return 149, "ready"
+			end,
+		}
+	)
 	local update = store.create(root, "permanent")
 	local save: any = {
 		gold = 400,
@@ -322,7 +345,12 @@ return function(createStore: any, createMarket: any, createItemShop: any)
 		not disclosures[staffCard.frame].isExpanded() and staffGold.Text == "İncele · 350 altın · Kalıcı",
 		"product starts with an explicit review action"
 	)
+	local collectorWrites = textWrites[collectorCard.detail] or 0
 	staffGold.Activated.fire()
+	assert(
+		(textWrites[collectorCard.detail] or 0) == collectorWrites,
+		"opening one review must not redraw unrelated catalogue cards"
+	)
 	assert(
 		#requests == 0
 			and disclosures[staffCard.frame].isExpanded()
@@ -339,16 +367,24 @@ return function(createStore: any, createMarket: any, createItemShop: any)
 	assert(not disclosures[staffCard.frame].isExpanded(), "changing run collapses an old financial review")
 	definition.PRODUCTS.products.permanent_artisan_staff.id = 123
 	update(save)
+	assert(staffCard.action.Text == "İncele · 149 Robux", "Robux action shows platform price before review")
 	staffCard.action.Activated.fire()
 	assert(
 		#prompts == 0 and disclosures[staffCard.frame].isExpanded(),
 		"ready Robux alternative first reveals the same effect and penalty review"
 	)
+	assert(staffCard.action.Text == "Satın al · 149 Robux", "reviewed action keeps the platform price")
 	staffCard.action.Activated.fire()
 	assert(
 		#prompts == 1 and prompts[1].kind == "product" and prompts[1].key == "permanent_artisan_staff",
 		"reviewed Robux alternative requests the actual platform prompt"
 	)
+	local untouched = textWrites[collectorCard.detail] or 0
+	for _ = 1, 100 do
+		disclosures[staffCard.frame].setExpanded(false)
+		disclosures[staffCard.frame].setExpanded(true)
+	end
+	assert((textWrites[collectorCard.detail] or 0) == untouched, "repeated review toggles never redraw other products")
 	definition.PRODUCTS.products.permanent_artisan_staff.id = 0
 	save.owned.items.artisan_staff = true
 	save.owned.conveniences.auto_collect = true
@@ -361,6 +397,8 @@ return function(createStore: any, createMarket: any, createItemShop: any)
 		collectorCard.action.variant == "owned",
 		"permanent gold collector also owns equivalent gamepass functionality"
 	)
+	definition.ITEMS.apprentice_staff =
+		{ id = "apprentice_staff", slot = "staff", price = 500, displayName = "Çırak Asası", icon = "staff" }
 	local itemText = {
 		describe = function(): string
 			return "Üretim süresi: -%15\nÜrün merkezi verimi: -%5"
@@ -372,7 +410,7 @@ return function(createStore: any, createMarket: any, createItemShop: any)
 			return "Yuva: Asa · Takılı eşyanın yerine geçer."
 		end,
 		itemsOfSlot = function(): any
-			return { definition.ITEMS.artisan_staff }
+			return { definition.ITEMS.artisan_staff, definition.ITEMS.apprentice_staff }
 		end,
 	}
 	local cashShop = createItemShop(
@@ -405,9 +443,10 @@ return function(createStore: any, createMarket: any, createItemShop: any)
 		inventory = { items = {} },
 	}
 	cashPanel.update(cashState)
-	local cashCard = cards[#cards]
+	local cashCard = cards[#cards - 1]
+	local otherCashCard = cards[#cards]
 	assert(
-		not disclosures[cashCard.frame].isExpanded() and cashCard.action.Text == "İncele · $ 20000",
+		not disclosures[cashCard.frame].isExpanded() and cashCard.action.Text == "İncele · $ 20000 · Bu tur",
 		"cash item starts with an explicit review action"
 	)
 	assert(
@@ -424,6 +463,7 @@ return function(createStore: any, createMarket: any, createItemShop: any)
 	assert(
 		fullCashDetail
 			and string.find(fullCashDetail.Text, "Ürün merkezi verimi: -%5", 1, true)
+			and string.find(fullCashDetail.Text, "Rebirth yapınca bu eşya silinir.", 1, true)
 			and string.find(fullCashDetail.Text, "Takılı eşyanın yerine geçer.", 1, true),
 		"review preserves real penalty and slot replacement notice"
 	)
@@ -431,11 +471,13 @@ return function(createStore: any, createMarket: any, createItemShop: any)
 		not string.find(fullCashDetail.Text, "Üretim süresi: -%15", 1, true),
 		"details exclude the main benefit already visible on the card"
 	)
+	local otherWrites = textWrites[otherCashCard.detail] or 0
 	cashCard.action.Activated.fire()
+	assert((textWrites[otherCashCard.detail] or 0) == otherWrites, "cash item review refreshes only its own card")
 	assert(
 		#requests == beforeCash
 			and disclosures[cashCard.frame].isExpanded()
-			and cashCard.action.Text == "Satın al · $ 20000",
+			and cashCard.action.Text == "Satın al · $ 20000 · Bu tur",
 		"cash purchase first reveals penalty and slot replacement before payment"
 	)
 	cashCard.action.Activated.fire()
@@ -463,7 +505,9 @@ return function(createStore: any, createMarket: any, createItemShop: any)
 	)
 	local panel = market.create(root)
 	panel.update(save)
+	local initialQuotes = conversionQuotes
 	panel.open("gold")
+	assert(conversionQuotes == initialQuotes, "gold catalogue does not calculate hidden conversion quotes")
 	assert(#icons == 1 and icons[1].Text == "🪙", "market wallet renders a gold coin chip")
 	local wallet: any = nil
 	for _, label in labels do
@@ -485,7 +529,7 @@ return function(createStore: any, createMarket: any, createItemShop: any)
 		goldCard and goldCard.detail.Text == "100 altın · Rebirth'te kalır",
 		"gold category updates the advertised persistent currency"
 	)
-	tabCallbacks[1]("convert")
+	tabCallbacks[#tabCallbacks]("convert")
 	inputs[1].Text = "3"
 	local convert: any = nil
 	for _, button in buttons do
@@ -504,6 +548,18 @@ return function(createStore: any, createMarket: any, createItemShop: any)
 	)
 	inputs[1].Text = "1.5"
 	assert(not convert.Active, "fractional gold cannot be submitted")
+	local quotesBeforeSwitch = conversionQuotes
+	tabCallbacks[#tabCallbacks]("permanent")
+	inputs[1].Text = "2"
+	assert(
+		conversionQuotes == quotesBeforeSwitch,
+		"switching away and hidden input changes do not calculate conversion quotes"
+	)
+	tabCallbacks[#tabCallbacks]("convert")
+	assert(
+		conversionQuotes == quotesBeforeSwitch + 1 and convert.Active,
+		"returning to conversion computes a fresh current quote"
+	)
 	print(
 		"PASS market UI: ID0 catalogue, no paid prompts, model reuse, gold purchase, permanent ownership parity and exact conversion quote"
 	)

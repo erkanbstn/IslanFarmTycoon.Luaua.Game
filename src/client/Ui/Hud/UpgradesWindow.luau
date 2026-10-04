@@ -14,6 +14,7 @@ local IslandContext = require(script.Parent.Parent.Parent:WaitForChild("Core"):W
 local IslandManager = require(script.Parent.Parent:WaitForChild("IslandManager"))
 local HudCommon = require(script.Parent:WaitForChild("HudCommon"))
 local IslandTabs = require(script.Parent:WaitForChild("IslandTabs"))
+local ActionBadges = require(script.Parent:WaitForChild("ActionBadges"))
 
 type PlayerSave = GameTypes.PlayerSave
 
@@ -41,11 +42,15 @@ function UpgradesWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Upg
 	local upgradesInfo =
 		UiKit.text(upgradesWindow.list, "Ada değiştirmek için sekmeleri kullan · Kısayol: U", "Caption")
 	upgradesInfo.LayoutOrder = -2
-	IslandTabs.add(upgradesWindow)
+	local refreshTab: (() -> ())? = nil
+	local islandTabs = IslandTabs.add(upgradesWindow, function()
+		if refreshTab then
+			refreshTab()
+		end
+	end)
 	-- Kategori sekmeleri: Yapılar (satın alınacak yükseltmeler) | Geliştirmeler (bölge ve tesis seviyeleri)
 	local currentTab = "upgrades"
-	local refreshTab: (() -> ())? = nil
-	local _, chooseTab = UiKit.tabs(upgradesWindow.list, 0, {
+	local _, chooseTab, setTabBadge = UiKit.tabs(upgradesWindow.list, 0, {
 		{ id = "upgrades", label = "Yapılar" },
 		{ id = "levels", label = "Seviyeler" },
 		{ id = "expansions", label = "Geliştirmeler" },
@@ -139,7 +144,7 @@ function UpgradesWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Upg
 	end
 
 	local function updateExpansions(state: PlayerSave, content: boolean)
-		local selectedIsland = IslandContext.get()
+		local selectedIsland = islandTabs.get()
 		local any = false
 		for _, targetId in Config.BUILD_ORDER do
 			local target = Config.BUILD_TARGETS[targetId]
@@ -192,8 +197,9 @@ function UpgradesWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Upg
 
 	local lastContext = ""
 	local function updateUpgrades(state: PlayerSave, content: boolean)
+		islandTabs.update(state)
 		local context =
-			`{state.activeMainFarmId}:{IslandContext.get()}:{if state.progression then state.progression.run else 0}`
+			`{state.activeMainFarmId}:{islandTabs.get()}:{if state.progression then state.progression.run else 0}`
 		if context ~= lastContext then
 			lastContext = context
 			for _, details in directDetails do
@@ -205,11 +211,21 @@ function UpgradesWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Upg
 		end
 		updateExpansions(state, content)
 		local remaining = 0
-		local selectedIsland = IslandContext.get()
+		local selectedIsland = islandTabs.get()
+		local _, counts = ActionBadges.upgrades(state)
+		local islandCounts: { [string]: number } = {}
+		for islandId, value in counts do
+			islandCounts[islandId] = value.total
+		end
+		islandTabs.setBadges(islandCounts)
+		local selectedCounts = counts[selectedIsland]
+		for _, category in { "upgrades", "levels", "expansions" } do
+			setTabBadge(category, if selectedCounts then selectedCounts[category] else 0)
+		end
 		if content then
-			UiKit.setText(upgradesInfo, IslandContext.name())
+			UiKit.setText(upgradesInfo, islandTabs.name())
 			upgradesEmpty.Text =
-				`{IslandContext.name()} yükseltmeleri tamamlandı. Sıradaki yatırımını seçmek için Adalar'ı aç.`
+				`{islandTabs.name()} yükseltmeleri tamamlandı. Sıradaki yatırımını seçmek için Adalar'ı aç.`
 		end
 		for index, upgrade in Config.UPGRADES do
 			local card = directUpgradeCards[upgrade.id]

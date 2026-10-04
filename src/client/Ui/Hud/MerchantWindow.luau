@@ -22,8 +22,8 @@ function MerchantWindow.create(parent: Instance): { window: UiKit.Window, update
 		title = "Gezgin Tüccar",
 		icon = "🧳",
 		tint = UiKit.Color.Gold,
-		width = 540,
-		maxHeight = 520,
+		width = 600,
+		maxHeight = 560,
 		anchor = Vector2.new(0.5, 0.5),
 		position = UDim2.fromScale(0.5, 0.5),
 	})

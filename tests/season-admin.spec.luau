@@ -4,9 +4,13 @@ return function(createService: any, createEnvironment: any, createLimiter: any, 
 	local now = 2000000000
 	local studio = true
 	local attributes: { [string]: any } = {}
+	local onlinePlayers = {}
+	for userId = 1, 6 do
+		table.insert(onlinePlayers, { UserId = userId })
+	end
 	local players = {
 		GetPlayers = function(): { any }
-			return {}
+			return onlinePlayers
 		end,
 		PlayerRemoving = { Connect = function() end },
 	}
@@ -64,6 +68,7 @@ return function(createService: any, createEnvironment: any, createLimiter: any, 
 			}
 		end,
 	}
+	local notifications: { [number]: number } = {}
 	local events: { [string]: any } = {}
 	local remotes = {
 		get = function(name: string): any
@@ -74,7 +79,9 @@ return function(createService: any, createEnvironment: any, createLimiter: any, 
 							events[name].callback = callback
 						end,
 					},
-					FireClient = function() end,
+					FireClient = function(_self: any, player: any)
+						notifications[player.UserId] = (notifications[player.UserId] or 0) + 1
+					end,
 				}
 			end
 			return events[name]
@@ -103,6 +110,7 @@ return function(createService: any, createEnvironment: any, createLimiter: any, 
 	local service = createService(engine, clock, random, remotes, tasks, environment, limiter, metrics, function() end)
 	local settlementPermit = false
 	local settlements = 0
+	local settledWeatherByPlayer: { [number]: string } = {}
 	for _, method in { "setSeason", "setWeather" } do
 		local original = environment[method]
 		environment[method] = function(...: any)
@@ -113,6 +121,9 @@ return function(createService: any, createEnvironment: any, createLimiter: any, 
 	end
 	service.init(function()
 		settlements += 1
+		for _, player in onlinePlayers do
+			settledWeatherByPlayer[player.UserId] = environment.getWeather().id
+		end
 		settlementPermit = true
 	end)
 	local function tick(seconds: number)
@@ -190,6 +201,82 @@ return function(createService: any, createEnvironment: any, createLimiter: any, 
 	studio = false
 	events.DebugCycleWeather.callback(owner)
 	assert(environment.getWeather().id == forced, "F7 remains Studio-only even for authorized owner")
+	-- Oyuncu asası: tüm sunucu, altı bildirim, eski gelir ve tam doğal süre.
+	assert(not service.setPlayerWeather("rain"), "player staff cannot override admin weather")
+	assert(service.setAdminWeather(nil), "release admin weather before normal play")
+	now = (math.floor(now / Config.SEASON_SECONDS) + 1) * Config.SEASON_SECONDS - 10
+	tick(0)
+	local originalWeather = environment.getWeather().id
+	local picked: string? = nil
+	for id in environment.getSeason().weather do
+		if id ~= originalWeather then
+			picked = id
+			break
+		end
+	end
+	local selected = assert(picked, "season has another weather available for the staff")
+	local oldDeadline = attributes.WeatherEndsAt
+	local unchangedSettlements = settlements
+	assert(not service.setPlayerWeather("unknown"), "invalid player weather is rejected")
+	assert(not service.setPlayerWeather(originalWeather), "same weather consumes no change")
+	local unavailable: string? = nil
+	for id in Config.WEATHER do
+		if not environment.getSeason().weather[id] then
+			unavailable = id
+			break
+		end
+	end
+	if unavailable then
+		assert(not service.setPlayerWeather(unavailable), "global season pool is enforced")
+	end
+	assert(
+		settlements == unchangedSettlements and attributes.WeatherEndsAt == oldDeadline,
+		"rejected changes preserve income and timer"
+	)
+	local notificationBefore = table.clone(notifications)
+	assert(service.setPlayerWeather(selected), "valid equipped staff weather can be applied by the inventory service")
+	assert(
+		attributes.WandWeatherActive == true and attributes.AdminWeatherOverride == nil,
+		"wand weather is temporary, not an admin lock"
+	)
+	local deadline = attributes.WeatherEndsAt
+	assert(deadline == now + Config.WEATHER_SECONDS_MIN, "wand uses the same randomized duration as natural weather")
+	for _, player in onlinePlayers do
+		assert(
+			settledWeatherByPlayer[player.UserId] == originalWeather,
+			"all six players settle with the old weather first"
+		)
+		assert(
+			notifications[player.UserId] == (notificationBefore[player.UserId] or 0) + 1,
+			"all six players receive the weather change"
+		)
+		local personal =
+			{ seasonId = "winter", seasonEndsAt = now + 900, weatherId = originalWeather, weatherEndsAt = now + 900 }
+		assert(
+			environment.getWeather(personal).id == selected,
+			"personal season and legacy weather cannot hide global wand weather"
+		)
+	end
+	tick(11)
+	assert(
+		environment.getWeather().id == selected and attributes.WeatherEndsAt == deadline,
+		"season seam does not shorten the chosen weather duration"
+	)
+	tick(deadline - now - 1)
+	assert(attributes.WandWeatherActive == true, "weather remains active until its full deadline")
+	tick(1)
+	assert(
+		attributes.WandWeatherActive == false and attributes.WeatherEndsAt > now,
+		"expiry resumes the normal weather timer automatically"
+	)
+	assert(
+		environment.getSeason().weather[environment.getWeather().id],
+		"expiry selects weather valid for the new season"
+	)
+	assert(
+		environment.getWeather({ weatherId = selected, weatherEndsAt = now + 900 }).id == environment.getWeather().id,
+		"legacy weather cannot reappear after expiry"
+	)
 	failClock = true
 	local resumed, resumeError = coroutine.resume(loop :: thread)
 	assert(resumed, tostring(resumeError))

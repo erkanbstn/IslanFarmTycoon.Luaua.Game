@@ -60,9 +60,10 @@ return {
 	WALK_SPEED = 16,
 
 	SPRINT_SPEED = 24, -- Yürümenin 1,5 katı
+	MOVEMENT_SPEED_BONUS_CAP = 0.25, -- Takılı eşyalardan en fazla +%25 hareket hızı
 
 	-- Köprüde koşarken hız çarpanı (BridgeBoost): adalar arası yol kısalır; köprüden inince normale döner
-	BRIDGE_SPEED_MULTIPLIER = 1.6,
+	BRIDGE_SPEED_MULTIPLIER = 1.2,
 
 	-- Yeni oyuncuya ücretsiz: ana ada, Küçük Ahır (Sv.1) ve ana ağıl. Hayvanla başlanmaz (STARTING_COW_COUNT = 0):
 	-- ilk hayvan, çiftliğin ana hayvanını (inek/tavuk/ördek) tam alacak kadar parayla alınır (Config.getStartingCash).

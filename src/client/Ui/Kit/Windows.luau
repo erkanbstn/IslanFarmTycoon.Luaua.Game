@@ -21,6 +21,9 @@ export type Window = {
 	open: () -> (),
 	close: () -> (),
 	isOpen: () -> boolean,
+	reset: (() -> ())?,
+	focus: (() -> ())?,
+	ownerParent: Instance?,
 }
 
 export type WindowOptions = {
@@ -40,6 +43,71 @@ local CLOSE_TWEEN = TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirect
 local SLIDE_DISTANCE = 20 -- açılış/kapanışta kayma payı (px)
 
 local openWindows: { Window } = {}
+local layer: ScreenGui? = nil
+local layerRoot: Frame? = nil
+local inputConnection: RBXScriptConnection? = nil
+
+local function desktop(): boolean
+	local viewport = Screen.viewport()
+	return UserInputService.MouseEnabled and viewport.X >= 900 and viewport.Y >= 600
+end
+
+local function foreground(target: Window)
+	local index = table.find(openWindows, target)
+	if index then
+		table.remove(openWindows, index)
+	end
+	table.insert(openWindows, target)
+	for rank, window in openWindows do
+		window.frame.ZIndex = 10 + rank
+	end
+end
+
+local function host(parent: Instance): Instance
+	local screen = if parent:IsA("ScreenGui") then parent else parent:FindFirstAncestorOfClass("ScreenGui")
+	if not screen then
+		return parent
+	end
+	if not layer then
+		local gui = Instance.new("ScreenGui")
+		gui.Name = "Windows"
+		gui.ResetOnSpawn = false
+		gui.DisplayOrder = 10 -- Bildirimler 20; Roblox ödeme onayı CoreGui'de kalır.
+		gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+		gui.Parent = screen.Parent
+		layer = gui
+		layerRoot = Screen.root(gui)
+	end
+	return layerRoot :: Frame
+end
+
+local function listen()
+	if inputConnection then
+		return
+	end
+	inputConnection = UserInputService.InputBegan:Connect(function(input: InputObject, processed: boolean)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			local gui = Players.LocalPlayer:FindFirstChildOfClass("PlayerGui")
+			if gui then
+				for _, hit in gui:GetGuiObjectsAtPosition(input.Position.X, input.Position.Y) do
+					for _, window in openWindows do
+						if window.isOpen() and (hit == window.frame or hit:IsDescendantOf(window.frame)) then
+							foreground(window)
+							return
+						end
+					end
+				end
+			end
+		elseif not processed and (input.KeyCode == Enum.KeyCode.Escape or input.KeyCode == Enum.KeyCode.ButtonB) then
+			for index = #openWindows, 1, -1 do
+				if openWindows[index].isOpen() then
+					openWindows[index].close()
+					return
+				end
+			end
+		end
+	end)
+end
 
 -- Başlıklı (ikon + başlık + kapat), kaydırılabilir listeli pencere; açılırken kayarak gelir
 function Windows.window(parent: Instance, options: WindowOptions): Window
@@ -48,7 +116,9 @@ function Windows.window(parent: Instance, options: WindowOptions): Window
 	if screen and screen:IsA("ScreenGui") then
 		screen.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 	end
-	local frame = Base.panel(parent)
+	local frame = Base.panel(host(parent))
+	frame.Name = `Window_{options.title}`
+	frame.Active = true
 	frame.AnchorPoint = options.anchor
 	frame.Position = options.position
 	frame.Size = UDim2.new(0, options.width, 0.75, 0)
@@ -116,24 +186,76 @@ function Windows.window(parent: Instance, options: WindowOptions): Window
 	local selectedBefore: GuiObject? = nil
 	local close: TextButton? = nil
 	local targetPosition = options.position
-	local function resize()
+	local dragStart: Vector2? = nil
+	local defaultPosition = options.position
+	local moved = false
+	local animation: Tween? = nil
+	local function stopAnimation()
+		if animation then
+			animation:Cancel()
+			animation = nil
+		end
+	end
+	local function bounds(): Vector2
+		local root = frame.Parent
+		if root and root:IsA("GuiObject") and root.AbsoluteSize.X > 0 then
+			return root.AbsoluteSize / Screen.scale()
+		end
+		return Screen.viewport()
+	end
+	local function clampPosition(position: UDim2): UDim2
+		local viewport = bounds()
+		local width, height = frame.Size.X.Offset, frame.Size.Y.Offset
+		local x = position.X.Scale * viewport.X + position.X.Offset
+		local y = position.Y.Scale * viewport.Y + position.Y.Offset
+		return UDim2.fromOffset(
+			math.clamp(
+				x,
+				width * frame.AnchorPoint.X + 12,
+				math.max(width * frame.AnchorPoint.X + 12, viewport.X - width * (1 - frame.AnchorPoint.X) - 12)
+			),
+			math.clamp(
+				y,
+				height * frame.AnchorPoint.Y + 12,
+				math.max(height * frame.AnchorPoint.Y + 12, viewport.Y - height * (1 - frame.AnchorPoint.Y) - 12)
+			)
+		)
+	end
+	local function resize(forceDefault: boolean?)
+		dragStart = nil
 		if not Workspace.CurrentCamera then
 			return
 		end
 		local viewport = Screen.viewport()
-		local compact = viewport.X < 900 or viewport.Y < 600
+		local compact = not desktop()
 		frame.AnchorPoint = if compact then Vector2.new(0.5, 0.5) else options.anchor
-		targetPosition = if compact then UDim2.fromScale(0.5, 0.5) else options.position
+		defaultPosition = if compact then UDim2.fromScale(0.5, 0.5) else options.position
 		local height = math.min(options.maxHeight, math.max(160, viewport.Y - 80))
 		-- Sağ kenardaki pencereler Roblox'un sağ üst oyuncu listesinin altında başlar (üstten TOP_RESERVE px ayrılır)
 		if not compact and options.anchor.X == 1 then
 			local top = TOP_RESERVE / Screen.scale()
 			frame.AnchorPoint = Vector2.new(1, 0)
-			targetPosition = UDim2.new(options.position.X.Scale, options.position.X.Offset, 0, top)
+			defaultPosition = UDim2.new(options.position.X.Scale, options.position.X.Offset, 0, top)
 			height = math.min(options.maxHeight, math.max(160, viewport.Y - top - 12))
 		end
-		frame.Position = targetPosition
 		frame.Size = UDim2.fromOffset(math.min(options.width, math.max(200, viewport.X - 24)), height)
+		stopAnimation()
+		if compact or forceDefault then
+			moved = false
+		end
+		targetPosition = clampPosition(if moved then targetPosition else defaultPosition)
+		frame.Position = targetPosition
+		if compact and opened then
+			for index = #openWindows, 1, -1 do
+				local other = openWindows[index]
+				if other.isOpen() then
+					if other ~= window then
+						window.close()
+					end
+					break
+				end
+			end
+		end
 	end
 	local cameraConnection: RBXScriptConnection? = nil
 	local function watchCamera()
@@ -151,20 +273,32 @@ function Windows.window(parent: Instance, options: WindowOptions): Window
 	window = {
 		frame = frame,
 		list = list,
+		ownerParent = parent,
+		reset = function()
+			resize(true)
+			foreground(window)
+		end,
+		focus = function()
+			foreground(window)
+		end,
 		open = function()
 			if opened then
+				foreground(window)
 				return
 			end
 			opened = true
 			token += 1
-			-- Aynı anda tek ana pencere açık: yeni pencere açılırken öbürleri kapanır (her açma yolu için aynı kural)
-			for _, other in openWindows do
-				if other ~= window then
-					other.close()
+			-- Dar/dokunmatik ekranda tek pencere; masaüstünde mevcut çalışma düzeni korunur.
+			if not desktop() then
+				for _, other in openWindows do
+					if other ~= window then
+						other.close()
+					end
 				end
 			end
 			selectedBefore = GuiService.SelectedObject
-			resize()
+			resize(true)
+			foreground(window)
 			frame.Visible = true
 			Sfx.play("ui_open", 0.04)
 			if UserInputService.GamepadEnabled then
@@ -172,7 +306,9 @@ function Windows.window(parent: Instance, options: WindowOptions): Window
 			end
 			if Players.LocalPlayer:GetAttribute("ReducedMotion") ~= true then
 				frame.Position = targetPosition + UDim2.fromOffset(SLIDE_DISTANCE, 0)
-				TweenService:Create(frame, SLIDE_TWEEN, { Position = targetPosition }):Play()
+				local tween = TweenService:Create(frame, SLIDE_TWEEN, { Position = targetPosition })
+				animation = tween
+				tween:Play()
 			else
 				frame.Position = targetPosition
 			end
@@ -182,7 +318,9 @@ function Windows.window(parent: Instance, options: WindowOptions): Window
 				return
 			end
 			opened = false
+			dragStart = nil
 			token += 1
+			stopAnimation()
 			local mine = token
 			if GuiService.SelectedObject and GuiService.SelectedObject:IsDescendantOf(frame) then
 				GuiService.SelectedObject = if selectedBefore and selectedBefore.Parent then selectedBefore else nil
@@ -198,7 +336,8 @@ function Windows.window(parent: Instance, options: WindowOptions): Window
 				CLOSE_TWEEN,
 				{ Position = targetPosition + UDim2.fromOffset(SLIDE_DISTANCE, 0) }
 			)
-			tween.Completed:Connect(function()
+			animation = tween
+			tween.Completed:Once(function()
 				if token == mine and not opened then
 					frame.Visible = false
 					frame.Position = targetPosition
@@ -215,35 +354,86 @@ function Windows.window(parent: Instance, options: WindowOptions): Window
 	close = closeButton
 	closeButton.AnchorPoint = Vector2.new(1, 0)
 	closeButton.Position = UDim2.new(1, -7, 0, 7) -- 44 px dokunma alanı, görünen 30 px daire eskisiyle aynı yerde
-	table.insert(openWindows, window)
-	local inputConnection = UserInputService.InputBegan:Connect(function(input, processed)
-		if
-			not processed
-			and opened
-			and (input.KeyCode == Enum.KeyCode.Escape or input.KeyCode == Enum.KeyCode.ButtonB)
-		then
-			window.close()
+	closeButton.ZIndex = 3
+	local handle = Instance.new("TextButton")
+	handle.Name = "WindowDragHandle"
+	handle.Text = ""
+	handle.BackgroundTransparency = 1
+	handle.AutoButtonColor = false
+	handle.Selectable = false
+	handle.Size = UDim2.new(1, -58, 0, 56)
+	handle.ZIndex = 2
+	handle.Parent = frame
+	local dragPosition = targetPosition
+	handle.InputBegan:Connect(function(input: InputObject)
+		if opened and desktop() and input.UserInputType == Enum.UserInputType.MouseButton1 then
+			stopAnimation()
+			foreground(window)
+			dragStart = Vector2.new(input.Position.X, input.Position.Y)
+			dragPosition = targetPosition
 		end
 	end)
+	local movement = UserInputService.InputChanged:Connect(function(input: InputObject)
+		local start = dragStart
+		if start and opened and desktop() and input.UserInputType == Enum.UserInputType.MouseMovement then
+			local delta = (Vector2.new(input.Position.X, input.Position.Y) - start) / Screen.scale()
+			targetPosition = clampPosition(dragPosition + UDim2.fromOffset(delta.X, delta.Y))
+			moved = true
+			frame.Position = targetPosition
+		end
+	end)
+	local release = UserInputService.InputEnded:Connect(function(input: InputObject)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			dragStart = nil
+		end
+	end)
+	local unfocus = UserInputService.WindowFocusReleased:Connect(function()
+		dragStart = nil
+	end)
+	table.insert(openWindows, window)
+	listen()
+	local ownerDestroyed = parent.Destroying:Connect(function()
+		frame:Destroy()
+	end)
 	frame.Destroying:Connect(function()
+		stopAnimation()
+		movement:Disconnect()
+		release:Disconnect()
+		unfocus:Disconnect()
+		ownerDestroyed:Disconnect()
 		if cameraConnection then
 			cameraConnection:Disconnect()
 		end
 		cameraChanged:Disconnect()
-		inputConnection:Disconnect()
 		local index = table.find(openWindows, window)
 		if index then
 			table.remove(openWindows, index)
+		end
+		if #openWindows == 0 then
+			if inputConnection then
+				inputConnection:Disconnect()
+				inputConnection = nil
+			end
+			if layer then
+				local old = layer
+				layer, layerRoot = nil, nil
+				old:Destroy()
+			end
 		end
 	end)
 	return window
 end
 
 -- Ortak açma yolları (menü karosu, kısayol, gamepad, dünya etkileşimi aynı kuralı kullanır):
---   toggle: açıksa kapatır, kapalıysa açar (menü karosu, klavye/gamepad kısayolu)
---   show:   açıksa dokunmaz, kapalıysa açar (pazar tezgâhı, satıcı, sandık gibi dünya etkileşimleri)
+--   toggle: masaüstünde varsayılan konuma döner/öne gelir; dar ekranda aç/kapa yapar.
+--   show:   açıksa konumunu koruyarak öne gelir; kapalıysa açar.
 function Windows.toggle(target: Window)
-	if target.isOpen() then
+	if desktop() then
+		if target.reset then
+			target.reset()
+		end
+		target.open()
+	elseif target.isOpen() then
 		target.close()
 	else
 		target.open()
@@ -253,6 +443,8 @@ end
 function Windows.show(target: Window)
 	if not target.isOpen() then
 		target.open()
+	elseif target.focus then
+		target.focus()
 	end
 end
 

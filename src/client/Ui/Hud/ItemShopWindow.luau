@@ -37,8 +37,8 @@ function ItemShopWindow.create(screenGui: Instance, openPermanent: (() -> ())?):
 		title = "Eşya Dükkânı",
 		icon = "🎒",
 		tint = Color.Gold,
-		width = 380,
-		maxHeight = 480,
+		width = 600,
+		maxHeight = 560,
 		anchor = Vector2.new(0.5, 0.5),
 		position = UDim2.fromScale(0.5, 0.5),
 	})
@@ -53,7 +53,7 @@ function ItemShopWindow.create(screenGui: Instance, openPermanent: (() -> ())?):
 	-- Kategori sekmeleri (slot başına): seçili kategorinin eşyaları ızgara karoları olarak gösterilir
 	local cards: { [string]: UiKit.Card } = {}
 	local current: PlayerSave? = nil
-	local update: (PlayerSave) -> ()
+	local updateCard: (string, PlayerSave) -> ()
 	local detailsById: { [string]: any } = {}
 	local fullLabels: { [string]: TextLabel } = {}
 	local grids: { [string]: Frame } = {}
@@ -73,7 +73,7 @@ function ItemShopWindow.create(screenGui: Instance, openPermanent: (() -> ())?):
 			detailsById[item.id] = details
 			details.body:GetPropertyChangedSignal("Visible"):Connect(function()
 				if current then
-					update(current)
+					updateCard(item.id, current)
 				end
 			end)
 			fullLabels[item.id] = UiKit.text(details.body, "", "Caption")
@@ -99,7 +99,40 @@ function ItemShopWindow.create(screenGui: Instance, openPermanent: (() -> ())?):
 	end)
 
 	local lastContext: string? = nil
-	update = function(state: PlayerSave)
+	updateCard = function(itemId: string, state: PlayerSave)
+		local card = cards[itemId]
+		local item = Config.ITEMS[itemId]
+		local permanent = state.owned ~= nil and state.owned.items[itemId] == true
+		local lifetime = if permanent or item.rewardOnly then "" else "\nRebirth yapınca bu eşya silinir."
+		UiKit.setText(fullLabels[itemId], `{ItemText.slotNotice(item)}\n{ItemText.additional(item)}{lifetime}`)
+		UiKit.setText(
+			card.detail,
+			`{if permanent then "Kalıcı" elseif item.rewardOnly then "Rebirth ödülü" else "Bu tur"} · {string.match(
+				ItemText.describe(item),
+				"[^\n]+"
+			) or ""}`
+		)
+		ItemPreview.mount(card.icon, itemId)
+		if Inventory.owns(state, itemId) then
+			setPurchaseButton(
+				card.action,
+				if permanent then "Kalıcı olarak sahipsin" else "Sahipsin · Bu tur",
+				"owned"
+			)
+		elseif item.rewardOnly then
+			UiKit.setText(fullLabels[itemId], `{ItemText.slotNotice(item)}\n{ItemText.additional(item)}`)
+			setPurchaseButton(card.action, `R{rewardLevels[itemId] or 0} ödülü · Oynayarak kazan`, "disabled")
+		else
+			setPurchaseButton(
+				card.action,
+				`{if detailsById[itemId].isExpanded() then "Satın al" else "İncele"} · {FarmMath.formatMoney(
+					item.price
+				)} · Bu tur`,
+				if state.cash >= item.price then "primary" else "warning"
+			)
+		end
+	end
+	local function update(state: PlayerSave)
 		current = state
 		local context = `{state.activeMainFarmId}:{if state.progression then state.progression.run else 1}`
 		if context ~= lastContext then
@@ -109,36 +142,8 @@ function ItemShopWindow.create(screenGui: Instance, openPermanent: (() -> ())?):
 			end
 			lastContext = context
 		end
-		for itemId, card in cards do
-			local item = Config.ITEMS[itemId]
-			local permanent = state.owned ~= nil and state.owned.items[itemId] == true
-			UiKit.setText(fullLabels[itemId], `{ItemText.slotNotice(item)}\n{ItemText.additional(item)}`)
-			UiKit.setText(
-				card.detail,
-				`{if permanent then "Kalıcı" elseif item.rewardOnly then "Rebirth ödülü" else "Bu tur"} · {string.match(
-					ItemText.describe(item),
-					"[^\n]+"
-				) or ""}`
-			)
-			ItemPreview.mount(card.icon, itemId)
-			if Inventory.owns(state, itemId) then
-				setPurchaseButton(
-					card.action,
-					if permanent then "Kalıcı olarak sahipsin" else "Sahipsin · Bu tur",
-					"owned"
-				)
-			elseif item.rewardOnly then
-				UiKit.setText(fullLabels[itemId], `{ItemText.slotNotice(item)}\n{ItemText.additional(item)}`)
-				setPurchaseButton(card.action, `R{rewardLevels[itemId] or 0} ödülü · Oynayarak kazan`, "disabled")
-			else
-				setPurchaseButton(
-					card.action,
-					`{if detailsById[itemId].isExpanded() then "Satın al" else "İncele"} · {FarmMath.formatMoney(
-						item.price
-					)}`,
-					if state.cash >= item.price then "primary" else "warning"
-				)
-			end
+		for itemId in cards do
+			updateCard(itemId, state)
 		end
 	end
 

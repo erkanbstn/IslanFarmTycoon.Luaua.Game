@@ -553,6 +553,22 @@ local SPECIES: { SpeciesRow } = {
 	},
 }
 
+local EXTENSION_NAMES = {
+	rabbit = "Tavşan Oyun Bahçesi",
+	bee = "Çiçekli Uçuş Bahçesi",
+	camel = "Vaha Dinlenme Alanı",
+	peacock = "Tavus Gezinti Bahçesi",
+	quail = "Bıldırcın Folluk Bahçesi",
+	pigeon = "Güvercin Uçuş Avlusu",
+	snail = "Nemli Yaprak Bahçesi",
+	llama = "Lama Dinlenme Otlakı",
+	deer = "Geyik Gezinti Korusu",
+	falcon = "Şahin Eğitim Avlusu",
+	silkworm = "Dut Yaprağı Bahçesi",
+	parrot = "Papağan Oyun Avlusu",
+	tortoise = "Kaplumbağa Güneş Bahçesi",
+} :: { [string]: string }
+
 local Species = {}
 Species.SPECIES = SPECIES
 Species.PROFILES = PROFILES
@@ -581,6 +597,7 @@ local function build()
 	local islandOrder: { string } = {}
 	local stages: { Types.RoadmapStage } = {}
 	local upgrades: { Types.UpgradeConfig } = {}
+	local extensions: { [string]: Types.ExtensionConfig } = {}
 	local recipes: { [string]: Types.ProductionRecipeConfig } = {}
 	local recipeOrder: { string } = {}
 
@@ -650,6 +667,36 @@ local function build()
 			-- Ada özelliği: mevcut etki anahtarı (yeni etki kodu yok)
 			(islandUpgrade :: any)[row.island.perk] = row.island.amount
 			table.insert(upgrades, islandUpgrade)
+			local extensionId = `{row.id}_garden`
+			local extensionName = assert(EXTENSION_NAMES[row.id], `Missing extension name for {row.id}`)
+			extensions[extensionId] = {
+				id = extensionId,
+				displayName = extensionName,
+				description = "Hayvanları süreli dinlenmeye gönder; gelirleri artar.",
+				icon = row.icon,
+				island = row.id,
+				sourceZoneId = Species.zoneId(row),
+				animalId = row.id,
+				capacity = 2,
+				incomeBonus = 1 / 3,
+				stayDuration = 360,
+			}
+			table.insert(
+				upgrades,
+				{
+					id = `ext_{extensionId}`,
+					displayName = extensionName,
+					description = "2 hayvan · 6 dk kalır · +%33 gelir",
+					icon = row.icon,
+					stage = stage,
+					cost = math.floor(row.income * 1200), -- İki yetişkinle sürekli +1/3 taban gelir: 30 dk geri ödeme.
+					requires = { islandUpgradeId },
+					kind = "extension",
+					extensionId = extensionId,
+					optionalForCompletion = true,
+					costCurve = false,
+				} :: Types.UpgradeConfig
+			)
 		end
 
 		-- Para fabrikası (gelir artışı + parti üretimi) ve ürün merkezi: yalnızca kendi adasında/ana hayvanıyla kurulur
@@ -747,6 +794,7 @@ local function build()
 		islandOrder = islandOrder,
 		stages = stages,
 		upgrades = upgrades,
+		extensions = extensions,
 		recipes = recipes,
 		recipeOrder = recipeOrder,
 	}

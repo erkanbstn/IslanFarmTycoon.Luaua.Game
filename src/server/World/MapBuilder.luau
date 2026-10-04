@@ -27,7 +27,7 @@ local MapBuilder = {}
 
 -- Harita düzenini (adalar, bölgeler, yapı yerleri) değiştirince bunu 1 artır:
 -- oyun, place'e kaydedilmiş eski haritayı fark edip uyarır.
-local MAP_VERSION = 60 -- 60: zemin, kıyı, yol ve çimen yamaları model şablonlarından. 59: canlı çimen paleti ve LeafyGrass yüzeyi, mevsimle uyumlu zemin. 58: meydan flaması iki yüzlü karşılama yazısı ve büyük oyun adı tabelası. 57: ada doğma platformu SpawnPlaza modeli (Spawn görünmez). 56: meydan doğma platformu SpawnPlaza modeli (HubSpawn görünmez). 55: ana ada/meydan/köprü/tabela/süsler hazır modellerden (assets), yeni içerik serpiştirme, SATELLITE_SLOTS (±100,125). 54: tema işareti fabrikadan uzaklaştı. 53: 24 benzersiz hayvanlı çiftlikler (yeni ada türleri, ana ada yuvaları, Süt/Ördek adası kalktı)
+local MAP_VERSION = 61 -- 61: bütün uzman adalarda süreli hayvan bahçeleri ve boş yerleşim koruması. 60: zemin, kıyı, yol ve çimen yamaları model şablonlarından. 59: canlı çimen paleti ve LeafyGrass yüzeyi, mevsimle uyumlu zemin. 58: meydan flaması iki yüzlü karşılama yazısı ve büyük oyun adı tabelası. 57: ada doğma platformu SpawnPlaza modeli (Spawn görünmez). 56: meydan doğma platformu SpawnPlaza modeli (HubSpawn görünmez). 55: ana ada/meydan/köprü/tabela/süsler hazır modellerden (assets), yeni içerik serpiştirme, SATELLITE_SLOTS (±100,125). 54: tema işareti fabrikadan uzaklaştı. 53: 24 benzersiz hayvanlı çiftlikler (yeni ada türleri, ana ada yuvaları, Süt/Ördek adası kalktı)
 
 local WATER_SIZE = MapLayout.WATER_SIZE
 local WATER_DEPTH = MapLayout.WATER_DEPTH

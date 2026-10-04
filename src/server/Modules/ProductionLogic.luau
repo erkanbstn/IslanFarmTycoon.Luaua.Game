@@ -110,9 +110,14 @@ function ProductionLogic.claim(
 		local amount = farmMath.getGoodsYield(farm, recipe, now, job)
 		local added = farmMath.addGoods(root, recipe.goodsId, amount)
 		local good = config.GOODS[recipe.goodsId]
-		local message = `Ahıra eklendi · {good.displayName} · +{added}`
+		local message = if added > 0
+			then `Ahıra eklendi · {good.displayName} · +{added}`
+			else `Depo dolu; {good.displayName} paraya çevrildi.`
 		-- Depoya sığmayan kısım "Hepsini sat" ile aynı oranla paraya çevrilir (boşa gitmez; satıştan kaçak olmasın)
 		local overflow = amount - added
+		if overflow > 0 and added > 0 then
+			message = `{message} · Depoya sığmayan {overflow} ürün paraya çevrildi.`
+		end
 		local cash = if overflow > 0 then farmMath.getGoodsSellValue(recipe.goodsId, overflow) else 0
 		-- Depo taşmasının indirimli satışı aynı kalır; telafi yalnız parti miktar tavanındaki farktır.
 		local compensation = farmMath.getGoodsCompensation(farm, recipe, job, now, amount)
@@ -260,13 +265,21 @@ function ProductionLogic.runPets(
 			local repeatOption = if farm.autoRepeat then farm.autoRepeat[recipeId] else nil
 			if farm.production[recipeId] == nil and repeatOption ~= nil then
 				if recipe.output == "goods" and recipe.goodsId then
-					local batchUnits = farmMath.previewGoodsYield(farm, recipe, now)
-					local target = farmMath.getGoodsProductionTarget(farm, recipe.goodsId, batchUnits, now)
+					local batchUnits =
+						math.min(farmMath.previewGoodsYield(farm, recipe, now), farmMath.getGoodsCap(root))
+					local target = farmMath.getGoodsProductionTarget(
+						farm,
+						recipe.goodsId,
+						batchUnits,
+						now,
+						root,
+						repeatOption == "fill"
+					)
 					if farmMath.getGoodsAmount(root, recipe.goodsId) + batchUnits > target then
 						continue
 					end
 				end
-				local optionId = if repeatOption == "default" then nil else repeatOption
+				local optionId = if repeatOption == "default" or repeatOption == "fill" then nil else repeatOption
 				local started = ProductionLogic.start(root, farm, recipe, optionId, now, farmMath, hooks)
 				if started then
 					summary.started += 1

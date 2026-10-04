@@ -179,6 +179,34 @@ return function(Inventory: any, Config: any, FarmMath: any, SaveCodec: any, Sess
 		Inventory.equip(farm, itemId)
 		return farm
 	end
+	do
+		local movement = newSave()
+		assert(FarmMath.getMovementSpeedMultiplier(movement) == 1, "no gear preserves base movement")
+		Inventory.grant(movement, "wind_charm")
+		assert(FarmMath.getMovementSpeedMultiplier(movement) == 1, "owned but unequipped speed item is inactive")
+		Inventory.equip(movement, "wind_charm")
+		assert(FarmMath.getMovementSpeedMultiplier(movement) == 1.15, "speed item changes walking and sprint factor")
+		Inventory.grant(movement, "golden_wings")
+		Inventory.equip(movement, "golden_wings")
+		Inventory.grant(movement, "season_staff_inf")
+		Inventory.equip(movement, "season_staff_inf")
+		assert(FarmMath.getMovementSpeedMultiplier(movement) == 1.25, "combined gear is capped")
+		Inventory.unequip(movement, "back")
+		Inventory.unequip(movement, "staff")
+		Inventory.unequip(movement, "charm")
+		assert(FarmMath.getMovementSpeedMultiplier(movement) == 1, "unequip removes speed immediately")
+		movement.inventory.equipped.charm = "wind_charm"
+		movement.inventory.items.wind_charm = nil
+		assert(FarmMath.getMovementSpeedMultiplier(movement) == 1, "forged unowned equipment has no movement bonus")
+		movement.owned = { items = { wind_charm = true } }
+		assert(
+			FarmMath.getMovementSpeedMultiplier(movement) == 1.15,
+			"permanent entitlement works without run ownership"
+		)
+		movement.inventory.equipped.head = "wind_charm"
+		assert(FarmMath.getMovementSpeedMultiplier(movement) == 1.15, "wrong slot cannot duplicate speed bonus")
+	end
+
 	local plain = newSave()
 	local upgrade = Config.getUpgrade("barn_2")
 	assert(FarmMath.getUpgradeCost(plain, upgrade) == upgrade.cost, "no tool, no discount")
@@ -277,6 +305,8 @@ return function(Inventory: any, Config: any, FarmMath: any, SaveCodec: any, Sess
 	Inventory.grant(account, "gold_hammer")
 	Inventory.grant(account, "season_staff_5")
 	Inventory.grant(account, "red_cape")
+	Inventory.grant(account, "wind_charm")
+	Inventory.equip(account, "wind_charm")
 	Inventory.equip(account, "gold_hammer")
 	Inventory.equip(account, "season_staff_5")
 	Inventory.recordUse(account, "season_staff_5", now)
@@ -289,6 +319,7 @@ return function(Inventory: any, Config: any, FarmMath: any, SaveCodec: any, Sess
 			and Inventory.usesLeft(loaded, "season_staff_5", now) == 4,
 		"inventory survives a save"
 	)
+	assert(FarmMath.getMovementSpeedMultiplier(loaded) == 1.15, "equipped speed survives save and reconnect")
 	raw.inventory.items = { "gold_hammer", "ghost_item", 7 }
 	raw.inventory.equipped = { tool = "gold_hammer", staff = "season_staff_5", head = "gold_hammer", back = "red_cape" }
 	raw.inventory.uses = { season = { day = 5, count = 1e9, last = 0 }, hack = { day = 1, count = 1, last = 1 } }

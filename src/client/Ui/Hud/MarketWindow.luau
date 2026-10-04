@@ -32,7 +32,7 @@ function MarketWindow.create(
 		title = "Market",
 		icon = "🪙",
 		tint = UiKit.Color.Gold,
-		width = 540,
+		width = 600,
 		maxHeight = 560,
 		anchor = Vector2.new(0.5, 0.5),
 		position = UDim2.fromScale(0.5, 0.5),
@@ -202,47 +202,51 @@ function MarketWindow.create(
 		end
 		local now = Workspace:GetServerTimeNow()
 		UiKit.setText(wallet, `Altın: {state.gold or 0} · Rebirth'te kalır`)
-		local record = state.progression
-		local perks = {}
-		for _, id in Config.PROGRESSION.perkOrder do
-			local level = Progression.getPerkLevel(state, id)
-			if level > 0 then
-				table.insert(perks, `{RebirthWindow.perkNames[id]} Sv.{level}`)
+		if selectedPage == "convert" then
+			local record = state.progression
+			local perks = {}
+			for _, id in Config.PROGRESSION.perkOrder do
+				local level = Progression.getPerkLevel(state, id)
+				if level > 0 then
+					table.insert(perks, `{RebirthWindow.perkNames[id]} Sv.{level}`)
+				end
 			end
+			UiKit.setText(
+				perkSummary,
+				if #perks > 0
+					then `Kalıcı etkiler: {table.concat(perks, ", ")}`
+					else "Henüz rebirth etkisi yok. Altı çiftliği tamamlayınca kalıcı bir etki seçebilirsin."
+			)
+			returnSummary.Visible = record ~= nil and record.count > 0
+			UiKit.setText(
+				returnSummary,
+				if record and Progression.isReturnActive(state, now)
+					then `Geri Dönüş: {math.ceil(math.max(0, record.returnEndsAt - now) / 60)} dk kaldı. Gerçek zaman; çıkışta durmaz.`
+					else "Geri Dönüş bonusu sona erdi. Bir sonraki rebirth'te yenilenir."
+			)
+			local usedToday = if record and record.convertedDay == math.floor(now / 86400)
+				then record.convertedDayGold
+				else 0
+			local usedRun = if record then record.convertedRunGold else 0
+			UiKit.setText(
+				quota,
+				`Kalan çevirme hakkı: bugün {math.max(0, Config.PROGRESSION.gold.dailyLimit - usedToday)}, bu tur {math.max(
+					0,
+					Config.PROGRESSION.gold.runLimit - usedRun
+				)} altın`
+			)
+			local amount = tonumber(amountInput.Text)
+			local cash, code = Progression.goldCashQuote(state, amount or 0, now)
+			quotedAmount, quotedCash = amount, cash
+			HudCommon.setPurchaseButton(
+				convert,
+				if cash and amount then `{amount} altın → {FarmMath.formatMoney(cash)}` else "Paraya çevir",
+				if cash then "primary" else "disabled"
+			)
+			UiKit.setText(quoteNote, if cash then "" else QUOTE_ERRORS[code or ""] or "Altın miktarını kontrol et.")
+		else
+			quotedAmount, quotedCash = nil, nil
 		end
-		UiKit.setText(
-			perkSummary,
-			if #perks > 0
-				then `Kalıcı etkiler: {table.concat(perks, ", ")}`
-				else "Henüz rebirth etkisi yok. Altı çiftliği tamamlayınca kalıcı bir etki seçebilirsin."
-		)
-		returnSummary.Visible = record ~= nil and record.count > 0
-		UiKit.setText(
-			returnSummary,
-			if record and Progression.isReturnActive(state, now)
-				then `Geri Dönüş: {math.ceil(math.max(0, record.returnEndsAt - now) / 60)} dk kaldı. Gerçek zaman; çıkışta durmaz.`
-				else "Geri Dönüş bonusu sona erdi. Bir sonraki rebirth'te yenilenir."
-		)
-		local usedToday = if record and record.convertedDay == math.floor(now / 86400)
-			then record.convertedDayGold
-			else 0
-		local usedRun = if record then record.convertedRunGold else 0
-		UiKit.setText(
-			quota,
-			`Kalan çevirme hakkı: bugün {math.max(0, Config.PROGRESSION.gold.dailyLimit - usedToday)}, bu tur {math.max(
-				0,
-				Config.PROGRESSION.gold.runLimit - usedRun
-			)} altın`
-		)
-		local amount = tonumber(amountInput.Text)
-		local cash, code = Progression.goldCashQuote(state, amount or 0, now)
-		quotedAmount, quotedCash = amount, cash
-		HudCommon.setPurchaseButton(
-			convert,
-			if cash and amount then `{amount} altın → {FarmMath.formatMoney(cash)}` else "Paraya çevir",
-			if cash then "primary" else "disabled"
-		)
-		UiKit.setText(quoteNote, if cash then "" else QUOTE_ERRORS[code or ""] or "Altın miktarını kontrol et.")
 		local updateStore = storeUpdates[selectedPage]
 		if updateStore then
 			updateStore(state)

@@ -74,14 +74,14 @@ local rewardsWindow = UiKit.window(hudRoot, {
 	title = "Ödüller",
 	icon = "🏆",
 	tint = Color.Gold,
-	width = 380,
-	maxHeight = 480,
+	width = 600,
+	maxHeight = 560,
 	anchor = Vector2.new(0.5, 0.5),
 	position = UDim2.fromScale(0.5, 0.5),
 })
 
--- Tüm ana pencereler tek kuralla yönetilir (Ui/Kit/Windows): aynı anda biri açık olur, yenisi açılınca öbürleri kapanır.
--- Menü karosu ve kısayollar `toggleWindow` (açıksa kapatır), dünya etkileşimleri `showWindow` (açıksa dokunmaz) kullanır.
+-- Pencereleri Ui/Kit/Windows yönetir: masaüstünde çoklu, dar/dokunmatik ekranda tek pencere.
+-- Menü/kısayol masaüstünde varsayılan konuma döndürür, dar ekranda aç/kapa yapar; dünya etkileşimi yalnız öne getirir.
 local toggleWindow = UiKit.toggleWindow
 local showWindow = UiKit.showWindow
 
@@ -90,8 +90,8 @@ local boardWindow = UiKit.window(hudRoot, {
 	title = "Sipariş Panosu",
 	icon = "📋",
 	tint = Color.Green,
-	width = 380,
-	maxHeight = 480,
+	width = 600,
+	maxHeight = 560,
 	anchor = Vector2.new(0.5, 0.5),
 	position = UDim2.fromScale(0.5, 0.5),
 })
@@ -407,47 +407,39 @@ local function redraw()
 		onState(state, true)
 	end
 end
-for _, window in { rewardsWindow, boardWindow, progressionPanel.window, rebirthPanel.window } do
+-- Açılan pencereyi tazele; yan yana açık diğer katalogları yeniden çizme.
+local function onOpened(window: UiKit.Window, draw: (PlayerSave) -> ())
 	window.frame:GetPropertyChangedSignal("Visible"):Connect(function()
-		if window.isOpen() then
-			redraw()
+		local state = ClientState.get()
+		if window.isOpen() and state then
+			draw(state)
 		end
 	end)
 end
-itemShop.window.frame:GetPropertyChangedSignal("Visible"):Connect(function()
-	if itemShop.window.isOpen() then
-		redraw()
-	end
+onOpened(rewardsWindow, updateRewardsSection)
+onOpened(boardWindow, updateBoardSection)
+onOpened(progressionPanel.window, progressionPanel.update)
+onOpened(rebirthPanel.window, rebirthPanel.update)
+onOpened(itemShop.window, itemShop.update)
+onOpened(inventoryPanel.window, inventoryPanel.update)
+onOpened(shopWindow, function(state)
+	shop.update(state, true)
+	shopDirty = false
 end)
-inventoryPanel.window.frame:GetPropertyChangedSignal("Visible"):Connect(function()
-	if inventoryPanel.window.isOpen() then
-		redraw()
-	end
+onOpened(roadmapWindow, function(state)
+	Onboarding.markRoadmapOpened()
+	roadmap.update(state, true)
+	roadmapDirty = false
 end)
-shopWindow.frame:GetPropertyChangedSignal("Visible"):Connect(function()
-	if shopWindow.isOpen() then
-		redraw()
+onOpened(upgradesWindow, function(state)
+	local step = Onboarding.stepFor(state)
+	if step == 5 then
+		upgradesHud.focus("expansions")
+	elseif step == 3 then
+		upgradesHud.focus("upgrades")
 	end
-end)
-roadmapWindow.frame:GetPropertyChangedSignal("Visible"):Connect(function()
-	if roadmapWindow.isOpen() then
-		Onboarding.markRoadmapOpened() -- ilk adımlar: 4. adım biter
-		redraw()
-	end
-end)
-upgradesWindow.frame:GetPropertyChangedSignal("Visible"):Connect(function()
-	if upgradesWindow.isOpen() then
-		local state = ClientState.get()
-		if state then
-			local step = Onboarding.stepFor(state)
-			if step == 5 then
-				upgradesHud.focus("expansions")
-			elseif step == 3 then
-				upgradesHud.focus("upgrades")
-			end
-		end
-		redraw()
-	end
+	upgradesHud.update(state, true)
+	upgradesDirty = false
 end)
 PurchaseController.Changed:Connect(redraw)
 IslandContext.Changed:Connect(redraw)

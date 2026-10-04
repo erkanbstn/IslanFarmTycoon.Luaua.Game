@@ -18,6 +18,7 @@ local PlayerDataService = require(script.Parent:WaitForChild("PlayerDataService"
 local RequestGuard = require(script.Parent:WaitForChild("RequestGuard"))
 local PlotService = require(script.Parent:WaitForChild("PlotService"))
 local EconomyService = require(script.Parent:WaitForChild("EconomyService"))
+local SeasonService = require(script.Parent:WaitForChild("SeasonService"))
 local RateLimiter = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("RateLimiter"))
 local Metrics = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("Metrics"))
 local ModelAssets = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("ModelAssets"))
@@ -131,6 +132,11 @@ end
 
 -- Yalnız değişen slotu giydir; diğer eşyaların parçaları/kaynakları yerinde kalır.
 function InventoryService.applyVisuals(player: Player)
+	local movementData = PlayerDataService.tryGet(player)
+	player:SetAttribute(
+		"MovementSpeedMultiplier",
+		if movementData then FarmMath.getMovementSpeedMultiplier(movementData) else 1
+	)
 	local character = player.Character
 	if not character then
 		return
@@ -329,8 +335,7 @@ function InventoryService.tryUse(player: Player, itemId: unknown, argument: unkn
 		return false, reason
 	end
 	local power = item.power :: Config.ItemPower
-	-- Asa yalnızca bu oyuncunun ortamını değiştirir (dünya mevsimi/havası herkes için aynı kalır): kayıtta çalışma anı
-	-- geçersiz kılması tutulur; gelir ve görseller Environment üzerinden bunu uygular.
+	-- Mevsim kişisel kalır; hava asası bütün sunucunun doğal hava zamanlayıcısını yeniler.
 	local current = data.envOverride
 	local currentSeason = Environment.getSeason(current)
 	local message: string
@@ -356,21 +361,10 @@ function InventoryService.tryUse(player: Player, itemId: unknown, argument: unkn
 		if not weather then
 			return false, "Bilinmeyen hava"
 		end
-		-- Yalnızca oyuncunun mevsiminde görülebilen hava türleri seçilebilir (kışın yağmur, yazın kar gibi tuhaflıklar olmasın)
-		if not currentSeason.weather[argument] then
-			return false, "Bu hava bu mevsimde seçilemez"
+		local changed, errorMessage = SeasonService.setPlayerWeather(argument)
+		if not changed then
+			return false, errorMessage
 		end
-		if Environment.getWeather(current).id == argument then
-			return false, "Hava zaten böyle"
-		end
-		EconomyService.settlePlayer(player)
-		local seasonPart = if current and current.seasonEndsAt and now < current.seasonEndsAt then current else nil
-		data.envOverride = {
-			seasonId = if seasonPart then seasonPart.seasonId else nil,
-			seasonEndsAt = if seasonPart then seasonPart.seasonEndsAt else nil,
-			weatherId = argument,
-			weatherEndsAt = now + Config.WEATHER_SECONDS_MAX,
-		}
 		message = `Hava değişti: {weather.displayName}`
 	end
 	Inventory.recordUse(data, itemId, now)

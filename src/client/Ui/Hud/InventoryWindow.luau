@@ -42,8 +42,8 @@ function InventoryWindow.create(screenGui: Instance): Panel
 		title = "Envanter",
 		icon = "🎒",
 		tint = Color.Orange,
-		width = 380,
-		maxHeight = 480,
+		width = 600,
+		maxHeight = 560,
 		anchor = Vector2.new(0.5, 0.5),
 		position = UDim2.fromScale(0.5, 0.5),
 	})
@@ -74,7 +74,7 @@ function InventoryWindow.create(screenGui: Instance): Panel
 			page.Visible = pageId == id
 		end
 	end
-	UiKit.tabs(window.list, GOODS_ORDER, {
+	local _, _, setPageBadge = UiKit.tabs(window.list, GOODS_ORDER, {
 		{ id = "goods", label = "Ahır Deposu" },
 		{ id = "equipped", label = "Takılı" },
 		{ id = "owned", label = "Eşyalarım" },
@@ -99,10 +99,10 @@ function InventoryWindow.create(screenGui: Instance): Panel
 		local row = Instance.new("Frame")
 		row.Name = "SellRow"
 		row.BackgroundTransparency = 1
-		row.Size = UDim2.new(1, 0, 0, 30)
+		row.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
 		row.LayoutOrder = 5
 		row.Parent = card.frame
-		UiKit.list(row, 4, true)
+		local sellLayout = UiKit.list(row, 4, true)
 		local halfButton = UiKit.button(row, "", "secondary")
 		halfButton.Size = UDim2.new(0.5, -2, 1, 0)
 		halfButton.TextSize = UiKit.TextSize.Caption
@@ -113,6 +113,29 @@ function InventoryWindow.create(screenGui: Instance): Panel
 		allButton.TextSize = UiKit.TextSize.Caption
 		allButton.LayoutOrder = 2
 		allButtons[goodId] = allButton
+		-- Dar kartta fiyatlı iki düğme yan yana sıkışmasın; dokunma alanları korunur.
+		local stacked: boolean? = nil
+		local function resizeSellRow()
+			local nextStacked = row.AbsoluteSize.X < 240
+			if nextStacked == stacked then
+				return
+			end
+			stacked = nextStacked
+			sellLayout.FillDirection = if nextStacked
+				then Enum.FillDirection.Vertical
+				else Enum.FillDirection.Horizontal
+			row.Size = UDim2.new(1, 0, 0, if nextStacked then UiKit.TouchTarget * 2 + 4 else UiKit.TouchTarget)
+			local size = if nextStacked
+				then UDim2.new(1, 0, 0, UiKit.TouchTarget)
+				else UDim2.new(0.5, -2, 0, UiKit.TouchTarget)
+			halfButton.Size = size
+			allButton.Size = size
+		end
+		local sellSizeConnection = row:GetPropertyChangedSignal("AbsoluteSize"):Connect(resizeSellRow)
+		row.Destroying:Connect(function()
+			sellSizeConnection:Disconnect()
+		end)
+		resizeSellRow()
 		halfButton.Activated:Connect(function()
 			if halfButton.Active then
 				PurchaseController.submit("RequestSellGoods", goodId, "half")
@@ -258,7 +281,8 @@ function InventoryWindow.create(screenGui: Instance): Panel
 			end
 			return options, Environment.getSeason().id
 		end
-		local pool = Environment.getSeason().weather
+		-- Hava asası sunucu mevsimine göre seçilir; kişisel mevsim asası havuzu değiştirmez.
+		local pool = Environment.getSeason({}).weather
 		for _, weatherId in WEATHER_ORDER do
 			if pool[weatherId] and Config.WEATHER[weatherId] then
 				table.insert(options, { id = weatherId, label = Config.WEATHER[weatherId].displayName })
@@ -280,6 +304,7 @@ function InventoryWindow.create(screenGui: Instance): Panel
 		-- Ahır deposu
 		local cap = FarmMath.getGoodsCap(state)
 		local fullGoods = FarmMath.getFullGoods(state)
+		setPageBadge("goods", #fullGoods)
 		for goodId, card in goodsCards do
 			local amount = FarmMath.getGoodsAmount(state, goodId)
 			card.frame.Visible = amount > 0

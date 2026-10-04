@@ -157,7 +157,7 @@ function Grid.tabs(
 	order: number,
 	entries: { { id: string, label: string } },
 	onSelect: (id: string) -> ()
-): (Frame, (id: string) -> ())
+): (Frame, (id: string) -> (), (id: string, count: number) -> ())
 	local row = Instance.new("Frame")
 	row.BackgroundTransparency = 1
 	row.Size = UDim2.new(1, 0, 0, 0)
@@ -169,7 +169,13 @@ function Grid.tabs(
 	layout.VerticalAlignment = Enum.VerticalAlignment.Top
 
 	local buttons: { [string]: TextButton } = {}
+	local badges: { [string]: (number) -> () } = {}
+	local selectedId: string? = nil
 	local function choose(id: string)
+		if not buttons[id] or selectedId == id then
+			return
+		end
+		selectedId = id
 		for buttonId, button in buttons do
 			local active = buttonId == id
 			button.BackgroundColor3 = if active then Tokens.Color.Teal else Tokens.Color.SurfaceRaised
@@ -190,7 +196,11 @@ function Grid.tabs(
 		Base.corner(button, Tokens.Radius.Button)
 		Base.padding(button, 14, 0)
 		buttons[entry.id] = button
+		badges[entry.id] = Controls.badge(button, true)
 		button.Activated:Connect(function()
+			if selectedId == entry.id then
+				return
+			end
 			choose(entry.id)
 			onSelect(entry.id)
 		end)
@@ -198,7 +208,19 @@ function Grid.tabs(
 	if entries[1] then
 		choose(entries[1].id)
 	end
-	return row, choose
+	return row,
+		choose,
+		function(id: string, count: number)
+			local button = buttons[id]
+			if not button then
+				return
+			end
+			badges[id](count)
+			local padding = button:FindFirstChildOfClass("UIPadding")
+			if padding then
+				(padding :: UIPadding).PaddingRight = UDim.new(0, if count > 0 then 34 else 14)
+			end
+		end
 end
 
 return Grid

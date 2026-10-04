@@ -249,7 +249,12 @@ local function trackReady(instance: Instance)
 	local uid = instance:GetAttribute("Uid")
 	if uid ~= nil then
 		for other, otherState in states do
-			if other ~= instance and other:GetAttribute("Uid") == uid then
+			if
+				other ~= instance
+				and other:GetAttribute("Uid") == uid
+				and otherState.area == area
+				and otherState.halfSize == size / 2
+			then
 				position, yaw = otherState.position, otherState.yaw
 				break
 			end

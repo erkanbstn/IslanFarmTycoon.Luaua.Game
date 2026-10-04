@@ -1,6 +1,6 @@
 --!strict
 return function(factory: any, config: any, codec: any, farmMath: any, createOnboarding: any, steps: any)
-	local objects, grids = {}, {}
+	local objects, grids, tiles = {}, {}, {}
 	local function signal(): any
 		local callbacks = {}
 		return {
@@ -55,7 +55,9 @@ return function(factory: any, config: any, codec: any, farmMath: any, createOnbo
 		return grid
 	end
 	ui.autoTile = function(parent: any): any
-		return { frame = node("Frame", parent), title = node(), detail = node(), action = node() }
+		local tile = { frame = node("Frame", parent), title = node(), detail = node(), action = node() }
+		table.insert(tiles, tile)
+		return tile
 	end
 	ui.disclosure = function(parent: any): any
 		return { frame = node("Frame", parent), body = node(), setExpanded = function() end }
@@ -128,33 +130,47 @@ return function(factory: any, config: any, codec: any, farmMath: any, createOnbo
 			return "primary"
 		end,
 	}
-	local roadmap = factory(
-		gameMock,
-		ui,
-		{ new = node },
-		dims,
-		vectors,
-		common,
-		{ add = function() end, update = function() end },
-		{
-			get = function()
-				return island
-			end,
-			name = function()
-				return island
-			end,
-			upgradeIsland = config.getUpgradeIsland,
-		},
-		{ submit = function() end },
-		{
-			get = function()
-				return { FireServer = function() end }
-			end,
-		}
-	).create(node(), {})
+	local roadmap = factory(gameMock, ui, { new = node }, dims, vectors, common, {
+		add = function()
+			return {
+				get = function()
+					return island
+				end,
+				name = function()
+					return island
+				end,
+				update = function() end,
+			}
+		end,
+	}, {
+		get = function()
+			return island
+		end,
+		name = function()
+			return island
+		end,
+		upgradeIsland = config.getUpgradeIsland,
+	}, { submit = function() end }, {
+		get = function()
+			return { FireServer = function() end }
+		end,
+	}).create(node(), {})
 	local save = assert(codec.decode(nil, config, farmMath, 1700000000, function()
 		return "qa"
 	end))
+	for _, upgrade in config.UPGRADES do
+		if upgrade.optionalForCompletion then
+			local rendered = false
+			for _, tile in tiles do
+				if tile.title.Text == upgrade.displayName then
+					rendered = true
+					assert(tile.action.Activated, "optional garden retains roadmap purchase action")
+				end
+			end
+			assert(rendered, "optional garden is rendered in actual roadmap factory")
+		end
+	end
+
 	roadmap.update(save, true)
 	local function visibleCount(): number
 		local count = 0

@@ -24,6 +24,9 @@ function ItemText.describe(item: Config.ItemConfig): string
 	local parts: { string } = {}
 	local effects = item.effects
 	if effects then
+		if effects.movementSpeed then
+			table.insert(parts, percent("Yürüme ve koşma hızı", effects.movementSpeed))
+		end
 		if effects.upgradeDiscount then
 			table.insert(parts, percent("Yükseltme maliyeti", -effects.upgradeDiscount))
 		end
@@ -83,6 +86,7 @@ function ItemText.describe(item: Config.ItemConfig): string
 					then `Günde {power.usesPerDay} kez hava değiştir`
 					else "Sınırsız hava değiştir"
 			)
+			table.insert(parts, "Sunucudaki herkes etkilenir; normal hava süresi sonunda doğal döngü sürer.")
 		end
 	end
 	if #parts == 0 then

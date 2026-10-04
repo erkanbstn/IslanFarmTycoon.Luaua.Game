@@ -344,6 +344,41 @@ return function(createService: any, createLimiter: any, rules: any, codec: any, 
 		assert(animal.task == nil, "the animals are back after collecting")
 	end
 	assert(not fire("keep", "milk_goods", goodsJob.uid).ok, "goods batches cannot become animals")
+	-- Parti hazırlanırken başka çiftlik/yardımcı depoyu doldurabilir; ürün ve taşan nakit bir kez teslim edilir.
+	for _, freeSlots in { 0, 1 } do
+		reset()
+		assert(fire("start", "milk_goods", nil).ok, "goods start before shared storage fills")
+		local pendingGoods = data.production.milk_goods
+		now = pendingGoods.readyAt + 1
+		local cap = farmMath.getGoodsCap(data)
+		farmMath.addGoods(data, "milk", cap - freeSlots)
+		local yield = farmMath.getGoodsYield(data, milk, now, pendingGoods)
+		local walletBefore = data.cash
+		local reply = fire("sell", "milk_goods", pendingGoods.uid)
+		local compensation = farmMath.getGoodsCompensation(data, milk, pendingGoods, now, yield)
+		assert(reply.ok and farmMath.getGoodsAmount(data, "milk") == cap, "claim preserves all available storage")
+		assert(
+			data.cash == walletBefore + farmMath.getGoodsSellValue("milk", yield - freeSlots) + compensation,
+			"only overflow and floor compensation pay cash"
+		)
+		if freeSlots == 0 then
+			assert(
+				string.find(reply.message, "Depo dolu", 1, true) ~= nil
+					and string.find(reply.message, "Ahıra eklendi", 1, true) == nil,
+				"zero goods claim explains cash conversion instead of claiming inventory was added"
+			)
+		else
+			assert(
+				string.find(reply.message, "Depoya sığmayan", 1, true) ~= nil,
+				"partial delivery explicitly explains the converted overflow"
+			)
+		end
+		local walletAfter = data.cash
+		assert(
+			not fire("sell", "milk_goods", pendingGoods.uid).ok and data.cash == walletAfter,
+			"full or partial delivery cannot pay overflow twice"
+		)
+	end
 	-- Dolu depo yeni partiyi engeller
 	farmMath.addGoods(data, "milk", farmMath.getGoodsCap(data))
 	local fullBlocked = fire("start", "milk_goods", nil)
@@ -357,17 +392,34 @@ return function(createService: any, createLimiter: any, rules: any, codec: any, 
 		"no pet, no auto repeat"
 	)
 	data.purchased.pet_cash_lv1 = true
+	assert(not fire("auto", "packed_milk", "fill").ok, "storage filling mode cannot select a cash recipe")
 	assert(not fire("auto", "packed_milk", "huge").ok, "an unknown batch cannot be repeated")
 	assert(not fire("auto", "hatchery", "default").ok, "the hatchery cannot be repeated (chicks are chosen by hand)")
 	assert(fire("auto", "packed_milk", "small").ok and data.autoRepeat.packed_milk == "small", "the repeat turns on")
 	assert(fire("start", "packed_milk", "medium").ok, "a manual start while repeating")
 	assert(data.autoRepeat.packed_milk == "medium", "the latest manual choice becomes the repeated batch")
 	assert(fire("auto", "packed_milk", "off").ok and data.autoRepeat.packed_milk == nil, "the repeat turns off")
+	data.purchased[config.PRODUCTION_RECIPES.milk_goods.upgradeId] = nil
+	assert(not fire("auto", "milk_goods", nil).ok, "auto repeat requires its production building")
+	data.purchased[config.PRODUCTION_RECIPES.milk_goods.upgradeId] = true
+	data.unlockedIslands.home = nil
+	assert(not fire("auto", "milk_goods", nil).ok, "auto repeat requires its island")
+	data.unlockedIslands.home = true
 	data.purchased.pet_goods_lv1 = true
 	assert(
 		fire("auto", "milk_goods", nil).ok and data.autoRepeat.milk_goods == "default",
 		"goods repeat without a batch size"
 	)
+	assert(
+		fire("auto", "milk_goods", "fill").ok and data.autoRepeat.milk_goods == "fill",
+		"goods helper can explicitly fill shared storage"
+	)
+	assert(not fire("start", "milk_goods", nil).ok, "storage policy does not bypass animals busy in cash factory")
+	local busyCashJob = data.production.packed_milk
+	now = busyCashJob.readyAt + 1
+	assert(fire("sell", "packed_milk", busyCashJob.uid).ok, "claiming cash batch releases the shared cows")
+	assert(fire("start", "milk_goods", nil).ok, "manual batch starts while filling storage")
+	assert(data.autoRepeat.milk_goods == "fill", "manual start preserves the goods storage policy")
 	-- Para tesisi seçenekleri: ücretsiz, her parti kendi hayvan sayısını ister ve seçilen partinin ödülünü verir
 	reset()
 	local milkRecipe = config.PRODUCTION_RECIPES.packed_milk

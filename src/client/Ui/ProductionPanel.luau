@@ -16,9 +16,12 @@ local IslandContext = require(script.Parent.Parent:WaitForChild("Core"):WaitForC
 local IslandManager = require(script.Parent:WaitForChild("IslandManager"))
 local IslandTabs = require(script.Parent:WaitForChild("Hud"):WaitForChild("IslandTabs"))
 local HudCommon = require(script.Parent:WaitForChild("Hud"):WaitForChild("HudCommon"))
+local ProductionAutomation = require(script.Parent:WaitForChild("Hud"):WaitForChild("ProductionAutomation"))
+local ActionBadges = require(script.Parent:WaitForChild("Hud"):WaitForChild("ActionBadges"))
 local player = Players.LocalPlayer
 local ProductionPanel = {}
 local window: UiKit.Window? = nil
+local islandTabs: IslandTabs.Context? = nil
 local screen: Instance? = nil
 local render: (() -> ())? = nil
 local sequence = 0
@@ -29,6 +32,8 @@ local success = true
 local focused: string? = nil
 -- Bir binanın "Üretim" promptundan açıldıysa yalnızca o binanın tarifleri gösterilir (menüden açılınca hepsi)
 local focusedUpgrade: string? = nil
+local lastFarmContext: string? = nil
+local showResult: ((string, string?) -> ())? = nil
 
 local function refresh()
 	if render then
@@ -70,6 +75,10 @@ Remotes.get("ProductionResult").OnClientEvent:Connect(function(id: number, ok: b
 	pending = nil
 	message = result or (if ok then "İşlem tamamlandı." else "İşlem uygulanamadı.")
 	success = ok
+	-- Teslim düğmesi aşağıda olsa da gerçek ürün/nakit sonucu görünür kalsın.
+	if showResult then
+		showResult(message, if ok then "success" else "error")
+	end
 	refresh()
 end)
 
@@ -78,8 +87,8 @@ local function create(parent: Instance): UiKit.Window
 		title = "Üretim",
 		icon = "🏭",
 		tint = UiKit.Color.Orange,
-		width = 350,
-		maxHeight = 450,
+		width = 600,
+		maxHeight = 560,
 		anchor = Vector2.new(0.5, 0.5),
 		position = UDim2.fromScale(0.5, 0.5),
 	})
@@ -114,7 +123,12 @@ local function create(parent: Instance): UiKit.Window
 	local feedback = UiKit.text(created.list, "", "Caption")
 	feedback.LayoutOrder = 2
 	-- Ada sekmeleri (diğer pencerelerle aynı): adaya gitmeden her adanın tesislerine geçilir
-	IslandTabs.add(created)
+	local tabs = IslandTabs.add(created, function()
+		focusedUpgrade = nil
+		focused = nil
+		refresh()
+	end)
+	islandTabs = tabs
 	type Entry = {
 		card: UiKit.Card,
 		keep: TextButton,
@@ -122,6 +136,8 @@ local function create(parent: Instance): UiKit.Window
 		fill: (number, Color3) -> (),
 		options: { TextButton },
 		repeatToggle: TextButton,
+		stockMode: TextButton,
+		automationStatus: TextLabel,
 		details: any,
 		detailsLabel: TextLabel,
 	}
@@ -139,6 +155,12 @@ local function create(parent: Instance): UiKit.Window
 				"Caption"
 			)
 			repeatHelp.LayoutOrder = 6
+			UiKit.text(
+				details.body,
+				"Depoyu doldur seçeneği daha fazla parti üretir; her parti para harcar ve hayvanları meşgul eder. Depoda bir partiye yer kalmayınca bekler.",
+				"Caption"
+			).LayoutOrder =
+				8
 		end
 		local progress, fill = UiKit.progressBar(card.frame, 5)
 		progress.LayoutOrder = 3
@@ -167,11 +189,13 @@ local function create(parent: Instance): UiKit.Window
 			end)
 		end
 		-- Yardımcı (pet) varsa "otomatik tekrar": hazır partiyi yardımcı teslim alır ve aynı seçenekle yenisini başlatır
-		local repeatToggle = UiKit.button(details.body, "Otomatik tekrar", "secondary")
+		local automationStatus = UiKit.text(card.frame, "", "Caption")
+		automationStatus.LayoutOrder = 15
+		local repeatToggle = UiKit.button(card.frame, "Otomatik üretimi aç", "secondary")
 		repeatToggle.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
 		repeatToggle.AutomaticSize = Enum.AutomaticSize.Y
 		repeatToggle.TextSize = UiKit.TextSize.Button
-		repeatToggle.LayoutOrder = 5
+		repeatToggle.LayoutOrder = 16
 		repeatToggle.Visible = false
 		repeatToggle.Activated:Connect(function()
 			local state = ClientState.get()
@@ -186,6 +210,17 @@ local function create(parent: Instance): UiKit.Window
 			end
 			submit("auto", id, if on then "off" else choice)
 		end)
+		local stockMode = UiKit.button(details.body, "Depoyu doldur", "secondary")
+		stockMode.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
+		stockMode.AutomaticSize = Enum.AutomaticSize.Y
+		stockMode.LayoutOrder = 7
+		stockMode.Visible = false
+		stockMode.Activated:Connect(function()
+			local state = ClientState.get()
+			if state and stockMode.Active then
+				submit("auto", id, if state.autoRepeat[id] == "fill" then nil else "fill")
+			end
+		end)
 		entries[id] = {
 			card = card,
 			keep = keep,
@@ -193,6 +228,8 @@ local function create(parent: Instance): UiKit.Window
 			fill = fill,
 			options = optionButtons,
 			repeatToggle = repeatToggle,
+			stockMode = stockMode,
+			automationStatus = automationStatus,
 			details = details,
 			detailsLabel = detailsLabel,
 		}
@@ -240,9 +277,15 @@ local function create(parent: Instance): UiKit.Window
 		if not state then
 			return
 		end
-		local context = `{state.activeMainFarmId}:{IslandContext.get()}:{if state.progression
-			then state.progression.run
-			else 1}:{focusedUpgrade or ""}`
+		local farmContext = `{state.activeMainFarmId}:{if state.progression then state.progression.run else 0}`
+		if lastFarmContext and farmContext ~= lastFarmContext then
+			focusedUpgrade = nil
+			focused = nil
+		end
+		lastFarmContext = farmContext
+		tabs.update(state)
+		local context =
+			`{state.activeMainFarmId}:{tabs.get()}:{if state.progression then state.progression.run else 1}:{focusedUpgrade or ""}`
 		if context ~= lastContext then
 			for _, entry in entries do
 				entry.details.setExpanded(false)
@@ -252,13 +295,13 @@ local function create(parent: Instance): UiKit.Window
 		end
 		feedback.Text = message
 		local focusedBuilding = if focusedUpgrade then Config.getUpgrade(focusedUpgrade) else nil
-		selectedLabel.Text = if focusedBuilding
-			then `{focusedBuilding.displayName} · {IslandContext.name()}`
-			else IslandContext.name()
+		selectedLabel.Text = if focusedBuilding then `{focusedBuilding.displayName} · {tabs.name()}` else tabs.name()
 		showAll.Visible = focusedBuilding ~= nil
 		feedback.Visible = message ~= ""
 		feedback.TextColor3 = if success then UiKit.Color.Green else UiKit.Color.Red
 		local now = Workspace:GetServerTimeNow()
+		local _, readyByIsland = ActionBadges.production(state, now)
+		tabs.setBadges(readyByIsland)
 		local blocked = pending ~= nil
 			or PurchaseController.isPending()
 			or os.clock() < nextSendAt
@@ -269,9 +312,12 @@ local function create(parent: Instance): UiKit.Window
 			local card = entry.card
 			local detailText = ""
 			local recipeUpgrade = Config.getUpgrade(recipe.upgradeId)
-			card.frame.Visible = recipe.island == IslandContext.get()
+			card.frame.Visible = recipe.island == tabs.get()
 				and (recipeUpgrade == nil or FarmMath.isUpgradeInTheme(state, recipeUpgrade))
 				and (focusedUpgrade == nil or recipe.upgradeId == focusedUpgrade)
+			if not card.frame.Visible then
+				continue
+			end
 			card.frame.LayoutOrder = if focused == id then 3 else index + 4
 			entry.keep.Visible = false
 			entry.progress.Visible = false
@@ -280,19 +326,32 @@ local function create(parent: Instance): UiKit.Window
 				button.Visible = false
 			end
 			-- Otomatik tekrar düğmesi: yalnızca kurulu para fabrikası/ürün merkezinde; yardımcı yoksa kapalı
-			local petKind = FarmMath.petKindFor(recipe)
-			local built = petKind ~= nil and state.purchased[recipe.upgradeId] == true
-			entry.repeatToggle.Visible = built
-			if built and petKind then
-				local hasPet = FarmMath.hasPet(state, petKind)
-				local repeating = state.autoRepeat ~= nil and state.autoRepeat[id] ~= nil
-				entry.repeatToggle.Text = if not hasPet
-					then "Otomatik tekrar (yardımcı gerekli)"
-					elseif repeating then "Otomatik tekrar: Açık"
-					else "Otomatik tekrar: Kapalı"
+			local automation = ProductionAutomation.getView(state, recipe, now)
+			entry.repeatToggle.Visible = automation.visible
+			entry.automationStatus.Visible = automation.visible
+			entry.stockMode.Visible = automation.visible and recipe.output == "goods"
+			if entry.stockMode.Visible then
+				local filling = state.autoRepeat[id] == "fill"
+				UiKit.setText(entry.stockMode, if filling then "Sipariş stoğuna geç" else "Depoyu doldur")
+				UiKit.setVariant(
+					entry.stockMode,
+					if automation.enabled and not blocked then "secondary" else "disabled"
+				)
+			end
+			if automation.visible then
+				UiKit.setText(
+					entry.automationStatus,
+					if automation.repeating and recipe.output == "goods"
+						then `{if state.autoRepeat[id] == "fill" then "Depoyu doldur" else "Sipariş stoğu"}\n{automation.status}`
+						else automation.status
+				)
+				UiKit.setText(entry.repeatToggle, automation.action)
 				UiKit.setVariant(
 					entry.repeatToggle,
-					if not hasPet or blocked then "disabled" elseif repeating then "primary" else "secondary"
+					if not automation.enabled or blocked
+						then "disabled"
+						elseif automation.repeating then "primary"
+						else "secondary"
 				)
 			end
 			local variant: UiKit.Variant = "primary"
@@ -437,16 +496,22 @@ local function create(parent: Instance): UiKit.Window
 end
 
 function ProductionPanel.open(parent: Instance, recipeId: string?)
+	local state = ClientState.get()
+	if state then
+		lastFarmContext = `{state.activeMainFarmId}:{if state.progression then state.progression.run else 0}`
+	end
 	screen = parent
 	focused = recipeId
 	local recipe = recipeId and Config.PRODUCTION_RECIPES[recipeId]
 	focusedUpgrade = if recipe then recipe.upgradeId else nil
-	if recipe and recipe.island ~= IslandContext.get() then
-		-- Tesise yürüyerek gelindiğinde yönetim bağlamını değiştir; oyuncuyu geri ışınlama.
-		Remotes.get("RequestTravelIsland"):FireServer(recipe.island, true)
-	end
 	if not window then
 		window = create(parent)
+	end
+	if recipe and islandTabs then
+		-- Dünya etkileşimi yalnızca bu pencereyi ilgili tesise odaklar.
+		islandTabs.set(recipe.island)
+		focused = recipeId
+		focusedUpgrade = recipe.upgradeId
 	end
 	local current = window :: UiKit.Window
 	current.open()
@@ -454,11 +519,15 @@ function ProductionPanel.open(parent: Instance, recipeId: string?)
 	refresh()
 end
 
--- Menü düğmesi/kısayol: açıksa kapatır
+-- Masaüstünde menü pencereyi varsayılan konuma getirir; dar ekranda aç/kapa yapar.
 function ProductionPanel.toggle(parent: Instance)
+	-- Menü rozeti bütün tesisleri sayar; eski dünya promptunun filtresi hazır işi saklamasın.
+	focusedUpgrade = nil
+	focused = nil
 	local current = window
-	if current and current.isOpen() then
-		current.close()
+	if current then
+		UiKit.toggleWindow(current)
+		refresh()
 		return
 	end
 	ProductionPanel.open(parent)
@@ -466,6 +535,13 @@ end
 
 function ProductionPanel.bind(parent: Instance)
 	screen = parent
+	showResult = UiKit.toastHost(parent)
+end
+
+function ProductionPanel.openFocused(recipeId: string)
+	if screen and Config.PRODUCTION_RECIPES[recipeId] then
+		ProductionPanel.open(screen, recipeId)
+	end
 end
 
 ProximityPromptService.PromptTriggered:Connect(function(prompt: ProximityPrompt, who: Player?)

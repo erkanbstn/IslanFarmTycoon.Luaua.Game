@@ -19,9 +19,9 @@ function Environment.seasonIndexAt(time: number): number
 	return math.floor(time / Config.SEASON_SECONDS) % #Config.SEASONS + 1
 end
 
--- Oyuncuya özel ortam katmanı: mevsim/hava asası kullanan oyuncunun kaydında `envOverride` tutulur (çalışma anı, kaydedilmez).
--- Dünyanın mevsimi ve havası herkes için aynıdır; bu katman yalnızca asayı kullanan oyuncunun gelir hesabını ve ekranını değiştirir.
--- Sunucu, oyuncunun kaydını açıkça verir; client'ta argümansız çağrılar kendi geçersiz kılmasını (setClientOverride) kullanır.
+-- Mevsim asası oyuncuya özel çalışma anı katmanı kullanır (kaydedilmez).
+-- Hava asası SeasonService üzerinden sunucu havasını değiştirir; aktifken kişisel katmanı da aşar.
+-- Sunucu kaydı açıkça verir; istemcide argümansız çağrılar setClientOverride kullanır.
 export type Override = { seasonId: string?, seasonEndsAt: number?, weatherId: string?, weatherEndsAt: number? }
 
 local WEATHER_WINDOW_SECONDS = 240 -- Mevsim geçersiz kılınınca hava bu pencerelerle (oyuncuya özel, kararlı) seçilir
@@ -81,13 +81,14 @@ function Environment.getSeason(override: Override?): Config.SeasonConfig
 end
 
 function Environment.getWeather(override: Override?): Config.WeatherConfig
-	local active = override or clientOverride
-	if active and active.weatherId and active.weatherEndsAt and serverNow() < active.weatherEndsAt then
-		local weather = Config.WEATHER[active.weatherId]
-		if weather then
-			return weather
+	if ReplicatedStorage:GetAttribute("WandWeatherActive") == true then
+		local id = ReplicatedStorage:GetAttribute(WEATHER_ATTR)
+		local sharedWeather = if typeof(id) == "string" then Config.WEATHER[id] else nil
+		if sharedWeather then
+			return sharedWeather
 		end
 	end
+	local active = override or clientOverride
 	local overriddenSeason = activeSeasonOverride(active)
 	if overriddenSeason then
 		return pickWeatherFor(overriddenSeason, serverNow())
@@ -284,7 +285,7 @@ end
 
 -- Değişiklikleri dinlemek için (client görselleri, arayüz)
 function Environment.onChanged(callback: () -> ())
-	for _, attr in { SEASON_ATTR, WEATHER_ATTR } do
+	for _, attr in { SEASON_ATTR, WEATHER_ATTR, "WandWeatherActive" } do
 		ReplicatedStorage:GetAttributeChangedSignal(attr):Connect(callback)
 	end
 	table.insert(overrideListeners, callback)

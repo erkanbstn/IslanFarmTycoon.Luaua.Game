@@ -105,7 +105,7 @@ export type PlayerSave = {
 	mainFarms: { [string]: any }, -- sunucuda tam kayıt; istemci yükünde yalnızca hafif görünüm (barnLevel/purchased/unlockedIslands)
 	mainFarmSummaries: { MainFarmSummary }?,
 	production: { [string]: ProductionJob },
-	autoRepeat: { [string]: string }, -- yardımcı ile otomatik tekrar: tarif kimliği -> parti kimliği ("default" = seçeneksiz)
+	autoRepeat: { [string]: string }, -- tarif -> parti; "default" sipariş stoğu, "fill" ürün deposunu doldurur
 	cash: number,
 	stored: number, -- Depoda biriken, henüz toplanmamış para
 	purchased: { [string]: boolean }, -- Yol haritasından alınanlar (Config.UPGRADES id'leri)

@@ -445,5 +445,40 @@ return function(context: any?)
 		assert(surface and surface.Transparency == 0, `Hub_Banner/{name}: model yüzeyi görünür olmalı.`)
 	end
 
-	print("PASS map structure: themes, signs, vendors and prompts")
+	-- Yeni bahçelerin yürüyüş düzlemi açık kalmalı: hayvanlar çit/yuva içinde doğmamalı.
+	local assets = game:GetService("ServerStorage"):WaitForChild("Assets")
+	local gardenCount = 0
+	for id, extension in Config.EXTENSIONS do
+		local upgrade = assert(Config.getExtensionUpgrade(id))
+		if not upgrade.optionalForCompletion then
+			continue
+		end
+		gardenCount += 1
+		local garden = assets.Extensions:FindFirstChild(id) :: Model?
+		assert(garden and garden:IsA("Model"), `{id}: bahçe modeli eksik.`)
+		local pad = garden:FindFirstChild("GardenPad") :: BasePart?
+		assert(pad and not pad.CanCollide, `{id}: kaplama yürüyüş zeminini değiştirmemeli.`)
+		assert(math.abs(pad.Position.Y + pad.Size.Y / 2 - 0.08) < 0.001, `{id}: kaplama ada yüzeyinde kalmalı.`)
+		assert(extension.capacity == 2, `{id}: başlangıç kapasitesi iki hayvan olmalı.`)
+		for _, model in
+			{
+				garden,
+				assets.ExtensionCapacity:FindFirstChild(`CapacityProps_{id}_Cap3`) :: Model,
+				assets.ExtensionCapacity:FindFirstChild(`CapacityProps_{id}_Cap4`) :: Model,
+			}
+		do
+			assert(model and model:IsA("Model"), `{id}: kapasite modeli eksik.`)
+			for _, part in model:GetDescendants() do
+				if not part:IsA("BasePart") or part.Name == "GardenPad" then
+					continue
+				end
+				-- 18x28 hareket alanı: x=-29 +/-9, z=+/-14. Süsler bütünüyle dışında.
+				local overlapsX = math.abs(part.Position.X + 29) - part.Size.X / 2 < 9
+				local overlapsZ = math.abs(part.Position.Z) - part.Size.Z / 2 < 14
+				assert(not (overlapsX and overlapsZ), `{id}/{part.Name}: hayvan hareket alanında engel var.`)
+			end
+		end
+	end
+	assert(gardenCount == 13, "On üç uzman adanın yeni bahçe modelleri doğrulanmalı.")
+	print("PASS map structure: themes, signs, vendors, prompts and garden motion clearances")
 end

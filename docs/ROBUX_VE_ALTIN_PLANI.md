@@ -1,6 +1,6 @@
 # Altın, Robux marketi ve rebirth seviyeleri planı
 
-Durum: **altın, kalıcı sahiplik ve ürün ödülleri uygulandı**; Creator Hub kimlikleri/fiyatları olmadığı için Robux satışları kapalıdır. Güncel teslim: [DEVIR_DURUMU.md](DEVIR_DURUMU.md), 4 Ekim 2026.
+Durum: **altın, kalıcı sahiplik ve ürün ödülleri uygulandı**; 4 Ekim 2026'da 34 Developer Product ve üç geçit kimliği bağlandı (Kalıcı Altın Kanatlar ve Rüzgar Muskası dahil). Gerçek satın alma/reconnect kabul testi ve yayın ayrı adımdır. Güncel teslim: [DEVIR_DURUMU.md](DEVIR_DURUMU.md).
 
 
 ## Güncel satış ve ekonomi sözleşmesi
@@ -9,12 +9,14 @@ Durum: **altın, kalıcı sahiplik ve ürün ödülleri uygulandı**; Creator Hu
 - Altın kalıcıdır. Nakit çevirme günlük UTC 200, tur başına 600 ile sınırlıdır; rebirth bugünkü kotayı yenilemez. Bir altın 30 saniyelik kalıcı referans gelir eder. Referans, sahip olunan çiftliklerin en yüksek nötr yetişkin potansiyelidir; geçici Return/tur 2x, görev kaybı ve hava dahil değildir. Önizleme değişirse işlem reddedilir.
 - Yalnızca hayvan büyümesi ve eklenti bekleme süreleri altınla bitirilebilir; üretim partileri altın veya Robux ile bitirilemez. Sunucu güncel kalan süreyi, hayvan/iş kimliğini ve önizleme bedelini doğrular; eski işe ait istek yeni işi bitiremez.
 - Kalıcı satış teklifleri 21 ekipman ve üç kolaylıktır. Tek kaynak `Config/Progression.permanentOffers` tablosudur. Nakit edinim tur içidir, altın/Robux kalıcıdır. Beş rebirth ekipmanı ücretsiz kazanılır, satın alınamaz. Her yuvada tek ekipman takılır; tüm avantajlar üst üste toplanmaz. Yeni mesh üretilmedi.
-- Robux kataloğu: 50/100/500/1500/3000 altın, üç nakit paketi, tur 2x, kalıcı teklifler ve tek kullanımlık genç hayvanları büyüt. Nakit paketi kalıcı referans gelirle hesaplanır. Kimlikler 0 olduğundan satış kapalıdır; platform fiyatı uydurulmaz. Altın satın almak çevirme kotalarını artırmaz.
+- Robux kataloğu: 50/100/500/1500/3000 altın, üç nakit paketi, tur 2x, kalıcı teklifler ve tek kullanımlık genç hayvanları büyüt. Nakit paketi kalıcı referans gelirle hesaplanır. Temel kimlikler Config/Shop, kalıcı ekipman kimlikleri Config/Progression.permanentOffers içindedir. Kimlik 0 satış kapalı demektir; kalıcı auto_collect ürünü aynı faydayı veren geçidi tekrar satmamak için kapalıdır (altın yolu açıktır). Robux fiyatı Roblox satın alma ekranından gelir; oyun kartları rakamı sabitlemez. Altın satın almak çevirme kotalarını artırmaz.
 - Mevcut 2x geçidi ile tur 2x üst üste 4x olmaz. Takılı eşya × rebirth gelirinin sert tavanı 3'tür; tur/geçit 2x bunun dışındadır. UI gelir etkisinin tavan sonrası ek kazancını gösterir.
 - Makbuz etkisi ve satın alma kimliği aynı kalıcı snapshot içindedir. Kayıt doğrulanmadan `PurchaseGranted` verilmez. Aynı makbuz tekrar ödül vermez. Ayrı ödeme nedeniyle ikinci kalıcı eşya teslimi altın eşdeğerini verir; cüzdan tavanında teslim ertelenir. R30 öncesi aktif 2x üzerine gelen 2x sonraki tur kredisidir; terminal krediler ve geç gelen ayrı 2x ödemeleri adet başına 200 altın olur. Hızlı büyütme tesliminde genç hayvan kalmamışsa 50 altın karşılık verilir. Dolu cüzdan hakları yok etmez.
 - Rebirth, kalıcı asanın bugünkü kullanımını ve finansal günlükleri korur. Geçmiş kayıtlar opsiyonel alanların güvenli varsayılanıyla yüklenir; sürüm artırıp kullanıcı verisi silme uygulanmadı.
 - Ek tılsım yuvası ve aura gibi gelecekteki fikirleri uygulanmış özellik sayma. Gezgin tüccar artık meydanda indirimli tur ekipmanları sunar; mevcut özelliklerin tek kaynağı Config ve ilgili servistir. Mevcut tüccar ve model sözleşmesi korunur. İlk sürüm mevcut ekipmana işlevsel kalıcı satın alma yolları verir.
 
 ## Creator Hub açılış adımları
+
+4 Ekim 2026 ek içerik: Kalıcı Rüzgar Muskası (`permanent_wind_charm`) 450 altın; Robux kimliği 3716422184 ile bağlı, Creator Hub fiyatı 149 Robux. Tur içi eşya 550.000 nakit. Takılıyken +%15 yürüyüş/koşu ve +3 puan çevrimdışı gelir sağlar, ürün verimi %3 azalır. Aynı muska yuvasındaki diğer ekonomik eşyanın yerini alır; toplam ekipman hız bonusu %25'i aşmaz. Yeni mesh kullanılmadı; Roblox metadata adı/fiyatı ve satış durumu doğrulandı. Üç geçit ve önceki 33 bağlı ürünün kimlikleri korundu; bu ürünle 34 bağlı Developer Product vardır.
 
 Ürünleri oluştur, kimlikleri doğru teklif anahtarlarına bağla, Robux fiyatlarını platformda belirle; ardından özel test ortamında gerçek makbuz/reconnect ve aynı ürün tekrar teslimini doğrula. Kimlik 0 olan ürün satışa sunulmaz. Canlı yayın ve yönetici sıfırlaması bu geliştirme sırasında yapılmaz.
