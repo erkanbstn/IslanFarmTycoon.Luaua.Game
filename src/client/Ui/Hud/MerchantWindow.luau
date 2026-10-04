@@ -53,7 +53,8 @@ function MerchantWindow.create(parent: Instance): { window: UiKit.Window, update
 		end
 		local card = UiKit.autoTile(grid, index, item.icon, { compact = true })
 		card.frame.Visible = false
-		UiKit.setText(card.title, item.displayName)
+		card.frame.LayoutOrder = (item.level or 1) * 1000 + index
+		UiKit.setText(card.title, `{item.displayName} · Sv.{item.level or 1}`)
 		local details = UiKit.disclosure(card.frame, 6, "Ayrıntılar")
 		UiKit.text(details.body, `{ItemText.slotNotice(item)}\n{ItemText.additional(item)}`, "Caption")
 		local entry = { card = card, details = details, quote = nil :: Merchant.Offer? }
@@ -126,7 +127,7 @@ function MerchantWindow.create(parent: Instance): { window: UiKit.Window, update
 				)
 			end
 		end
-		travel.Visible = status.visit ~= nil and not status.bought
+		travel.Visible = status.visit ~= nil and not status.bought and #status.offers > 0
 		local left = if status.visit then math.max(0, math.ceil(status.visit.endsAt - now)) else 0
 		UiKit.setText(
 			summary,
@@ -135,7 +136,7 @@ function MerchantWindow.create(parent: Instance): { window: UiKit.Window, update
 				elseif status.bought then "Bu ziyarette eşyanı aldın. Yeni teklifler bir sonraki ziyarette."
 				elseif
 					#status.offers == 0
-				then "Bu ziyaretin eşyalarına zaten sahipsin. Yeni teklifler bir sonraki ziyarette."
+				then "Bu tur tüccarın satabileceği tüm eşyalara sahipsin. Rebirth sonrası yeni tur eşyalarını burada indirimli alabilirsin."
 				else `Ziyaretin bitmesine {string.format("%d:%02d", left // 60, left % 60)} kaldı. Satın almak için meydandaki tüccara yaklaş.`
 		)
 	end

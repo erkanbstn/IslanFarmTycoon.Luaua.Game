@@ -158,6 +158,7 @@ export type ItemEffects = {
 }
 export type ItemPower = { kind: string, usesPerDay: number? } -- kind: season | weather; usesPerDay nil = sınırsız
 export type ItemConfig = {
+	level: number?, -- Katalog güç kademesi; satın alma veya rebirth şartı değildir.
 	id: string,
 	displayName: string,
 	icon: string,

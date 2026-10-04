@@ -1,5 +1,6 @@
 --!strict
 return function(createAdminPanel: any)
+	local clockNow = 100
 	local function signal(): any
 		local listeners = {}
 		return {
@@ -101,6 +102,16 @@ return function(createAdminPanel: any)
 		table.insert(disclosures, details)
 		return details
 	end
+	ui.actionRow = function(parent: any): any
+		local row = node()
+		row.Parent = parent
+		return row
+	end
+	ui.actionButton = function(parent: any, order: number, text: string, variant: string): any
+		local button = ui.button(parent, text, variant)
+		button.LayoutOrder = order
+		return button
+	end
 	local root = node()
 	ui.window = function(): any
 		local frame = node()
@@ -170,7 +181,7 @@ return function(createAdminPanel: any)
 		enumeration,
 		{
 			clock = function(): number
-				return 100
+				return clockNow
 			end,
 		},
 		{
@@ -213,12 +224,39 @@ return function(createAdminPanel: any)
 		#requests == 1 and requests[1].arguments[1] == "resetAllPlayers" and requests[1].arguments[2] == "confirm",
 		"explicit reset confirmation preserves the server command contract"
 	)
+	for _, choice in
+		{
+			{ label = "Gezgin tüccarı çağır", action = "forceMerchant" },
+			{ label = "Altın hayvanı çağır", action = "forceGolden" },
+			{ label = "Mevsim hedefini tamamla", action = "completeSeason" },
+			{ label = "Olayları sıfırla", action = "resetEvents" },
+			{ label = "Envanteri boşalt", action = "clearItems" },
+			{ label = "Ahır deposunu doldur", action = "fillBarn" },
+		}
+	do
+		local last = requests[#requests]
+		clockNow += 1
+		adminResult.fire(last.arguments[3], true, "Done")
+		local target = nil
+		for _, button in buttons do
+			if button.Text == choice.label then
+				target = button
+			end
+		end
+		assert(target and target.Active, "grouped administrative action stays accessible")
+		target.Activated.fire()
+		assert(
+			requests[#requests].arguments[1] == choice.action,
+			"grouped button keeps its own command rather than the group's first command"
+		)
+	end
+	local requestCount = #requests
 	player:SetAttribute("IsAdmin", false)
 	player:GetAttributeChangedSignal("IsAdmin").fire()
 	assert(not opened, "permission loss closes the administrative window")
 	resetInput.Text = "SIFIRLA"
 	resetButton.Activated.fire()
-	assert(#requests == 1, "permission loss prevents commands even through stale UI callbacks")
+	assert(#requests == requestCount, "permission loss prevents commands even through stale UI callbacks")
 	print(
 		"PASS admin UI: optional details, visible irreversible warning, explicit reset confirmation and permission loss"
 	)

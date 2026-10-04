@@ -8,7 +8,78 @@ local Types = require(script.Parent:WaitForChild("Types"))
 local Items = {}
 
 function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
+	local levels: { [string]: number } = {}
+	local tiers = {
+		{
+			"copper_hammer",
+			"season_staff_1",
+			"weather_staff_1",
+			"storage_charm_1",
+			"growth_charm_1",
+			"income_charm_1",
+			"farmer_hat",
+			"flat_cap",
+			"beanie",
+			"straw_hat",
+			"flower_crown",
+			"backpack",
+			"harvest_basket",
+			"leaf_cloak",
+		},
+		{
+			"iron_hammer",
+			"pioneer_hammer",
+			"season_staff_3",
+			"weather_staff_3",
+			"income_charm_2",
+			"barn_charm_1",
+			"contract_charm_1",
+			"wind_charm",
+			"chicken_hat",
+			"cowboy_hat",
+			"red_cape",
+			"peacock_tail",
+		},
+		{
+			"gold_hammer",
+			"season_staff_5",
+			"weather_staff_5",
+			"caretaker_staff",
+			"breeder_staff",
+			"storage_charm_2",
+			"growth_charm_2",
+			"income_charm_3",
+			"barn_charm_2",
+			"contract_charm_2",
+			"harbor_charm",
+			"merchant_hat",
+			"angel_wings",
+			"artisan_cape",
+			"expedition_pack",
+		},
+		{
+			"diamond_hammer",
+			"artisan_hammer",
+			"artisan_staff",
+			"night_charm",
+			"logistics_charm",
+			"orchard_charm",
+			"trade_charm",
+			"golden_wings",
+			"warehouse_pack",
+			"night_cape",
+			"master_crown",
+		},
+		{ "season_staff_inf", "weather_staff_inf", "golden_crown" },
+	}
+	for level, ids in tiers do
+		for _, id in ids do
+			levels[id] = level
+		end
+	end
 	local function add(item: Types.ItemConfig)
+		assert(levels[item.id], `Eşya katalog seviyesi eksik: {item.id}`)
+		item.level = levels[item.id]
 		items[item.id] = item
 		table.insert(order, item.id)
 	end

@@ -1,6 +1,9 @@
 --!strict
 -- Deutsches Wörterbuch. Schlüssel = türkischer Quelltext; {} ist ein Platzhalter, im Ziel als {1} {2}... verwendet.
 return {
+	["Sunucuda ziyaret edebileceğin başka oyuncu yok."] = "Auf diesem Server gibt es keine anderen Spieler zum Besuchen.",
+	["Bu tur tüccarın satabileceği tüm eşyalara sahipsin. Rebirth sonrası yeni tur eşyalarını burada indirimli alabilirsin."] = "Du besitzt alle Gegenstände, die der Händler in dieser Runde verkaufen kann. Nach der Wiedergeburt kannst du hier neue Rundengegenstände günstiger kaufen.",
+	["İlgili tesisler"] = "Zugehörige Betriebe",
 	---------------------------------------------------------------------------
 	-- Hauptmenü und Karten
 	---------------------------------------------------------------------------
@@ -1574,7 +1577,6 @@ return {
 	["Tüccardan indirimli tur eşyası alındı."] = "Ein reduzierter Rundengegenstand wurde beim Händler gekauft.",
 	["Gezgin tüccar şu an yolda. Geldiğinde rozetinden haberdar olursun."] = "Der reisende Händler ist unterwegs. Sein Symbol zeigt dir, wenn er ankommt.",
 	["Bu ziyarette eşyanı aldın. Yeni teklifler bir sonraki ziyarette."] = "Du hast deinen Gegenstand bei diesem Besuch gekauft. Neue Angebote kommen beim nächsten Besuch.",
-	["Bu ziyaretin eşyalarına zaten sahipsin. Yeni teklifler bir sonraki ziyarette."] = "Du besitzt bereits alle Gegenstände dieses Besuchs. Neue Angebote kommen beim nächsten Besuch.",
 	["Ziyaretin bitmesine {} kaldı. Satın almak için meydandaki tüccara yaklaş."] = "Der Besuch endet in {1}. Gehe zum Händler auf dem Platz, um zu kaufen.",
 	["Normal: {}"] = "Normal: {1}",
 	["Siparişler ve iki parti yedek için üretir; stok yeterliyse bekler, tüketilince sürdürür."] = "Produziert für Aufträge und eine Reserve von zwei Chargen; wartet bei ausreichendem Vorrat und setzt nach Verbrauch fort.",

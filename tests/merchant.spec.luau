@@ -90,17 +90,42 @@ return function(Merchant: any, Config: any, FarmMath: any)
 	assert(Merchant.offer(farm, userId, now), "a marker from an older cycle does not block this visit")
 	assert(Merchant.offer(farm, userId, now + settings.visitSeconds + 1) == nil, "no offer after the merchant leaves")
 
-	-- Ownership never rerolls new stock in the same visit, and animal capacity is irrelevant.
+	-- İlk rastgele stok sahip olunanlarla dolsa bile kalan katalogdan tamamlanır.
 	farm.merchant = nil
 	farm.inventory = { items = {}, equipped = {} }
 	for _, entry in catalogue do
 		farm.inventory.items[entry.itemId] = true
 	end
-	assert(Merchant.offer(farm, userId, now) == nil, "owning all fixed stock does not reroll new sale items")
-	farm.inventory.items[catalogue[1].itemId] = nil
+	local replenished = Merchant.status(farm, userId, now).offers
 	assert(
-		Merchant.offer(farm, userId, now).itemId == catalogue[1].itemId,
-		"remaining offer is stable after ownership changes"
+		#replenished == settings.stock,
+		"owned initial picks must not leave an empty merchant while unowned items remain"
+	)
+	for _, entry in replenished do
+		assert(not farm.inventory.items[entry.itemId], "replacement offers never sell owned equipment")
+		assert(Merchant.findOffer(farm, userId, now, entry.itemId), "the server validates replenished offers too")
+	end
+	local remainingId = replenished[1].itemId
+	for _, itemId in Config.ITEM_ORDER do
+		local item = Config.ITEMS[itemId]
+		if not item.rewardOnly and item.price > 0 and itemId ~= remainingId then
+			farm.inventory.items[itemId] = true
+		end
+	end
+	assert(#Merchant.status(farm, userId, now).offers == 1, "a nearly exhausted catalogue offers the last unowned item")
+	farm.inventory.items[remainingId] = true
+	assert(Merchant.offer(farm, userId, now) == nil, "only a genuinely exhausted cash catalogue has no offer")
+	-- Oyuncu sahipliği ve alım işareti başka bir oyuncunun stokunu tüketmez.
+	local otherFarm = newSave()
+	local otherCatalogue = Merchant.status(otherFarm, userId, now).offers
+	assert(
+		#otherCatalogue == settings.stock and otherCatalogue[1].itemId == catalogue[1].itemId,
+		"another player retains their independent catalogue"
+	)
+	farm.merchant = { key = cycleAt, bought = true }
+	assert(
+		Merchant.status(farm, userId, now).bought and not Merchant.status(otherFarm, userId, now).bought,
+		"visit purchases are personal"
 	)
 	farm.inventory = nil
 	-- Yönetici zorlaması: ziyaret yokken bile teklif çıkar, süre bitince kaybolur

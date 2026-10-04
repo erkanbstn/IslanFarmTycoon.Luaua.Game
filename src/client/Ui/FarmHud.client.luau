@@ -81,7 +81,7 @@ local rewardsWindow = UiKit.window(hudRoot, {
 })
 
 -- Pencereleri Ui/Kit/Windows yönetir: masaüstünde çoklu, dar/dokunmatik ekranda tek pencere.
--- Menü/kısayol masaüstünde varsayılan konuma döndürür, dar ekranda aç/kapa yapar; dünya etkileşimi yalnız öne getirir.
+-- Menü/kısayol aç/kapa yapar; kapalı pencere varsayılan konumunda açılır, dünya etkileşimi yalnız öne getirir.
 local toggleWindow = UiKit.toggleWindow
 local showWindow = UiKit.showWindow
 
@@ -305,7 +305,7 @@ local seasonBar = SeasonBar.create(statsHud.frame)
 
 -- Altın hayvan belirdiğinde bir kez haber ver (hayvan çiftlikte parlar); tüccar için kalıcı rozet var
 local merchantBadge = MerchantBadge.create(hudRoot, function()
-	showWindow(merchant.window)
+	toggleWindow(merchant.window)
 end, showToast, onboardingBanner.frame)
 UiKit.toastHost(hudRoot, { merchantBadge.frame } :: { GuiObject })
 local lastGoldenCycle = -1

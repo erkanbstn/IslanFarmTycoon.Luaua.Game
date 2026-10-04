@@ -84,7 +84,28 @@ function Production.decodeJobs(source: any, save: any, config: any): (string?, n
 				end
 			end
 		end
+		-- Görsel metadata bozuksa yalnız görseli at; ücret ve teslim edilebilir parti korunur.
+		local cargoAnimalId: string? = nil
+		local cargoZoneId: string? = nil
+		if job.cargoAnimalId ~= nil or job.cargoZoneId ~= nil then
+			local zone = if typeof(job.cargoZoneId) == "string" then config.ZONES[job.cargoZoneId] else nil
+			if
+				typeof(job.cargoAnimalId) == "string"
+				and config.ANIMALS[job.cargoAnimalId]
+				and table.find(recipe.animalIds, job.cargoAnimalId)
+				and zone
+				and zone.island == recipe.island
+				and save.unlockedZones[job.cargoZoneId]
+				and config.zoneAllows(zone, job.cargoAnimalId, save.farmId or save.activeMainFarmId)
+			then
+				cargoAnimalId, cargoZoneId = job.cargoAnimalId, job.cargoZoneId
+			else
+				repairs += 1
+			end
+		end
 		save.production[recipeId] = {
+			cargoAnimalId = cargoAnimalId,
+			cargoZoneId = cargoZoneId,
 			startCost = job.startCost,
 			uid = job.uid,
 			readyAt = job.readyAt,
@@ -101,6 +122,8 @@ function Production.encodeJobs(production: any): { [string]: any }
 	local result = {}
 	for recipeId, job in production or {} do
 		result[recipeId] = {
+			cargoAnimalId = job.cargoAnimalId,
+			cargoZoneId = job.cargoZoneId,
 			startCost = job.startCost,
 			uid = job.uid,
 			readyAt = job.readyAt,

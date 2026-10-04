@@ -23,6 +23,8 @@ local RateLimiter = require(script.Parent.Parent:WaitForChild("Modules"):WaitFor
 local Metrics = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("Metrics"))
 local ModelAssets = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("ModelAssets"))
 
+local WearableFit = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("WearableFit"))
+
 local InventoryService = {}
 local merchantProximity: (Player) -> boolean = function(_player: Player): boolean
 	return false
@@ -62,6 +64,28 @@ local function attachPart(character: Model, attach: string): BasePart?
 	return if found and found:IsA("BasePart") then found else nil
 end
 
+local function backOffset(character: Model, anchor: BasePart, attach: string): number
+	if attach ~= "back" then
+		return 0
+	end
+	local rear = 0.5
+	-- Sadece gövde: eski kozmetiğin hacmi yeni eşyanın ofsetini biriktirmesin.
+	for _, name in { "Torso", "UpperTorso", "LowerTorso" } do
+		local torso = character:FindFirstChild(name)
+		if torso and torso:IsA("BasePart") then
+			for _, x in { -0.5, 0.5 } do
+				for _, y in { -0.5, 0.5 } do
+					for _, z in { -0.5, 0.5 } do
+						local corner = torso.CFrame * Vector3.new(torso.Size.X * x, torso.Size.Y * y, torso.Size.Z * z)
+						rear = math.max(rear, anchor.CFrame:PointToObjectSpace(corner).Z)
+					end
+				end
+			end
+		end
+	end
+	return WearableFit.backOffset(rear)
+end
+
 -- Eşya modeli `assets/Items/<id>`: parçalar çapa parçanın yerel uzayında yazılmıştır (çapa = attachPart); burada klonlanır,
 -- fizikten arındırılır (Massless, çarpışma/sorgu kapalı) ve parça başına çapaya kaynaklanır. Model yoksa eşya çizilmez (uyarı verilir).
 local missingLooks: { [string]: boolean } = {}
@@ -80,11 +104,14 @@ local function buildLook(character: Model, slot: string, item: Config.ItemConfig
 		return
 	end
 	local attach = template:GetAttribute("Attach")
-	local anchor = attachPart(character, if typeof(attach) == "string" then attach else look.attach)
+	local attachName = if typeof(attach) == "string" then attach else look.attach
+	local anchor = attachPart(character, attachName)
 	if not anchor then
 		return
 	end
+	local offset = backOffset(character, anchor, attachName)
 	local model = Instance.new("Model")
+	model:SetAttribute("BackOffset", offset)
 	model.Name = VISUAL_PREFIX .. slot
 	model:SetAttribute("ItemId", item.id)
 	local partCount = 0
@@ -95,7 +122,7 @@ local function buildLook(character: Model, slot: string, item: Config.ItemConfig
 			part.Anchored = false
 			part.Massless = true
 			part.CanCollide, part.CanTouch, part.CanQuery, part.CastShadow = false, false, false, false
-			part.CFrame = anchor.CFrame * source.CFrame
+			part.CFrame = anchor.CFrame * CFrame.new(0, 0, offset) * source.CFrame
 			part.Parent = model
 			local weld = Instance.new("WeldConstraint")
 			weld.Part0 = anchor
@@ -113,8 +140,12 @@ local function matchesLook(model: Model, character: Model, item: Config.ItemConf
 	end
 	local template = ModelAssets.find("Items", item.id)
 	local attach = template and template:GetAttribute("Attach")
-	local anchor = attachPart(character, if typeof(attach) == "string" then attach else item.look.attach)
+	local attachName = if typeof(attach) == "string" then attach else item.look.attach
+	local anchor = attachPart(character, attachName)
 	if not anchor then
+		return false
+	end
+	if model:GetAttribute("BackOffset") ~= backOffset(character, anchor, attachName) then
 		return false
 	end
 	local count = 0

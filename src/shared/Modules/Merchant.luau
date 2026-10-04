@@ -66,7 +66,7 @@ end
 -- NPC yaşam döngüsü katalog üretmeden aynı ziyaret sınırını okuyabilir.
 Merchant.currentVisit = activeVisit
 
--- Ziyaret başına tek alım; sabit katalog sahiplik değişince yeni bir teklif üretmez.
+-- Ziyaret başına tek alım; kişisel stok aynı sıralamadan sahip olunmayan eşyalarla tamamlanır.
 function Merchant.status(save: any, userId: number, now: number): Status
 	local visit = activeVisit(save, userId, now)
 	if not visit then
@@ -81,7 +81,7 @@ function Merchant.status(save: any, userId: number, now: number): Status
 	local ranks: { [string]: number } = {}
 	for index, itemId in Config.ITEM_ORDER do
 		local item = Config.ITEMS[itemId]
-		if item and not item.rewardOnly and item.price > 0 then
+		if item and not item.rewardOnly and item.price > 0 and not Inventory.owns(save, itemId) then
 			table.insert(candidates, itemId)
 			ranks[itemId] = rand(userId, visit.cycle, 100 + index)
 		end
@@ -94,16 +94,14 @@ function Merchant.status(save: any, userId: number, now: number): Status
 	local offers: { Offer } = {}
 	for index = 1, math.min(Config.MERCHANT.stock, #candidates) do
 		local itemId = candidates[index]
-		if not Inventory.owns(save, itemId) then
-			local fullPrice = Config.ITEMS[itemId].price
-			table.insert(offers, {
-				itemId = itemId,
-				fullPrice = fullPrice,
-				price = math.max(1, math.floor(fullPrice * (1 - Config.MERCHANT.discount))),
-				cycle = visit.cycle,
-				endsAt = visit.endsAt,
-			})
-		end
+		local fullPrice = Config.ITEMS[itemId].price
+		table.insert(offers, {
+			itemId = itemId,
+			fullPrice = fullPrice,
+			price = math.max(1, math.floor(fullPrice * (1 - Config.MERCHANT.discount))),
+			cycle = visit.cycle,
+			endsAt = visit.endsAt,
+		})
 	end
 	return { visit = visit, bought = false, offer = offers[1], offers = offers }
 end

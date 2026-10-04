@@ -1,6 +1,9 @@
 --!strict
 -- Diccionario español (tú, español neutro latinoamericano). Clave = texto fuente en turco; {} es un hueco de plantilla, en el destino se usa como {1} {2}...
 return {
+	["Sunucuda ziyaret edebileceğin başka oyuncu yok."] = "No hay otros jugadores a quienes visitar en este servidor.",
+	["Bu tur tüccarın satabileceği tüm eşyalara sahipsin. Rebirth sonrası yeni tur eşyalarını burada indirimli alabilirsin."] = "Ya tienes todos los objetos que el mercader puede vender en esta vuelta. Tras renacer, puedes comprar aquí objetos para la nueva vuelta con descuento.",
+	["İlgili tesisler"] = "Instalaciones relacionadas",
 	---------------------------------------------------------------------------
 	-- Ana menü ve kartlar
 	---------------------------------------------------------------------------
@@ -1574,7 +1577,6 @@ return {
 	["Tüccardan indirimli tur eşyası alındı."] = "Has comprado un objeto de partida con descuento al comerciante.",
 	["Gezgin tüccar şu an yolda. Geldiğinde rozetinden haberdar olursun."] = "El comerciante viajero está en camino. Su insignia te avisará cuando llegue.",
 	["Bu ziyarette eşyanı aldın. Yeni teklifler bir sonraki ziyarette."] = "Ya has comprado tu objeto en esta visita. Habrá nuevas ofertas en la próxima.",
-	["Bu ziyaretin eşyalarına zaten sahipsin. Yeni teklifler bir sonraki ziyarette."] = "Ya tienes todos los objetos de esta visita. Habrá nuevas ofertas en la próxima.",
 	["Ziyaretin bitmesine {} kaldı. Satın almak için meydandaki tüccara yaklaş."] = "La visita termina en {1}. Acércate al comerciante de la plaza para comprar.",
 	["Normal: {}"] = "Normal: {1}",
 	["Siparişler ve iki parti yedek için üretir; stok yeterliyse bekler, tüketilince sürdürür."] = "Produce para pedidos y una reserva de dos lotes; espera si hay existencias suficientes y continúa cuando se consumen.",

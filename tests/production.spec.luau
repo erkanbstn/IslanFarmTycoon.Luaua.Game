@@ -321,6 +321,18 @@ return function(createService: any, createLimiter: any, rules: any, codec: any, 
 		now = job.readyAt + 1
 		assert(fire("sell", id, job.uid).ok, "all specialist recipes can complete")
 	end
+	reset()
+	for _, animal in data.animals do
+		if animal.animalId == "anchovy" then
+			animal.animalId = "seabass"
+		end
+	end
+	assert(fire("start", "fish_goods", nil).ok, "Levrek alone can start the fish goods batch")
+	local fishCargoJob = data.production.fish_goods
+	assert(
+		fishCargoJob.cargoAnimalId == "seabass" and fishCargoJob.cargoZoneId == "fishpen",
+		"Store the selected seabass rather than the recipe's anchovy default"
+	)
 	-- Ürün merkezi: para yerine ahır deposuna ürün; hayvan kuralları aynı
 	reset()
 	local milk = config.PRODUCTION_RECIPES.milk_goods
@@ -328,6 +340,10 @@ return function(createService: any, createLimiter: any, rules: any, codec: any, 
 	assert(fire("start", "milk_goods", nil).ok, "a goods batch starts")
 	assert(data.cash == cashBeforeGoods - milk.cost, "a goods batch charges its start cost")
 	local goodsJob = data.production.milk_goods
+	assert(
+		goodsJob.cargoAnimalId == "cow" and goodsJob.cargoZoneId ~= nil,
+		"A batch persists its actual carried animal and pen"
+	)
 	local working = 0
 	for _, animal in data.animals do
 		if animal.task and animal.task.id == "milk_goods" then

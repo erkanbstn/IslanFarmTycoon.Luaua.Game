@@ -18,6 +18,7 @@ local IslandTabs = require(script.Parent:WaitForChild("Hud"):WaitForChild("Islan
 local HudCommon = require(script.Parent:WaitForChild("Hud"):WaitForChild("HudCommon"))
 local ProductionAutomation = require(script.Parent:WaitForChild("Hud"):WaitForChild("ProductionAutomation"))
 local ActionBadges = require(script.Parent:WaitForChild("Hud"):WaitForChild("ActionBadges"))
+local ProductionContext = require(script.Parent:WaitForChild("Hud"):WaitForChild("ProductionContext"))
 local player = Players.LocalPlayer
 local ProductionPanel = {}
 local window: UiKit.Window? = nil
@@ -30,7 +31,7 @@ local nextSendAt = 0
 local message = ""
 local success = true
 local focused: string? = nil
--- Bir binanın "Üretim" promptundan açıldıysa yalnızca o binanın tarifleri gösterilir (menüden açılınca hepsi)
+-- Dünya etkileşimi aynı hayvanları kullanan ilgili tesisleri gösterir; menü adanın tamamını açar.
 local focusedUpgrade: string? = nil
 local lastFarmContext: string? = nil
 local showResult: ((string, string?) -> ())? = nil
@@ -107,7 +108,7 @@ local function create(parent: Instance): UiKit.Window
 	showAll.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
 	showAll.AutomaticSize = Enum.AutomaticSize.Y
 	showAll.TextSize = UiKit.TextSize.Button
-	showAll.LayoutOrder = 1001
+	showAll.LayoutOrder = 3
 	showAll.Visible = false
 	showAll.Activated:Connect(function()
 		focusedUpgrade = nil
@@ -136,6 +137,8 @@ local function create(parent: Instance): UiKit.Window
 		progress: Frame,
 		fill: (number, Color3) -> (),
 		options: { TextButton },
+		optionRow: Frame,
+		secondaryRow: Frame,
 		repeatToggle: TextButton,
 		stockMode: TextButton,
 		automationStatus: TextLabel,
@@ -146,6 +149,7 @@ local function create(parent: Instance): UiKit.Window
 	for index, id in Config.PRODUCTION_ORDER do
 		local recipe = Config.PRODUCTION_RECIPES[id]
 		local card = UiKit.card(created.list, index + 2, recipe.icon)
+		local secondaryRow = UiKit.actionRow(card.frame, 16, 2, 144)
 		card.title.Text = recipe.displayName
 		local details = UiKit.disclosure(card.frame, 20, "Ayrıntılar")
 		local detailsLabel = UiKit.text(details.body, recipe.description, "Caption")
@@ -165,13 +169,13 @@ local function create(parent: Instance): UiKit.Window
 		end
 		local progress, fill = UiKit.progressBar(card.frame, 5)
 		progress.LayoutOrder = 3
-		local keep = UiKit.button(card.frame, "Civcivi kümese ekle", "primary")
+		local keep = UiKit.actionButton(secondaryRow, 1, "Civcivi kümese ekle", "primary")
 		keep.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
 		keep.AutomaticSize = Enum.AutomaticSize.Y
 		keep.TextSize = UiKit.TextSize.Button
 		keep.LayoutOrder = 4
 		keep.Visible = false
-		local cancel = UiKit.button(card.frame, "Üretimi iptal et", "secondary")
+		local cancel = UiKit.actionButton(secondaryRow, 2, "Üretimi iptal et", "secondary")
 		cancel.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
 		cancel.AutomaticSize = Enum.AutomaticSize.Y
 		cancel.LayoutOrder = 5
@@ -185,13 +189,11 @@ local function create(parent: Instance): UiKit.Window
 		end)
 		-- Para tesisi: her parti seçeneği için bir başlatma butonu (ücretsiz; ne kadar hayvan isterse o kadar kazandırır)
 		local optionButtons: { TextButton } = {}
+		local optionRow = UiKit.actionRow(card.frame, 6, 2, 160)
+		optionRow.Visible = false
 		local recipeOptions: { Config.ProductionOptionConfig } = recipe.options or {}
 		for optionIndex, option in recipeOptions do
-			local button = UiKit.button(card.frame, option.displayName, "primary")
-			button.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
-			button.AutomaticSize = Enum.AutomaticSize.Y
-			button.TextSize = UiKit.TextSize.Button
-			button.LayoutOrder = 5 + optionIndex
+			local button = UiKit.actionButton(optionRow, optionIndex, option.displayName, "primary")
 			button.Visible = false
 			table.insert(optionButtons, button)
 			button.Activated:Connect(function()
@@ -204,7 +206,7 @@ local function create(parent: Instance): UiKit.Window
 		-- Yardımcı (pet) varsa "otomatik tekrar": hazır partiyi yardımcı teslim alır ve aynı seçenekle yenisini başlatır
 		local automationStatus = UiKit.text(card.frame, "", "Caption")
 		automationStatus.LayoutOrder = 15
-		local repeatToggle = UiKit.button(card.frame, "Otomatik üretimi aç", "secondary")
+		local repeatToggle = UiKit.actionButton(secondaryRow, 3, "Otomatik üretimi aç", "secondary")
 		repeatToggle.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
 		repeatToggle.AutomaticSize = Enum.AutomaticSize.Y
 		repeatToggle.TextSize = UiKit.TextSize.Button
@@ -241,6 +243,8 @@ local function create(parent: Instance): UiKit.Window
 			progress = progress,
 			fill = fill,
 			options = optionButtons,
+			optionRow = optionRow,
+			secondaryRow = secondaryRow,
 			repeatToggle = repeatToggle,
 			stockMode = stockMode,
 			automationStatus = automationStatus,
@@ -309,7 +313,7 @@ local function create(parent: Instance): UiKit.Window
 		end
 		feedback.Text = message
 		local focusedBuilding = if focusedUpgrade then Config.getUpgrade(focusedUpgrade) else nil
-		selectedLabel.Text = if focusedBuilding then `{focusedBuilding.displayName} · {tabs.name()}` else tabs.name()
+		selectedLabel.Text = if focusedBuilding then `{tabs.name()} · İlgili tesisler` else tabs.name()
 		showAll.Visible = focusedBuilding ~= nil
 		feedback.Visible = message ~= ""
 		feedback.TextColor3 = if success then UiKit.Color.Green else UiKit.Color.Red
@@ -328,11 +332,12 @@ local function create(parent: Instance): UiKit.Window
 			local recipeUpgrade = Config.getUpgrade(recipe.upgradeId)
 			card.frame.Visible = recipe.island == tabs.get()
 				and (recipeUpgrade == nil or FarmMath.isUpgradeInTheme(state, recipeUpgrade))
-				and (focusedUpgrade == nil or recipe.upgradeId == focusedUpgrade)
+				and (focused == nil or ProductionContext.isRelated(recipe, Config.PRODUCTION_RECIPES[focused]))
 			if not card.frame.Visible then
 				continue
 			end
-			card.frame.LayoutOrder = if focused == id then 3 else index + 4
+			card.frame.LayoutOrder = if focused == id then 4 else index + 5
+			entry.optionRow.Visible = false
 			entry.keep.Visible = false
 			entry.cancel.Visible = false
 			entry.progress.Visible = false
@@ -431,6 +436,7 @@ local function create(parent: Instance): UiKit.Window
 					then "disabled"
 					else HudCommon.upgradeVariant(state, upgrade)
 			elseif recipe.options then
+				entry.optionRow.Visible = true
 				-- Para tesisi: başlatma ücretsiz; her parti seçeneği kendi hayvan sayısını ister ve farklı kazandırır
 				local adults = FarmMath.countProductionAdults(state, recipe, now)
 				local busy = busyAnimals(state, recipe, now)
@@ -505,6 +511,7 @@ local function create(parent: Instance): UiKit.Window
 					else `{summary}\nYetişkin hayvan: {FarmMath.countProductionAdults(state, recipe, now)}/{recipe.requiredAdults}\nHayvanlar iş boyunca gelir getirmez.`
 			)
 			UiKit.setVariant(card.action, if blocked then "disabled" else variant)
+			entry.secondaryRow.Visible = entry.keep.Visible or entry.cancel.Visible or entry.repeatToggle.Visible
 		end
 	end
 	created.frame:GetPropertyChangedSignal("Visible"):Connect(function()
@@ -543,7 +550,7 @@ function ProductionPanel.open(parent: Instance, recipeId: string?)
 	refresh()
 end
 
--- Masaüstünde menü pencereyi varsayılan konuma getirir; dar ekranda aç/kapa yapar.
+-- Menü açık pencereyi kapatır; kapalı pencere varsayılan konumunda açılır.
 function ProductionPanel.toggle(parent: Instance)
 	-- Menü rozeti bütün tesisleri sayar; eski dünya promptunun filtresi hazır işi saklamasın.
 	focusedUpgrade = nil

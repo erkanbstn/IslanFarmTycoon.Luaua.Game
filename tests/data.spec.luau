@@ -382,6 +382,68 @@ return function(lock: any, codec: any, config: any, farmMath: any)
 	local legacyReset = assert(codec.decode(legacySnap, config, farmMath, now, offlineUid, 1))
 	assert(legacyReset.cash ~= 5000, "after the first reset, profiles without an epoch are reset too")
 
+	-- Taşıma metadata'sı süre bitip hayvan görevleri temizlense de tamamlanmış partiyle kaydedilir.
+	do
+		local cargoSave = assert(codec.decode(nil, config, farmMath, now, uid))
+		for _, upgrade in config.UPGRADES do
+			cargoSave.purchased[upgrade.id] = true
+		end
+		farmMath.applyDerived(cargoSave)
+		cargoSave.production.fish_goods = {
+			uid = "cargo-job",
+			readyAt = now - 1,
+			startCost = 180,
+			cargoAnimalId = "seabass",
+			cargoZoneId = "fishpen",
+		}
+		local encodedCargo = codec.encode(cargoSave, now)
+		local loadedCargo = assert(codec.decode(encodedCargo, config, farmMath, now, uid))
+		local recoveredJob = loadedCargo.production.fish_goods
+		assert(
+			recoveredJob.cargoAnimalId == "seabass" and recoveredJob.cargoZoneId == "fishpen",
+			"Completed batch retains actual seabass after reconnect"
+		)
+		local secondCargo = codec.encode(loadedCargo, now).mainFarms["1"].production.fish_goods
+		assert(
+			secondCargo.cargoAnimalId == "seabass" and secondCargo.cargoZoneId == "fishpen",
+			"Visual cargo survives encode/decode twice"
+		)
+		local rawJob = encodedCargo.mainFarms["1"].production.fish_goods
+		rawJob.cargoAnimalId, rawJob.cargoZoneId = nil, nil
+		local legacyCargo = assert(codec.decode(encodedCargo, config, farmMath, now, uid))
+		assert(
+			legacyCargo.production.fish_goods.uid == "cargo-job"
+				and legacyCargo.production.fish_goods.cargoAnimalId == nil,
+			"Old jobs without cargo load without reset"
+		)
+		for _, invalid in
+			{
+				{ animalId = "unknown", zoneId = "fishpen" },
+				{ animalId = "cow", zoneId = "starter" },
+				{ animalId = "seabass", zoneId = "unknown" },
+				{ animalId = "seabass", zoneId = "poultry" },
+				{ animalId = "seabass", zoneId = "pasture" },
+				{ animalId = "seabass", zoneId = false },
+				{ animalId = false, zoneId = "fishpen" },
+			}
+		do
+			rawJob.cargoAnimalId, rawJob.cargoZoneId = invalid.animalId, invalid.zoneId
+			local repairedCargo = assert(codec.decode(encodedCargo, config, farmMath, now, uid))
+			local repairedJob = repairedCargo.production.fish_goods
+			assert(
+				repairedJob.cargoAnimalId == nil and repairedJob.cargoZoneId == nil,
+				"Malformed visual metadata is discarded"
+			)
+			assert(
+				repairedJob.uid == "cargo-job"
+					and repairedJob.readyAt == now - 1
+					and repairedJob.startCost == 180
+					and repairedCargo.cash == cargoSave.cash,
+				"Visual repair preserves deliverable batch, refund cost and wallet"
+			)
+		end
+	end
+
 	print(
 		"data: lock ownership, response-loss retries, revision, migration, numeric, capacity, epoch reset and account guards passed"
 	)

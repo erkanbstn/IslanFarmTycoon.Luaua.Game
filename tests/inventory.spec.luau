@@ -7,6 +7,10 @@ return function(Inventory: any, Config: any, FarmMath: any, SaveCodec: any, Sess
 		local item = Config.ITEMS[itemId]
 		assert(item and item.id == itemId and not seen[itemId], `ITEM_ORDER entry {itemId} must be unique and defined`)
 		seen[itemId] = true
+		assert(
+			item.level and item.level >= 1 and item.level <= 5 and item.level % 1 == 0,
+			`item {itemId} needs a catalog level`
+		)
 		assert(Config.ITEM_SLOTS[item.slot], `item {itemId} uses unknown slot {item.slot}`)
 		assert(item.price > 0 and item.displayName ~= "" and item.icon ~= "", `item {itemId} is malformed`)
 		local effectCount = 0

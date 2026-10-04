@@ -57,7 +57,10 @@ function ProductionLogic.start(
 	for _, animal in animals do
 		animal.task = { kind = "production", id = recipe.id, startedAt = now, endsAt = readyAt }
 	end
+	local cargo = animals[1]
 	farm.production[recipe.id] = {
+		cargoAnimalId = if cargo then cargo.animalId else nil,
+		cargoZoneId = if cargo then cargo.zoneId else nil,
 		uid = hooks.newUid(),
 		readyAt = readyAt,
 		startedAt = now,

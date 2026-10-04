@@ -67,7 +67,7 @@ function ItemShopWindow.create(screenGui: Instance, openPermanent: (() -> ())?):
 		for position, item in ItemText.itemsOfSlot(slotId) do
 			local card = UiKit.autoTile(grid, position, item.icon, { compact = true })
 			ItemPreview.mount(card.icon, item.id)
-			card.title.Text = item.displayName
+			card.title.Text = `{item.displayName} · Sv.{item.level or 1}`
 			card.detail.Text = ItemText.describe(item)
 			local details = UiKit.disclosure(card.frame, 6, "Ayrıntılar")
 			detailsById[item.id] = details

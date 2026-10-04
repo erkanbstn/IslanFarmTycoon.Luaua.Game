@@ -82,7 +82,15 @@ function StoreSection.create(list: GuiObject, category: string?): ((PlayerSave) 
 				table.insert(keys, key)
 			end
 		end
-		table.sort(keys)
+		table.sort(keys, function(a: string, b: string): boolean
+			local pa, pb = group.items[a], group.items[b]
+			local oa = if pa.offerId then Config.PROGRESSION.permanentOffers[pa.offerId] else nil
+			local ob = if pb.offerId then Config.PROGRESSION.permanentOffers[pb.offerId] else nil
+			local ia = if oa and oa.itemId then Config.ITEMS[oa.itemId] else nil
+			local ib = if ob and ob.itemId then Config.ITEMS[ob.itemId] else nil
+			local la, lb = if ia then ia.level or 1 else 0, if ib then ib.level or 1 else 0
+			return if la ~= lb then la < lb else a < b
+		end)
 		for _, key in keys do
 			local product = group.items[key]
 			local entry: Entry
@@ -92,6 +100,7 @@ function StoreSection.create(list: GuiObject, category: string?): ((PlayerSave) 
 			UiKit.setText(card.title, product.displayName)
 			local offer = if product.offerId then Config.PROGRESSION.permanentOffers[product.offerId] else nil
 			if offer and offer.itemId then
+				UiKit.setText(card.title, `{product.displayName} · Sv.{Config.ITEMS[offer.itemId].level or 1}`)
 				ItemPreview.mount(card.icon, offer.itemId)
 			end
 			local details = UiKit.disclosure(card.frame, 6, "Ayrıntılar")

@@ -170,7 +170,8 @@ return function(createMerchant: any, merchant: any, config: any, farmMath: any)
 	)
 	local firstId = nil
 	for _, offer in offered do
-		if config.ITEMS[offer.itemId].displayName == first.title.Text then
+		local item = config.ITEMS[offer.itemId]
+		if `{item.displayName} · Sv.{item.level or 1}` == first.title.Text then
 			firstId = offer.itemId
 		end
 	end

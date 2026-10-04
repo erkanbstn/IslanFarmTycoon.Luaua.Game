@@ -13,6 +13,7 @@ local PlayerDataService = require(script.Parent:WaitForChild("PlayerDataService"
 local EconomyService = require(script.Parent:WaitForChild("EconomyService"))
 local PlotService = require(script.Parent:WaitForChild("PlotService"))
 local ProductionLogic = require(script.Parent.Parent.Modules.ProductionLogic)
+local PetCargo = require(script.Parent.Parent.Modules.PetCargo)
 
 local PetService = {}
 
@@ -32,6 +33,7 @@ local function publish(player: Player, data: any, claims: { [string]: number }?)
 		return
 	end
 	local jobs: { [string]: string } = {}
+	local cargo: { [string]: { modelId: string, zoneId: string, uid: string } } = {}
 	for _, slot in ProductionLogic.petSlots(data, Config.PRODUCTION_ORDER, FarmMath, Config) do
 		jobs[`{slot.kind}:{slot.island}`] = ""
 	end
@@ -43,8 +45,34 @@ local function publish(player: Player, data: any, claims: { [string]: number }?)
 			local key = `{kind}:{petIsland}`
 			if jobs[key] == "" and data.production[recipeId] then
 				jobs[key] = recipe.upgradeId
+				local animalId, zoneId, assigned = PetCargo.select(data.animals, recipe, data.production[recipeId])
+				local suffix = attributeKey(kind, petIsland)
+				local uid = data.production[recipeId].uid
+				local modelId = Config.getAnimalLook(animalId, data.activeMainFarmId).modelId
+				modelId, zoneId = PetCargo.resolve(
+					modelId,
+					zoneId,
+					assigned,
+					uid,
+					plot:GetAttribute(`PetCargoUid_{suffix}`),
+					plot:GetAttribute(`PetAnimal_{suffix}`),
+					plot:GetAttribute(`PetZone_{suffix}`)
+				)
+				cargo[key] = { modelId = modelId, zoneId = zoneId, uid = uid }
 			end
-			plot:SetAttribute(`PetJob_{attributeKey(kind, petIsland)}`, jobs[key] or "")
+		end
+	end
+	for key, upgradeId in jobs do
+		local kind, island = string.match(key, "^(%w+):(%w+)$")
+		if kind and island then
+			local suffix = attributeKey(kind, island)
+			local selected = cargo[key]
+			if selected then
+				plot:SetAttribute(`PetAnimal_{suffix}`, selected.modelId)
+				plot:SetAttribute(`PetCargoUid_{suffix}`, selected.uid)
+				plot:SetAttribute(`PetZone_{suffix}`, selected.zoneId)
+			end
+			plot:SetAttribute(`PetJob_{suffix}`, upgradeId)
 		end
 	end
 	if claims then
@@ -78,6 +106,8 @@ local function tick(player: Player)
 		end,
 	}
 	local now = DateTime.now().UnixTimestampMillis / 1000
+	-- Görev hayvanları teslimde serbest kalmadan önce taşıma türünü sakla.
+	publish(player, data, nil)
 	local summary = ProductionLogic.runPets(data, PlayerDataService.getFarmIds(player), function(farmId: string): any
 		return PlayerDataService.getFarmView(player, farmId)
 	end, Config.PRODUCTION_ORDER, now, FarmMath, Config, hooks)

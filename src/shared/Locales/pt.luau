@@ -1,6 +1,9 @@
 --!strict
 -- Dicionário português do Brasil. Chave = texto-fonte em turco; {} é um espaço de modelo, usado no destino como {1} {2}...
 return {
+	["Sunucuda ziyaret edebileceğin başka oyuncu yok."] = "Não há outros jogadores para visitar neste servidor.",
+	["Bu tur tüccarın satabileceği tüm eşyalara sahipsin. Rebirth sonrası yeni tur eşyalarını burada indirimli alabilirsin."] = "Você já tem todos os itens que o mercador pode vender nesta rodada. Após renascer, pode comprar aqui itens para a nova rodada com desconto.",
+	["İlgili tesisler"] = "Instalações relacionadas",
 	---------------------------------------------------------------------------
 	-- Ana menü ve kartlar
 	---------------------------------------------------------------------------
@@ -1574,7 +1577,6 @@ return {
 	["Tüccardan indirimli tur eşyası alındı."] = "Um item de rodada com desconto foi comprado do mercador.",
 	["Gezgin tüccar şu an yolda. Geldiğinde rozetinden haberdar olursun."] = "O mercador viajante está a caminho. O ícone dele avisará quando chegar.",
 	["Bu ziyarette eşyanı aldın. Yeni teklifler bir sonraki ziyarette."] = "Você já comprou seu item nesta visita. Novas ofertas virão na próxima.",
-	["Bu ziyaretin eşyalarına zaten sahipsin. Yeni teklifler bir sonraki ziyarette."] = "Você já tem todos os itens desta visita. Novas ofertas virão na próxima.",
 	["Ziyaretin bitmesine {} kaldı. Satın almak için meydandaki tüccara yaklaş."] = "A visita termina em {1}. Aproxime-se do mercador na praça para comprar.",
 	["Normal: {}"] = "Normal: {1}",
 	["Siparişler ve iki parti yedek için üretir; stok yeterliyse bekler, tüketilince sürdürür."] = "Produz para pedidos e uma reserva de dois lotes; espera quando o estoque é suficiente e retoma após o consumo.",

@@ -102,15 +102,28 @@ function ItemText.additional(item: Config.ItemConfig): string
 	return if splitAt then string.sub(description, splitAt + 1) else ""
 end
 
--- Bir slotun eşyaları, ITEM_ORDER sırasıyla
-function ItemText.itemsOfSlot(slotId: string): { Config.ItemConfig }
+-- Kategori içinde katalog seviyesi, fiyat ve kimlik; kategori yoksa yuva sırası da korunur.
+function ItemText.itemsOfSlot(slotId: string?): { Config.ItemConfig }
 	local result: { Config.ItemConfig } = {}
 	for _, itemId in Config.ITEM_ORDER do
 		local item = Config.ITEMS[itemId]
-		if item.slot == slotId then
+		if slotId == nil or item.slot == slotId then
 			table.insert(result, item)
 		end
 	end
+	table.sort(result, function(a: Config.ItemConfig, b: Config.ItemConfig): boolean
+		if a.slot ~= b.slot then
+			return (table.find(Config.ITEM_SLOT_ORDER, a.slot) or 99)
+				< (table.find(Config.ITEM_SLOT_ORDER, b.slot) or 99)
+		end
+		if (a.level or 1) ~= (b.level or 1) then
+			return (a.level or 1) < (b.level or 1)
+		end
+		if a.price ~= b.price then
+			return a.price < b.price
+		end
+		return a.id < b.id
+	end)
 	return result
 end
 

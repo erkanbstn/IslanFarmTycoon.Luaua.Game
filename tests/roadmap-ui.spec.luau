@@ -54,6 +54,12 @@ return function(factory: any, config: any, codec: any, farmMath: any, createOnbo
 		table.insert(grids, grid)
 		return grid
 	end
+	ui.actionRow = ui.autoGrid
+	ui.actionButton = function(parent: any, order: number): any
+		local button = ui.button(parent)
+		button.LayoutOrder = order
+		return button
+	end
 	ui.autoTile = function(parent: any): any
 		local tile = { frame = node("Frame", parent), title = node(), detail = node(), action = node() }
 		table.insert(tiles, tile)

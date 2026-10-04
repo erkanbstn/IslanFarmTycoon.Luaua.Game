@@ -172,19 +172,15 @@ function RoadmapWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Road
 					end
 				end)
 				if upgrade.kind == "extension" and upgrade.extensionId then
-					local row = Instance.new("Frame")
+					local row = UiKit.actionRow(card.frame, 3, 2, 96)
 					row.Name = "ExtensionActions"
 					row.BackgroundTransparency = 1
-					row.Size = UDim2.new(1, 0, 0, 2 * UiKit.TouchTarget + 4)
 					row.LayoutOrder = 3
 					row.Visible = false
 					row.Parent = card.frame
-					UiKit.list(row, 4)
-					local add = UiKit.button(row, "Hayvan gönder", "primary")
-					add.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
+					local add = UiKit.actionButton(row, 1, "Hayvan gönder", "primary")
 					add.LayoutOrder = 1
-					local remove = UiKit.button(row, "Geri çağır", "warning")
-					remove.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
+					local remove = UiKit.actionButton(row, 2, "Geri çağır", "warning")
 					remove.LayoutOrder = 2
 					local extensionId = upgrade.extensionId :: string
 					add.Activated:Connect(function()

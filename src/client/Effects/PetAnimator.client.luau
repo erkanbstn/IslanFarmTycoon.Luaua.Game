@@ -43,6 +43,7 @@ type Actor = {
 	width: number,
 	length: number,
 	center: Vector3,
+	carryHeight: number,
 }
 
 local function alive(actor: Actor): boolean
@@ -67,32 +68,42 @@ end
 
 local missingWarned: { [string]: boolean } = {}
 
--- Taşınan nesne: client-assets/PetProps/<ad> modeli (pivot yardımcı Root koordinatında (0,0,0); taşıma yüksekliği modelde yazılıdır).
+-- Hayvan gerçek şablondan, ürün/para PetProps modelinden gelir; hepsi yardımcının gövdesinin üstüne oturur.
 -- Her parçanın ofseti yardımcının CFrame'inden bir kez yakalanır ve her adımda `actor.cf * ofset` uygulanır.
-local function addProp(actor: Actor, modelName: string)
-	local model = ClientModelAssets.clone("PetProps", modelName)
+local function addProp(actor: Actor, modelName: string, isAnimal: boolean?)
+	local folder = if isAnimal then "Animals" else "PetProps"
+	local model = ClientModelAssets.clone(folder, modelName)
 	if not model then
 		if not missingWarned[modelName] then
 			missingWarned[modelName] = true
-			warn(`[PetAnimator] client-assets/PetProps/{modelName}.rbxmx bulunamadı; taşınan nesne çizilmedi`)
+			warn(`[PetAnimator] ClientAssets/{folder}/{modelName} bulunamadı; taşınan nesne çizilmedi`)
 		end
 		return
 	end
-	local pivot = model:GetPivot()
+	local _, size = model:GetBoundingBox()
+	local scale = math.min(if isAnimal then 0.5 else 1, 1.8 / math.max(size.X, size.Y, size.Z))
+	model:ScaleTo(model:GetScale() * scale)
+	model:PivotTo(CFrame.identity)
+	local bounds, scaledSize = model:GetBoundingBox()
+	local lift = actor.carryHeight + scaledSize.Y / 2 + 0.12
+	model:PivotTo(CFrame.new(-bounds.Position.X, lift - bounds.Position.Y, -bounds.Position.Z))
+	local pivot = CFrame.identity
 	for _, descendant in model:GetDescendants() do
 		if descendant:IsA("BasePart") then
 			table.insert(actor.props, { part = descendant, offset = pivot:ToObjectSpace(descendant.CFrame) })
 		end
 	end
-	model:PivotTo(actor.cf)
+	model:PivotTo(actor.cf * pivot:ToObjectSpace(model:GetPivot()))
 	model.Parent = actor.model
 	actor.propModel = model
 end
 
-local function carry(actor: Actor, what: string)
+local function carry(actor: Actor, what: string, animalModel: string?)
 	clearProps(actor)
 	if what == "animal" then
-		addProp(actor, "CarryAnimal")
+		if animalModel and animalModel ~= "" then
+			addProp(actor, animalModel, true)
+		end
 	elseif what == "crate" then
 		addProp(actor, "CarryCrate")
 	elseif what == "coins" then
@@ -271,7 +282,6 @@ end
 
 -- Yalnızca görünmeyen uzak yardımcı, kontrol edilmiş boş ve destekli hedefe ışınlanabilir.
 local function walk(actor: Actor, requested: Vector3): boolean
-	updateBodySize(actor)
 	local target = safeDestination(actor, requested)
 	if not target then
 		task.wait(RETRY_SECONDS)
@@ -515,7 +525,7 @@ local function goTo(actor: Actor, target: Vector3): boolean
 end
 
 -- Hayvanın ağılı: yardımcının adasındaki ilk bölge (ana adada "starter")
-local function penPoint(plot: Model, island: string): Vector3?
+local function penPoint(plot: Model, island: string, selectedZone: string?): Vector3?
 	local zones = plot:FindFirstChild("Zones")
 	if not zones then
 		return nil
@@ -530,7 +540,10 @@ local function penPoint(plot: Model, island: string): Vector3?
 			then zoneId == "fishpen"
 			else zoneConfig ~= nil and zoneConfig.island == island
 		if sameIsland and ground and ground:IsA("BasePart") then
-			if zoneId == "starter" then
+			if selectedZone ~= nil and selectedZone ~= "" and zoneId == selectedZone then
+				return ground.Position
+			end
+			if (selectedZone == nil or selectedZone == "") and zoneId == "starter" then
 				return ground.Position
 			end
 			fallback = fallback or ground.Position
@@ -575,9 +588,15 @@ local function run(actor: Actor)
 		end
 
 		-- Denizdeki tesis (balıkçı teknesi) ve balık kafesi suyun üstündedir: yardımcı karada, evinde durup tekneye bakar
+		local animalValue = plot:GetAttribute(`PetAnimal_{suffix}`)
+		local animalModel = if typeof(animalValue) == "string" then animalValue else nil
+		local zoneValue = plot:GetAttribute(`PetZone_{suffix}`)
+		local selectedZone = if typeof(zoneValue) == "string" then zoneValue else nil
 		local onWater = spot:GetAttribute("BoatPatrolX") ~= nil or actor.island == "sea"
 		local facilityPoint = if onWater then actor.home.Position else (spot.CFrame * FACILITY_OFFSET).Position
-		local pen = if onWater then actor.home.Position else penPoint(plot, actor.island) or actor.home.Position
+		local pen = if onWater
+			then actor.home.Position
+			else penPoint(plot, actor.island, selectedZone) or actor.home.Position
 		if not atFacility then
 			-- İş zaten sürüyor (elle ya da önceki turdan): doğrudan tesisin başına git
 			if not goTo(actor, facilityPoint) then
@@ -599,7 +618,7 @@ local function run(actor: Actor)
 		cycleSeen = cycle()
 
 		-- Teslim turu: hayvanı ağıla bırak, ürünü al, sandığa/platforma götür
-		carry(actor, "animal")
+		carry(actor, "animal", animalModel)
 		if not goTo(actor, pen) then
 			return
 		end
@@ -625,13 +644,26 @@ local function run(actor: Actor)
 		idleFor(actor, 0.4)
 
 		-- Otomatik tekrar: yeni parti sürüyorsa hayvanı ağıldan alıp tesise getir
-		if job() ~= "" then
-			if not goTo(actor, pen) then
+		local nextJob = job()
+		if nextJob ~= "" then
+			local nextSpot = spotOf(plot, nextJob)
+			local nextAnimal = plot:GetAttribute(`PetAnimal_{suffix}`)
+			local nextZone = plot:GetAttribute(`PetZone_{suffix}`)
+			local nextOnWater = actor.island == "sea"
+				or (nextSpot ~= nil and nextSpot:GetAttribute("BoatPatrolX") ~= nil)
+			local nextPen = if nextOnWater
+				then actor.home.Position
+				else penPoint(plot, actor.island, if typeof(nextZone) == "string" then nextZone else nil)
+					or actor.home.Position
+			local nextFacility = if nextOnWater or not nextSpot
+				then actor.home.Position
+				else (nextSpot.CFrame * FACILITY_OFFSET).Position
+			if not goTo(actor, nextPen) then
 				return
 			end
 			idleFor(actor, 0.3)
-			carry(actor, "animal")
-			if not goTo(actor, facilityPoint) then
+			carry(actor, "animal", if typeof(nextAnimal) == "string" then nextAnimal else nil)
+			if not goTo(actor, nextFacility) then
 				return
 			end
 			clearProps(actor)
@@ -650,11 +682,14 @@ local function plotOf(instance: Instance): Model?
 	return if current and current:IsA("Model") then current else nil
 end
 
+local tracked: { [Model]: boolean } = {}
+
 local function track(instance: Instance)
-	if not instance:IsA("Model") then
+	if not instance:IsA("Model") or tracked[instance] then
 		return
 	end
 	local model = instance
+	tracked[model] = true
 	task.spawn(function()
 		local root = model:WaitForChild("Root", 10)
 		local kind = model:GetAttribute("PetKind")
@@ -668,6 +703,7 @@ local function track(instance: Instance)
 			or typeof(home) ~= "CFrame"
 			or not plot
 		then
+			tracked[model] = nil
 			return
 		end
 		local actor: Actor = {
@@ -686,7 +722,10 @@ local function track(instance: Instance)
 			width = 2,
 			length = 2,
 			center = Vector3.zero,
+			carryHeight = 2,
 		}
+		updateBodySize(actor)
+		actor.carryHeight = actor.height
 		local ok, err = pcall(function()
 			-- Yol geçici kapalıyken yardımcı görevi tamamen bırakmaz; güvenli konumdan tekrar dener.
 			while alive(actor) do
@@ -697,6 +736,8 @@ local function track(instance: Instance)
 				end
 			end
 		end)
+		clearProps(actor)
+		tracked[model] = nil
 		if not ok then
 			warn(`[PetAnimator] {err}`)
 		end

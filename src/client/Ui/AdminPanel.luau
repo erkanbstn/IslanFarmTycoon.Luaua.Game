@@ -269,29 +269,21 @@ local function create(parent: Instance): UiKit.Window
 		{ id = "winter", label = "Kış" },
 		{ id = "auto", label = "Otomatik mevsim" },
 	}
-	local function choices(action: string, options: { { id: string, label: string } }, firstOrder: number)
-		local currentRow: Frame? = nil
+	local function choices(
+		action: string,
+		options: { { id: string, label: string, action: string? } },
+		firstOrder: number
+	)
+		local short = action == "setWeather" or action == "setSeason" or action == "setTime"
+		local currentRow = UiKit.actionRow(page, firstOrder, if short then 4 else 2, if short then 86 else 144)
 		for index, option in options do
-			if index % 2 == 1 then
-				currentRow = row(firstOrder + math.floor((index - 1) / 2))
-			end
-			local button = UiKit.button(
-				assert(currentRow, "Yönetici seçenek satırı oluşturulamadı"),
-				option.label,
-				"secondary"
-			)
+			local button = UiKit.actionButton(currentRow, index, option.label, "secondary")
 			fit(button)
-			button.Size = UDim2.new(
-				if index == #options and index % 2 == 1 then 1 else 0.5,
-				if index == #options and index % 2 == 1 then 0 else -3,
-				1,
-				0
-			)
-			button.LayoutOrder = index
-			table.insert(controls, { button = button, action = action, value = option.id })
+			local command = option.action or action
+			table.insert(controls, { button = button, action = command, value = option.id })
 			button.Activated:Connect(function()
 				if button.Active then
-					submit(action, option.id)
+					submit(command, option.id)
 				end
 			end)
 		end
@@ -368,14 +360,18 @@ local function create(parent: Instance): UiKit.Window
 		"Caption"
 	).LayoutOrder =
 		40
-	choices("forceMerchant", { { id = "now", label = "Gezgin tüccarı çağır" } }, 41)
-	choices("forceGolden", { { id = "now", label = "Altın hayvanı çağır" } }, 42)
-	choices("completeSeason", { { id = "now", label = "Mevsim hedefini tamamla" } }, 43)
-	choices("resetEvents", { { id = "now", label = "Olayları sıfırla" } }, 44)
+	choices("forceMerchant", {
+		{ id = "now", label = "Gezgin tüccarı çağır" },
+		{ id = "now", label = "Altın hayvanı çağır", action = "forceGolden" },
+		{ id = "now", label = "Mevsim hedefini tamamla", action = "completeSeason" },
+		{ id = "now", label = "Olayları sıfırla", action = "resetEvents" },
+	}, 41)
 	heading(page, "Envanter (test)").LayoutOrder = 45
-	choices("fillBarn", { { id = "now", label = "Ahır deposunu doldur" } }, 48)
-	choices("grantItems", { { id = "now", label = "Bütün eşyaları ver" } }, 46)
-	choices("clearItems", { { id = "now", label = "Envanteri boşalt" } }, 47)
+	choices("grantItems", {
+		{ id = "now", label = "Bütün eşyaları ver" },
+		{ id = "now", label = "Envanteri boşalt", action = "clearItems" },
+		{ id = "now", label = "Ahır deposunu doldur", action = "fillBarn" },
+	}, 46)
 
 	-- Tehlikeli bölge: bütün oyuncuların verisini sıfırlar (kayıtlar silinmez: veri çağı artar, eski kayıt arşivlenir; ayrıntı DataResetService)
 	heading(page, "Tehlikeli bölge", UiKit.Color.Red).LayoutOrder = 60

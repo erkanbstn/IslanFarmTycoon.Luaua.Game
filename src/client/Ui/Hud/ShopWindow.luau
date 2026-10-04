@@ -77,7 +77,7 @@ function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 		local details = UiKit.disclosure(card.frame, 6, "Ayrıntılar")
 		detailsById[animalId] = details
 		fullDetails[animalId] = UiKit.text(details.body, "", "Caption")
-		local lineageRow = Instance.new("Frame")
+		local lineageRow = UiKit.actionRow(details.body, 4, 2, 96)
 		lineageRow.Name = "LineageRow"
 		lineageRow.BackgroundTransparency = 1
 		lineageRow.Size = UDim2.new(1, 0, 0, 0)
@@ -86,15 +86,12 @@ function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 		card.action.LayoutOrder = 5
 		lineageRow.Visible = false
 		lineageRow.Parent = details.body
-		UiKit.list(lineageRow, 4)
-		local lineageButton = UiKit.button(lineageRow, "", "secondary")
-		lineageButton.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
+		local lineageButton = UiKit.actionButton(lineageRow, 1, "", "secondary")
 		lineageButton.AutomaticSize = Enum.AutomaticSize.Y
 		lineageButton.TextSize = UiKit.TextSize.Button
 		UiKit.padding(lineageButton, 6, 6)
 		lineageButton.LayoutOrder = 1
-		local sellButton = UiKit.button(lineageRow, "", "secondary")
-		sellButton.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
+		local sellButton = UiKit.actionButton(lineageRow, 2, "", "secondary")
 		sellButton.AutomaticSize = Enum.AutomaticSize.Y
 		sellButton.TextSize = UiKit.TextSize.Button
 		UiKit.padding(sellButton, 6, 6)

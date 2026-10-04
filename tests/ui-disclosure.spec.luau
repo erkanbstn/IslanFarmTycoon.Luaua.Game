@@ -15,10 +15,13 @@ return function(createControls: any)
 		}
 	end
 	local instances = 0
+	local created: { any } = {}
 	local instance = {
 		new = function(class: string): any
 			instances += 1
-			return { ClassName = class, Activated = signal(), SetAttribute = function() end }
+			local node = { ClassName = class, Activated = signal(), SetAttribute = function() end }
+			table.insert(created, node)
+			return node
 		end,
 	}
 	local color = {
@@ -61,13 +64,35 @@ return function(createControls: any)
 				return { ... }
 			end,
 		},
-		{ AutomaticSize = { Y = 1 }, EasingStyle = { Quad = 1 }, EasingDirection = { Out = 1 } },
+		{
+			AutomaticSize = { Y = 1 },
+			EasingStyle = { Quad = 1 },
+			EasingDirection = { Out = 1 },
+			ApplyStrokeMode = { Border = 1 },
+		},
 		{
 			new = function()
 				return {}
 			end,
+		},
+		{
+			new = function(...: any): any
+				return { ... }
+			end,
 		}
 	)
+	for _, inline in { true, false } do
+		local setBadge = controls.badge({}, inline)
+		local badge = created[#created - 1]
+		assert(
+			badge.Position[1] == 1 and badge.Position[3] == 0 and badge.Position[4] == 6,
+			"Tab and menu counts stay in the upper-right corner, away from centered text"
+		)
+		setBadge(12)
+		assert(badge.Visible and badge.Text == "9+", "Corner badges retain bounded counts")
+		setBadge(0)
+		assert(not badge.Visible, "Empty corner badges disappear")
+	end
 	local disclosure = controls.disclosure({}, 3, "Ayrıntılar")
 	assert(not disclosure.isExpanded() and not disclosure.body.Visible, "explanations are hidden on first view")
 	assert(disclosure.button.Size[4] == tokens.TouchTarget, "details remain usable by touch and gamepad")

@@ -28,6 +28,8 @@ export type ContractsRecord = {
 }
 
 export type ProductionJob = {
+	cargoAnimalId: string?, -- Yalnız yardımcı taşıma görseli; ödül/hayvan hakkı değildir.
+	cargoZoneId: string?,
 	startCost: number?,
 	uid: string,
 	readyAt: number,

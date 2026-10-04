@@ -310,7 +310,9 @@ return function(createWindows: any)
 	windows.show(a)
 	assert(a.frame.Position.X.Offset == 700, "Showing an open window must preserve its layout")
 	windows.toggle(a)
-	assert(a.isOpen() and b.isOpen(), "Desktop menu click must not close an open window")
+	assert(not a.isOpen() and b.isOpen(), "Desktop menu click must close only its own open window")
+	windows.toggle(a)
+	assert(a.isOpen() and b.isOpen(), "Reopening must preserve other desktop windows")
 	assert(
 		a.frame.Position.X.Offset == 600 and a.frame.Position.Y.Offset == 400,
 		"Menu click must restore default placement"

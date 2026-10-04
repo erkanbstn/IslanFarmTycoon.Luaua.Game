@@ -1,6 +1,9 @@
 --!strict
 -- Русский словарь. Ключ = турецкий исходный текст; {} — место подстановки, в переводе пишется {1} {2}...
 return {
+	["Sunucuda ziyaret edebileceğin başka oyuncu yok."] = "На этом сервере нет других игроков, которых можно посетить.",
+	["Bu tur tüccarın satabileceği tüm eşyalara sahipsin. Rebirth sonrası yeni tur eşyalarını burada indirimli alabilirsin."] = "У тебя уже есть все предметы, которые торговец может продать в этом цикле. После перерождения здесь можно купить предметы для нового цикла со скидкой.",
+	["İlgili tesisler"] = "Связанные предприятия",
 	---------------------------------------------------------------------------
 	-- Главное меню и карточки
 	---------------------------------------------------------------------------
@@ -1572,7 +1575,6 @@ return {
 	["Tüccardan indirimli tur eşyası alındı."] = "Предмет для цикла куплен у торговца со скидкой.",
 	["Gezgin tüccar şu an yolda. Geldiğinde rozetinden haberdar olursun."] = "Странствующий торговец сейчас в пути. Его значок сообщит тебе о прибытии.",
 	["Bu ziyarette eşyanı aldın. Yeni teklifler bir sonraki ziyarette."] = "Ты уже купил предмет в этот визит. Новые предложения будут в следующий раз.",
-	["Bu ziyaretin eşyalarına zaten sahipsin. Yeni teklifler bir sonraki ziyarette."] = "У тебя уже есть все предметы этого визита. Новые предложения будут в следующий раз.",
 	["Ziyaretin bitmesine {} kaldı. Satın almak için meydandaki tüccara yaklaş."] = "До конца визита осталось {1}. Чтобы купить, подойди к торговцу на площади.",
 	["Normal: {}"] = "Обычно: {1}",
 	["Siparişler ve iki parti yedek için üretir; stok yeterliyse bekler, tüketilince sürdürür."] = "Производит для заказов и запаса на две партии; ждёт, если товаров достаточно, и продолжает после расхода.",

@@ -181,6 +181,34 @@ return function(
 		savedTrader.merchant.key == offer.cycle and savedTrader.merchant.bought,
 		"visit ownership survives encode/decode"
 	)
+	-- Tüccarın ilk seçimi sahip olunan eşyalarsa boş liste yerine sunulan yeni stok alınabilir.
+	do
+		local stocked = setup()
+		stocked.data.adminForce = { merchantUntil = stocked.now + 600 }
+		stocked.data.cash = 1e9
+		local initial = merchant.status(stocked.data, stocked.player.UserId, stocked.now).offers
+		for _, entry in initial do
+			inventory.grant(stocked.data, entry.itemId)
+		end
+		local replacement = assert(merchant.offer(stocked.data, stocked.player.UserId, stocked.now))
+		assert(not inventory.owns(stocked.data, replacement.itemId), "replacement is unowned")
+		local boughtReplacement =
+			trade(stocked, replacement.itemId, { cycle = replacement.cycle, expectedPrice = replacement.price })
+		assert(
+			boughtReplacement.ok and inventory.owns(stocked.data, replacement.itemId),
+			"actual server accepts the replenished personal offer"
+		)
+		assert(
+			merchant.status(stocked.data, stocked.player.UserId, stocked.now).bought,
+			"replacement still consumes the single visit purchase"
+		)
+		local untouched = setup()
+		untouched.data.adminForce = { merchantUntil = untouched.now + 600 }
+		assert(
+			#merchant.status(untouched.data, untouched.player.UserId, untouched.now).offers == config.MERCHANT.stock,
+			"one player's purchase never depletes another player's stock"
+		)
+	end
 	local departed = setup()
 	departed.data.cash = 1e9
 	departed.data.adminForce = { merchantUntil = departed.now + 1 }

@@ -425,17 +425,15 @@ function Windows.window(parent: Instance, options: WindowOptions): Window
 end
 
 -- Ortak açma yolları (menü karosu, kısayol, gamepad, dünya etkileşimi aynı kuralı kullanır):
---   toggle: masaüstünde varsayılan konuma döner/öne gelir; dar ekranda aç/kapa yapar.
+--   toggle: açıksa kapatır; kapalıysa varsayılan konumunda açar.
 --   show:   açıksa konumunu koruyarak öne gelir; kapalıysa açar.
 function Windows.toggle(target: Window)
-	if desktop() then
+	if target.isOpen() then
+		target.close()
+	else
 		if target.reset then
 			target.reset()
 		end
-		target.open()
-	elseif target.isOpen() then
-		target.close()
-	else
 		target.open()
 	end
 end

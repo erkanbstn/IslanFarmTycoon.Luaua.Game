@@ -2,7 +2,6 @@
 -- Önce ayrı ana çiftlikler; küçük uzman adalar yalnızca etkin ana çiftliğe bağlıdır.
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Workspace = game:GetService("Workspace")
 local RunService = game:GetService("RunService")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
@@ -10,6 +9,7 @@ local Remotes = require(Shared:WaitForChild("Remotes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 local UiKit = require(script.Parent:WaitForChild("UiKit"))
 local SendMoney = require(script.Parent:WaitForChild("SendMoney"))
+local VisitTargets = require(script.Parent:WaitForChild("Hud"):WaitForChild("VisitTargets"))
 local HudCommon = require(script.Parent:WaitForChild("Hud"):WaitForChild("HudCommon"))
 local ClientState = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("ClientState"))
 local Sfx = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("Sfx"))
@@ -258,7 +258,6 @@ local function create(): UiKit.Window
 	local freeList = section(6)
 	local freeGrid = UiKit.autoGrid(freeList, 1)
 	local freeCards: { [string]: UiKit.Card } = {}
-	local plotsById: { [string]: Instance } = {}
 	local offerById: { [string]: Offer } = {}
 
 	local function nameOf(id: string): string?
@@ -411,33 +410,13 @@ local function create(): UiKit.Window
 	local visitButtons: { TextButton } = {}
 	local giveButtons: { TextButton } = {}
 	local function rebuildVisits()
-		local plots = Workspace:FindFirstChild("Plots")
 		local signatureParts: { string } = {}
-		local nextPlots: { [string]: Instance } = {}
-		if plots then
-			for _, plot in plots:GetChildren() do
-				local id = plot:GetAttribute("PlotId")
-				if typeof(id) ~= "string" then
-					continue
-				end
-				nextPlots[id] = plot
-				table.insert(
-					signatureParts,
-					`{id}:{tostring(plot:GetAttribute("OwnerUserId"))}:{tostring(plot:GetAttribute("MainFarmId"))}:{tostring(
-						plot:GetAttribute("IslandName")
-					)}`
-				)
-			end
-		end
-		plotsById = nextPlots
-		offerById = offersById(ClientState.get())
-		for id, offer in offerById do
-			table.insert(signatureParts, `offer:{id}:{tostring(offer.ownerUserId)}:{offer.name}`)
-		end
 		for _, owner in Players:GetPlayers() do
 			table.insert(
 				signatureParts,
-				`owner:{owner.UserId}:{owner.DisplayName}:{tostring(owner:GetAttribute("ActiveMainFarmId"))}`
+				`owner:{owner.UserId}:{owner.DisplayName}:{tostring(owner:GetAttribute("ActiveMainFarmId"))}:{tostring(
+					owner:GetAttribute("ActivePlotId")
+				)}`
 			)
 		end
 		table.sort(signatureParts)
@@ -461,18 +440,16 @@ local function create(): UiKit.Window
 		).LayoutOrder =
 			0
 		local visitGrid = UiKit.autoGrid(visits, 1)
-		for index = 1, Config.MAP_PLOT_COUNT do
-			local id = tostring(index)
-			local plot = plotsById[id]
-			local offer = offerById[id]
-			local ownerId = if offer then offer.ownerUserId else plot and plot:GetAttribute("OwnerUserId")
-			if typeof(ownerId) ~= "number" or ownerId == player.UserId then
-				continue
-			end
-			local owner = Players:GetPlayerByUserId(ownerId)
-			local ownerName = if owner then owner.DisplayName else "Oyuncu"
-			local farmId = (owner and owner:GetAttribute("ActiveMainFarmId"))
-				or (plot and plot:GetAttribute("MainFarmId"))
+		local targets = VisitTargets.list(Players:GetPlayers(), player.UserId)
+		if #targets == 0 then
+			UiKit.text(visits, "Sunucuda ziyaret edebileceğin başka oyuncu yok.", "Body").LayoutOrder = 0
+		end
+		for index, target in targets do
+			local owner = target.owner
+			local ownerId = owner.UserId
+			local ownerName = owner.DisplayName
+			local id = target.plotId
+			local farmId = target.farmId
 			local card = UiKit.autoTile(visitGrid, index, "👤", { compact = true })
 			card.frame.Name = `Visit_{ownerId}`
 			setAvatar(card.icon, ownerId)
@@ -482,10 +459,14 @@ local function create(): UiKit.Window
 			card.title.Size = UDim2.new(1, 0, 0, UiKit.TextSize.Caption + 6)
 			UiKit.setText(card.title, ownerName)
 			UiKit.setText(card.detail, if farmId ~= nil then `Çiftlik {tostring(farmId)}` else "Yükleniyor")
-			UiKit.setText(card.action, "Ziyaret et")
-			table.insert(visitButtons, card.action)
+			UiKit.setText(card.action, if id then "Ziyaret et" else "Yükleniyor")
+			if id then
+				table.insert(visitButtons, card.action)
+			else
+				UiKit.setVariant(card.action, "disabled")
+			end
 			card.action.Activated:Connect(function()
-				if blocked() then
+				if blocked() or not id then
 					return
 				end
 				Remotes.get("RequestTravel"):FireServer(id)

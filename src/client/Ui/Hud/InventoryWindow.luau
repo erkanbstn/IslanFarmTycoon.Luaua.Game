@@ -181,23 +181,10 @@ function InventoryWindow.create(screenGui: Instance): Panel
 	-- Asa gücü: takılı asaya göre mevsim ya da hava seçenekleri
 	local powerHeader = UiKit.sectionHeader(equippedPage, "Asa gücü", POWER_ORDER)
 	local powerCard = UiKit.card(equippedPage, POWER_ORDER + 1, "🪄")
-	local powerRow = Instance.new("Frame")
-	powerRow.Name = "PowerRow"
-	powerRow.BackgroundTransparency = 1
-	powerRow.Size = UDim2.new(1, 0, 0, 36)
-	powerRow.LayoutOrder = 3
-	powerRow.Parent = powerCard.frame
-	UiKit.list(powerRow, 4, true)
+	local powerRow = UiKit.actionRow(powerCard.frame, 3, 4, 86)
 	local powerButtons: { TextButton } = {}
 	for index = 1, POWER_BUTTONS do
-		local button = UiKit.button(powerRow, "", "secondary")
-		button.LayoutOrder = index
-		button.Size = UDim2.new(1 / POWER_BUTTONS, -4, 1, 0)
-		button.TextScaled = true
-		local fit = Instance.new("UITextSizeConstraint")
-		fit.MaxTextSize = UiKit.TextSize.Button
-		fit.MinTextSize = UiKit.MinTextSize
-		fit.Parent = button
+		local button = UiKit.actionButton(powerRow, index, "", "secondary")
 		powerButtons[index] = button
 		button.Activated:Connect(function()
 			local state = ClientState.get()
@@ -230,10 +217,10 @@ function InventoryWindow.create(screenGui: Instance): Panel
 	local ownedGrid = UiKit.autoGrid(ownedPage, OWNED_ORDER + 3, 2)
 	local ownedCards: { [string]: UiKit.Card } = {}
 	local ownedDetails: { [string]: TextLabel } = {}
-	for position, itemId in Config.ITEM_ORDER do
-		local item = Config.ITEMS[itemId]
+	for position, item in ItemText.itemsOfSlot() do
+		local itemId = item.id
 		local card = UiKit.autoTile(ownedGrid, position, item.icon, { compact = true })
-		card.title.Text = item.displayName
+		card.title.Text = `{item.displayName} · Sv.{item.level or 1}`
 		card.detail.Text = ItemText.describe(item)
 		ItemPreview.mount(card.icon, itemId)
 		card.frame.Visible = false

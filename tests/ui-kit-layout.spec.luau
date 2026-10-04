@@ -1,11 +1,48 @@
 --!strict
 return function(createBase: any, createGrid: any)
 	local objects = {}
+	local function signal(): any
+		local entries = {}
+		return {
+			Connect = function(_self: any, callback: any): any
+				local entry = { active = true, callback = callback }
+				table.insert(entries, entry)
+				return {
+					Disconnect = function()
+						entry.active = false
+					end,
+				}
+			end,
+			Fire = function(_self: any, ...: any)
+				for _, entry in entries do
+					if entry.active then
+						entry.callback(...)
+					end
+				end
+			end,
+		}
+	end
 	local instance = {
 		new = function(class: string): any
 			local attributes = {}
+			local changed = {}
 			local object = {
 				ClassName = class,
+				Visible = true,
+				LayoutOrder = 0,
+				AbsoluteSize = { X = 600 },
+				ChildAdded = signal(),
+				ChildRemoved = signal(),
+				Destroying = signal(),
+				IsA = function(_self: any, kind: string): boolean
+					return class == kind
+				end,
+				GetPropertyChangedSignal = function(_self: any, name: string): any
+					if not changed[name] then
+						changed[name] = signal()
+					end
+					return changed[name]
+				end,
 				Activated = {
 					Connect = function(self: any, callback: any)
 						self.fire = callback
@@ -25,6 +62,15 @@ return function(createBase: any, createGrid: any)
 					end
 				end
 				return nil
+			end
+			object.GetChildren = function(self: any): any
+				local children = {}
+				for _, child in objects do
+					if child.Parent == self then
+						table.insert(children, child)
+					end
+				end
+				return children
 			end
 			table.insert(objects, object)
 			return object
@@ -100,7 +146,9 @@ return function(createBase: any, createGrid: any)
 			return { Parent = parent }
 		end,
 		button = function(parent: any): any
-			return { Parent = parent }
+			local button = instance.new("TextButton")
+			button.Parent = parent
+			return button
 		end,
 		badge = function(button: any): any
 			return function(count: number)
@@ -108,6 +156,34 @@ return function(createBase: any, createGrid: any)
 			end
 		end,
 	}, instance, size, dim, enum)
+	local actions = grid.actionRow({}, 0, 4, 86)
+	local actionButtons = {}
+	for index = 1, 5 do
+		local button = grid.actionButton(actions, index, "Choice", "secondary")
+		table.insert(actionButtons, button)
+		actions.ChildAdded:Fire(button)
+	end
+	assert(
+		actionButtons[1].Size[1] == 0.25 and actionButtons[5].Size[1] == 1,
+		"four choices share a row and a last lone action fills it"
+	)
+	actions.AbsoluteSize.X = 200
+	actions:GetPropertyChangedSignal("AbsoluteSize"):Fire()
+	assert(actionButtons[1].Size[1] == 0.5, "narrow action group uses two columns")
+	actions.AbsoluteSize.X = 100
+	actions:GetPropertyChangedSignal("AbsoluteSize"):Fire()
+	assert(
+		actionButtons[1].Size[1] == 1 and actionButtons[1].Size[4] >= tokens.TouchTarget,
+		"small cards preserve full touch targets"
+	)
+	actions.AbsoluteSize.X = 600
+	actionButtons[5].Visible = false
+	actionButtons[5]:GetPropertyChangedSignal("Visible"):Fire()
+	assert(actionButtons[4].Size[1] == 0.25, "hidden actions do not reserve a slot")
+	actions.Destroying:Fire()
+	actions.AbsoluteSize.X = 100
+	actions:GetPropertyChangedSignal("AbsoluteSize"):Fire()
+	assert(actionButtons[1].Size[1] == 0.25, "destroyed action group disconnects resize listeners")
 	local host = grid.autoGrid({}, 0, 2)
 	for _, object in objects do
 		if object.ClassName == "UIListLayout" and object.Parent == host then

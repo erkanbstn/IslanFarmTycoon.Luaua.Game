@@ -10,9 +10,27 @@ return function(createItemText: any)
 		end,
 	}, {
 		ITEM_SLOTS = { charm = { displayName = "Muska" } },
-		ITEM_ORDER = {},
-		ITEMS = {},
+		ITEM_SLOT_ORDER = { "tool", "charm" },
+		ITEM_ORDER = { "strong", "cheap", "starter", "reward" },
+		ITEMS = {
+			strong = { id = "strong", slot = "tool", level = 4, price = 100 },
+			cheap = { id = "cheap", slot = "tool", level = 2, price = 20 },
+			starter = { id = "starter", slot = "tool", level = 1, price = 10 },
+			reward = { id = "reward", slot = "tool", level = 3, price = 1, rewardOnly = true },
+		},
 	})
+	local ordered = text.itemsOfSlot("tool")
+	assert(
+		ordered[1].id == "starter"
+			and ordered[2].id == "cheap"
+			and ordered[3].id == "reward"
+			and ordered[4].id == "strong",
+		"Level order must survive mixed source order and reward price placeholders"
+	)
+	assert(
+		#text.itemsOfSlot() == 4 and #text.itemsOfSlot("charm") == 0,
+		"All-items and category filters remain independent"
+	)
 	local description = text.describe({
 		slot = "charm",
 		effects = { movementSpeed = 0.15, contractBonus = 0.25, upgradeDiscount = 0.10, growthSpeed = 0.8 },

@@ -14,6 +14,82 @@ local TILE_HEIGHT = 260
 local COMPACT_TILE_HEIGHT = 124 -- aksiyon düğmesiz karolar (ör. ahır deposu)
 local GAP = 8
 
+-- İşlem grubu: kısa seçenekler dört, uzun işlemler iki sütun; dar kartta tek sütun.
+function Grid.actionRow(parent: Instance, order: number, maxColumns: number?, minWidth: number?): Frame
+	local row = Grid.autoGrid(parent, order, maxColumns or 2)
+	row.Name = "ActionRow"
+	local connections: { RBXScriptConnection } = {}
+	local buttonConnections: { [Instance]: { RBXScriptConnection } } = {}
+	local function resize()
+		local buttons: { TextButton } = {}
+		for _, child in row:GetChildren() do
+			if child:IsA("TextButton") and child.Visible then
+				table.insert(buttons, child)
+			end
+		end
+		table.sort(buttons, function(a: TextButton, b: TextButton): boolean
+			return a.LayoutOrder < b.LayoutOrder
+		end)
+		local limit = math.min(maxColumns or 2, #buttons)
+		local columns = if limit >= 4 and row.AbsoluteSize.X >= 4 * (minWidth or 144) + 3 * GAP
+			then 4
+			elseif limit >= 2 and row.AbsoluteSize.X >= 2 * (minWidth or 144) + GAP then 2
+			else 1
+		for index, button in buttons do
+			local lastRowCount = #buttons % columns
+			local count = if lastRowCount > 0 and index > #buttons - lastRowCount then lastRowCount else columns
+			button.Size = UDim2.new(1 / count, -GAP * (count - 1) / count - 1, 0, Tokens.TouchTarget)
+			button.AutomaticSize = Enum.AutomaticSize.Y
+		end
+	end
+	local function watch(child: Instance)
+		if child:IsA("TextButton") then
+			buttonConnections[child] = {
+				child:GetPropertyChangedSignal("Visible"):Connect(resize),
+				child:GetPropertyChangedSignal("LayoutOrder"):Connect(resize),
+			}
+		end
+		resize()
+	end
+	table.insert(connections, row.ChildAdded:Connect(watch))
+	table.insert(
+		connections,
+		row.ChildRemoved:Connect(function(child: Instance)
+			local listeners = buttonConnections[child]
+			if listeners then
+				for _, connection in listeners do
+					connection:Disconnect()
+				end
+			end
+			buttonConnections[child] = nil
+			resize()
+		end)
+	)
+	table.insert(connections, row:GetPropertyChangedSignal("AbsoluteSize"):Connect(resize))
+	row.Destroying:Connect(function()
+		for _, connection in connections do
+			connection:Disconnect()
+		end
+		for _, listeners in buttonConnections do
+			for _, connection in listeners do
+				connection:Disconnect()
+			end
+		end
+		table.clear(buttonConnections)
+	end)
+	return row
+end
+
+function Grid.actionButton(parent: Frame, order: number, text: string, variant: Controls.Variant): TextButton
+	local button = Controls.button(parent, text, variant)
+	button.Size = UDim2.new(1, 0, 0, Tokens.TouchTarget)
+	button.AutomaticSize = Enum.AutomaticSize.Y
+	button.TextSize = Tokens.TextSize.Button
+	Base.padding(button, 8, 6)
+	button.LayoutOrder = order
+	return button
+end
+
 export type TileOptions = {
 	compact: boolean?,
 }

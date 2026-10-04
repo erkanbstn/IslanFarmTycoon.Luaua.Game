@@ -8,7 +8,10 @@
         "$path": "src/shared"
       },
       "ClientAssets": {
-        "$path": "client-assets"
+        "$path": "client-assets",
+        "Animals": {
+          "$path": "assets/Animals"
+        }
       },
       "ItemPreviews": {
         "$path": "assets/Items"

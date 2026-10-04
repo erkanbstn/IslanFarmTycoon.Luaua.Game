@@ -1,6 +1,9 @@
 --!strict
 -- İngilizce sözlük. Anahtar = Türkçe kaynak metin; {} şablon boşluğu, hedefte {1} {2}... olarak kullanılır.
 return {
+	["Sunucuda ziyaret edebileceğin başka oyuncu yok."] = "There are no other players to visit on this server.",
+	["Bu tur tüccarın satabileceği tüm eşyalara sahipsin. Rebirth sonrası yeni tur eşyalarını burada indirimli alabilirsin."] = "You own every item the merchant can sell this run. After rebirth, you can buy new run items here at a discount.",
+	["İlgili tesisler"] = "Related facilities",
 	---------------------------------------------------------------------------
 	-- Ana menü ve kartlar
 	---------------------------------------------------------------------------
@@ -1573,7 +1576,6 @@ return {
 	["Tüccardan indirimli tur eşyası alındı."] = "A discounted run item was bought from the merchant.",
 	["Gezgin tüccar şu an yolda. Geldiğinde rozetinden haberdar olursun."] = "The traveling merchant is on the road. His badge will let you know when he arrives.",
 	["Bu ziyarette eşyanı aldın. Yeni teklifler bir sonraki ziyarette."] = "You bought your item this visit. New offers arrive on the next visit.",
-	["Bu ziyaretin eşyalarına zaten sahipsin. Yeni teklifler bir sonraki ziyarette."] = "You already own all items from this visit. New offers arrive on the next visit.",
 	["Ziyaretin bitmesine {} kaldı. Satın almak için meydandaki tüccara yaklaş."] = "The visit ends in {1}. Approach the merchant in the plaza to buy.",
 	["Normal: {}"] = "Regular: {1}",
 	["Siparişler ve iki parti yedek için üretir; stok yeterliyse bekler, tüketilince sürdürür."] = "Produces for orders and a two-batch reserve; waits when stock is sufficient and resumes when it is used.",

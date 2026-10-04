@@ -455,11 +455,11 @@ function Controls.closeButton(parent: Instance, onClose: () -> ()): TextButton
 end
 
 -- Düğmenin köşesinde kırmızı sayı rozeti + altın çerçeve. Dönen fonksiyonla sayı ayarlanır.
-function Controls.badge(target: GuiObject, inline: boolean?): (count: number) -> ()
+function Controls.badge(target: GuiObject, _inline: boolean?): (count: number) -> ()
 	local badge = Instance.new("TextLabel")
 	badge.Name = "Badge"
 	badge.AnchorPoint = Vector2.new(0.5, 0.5)
-	badge.Position = if inline then UDim2.new(1, -13, 0.5, 0) else UDim2.fromScale(0, 0)
+	badge.Position = UDim2.new(1, -6, 0, 6)
 	badge.Size = UDim2.fromOffset(22, 22)
 	badge.Active = false -- dokunuş altındaki karoya geçer (karo zaten >= TouchTarget)
 	badge.BackgroundColor3 = Tokens.Color.Red
