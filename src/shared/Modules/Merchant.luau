@@ -63,6 +63,9 @@ local function activeVisit(save: any, userId: number, now: number): Visit?
 	return nil
 end
 
+-- NPC yaşam döngüsü katalog üretmeden aynı ziyaret sınırını okuyabilir.
+Merchant.currentVisit = activeVisit
+
 -- Ziyaret başına tek alım; sabit katalog sahiplik değişince yeni bir teklif üretmez.
 function Merchant.status(save: any, userId: number, now: number): Status
 	local visit = activeVisit(save, userId, now)

@@ -38,6 +38,7 @@ local InventoryService = require(Services:WaitForChild("InventoryService"))
 local MerchantVisualService = require(script:WaitForChild("Presentation"):WaitForChild("MerchantVisualService"))
 local TelemetryService = require(Services:WaitForChild("TelemetryService"))
 local Rewards = require(Shared:WaitForChild("Modules"):WaitForChild("Rewards"))
+local Merchant = require(Shared:WaitForChild("Modules"):WaitForChild("Merchant"))
 local RateLimiter = require(script:WaitForChild("Modules"):WaitForChild("RateLimiter"))
 local SessionLock = require(script:WaitForChild("Modules"):WaitForChild("SessionLock"))
 local Preferences = require(script:WaitForChild("Modules"):WaitForChild("Preferences"))
@@ -82,7 +83,20 @@ BuyPadService.init()
 EngagementService.init()
 MonetizationService.init()
 if mapReady then
-	MerchantVisualService.init()
+	MerchantVisualService.init(function(): boolean
+		local now = DateTime.now().UnixTimestampMillis / 1000
+		for _, player in Players:GetPlayers() do
+			local data = PlayerDataService.tryGet(player)
+			if
+				data
+				and player:GetAttribute("WorldReady") == true
+				and Merchant.currentVisit(data, player.UserId, now)
+			then
+				return true
+			end
+		end
+		return false
+	end)
 end
 InventoryService.configureMerchantProximity(MerchantVisualService.isNear)
 InventoryService.init()
