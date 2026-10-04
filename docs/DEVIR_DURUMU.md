@@ -1,5 +1,19 @@
 # Güncel devir durumu
 
+## Model yüzey birleşimleri (5 Ekim 2026)
+
+Tavus kuşunda yedi kuyruk tüyü aynı düzlemde kesişiyordu; ayrı ince katmanlara ve tüyün yüzeyinden ayrılmış göz beneklerine dönüştürüldü. Pencere kenarları yan duvarla aynı köşe hacmini paylaşıyordu: 180 bina/seviye modelinde yan duvar ön çerçevenin arkasında biter ve dış çerçeve köşeyi tam doldurur. `tools/models/refine_surface_joins.py` yeniden çalıştırılabilir (ikinci çalıştırma sıfır değişiklik). UpgradeVisualVersion 4; modeller çalışma anında kuruluyor, MAP_VERSION/Haritayı Kur gerekmez.
+
+36 hayvan modelinde aynı konum/boyutlu birebir kopya yüzey taraması sıfır bulgu verdi; bu bütün olası parça kesişimlerinin görsel olarak doğrulandığı anlamına gelmez. Pencereli modellerin tamamında yan duvar/kenar kesişimi sıfır. `check-assets.py`: 812 görünüm, eksik/bozuk yok. 16 model doğrulayıcı testi ve Fast -RequireTypes geçti; çıktı `.test-build/surface-joins-fast.log`. Yeni kontrol eski pencere köşe hacmini ve eş düzlemdeki kuyruk tüylerini reddeder. Studio render/Full bu düzeltmede çalıştırılmadı; Rojo sonrasında Play yeniden başlatılarak farklı soy seviyelerinde kuyruk ve pencereler görülmeli. Değişiklikler mevcut geliştirme dalında yerel; commit/push yok.
+
+## Canlı dünya geliştirmesi (4 Ekim 2026)
+
+Görsel geri bildirim sonrası yatma asimetrisi düzeltildi: yürüyüşün çapraz bacak fazı ve dinlenmenin gövdeye katlanma yönü ayrıldı. Sol/sağ çiftleri aynı yönde, ön/arka çiftleri gövde merkezine doğru katlanır; ayak/toynak aynı bacak eklemini izler. 22 bacaklı türün iki/dört bacaklı fixture regresyonları ve dönme etkisini içeren ayak yükseklik/derinlik testleri eklendi. Kontrol çıktısı `.test-build/rest-symmetry-fast.log`; gerçek Studio render kontrolü hâlâ gerekli.
+
+Arayüz düzeltmeleri `739093e` ile GitHub main'e gönderildi. Yeni hayvan/kuş davranışları `codex/living-world` dalında yerel çalışma olarak tutuluyor; bu yeni aşama commit/push edilmedi. Üç alt ajan hayvan canlandırma, kuş davranışı ve tür metadata'sını ayrı dosyalarda tamamladı. Gündüz yemlenme/yürüyüş, gece türe göre dinlenme, balığın yavaş yüzmesi ve sabah eklenti parkuruna dönüş; kuşların katı yüzeye konması ve koşan oyuncudan kaçması eklendi. Ekonomi ve kayıt şeması değişmedi; yeni mesh, ürün veya harita kurulumu gerekmez.
+
+Hedefli hayvan/kuş ve görsel kimlik testleri mevcut kaynağı fixture'larla çalıştırır. Son Fast çıktısı `.test-build/living-world-fast.log`. Önceki arayüz için Full simülasyon/model/derlemeleri geçti; eşzamanlı yeni BirdBehavior modülü mimari rehberde henüz anılmadığı için rehber adımı başarısızdı, `MIMARI.md` güncellemesiyle düzeltildi. Studio bağlı olmadığından bu aşamada gerçek render, çok oyunculu görüntü ve FPS doğrulanmadı. Sonraki kontrol: Rojo ile gündüz/gece, at parkuru, temalı hayvanlar, yerde ve çatıda kuş konması/koşunca kaçması, telefon ve düşük kalite.
+
 ## Boş ve tamamlanmış arayüzler (4 Ekim 2026)
 
 Başlangıç temiz `main` (`7f269d1`). HUD artık isteğe bağlı kuluçka yerine rebirth hazırlığını öncelikli gösterir; R30 ve altı tamamlanmış çiftlik için son durum ayrıdır. Bu durumlarda üretim başlatma önerisi eklenmez. Ortak UiKit.emptyState; tüccarın üç boş durumu, envanter/kategori, açılmamış siparişler ve tamamlanan yapıları merkezlenmiş ikon, başlık ve açıklamayla gösterir. Gereksiz alışveriş talimatları ve başka yatırım yokken yatırım butonu gizlenir. Metinler beş dilde tamamlandı; HUD, tüccar ve ortak bileşen regresyonları genişletildi.

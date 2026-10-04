@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
 <roblox version="4">
   <Meta name="ExplicitAutoJoints">true</Meta>
   <Item class="Model" referent="RBXMODEL">
@@ -71,7 +72,7 @@
         <Vector3 name="Size">
           <X>0.6</X>
           <Y>7.2</Y>
-          <Z>5.500000000000227</Z>
+          <Z>5.55</Z>
         </Vector3>
         <Color3 name="Color">
           <R>0.8980392156862745</R>
@@ -81,7 +82,7 @@
         <CoordinateFrame name="CFrame">
           <X>1055.8</X>
           <Y>8.0</Y>
-          <Z>1295.15</Z>
+          <Z>1295.125</Z>
           <R00>1.0</R00>
           <R01>-0.0</R01>
           <R02>0.0</R02>
@@ -108,7 +109,7 @@
         <Vector3 name="Size">
           <X>0.6</X>
           <Y>7.2</Y>
-          <Z>5.500000000000227</Z>
+          <Z>5.55</Z>
         </Vector3>
         <Color3 name="Color">
           <R>0.8980392156862745</R>
@@ -118,7 +119,7 @@
         <CoordinateFrame name="CFrame">
           <X>1064.2</X>
           <Y>8.0</Y>
-          <Z>1295.15</Z>
+          <Z>1295.125</Z>
           <R00>1.0</R00>
           <R01>-0.0</R01>
           <R02>0.0</R02>
@@ -725,7 +726,7 @@
         <token name="Shape">1</token>
         <float name="Transparency">0</float>
         <Vector3 name="Size">
-          <X>0.29</X>
+          <X>0.6</X>
           <Y>1.82</Y>
           <Z>0.5</Z>
         </Vector3>
@@ -735,7 +736,7 @@
           <B>0.17647058823529413</B>
         </Color3>
         <CoordinateFrame name="CFrame">
-          <X>1055.64</X>
+          <X>1055.8</X>
           <Y>8.5</Y>
           <Z>1292.1</Z>
           <R00>1</R00>
@@ -985,7 +986,7 @@
         <token name="Shape">1</token>
         <float name="Transparency">0</float>
         <Vector3 name="Size">
-          <X>0.29</X>
+          <X>0.6</X>
           <Y>1.82</Y>
           <Z>0.5</Z>
         </Vector3>
@@ -995,7 +996,7 @@
           <B>0.17647058823529413</B>
         </Color3>
         <CoordinateFrame name="CFrame">
-          <X>1064.36</X>
+          <X>1064.2</X>
           <Y>8.5</Y>
           <Z>1292.1</Z>
           <R00>1</R00>

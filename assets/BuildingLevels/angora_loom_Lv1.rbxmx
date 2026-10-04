@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
 <roblox version="4">
   <Meta name="ExplicitAutoJoints">true</Meta>
   <Item class="Model" referent="angora_loom_Lv1_0">
@@ -63,12 +64,12 @@
         <Vector3 name="Size">
           <X>0.5</X>
           <Y>7</Y>
-          <Z>5.850000000000136</Z>
+          <Z>5.9</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1055.75</X>
           <Y>7.8</Y>
-          <Z>815.275</Z>
+          <Z>815.25</Z>
           <R00>1</R00>
           <R01>-0</R01>
           <R02>0</R02>
@@ -100,12 +101,12 @@
         <Vector3 name="Size">
           <X>0.5</X>
           <Y>7</Y>
-          <Z>5.850000000000136</Z>
+          <Z>5.9</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1064.25</X>
           <Y>7.8</Y>
-          <Z>815.275</Z>
+          <Z>815.25</Z>
           <R00>1</R00>
           <R01>-0</R01>
           <R02>0</R02>
@@ -388,12 +389,12 @@
       <Properties>
         <string name="Name">WindowJamb</string>
         <Vector3 name="Size">
-          <X>0.29</X>
+          <X>0.5</X>
           <Y>1.82</Y>
           <Z>0.5</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1055.64</X>
+          <X>1055.75</X>
           <Y>8.5</Y>
           <Z>812.05</Z>
           <R00>1</R00>
@@ -611,12 +612,12 @@
       <Properties>
         <string name="Name">WindowJamb</string>
         <Vector3 name="Size">
-          <X>0.29</X>
+          <X>0.5</X>
           <Y>1.82</Y>
           <Z>0.5</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1064.36</X>
+          <X>1064.25</X>
           <Y>8.5</Y>
           <Z>812.05</Z>
           <R00>1</R00>

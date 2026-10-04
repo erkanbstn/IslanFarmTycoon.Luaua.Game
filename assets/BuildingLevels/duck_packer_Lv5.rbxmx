@@ -72,7 +72,7 @@
         <Vector3 name="Size">
           <X>0.6</X>
           <Y>5.0</Y>
-          <Z>7.1</Z>
+          <Z>7.15</Z>
         </Vector3>
         <Color3 name="Color">
           <R>0.7450980392156863</R>
@@ -82,7 +82,7 @@
         <CoordinateFrame name="CFrame">
           <X>995.3</X>
           <Y>9.1</Y>
-          <Z>175.15</Z>
+          <Z>175.125</Z>
           <R00>1.0</R00>
           <R01>-0.0</R01>
           <R02>0.0</R02>
@@ -109,7 +109,7 @@
         <Vector3 name="Size">
           <X>0.6</X>
           <Y>5.0</Y>
-          <Z>7.1</Z>
+          <Z>7.15</Z>
         </Vector3>
         <Color3 name="Color">
           <R>0.7450980392156863</R>
@@ -119,7 +119,7 @@
         <CoordinateFrame name="CFrame">
           <X>1004.7</X>
           <Y>9.1</Y>
-          <Z>175.15</Z>
+          <Z>175.125</Z>
           <R00>1.0</R00>
           <R01>-0.0</R01>
           <R02>0.0</R02>
@@ -615,7 +615,7 @@
         <token name="Shape">1</token>
         <float name="Transparency">0</float>
         <Vector3 name="Size">
-          <X>0.29</X>
+          <X>0.6</X>
           <Y>1.82</Y>
           <Z>0.5</Z>
         </Vector3>
@@ -625,7 +625,7 @@
           <B>0.17647058823529413</B>
         </Color3>
         <CoordinateFrame name="CFrame">
-          <X>995.145</X>
+          <X>995.3</X>
           <Y>8.5</Y>
           <Z>171.3</Z>
           <R00>1</R00>
@@ -838,7 +838,7 @@
         <token name="Shape">1</token>
         <float name="Transparency">0</float>
         <Vector3 name="Size">
-          <X>0.29</X>
+          <X>0.6</X>
           <Y>1.82</Y>
           <Z>0.5</Z>
         </Vector3>
@@ -848,7 +848,7 @@
           <B>0.17647058823529413</B>
         </Color3>
         <CoordinateFrame name="CFrame">
-          <X>1004.855</X>
+          <X>1004.7</X>
           <Y>8.5</Y>
           <Z>171.3</Z>
           <R00>1</R00>

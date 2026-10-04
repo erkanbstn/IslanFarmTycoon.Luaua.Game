@@ -1,0 +1,16 @@
+--!strict
+return function(BirdBehavior: any)
+	assert(BirdBehavior.safeSurface(1, false, true, 0), "solid ground supports a landing")
+	assert(BirdBehavior.safeSurface(0.8, false, true, 0), "gentle roofs support a landing")
+	assert(not BirdBehavior.safeSurface(0.5, false, true, 0), "steep surfaces cannot support a perched bird")
+	assert(not BirdBehavior.safeSurface(1, true, true, 0), "water is not a perch")
+	assert(not BirdBehavior.safeSurface(1, false, false, 0), "non-solid decorations are not a perch")
+	assert(not BirdBehavior.safeSurface(1, false, true, 1), "invisible world barriers are not a perch")
+	assert(BirdBehavior.shouldFlee(10, 8), "approaching runner scares the bird")
+	assert(not BirdBehavior.shouldFlee(10, 0), "near stationary player does not repeatedly scare birds")
+	assert(BirdBehavior.shouldFlee(3, 0), "standing directly on the bird still scares it")
+	assert(not BirdBehavior.shouldFlee(20, 20), "distant runners do not scare birds")
+	assert(BirdBehavior.progress(-1, 2) == 0, "transition cannot begin before its origin")
+	assert(BirdBehavior.progress(20, 2) == 1, "large frames cannot overshoot the target")
+	assert(BirdBehavior.progress(0, 0) == 0, "zero-duration input stays finite")
+end

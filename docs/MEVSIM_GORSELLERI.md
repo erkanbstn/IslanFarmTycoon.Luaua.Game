@@ -1,5 +1,13 @@
 # Mevsim görselleri
 
+## Canlı dünya
+
+`AnimalAnimator` gündüz hayvanları güvenli alanlarında gezdirir; aralıklı yemlenme molalarında baş/boyun eğilir, yürürken bacaklar hareket eder. 20:00–06:00 arasında kara hayvanları türe uygun dinlenir, atlar ayakta kestirir; balıklar yavaş yüzmeye devam eder. Sabah eklenti parkuru dahil hareket kaldığı yerden sürer. Görünen tür `AnimalSpecies` metadata'sıyla belirlenir; tema değişimi kayıt türünden farklı bir model gösterebilir. Bu hareketler üretim, gelir ve eklenti bonuslarını değiştirmez.
+
+`Birds` gündüz ara sıra uygun katı zemine veya yeterince düz çatıya konar; yakındaki koşan oyuncudan uçup uzaklaşır ve sürüsüne döner. Su, dik/görünmez yüzeyler ve canlı modeller konma noktası olamaz. Konulan yüzey streaming ile kaybolursa kuş kalkar. Düşük kalitede en fazla iki, diğer kademelerde en fazla altı kuş aynı anda konabilir; en çok 0,4 saniyede bir konma ışını denenir. Gece gündüz kuşları gizlenir. ReducedMotion mevcut hareketi durdurma sözleşmesini korur. Havuz kapanışta temizlenir.
+
+Gerçek kaynakla hayvan gece/gündüz, yemlenme, eklentiye dönüş ve poz birikmesi regresyonları; kuş konma, kaçma, streaming, kalite/erişilebilirlik ve temizlik fixture testleri bulunur. Bunlar gerçek cihazdaki görüntü/FPS ölçümü değildir.
+
 Mevsim süresi `Config.SEASON_SECONDS = 900` (15 dakika); hava değişimi 150–270 saniye.
 Tüm sunucular aynı mevsim saatini kullanır. Yeni katılan oyuncu kalan süreyi görür;
 katılınca kişisel bir 15 dakika başlamaz.

@@ -332,6 +332,43 @@ def inspect(path: Path, folder: str) -> list[str]:
             problems.append("tabela eksik: 1 SignBoard + 2 SignPost gerekir")
     if folder == "FacilityProps" and path.stem in ("BuyPad", "BuildSite_Unbuilt"):
         problems.extend(facility_contract_problems(model, path.stem))
+    if folder in ("Buildings", "BuildingLevels") or (folder == "Animals" and path.stem == "peacock"):
+        problems.extend(surface_join_problems(model, path.stem))
+    return problems
+
+
+def surface_join_problems(model: ET.Element, name: str) -> list[str]:
+    """Visible window corners and fan layers must not share/intersect their surface planes."""
+    rows = []
+    for item in model.iter("Item"):
+        props = item.find("Properties")
+        if props is None:
+            continue
+        size = numeric_components(props.find("Vector3[@name='Size']"), "XYZ")
+        frame = numeric_components(props.find("CoordinateFrame[@name='CFrame']"), CFRAME_COMPONENTS)
+        label = props.find("string[@name='Name']")
+        if size and frame and label is not None:
+            rows.append((label.text, size, frame))
+    problems = []
+    walls = [r for r in rows if r[0] in ("WallLeft", "WallRight")]
+    for jamb in [r for r in rows if r[0] == "WindowJamb"]:
+        for wall in walls:
+            # These factory models use axis-aligned wall/jamb parts.
+            if any(abs(r[2][i]) > 1e-6 for r in (jamb, wall) for i in (4, 5, 6, 8, 9, 10)):
+                continue
+            overlap = [min(r[2][i] + r[1][i] / 2 for r in (jamb, wall))
+                       - max(r[2][i] - r[1][i] / 2 for r in (jamb, wall)) for i in range(3)]
+            if min(overlap) > 1e-5:
+                problems.append("WindowJamb yan duvarla köşede iç içe geçiyor")
+    if name == "peacock":
+        feathers = [r for r in rows if r[0] == "Feather"]
+        if feathers:
+            normal = [feathers[0][2][5], feathers[0][2][8], feathers[0][2][11]]
+            layers = sorted((sum(r[2][i] * normal[i] for i in range(3)), r[1][2]) for r in feathers)
+            for left, right in zip(layers, layers[1:]):
+                if right[0] - left[0] < (left[1] + right[1]) / 2 + 0.005:
+                    problems.append("tavus kuşu kuyruk katmanları kesişiyor")
+                    break
     return problems
 
 

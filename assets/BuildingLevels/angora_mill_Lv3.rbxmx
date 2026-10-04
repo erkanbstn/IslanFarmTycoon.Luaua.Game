@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
 <roblox version="4">
   <Meta name="ExplicitAutoJoints">true</Meta>
   <Item class="Model" referent="angora_mill_Lv3_0">
@@ -63,12 +64,12 @@
         <Vector3 name="Size">
           <X>0.5</X>
           <Y>5.35</Y>
-          <Z>7.45</Z>
+          <Z>7.5</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1055.25</X>
           <Y>8.625</Y>
-          <Z>775.275</Z>
+          <Z>775.25</Z>
           <R00>1</R00>
           <R01>-0</R01>
           <R02>0</R02>
@@ -100,12 +101,12 @@
         <Vector3 name="Size">
           <X>0.5</X>
           <Y>5.35</Y>
-          <Z>7.45</Z>
+          <Z>7.5</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1064.75</X>
           <Y>8.625</Y>
-          <Z>775.275</Z>
+          <Z>775.25</Z>
           <R00>1</R00>
           <R01>-0</R01>
           <R02>0</R02>
@@ -388,12 +389,12 @@
       <Properties>
         <string name="Name">WindowJamb</string>
         <Vector3 name="Size">
-          <X>0.29</X>
+          <X>0.5</X>
           <Y>1.82</Y>
           <Z>0.5</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1055.14</X>
+          <X>1055.25</X>
           <Y>8.5</Y>
           <Z>771.25</Z>
           <R00>1</R00>
@@ -611,12 +612,12 @@
       <Properties>
         <string name="Name">WindowJamb</string>
         <Vector3 name="Size">
-          <X>0.29</X>
+          <X>0.5</X>
           <Y>1.82</Y>
           <Z>0.5</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1064.86</X>
+          <X>1064.75</X>
           <Y>8.5</Y>
           <Z>771.25</Z>
           <R00>1</R00>

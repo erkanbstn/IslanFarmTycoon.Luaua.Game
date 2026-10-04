@@ -26,7 +26,7 @@ type PlayerSave = GameTypes.PlayerSave
 
 local UpgradeVisualService = {}
 
-local VISUAL_VERSION = 3
+local VISUAL_VERSION = 4
 local METAL = UpgradeParts.METAL
 local PRODUCTION_RECIPES = UpgradeParts.PRODUCTION_RECIPES
 local makePart = UpgradeParts.makePart

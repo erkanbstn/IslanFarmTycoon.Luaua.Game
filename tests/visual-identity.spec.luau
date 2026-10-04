@@ -232,8 +232,8 @@ deps.Config = {
 	getBarnLevelConfig = function()
 		return {}
 	end,
-	getAnimalLook = function(id)
-		return { modelId = id, displayName = id }
+	getAnimalLook = function(id, theme)
+		return { modelId = if theme == "2" and id == "cow" then "yak" else id, displayName = id }
 	end,
 }
 deps.FarmMath = {
@@ -297,6 +297,7 @@ deps.AnimalModels = {
 			return nil
 		end
 		local model = Instance.new("Model")
+		model:SetAttribute("FixtureModelId", id)
 		child(model, "Part", "Body")
 		return model
 	end,
@@ -367,6 +368,14 @@ local promptA = modelA:FindFirstChild("ExtensionAssignPrompt", true)
 local salePrompt = sale:FindFirstChild("BuyExtensionPrompt", true)
 local animals = plot:FindFirstChild("Animals")
 local animal1, animal2 = animals:FindFirstChild("goat_1"), animals:FindFirstChild("cow_2")
+assert(animal1:GetAttribute("AnimalSpecies") == "goat", "normal animal exposes its visible species")
+assert(animal2:GetAttribute("AnimalSpecies") == "cow", "normal cow exposes its visible species")
+animal2:SetAttribute("AnimalSpecies", nil)
+animal.refresh(plot, save)
+assert(
+	animals:FindFirstChild("cow_2") == animal2 and animal2:GetAttribute("AnimalSpecies") == "cow",
+	"existing models receive missing species metadata without replacing the animal"
+)
 local initialBarn = plot:FindFirstChild("Barn")
 local decor, flags = starter:FindFirstChild("Decor"), starter:FindFirstChild("LevelFlags")
 local wetPatches = decor:FindFirstChild("GrassPatches")
@@ -473,6 +482,20 @@ refresh()
 assert(
 	animals:FindFirstChild("goat_1") and animals:FindFirstChild("cow_2"),
 	"returned assets render on the next refresh without changing animal records"
+)
+animal.clear(plot)
+plot:SetAttribute("ThemeIndex", "2")
+animal.refresh(plot, save)
+local themedCow = animals:FindFirstChild("cow_2")
+assert(
+	themedCow:GetAttribute("AnimalSpecies") == "yak" and themedCow:GetAttribute("FixtureModelId") == "yak",
+	"themed cow animation follows its visible yak model rather than the saved cow identity"
+)
+themedCow:SetAttribute("AnimalSpecies", nil)
+animal.refresh(plot, save)
+assert(
+	animals:FindFirstChild("cow_2") == themedCow and themedCow:GetAttribute("AnimalSpecies") == "yak",
+	"retained themed model receives its visible species metadata"
 )
 print(
 	"PASS visual identity: discounts, jobs, capacities, purchase, animal growth, zone level/lock, barn level, missing models and retry"

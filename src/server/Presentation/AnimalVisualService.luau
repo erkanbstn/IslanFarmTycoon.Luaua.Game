@@ -69,6 +69,7 @@ local function buildAnimal(
 
 	-- Değişmeyen hayvanları bir dahaki yenilemede tanımak için
 	visual:SetAttribute("Uid", animal.uid)
+	visual:SetAttribute("AnimalSpecies", look.modelId)
 	visual:SetAttribute("SwimDepthOffset", depth)
 	visual:SetAttribute("Stage", animal.stage)
 	visual:SetAttribute("LineageTier", tierOf(lineageLevel))
@@ -174,6 +175,9 @@ function AnimalVisualService.refresh(plot: Model, data: PlayerSave)
 			and existingExt == (animal.extensionId or "")
 		then
 			keep[animal.uid] = true
+			if existing:GetAttribute("AnimalSpecies") == nil then
+				existing:SetAttribute("AnimalSpecies", Config.getAnimalLook(animal.animalId, themeKey).modelId)
+			end
 			-- Irk seviyesi aynı kademede değiştiyse yalnızca rozet yenilenir; kademe değişince hayvan yukarıda yeniden kurulur (boy/aksesuar)
 			if existing:GetAttribute("Lineage") ~= lineageLevel then
 				local swimDepth = existing:GetAttribute("SwimDepthOffset")

@@ -3,6 +3,7 @@
 -- Sunucu hayvanı "Animal" etiketi ve AreaCFrame / AreaSize / HeightOffset attribute'larıyla işaretler.
 
 local CollectionService = game:GetService("CollectionService")
+local Lighting = game:GetService("Lighting")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
@@ -31,6 +32,14 @@ local supportParams = RaycastParams.new()
 supportParams.FilterType = Enum.RaycastFilterType.Exclude
 supportParams.RespectCanCollide = true
 
+type Limb = {
+	rel: CFrame,
+	role: string,
+	joint: Vector3,
+	side: number,
+	restSide: number,
+}
+
 type AnimalState = {
 	model: Model,
 	area: CFrame,
@@ -44,7 +53,13 @@ type AnimalState = {
 	track: boolean,
 	trackAngle: number,
 	parts: { BasePart }?, -- BulkMoveTo için model parçaları (nil = yeniden kurulacak)
-	offsets: { CFrame }, -- parça CFrame'i, model pivotuna göre
+	limbs: { [BasePart]: Limb },
+	sleep: number,
+	sleepDrop: number,
+	walkSpeed: number,
+	feedDip: number,
+	feedAt: number,
+	feedUntil: number,
 	slot: number, -- Duran hayvanların yazım kareleri dağılsın diye
 	swims: boolean, -- Suda yaşar (SwimDepthOffset>0): karaya çıkarılmaz, destek aranmaz
 	supported: boolean, -- Başlangıç noktasında altında yüzey bulundu mu (bulunamazsa destek mantığı kapalı: eski sabit yükseklik)
@@ -276,7 +291,13 @@ local function trackReady(instance: Instance)
 		track = isTrack,
 		trackAngle = random:NextNumber(0, math.pi * 2),
 		parts = nil,
-		offsets = {},
+		limbs = {},
+		sleep = 0,
+		sleepDrop = 0,
+		walkSpeed = WALK_SPEED,
+		feedDip = 0.65,
+		feedAt = os.clock() + random:NextNumber(8, 18),
+		feedUntil = 0,
 		slot = random:NextInteger(0, 1),
 		swims = false,
 		supported = false,
@@ -294,6 +315,29 @@ local function trackReady(instance: Instance)
 	state.lastGoodAngle = state.trackAngle
 	local swimDepth = instance:GetAttribute("SwimDepthOffset")
 	state.swims = typeof(swimDepth) == "number" and swimDepth > 0
+	local species = instance:GetAttribute("AnimalSpecies")
+	local kind = if typeof(species) == "string"
+		then species
+		else (string.match(instance.Name, "^([^_]+)") or instance.Name)
+	local bird = kind == "chicken"
+		or kind == "duck"
+		or kind == "turkey"
+		or kind == "peacock"
+		or kind == "falcon"
+		or kind == "parrot"
+		or kind == "pigeon"
+		or kind == "quail"
+	local creeper = kind == "snail" or kind == "silkworm" or kind == "bee"
+	if creeper or kind == "tortoise" then
+		state.walkSpeed = 0.8
+		state.feedDip = 0.18
+	end
+	-- Atlar ayakta kestirir; kuşlar çömelir, diğer kara hayvanları bacaklarını altına toplar.
+	state.sleepDrop = if state.swims
+			or kind == "horse"
+			or creeper
+		then 0
+		else heightOffset * (if bird then 0.48 else 0.36)
 	if not state.swims then
 		local height = supportAt(state, state.position, 0)
 		if height ~= nil and math.abs(height) <= MAX_STEP then
@@ -343,10 +387,13 @@ local function track(instance: Instance)
 				state.parts = nil
 			end
 		end),
-		instance.DescendantRemoving:Connect(function()
+		instance.DescendantRemoving:Connect(function(descendant: Instance)
 			local state = states[instance]
 			if state then
 				state.parts = nil
+				if descendant:IsA("BasePart") then
+					state.limbs[descendant] = nil
+				end
 			end
 		end),
 	}
@@ -362,18 +409,107 @@ local function angleDelta(from: number, to: number): number
 	return (to - from + math.pi) % (math.pi * 2) - math.pi
 end
 
+local HEAD_PARTS: { [string]: boolean } = {
+	Head = true,
+	Neck = true,
+	Mane = true,
+	Crest = true,
+	Cap = true,
+	Malar = true,
+	BeakHook = true,
+	Snout = true,
+	Muzzle = true,
+	Beak = true,
+	Wattle = true,
+	Comb = true,
+	Eye = true,
+	Ear = true,
+	Horn = true,
+	HornBase = true,
+	HornTip = true,
+	Beard = true,
+	Forelock = true,
+	Antler = true,
+	AntlerBranch = true,
+	Mouth = true,
+}
+
 local function rebuildParts(state: AnimalState)
 	local pivot = state.model:GetPivot()
 	local parts: { BasePart } = {}
-	local offsets: { CFrame } = {}
+	local legs: { BasePart } = {}
+	local headJoint = Vector3.zero
+	local neckJoint: Vector3? = nil
 	for _, descendant in state.model:GetDescendants() do
 		if descendant:IsA("BasePart") then
 			table.insert(parts, descendant)
-			table.insert(offsets, pivot:ToObjectSpace(descendant.CFrame))
+			local limb = state.limbs[descendant]
+			if not limb then
+				local rel = pivot:ToObjectSpace(descendant.CFrame)
+				limb = { rel = rel, role = "body", joint = rel.Position, side = 1, restSide = 1 }
+				state.limbs[descendant] = limb
+			end
+			if descendant.Name == "Head" then
+				headJoint = limb.rel.Position + Vector3.new(0, 0, descendant.Size.Z * 0.35)
+			elseif descendant.Name == "Neck" then
+				neckJoint = limb.rel.Position - Vector3.new(0, descendant.Size.Y * 0.4, 0)
+			elseif descendant.Name == "Leg" then
+				table.insert(legs, descendant)
+			end
+		end
+	end
+	for _, part in parts do
+		local limb = state.limbs[part]
+		local position = limb.rel.Position
+		if HEAD_PARTS[part.Name] and not state.swims then
+			limb.role, limb.joint = "head", neckJoint or headJoint
+		elseif part.Name == "Leg" or part.Name == "Hoof" or part.Name == "Foot" then
+			local nearest: BasePart? = nil
+			local best = math.huge
+			for _, leg in legs do
+				local offset = position - state.limbs[leg].rel.Position
+				local distance = offset.X * offset.X + offset.Z * offset.Z
+				if distance < best then
+					nearest, best = leg, distance
+				end
+			end
+			if nearest then
+				local legPosition = state.limbs[nearest].rel.Position
+				limb.role = "leg"
+				limb.joint = legPosition + Vector3.new(0, nearest.Size.Y * 0.45, 0)
+				limb.side = if (legPosition.X < 0) == (legPosition.Z < 0) then 1 else -1
+				-- Yürüyüş çaprazdır; yatarken iki taraf da gövdenin altına aynı yönde katlanır.
+				limb.restSide = if legPosition.Z < 0 then -1 else 1
+			end
+		elseif part.Name == "Tail" or part.Name == "TailFeathers" then
+			limb.role = "tail"
 		end
 	end
 	state.parts = parts
-	state.offsets = offsets
+end
+
+local function limbFrame(state: AnimalState, part: BasePart, moving: boolean, feeding: boolean): CFrame
+	local limb = state.limbs[part]
+	local angle = 0
+	if limb.role == "head" then
+		angle = if feeding
+			then -state.feedDip + math.sin(state.phase * 1.7) * state.feedDip * 0.18
+			else -state.sleep * 0.24
+	elseif limb.role == "leg" then
+		angle = if moving
+			then math.sin(state.phase) * 0.32 * limb.side
+			else (if state.sleepDrop > 0 then state.sleep * 0.95 * limb.restSide else 0)
+	elseif limb.role == "tail" then
+		return limb.rel * CFrame.Angles(0, math.sin(state.phase * 0.65) * 0.12 * (1 - state.sleep), 0)
+	else
+		return limb.rel
+	end
+	local joint = limb.joint
+	local tuck = if limb.role == "leg" then state.sleep * state.sleepDrop * 0.6 else 0
+	return CFrame.new(joint.X, joint.Y + tuck, joint.Z)
+		* CFrame.Angles(angle, 0, 0)
+		* CFrame.new(-joint.X, -joint.Y, -joint.Z)
+		* limb.rel
 end
 
 -- Kameraya yakın ve (düşükte) en yakın N hayvan; her karede mesafe hesaplanmaz.
@@ -423,6 +559,8 @@ RunService.PreRender:Connect(function(dt: number)
 		return
 	end
 	local now = os.clock()
+	local night = Lighting.ClockTime < 6 or Lighting.ClockTime >= 20
+	local detailed = EffectSettings.quality() ~= "low"
 	if now >= nextNearCheck then
 		refreshActive(camera.CFrame.Position, now)
 	end
@@ -443,18 +581,31 @@ RunService.PreRender:Connect(function(dt: number)
 			continue
 		end
 
+		local resting = night and not state.swims
+		state.sleep += ((if resting then 1 else 0) - state.sleep) * math.min(1, dt * 1.5)
+		if resting then
+			state.target = nil
+			state.feedUntil = 0
+		elseif not state.swims and now >= state.feedAt and state.target == nil then
+			state.feedUntil = now + random:NextNumber(3, 6)
+			state.feedAt = state.feedUntil + random:NextNumber(8, 18)
+		end
+		local feeding = not resting and not state.swims and now < state.feedUntil
 		local moving = false
-		if state.track then
+		local movementDt = dt * (if night and state.swims then 0.35 else 1)
+		-- Gece parkur da durur; gündüz eklenti parkuru aynı durumdan devam eder.
+		local paused = resting or feeding or state.sleep > 0.1
+		if not paused and state.track then
 			if now < state.stallUntil then
 				continue
 			end
-			state.trackAngle += dt * 0.9
+			state.trackAngle += movementDt * 0.9
 			local rx = math.min(state.halfSize.X, 6)
 			local rz = math.min(state.halfSize.Z, 14)
 			state.position = Vector3.new(math.cos(state.trackAngle) * rx, 0, math.sin(state.trackAngle) * rz)
 			state.yaw = state.trackAngle + math.pi / 2
 			moving = true
-		elseif state.target == nil then
+		elseif not paused and state.target == nil then
 			if now >= state.waitUntil then
 				-- Yüzey henüz bulunamadıysa (streaming) kara hayvanı güvenli biçimde yerinde bekler
 				state.target = if state.supported or state.swims then randomPoint(state) else nil
@@ -462,7 +613,7 @@ RunService.PreRender:Connect(function(dt: number)
 					state.waitUntil = now + 1
 				end
 			end
-		else
+		elseif not paused then
 			local target = state.target :: Vector3
 			local offset = target - state.position
 			local distance = offset.Magnitude
@@ -475,14 +626,16 @@ RunService.PreRender:Connect(function(dt: number)
 				state.yaw += math.clamp(turn, -TURN_SPEED * dt, TURN_SPEED * dt)
 				-- Önce dön, sonra yürü
 				if math.abs(turn) < 0.6 then
-					state.position += offset.Unit * math.min(WALK_SPEED * dt, distance)
+					state.position += offset.Unit * math.min(state.walkSpeed * movementDt, distance)
 					moving = true
 				end
 			end
 		end
 
 		state.phase += dt * (if moving then 10 else 2)
-		local bob = if moving then math.abs(math.sin(state.phase)) * 0.25 else math.sin(state.phase) * 0.03
+		local bob = if moving
+			then math.abs(math.sin(state.phase)) * (if state.swims then 0.06 else 0.1)
+			else math.sin(state.phase) * 0.025
 		if not state.swims then
 			if not state.supported then
 				-- İlk yüklemede/streaming'de yüzey gelmemiş olabilir: yüzey gelene kadar saniyede bir yeniden aranır
@@ -528,8 +681,11 @@ RunService.PreRender:Connect(function(dt: number)
 				state.support += diff * math.min(1, SUPPORT_SMOOTH * dt)
 			end
 		end
-		local localCf = CFrame.new(state.position.X, state.heightOffset + state.support + bob, state.position.Z)
-			* CFrame.Angles(0, state.yaw, 0)
+		local localCf = CFrame.new(
+			state.position.X,
+			state.heightOffset + state.support + bob - state.sleep * state.sleepDrop,
+			state.position.Z
+		) * CFrame.Angles(0, state.yaw, 0)
 		-- Duran hayvanın nefes hareketi çok küçüktür: yarım hızda yazmak yeter
 		if moving or (frameCount + state.slot) % 2 == 0 then
 			if not state.parts then
@@ -537,10 +693,9 @@ RunService.PreRender:Connect(function(dt: number)
 			end
 			local parts = state.parts :: { BasePart }
 			local pivot = state.area * localCf
-			local offsets = state.offsets
-			for partIndex, part in parts do
+			for _, part in parts do
 				table.insert(bulkParts, part)
-				table.insert(bulkCFrames, pivot * offsets[partIndex])
+				table.insert(bulkCFrames, pivot * limbFrame(state, part, moving and detailed, feeding))
 			end
 		end
 	end

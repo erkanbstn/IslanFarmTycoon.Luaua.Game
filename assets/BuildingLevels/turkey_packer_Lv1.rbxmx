@@ -64,12 +64,12 @@
         <Vector3 name="Size">
           <X>0.5</X>
           <Y>2.7600000000000007</Y>
-          <Z>8</Z>
+          <Z>7.5</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1055.25</X>
           <Y>5.68</Y>
-          <Z>855</Z>
+          <Z>855.25</Z>
           <R00>1</R00>
           <R01>-0</R01>
           <R02>0</R02>
@@ -101,12 +101,12 @@
         <Vector3 name="Size">
           <X>0.5</X>
           <Y>2.7600000000000007</Y>
-          <Z>8</Z>
+          <Z>7.5</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
           <X>1064.75</X>
           <Y>5.68</Y>
-          <Z>855</Z>
+          <Z>855.25</Z>
           <R00>1</R00>
           <R01>-0</R01>
           <R02>0</R02>
@@ -247,12 +247,12 @@
       <Properties>
         <string name="Name">WindowJamb</string>
         <Vector3 name="Size">
-          <X>0.325</X>
+          <X>0.5</X>
           <Y>1.7</Y>
           <Z>0.5</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1055.1625</X>
+          <X>1055.25</X>
           <Y>7.95</Y>
           <Z>851.25</Z>
           <R00>1</R00>
@@ -470,12 +470,12 @@
       <Properties>
         <string name="Name">WindowJamb</string>
         <Vector3 name="Size">
-          <X>0.325</X>
+          <X>0.5</X>
           <Y>1.7</Y>
           <Z>0.5</Z>
         </Vector3>
         <CoordinateFrame name="CFrame">
-          <X>1064.8375</X>
+          <X>1064.75</X>
           <Y>7.95</Y>
           <Z>851.25</Z>
           <R00>1</R00>

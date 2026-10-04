@@ -1,5 +1,7 @@
 # Model iş akışı (Studio MCP ajanıyla model üretimi)
 
+Yüzey birleşimi bakımı: `python tools/models/refine_surface_joins.py` tavus kuşunun kuyruk katmanlarını ayırır ve pencere köşelerini yan duvarlara çakışmadan birleştirir. Betik tekrar çalıştırılabilir; yalnız bu geometriyi değiştirir. Hayvan/üretim binası modelleri çalışma anında kurulur, harita sürümü veya yeniden kurulum gerekmez. `check-assets.py` bu köşe ve kuyruk sözleşmelerini doğrular.
+
 Kurallar `docs/MODEL_SOZLESMESI.md`'dedir; bu belge yalnız modeli repoya alma yolunu ve riskleri anlatır. 2 Ekim 2026'daki pilot
 planı (P0 dışa aktarma denemesi, `duck_packer` pilotu, K1–K5 kod kararları, Sonnet/Haiku şablonları) tamamlandı ve arşivlendi
 (`git log -p -- docs/MODEL_IS_PLANI.md`); sonuç: bütün görünür geometri `assets/` altındaki `.rbxmx` dosyalarındadır.

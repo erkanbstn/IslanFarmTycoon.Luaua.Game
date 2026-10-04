@@ -13,6 +13,37 @@ SPEC.loader.exec_module(CHECK)
 
 
 class AssetCheckTests(unittest.TestCase):
+    def test_window_corner_models_do_not_intersect_side_walls(self):
+        for folder in ("Buildings", "BuildingLevels"):
+            for path in (CHECK.ASSETS / folder).glob("*.rbxmx"):
+                with self.subTest(model=path.name):
+                    model = ET.parse(path).getroot().find("Item")
+                    self.assertEqual(CHECK.surface_join_problems(model, path.stem), [])
+
+    def test_old_window_corner_overlap_is_rejected(self):
+        def mutate(root):
+            for props in root.iter("Properties"):
+                label = props.find("string[@name='Name']")
+                if label is not None and label.text == "WallLeft":
+                    props.find("Vector3[@name='Size']/Z").text = "8"
+                    props.find("CoordinateFrame[@name='CFrame']/Z").text = "0"
+        self.assertTrue(any("WindowJamb" in p for p in self.inspect("assets/Buildings/fish_cannery.rbxmx", mutate)))
+
+    def test_peacock_fan_separates_layers_and_rejects_coplanar_feathers(self):
+        model = ET.parse(CHECK.ASSETS / "Animals/peacock.rbxmx").getroot().find("Item")
+        self.assertEqual(CHECK.surface_join_problems(model, "peacock"), [])
+        def mutate(root):
+            frames = [props.find("CoordinateFrame[@name='CFrame']") for props in root.iter("Properties")
+                      if props.find("string[@name='Name']") is not None
+                      and props.find("string[@name='Name']").text == "Feather"]
+            normal = [float(frames[0].find("R" + str(i) + "2").text) for i in range(3)]
+            depth = sum(float(frames[0].find(a).text) * n for a, n in zip("XYZ", normal))
+            for frame in frames:
+                old = sum(float(frame.find(a).text) * n for a, n in zip("XYZ", normal))
+                for a, n in zip("XYZ", normal):
+                    frame.find(a).text = str(float(frame.find(a).text) + (depth - old) * n)
+        self.assertTrue(any("kuyruk" in p for p in self.inspect("assets/Animals/peacock.rbxmx", mutate)))
+
     def test_expected_parser_cannot_silently_drop_animals_or_pets(self):
         original_read = CHECK.read
         for marker in ("ANIMAL_ORDER", "PET_SPECIES", 'id = "feed_quality"'):
