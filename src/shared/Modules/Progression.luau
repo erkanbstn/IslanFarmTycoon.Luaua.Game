@@ -314,23 +314,43 @@ function Progression.getStartingCash(save: any, farmId: string?): number
 		)
 end
 
+-- Hazır Başlangıç (yeni turda, ilk çiftlikte): Sv.1 otomatik toplayıcı (FarmMath.hasAutoCollect); Sv.2 bir yetişkin ana hayvan;
+-- Sv.3 ilk küçük ada + o adanın bir yetişkin hayvanı; Sv.4 ikinci küçük ada + bir yetişkin ana hayvan + o adanın bir yetişkin hayvanı;
+-- Sv.5 bir yetişkin ana hayvan daha ve açık her adaya bir yetişkin hayvan daha. Adaların yükseltmeleri ücretsiz tamamlanmaz.
 function Progression.applyReadyStart(save: any, now: number, newUid: () -> string)
 	local level = Progression.getPerkLevel(save, "ready_start")
-	if level >= 3 then
-		local first = Config.getTheme("1").satellites[1]
-		local island = Config.FARM_ISLANDS[first]
-		save.purchased[island.upgradeId] = true
+	local theme = Config.getTheme("1")
+	local openIslands: { string } = {}
+	for index = 1, math.min(2, math.max(0, level - 2)) do
+		local islandId = theme.satellites[index]
+		local island = if islandId then Config.FARM_ISLANDS[islandId] else nil
+		if island then
+			save.purchased[island.upgradeId] = true
+			table.insert(openIslands, islandId)
+		end
 	end
 	FarmMath.applyDerived(save)
-	local adults = (if level >= 2 then 1 else 0) + (if level >= 4 then 1 else 0) + (if level >= 5 then 1 else 0)
-	for _ = 1, adults do
-		local animalId = Config.getHomeAnimal("1")
+	local function addAdult(animalId: string)
 		local zoneId = FarmMath.findZoneForAnimal(save, animalId)
 		if zoneId then
 			table.insert(
 				save.animals,
 				{ uid = newUid(), animalId = animalId, zoneId = zoneId, stage = "adult", bornAt = 0 }
 			)
+		end
+	end
+	local homeAnimal = Config.getHomeAnimal("1")
+	for _ = 1, (if level >= 2 then 1 else 0) + (if level >= 4 then 1 else 0) + (if level >= 5 then 1 else 0) do
+		addAdult(homeAnimal)
+	end
+	-- Küçük adalarda her açık ada bir yetişkin (Sv.5'te iki) kendi hayvanını alır
+	local perIsland = if level >= 5 then 2 elseif level >= 3 then 1 else 0
+	for _, islandId in openIslands do
+		local islandAnimal = Config.FARM_ISLANDS[islandId].animalId
+		for _ = 1, perIsland do
+			if islandAnimal then
+				addAdult(islandAnimal)
+			end
 		end
 	end
 	local state = save.progression

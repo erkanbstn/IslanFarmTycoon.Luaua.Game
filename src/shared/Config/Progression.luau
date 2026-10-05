@@ -215,7 +215,7 @@ local data = {
 		facility_speed = { maxLevel = 5, effects = { facilitySpeed = 0.06 } },
 		offline = { maxLevel = 5, effects = { offlineBonus = 0.06, offlineHours = 0.6 } },
 		contract = { maxLevel = 5, effects = { contractBonus = 0.05 } },
-		ready_start = { maxLevel = 5, effects = {} },
+		ready_start = { maxLevel = 5, effects = { incomeBonus = 0.015 } }, -- Başlangıç paketi (Progression.applyReadyStart) + seviye başına küçük kalıcı gelir
 	} :: { [string]: PerkDefinition },
 	-- Eşya teklifinin altın bedeli tek kuraldan türer (tests/config.spec doğrular):
 	--   goldCost = min(1500, yuvarla10(150 + 100 * sqrt(Items.price / 100000)))

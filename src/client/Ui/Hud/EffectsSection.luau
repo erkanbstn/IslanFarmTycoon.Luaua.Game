@@ -179,7 +179,9 @@ function EffectsSection.create(parent: Frame): { update: (PlayerSave) -> (), res
 				if perkLevel > 0 then
 					local effect = Config.PROGRESSION.perks[id].effects
 					local description = if id == "ready_start"
-						then `Hazır Başlangıç Sv.{perkLevel}`
+						then `Hazır Başlangıç Sv.{perkLevel} · Gelir +%{rounded(
+							perkLevel * (effect.incomeBonus or 0) * 100
+						)}`
 						elseif id == "offline" then `Çevrimdışı oran +{rounded(
 							perkLevel * (effect.offlineBonus or 0) * 100
 						)} puan · Süre +{perkLevel * (effect.offlineHours or 0)} saat`

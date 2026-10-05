@@ -143,7 +143,58 @@ return function(Progression: any, FarmMath: any, Config: any, SaveCodec: any)
 		serial += 1
 		return `ready-{serial}`
 	end)
-	assert(#save.animals == 3 and FarmMath.hasAutoCollect(save), "ready start adults and auto collection")
+	assert(FarmMath.hasAutoCollect(save), "ready start auto collection")
+	-- Hazır Başlangıç kademeleri: hayvanlar ve adalar seviyeyle artar, hepsi yetişkin, ada yükseltmeleri tamamlanmaz
+	local theme = Config.getTheme("1")
+	local homeAnimal = Config.getHomeAnimal("1")
+	local function readyStart(level: number): any
+		local started = fresh()
+		started.progression.count = 5
+		started.progression.perks.ready_start = level
+		local count = 0
+		Progression.applyReadyStart(started, now, function()
+			count += 1
+			return `ready-level-{level}-{count}`
+		end)
+		return started
+	end
+	local function countOf(started: any, animalId: string): number
+		local total = 0
+		for _, animal in started.animals do
+			if animal.animalId == animalId then
+				total += 1
+				assert(animal.stage == "adult" and animal.bornAt == 0, "ready start animals are adults")
+			end
+		end
+		return total
+	end
+	local firstIsland, secondIsland = theme.satellites[1], theme.satellites[2]
+	local firstAnimal = Config.FARM_ISLANDS[firstIsland].animalId
+	local secondAnimal = Config.FARM_ISLANDS[secondIsland].animalId
+	local expected = {
+		{ home = 0, first = 0, second = 0, islands = 0 },
+		{ home = 1, first = 0, second = 0, islands = 0 },
+		{ home = 1, first = 1, second = 0, islands = 1 },
+		{ home = 2, first = 1, second = 1, islands = 2 },
+		{ home = 3, first = 2, second = 2, islands = 2 },
+	}
+	local previousIncome = 0
+	for level, want in expected do
+		local started = readyStart(level)
+		assert(countOf(started, homeAnimal) == want.home, `level {level}: main adults`)
+		assert(countOf(started, firstAnimal) == want.first, `level {level}: first island adults`)
+		assert(countOf(started, secondAnimal) == want.second, `level {level}: second island adults`)
+		assert(
+			(started.unlockedIslands[firstIsland] == true) == (want.islands >= 1)
+				and (started.unlockedIslands[secondIsland] == true) == (want.islands >= 2),
+			`level {level}: opened islands`
+		)
+		assert(not Progression.isFarmComplete(started), `level {level}: opening islands does not finish the farm`)
+		local income = FarmMath.computeIncomePerSecond(started, now)
+		assert(income >= previousIncome, `level {level}: starting income never drops`)
+		previousIncome = income
+	end
+	assert(previousIncome > 0, "a maxed ready start earns from the first second")
 	assert(save.unlockedIslands[Config.getTheme("1").satellites[1]], "ready start first island")
 	assert(
 		save.gold == 1000 and not Progression.isFarmComplete(save),

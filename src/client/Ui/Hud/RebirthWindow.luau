@@ -43,11 +43,17 @@ local function describe(id: string, nextLevel: number): string
 	elseif id == "contract" then
 		return `Kalıcı sipariş ödülü toplam +%{math.round(nextLevel * (effects.contractBonus or 0) * 100)}.`
 	end
-	return if nextLevel == 1
+	local base = if nextLevel == 1
 		then "Yeni turlarda otomatik toplama açık başlar."
 		elseif nextLevel == 2 then "Yeni turlarda bir yetişkin hayvanla başlarsın."
-		elseif nextLevel == 3 then "Yeni turlarda ilk küçük ada açık başlar."
-		else "Yeni turlarda bir yetişkin hayvan daha eklenir."
+		elseif nextLevel == 3 then "Yeni turlarda ilk küçük ada, bir yetişkin hayvanla açık başlar."
+		elseif
+			nextLevel == 4
+		then "Yeni turlarda ikinci küçük ada açık başlar; ana çiftliğe ve o adaya birer yetişkin hayvan eklenir."
+		else "Yeni turlarda ana çiftliğe ve açık her adaya birer yetişkin hayvan daha eklenir."
+	-- Başlangıç paketine ek olarak seviye başına küçük kalıcı gelir de verir (Config.PROGRESSION.perks.ready_start.effects)
+	local income = nextLevel * (effects.incomeBonus or 0) * 100
+	return `{base}\nAyrıca kalıcı gelir toplam +%{math.round(income * 10) / 10}`
 end
 
 -- Rebirth altınıyla (mevcut + ödül) alınabilen, sahip olunmayan kalıcı teklifler; en ucuz önce.
