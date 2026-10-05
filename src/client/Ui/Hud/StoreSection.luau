@@ -17,9 +17,14 @@ local HudCommon = require(script.Parent:WaitForChild("HudCommon"))
 type PlayerSave = GameTypes.PlayerSave
 local StoreSection = {}
 local CONVENIENCE_BENEFITS: { [string]: string } = {
-	auto_collect = "Parayı otomatik toplar",
-	pet_cash = "Para partilerini teslim alır",
-	pet_goods = "Ürün partilerini teslim alır",
+	auto_collect = "Depodaki parayı kendiliğinden toplar",
+	pet_cash = "Biten para partisini senin yerine alır",
+	pet_goods = "Biten ürün partisini senin yerine alır",
+}
+local CONVENIENCE_DETAILS: { [string]: string } = {
+	auto_collect = "Parayı kendin toplamana gerek kalmaz. Bütün açık çiftliklerinde çalışır.",
+	pet_cash = "Biten para partisini senin yerine alır. Otomatik üretim açıksa yenisini de başlatır.",
+	pet_goods = "Biten ürün partisini senin yerine depoya alır. Otomatik üretim açıksa yenisini de başlatır.",
 }
 
 local function categoryFor(kind: string, product: Config.ProductConfig): string
@@ -36,21 +41,18 @@ end
 function StoreSection.create(list: GuiObject, category: string?): ((PlayerSave) -> (), () -> ())
 	local selected = category or "featured"
 	if selected == "featured" then
-		UiKit.text(list, "Kendi oyun tarzını seç: üretim, ticaret, depolama veya çevrimdışı ilerleme.", "Body").LayoutOrder =
+		UiKit.text(list, "Sana uyan paketi seç. Kalıcı olanlar rebirth'ten sonra da sende kalır.", "Body").LayoutOrder =
 			1
 	elseif selected == "permanent" then
-		UiKit.text(list, "Kalıcı sahiplik rebirth'te korunur. Eşyaları Envanter'den takabilirsin.", "Body").LayoutOrder =
+		UiKit.text(list, "Kalıcı: rebirth'ten sonra da sende kalır. Eşyaları Envanter'den takarsın.", "Body").LayoutOrder =
 			1
 	elseif selected == "gold" then
-		UiKit.text(
-			list,
-			"Altın satın almak günlük ve tur başına paraya çevirme sınırlarını artırmaz.",
-			"Body"
-		).LayoutOrder =
-			1
+		UiKit.text(list, "Satın aldığın altın, paraya çevirme sınırını artırmaz.", "Body").LayoutOrder = 1
 	elseif selected == "cash" then
 		UiKit.text(list, "Para paketi gelirinle büyür. Oyun parası rebirth'te sıfırlanır.", "Body").LayoutOrder =
 			1
+	elseif selected == "run" then
+		UiKit.text(list, "Bu tur: yalnız bu turda çalışır, rebirth'te sona erer.", "Body").LayoutOrder = 1
 	end
 	local grid = UiKit.autoGrid(list, 2, 2)
 	type Entry = {
@@ -121,7 +123,11 @@ function StoreSection.create(list: GuiObject, category: string?): ((PlayerSave) 
 				if goldOnly then
 					card.action.Visible = false
 				else
-					local note = UiKit.text(details.body, "Altın biriktirmeden hemen almak için Robux", "Caption")
+					local note = UiKit.text(
+						details.body,
+						"Altın toplamadan şimdi almak istersen Robux ile alabilirsin",
+						"Caption"
+					)
 					note.LayoutOrder = 2
 					robuxNote = note
 				end
@@ -208,8 +214,7 @@ function StoreSection.create(list: GuiObject, category: string?): ((PlayerSave) 
 			elseif product.id == 0 then "Robux · Yakında"
 			else "Robux ile al"
 		if product.effect == "goldPack" then
-			detail =
-				"Altını kalıcı eşyalarda veya hızlı bitirmede kullanabilirsin. Paraya çevirme sınırlarını artırmaz."
+			detail = "Altınla kalıcı eşya alabilir veya Hızlı Bitir sekmesinde kullanabilirsin."
 		elseif product.effect == "incomePack" then
 			local amount = math.floor(
 				math.max(
@@ -218,8 +223,7 @@ function StoreSection.create(list: GuiObject, category: string?): ((PlayerSave) 
 				)
 			)
 			cashAmount = amount
-			detail =
-				"Paket tutarı en yüksek kalıcı çiftlik gelirine göre hesaplanır; geçici bonuslar dahil değildir."
+			detail = "Tutar, en iyi çiftliğinin gelirine göre hesaplanır. Geçici bonuslar sayılmaz."
 		elseif product.effect == "runDouble" then
 			local active = state.progression ~= nil and state.progression.runDouble
 			local hasPass = state.passes ~= nil and state.passes.double_income == true
@@ -231,7 +235,7 @@ function StoreSection.create(list: GuiObject, category: string?): ((PlayerSave) 
 				elseif hasPass then "Kalıcı 2x gelirin var"
 				elseif ready then "Yeni turda alınabilir"
 				else label
-			detail = "Yalnız bu tur: rebirth'te sona erer ve sonraki turda yeniden alınır."
+			detail = "Yalnız bu tur geçerli. Rebirth'te biter; sonraki turda yeniden alabilirsin."
 		elseif entry.key == "double_income" and state.progression and state.progression.runDouble then
 			detail = "Bu turdaki 2x ile çarpılmaz. Rebirth sonrasında da 2x gelir sağlar."
 		elseif offer then
@@ -241,9 +245,7 @@ function StoreSection.create(list: GuiObject, category: string?): ((PlayerSave) 
 				else ""
 			detail = if item
 				then `{ItemText.channelNotice(item)}\n{ItemText.slotNotice(item)}\n{ItemText.additional(item)}{cashAlternative}`
-				else if offer.id == "pet_cash" or offer.id == "pet_goods"
-					then "Otomatik tekrar açıksa yeni parti başlatır. Hayvan ve depo koşulları yine gerekir."
-					else "Bütün açık çiftliklerinde çalışır. Kalıcı sahiplik rebirth'te korunur."
+				else CONVENIENCE_DETAILS[offer.id] or "Bütün açık çiftliklerinde çalışır."
 		elseif entry.kind == "pass" then
 			detail = if entry.key == "double_income"
 				then "Her turda geçerlidir. Bu tur için alınan 2x ile çarpılmaz."

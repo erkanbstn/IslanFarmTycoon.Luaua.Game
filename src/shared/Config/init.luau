@@ -299,7 +299,7 @@ local LEVEL_CHAINS: { LevelChain } = {
 	{
 		id = "pet_cash",
 		displayName = "Para Yardımcısı",
-		description = "Para fabrikalarını otomatik teslim alır ve tekrarlar",
+		description = "Biten para partisini senin yerine alır. Otomatik üretim açıksa yenisini de başlatır.",
 		icon = "🐕",
 		requires = "silo",
 		costs = { 12000 },
@@ -310,7 +310,7 @@ local LEVEL_CHAINS: { LevelChain } = {
 	{
 		id = "pet_goods",
 		displayName = "Ürün Yardımcısı",
-		description = "Ürün merkezlerini otomatik teslim alır ve tekrarlar",
+		description = "Biten ürün partisini senin yerine depoya alır. Otomatik üretim açıksa yenisini de başlatır.",
 		icon = "🐈",
 		requires = "silo",
 		costs = { 15000 },
@@ -512,7 +512,7 @@ for id, offer in Config.PROGRESSION.permanentOffers do
 	Config.PRODUCTS.products[`permanent_{id}`] = {
 		id = offer.robuxProductId or 0,
 		displayName = if item then item.displayName else convenienceNames[id],
-		description = "Kalıcı; altınla da alınabilir",
+		description = "Kalıcı. Altınla da alabilirsin.",
 		icon = if item then item.icon else "🎁",
 		effect = "permanentOffer",
 		offerId = id,

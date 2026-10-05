@@ -218,9 +218,8 @@ return function(createService: any, config: any, leaderboard: any, adminPolicy: 
 	assert(
 		rows.RebirthBoard[1].name == "1. Ada"
 			and rows.RebirthBoard[1].value == "Rebirth: 30"
-			and rows.RebirthBoard[2].name == "2. Bora"
-			and rows.RebirthBoard[2].value == "Rebirth: 0",
-		"before the first read only this server's players are listed (rebirth)"
+			and rows.RebirthBoard[2].name == "",
+		"only players with a rebirth are listed: a zero-rebirth player never appears on the rebirth board"
 	)
 	assert(
 		rows.FarmBoard[1].name == "1. Ada" and rows.FarmBoard[1].value == `{30 * config.MAIN_FARM_LIMIT + 2} çiftlik`,
@@ -371,10 +370,16 @@ return function(createService: any, config: any, leaderboard: any, adminPolicy: 
 	for _, row in rows.RebirthBoard do
 		if row.name ~= "" and string.find(row.name, "Bora", 1, true) then
 			bora += 1
-			assert(row.value == "Rebirth: 0", "a reset account shows its live value")
 		end
 	end
-	assert(bora == 1, "a player appears once even when stored and live rows both exist")
+	assert(bora == 0, "a reset account (live zero) disappears even though a stale stored value exists")
+	-- Kimsenin değeri yoksa (liste okundu): tek açıklama satırı
+	saves[players[1]].progression = nil
+	store.rows.rebirth = {}
+	clock += leaderboard.READ_INTERVAL
+	tick(2)
+	assert(rows.RebirthBoard[1].name == "Henüz kimse yok" and rows.RebirthBoard[2].name == "", "an empty list says so")
+	saves[players[1]].progression = { count = 30 }
 
 	-- Genel mağaza hiç kullanılamıyorsa: açıklama satırı, yerel oyuncular yine görünür, çökme yok
 	store.readFails = false
@@ -396,11 +401,11 @@ return function(createService: any, config: any, leaderboard: any, adminPolicy: 
 	assert(rows.RebirthBoard[3] == nil or rows.RebirthBoard[3].name == "", "fresh board has no stale rows")
 	tick(2)
 	assert(
-		rows.RebirthBoard[1].name == "1. Ada" and rows.RebirthBoard[2].name == "2. Bora",
-		"local players are still listed when the global store is down"
+		rows.RebirthBoard[1].name == "1. Ada",
+		"local players with a rebirth are still listed when the global store is down"
 	)
-	assert(rows.RebirthBoard[3].name == "Şu an kullanılamıyor", "an explanatory row replaces the empty list")
-	assert(rows.RebirthBoard[4].name == "", "no more rows after the explanation")
+	assert(rows.RebirthBoard[2].name == "Şu an kullanılamıyor", "an explanatory row follows the listed players")
+	assert(rows.RebirthBoard[3].name == "", "no more rows after the explanation")
 	-- Mağaza açık ama ilk okuma henüz başarısız: "Yükleniyor"
 	local pending = {
 		rankingAvailable = function(): boolean
@@ -416,6 +421,6 @@ return function(createService: any, config: any, leaderboard: any, adminPolicy: 
 	make(pending)
 	clearRows()
 	tick(2)
-	assert(rows.RebirthBoard[3].name == "Yükleniyor…", "before any successful read the board says it is loading")
+	assert(rows.RebirthBoard[2].name == "Yükleniyor…", "before any successful read the board says it is loading")
 	print("PASS hub board: local ranking, global boards, throttle/backoff, admin exclusion, resets and outages")
 end

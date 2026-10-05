@@ -109,17 +109,17 @@ return function(createItemText: any)
 		text.additional({ effects = { incomeBonus = 0.1 } }) == "",
 		"single-effect items do not manufacture duplicate details"
 	)
-	assert(text.channelNotice({ id = "c_cash" }) == "Bu tur · nakit", "cash-only items are run-only")
+	assert(text.channelNotice({ id = "c_cash" }) == "Nakitle alınır · Bu tur", "cash-only items are run-only")
 	assert(
-		text.channelNotice({ id = "c_cashgold" }) == "Nakit (bu tur) ya da altın/Robux (kalıcı)",
+		text.channelNotice({ id = "c_cashgold" }) == "Nakitle bu tur, altın veya Robux ile kalıcı",
 		"cashGold items state both the cash run and the permanent routes"
 	)
 	assert(
-		text.channelNotice({ id = "c_goldrobux" }) == "Altın ya da Robux ile · kalıcı",
+		text.channelNotice({ id = "c_goldrobux" }) == "Altın veya Robux ile · Kalıcı",
 		"goldRobux items never mention cash"
 	)
 	assert(
-		text.channelNotice({ id = "c_gold" }) == "Yalnızca altınla · kalıcı",
+		text.channelNotice({ id = "c_gold" }) == "Yalnız altınla · Kalıcı",
 		"gold-only items never mention Robux or cash"
 	)
 	assert(text.channelNotice({ id = "c_reward" }) == "Rebirth ödülü", "reward items are earned by rebirth")

@@ -85,8 +85,8 @@ return function(createControls: any)
 		local setBadge = controls.badge({}, inline)
 		local badge = created[#created - 1]
 		assert(
-			badge.Position[1] == 1 and badge.Position[3] == 0 and badge.Position[4] == 6,
-			"Tab and menu counts stay in the upper-right corner, away from centered text"
+			badge.Position[1] == 1 and badge.Position[2] <= 0 and badge.Position[3] == 0 and badge.Position[4] >= 0,
+			"Tab and menu counts sit fully inside the upper-right corner (never clipped by tab rows or scroll frames)"
 		)
 		setBadge(12)
 		assert(badge.Visible and badge.Text == "9+", "Corner badges retain bounded counts")

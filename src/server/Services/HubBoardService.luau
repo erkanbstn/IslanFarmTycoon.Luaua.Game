@@ -214,6 +214,17 @@ local function resolveNames(userIds: { number }, now: number)
 	end
 end
 
+-- Sıfır değerli oyuncu tabloda görünmez (kimse rebirth yapmadıysa tablo boştur); canlı sıfır değer yine de kayıtlı eski değeri ezer
+local function positiveOnly(list: { Leaderboard.Entry }): { Leaderboard.Entry }
+	local result: { Leaderboard.Entry } = {}
+	for _, entry in list do
+		if entry.score > 0 then
+			table.insert(result, entry)
+		end
+	end
+	return result
+end
+
 local function renderGlobal(board: { id: string, part: string, value: (score: number) -> string })
 	local instance = findBoard(board.part)
 	if not instance then
@@ -224,7 +235,7 @@ local function renderGlobal(board: { id: string, part: string, value: (score: nu
 	if not state.loaded and #state.stored == 0 then
 		-- İlk başarılı okumaya kadar ya da genel liste hiç kullanılamıyorsa tek satır açıklama; yalnız sunucudaki oyuncular da görünür
 		local scores, names = liveScores(board.id)
-		local live = Leaderboard.merge({}, scores, names)
+		local live = positiveOnly(Leaderboard.merge({}, scores, names))
 		for index = 1, rows do
 			local entry = live[index]
 			if entry then
@@ -254,11 +265,14 @@ local function renderGlobal(board: { id: string, part: string, value: (score: nu
 			table.insert(storedRows, row)
 		end
 	end
-	local ranked = Leaderboard.merge(storedRows, scores, names)
+	local ranked = positiveOnly(Leaderboard.merge(storedRows, scores, names))
 	for index = 1, rows do
 		local entry = ranked[index]
 		if entry then
 			WorldUi.setBoardRow(instance, index, `{index}. {entry.name}`, board.value(entry.score))
+		elseif index == 1 then
+			-- Liste okundu ve henüz değeri olan kimse yok
+			WorldUi.setBoardRow(instance, index, "Henüz kimse yok", "")
 		else
 			WorldUi.setBoardRow(instance, index, "", "")
 		end

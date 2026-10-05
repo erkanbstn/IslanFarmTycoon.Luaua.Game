@@ -22,10 +22,10 @@ end
 
 -- Satış kanalı notu (Config.getItemChannel tek kaynak); tanımsız kanal boş metin döner.
 local CHANNEL_NOTICES: { [string]: string } = {
-	cash = "Bu tur · nakit",
-	cashGold = "Nakit (bu tur) ya da altın/Robux (kalıcı)",
-	goldRobux = "Altın ya da Robux ile · kalıcı",
-	gold = "Yalnızca altınla · kalıcı",
+	cash = "Nakitle alınır · Bu tur",
+	cashGold = "Nakitle bu tur, altın veya Robux ile kalıcı",
+	goldRobux = "Altın veya Robux ile · Kalıcı",
+	gold = "Yalnız altınla · Kalıcı",
 	reward = "Rebirth ödülü",
 }
 

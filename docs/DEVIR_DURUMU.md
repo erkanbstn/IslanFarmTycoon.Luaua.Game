@@ -1,5 +1,8 @@
 # Güncel devir durumu
 
+## Oyuncu metni sadeleştirme (5 Ekim 2026)
+Yardımcı (Para/Ürün), Otomatik Toplayıcı, Market sekme girişleri, ürün/paket açıklamaları, satış kanalı notları, Üretim "Otomatik üretim" durumları, Rebirth "Sıfırlanacak/Kalacak", Envanter başlığı ve Ayarlar kalite açıklamaları kısa Türkçeye çevrildi. Terimler: "Kalıcı" = rebirth'ten sonra da kalır, "Bu tur" = rebirth'te biter (Market sekme girişleri ve Envanter başlığı bir kez açıklar). Yasak sözcükler (koşul, referans, partilerini, teslim alır, dahil değil) ve 100 karakter sınırı `tests/market-products.spec` içinde ürün/paket/yardımcı açıklamalarında denetlenir. Bekleyen (Studio): dar ekranda Market kart ayrıntıları, Üretim kartındaki "Otomatik üretim" durum satırı, Rebirth uzun Sıfırlanacak/Kalacak satırları ve de/ru çevirilerin taşması gözle bakılmalı.
+
 ## Ekipman dengesi (5 Ekim 2026, ikinci tur)
 Ölçüme dayalı: Altın Taç gelir 1,0 -> 0,4 (%50 -> ~%29), Elmas Çekiç indirim .20 -> .15 (fiyat referansı 2,3M), Altın Çekiç .15 -> .14, Atölye Çekici +indirim .10, Gece Nöbeti .45 -> .25, Büyük Depo .20 -> .10; ölü eşyalara gerçek ikinci etki (Tüccar Şapkası/Pazarlık/Bilge/Tüccar Tacı/Kaptan gelir, Ulak/Kervan çevrimdışı). Altın bedeli artık fiyat formülü değil ölçülen tempo kuralı (Progression.luau yorumu, `tests/config.spec` `TEMPO_POINTS`); Robux kimlikleri değişmedi, mevcut sahiplik korunur (etki azalır). Önce/sonra tablosu: `docs/ZORLUK_VE_FIYAT.md`. Bekleyen: `simulate-rebirth*.py` tam yeniden ölçüm (ücretsiz R2 Tüccar Şapkası artık +%4 gelir), Robux fiyat gözden geçirmesi, `simulate-items.py` içindeki eski `formula_gold`.
 

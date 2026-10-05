@@ -53,7 +53,7 @@ return {
 			auto_collector = {
 				id = 2006031063,
 				displayName = "Otomatik Toplayıcı",
-				description = "Para kendiliğinden kasana gelir",
+				description = "Depodaki parayı kendiliğinden toplar",
 				icon = "🤖",
 				autoCollect = true,
 			},
@@ -87,7 +87,7 @@ return {
 			instant_growth = {
 				id = 3716414040,
 				displayName = "Yavruları Büyüt",
-				description = "Etkin çiftlikte genç hayvanları büyütür; teslimde genç yoksa 50 altın verir",
+				description = "Şu anki çiftliğindeki genç hayvanları hemen büyütür. Genç hayvan yoksa altın verir.",
 				icon = "🌱",
 				effect = "instantGrowth",
 				goldAmount = 50,
@@ -123,7 +123,7 @@ return {
 			run_double_income = {
 				id = 3716414021,
 				displayName = "Bu Tur 2 Kat Gelir",
-				description = "Teslim edildiği turda geçerli; rebirth ile sona erer",
+				description = "Bu turda gelirini 2 katına çıkarır. Rebirth'te sona erer.",
 				icon = "⚡",
 				effect = "runDouble",
 				lifetime = "run",
@@ -131,7 +131,7 @@ return {
 			income_pack_small = {
 				id = 3716413959,
 				displayName = "15 Dakikalık Gelir",
-				description = "Kalıcı referans gelirinin 15 dakikalık karşılığı",
+				description = "Anında para verir. Tutar, gelirine göre hesaplanır.",
 				icon = "💰",
 				effect = "incomePack",
 				incomeHours = 0.25,
@@ -140,7 +140,7 @@ return {
 			income_pack_large = {
 				id = 3716414002,
 				displayName = "3 Saatlik Gelir",
-				description = "Kalıcı referans gelirinin 3 saatlik karşılığı",
+				description = "Anında para verir. Tutar, gelirine göre hesaplanır.",
 				icon = "💰",
 				effect = "incomePack",
 				incomeHours = 3,
@@ -149,7 +149,7 @@ return {
 			income_pack = {
 				id = 3716413976,
 				displayName = "1 Saatlik Gelir",
-				description = "Anında 1 saatlik gelir kazan",
+				description = "Anında para verir. Tutar, gelirine göre hesaplanır.",
 				icon = "💰",
 				effect = "incomePack",
 				incomeHours = 1,

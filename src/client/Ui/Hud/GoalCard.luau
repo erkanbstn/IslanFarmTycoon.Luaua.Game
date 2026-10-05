@@ -143,12 +143,12 @@ function GoalCard.create(stats: Frame, onboarding: Onboarding.Hud, banner: Onboa
 			else
 				goalLabel.Text = "Yükseltmeler'deki Geliştirmeler sekmesinden ilk yapını geliştir"
 			end
-			goalDetail.Text = "Geliştirme kapasiteyi ya da verimi kalıcı artırır."
+			goalDetail.Text = "Geliştirme, kapasiteyi ya da verimi artırır."
 			return
 		elseif step == 7 then
 			goalTitle.Text = "İLK ADIMLAR 7/8"
 			goalLabel.Text = "Meydandaki Usta Ömer'den ilk eşyanı al"
-			goalDetail.Text = "Eşyalar gelir ve büyümeyi kalıcı olarak güçlendirir."
+			goalDetail.Text = "Eşyalar geliri ve hayvan büyümesini güçlendirir."
 			return
 		elseif step == 8 then
 			goalTitle.Text = "İLK ADIMLAR 8/8"

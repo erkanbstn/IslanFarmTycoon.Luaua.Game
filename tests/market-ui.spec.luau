@@ -158,7 +158,7 @@ return function(createStore: any, createMarket: any, createItemShop: any)
 					id = 0,
 					effect = "autoCollect",
 					displayName = "Toplayıcı",
-					description = "Para kendiliğinden kasana gelir",
+					description = "Depodaki parayı kendiliğinden toplar",
 					icon = "robot",
 				},
 			},
@@ -176,7 +176,7 @@ return function(createStore: any, createMarket: any, createItemShop: any)
 					effect = "permanentOffer",
 					offerId = "auto_collect",
 					displayName = "Toplayıcı",
-					description = "Para kendiliğinden kasana gelir",
+					description = "Depodaki parayı kendiliğinden toplar",
 					icon = "robot",
 				},
 				gold_100 = {
@@ -334,7 +334,7 @@ return function(createStore: any, createMarket: any, createItemShop: any)
 		assert(card.action.variant == "disabled", "ID0 catalogue is visible but every Robux action is disabled")
 	end
 	assert(
-		collectorCard.detail.Text == "Para kendiliğinden kasana gelir",
+		collectorCard.detail.Text == "Depodaki parayı kendiliğinden toplar",
 		"permanent upgrades explain their benefit instead of gamepass jargon"
 	)
 	local collectorDetail: any = nil
@@ -628,7 +628,7 @@ return function(createStore: any, createMarket: any, createItemShop: any)
 		for _, label in labels do
 			if
 				label.Parent == disclosures[card.frame].body
-				and label.Text == "Altın biriktirmeden hemen almak için Robux"
+				and label.Text == "Altın toplamadan şimdi almak istersen Robux ile alabilirsin"
 			then
 				return label
 			end

@@ -226,14 +226,14 @@ function RebirthWindow.create(parent: Instance): { window: UiKit.Window, update:
 	selection.LayoutOrder = 3
 	local lost = UiKit.text(
 		choicePage,
-		"Sıfırlanacak: para, çiftlikler, hayvanlar, yükseltmeler, ırk, nakit eşyalar, tur yardımcıları, ürünler, siparişler ve başarımlar.",
+		"Sıfırlanacak: para, çiftlikler, hayvanlar, yükseltmeler, ırk, Bu tur eşyaları, Yükseltmeler'den alınan yardımcılar, ürünler, siparişler ve başarımlar.",
 		"Body",
 		UiKit.Color.Red
 	)
 	lost.LayoutOrder = 4
 	local kept = UiKit.text(
 		choicePage,
-		"Kalacak: altın, kalıcı ve rebirth ödülü eşyalar, kolaylıklar, kalıcı geçitler, rebirth etkileri, günlük giriş serisi ve ayarlar.",
+		"Kalacak: altın, kalıcı eşyalar, rebirth ödülleri, Market'ten alınan kalıcı ürünler, rebirth etkileri, günlük giriş serisi ve ayarlar.",
 		"Body",
 		UiKit.Color.Green
 	)
@@ -447,8 +447,8 @@ function RebirthWindow.create(parent: Instance): { window: UiKit.Window, update:
 		UiKit.setText(
 			lost,
 			if record and record.runDouble
-				then "Sıfırlanacak: para, çiftlikler, hayvanlar, yükseltmeler, ırk, nakit eşyalar, tur yardımcıları, ürünler, siparişler ve başarımlar. Bu turun 2x geliri de sona erecek."
-				else "Sıfırlanacak: para, çiftlikler, hayvanlar, yükseltmeler, ırk, nakit eşyalar, tur yardımcıları, ürünler, siparişler ve başarımlar."
+				then "Sıfırlanacak: para, çiftlikler, hayvanlar, yükseltmeler, ırk, Bu tur eşyaları, Yükseltmeler'den alınan yardımcılar, ürünler, siparişler ve başarımlar. Bu turun 2x geliri de sona erecek."
+				else "Sıfırlanacak: para, çiftlikler, hayvanlar, yükseltmeler, ırk, Bu tur eşyaları, Yükseltmeler'den alınan yardımcılar, ürünler, siparişler ve başarımlar."
 		)
 		UiKit.setText(
 			returnNotice,

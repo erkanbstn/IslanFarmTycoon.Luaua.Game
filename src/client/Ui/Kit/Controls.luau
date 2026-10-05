@@ -301,16 +301,20 @@ function Controls.menuButton(parent: Instance, icon: string, text: string, tint:
 	if shortcut then
 		local key = Instance.new("TextLabel")
 		key.Name = "Shortcut"
-		key.AnchorPoint = Vector2.new(1, 0)
-		key.Position = UDim2.new(1, -4, 0, 4)
-		key.Size = UDim2.fromOffset(16, 16)
+		-- Klavye kısayolu: sol üstte çerçeveli tuş görünümü (sağ üst bildirim rozetine ayrılır, ikisi üst üste binmez)
+		key.AnchorPoint = Vector2.new(0, 0)
+		key.Position = UDim2.new(0, 4, 0, 4)
+		key.Size = UDim2.fromOffset(18, 18)
 		key.BackgroundColor3 = Tokens.Color.SurfaceRaised
 		key.Text = shortcut
 		key.FontFace = Tokens.Font.Bold
 		key.TextSize = Tokens.TextSize.Caption
-		key.TextColor3 = Tokens.Color.TextMuted
+		key.TextColor3 = Tokens.Color.Text
 		key.Parent = b
-		Base.corner(key, 4)
+		Base.corner(key, 5)
+		local keyStroke = Base.stroke(key, 0.15)
+		keyStroke.Color = Tokens.Color.TextMuted
+		keyStroke.Thickness = 1.5
 	end
 	return b
 end
@@ -455,12 +459,15 @@ function Controls.closeButton(parent: Instance, onClose: () -> ()): TextButton
 end
 
 -- Düğmenin köşesinde kırmızı sayı rozeti + altın çerçeve. Dönen fonksiyonla sayı ayarlanır.
+local BADGE_SIZE = 20
+
 function Controls.badge(target: GuiObject, _inline: boolean?): (count: number) -> ()
 	local badge = Instance.new("TextLabel")
 	badge.Name = "Badge"
-	badge.AnchorPoint = Vector2.new(0.5, 0.5)
-	badge.Position = UDim2.new(1, -6, 0, 6)
-	badge.Size = UDim2.fromOffset(22, 22)
+	-- Rozet hedefin sağ üst köşesinin İÇİNDE durur (dışına taşmaz): kaydırma/sekme kapları dışa taşan kısmı kesiyordu (yarım daire).
+	badge.AnchorPoint = Vector2.new(1, 0)
+	badge.Position = UDim2.new(1, -3, 0, 3)
+	badge.Size = UDim2.fromOffset(BADGE_SIZE, BADGE_SIZE)
 	badge.Active = false -- dokunuş altındaki karoya geçer (karo zaten >= TouchTarget)
 	badge.BackgroundColor3 = Tokens.Color.Red
 	badge.TextColor3 = Tokens.Color.OnAccent
@@ -469,7 +476,7 @@ function Controls.badge(target: GuiObject, _inline: boolean?): (count: number) -
 	badge.Visible = false
 	badge.ZIndex = 3
 	badge.Parent = target
-	Base.corner(badge, 11)
+	Base.corner(badge, BADGE_SIZE // 2)
 
 	local highlight = Instance.new("UIStroke")
 	highlight.Color = Tokens.Color.Gold

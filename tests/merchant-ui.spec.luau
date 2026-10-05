@@ -143,7 +143,7 @@ return function(createMerchant: any, merchant: any, config: any, farmMath: any)
 					return "Yuva: Asa · Takılı eşyanın yerine geçer."
 				end,
 				channelNotice = function(): string
-					return "Nakit (bu tur) ya da altın/Robux (kalıcı)"
+					return "Nakitle bu tur, altın veya Robux ile kalıcı"
 				end,
 			},
 			dimensions,

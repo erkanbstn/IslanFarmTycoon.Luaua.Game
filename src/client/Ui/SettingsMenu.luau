@@ -151,10 +151,10 @@ local function create(parent: Instance): UiKit.Window
 	).LayoutOrder =
 		10
 	local descriptions: { [string]: string } = {
-		auto = "Cihazına göre başlar, akıcılık düşerse kendiliğinden iner, rahatsa yükselir.",
-		low = "Gölge, yansıma, parıltı ve bulut kapalı; az yağış ve süs hayvanı. En akıcı ve en az pil harcayan.",
+		auto = "Cihazına göre başlar; takılırsa kendiliğinden düşer, rahatsa yükselir.",
+		low = "Gölge, yansıma ve bulut kapalı; az yağış ve süs hayvanı. En akıcı, en az pil harcar.",
 		medium = "Gölgeler, hafif yansıma ve parıltı açık; dengeli parçacık ve hayvan hareketi.",
-		high = "Keskin gölgeler, tam yansıma, güneş ışınları, ufukta odak bulanıklığı ve tüm efektler. Güçlü cihazlar için.",
+		high = "Keskin gölge, tam yansıma, güneş ışınları ve tüm efektler. Güçlü cihazlar için.",
 	}
 	local function refreshLanguage()
 		local selected = Localization.get()

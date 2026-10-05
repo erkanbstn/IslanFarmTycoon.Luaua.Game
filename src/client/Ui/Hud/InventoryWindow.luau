@@ -59,7 +59,12 @@ function InventoryWindow.create(screenGui: Instance): Panel
 		anchor = Vector2.new(0.5, 0.5),
 		position = UDim2.fromScale(0.5, 0.5),
 	})
-	UiKit.text(window.list, "Ürünlerini sat veya eşyalarını tak.", "Caption").LayoutOrder = GOODS_ORDER - 1
+	UiKit.text(
+		window.list,
+		"Ürün sat, eşya tak. Kalıcı eşya rebirth'te kalır, Bu tur eşyası silinir.",
+		"Caption"
+	).LayoutOrder = GOODS_ORDER
+		- 1
 
 	-- Sekmeler: Ahır Deposu | Takılı | Eşyalarım (her sekme kendi sayfası; öğeler ızgara karolarıdır)
 	local pages: { [string]: Frame } = {}

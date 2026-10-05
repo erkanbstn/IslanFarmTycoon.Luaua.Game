@@ -97,7 +97,7 @@ local function create(parent: Instance): UiKit.Window
 	local guide = UiKit.disclosure(created.list, 1000, "Üretim nasıl çalışır?")
 	UiKit.text(
 		guide.body,
-		"Tesise yetişkin hayvanlarını ver: iş boyunca gelir getirmezler, bitince ödülle birlikte geri dönerler. Süre çıkışta da ilerler; teslim etmeden yeni parti başlamaz.",
+		"Tesise yetişkin hayvan verirsin. Parti sürerken gelir getirmezler, bitince ödülle döner. Süre çıkışta da işler; yeni parti için önce ödülü al.",
 		"Caption"
 	).LayoutOrder =
 		0
@@ -156,13 +156,13 @@ local function create(parent: Instance): UiKit.Window
 		if recipe.output == "goods" then
 			local repeatHelp = UiKit.text(
 				details.body,
-				"Siparişler ve iki parti yedek için üretir; stok yeterliyse bekler, tüketilince sürdürür.",
+				"Siparişler ve yedek stok için üretir. Stok yeterliyse bekler, azalınca yeniden başlar.",
 				"Caption"
 			)
 			repeatHelp.LayoutOrder = 6
 			UiKit.text(
 				details.body,
-				"Depoyu doldur seçeneği daha fazla parti üretir; her parti para harcar ve hayvanları meşgul eder. Depoda bir partiye yer kalmayınca bekler.",
+				"Depoyu doldur daha çok parti üretir. Her parti para harcar ve hayvanları meşgul eder. Yer kalmazsa bekler.",
 				"Caption"
 			).LayoutOrder =
 				8

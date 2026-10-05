@@ -93,12 +93,7 @@ function MarketWindow.create(
 		"Body"
 	).LayoutOrder =
 		0
-	UiKit.text(
-		conversionGuide.body,
-		"Altın Hayvan olayı oyun parası verir; altın cüzdanından ayrıdır.",
-		"Caption"
-	).LayoutOrder =
-		1
+	UiKit.text(conversionGuide.body, "Altın Hayvan sana oyun parası verir, altın vermez.", "Caption").LayoutOrder = 1
 	UiKit.text(
 		conversionGuide.body,
 		"Altın rebirth'te kalır. Paraya çevirmek yerine kalıcı eşya için biriktirebilirsin.",
@@ -107,7 +102,7 @@ function MarketWindow.create(
 		2
 	UiKit.text(
 		conversionGuide.body,
-		"Tutar, en yüksek kalıcı çiftlik gelirinden hesaplanır; geçici 2x ve Geri Dönüş bonusu dahil değildir.",
+		"Tutar, en iyi çiftliğinin gelirine göre hesaplanır. Geçici 2x ve Geri Dönüş bonusu sayılmaz.",
 		"Caption"
 	).LayoutOrder =
 		3
@@ -147,7 +142,7 @@ function MarketWindow.create(
 
 	UiKit.text(
 		pages.finish,
-		"Hayvan büyümesini veya eklenti görevini altınla tamamla. Üretim tesislerinde kullanılamaz.",
+		"Büyüyen hayvanı veya eklenti görevini altınla hemen bitir. Üretimde kullanılamaz.",
 		"Body"
 	).LayoutOrder =
 		0
@@ -290,7 +285,7 @@ function MarketWindow.create(
 			UiKit.setText(finishCard.title, target.name)
 			UiKit.setText(
 				finishCard.detail,
-				`{targetIndex}/{#targets} bekleyiş · Seçilen hayvanın bekleyişi tamamlanır.`
+				`{targetIndex}/{#targets}: Seçtiğin hayvanın bekleme süresi hemen biter.`
 			)
 			HudCommon.setPurchaseButton(
 				finishCard.action,
@@ -300,12 +295,12 @@ function MarketWindow.create(
 		else
 			selectedKey = nil
 			quotedFinishCost = nil
-			UiKit.setText(finishCard.title, "Bitirilecek bekleyiş yok")
+			UiKit.setText(finishCard.title, "Şu an bitirilecek bir şey yok")
 			UiKit.setText(
 				finishCard.detail,
 				"Hayvan büyümesi veya eklenti görevi başladığında burada görünür."
 			)
-			HudCommon.setPurchaseButton(finishCard.action, "Bekleyiş yok", "disabled")
+			HudCommon.setPurchaseButton(finishCard.action, "Bitirilecek yok", "disabled")
 		end
 	end
 	amountInput:GetPropertyChangedSignal("Text"):Connect(function()

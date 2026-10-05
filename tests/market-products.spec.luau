@@ -171,6 +171,25 @@ return function(Config: any, FarmMath: any, SaveCodec: any, Inventory: any)
 		"small and standard cash packs"
 	)
 	assert(products.income_pack_large.incomeHours == 3, "large cash pack uses the same bounded income effect")
+	-- Oyuncuya görünen ürün ve yardımcı açıklamaları kısa kalır ve jargon içermez (10-14 yaş okuyucu).
+	local banned = { "koşul", "referans", "partilerini", "teslim alır", "dahil değil" }
+	local function checkCopy(text: string, where: string)
+		assert(utf8.len(text) :: number <= 100, `{where} description is too long: {text}`)
+		for _, word in banned do
+			assert(not string.find(string.lower(text), word, 1, true), `{where} uses banned word '{word}': {text}`)
+		end
+	end
+	for key, pass in Config.PRODUCTS.passes do
+		checkCopy(pass.description, `pass {key}`)
+	end
+	for key, product in Config.PRODUCTS.products do
+		checkCopy(product.description, `product {key}`)
+	end
+	for _, upgrade in Config.UPGRADES do
+		if upgrade.effect == "pet" then
+			checkCopy(upgrade.description, `upgrade {upgrade.id}`)
+		end
+	end
 	print(
 		"PASS market-products: specialist equipment, slot tradeoffs, permanent ownership and safe product configuration"
 	)
