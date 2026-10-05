@@ -480,8 +480,9 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		displayName = "Üretim Asası",
 		icon = "🪄",
 		slot = "staff",
-		price = 1200000,
+		price = 1800000,
 		effects = { facilitySpeed = 0.18, goodsYield = 0.12 },
+		power = { kind = "rush", usesPerDay = 3 },
 		look = { attach = "hand" },
 	})
 	add({
@@ -563,9 +564,10 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		displayName = "Yetiştirici Asası",
 		icon = "🪄",
 		slot = "staff",
-		price = 900000,
+		price = 1300000,
 		effects = { growthSpeed = 1.3, goodsYield = 0.08 },
 		tradeoffs = { offlineBonus = 0.15 },
+		power = { kind = "growth", usesPerDay = 3 },
 		look = { attach = "hand" },
 	})
 	-- Başarım ekipmanları para ile satılmaz; tek yuvayı kullanarak diğer ekipmanlardan vazgeçmeyi gerektirir.
@@ -587,6 +589,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		price = 1,
 		rewardOnly = true,
 		effects = { growthSpeed = 1.25, facilitySpeed = 0.1 },
+		power = { kind = "care", usesPerDay = 2 },
 		look = { attach = "hand" },
 	})
 	add({

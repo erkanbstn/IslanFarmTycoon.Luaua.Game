@@ -262,7 +262,7 @@ local data = {
 			id = "artisan_staff",
 			kind = "item",
 			itemId = "artisan_staff",
-			goldCost = 500,
+			goldCost = 600,
 			robuxProductId = 3716414566,
 		},
 		night_charm = {
@@ -325,7 +325,7 @@ local data = {
 			id = "breeder_staff",
 			kind = "item",
 			itemId = "breeder_staff",
-			goldCost = 450,
+			goldCost = 500,
 			robuxProductId = 3716414748,
 		},
 		auto_collect = { id = "auto_collect", kind = "convenience", goldCost = 300 },

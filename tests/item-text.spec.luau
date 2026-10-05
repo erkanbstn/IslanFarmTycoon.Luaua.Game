@@ -10,6 +10,11 @@ return function(createItemText: any)
 		end,
 	}, {
 		ITEM_SLOTS = { charm = { displayName = "Muska" } },
+		ITEM_POWER_SETTINGS = {
+			growth = { fraction = 0.2 },
+			rush = { fraction = 0.25 },
+			care = { seconds = 600, bonus = 0.15 },
+		},
 		ITEM_SLOT_ORDER = { "tool", "charm" },
 		ITEM_ORDER = { "strong", "cheap", "starter", "reward" },
 		ITEMS = {
@@ -36,6 +41,21 @@ return function(createItemText: any)
 		effects = { movementSpeed = 0.15, contractBonus = 0.25, upgradeDiscount = 0.10, growthSpeed = 0.8 },
 		tradeoffs = { offlineBonus = 0.20, facilitySpeed = 0.08, goodsYield = 0.06 },
 	})
+	assert(
+		text.describe({ power = { kind = "growth", usesPerDay = 3 } })
+			== "Günde 3 kez: yavru hayvanların kalan büyümesini %20 kısalt",
+		"growth staff text states the configured effect"
+	)
+	assert(
+		text.describe({ power = { kind = "rush", usesPerDay = 3 } })
+			== "Günde 3 kez: çalışan üretimlerin kalan süresini %25 kısalt",
+		"production staff text states the configured effect"
+	)
+	assert(
+		text.describe({ power = { kind = "care", usesPerDay = 2 } })
+			== "Günde 2 kez: 10 dk boyunca bütün hayvanlara +%15 gelir",
+		"care staff text states duration and bonus"
+	)
 	local weatherDescription = text.describe({ power = { kind = "weather", usesPerDay = 1 } })
 	assert(
 		string.find(weatherDescription, "Sunucudaki herkes etkilenir", 1, true),

@@ -423,12 +423,6 @@ def extras() -> None:
               STONE, angles=(0, 0, 0.25)),
     ]
     add("HubModels", "Hub_Statue", statue, 12, note="meydan heykeli")
-    add("HubModels", "Hub_Banner", [
-        Piece("Post", (0.4, 8, 0.4), (-3.2, 4, 0), (110, 76, 45), WOOD, collide=True),
-        Piece("Post", (0.4, 8, 0.4), (3.2, 4, 0), (110, 76, 45), WOOD, collide=True),
-        Piece("Banner", (6.1, 3, 0.18), (0, 6.1, 0), (181, 65, 62), FABRIC),
-        Piece("Header", (6.6, 0.25, 0.25), (0, 7.8, 0), (145, 104, 65), WOOD),
-    ], 12, note="meydan kumaş flaması")
     add("HubModels", "Hub_Flag", [
         Piece("Pole", (0.35, 9, 0.35), (0, 4.5, 0), (125, 88, 55), WOOD, collide=True),
         Piece("Flag", (3.5, 1.8, 0.12), (1.8, 7.8, 0), (196, 60, 52), FABRIC),

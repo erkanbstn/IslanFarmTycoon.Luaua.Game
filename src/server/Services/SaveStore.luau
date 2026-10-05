@@ -1,7 +1,7 @@
 --!strict
 -- DataStore kalıcılığı: anahtar kilidi, oturum kilidini alma, sıralı yazma (UpdateAsync + yeniden deneme), yedek ve
 -- bozuk kayıttan kurtarma. Oyuncu oturumu/durumu bilmez; çağıran (PlayerDataService) sonucu işler.
--- Projedeki tüm DataStore çağrıları yalnızca bu dosyada yapılır.
+-- Projedeki tüm DataStore çağrıları yalnızca bu dosyada yapılır (meydan sıralama tabloları için OrderedDataStore dahil).
 local DataStoreService = game:GetService("DataStoreService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -13,6 +13,7 @@ local SessionLock = require(script.Parent.Parent.Modules.SessionLock)
 local Metrics = require(script.Parent.Parent.Modules.Metrics)
 local SaveBackup = require(script.Parent.Parent.Modules.SaveBackup)
 local TransferLedger = require(script.Parent.Parent.Modules.TransferLedger)
+local Leaderboard = require(script.Parent.Parent.Modules.Leaderboard)
 
 export type Operation = {
 	payload: { [string]: any },
@@ -425,6 +426,142 @@ function SaveStore.ackTransfers(userId: number, ids: { string }): boolean
 		end)
 	end)
 	return ok and accepted
+end
+
+-- Meydan sıralama tabloları (genel, tüm sunucular): OrderedDataStore, tablo ve veri çağı başına ayrı mağaza adı.
+-- Çağ artınca (yönetici sıfırlaması) yeni adla boş başlar; eski mağaza silinmez ama okunmaz. Değer yalnızca tam sayıdır,
+-- oyuncu adı saklanmaz. Hata/bütçe durumunda çağıran son bilinen listeyi gösterir; burada hiçbir çağrı bekleyip tekrar denemez.
+local RANK_MAX_READ = 25
+local rankStores: { [string]: OrderedDataStore } = {}
+local memoryRanks: { [string]: { [number]: number } } = {}
+
+-- Bu tablonun mağazası; çağ okunamıyorsa (nil) kullanılamaz sayılır. Çağ okuması bekleyebilir.
+local function rankStoreFor(boardId: string): OrderedDataStore?
+	if not Leaderboard.isBoard(boardId) then
+		return nil
+	end
+	local epoch = knownEpoch or SaveStore.getEpoch()
+	if epoch == nil then
+		return nil
+	end
+	local name = `{Config.DATASTORE_NAME}_Rank_{boardId}_e{epoch}{if studio then "_Studio" else ""}`
+	local existing = rankStores[name]
+	if existing then
+		return existing
+	end
+	local ok, result = pcall(function()
+		return DataStoreService:GetOrderedDataStore(name)
+	end)
+	if not ok then
+		warn(`[Rank] StoreInitFailed {boardId}: {result}`)
+		return nil
+	end
+	rankStores[name] = result
+	return result
+end
+
+local function budgetLeft(requestName: string): number?
+	local ok, value = pcall(function()
+		return DataStoreService:GetRequestBudgetForRequestType((Enum.DataStoreRequestType :: any)[requestName])
+	end)
+	return if ok and typeof(value) == "number" then value else nil
+end
+
+-- Genel tablolar yazılabilir/okunabilir mi (Studio kayıtsız testte yalnızca bu sunucunun belleği)
+function SaveStore.rankingAvailable(): boolean
+	return nonpersistent or store ~= nil
+end
+
+-- Oyuncunun değerini yazar (aynı anahtar ezilir; düşüş de yazılır). Dönüş: başarı, başarısızlık nedeni.
+function SaveStore.publishRank(boardId: string, userId: number, score: number): (boolean, string?)
+	local clean = Leaderboard.sanitizeScore(score)
+	if
+		not Leaderboard.isBoard(boardId)
+		or typeof(userId) ~= "number"
+		or userId ~= userId
+		or userId < 1
+		or userId % 1 ~= 0
+		or clean == nil
+	then
+		return false, "invalid"
+	end
+	if nonpersistent then
+		local board = memoryRanks[boardId] or {}
+		memoryRanks[boardId] = board
+		board[userId] = clean
+		return true, nil
+	end
+	if not store then
+		return false, "unavailable"
+	end
+	local budget = budgetLeft("SetIncrementSortedAsync")
+	if budget ~= nil and budget < 2 then
+		Metrics.increment("RankWriteSkippedBudget")
+		return false, "budget"
+	end
+	local ranked = rankStoreFor(boardId)
+	if not ranked then
+		return false, "unavailable"
+	end
+	local ok, err = pcall(function()
+		ranked:SetAsync(tostring(userId), clean)
+	end)
+	if not ok then
+		Metrics.increment("RankWriteFailed")
+		return false, tostring(err)
+	end
+	return true, nil
+end
+
+-- En yüksek `limit` satır (userId + değer); okunamazsa nil ve neden. Bozuk satır atılır.
+function SaveStore.readTopRank(boardId: string, limit: number): ({ { userId: number, score: number } }?, string?)
+	if not Leaderboard.isBoard(boardId) or typeof(limit) ~= "number" or limit ~= limit then
+		return nil, "invalid"
+	end
+	local count = math.clamp(math.floor(limit), 1, RANK_MAX_READ)
+	if nonpersistent then
+		local rows: { { userId: number, score: number } } = {}
+		local board: { [number]: number } = memoryRanks[boardId] or {}
+		for userId, score in board do
+			table.insert(rows, { userId = userId, score = score })
+		end
+		table.sort(rows, function(a, b)
+			return a.score > b.score
+		end)
+		while #rows > count do
+			table.remove(rows)
+		end
+		return rows, nil
+	end
+	if not store then
+		return nil, "unavailable"
+	end
+	local budget = budgetLeft("GetSortedAsync")
+	if budget ~= nil and budget < 1 then
+		Metrics.increment("RankReadSkippedBudget")
+		return nil, "budget"
+	end
+	local ranked = rankStoreFor(boardId)
+	if not ranked then
+		return nil, "unavailable"
+	end
+	local ok, result = pcall(function()
+		local pages = ranked:GetSortedAsync(false, count)
+		return pages:GetCurrentPage()
+	end)
+	if not ok then
+		Metrics.increment("RankReadFailed")
+		return nil, tostring(result)
+	end
+	local rows: { { userId: number, score: number } } = {}
+	for _, item in result :: { any } do
+		local userId = if typeof(item) == "table" then tonumber(item.key) else nil
+		local score = if typeof(item) == "table" then Leaderboard.sanitizeScore(item.value) else nil
+		if userId and userId >= 1 and userId % 1 == 0 and score then
+			table.insert(rows, { userId = userId, score = score })
+		end
+	end
+	return rows, nil
 end
 
 return SaveStore

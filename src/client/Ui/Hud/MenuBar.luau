@@ -258,8 +258,8 @@ function MenuBar.create(screenGui: Instance, onUnlocked: ((message: string) -> (
 	-- Karo açılış basamakları (her karo tek, açık bir tetikleyiciye bağlıdır; açılan karo oturum boyunca kapanmaz):
 	--   Pazar, Ödüller, Ayarlar, Adama Dön  başlangıçtan
 	--   Yükseltmeler   ilk para toplandıktan sonra (3. adım)
-	--   Yol Haritası   ilk yükseltme alındıktan sonra (4. adım) ya da 300 kazançta
-	--   Adalar         Yol Haritası'nı açtıktan sonra (5. adım ve sonrası) ya da temel adımları atlayan hesapta
+	--   Yol Haritası   ilk yükseltme alındıktan sonra (4. adım ya da bitti) ya da 300 kazançta
+	--   Adalar         ilk yükseltme alındıktan sonra (4. adım ya da bitti) ya da temel adımları atlayan hesapta
 	--   Üretim         bir üretim tesisi (ya da çalışan iş) olunca
 	--   Envanter       eşya/ahır deposu ürünü olunca ya da tüm adımları bitirmiş hesapta
 	-- Eskiden Adalar ile Yol Haritası aynı anda, Envanter ise alakasız bir kazanç eşiğinde (1000) açılıyordu; şimdi her biri kendi nedeniyle.
@@ -272,7 +272,7 @@ function MenuBar.create(screenGui: Instance, onUnlocked: ((message: string) -> (
 			or FarmMath.getGoodsWorth(state) > 0 -- ahır deposunda ürün birikince de görünür
 		setMenuTile(upgradesButton, step == 0 or step >= 3, UNLOCK_NOTICES["Yükseltmeler"])
 		setMenuTile(roadmapButton, step == 0 or step >= 4 or earned >= 300, UNLOCK_NOTICES["Yol Haritası"])
-		setMenuTile(islandsButton, step == 0 or step >= 5 or skipsBasics, UNLOCK_NOTICES["Adalar"])
+		setMenuTile(islandsButton, step == 0 or step >= 4 or skipsBasics, UNLOCK_NOTICES["Adalar"])
 		setMenuTile(productionButton, ownsFactory, UNLOCK_NOTICES["Üretim"])
 		setMenuTile(homeButton, true) -- "Adama Dön" her zaman görünür: oyuncular adasını bulmakta zorlanıyor
 		setMenuTile(inventoryButton, ownsItems or step == 0, UNLOCK_NOTICES["Envanter"])

@@ -415,7 +415,7 @@ return function(context: any?)
 			planters += 1
 		end
 	end
-	assert(benches == 3 and planters == 8, "Meydan dekoru eksik (3 bank, 8 çiçeklik).")
+	assert(benches == 3 and planters == 12, "Meydan dekoru eksik (3 bank, 12 çiçeklik).")
 	assert(hub:FindFirstChild("TravelBoard"), "Meydanda Adalar tabelası eksik.")
 
 	-- Model çerçevesi tek başına yeterli değil: iki yönden gelen oyuncu yazıyı görmeli.
@@ -438,12 +438,6 @@ return function(context: any?)
 		assert(faces[Enum.NormalId.Front] and faces[Enum.NormalId.Back], `{modelName}: iki yüz de okunabilir olmalı.`)
 	end
 	assertSign("HubTitleBoard", "Title", Config.GAME_NAME)
-	assertSign("Hub_Banner", "Banner", "Hoş geldin")
-	local bannerModel = hub:FindFirstChild("Hub_Banner") :: Model
-	for _, name in { "Banner", "Header" } do
-		local surface = bannerModel:FindFirstChild(name) :: BasePart
-		assert(surface and surface.Transparency == 0, `Hub_Banner/{name}: model yüzeyi görünür olmalı.`)
-	end
 
 	-- Yeni bahçelerin yürüyüş düzlemi açık kalmalı: hayvanlar çit/yuva içinde doğmamalı.
 	local assets = game:GetService("ServerStorage"):WaitForChild("Assets")

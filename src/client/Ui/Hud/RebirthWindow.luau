@@ -282,7 +282,14 @@ function RebirthWindow.create(parent: Instance): { window: UiKit.Window, update:
 					else ""
 		)
 		choiceGrid.Visible = not complete
-		choiceNote.Visible = not complete
+		-- Son seviyede seçilecek etki kalmaz: sekme boş görünmesin diye tek satır açıklama gösterilir
+		UiKit.setText(
+			choiceNote,
+			if complete
+				then "Tüm rebirth seviyelerini tamamladın; seçilecek yeni etki kalmadı."
+				else "Kalıcı bir etki seç. Seçmeden yeni tur başlamaz."
+		)
+		choiceNote.Visible = true
 		selection.Visible = not complete
 		lost.Visible = not complete and confirmationRun ~= nil
 		kept.Visible = not complete and confirmationRun ~= nil

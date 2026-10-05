@@ -26,6 +26,13 @@ local setPurchaseButton = HudCommon.setPurchaseButton
 
 local InventoryWindow = {}
 
+-- Yetenek güçleri (Config.ITEM_POWER_SETTINGS): düğme başlığı
+local ABILITY_LABELS: { [string]: string } = {
+	growth = "Büyümeyi hızlandır",
+	rush = "Üretimi hızlandır",
+	care = "Sürü bakımını başlat",
+}
+
 export type Panel = {
 	window: UiKit.Window,
 	update: (state: PlayerSave) -> (),
@@ -199,6 +206,8 @@ function InventoryWindow.create(screenGui: Instance): Panel
 		(powerHeader.Parent :: GuiObject).Visible = visible
 		powerCard.frame.Visible = visible
 	end
+	-- İlk güncellemeden önce boş kart görünmesin
+	setPowerVisible(false)
 
 	-- Sahip olunan eşyalar: yalnızca seçili slotun eşyaları gösterilir.
 	UiKit.sectionHeader(ownedPage, "Eşyalarım", OWNED_ORDER)
@@ -270,6 +279,10 @@ function InventoryWindow.create(screenGui: Instance): Panel
 
 	local function powerOptions(kind: string): ({ { id: string, label: string } }, string)
 		local options: { { id: string, label: string } } = {}
+		-- Yetenek asaları: tek düğme, seçenek yok (sunucu arüman "use" bekler)
+		if ABILITY_LABELS[kind] then
+			return { { id = "use", label = ABILITY_LABELS[kind] } }, ""
+		end
 		if kind == "season" then
 			for _, season in Config.SEASONS do
 				table.insert(options, { id = season.id, label = season.displayName })
@@ -382,7 +395,8 @@ function InventoryWindow.create(screenGui: Instance): Panel
 		-- Asa gücü
 		local staffId = Inventory.equippedId(state, "staff")
 		local staff = if staffId then Config.ITEMS[staffId] else nil
-		setPowerVisible(staff ~= nil)
+		-- Gücü olmayan asa (ör. Üretim Asası) bu bölümü açmaz: boş kart görünmesin
+		setPowerVisible(Inventory.hasPower(staff))
 		if not staff or not staffId or not staff.power then
 			return
 		end
@@ -393,6 +407,13 @@ function InventoryWindow.create(screenGui: Instance): Panel
 			then "Sınırsız hak"
 			else `Bugün kalan hak: {left}/{Inventory.usesPerDay(staff)}`
 		local options, currentId = powerOptions(staff.power.kind)
+		-- Bakıcı bakımı sürerken yeniden başlatılamaz; kalan süre gösterilir
+		local careBoost = state.careBoost
+		if staff.power.kind == "care" and careBoost and careBoost.endsAt > now then
+			currentId = "use"
+			local remaining = math.max(0, math.ceil(careBoost.endsAt - now))
+			powerCard.detail.Text ..= `\nBakım etkin: {remaining // 60}:{string.format("%02d", remaining % 60)}`
+		end
 		local usable = Inventory.canUse(state, staffId, now)
 		for index, button in powerButtons do
 			local option = options[index]

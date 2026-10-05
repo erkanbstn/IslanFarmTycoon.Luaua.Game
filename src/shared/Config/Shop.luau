@@ -21,6 +21,13 @@ return {
 
 	ITEM_USE_COOLDOWN_SECONDS = 20, -- Asa gücü iki kullanım arası en az bu kadar bekler (sınırsız asalar dahil)
 
+	-- Asa yetenekleri (güç türü -> ayar); her kullanım günlük hakkı harcar. Rakamlar yalnızca burada.
+	ITEM_POWER_SETTINGS = {
+		growth = { fraction = 0.2 }, -- Etkin çiftliğin yavru/genç hayvanlarının kalan büyüme süresi bu pay kadar kısalur
+		rush = { fraction = 0.25 }, -- Çalışan üretim partilerinin kalan süresi bu pay kadar kısalur
+		care = { seconds = 600, bonus = 0.15 }, -- Tüm hayvanların geliri bu süre boyunca +bonus (çalışma anı; kaydedilmez)
+	} :: { [string]: { fraction: number?, seconds: number?, bonus: number? } },
+
 	ITEMS = {} :: { [string]: Types.ItemConfig },
 
 	ITEM_ORDER = {} :: { string },

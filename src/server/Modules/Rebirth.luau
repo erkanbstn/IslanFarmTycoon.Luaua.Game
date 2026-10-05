@@ -74,7 +74,7 @@ function Rebirth.apply(
 	end
 	data.cash = progression.getStartingCash(data, "1")
 	data.goods, data.contracts, data.achievements = {}, { window = 0, done = {}, completed = 0 }, {}
-	data.seasonal, data.envOverride, data.adminForce = nil, nil, nil
+	data.seasonal, data.envOverride, data.adminForce, data.careBoost = nil, nil, nil, nil
 	local previousInventory = data.inventory
 	data.inventory = { items = {}, equipped = {}, uses = if previousInventory then previousInventory.uses else {} }
 	for id in data.owned.items do

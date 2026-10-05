@@ -24,6 +24,7 @@ local Metrics = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChil
 local ModelAssets = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("ModelAssets"))
 
 local WearableFit = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("WearableFit"))
+local StaffPowers = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("StaffPowers"))
 
 local InventoryService = {}
 local merchantProximity: (Player) -> boolean = function(_player: Player): boolean
@@ -345,6 +346,57 @@ function InventoryService.tryToggleEquip(player: Player, itemId: unknown): (bool
 	return true, nil, not wasEquipped
 end
 
+-- Yetenek asaları (Yetiştirici/Üretim/Bakıcı): seçenek yoktur, argüman "use" olmalı. Geçen süre eski durumla kapanır,
+-- etkilenecek bir şey yoksa hak harcanmaz.
+local function useAbility(
+	player: Player,
+	data: any,
+	itemId: string,
+	kind: string,
+	argument: unknown
+): (boolean, string?)
+	if argument ~= "use" then
+		return false, "Geçersiz seçim"
+	end
+	local now = nowSeconds()
+	local allowed, reason = Inventory.canUse(data, itemId, now)
+	if not allowed then
+		return false, reason
+	end
+	local settings = Config.ITEM_POWER_SETTINGS[kind]
+	if not settings then
+		return false, "Bilinmeyen güç"
+	end
+	EconomyService.settlePlayer(player)
+	local message: string
+	if kind == "growth" then
+		local count = StaffPowers.grow(data, now, settings.fraction :: number, FarmMath, Config)
+		if count == 0 then
+			return false, "Büyüyecek yavru hayvanın yok"
+		end
+		message = `{count} hayvanın büyümesi hızlandı`
+		PlotService.refreshPlayerWorld(player)
+	elseif kind == "rush" then
+		local count = StaffPowers.rush(data, now, settings.fraction :: number)
+		if count == 0 then
+			return false, "Çalışan bir üretimin yok"
+		end
+		message = `{count} üretimin kalan süresi kısaldı`
+	else
+		if StaffPowers.care(data, now, settings.seconds :: number, settings.bonus :: number) == 0 then
+			return false, "Sürü bakımı zaten etkin"
+		end
+		message = `Sürü bakımı başladı: {math.floor((settings.seconds :: number) / 60)} dk boyunca +%{math.round(
+			(settings.bonus :: number) * 100
+		)} gelir`
+	end
+	Inventory.recordUse(data, itemId, now)
+	PlayerDataService.pushState(player)
+	PlayerDataService.requestSave(player)
+	Metrics.increment("ItemPowersUsed")
+	return true, message
+end
+
 function InventoryService.tryUse(player: Player, itemId: unknown, argument: unknown): (boolean, string?)
 	if not RateLimiter.allow(player, "useItem", 0.5) then
 		return false, nil
@@ -357,6 +409,10 @@ function InventoryService.tryUse(player: Player, itemId: unknown, argument: unkn
 		return false, "Veri henüz yüklenmedi"
 	end
 	local item = Config.ITEMS[itemId]
+	local abilityKind = if item.power then item.power.kind else nil
+	if abilityKind == "growth" or abilityKind == "rush" or abilityKind == "care" then
+		return useAbility(player, data, itemId, abilityKind, argument)
+	end
 	local queueDetail = if typeof(argument) == "table" then argument :: any else nil
 	if queueDetail and item.power and item.power.kind == "weather" and queueDetail.queueAction == "cancel" then
 		return SeasonService.cancelQueuedWeather(player)

@@ -1,5 +1,5 @@
 --!strict
--- İlk adımlar: adım sırası, kıdemli atlama eşikleri ve 4-6. adımların yalnızca yapılabilir olduğunda çıkması (saf, gerçek Config/FarmMath).
+-- İlk adımlar: adım sırası, kıdemli atlama eşikleri ve 4. adımın yalnızca başlatılabilir parti varken çıkması (saf, gerçek Config/FarmMath).
 return function(OnboardingSteps: any, Config: any, FarmMath: any)
 	local function newSave(): any
 		local data: any = {
@@ -28,6 +28,7 @@ return function(OnboardingSteps: any, Config: any, FarmMath: any)
 
 	-- 1-3: temel adımlar sırayla ilerler
 	local save = newSave()
+	assert(OnboardingSteps.TOTAL == 4, "dört adım")
 	assert(OnboardingSteps.stepFor(save) == 1, "yeni oyuncu 1. adımda")
 	save.cash = 0
 	assert(
@@ -40,74 +41,65 @@ return function(OnboardingSteps: any, Config: any, FarmMath: any)
 	save.lifetimeEarned = 50
 	assert(OnboardingSteps.stepFor(save) == 3, "para toplandı: ilk yükseltme")
 
-	-- Tek yükseltme artık kıdemli saymaz: 4. adıma geçer
+	-- İlk yükseltme alınınca, başlatılabilir tesis yoksa öğretici biter
 	save.purchased.barn_2 = true
-	assert(OnboardingSteps.stepFor(save) == 4, "ilk yükseltme alındı: Yol Haritası")
-	assert(OnboardingSteps.stepFor(save, { roadmapOpened = true }) ~= 4, "Yol Haritası açılınca 4. adım biter")
-
-	-- 1,5 bin kazanç temel adımları ve (oturuma özgü) Yol Haritası adımını atlar
-	local mid = newSave()
-	mid.lifetimeEarned = OnboardingSteps.SKIP_BASICS_EARNED
-	assert(OnboardingSteps.stepFor(mid) ~= 4, "kıdemliye her girişte 4. adım çıkmaz")
+	assert(OnboardingSteps.stepFor(save) == 0, "yükseltme alındı, tesis yok: öğretici biter")
 	assert(
 		OnboardingSteps.basicsDone(4) and OnboardingSteps.basicsDone(0) and not OnboardingSteps.basicsDone(3),
 		"temel adımlar bitti mi"
 	)
 
-	-- Çok kazanmış hesap hiç yönlendirilmez
+	-- 1,5 bin kazanç temel adımlarını atlar; kıdemli hesap hiç yönlendirilmez
+	local mid = newSave()
+	mid.lifetimeEarned = OnboardingSteps.SKIP_BASICS_EARNED
+	assert(OnboardingSteps.stepFor(mid) == 0, "temel adımları geçmiş hesapta tesis yoksa adım yok")
+	mid.lifetimeEarned = OnboardingSteps.SKIP_BASICS_EARNED - 1
+	assert(OnboardingSteps.stepFor(mid) == 1, "eşiğin hemen altında temel adımlar sürer")
 	local veteran = newSave()
 	veteran.lifetimeEarned = OnboardingSteps.SKIP_ALL_EARNED
 	assert(OnboardingSteps.stepFor(veteran) == 0, "kıdemli hesap atlanır")
+	veteran.lifetimeEarned = OnboardingSteps.SKIP_ALL_EARNED - 1
+	local vRecipe = Config.PRODUCTION_RECIPES.packed_milk
+	veteran.purchased[vRecipe.upgradeId] = true
+	veteran.unlockedIslands[vRecipe.island] = true
+	fillStarter(veteran)
+	assert(OnboardingSteps.stepFor(veteran) == 4, "eşiğin hemen altında üretim adımı çıkar")
 
-	-- 5: yapılabilir bir genişletme varsa
-	local roomy = newSave()
-	roomy.lifetimeEarned = OnboardingSteps.SKIP_BASICS_EARNED
-	roomy.purchased.barn_2 = true
-	fillStarter(roomy)
-	local id, cost = OnboardingSteps.cheapestExpansion(roomy)
-	assert(id ~= nil and cost > 0 and cost < math.huge, "dolu ağılda genişletme alınabilir")
-	assert(OnboardingSteps.stepFor(roomy, { roadmapOpened = true }) == 5, "ilk genişletme adımı")
-	roomy.expansions = { [id :: string] = 1 }
-	assert(OnboardingSteps.stepFor(roomy) == 0, "genişletme alınınca 4 ve 5 biter")
+	-- Bozuk kazanç değeri yeni hesap gibi yönlendirilir (NaN/negatif/yanlış tür), çökmez
+	for _, bad in { 0 / 0, -5, "x", math.huge * 0, -math.huge } do
+		local corrupt = newSave()
+		corrupt.lifetimeEarned = bad
+		assert(OnboardingSteps.stepFor(corrupt) == 1, "bozuk kazanç sıfır sayılır")
+	end
+	local noEarned = newSave()
+	noEarned.lifetimeEarned = nil
+	assert(OnboardingSteps.stepFor(noEarned) == 1, "kazanç alanı yoksa yeni hesap")
 
-	-- Genişletme yoksa 5. adım atlanır
-	local empty = newSave()
-	empty.lifetimeEarned = OnboardingSteps.SKIP_BASICS_EARNED
-	assert(OnboardingSteps.stepFor(empty, { roadmapOpened = true }) == 0, "yapılabilir genişletme yoksa adım yok")
-
-	-- Genişletmeye para yetmiyorken hazır tesis varsa 6. adım öne geçer; para yetince 5
-	local blocked = newSave()
-	blocked.lifetimeEarned = OnboardingSteps.SKIP_BASICS_EARNED
-	blocked.purchased.barn_2 = true
-	fillStarter(blocked)
-	local recipe0 = Config.PRODUCTION_RECIPES.packed_milk
-	blocked.purchased[recipe0.upgradeId] = true
-	blocked.unlockedIslands[recipe0.island] = true
-	local _, expansionCost = OnboardingSteps.cheapestExpansion(blocked)
-	blocked.cash = 0
-	assert(OnboardingSteps.stepFor(blocked) == 6, "para yetmiyorken tesis 5. adımı geçer")
-	blocked.cash = expansionCost
-	assert(OnboardingSteps.stepFor(blocked) == 5, "para yetince 5. adım")
-
-	-- 6: tesis kurulu ve hiç parti yoksa
+	-- 4: tesis kurulu ve hiç parti yoksa
 	local recipe = Config.PRODUCTION_RECIPES.packed_milk
 	local factory = newSave()
 	factory.lifetimeEarned = OnboardingSteps.SKIP_BASICS_EARNED
 	factory.purchased[recipe.upgradeId] = true
 	factory.unlockedIslands[recipe.island] = true
-	factory.expansions = { starter = 1 }
 	assert(OnboardingSteps.ownsFactory(factory), "tesis kurulu")
 	assert(OnboardingSteps.stepFor(factory) == 0, "yetişkinsiz tesis üretim öğreticisini açmaz")
 	fillStarter(factory)
-	assert(OnboardingSteps.stepFor(factory) == 6, "yeterli yetişkin varsa ilk parti adımı")
+	assert(OnboardingSteps.stepFor(factory) == 4, "yeterli yetişkin varsa ilk parti adımı")
 	assert(OnboardingSteps.readyFactory(factory, 1700000000) == recipe.id, "gerçek başlatılabilir tesis seçilir")
 	assert(OnboardingSteps.stepFor(factory, { skipped = true }) == 0, "atlama bütün yönlendirmeyi kapatır")
 	assert(OnboardingSteps.stepFor(newSave(), { skipped = true }) == 0, "atlama yeni oyuncuyu da durdurur")
+	assert(OnboardingSteps.stepFor(newSave(), { skipped = false }) == 1, "tekrar göster adımı durumdan türetir")
 	factory.production[recipe.id] = { readyAt = 1, startedAt = 0 }
 	assert(OnboardingSteps.stepFor(factory) == 0, "parti başlayınca adım biter")
+	-- Çalışan başka parti varken bekleyen ikinci tesis adımı yeniden açmaz
+	local second = Config.PRODUCTION_ORDER[2]
+	assert(second ~= nil and second ~= recipe.id, "ikinci tarif var")
+	factory.production = { [second] = { readyAt = 1, startedAt = 0 } }
+	assert(OnboardingSteps.stepFor(factory) == 0, "herhangi bir parti çalışıyorsa üretim öğrenilmiştir")
 	factory.production = {}
+	-- Tamamlanma kalıcıdır: sunucu ilk partide tutorialDone yazar, istemci bunu skipped olarak geçirir
 	assert(
-		OnboardingSteps.stepFor(factory, { productionStarted = true }) == 0,
-		"teslim sonrası öğretici aynı oturumda geri dönmez"
+		OnboardingSteps.stepFor(factory, { skipped = true }) == 0,
+		"teslim sonrası öğretici kayıtlı işaretle geri dönmez"
 	)
 end

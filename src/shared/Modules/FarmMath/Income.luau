@@ -143,7 +143,7 @@ function Income.computeIncomePerSecond(save: PlayerSave, now: number?): number
 		local stageMul = Config.STAGE_INCOME_MULTIPLIER[animal.stage] or 1
 		total += (rate :: number) * currentTaskFactor(save, animal, now) * stageMul
 	end
-	return total
+	return total * Income.getCareMultiplier(save, now or os.time())
 end
 
 -- Bir hayvanın [from, to] aralığındaki evre ağırlıklı saniyesi (yavru/genç/yetişkin gelir çarpanlarıyla).
@@ -163,7 +163,7 @@ end
 -- yavruluk süresine uygulama. Önbellek yalnızca bu çağrıya ait, hava/yükseltme bayatlamaz.
 -- Görev (tesis/eklenti) çarpanı yalnızca görevin süresiyle kesişen kısma uygulanır: tesiste geçen süre gelirsiz,
 -- eklentide geçen süre bonuslu, görevden önce ve sonra normal.
-function Income.computeIncomeOverInterval(
+local function rawIncomeOverInterval(
 	save: PlayerSave,
 	startedAt: number,
 	endedAt: number,
@@ -181,8 +181,8 @@ function Income.computeIncomeOverInterval(
 			table.insert(view.animals, table.clone(animal))
 		end
 		Production.preserveGrowthProgress(view, Production.snapshotGrowthSpeeds(save, startedAt), returnStart)
-		return Income.computeIncomeOverInterval(save, startedAt, returnStart, neutralWeather)
-			+ Income.computeIncomeOverInterval(view, returnStart, endedAt, neutralWeather)
+		return rawIncomeOverInterval(save, startedAt, returnStart, neutralWeather)
+			+ rawIncomeOverInterval(view, returnStart, endedAt, neutralWeather)
 	end
 	local total = 0
 	local rates: { [string]: number } = {}
@@ -239,6 +239,59 @@ function Income.computeIncomeOverInterval(
 			end
 		end
 		total += (baseRate :: number) * weighted
+	end
+	return total
+end
+
+-- Bakıcı Asası bakımı: tüm hayvanların geliri [startedAt, endsAt] aralığında +bonus. Çalışma anı alanıdır (`careBoost`, kaydedilmez);
+-- geçersiz/sınır dışı kayıt yok sayılır. Pencere ile kesişen kısım için ek gelir ayrıca hesaplanır.
+local CARE_MAX_BONUS = 1
+
+local function careWindow(save: PlayerSave): (number?, number?, number?)
+	local boost = (save :: any).careBoost
+	if typeof(boost) ~= "table" then
+		return nil
+	end
+	local from, to, bonus = boost.startedAt, boost.endsAt, boost.bonus
+	if
+		typeof(from) ~= "number"
+		or typeof(to) ~= "number"
+		or typeof(bonus) ~= "number"
+		or not isFinite(from)
+		or not isFinite(to)
+		or not isFinite(bonus)
+		or to <= from
+		or bonus <= 0
+		or bonus > CARE_MAX_BONUS
+	then
+		return nil
+	end
+	return bonus, from, to
+end
+
+-- Verilen anda bakım gelir çarpanı (1 = etkin değil)
+function Income.getCareMultiplier(save: PlayerSave, now: number): number
+	local bonus, from, to = careWindow(save)
+	if bonus and from and to and now >= from and now < to then
+		return 1 + bonus
+	end
+	return 1
+end
+
+function Income.computeIncomeOverInterval(
+	save: PlayerSave,
+	startedAt: number,
+	endedAt: number,
+	neutralWeather: boolean?
+): number
+	local total = rawIncomeOverInterval(save, startedAt, endedAt, neutralWeather)
+	local bonus, windowFrom, windowTo = careWindow(save)
+	if bonus and windowFrom and windowTo and total > 0 then
+		local from = math.max(startedAt, windowFrom)
+		local to = math.min(endedAt, windowTo)
+		if to > from then
+			total += bonus * rawIncomeOverInterval(save, from, to, neutralWeather)
+		end
 	end
 	return total
 end
@@ -307,6 +360,8 @@ function Income.getParkedFarmIncome(save: PlayerSave, farmId: string, farm: any,
 				return root.inventory
 			elseif key == "envOverride" then
 				return root.envOverride
+			elseif key == "careBoost" then
+				return root.careBoost
 			elseif key == "cash" then
 				return root.cash
 			end

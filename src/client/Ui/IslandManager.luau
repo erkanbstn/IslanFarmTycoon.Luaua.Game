@@ -647,6 +647,10 @@ function IslandManager.toggle()
 end
 
 function IslandManager.open()
+	-- Kayıt gelmeden açılırsa pencere boş kartlarla görünür; durum gelene kadar açılmaz
+	if not ClientState.get() then
+		return
+	end
 	if not window then
 		window = create()
 	end

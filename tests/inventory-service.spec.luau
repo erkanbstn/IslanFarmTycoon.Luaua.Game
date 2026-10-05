@@ -9,7 +9,8 @@ return function(
 	config: any,
 	farmMath: any,
 	inventory: any,
-	merchant: any
+	merchant: any,
+	staffPowers: any
 )
 	local harness = createHarness(createLimiter, codec, config, farmMath)
 	local function setup(): any
@@ -90,7 +91,8 @@ return function(
 				end,
 			},
 			merchant,
-			h.seasonService
+			h.seasonService,
+			staffPowers
 		)
 		service.configureMerchantProximity(function(): boolean
 			return h.near ~= false
@@ -442,6 +444,96 @@ return function(
 		assert(
 			queued.metricCounts.ItemPowersUsed == 1 and not queued.validateWeather(),
 			"activation charges once and cooldown applies"
+		)
+	end
+	-- Yetenek asaları (Yetiştirici/Üretim/Bakıcı): sunucu doğrular, etkilenecek şey yoksa hak harcamaz
+	do
+		local function ability(fixture: any, itemId: string, argument: any): any
+			return fixture.fire("RequestUseItem", itemId, fixture.nextId(), fixture.data.activeMainFarmId, argument)
+		end
+		local function equipOwned(fixture: any, itemId: string)
+			inventory.grant(fixture.data, itemId)
+			inventory.equip(fixture.data, itemId)
+		end
+		local farmId = "1"
+		local animalId = config.getHomeAnimal(farmId)
+
+		-- Büyüme (Yetiştirici Asası)
+		local grow = setup()
+		grow.data.animals = {
+			{ uid = "c1", animalId = animalId, zoneId = "starter", bornAt = grow.now - 30, stage = "calf" },
+			{ uid = "a1", animalId = animalId, zoneId = "starter", bornAt = 0, stage = "adult" },
+		}
+		local calfBorn = grow.data.animals[1].bornAt
+		assert(not ability(grow, "breeder_staff", "use").ok, "an unowned staff does nothing")
+		equipOwned(grow, "breeder_staff")
+		local badArg = ability(grow, "breeder_staff", "grow")
+		assert(not badArg.ok and badArg.message == "Geçersiz seçim", "the ability needs the explicit use argument")
+		assert(inventory.usesLeft(grow.data, "breeder_staff", grow.now) == 3, "a rejected argument consumes no use")
+		local grew = ability(grow, "breeder_staff", "use")
+		assert(grew.ok and grow.data.animals[1].bornAt < calfBorn, "the young animal's growth is shortened")
+		assert(grow.data.animals[2].bornAt == 0, "the starter adult is untouched")
+		assert(
+			inventory.usesLeft(grow.data, "breeder_staff", grow.now) == 2 and grow.metricCounts.ItemPowersUsed == 1,
+			"the use is charged once"
+		)
+		assert(not ability(grow, "breeder_staff", "use").ok, "the cooldown blocks an immediate repeat")
+		local noYoung = setup()
+		noYoung.data.animals = { { uid = "a1", animalId = animalId, zoneId = "starter", bornAt = 0, stage = "adult" } }
+		equipOwned(noYoung, "breeder_staff")
+		local nothing = ability(noYoung, "breeder_staff", "use")
+		assert(
+			not nothing.ok and inventory.usesLeft(noYoung.data, "breeder_staff", noYoung.now) == 3,
+			"nothing to grow: refused and no use is consumed"
+		)
+
+		-- Üretim (Üretim Asası)
+		local rush = setup()
+		rush.data.animals = {
+			{
+				uid = "w1",
+				animalId = animalId,
+				zoneId = "starter",
+				bornAt = 0,
+				stage = "adult",
+				task = { kind = "production", id = "packed_milk", startedAt = rush.now - 10, endsAt = rush.now + 400 },
+			},
+		}
+		rush.data.production = {
+			packed_milk = { uid = "j1", startedAt = rush.now - 10, readyAt = rush.now + 400, forgone = 100 },
+		}
+		equipOwned(rush, "artisan_staff")
+		local rushed = ability(rush, "artisan_staff", "use")
+		local job = rush.data.production.packed_milk
+		assert(rushed.ok and job.readyAt < rush.now + 400, "the running batch finishes sooner")
+		assert(rush.data.animals[1].task.endsAt == job.readyAt, "the assigned animal returns with the batch")
+		local idle = setup()
+		equipOwned(idle, "artisan_staff")
+		local noJob = ability(idle, "artisan_staff", "use")
+		assert(
+			not noJob.ok and inventory.usesLeft(idle.data, "artisan_staff", idle.now) == 3,
+			"no running production: refused and no use is consumed"
+		)
+
+		-- Bakım (Bakıcı Asası)
+		local care = setup()
+		equipOwned(care, "caretaker_staff")
+		local started = ability(care, "caretaker_staff", "use")
+		local boost = care.data.careBoost
+		assert(
+			started.ok and boost and boost.endsAt == care.now + config.ITEM_POWER_SETTINGS.care.seconds,
+			"care starts a timed window"
+		)
+		assert(boost.bonus == config.ITEM_POWER_SETTINGS.care.bonus, "the configured bonus applies")
+		care.now += config.ITEM_USE_COOLDOWN_SECONDS + 1
+		local again = ability(care, "caretaker_staff", "use")
+		assert(
+			not again.ok and inventory.usesLeft(care.data, "caretaker_staff", care.now) == 1,
+			"no stacking while active"
+		)
+		assert(
+			not ability(care, "caretaker_staff", 5).ok and not ability(care, "caretaker_staff", nil).ok,
+			"bad arguments"
 		)
 	end
 	print(

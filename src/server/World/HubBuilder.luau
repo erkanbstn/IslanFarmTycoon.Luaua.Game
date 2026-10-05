@@ -19,6 +19,20 @@ local makeDisc = MapParts.makeDisc
 local addTravelPrompt = MapParts.addTravelPrompt
 local buildBridgeBetween = MapParts.buildBridgeBetween
 
+-- Halka yerleşimi (açı: derece, yarıçap: stud; açıklama buildHub içinde). Köprü yolu yarı genişliği ~4 stud olduğundan
+-- tahta/tezgâh kenarları köprü eksenlerinden uzak kalır.
+local BOARD_RADIUS = 31 -- 16 stud tahtalar (açısal genişlik ~30 derece)
+local VENDOR_RADIUS = 29 -- 8,2 stud tezgâhlar
+local VENDOR_SPREAD = 9.5 -- iki tezgâhın boşluk ortasından ayrılma açısı
+local TITLE_RADIUS = 33
+local SIGN_RADIUS = 27
+local PLANTER_RADIUS = 34
+local PLANTER_OFFSET = 9.5 -- köprü ekseninin iki yanı
+local BENCH_RADIUS = 13
+local STATUE_RADIUS = 14
+local SPAWN_ANGLE = 300
+local SPAWN_RADIUS = 15
+
 local function buildHub(parent: Instance)
 	local hub = Instance.new("Model")
 	hub.Name = "Hub"
@@ -35,10 +49,29 @@ local function buildHub(parent: Instance)
 		WorldDecor.lamp(hub, CFrame.lookAt(p + Vector3.new(0, SURFACE_Y, 0), Vector3.new(0, SURFACE_Y, 0)))
 	end
 
-	-- Satıcı NPC'ler: köprü aralarında, yüzleri meydanın ortasına dönük
+	-- Düzen: her şey meydanın kenarında, yüzü merkeze (çeşmeye, yani ortadaki oyuncuya) dönük bir halka üzerindedir.
+	-- Köprüler 0°, 60°, ... yönlerinden gelir; aralarındaki altı boşluk (30°, 90°, ...) şöyle kullanılır
+	-- (açı kuzeyden saat yönünde; x = sin, z = cos):
+	--   270° 330° 30°   sıralama tahtaları yan yana (rebirth | sunucu | çiftlik)
+	--   90°  150°       dörder değil ikişer satıcı yan yana (her boşlukta iki tezgâh)
+	--   210°            karşılama tabelası, önünde Adalar tabelası
+	-- Köprü girişlerinin iki yanında çiçeklik vardır; yürüyüş yolları boş kalır. İç halkada heykel, bankler, doğma
+	-- platformu ve gezgin tüccar durur; tahtalar yürümeyi engellemez (yalnız direkleri katıdır).
+	local center = Vector3.new(0, SURFACE_Y, 0)
+	local function polar(angle: number, radius: number): Vector3
+		local rad = math.rad(angle)
+		return Vector3.new(math.sin(rad) * radius, SURFACE_Y, math.cos(rad) * radius)
+	end
+	-- Merkeze bakan yerleşim (yerel -Z ön)
+	local function facingCenter(angle: number, radius: number): CFrame
+		local pos = polar(angle, radius)
+		return CFrame.lookAt(pos, center)
+	end
+
+	-- Satıcı NPC'ler: iki boşlukta ikişer tezgâh, hepsi merkeze bakar
 	local vendors: { { angle: number, spec: HubNpcs.NpcSpec } } = {
 		{
-			angle = 90,
+			angle = 90 - VENDOR_SPREAD,
 			spec = {
 				name = "Tüccar Tarık",
 				title = "Siparişler",
@@ -49,7 +82,7 @@ local function buildHub(parent: Instance)
 			},
 		},
 		{
-			angle = 150,
+			angle = 90 + VENDOR_SPREAD,
 			spec = {
 				name = "Usta Ömer",
 				title = "Eşyalar",
@@ -60,7 +93,7 @@ local function buildHub(parent: Instance)
 			},
 		},
 		{
-			angle = 210,
+			angle = 150 - VENDOR_SPREAD,
 			spec = {
 				name = "Rehber Rana",
 				title = "Yol Haritası",
@@ -71,7 +104,7 @@ local function buildHub(parent: Instance)
 			},
 		},
 		{
-			angle = 270,
+			angle = 150 + VENDOR_SPREAD,
 			spec = {
 				name = "Kaptan Kemal",
 				title = "Adalar",
@@ -83,53 +116,40 @@ local function buildHub(parent: Instance)
 		},
 	}
 	for _, vendor in vendors do
-		local rad = math.rad(vendor.angle)
-		local pos = Vector3.new(math.sin(rad), 0, math.cos(rad)) * 24 + Vector3.new(0, SURFACE_Y, 0)
-		HubNpcs.vendor(hub, CFrame.lookAt(pos, Vector3.new(0, SURFACE_Y, 0)), vendor.spec)
+		HubNpcs.vendor(hub, facingCenter(vendor.angle, VENDOR_RADIUS), vendor.spec)
 	end
 
-	-- Meydan dekoru: boş yay üzerinde çeşme, ortaya bakan banklar ve satıcıların yanında çiçeklikler
-	local center = Vector3.new(0, SURFACE_Y, 0)
-	local function onRing(angle: number, radius: number): Vector3
-		local rad = math.rad(angle)
-		return Vector3.new(math.sin(rad), 0, math.cos(rad)) * radius + center
-	end
-	HubNpcs.fountain(hub, CFrame.new(center)) -- meydanın tam ortası
-	for _, angle in { 120, 180, 240 } do
-		local pos = onRing(angle, 15)
-		HubNpcs.bench(hub, CFrame.lookAt(pos, center))
-	end
-	for index, vendor in vendors do
-		for side, offset in { -16, 16 } do
-			local pos = onRing(vendor.angle + offset, 26)
-			HubNpcs.planter(hub, CFrame.lookAt(pos, center), index * 2 + side)
+	-- Çiçeklikler: her köprü girişinin iki yanında
+	local plantersPlaced = 0
+	for axis = 0, 300, 60 do
+		for _, side in { -1, 1 } do
+			plantersPlaced += 1
+			HubNpcs.planter(hub, facingCenter(axis + side * PLANTER_OFFSET, PLANTER_RADIUS), plantersPlaced)
 		end
 	end
 
-	-- Meydan süsleri (assets/HubModels): heykel ve flama (doğma noktasının arkasında). Köprü girişlerinin bayrakları kullanıcı isteğiyle kaldırıldı.
-	-- Yüzleri meydanın ortasına dönüktür.
-	local function placeHubDecor(name: string, pos: Vector3): Model?
+	-- İç halka: çeşme ortada; heykel kuzeyde, bankler çeşmeye bakar
+	HubNpcs.fountain(hub, CFrame.new(center))
+	for _, angle in { 60, 180, 240 } do
+		HubNpcs.bench(hub, facingCenter(angle, BENCH_RADIUS))
+	end
+
+	-- Meydan süsleri (assets/HubModels): heykel
+	local function placeHubDecor(name: string, cframe: CFrame): Model?
 		local model = ModelAssets.clone("HubModels", name)
 		if not model then
 			warn(`[HubBuilder] assets/HubModels/{name}.rbxmx bulunamadı; çizilmedi`)
 			return nil
 		end
-		model:PivotTo(CFrame.lookAt(pos, center))
+		model:PivotTo(cframe)
 		model.Parent = hub
 		return model
 	end
-	placeHubDecor("Hub_Statue", onRing(300, 14))
-	local bannerModel = placeHubDecor("Hub_Banner", onRing(330, 33))
-	local banner = bannerModel and bannerModel:FindFirstChild("Banner")
-	if banner and banner:IsA("BasePart") then
-		for _, face in { Enum.NormalId.Front, Enum.NormalId.Back } do
-			WorldUi.sign(banner, face, { icon = "🐄", text = "Hoş geldin" })
-		end
-	end
+	placeHubDecor("Hub_Statue", facingCenter(0, STATUE_RADIUS))
 
-	-- Doğma noktası: işlev SpawnLocation'da (görünmez); görünüm hazır model (assets/HubProps/SpawnPlaza: taş disk + bronz kenar).
+	-- Doğma noktası iç halkada: işlev SpawnLocation'da (görünmez); görünüm hazır model (assets/HubProps/SpawnPlaza: taş disk + bronz kenar).
 	-- Üst yüzeyler eşit (0.3 stud) olsun diye SpawnLocation ince ve zeminle aynı yükseklikte durur.
-	local spawnPosition = onRing(330, 20) -- merkez çeşmeye ayrıldı
+	local spawnPosition = polar(SPAWN_ANGLE, SPAWN_RADIUS)
 	local spawn = Instance.new("SpawnLocation")
 	spawn.Name = "HubSpawn"
 	spawn.Size = Vector3.new(10, 0.2, 10)
@@ -153,19 +173,14 @@ local function buildHub(parent: Instance)
 		warn("[HubBuilder] assets/HubProps/SpawnPlaza.rbxmx bulunamadı; doğma platformu çizilmedi")
 	end
 
-	-- Tabela iki köprünün arasına, meydanın ortasına bakacak şekilde
-	local betweenBridges = math.pi / Config.MAP_PLOT_COUNT
-	local signPos = Vector3.new(math.sin(betweenBridges), 0, math.cos(betweenBridges)) * (HUB_RADIUS - 8)
-	local signCf = CFrame.lookAt(signPos, Vector3.zero) + Vector3.new(0, SURFACE_Y, 0)
-
-	-- Büyük tabelanın tahtası ve çerçevesi birlikte yüklenir. Yerel -Z meydanın ortasına bakar.
-	local function placeBoardModel(name: string, offset: CFrame): Model?
+	-- Tabelalar: merkeze bakar. Büyük tabelanın tahtası ve çerçevesi birlikte yüklenir.
+	local function placeBoardModel(name: string, angle: number, radius: number): Model?
 		local model = ModelAssets.clone("HubModels", name)
 		if not model then
 			warn(`[HubBuilder] assets/HubModels/{name}.rbxmx bulunamadı; çizilmedi`)
 			return nil
 		end
-		model:PivotTo(signCf * offset)
+		model:PivotTo(facingCenter(angle, radius))
 		if name ~= "HubTravelBoard" then
 			model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
 			model.Parent = hub
@@ -178,8 +193,39 @@ local function buildHub(parent: Instance)
 		return nil
 	end
 
-	-- Karşılama tabelası (direk + tahta)
-	local titleModel = placeBoardModel("HubTitleBoard", CFrame.new())
+	-- Sıralama tahtaları (HubBoardService satırları günceller): rebirth | sunucu | çiftlik; yürümeyi engellemez
+	for _, spec in
+		{
+			{ model = "HubRebirthBoard", part = "RebirthBoard", angle = 270, title = "En Çok Rebirth", icon = "🔄" },
+			{
+				model = "HubPlayerBoard",
+				part = "PlayerBoard",
+				angle = 330,
+				title = "Sunucu Sıralaması",
+				icon = "🏆",
+			},
+			{
+				model = "HubFarmBoard",
+				part = "FarmBoard",
+				angle = 30,
+				title = "En Çok Tamamlanan Çiftlik",
+				icon = "🌾",
+			},
+		}
+	do
+		placeBoardModel(spec.model, spec.angle, BOARD_RADIUS)
+		local rankingBoard = hub:FindFirstChild(spec.part, true)
+		if rankingBoard and rankingBoard:IsA("BasePart") then
+			WorldUi.board(
+				rankingBoard,
+				Enum.NormalId.Front,
+				{ title = spec.title, icon = spec.icon, rows = Config.MAP_PLOT_COUNT }
+			)
+		end
+	end
+
+	-- Karşılama tabelası (direk + tahta) 210° boşluğunun ortasında, önünde Adalar tabelası
+	local titleModel = placeBoardModel("HubTitleBoard", 210, TITLE_RADIUS)
 	local title = titleModel and titleModel:FindFirstChild("Title")
 	if title and title:IsA("BasePart") then
 		for _, face in { Enum.NormalId.Front, Enum.NormalId.Back } do
@@ -187,19 +233,8 @@ local function buildHub(parent: Instance)
 		end
 	end
 
-	-- Sunucudaki oyuncuların para ve ada durumu (HubBoardService satırları günceller); yürümeyi engellemez
-	placeBoardModel("HubPlayerBoard", CFrame.new(0, 0, -2))
-	local ranking = hub:FindFirstChild("PlayerBoard", true)
-	if ranking and ranking:IsA("BasePart") then
-		WorldUi.board(
-			ranking,
-			Enum.NormalId.Front,
-			{ title = "Sunucu Sıralaması", icon = "🏆", rows = Config.MAP_PLOT_COUNT }
-		)
-	end
-
-	-- Yön tabelası, sıralamanın sağında: adalara ışınlanma menüsü
-	placeBoardModel("HubTravelBoard", CFrame.new(-13, 0, -2))
+	-- Yön tabelası: adalara ışınlanma menüsü
+	placeBoardModel("HubTravelBoard", 210, SIGN_RADIUS)
 	local board = hub:FindFirstChild("TravelBoard")
 	if board and board:IsA("BasePart") then
 		WorldUi.sign(board, Enum.NormalId.Front, { icon = "🧭", text = "Adalar", tint = UiTheme.Color.Blue })

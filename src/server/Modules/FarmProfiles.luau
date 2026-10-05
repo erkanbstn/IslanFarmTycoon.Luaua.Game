@@ -64,6 +64,7 @@ function FarmProfiles.view(data: any, farmId: string): any
 		farm.inventory = data.inventory -- Envanter de hesap düzeyindedir: takılı eşyalar her çiftliğin gelirini etkiler
 		farm.gold, farm.owned, farm.progression = data.gold, data.owned, data.progression
 		farm.envOverride = data.envOverride -- Asa ile oyuncuya özel mevsim/hava her çiftliğin gelirini etkiler
+		farm.careBoost = data.careBoost -- Bakıcı Asası bakımı (çalışma anı) her çiftliğin gelirini etkiler
 	end
 	return farm
 end

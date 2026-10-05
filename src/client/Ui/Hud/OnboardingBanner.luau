@@ -1,7 +1,7 @@
 --!strict
--- İlk adımlar görev şeridi: üst ortada, menü çubuğunun altında "İLK ADIMLAR n/6" + tek cümlelik görev.
+-- İlk adımlar görev şeridi: üst ortada, menü çubuğunun altında "İLK ADIMLAR n/4" + tek cümlelik görev.
 -- Metni GoalCard verir (tek kaynak: adım metinleri orada); adımlar bitince (ya da oyuncu "Atla" deyince) şerit kaybolur.
--- Atlama yalnızca bu oturumdadır, kayda yazılmaz.
+-- "Atla" kararı Onboarding üzerinden hesaba yazılır (şerit yalnızca gösterir; görünürlük adım durumundan gelir).
 
 local UiKit = require(script.Parent.Parent:WaitForChild("UiKit"))
 
@@ -20,8 +20,6 @@ local TOP_GAP = 14 -- menü çubuğunun üst boşluğu (MenuBar.topBar ile aynı
 local POINTER_ROOM = 46 -- menü düğmesinin altına inen "Buraya dokun" okuna yer
 
 function OnboardingBanner.create(hudRoot: Instance, onSkip: (() -> ())?): Banner
-	local skipped = false
-
 	local frame = Instance.new("Frame")
 	frame.Name = "OnboardingBanner"
 	frame.AnchorPoint = Vector2.new(0.5, 0)
@@ -54,7 +52,6 @@ function OnboardingBanner.create(hudRoot: Instance, onSkip: (() -> ())?): Banner
 	skip.TextSize = UiKit.TextSize.Caption
 	skip.LayoutOrder = 3
 	skip.Activated:Connect(function()
-		skipped = true
 		frame.Visible = false
 		if onSkip then
 			onSkip()
@@ -64,9 +61,6 @@ function OnboardingBanner.create(hudRoot: Instance, onSkip: (() -> ())?): Banner
 	return {
 		frame = frame,
 		show = function(titleText: string, labelText: string)
-			if skipped then
-				return
-			end
 			UiKit.setText(title, titleText)
 			UiKit.setText(label, labelText)
 			frame.Visible = true

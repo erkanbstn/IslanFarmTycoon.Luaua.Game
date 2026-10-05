@@ -12,6 +12,7 @@ local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath")
 local PlayerDataService = require(script.Parent:WaitForChild("PlayerDataService"))
 local EconomyService = require(script.Parent:WaitForChild("EconomyService"))
 local PlotService = require(script.Parent:WaitForChild("PlotService"))
+local Preferences = require(script.Parent.Parent.Modules.Preferences)
 local ProductionRules = require(script.Parent.Parent.Modules.ProductionRules)
 local ProductionLogic = require(script.Parent.Parent.Modules.ProductionLogic)
 local RateLimiter = require(script.Parent.Parent.Modules.RateLimiter)
@@ -100,6 +101,12 @@ local function act(player: Player, action: unknown, recipeId: unknown, detail: u
 		local ok, reason = ProductionLogic.start(data, data, recipe, optionId, now, FarmMath, hooks)
 		if not ok then
 			return false, reason or "Üretim başlatılamadı."
+		end
+		-- İlk parti başlayınca başlangıç öğreticisi tamamlanmış sayılır (işaret hesaba yazılır, yeniden girişte kalır)
+		if Preferences.apply(data, "tutorialDone", true) then
+			for name, attribute in Preferences.attributes(data) do
+				player:SetAttribute(name, attribute)
+			end
 		end
 		-- Tekrar açıksa son elle seçilen parti tekrarlanır
 		if data.autoRepeat[recipe.id] ~= nil and data.autoRepeat[recipe.id] ~= "fill" then

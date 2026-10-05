@@ -5,7 +5,7 @@ return function(Preferences: any, SaveCodec: any, Config: any, FarmMath: any)
 		Preferences.isKind("sfx") and Preferences.isKind("ambience") and Preferences.isKind("music"),
 		"known kinds are accepted"
 	)
-	assert(Preferences.isKind("reducedMotion"))
+	assert(Preferences.isKind("reducedMotion") and Preferences.isKind("tutorialDone"), "boolean kinds are accepted")
 	assert(
 		not Preferences.isKind("master") and not Preferences.isKind(5) and not Preferences.isKind(nil),
 		"unknown kinds are rejected"
@@ -40,6 +40,18 @@ return function(Preferences: any, SaveCodec: any, Config: any, FarmMath: any)
 	assert(not Preferences.apply(data, "reducedMotion", true), "same reducedMotion value is not a change")
 	assert(not Preferences.apply(data, "reducedMotion", 1) and data.reducedMotion == true, "wrong type is rejected")
 
+	-- öğretici işareti: yalnızca mantıksal değer; false "yeniden göster" demektir
+	assert(Preferences.apply(data, "tutorialDone", true) and data.tutorialDone == true, "tutorialDone is written")
+	assert(not Preferences.apply(data, "tutorialDone", true), "same tutorialDone value is not a change")
+	assert(Preferences.apply(data, "tutorialDone", false) and data.tutorialDone == false, "replay clears the flag")
+	assert(
+		not Preferences.apply(data, "tutorialDone", "yes") and not Preferences.apply(data, "tutorialDone", 1),
+		"non-boolean tutorialDone is rejected"
+	)
+	assert(Preferences.attributes(data).SavedTutorialDone == false, "false tutorialDone is exposed")
+	assert(Preferences.attributes({}).SavedTutorialDone == "", "unset tutorialDone is empty")
+	Preferences.apply(data, "tutorialDone", true)
+
 	-- öznitelikler: seçilmemiş = ""
 	local attributes = Preferences.attributes({})
 	assert(
@@ -72,23 +84,27 @@ return function(Preferences: any, SaveCodec: any, Config: any, FarmMath: any)
 		return "u"
 	end
 	local old = assert(SaveCodec.decode(nil, Config, FarmMath, now, uid))
-	assert(old.audio == nil and old.reducedMotion == nil, "old save has no preferences")
+	assert(old.audio == nil and old.reducedMotion == nil and old.tutorialDone == nil, "old save has no preferences")
 	old.audio = { sfx = 0.25, music = 0 }
 	old.reducedMotion = true
+	old.tutorialDone = true
 	local reloaded = assert(SaveCodec.decode(SaveCodec.encode(old, now), Config, FarmMath, now, uid))
 	assert(reloaded.audio and reloaded.audio.sfx == 0.25 and reloaded.audio.music == 0, "volumes survive saves")
 	assert(
 		reloaded.audio.ambience == nil and reloaded.reducedMotion == true,
 		"unset volume and reducedMotion round trip"
 	)
+	assert(reloaded.tutorialDone == true, "tutorialDone survives saves")
 	local corrupt = SaveCodec.encode(old, now)
 	corrupt.audio = { sfx = "loud", ambience = 0 / 0, music = 0.7 }
 	corrupt.reducedMotion = { true }
+	corrupt.tutorialDone = "yes"
 	local fixed = assert(SaveCodec.decode(corrupt, Config, FarmMath, now, uid))
 	assert(
 		fixed.audio and fixed.audio.sfx == nil and fixed.audio.ambience == nil and fixed.audio.music == 0.7,
 		"corrupt volumes are dropped on decode"
 	)
 	assert(fixed.reducedMotion == nil, "reducedMotion must be a boolean")
+	assert(fixed.tutorialDone == nil, "tutorialDone must be a boolean")
 	print("PASS preferences: volume/reducedMotion validation, attributes and save round trip")
 end

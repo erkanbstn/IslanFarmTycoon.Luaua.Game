@@ -19,5 +19,5 @@ Karar (kullanıcıdan): oyun iki ayrı haritadan oluşur.
 ## Ada haritasında lobiye hazırlık için yapılacaklar (sonraya)
 1. Sahip kimliği: ada sunucusu açılırken `TeleportData`/reserved server ile sahibi belirle; misafirleri ayır.
 2. Lobiye dönüş düğmesi ("Lobiye git").
-3. Sıralama puanı: gelir, açık ada sayısı, toplam hayvan gibi bir skoru lobiye yayınlama. (Meydandaki sunucu içi "Sunucu Sıralaması" panosu `HubBoardService`'te zaten var; lobi için kalıcı sıralama yok.)
+3. Sıralama puanı: gelir, açık ada sayısı, toplam hayvan gibi bir skoru lobiye yayınlama. (Meydanda `HubBoardService` üç pano gösterir: sunucu içi "Sunucu Sıralaması" (kasa, ada, rebirth), genel "En Çok Rebirth" ve "En Çok Tamamlanan Çiftlik". Genel tablolar `SaveStore.publishRank/readTopRank` ile OrderedDataStore kullanır; yalnız bilgi amaçlıdır, ödül/gerçek para bağlanmaz. Sunucu panosu yerel kalır.)
 4. `Config.MAP_PLOT_COUNT` haritadaki fiziksel ada sayısıdır ve sunucudaki en fazla oyuncu sayısını belirler.

@@ -16,7 +16,6 @@ local UiKit = require(script.Parent.Parent:WaitForChild("UiKit"))
 local HudCommon = require(script.Parent:WaitForChild("HudCommon"))
 local Onboarding = require(script.Parent:WaitForChild("Onboarding"))
 local OnboardingBanner = require(script.Parent:WaitForChild("OnboardingBanner"))
-local OnboardingSteps = require(Shared:WaitForChild("Modules"):WaitForChild("OnboardingSteps"))
 
 type PlayerSave = GameTypes.PlayerSave
 
@@ -125,43 +124,26 @@ function GoalCard.create(stats: Frame, onboarding: Onboarding.Hud, banner: Onboa
 			if cheapest then cheapest.id else nil
 		)
 		if step == 2 then
-			goalTitle.Text = "İLK ADIMLAR 2/6"
+			goalTitle.Text = "İLK ADIMLAR 2/4"
 			goalLabel.Text = "Yeşil platforma basıp parayı topla"
 			goalDetail.Text = "Hayvanların depoya para üretir; platforma basınca kasana geçer."
 			return
 		elseif step == 3 and cheapest then
-			goalTitle.Text = "İLK ADIMLAR 3/6"
+			goalTitle.Text = "İLK ADIMLAR 3/4"
 			goalLabel.Text = `İlk yükseltme: {cheapest.displayName} · {FarmMath.formatMoney(
 				FarmMath.getUpgradeCost(state, cheapest)
 			)}`
 			goalDetail.Text = purchaseHint(state, FarmMath.getUpgradeCost(state, cheapest), income, cheapest)
 			return
 		elseif step == 4 then
-			goalTitle.Text = "İLK ADIMLAR 4/6"
-			goalLabel.Text = "Yol Haritası'nı aç"
+			goalTitle.Text = "İLK ADIMLAR 4/4"
+			goalLabel.Text = "Üretim penceresinden ilk partini başlat"
 			goalDetail.Text =
-				"Neden: Bütün yükseltmeler ve sıradaki adalar orada; en kârlı yatırımı oradan seçersin."
-			return
-		elseif step == 5 then
-			local targetId, cost = OnboardingSteps.cheapestExpansion(state)
-			if targetId then
-				goalTitle.Text = "İLK ADIMLAR 5/6"
-				goalLabel.Text =
-					`İlk genişletme: {Config.getBuildTargetName(targetId, state.activeMainFarmId)} · {FarmMath.formatMoney(
-						cost
-					)}`
-				goalDetail.Text = "Neden: Genişletme kapasite ve gelir ekler. Yükseltmeler penceresinde alınır."
-				return
-			end
-		elseif step == 6 then
-			goalTitle.Text = "İLK ADIMLAR 6/6"
-			goalLabel.Text = "İlk üretim partini başlat"
-			goalDetail.Text =
-				"Neden: Tesis hayvanlarının ürününü paraya çevirir. Üretim penceresinden bir parti seç."
+				"Tesis hayvanlarının ürününü paraya çevirir; sonra Yol Haritası'ndan yeni yatırımlar seçersin."
 			return
 		end
 		if step == 1 then
-			goalTitle.Text = "İLK ADIMLAR 1/6"
+			goalTitle.Text = "İLK ADIMLAR 1/4"
 			local homeAnimal = Config.getHomeAnimal(state.activeMainFarmId)
 			-- Hayvansız başlanır: ilk hayvan başlangıç parasıyla alınır
 			local homeName = Config.ANIMALS[homeAnimal].displayName

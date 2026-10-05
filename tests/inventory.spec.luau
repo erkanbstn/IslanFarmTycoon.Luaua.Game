@@ -18,7 +18,12 @@ return function(Inventory: any, Config: any, FarmMath: any, SaveCodec: any, Sess
 			effectCount += 1
 		end
 		if item.slot == "staff" and item.power then
-			assert(item.power.kind == "season" or item.power.kind == "weather", `staff {itemId} has an unknown power`)
+			assert(
+				Config.ITEM_POWER_SETTINGS[item.power.kind] ~= nil
+					or item.power.kind == "season"
+					or item.power.kind == "weather",
+				`staff {itemId} has an unknown power`
+			)
 			assert(effectCount >= 1, `staff {itemId} also needs a passive effect`)
 		elseif item.slot == "staff" then
 			-- Güçsüz asalar (Çoban Asaları): yalnızca pasif fayda; hava gücü sadece Ebedi Hava Asası'nda
@@ -51,7 +56,7 @@ return function(Inventory: any, Config: any, FarmMath: any, SaveCodec: any, Sess
 			local value = if item.slot == "head"
 					or item.rewardOnly
 					or item.slot == "back"
-					or (item.slot == "staff" and not item.power)
+					or (item.slot == "staff" and (not item.power or Config.ITEM_POWER_SETTINGS[item.power.kind] ~= nil))
 				then nil
 				else filter(item)
 			if value then
@@ -360,5 +365,26 @@ return function(Inventory: any, Config: any, FarmMath: any, SaveCodec: any, Sess
 		"packet filtering preserves server ledgers"
 	)
 	assert(SessionLock.isFinite(1), "sanity")
+	-- Asa gücü bölümü yalnız mevsim/hava asalarında açılır; gücü olmayan asa boş kart göstermez
+	local powered, powerless = 0, 0
+	for _, itemId in Config.ITEM_ORDER do
+		local item = Config.ITEMS[itemId]
+		if item.slot == "staff" then
+			assert(Inventory.hasPower(item) == (item.power ~= nil), `{itemId}: hasPower must follow power`)
+			if item.power then
+				powered += 1
+			else
+				powerless += 1
+			end
+		end
+	end
+	assert(powered > 0 and powerless > 0, "both power and power-less staffs exist, so the hidden section matters")
+	assert(
+		Inventory.hasPower(Config.ITEMS.artisan_staff)
+			and Inventory.hasPower(Config.ITEMS.weather_staff_inf)
+			and not Inventory.hasPower(Config.ITEMS.weather_staff_1),
+		"artisan staff has a power; the first shepherd staff stays passive"
+	)
+	assert(not Inventory.hasPower(nil), "no equipped item has no power")
 	print("PASS inventory: definitions, equipping, staff uses, economy effects and save validation")
 end

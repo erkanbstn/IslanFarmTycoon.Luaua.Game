@@ -94,6 +94,7 @@ export type PlayerSave = {
 	daily: { day: number, streak: number }?, -- Günlük ödül: son alınan gün (UTC gün numarası) ve seri
 	achievements: { [string]: boolean }?, -- Ödülü alınmış başarımlar
 	envOverride: EnvOverride?, -- Asa ile oyuncuya özel mevsim/hava (çalışma anı; kaydedilmez)
+	careBoost: { startedAt: number, endsAt: number, bonus: number }?, -- Bakıcı Asası bakımı: tüm hayvanlara geçici gelir artışı (çalışma anı; kaydedilmez)
 	inventory: InventoryData?, -- Envanter (hesap düzeyi): sahip olunan, takılı eşyalar ve asa hakları
 	golden: { key: number }?, -- Altın hayvan: ödülü alınan son pencerenin döngü numarası
 	merchant: { key: number, bought: boolean }?, -- Gezgin tüccar: son teklifin döngü numarası ve alınıp alınmadığı
@@ -101,6 +102,7 @@ export type PlayerSave = {
 	graphics: string?, -- Grafik tercihi (Config.GRAPHICS_MODES); nil = otomatik
 	audio: { sfx: number?, ambience: number?, music: number? }?, -- Ses düzeyleri 0..1 (SFX / Ortam / Müzik); nil = varsayılan (Config.AUDIO_DEFAULTS)
 	reducedMotion: boolean?, -- Hareketi azalt tercihi; nil = kapalı
+	tutorialDone: boolean?, -- Başlangıç öğreticisi atlandı ya da tamamlandı (sunucu yazar); nil/false = adımlar durumdan türer
 	language: string?, -- Seçilen arayüz dili (Config.LANGUAGES kodu); nil = Roblox dilinden algıla
 	mainFarmOffers: { { id: string, name: string, icon: string, ownerUserId: number? } }?,
 	parkedIncomeBest: number?, -- Yalnızca istemci yükü: park edilmiş çiftliklerin en yüksek geliri (FarmMath.getReferenceIncome)

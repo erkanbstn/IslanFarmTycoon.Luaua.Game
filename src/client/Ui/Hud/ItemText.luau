@@ -72,7 +72,26 @@ function ItemText.describe(item: Config.ItemConfig): string
 	end
 	local power = item.power
 	if power then
-		if power.kind == "season" then
+		local settings = Config.ITEM_POWER_SETTINGS[power.kind]
+		local uses = if power.usesPerDay then `Günde {power.usesPerDay} kez` else "Sınırsız"
+		if power.kind == "growth" and settings then
+			table.insert(
+				parts,
+				`{uses}: yavru hayvanların kalan büyümesini %{math.round((settings.fraction or 0) * 100)} kısalt`
+			)
+		elseif power.kind == "rush" and settings then
+			table.insert(
+				parts,
+				`{uses}: çalışan üretimlerin kalan süresini %{math.round((settings.fraction or 0) * 100)} kısalt`
+			)
+		elseif power.kind == "care" and settings then
+			table.insert(
+				parts,
+				`{uses}: {math.floor((settings.seconds or 0) / 60)} dk boyunca bütün hayvanlara +%{math.round(
+					(settings.bonus or 0) * 100
+				)} gelir`
+			)
+		elseif power.kind == "season" then
 			table.insert(
 				parts,
 				if power.usesPerDay

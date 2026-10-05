@@ -213,10 +213,6 @@ return function(createStats: any, createGoal: any)
 		stepFor = function()
 			return step
 		end,
-	}, {
-		cheapestExpansion = function()
-			return nil
-		end,
 	}).create(stats.frame, {
 		apply = function()
 			return step
@@ -244,7 +240,7 @@ return function(createStats: any, createGoal: any)
 		inventory = { items = {}, equipped = {}, uses = {} },
 		progression = { count = 0 },
 	}, 0)
-	assert(not goal.card.Visible and bannerTitle == "İLK ADIMLAR 1/6", "fresh goal updates the onboarding banner")
+	assert(not goal.card.Visible and bannerTitle == "İLK ADIMLAR 1/4", "fresh goal updates the onboarding banner")
 	step = 0
 	local complete: any = {
 		activeMainFarmId = "1",

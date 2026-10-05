@@ -270,9 +270,29 @@ return function(factory: any, config: any, codec: any, farmMath: any, createOnbo
 			}
 		end,
 	}
-	local onboarding = createOnboarding(guidanceGame, guidanceUi, steps)
-	local guide =
-		onboarding.create({ shop = "shop", upgrades = "upgrades", roadmap = "roadmap", production = "production" })
+	local sent = {}
+	local fakeRemotes = {
+		get = function(name: string): any
+			return {
+				FireServer = function(_remote: any, kind: any, value: any)
+					table.insert(sent, { name = name, kind = kind, value = value })
+				end,
+			}
+		end,
+	}
+	local fakeInstance = {
+		new = function(): any
+			return {
+				Event = { Connect = function() end },
+				Fire = function() end,
+			}
+		end,
+	}
+	player.GetAttributeChangedSignal = function(): any
+		return { Connect = function() end }
+	end
+	local onboarding = createOnboarding(guidanceGame, guidanceUi, steps, fakeRemotes, fakeInstance)
+	local guide = onboarding.create({ shop = "shop", upgrades = "upgrades", production = "production" })
 	assert(
 		guide.apply(save, false, nil) == 1 and highlights.shop and attributes.TutorialMarker == "market",
 		"fresh tutorial guides to market"
@@ -285,5 +305,18 @@ return function(factory: any, config: any, codec: any, farmMath: any, createOnbo
 	for _, active in highlights do
 		assert(not active, "skip cancels every pulse and pointer")
 	end
+	assert(
+		#sent == 1
+			and sent[1].name == "RequestSetPreference"
+			and sent[1].kind == "tutorialDone"
+			and sent[1].value == true,
+		"skip is sent to the server as a persisted preference"
+	)
+	assert(not onboarding.isActive(), "skipped tutorial is inactive")
+	onboarding.replay()
+	assert(
+		#sent == 2 and sent[2].value == false and onboarding.isActive() and onboarding.stepFor(save) == 1,
+		"replay re-enables the tutorial from saved progress"
+	)
 	print("PASS roadmap UI: centered layout, single-stage navigation, wallet stability and island context reset")
 end

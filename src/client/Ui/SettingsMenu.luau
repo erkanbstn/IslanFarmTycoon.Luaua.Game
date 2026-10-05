@@ -1,5 +1,5 @@
 --!strict
--- Dil, grafik, ses düzeyleri ve hareket azaltma hesaba kaydedilir (ses/hareket: Core/Preferences.client).
+-- Dil, grafik, ses düzeyleri, hareket azaltma ve başlangıç rehberi hesaba kaydedilir (ses/hareket: Core/Preferences.client).
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UiKit = require(script.Parent:WaitForChild("UiKit"))
@@ -7,6 +7,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local Localization = require(Shared:WaitForChild("Localization"))
+local Onboarding = require(script.Parent:WaitForChild("Hud"):WaitForChild("Onboarding"))
 local player = Players.LocalPlayer
 local SettingsMenu = {}
 local window: UiKit.Window? = nil
@@ -132,6 +133,23 @@ local function create(parent: Instance): UiKit.Window
 		"Caption"
 	).LayoutOrder =
 		9
+	UiKit.text(created.list, "Rehber", "Heading").LayoutOrder = 20
+	local guide = UiKit.button(created.list, "", "secondary")
+	guide.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
+	guide.LayoutOrder = 21
+	guide.Activated:Connect(function()
+		if Onboarding.isActive() then
+			Onboarding.skip()
+		else
+			Onboarding.replay()
+		end
+	end)
+	UiKit.text(
+		details.body,
+		"Rehber açıkken ilk adımlar ekranda yol gösterir; tamamladığın adımlar tekrar çıkmaz.",
+		"Caption"
+	).LayoutOrder =
+		10
 	local descriptions: { [string]: string } = {
 		auto = "Cihazına göre başlar, akıcılık düşerse kendiliğinden iner, rahatsa yükselir.",
 		low = "Gölge, yansıma, parıltı ve bulut kapalı; az yağış ve süs hayvanı. En akıcı ve en az pil harcayan.",
@@ -164,6 +182,9 @@ local function create(parent: Instance): UiKit.Window
 		local reduced = player:GetAttribute("ReducedMotion") == true
 		UiKit.setText(motion, if reduced then "Hareketi azalt: Açık" else "Hareketi azalt: Kapalı")
 		UiKit.setVariant(motion, if reduced then "primary" else "secondary")
+		local guideOn = Onboarding.isActive()
+		UiKit.setText(guide, if guideOn then "Başlangıç rehberi: Açık" else "Başlangıç rehberi: Kapalı")
+		UiKit.setVariant(guide, if guideOn then "primary" else "secondary")
 	end
 	local function refreshVolume()
 		for index, volume in VOLUMES do
@@ -181,6 +202,7 @@ local function create(parent: Instance): UiKit.Window
 		player:GetAttributeChangedSignal("GraphicsMode"):Connect(refresh),
 		player:GetAttributeChangedSignal("EffectsQuality"):Connect(refresh),
 		player:GetAttributeChangedSignal("ReducedMotion"):Connect(refresh),
+		Onboarding.Changed:Connect(refresh),
 	}
 	local stopLanguageWatch = Localization.onChanged(refreshLanguage)
 	created.frame.Destroying:Connect(function()

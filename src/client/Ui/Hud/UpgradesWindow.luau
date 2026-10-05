@@ -146,7 +146,7 @@ function UpgradesWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Upg
 		return table.concat(parts, "\n")
 	end
 
-	local function updateExpansions(state: PlayerSave, content: boolean)
+	local function updateExpansions(state: PlayerSave, content: boolean): boolean
 		local selectedIsland = islandTabs.get()
 		local any = false
 		for _, targetId in Config.BUILD_ORDER do
@@ -196,6 +196,7 @@ function UpgradesWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Upg
 			end
 		end
 		(expansionHeader.Parent :: GuiObject).Visible = any and currentTab == "expansions"
+		return any
 	end
 
 	local lastContext = ""
@@ -212,8 +213,9 @@ function UpgradesWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Upg
 				details.setExpanded(false)
 			end
 		end
-		updateExpansions(state, content)
+		local anyExpansion = updateExpansions(state, content)
 		local remaining = 0
+		local levelsRemaining = 0
 		local selectedIsland = islandTabs.get()
 		local _, counts = ActionBadges.upgrades(state)
 		local islandCounts: { [string]: number } = {}
@@ -259,6 +261,8 @@ function UpgradesWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Upg
 			if status ~= "owned" then
 				if tabId == "upgrades" then
 					remaining += 1
+				else
+					levelsRemaining += 1
 				end
 				UiKit.setCardStatus(card, if status == "locked" then "Kilitli" else nil)
 				if status ~= "locked" then
@@ -271,7 +275,28 @@ function UpgradesWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Upg
 			end
 		end
 		if content then
-			completed.frame.Visible = remaining == 0 and currentTab == "upgrades"
+			-- Her sekmenin kendi boş durumu var: seçili adada o sekmede gösterilecek kart yoksa açıklama görünür
+			local tabEmpty = if currentTab == "upgrades"
+				then remaining == 0
+				elseif currentTab == "levels" then levelsRemaining == 0
+				else not anyExpansion
+			if currentTab == "levels" then
+				UiKit.setText(completed.title, "Seviye yok")
+				UiKit.setText(upgradesEmpty, "Bu adada alınacak seviye yok. Başka bir ada ya da sekme seçebilirsin.")
+			elseif currentTab == "expansions" then
+				UiKit.setText(completed.title, "Geliştirme yok")
+				UiKit.setText(
+					upgradesEmpty,
+					"Bu adada geliştirilecek yapı yok ya da henüz açılmadı. Başka bir ada ya da sekme seçebilirsin."
+				)
+			else
+				UiKit.setText(completed.title, "Yapılar tamamlandı")
+				UiKit.setText(
+					upgradesEmpty,
+					"Bu adanın yapılarını tamamladın. Diğer sekmelerden seviyeleri ve geliştirmeleri inceleyebilirsin."
+				)
+			end
+			completed.frame.Visible = tabEmpty
 			nextIslandButton.Visible = false
 			if remaining == 0 then
 				local pendingUpgrade: Config.UpgradeConfig? = nil

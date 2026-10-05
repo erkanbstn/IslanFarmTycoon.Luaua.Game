@@ -1,5 +1,14 @@
 --!strict
-return function(createService: any, createLimiter: any, rules: any, codec: any, config: any, farmMath: any, logic: any)
+return function(
+	createService: any,
+	createLimiter: any,
+	rules: any,
+	codec: any,
+	config: any,
+	farmMath: any,
+	logic: any,
+	preferences: any
+)
 	local function signal(): any
 		local callbacks = {}
 		return {
@@ -41,9 +50,13 @@ return function(createService: any, createLimiter: any, rules: any, codec: any, 
 		end
 	end
 	reset()
+	local playerAttributes: { [string]: any } = {}
 	local player: any = {
 		GetAttribute = function(): boolean
 			return true
+		end,
+		SetAttribute = function(_self: any, name: string, value: any)
+			playerAttributes[name] = value
 		end,
 	}
 	local stranger: any = {
@@ -149,7 +162,8 @@ return function(createService: any, createLimiter: any, rules: any, codec: any, 
 			end,
 		},
 		function() end,
-		logic
+		logic,
+		preferences
 	)
 	service.init()
 	service.init()
@@ -191,7 +205,15 @@ return function(createService: any, createLimiter: any, rules: any, codec: any, 
 		"delayed request for a different main farm cannot spend or create production"
 	)
 	local idleIncome = farmMath.computeIncomePerSecond(data, now)
+	assert(
+		data.tutorialDone == nil and playerAttributes.SavedTutorialDone == nil,
+		"rejected starts never finish the tutorial"
+	)
 	assert(fire("start", "packed_milk", "medium").ok, "qualified dairy starts")
+	assert(
+		data.tutorialDone == true and playerAttributes.SavedTutorialDone == true,
+		"first production start persists tutorial completion and tells the client"
+	)
 	local job = data.production.packed_milk
 	assert(
 		data.cash == before and data.production.packed_milk.optionId == "medium",

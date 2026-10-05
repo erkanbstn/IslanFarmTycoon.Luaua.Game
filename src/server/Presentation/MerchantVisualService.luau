@@ -39,7 +39,7 @@ function MerchantVisualService.update(active: boolean)
 		existing:Destroy()
 	end
 	local center = Vector3.new(0, MapLayout.SURFACE_Y, 0)
-	local position = center + Vector3.new(math.sin(math.rad(30)), 0, math.cos(math.rad(30))) * 24
+	local position = MapLayout.HUB_MERCHANT_POSITION
 	-- Etiket, prompt ve Atomic ayarı tamamlanmadan istemciye kısmi bir satıcı yayınlama.
 	local staging = Instance.new("Folder")
 	local model = HubNpcs.vendor(staging, CFrame.lookAt(position, center), {

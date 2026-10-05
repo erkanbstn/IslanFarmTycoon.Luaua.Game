@@ -137,7 +137,7 @@ def expected() -> dict[str, set[str]]:
         "Beehives", "Farmhouse", "Granary", "MarketStall", "Orchard", "VegetableGarden", "Well", "Windmill",
     } | {f"Landmark_{kind}" for kind in ("cherry", "daisy", "pine", "rose", "sunflower", "tulip")}
     exp["HubProps"] = {"Bench", "Fountain", "Planter_seed2", "SpawnPlaza"} | {f"Vendor_{a}" for a in ("orders", "roadmap", "store", "travel")}
-    exp["HubModels"] = {"HubTitleBoard", "HubTravelBoard", "HubPlayerBoard", "Hub_Statue", "Hub_Banner"}
+    exp["HubModels"] = {"HubTitleBoard", "HubTravelBoard", "HubPlayerBoard", "HubRebirthBoard", "HubFarmBoard", "Hub_Statue"}
     exp["BridgeModels"] = {"BridgeModule_2", "BridgeModule_8"}
     exp["SignModels"] = {"IslandSign", "PlotSign", "SaleMarker", "Signpost_Direction", "SpecialtySign"}
     exp["ShoreModels"] = {"DockDeck_5", "DockTip", "FishCrates", "FisherHut_Lv1", "NetDryingRack", "Pile"}

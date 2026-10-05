@@ -64,7 +64,7 @@ local EVENTS = {
 	"ProductionResult", -- requestId, success, message
 	"RequestExtensionAction", -- assign / unassign, extensionId
 	"RequestSetGraphics", -- Client -> Sunucu grafik tercihi (auto/low/medium/high); sunucu Config.GRAPHICS_MODES ile doğrular
-	"RequestSetPreference", -- Client -> Sunucu ses düzeyi/hareket azaltma tercihi (tür, değer); sunucu Modules/Preferences ile doğrular
+	"RequestSetPreference", -- Client -> Sunucu ses düzeyi/hareket azaltma/öğretici kapatma tercihi (tür, değer); sunucu Modules/Preferences ile doğrular
 	"RequestSetLanguage", -- Client -> Sunucu arayüz dili tercihi (kod); sunucu Config.LANGUAGES ile doğrular
 	"RequestAdminAction", -- Sadece sunucudaki AdminPolicy'nin izin verdiği hesap.
 	"RequestTradePolicy", -- Client -> Sunucu kendi para gönderme iznini sor (argüman yok); sonuç TradePolicyState

@@ -1,12 +1,14 @@
 --!strict
--- Hesap düzeyi oyuncu tercihleri: ses düzeyleri (SFX / Ortam / Müzik) ve hareket azaltma.
+-- Hesap düzeyi oyuncu tercihleri: ses düzeyleri (SFX / Ortam / Müzik), hareket azaltma ve başlangıç öğreticisinin kapatılması.
 -- Roblox'tan bağımsız saf mantık: kayıt çözümü, uzaktan gelen değerin doğrulanması ve istemciye giden öznitelikler.
 -- Doğrulama listesi buradadır; remote ve SaveCodec aynı kuralı kullanır (graphics/language kalıbı).
 
 local Preferences = {}
 
--- Tercih türü -> kayıt alanı. Ses düzeyleri `data.audio[tür]`, hareket azaltma `data.reducedMotion`.
+-- Tercih türü -> kayıt alanı. Ses düzeyleri `data.audio[tür]`; mantıksal tercihler aynı adlı kök alandır
+-- (`data.reducedMotion`, `data.tutorialDone`: öğretici atlandı ya da tamamlandı, false = yeniden göster).
 local VOLUME_KINDS: { [string]: boolean } = { sfx = true, ambience = true, music = true }
+local BOOLEAN_KINDS: { [string]: boolean } = { reducedMotion = true, tutorialDone = true }
 
 -- Sunucunun Player üzerine yazdığı öznitelik adları (kayıt yüklenince ve değişince). Boş metin = hiç seçilmemiş.
 local ATTRIBUTES: { [string]: string } = {
@@ -14,10 +16,11 @@ local ATTRIBUTES: { [string]: string } = {
 	ambience = "SavedAmbienceVolume",
 	music = "SavedMusicVolume",
 	reducedMotion = "SavedReducedMotion",
+	tutorialDone = "SavedTutorialDone",
 }
 
 function Preferences.isKind(kind: unknown): boolean
-	return typeof(kind) == "string" and (VOLUME_KINDS[kind] == true or kind == "reducedMotion")
+	return typeof(kind) == "string" and (VOLUME_KINDS[kind] == true or BOOLEAN_KINDS[kind] == true)
 end
 
 -- Sonlu sayı -> 0..1, 0,01 adımına yuvarlanır; başka her şey nil.
@@ -44,16 +47,21 @@ function Preferences.decode(source: any): ({ [string]: number }?, boolean?)
 	return audio, reduced
 end
 
+-- Öğretici işareti: yalnızca mantıksal değer; bozuk alan yok sayılır (öğretici durumdan türediği için güvenlidir).
+function Preferences.decodeTutorialDone(source: any): boolean?
+	return if typeof(source.tutorialDone) == "boolean" then source.tutorialDone else nil
+end
+
 -- Uzaktan gelen tercihi doğrular ve kayda yazar. Değişiklik olduysa true; geçersiz tür/değer ya da aynı değer false.
 function Preferences.apply(data: any, kind: unknown, value: unknown): boolean
 	if typeof(kind) ~= "string" then
 		return false
 	end
-	if kind == "reducedMotion" then
-		if typeof(value) ~= "boolean" or data.reducedMotion == value then
+	if BOOLEAN_KINDS[kind] == true then
+		if typeof(value) ~= "boolean" or data[kind] == value then
 			return false
 		end
-		data.reducedMotion = value
+		data[kind] = value
 		return true
 	end
 	if VOLUME_KINDS[kind] ~= true then
@@ -83,7 +91,10 @@ function Preferences.attributes(data: any): { [string]: number | boolean | strin
 		local volume = Preferences.volume(audio[kind])
 		result[ATTRIBUTES[kind]] = if volume ~= nil then volume else ""
 	end
-	result[ATTRIBUTES.reducedMotion] = if typeof(data.reducedMotion) == "boolean" then data.reducedMotion else ""
+	for kind in BOOLEAN_KINDS do
+		local value = data[kind]
+		result[ATTRIBUTES[kind]] = if typeof(value) == "boolean" then value else ""
+	end
 	return result
 end
 

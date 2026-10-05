@@ -118,7 +118,6 @@ end)
 local onboarding = Onboarding.create({
 	shop = menu.shopButton,
 	upgrades = menu.upgradesButton,
-	roadmap = menu.roadmapButton,
 	production = menu.productionButton,
 })
 local onboardingBanner = OnboardingBanner.create(hudRoot, Onboarding.skip)
@@ -427,21 +426,19 @@ onOpened(shopWindow, function(state)
 	shopDirty = false
 end)
 onOpened(roadmapWindow, function(state)
-	Onboarding.markRoadmapOpened()
 	roadmap.update(state, true)
 	roadmapDirty = false
 end)
 onOpened(upgradesWindow, function(state)
 	local step = Onboarding.stepFor(state)
-	if step == 5 then
-		upgradesHud.focus("expansions")
-	elseif step == 3 then
+	if step == 3 then
 		upgradesHud.focus("upgrades")
 	end
 	upgradesHud.update(state, true)
 	upgradesDirty = false
 end)
 PurchaseController.Changed:Connect(redraw)
+Onboarding.Changed:Connect(redraw)
 IslandContext.Changed:Connect(redraw)
 Environment.onChanged(redraw)
 localPlayer:GetAttributeChangedSignal("DataStatus"):Connect(redraw)

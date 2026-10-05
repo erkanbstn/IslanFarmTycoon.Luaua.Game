@@ -95,6 +95,7 @@ function Account.decode(source: any, data: any, config: any)
 	end
 	-- Ses düzeyleri ve hareket azaltma: yalnızca geçerli değerler; bozuk alan yok sayılır
 	data.audio, data.reducedMotion = Preferences.decode(source)
+	data.tutorialDone = Preferences.decodeTutorialDone(source)
 	-- Hesap düzeyi ilerleme: ömür boyu kazanç, günlük ödül serisi ve alınmış başarımlar (hepsi isteğe bağlı).
 	data.lifetimeEarned = Common.amount(source.lifetimeEarned, 0)
 	local daily = decodeDaily(source.daily, config)

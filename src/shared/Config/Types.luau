@@ -156,7 +156,7 @@ export type ItemEffects = {
 	offlineBonus: number?, -- Çevrimdışı kazanç (0.1 = +%10)
 	expansionDiscount: number?, -- Bölge/tesis geliştirme maliyeti indirimi (0.03 = -%3)
 }
-export type ItemPower = { kind: string, usesPerDay: number? } -- kind: season | weather; usesPerDay nil = sınırsız
+export type ItemPower = { kind: string, usesPerDay: number? } -- kind: season | weather | growth | rush | care; usesPerDay nil = sınırsız
 export type ItemConfig = {
 	level: number?, -- Katalog güç kademesi; satın alma veya rebirth şartı değildir.
 	id: string,

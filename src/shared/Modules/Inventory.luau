@@ -90,6 +90,11 @@ function Inventory.unequip(save: any, slot: string)
 	end
 end
 
+-- Eşyanın kullanılabilir bir gücü var mı (yalnız mevsim/hava asaları; üretim/ticaret asaları yalnız kalıcı etki verir)
+function Inventory.hasPower(item: Config.ItemConfig?): boolean
+	return item ~= nil and item.power ~= nil
+end
+
 -- Günlük hak sayısı (sınırsız asalarda math.huge)
 function Inventory.usesPerDay(item: Config.ItemConfig): number
 	local power = item.power

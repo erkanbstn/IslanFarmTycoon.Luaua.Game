@@ -170,6 +170,7 @@ function SaveCodec.encode(save: any, now: number): { [string]: any }
 		graphics = save.graphics,
 		audio = save.audio,
 		reducedMotion = save.reducedMotion,
+		tutorialDone = save.tutorialDone,
 		lifetimeEarned = Common.amount(save.lifetimeEarned, 0),
 		daily = save.daily,
 		achievements = save.achievements,
