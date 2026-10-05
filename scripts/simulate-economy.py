@@ -103,6 +103,12 @@ end
 for index, mult in S.mults do
 	Config.DIFFICULTY.tiers[index].costMultiplier = mult -- ayar denemesi: kademe çiftlik çarpanları
 end
+for _, override in S.itemEffects do
+	-- Ayar denemesi (Config'e dokunmadan): eşya etkisini değiştir; ölçüm "bu rakam olsaydı tur kaç gün sürerdi" sorusunu yanıtlar.
+	local item = assert(Config.ITEMS[override.id], `Unknown item for --item-effect: {override.id}`)
+	item.effects = item.effects or {}
+	item.effects[override.key] = override.value
+end
 local STEP = 5 -- saniye
 local START = if S.carryAccount then S.carryAccount.progression.startedAt else 1036800 -- Gerçek tur geçişinde UTC zamanı korunur.
 local TOTAL = HOURS * 3600
@@ -157,8 +163,16 @@ for _, milestone in Config.PROGRESSION.milestones do
 		save.inventory.equipped[item.slot] = itemId
 	end
 end
+if S.clearEquipment then
+	-- Yalın taban: ücretsiz kilometre taşı ekipmanı sahipliği korunur ama takılı kalmaz (tek eşya ölçümü boş yuvaya karşı yapılır).
+	save.inventory.equipped = {}
+end
+local equipmentSlots: { [string]: string } = {}
 for _, itemId in S.equipment do
 	local item = assert(Config.ITEMS[itemId], `Unknown equipment: {itemId}`)
+	-- Her yuvada tek ekipman takılır; aynı yuvadan iki kimlik sessizce ezilmesin (ölçüm yanlış okunmasın).
+	assert(equipmentSlots[item.slot] == nil, `Equipment slot conflict: {equipmentSlots[item.slot]} and {itemId} share slot {item.slot}`)
+	equipmentSlots[item.slot] = itemId
 	save.owned.items[itemId] = true
 	save.inventory.items[itemId] = true
 	save.inventory.equipped[item.slot] = itemId
@@ -1271,6 +1285,15 @@ else
 		nextAccount = { gold = nextSave.gold, owned = nextSave.owned, inventory = nextSave.inventory,
 			progression = nextSave.progression, lifetimeEarned = nextSave.lifetimeEarned }
 	end
+	local function loadoutSummary(): any
+		-- Takılı ekipmanın gerçek FarmMath üzerinden okunan toplam etkisi (ekipman ölçüme gerçekten akıyor mu denetimi).
+		local effects: { [string]: number } = {}
+		for _, key in { "incomeBonus", "upgradeDiscount", "expansionDiscount", "sellBonus", "contractBonus", "goodsYield", "facilitySpeed", "storageBonus", "offlineBonus", "movementSpeed" } do
+			effects[key] = FarmMath.getEquippedBonus(save, key)
+		end
+		effects.growthSpeedCow = FarmMath.getGrowthSpeed(save, "cow", "starter", now)
+		return { equipped = save.inventory.equipped, effects = effects, movementMultiplier = FarmMath.getMovementSpeedMultiplier(save) }
+	end
 	print(encode({
 		settings = {
 			persona = S.persona, hours = HOURS, farm = FARM, collect = COLLECT, react = S.react,
@@ -1307,6 +1330,7 @@ else
 		sources = sourceRows,
 		farms = farmRows,
 		farmBuys = farmBuys,
+		loadout = loadoutSummary(),
 		account = { gold = save.gold, owned = save.owned, inventory = save.inventory, progression = save.progression },
 		nextAccount = nextAccount,
 	}))
@@ -1361,6 +1385,8 @@ def main() -> int:
     parser.add_argument("--rebirth", type=int, default=0, help="Başlangıçtaki rebirth sayısı; geçmiş turların süresini simüle etmez")
     parser.add_argument("--perks", default="", help="Başlangıç etki seviyeleri: income:1,growth:2; toplamı --rebirth ile aynı olmalı")
     parser.add_argument("--equipment", default="", help="Başlangıç kalıcı ekipman kimlikleri; önceden edinilmiş sahiplik senaryosu")
+    parser.add_argument("--item-effect", default="", help="Deneme: eşya etkisi değiştir, kimlik:etki=değer (virgülle), ör. golden_crown:incomeBonus=0.3")
+    parser.add_argument("--clear-equipment", action="store_true", help="Ücretsiz kilometre taşı ekipmanını takılı bırakma (sahiplik korunur); --equipment bunun üstüne takılır")
     parser.add_argument("--conveniences", default="", help="Başlangıç kalıcı kolaylıklar: auto_collect,pet_cash,pet_goods")
     parser.add_argument("--run-double", action="store_true", help="Bu tur 2x ürününün teslim edildiği senaryo")
     parser.add_argument("--starting-gold", type=int, default=0, help="Önceden birikmiş/satın alınmış altın")
@@ -1408,6 +1434,15 @@ def main() -> int:
     if executable is None:
         parser.error("Luau yorumlayıcısı bulunamadı; --luau ile yol ver.")
 
+    item_effects = []
+    for part in [part.strip() for part in args.item_effect.split(",") if part.strip()]:
+        try:
+            target, value = part.split("=")
+            item_id, key = target.split(":")
+            item_effects.append({"id": item_id, "key": key, "value": float(value)})
+        except ValueError:
+            parser.error("--item-effect kimlik:etki=değer biçiminde olmalı")
+
     preset = PERSONAS[args.persona]
 
     def pick(name: str, cli: object, default: object) -> object:
@@ -1440,6 +1475,8 @@ def main() -> int:
         "rebirth": args.rebirth,
         "perks": perks,
         "equipment": [item.strip() for item in args.equipment.split(",") if item.strip()],
+        "clearEquipment": args.clear_equipment,
+        "itemEffects": item_effects,
         "conveniences": [item.strip() for item in args.conveniences.split(",") if item.strip()],
         "runDouble": args.run_double,
         "startingGold": args.starting_gold,

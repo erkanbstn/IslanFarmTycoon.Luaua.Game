@@ -18,6 +18,7 @@ local HudCommon = require(script.Parent:WaitForChild("HudCommon"))
 local ItemText = require(script.Parent:WaitForChild("ItemText"))
 local ItemPreview = require(script.Parent:WaitForChild("ItemPreview"))
 local WeatherQueuePrompt = require(script.Parent:WaitForChild("WeatherQueuePrompt"))
+local GoodsDiscardPrompt = require(script.Parent:WaitForChild("GoodsDiscardPrompt"))
 
 type PlayerSave = GameTypes.PlayerSave
 
@@ -48,6 +49,7 @@ local POWER_BUTTONS = 5
 
 function InventoryWindow.create(screenGui: Instance): Panel
 	local weatherQueue = WeatherQueuePrompt.create(screenGui)
+	local discardPrompt = GoodsDiscardPrompt.create(screenGui)
 	local window = UiKit.window(screenGui, {
 		title = "Envanter",
 		icon = "🎒",
@@ -104,6 +106,7 @@ function InventoryWindow.create(screenGui: Instance): Panel
 	local goodsCards: { [string]: UiKit.Card } = {}
 	local halfButtons: { [string]: TextButton } = {}
 	local allButtons: { [string]: TextButton } = {}
+	local discardButtons: { [string]: TextButton } = {}
 	for index, goodId in Config.GOODS_ORDER do
 		local good = Config.GOODS[goodId]
 		local card = UiKit.autoTile(goodsGrid, index, good.icon)
@@ -158,6 +161,18 @@ function InventoryWindow.create(screenGui: Instance): Panel
 		allButton.Activated:Connect(function()
 			if allButton.Active then
 				PurchaseController.submit("RequestSellGoods", goodId, "all")
+			end
+		end)
+		-- Kalıcı silme: yalnız ürün adedi (ekipman/haklar için silme yok). Düğme sadece onay panelini açar; silme panelde onaylanır.
+		local discardButton = UiKit.button(card.frame, "Sil", "secondary")
+		discardButton.Name = "DiscardButton"
+		discardButton.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
+		discardButton.TextSize = UiKit.TextSize.Caption
+		discardButton.LayoutOrder = 6
+		discardButtons[goodId] = discardButton
+		discardButton.Activated:Connect(function()
+			if discardButton.Active then
+				discardPrompt.open(goodId, ClientState.get())
 			end
 		end)
 	end
@@ -339,7 +354,9 @@ function InventoryWindow.create(screenGui: Instance): Panel
 				setPurchaseButton(halfButtons[goodId], "Yarısı", "disabled")
 				setPurchaseButton(allButtons[goodId], "Hepsi", "disabled")
 			end
+			UiKit.setVariant(discardButtons[goodId], if amount > 0 then "secondary" else "disabled")
 		end
+		discardPrompt.update(state)
 		goodsMeta.Text = FarmMath.formatMoney(FarmMath.getGoodsWorth(state))
 		goodsNote.Text = if FarmMath.getGoodsWorth(state) <= 0
 			then "Ahır deposunda henüz ürün yok. Üretimden ürün kazanabilirsin."

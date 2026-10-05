@@ -110,6 +110,43 @@ function Contracts.reward(worth: number, rewardFactor: number, bonus: number?): 
 	return math.floor(worth * rewardFactor * (1 + (bonus or 0)))
 end
 
+-- Toplam sipariş bonusu (eşya + ada + yükseltme + kalıcı etki + kilometre taşı + mevsim) tavanla sınırlanır: en yüksek kademe de
+-- ECONOMY_LIMITS.maxRewardRatio'yu bonuslar dahil aşamaz.
+function Contracts.totalBonus(save: PlayerSave, bonus: number?): number
+	return math.clamp((bonus or 0) + Core.getBonus(save, "contractBonus"), 0, Config.GOODS_CONTRACTS.maxBonus)
+end
+
+-- Pano ödeme bütçesi (referans gelirin dakikası; başlangıç payında sınırsız): referans gelir arttıkça (evre ilerledikçe) büyür, bkz. Config/Goods.luau `windowBudget`.
+function Contracts.budgetMinutes(referencePerSecond: number): number
+	local budget = Config.GOODS_CONTRACTS.windowBudget
+	-- Başlangıç payı: referans gelir graceIncome'un altındayken bütçe yoktur (ilk saatin ilk yarısı; erken ilerleme siparişlerle hızlanır).
+	if referencePerSecond < budget.graceIncome then
+		return math.huge
+	end
+	if referencePerSecond <= budget.lowIncome then
+		return budget.lowMinutes
+	end
+	local phase = math.clamp(
+		math.log(referencePerSecond / budget.lowIncome) / math.log(budget.highIncome / budget.lowIncome),
+		0,
+		1
+	)
+	return budget.lowMinutes + (budget.highMinutes - budget.lowMinutes) * phase ^ budget.curve
+end
+
+-- Panodaki teklif sayısı: üretilebilir ürün sayısıyla orantılı (en az minSlots, en çok slots). Az üründe talep tek ürüne yığılmaz.
+function Contracts.slotCount(goodsCount: number): number
+	local settings = Config.GOODS_CONTRACTS
+	if goodsCount <= 0 then
+		return 0
+	end
+	return math.clamp(
+		math.ceil(goodsCount * settings.slotsPerGoods),
+		math.min(settings.minSlots, settings.slots),
+		settings.slots
+	)
+end
+
 -- Park-Miller üreteci: pencere ve sıraya bağlı, sunucu ile client'ta aynı sonucu verir (Roblox Random gerekmez).
 local function newGenerator(seed: number): () -> number
 	local state = seed % 2147483646 + 1
@@ -159,11 +196,17 @@ function Contracts.offers(save: PlayerSave, now: number, bonus: number?): { Offe
 	if rewardCap >= 1 then
 		rewardCap = 1.25 ^ math.floor(math.log(rewardCap, 1.25))
 	end
+	-- Pano bütçesi aynı %25'lik basamaklı referanstan türer (teslimde sunucunun yeniden hesapladığı pano titremesin).
+	local budget = rewardCap
+		/ settings.rewardCapMinutes
+		* Contracts.budgetMinutes(rewardCap / settings.rewardCapMinutes / 60)
+	local rewardBonus = Contracts.totalBonus(save, bonus)
 	local totalWeight = 0
 	for _, tier in settings.tiers do
 		totalWeight += tier.weight
 	end
-	for slot = 1, settings.slots do
+	local slotCount = Contracts.slotCount(#available)
+	for slot = 1, slotCount do
 		local random = newGenerator(window * 7919 + slot * 104729 + 12345)
 		random()
 		local roll = random() * totalWeight
@@ -213,7 +256,6 @@ function Contracts.offers(save: PlayerSave, now: number, bonus: number?): { Offe
 		end
 		-- Önce ödül tavanına sığmak için en büyük satır küçültülür; tek birim bile pahalıysa son ödeme ayrıca sınırlanır.
 		-- Pahalı ürün bu yüzden erken oyunda 1 adet, gelir büyüdükçe 2-3 adet istenir.
-		local rewardBonus = (bonus or 0) + Core.getBonus(save, "contractBonus")
 		local shrinking = true
 		while shrinking and Contracts.reward(totalWorth(lines), tier.rewardFactor, rewardBonus) > rewardCap do
 			shrinking = shrinkLargest(lines)
@@ -240,7 +282,16 @@ function Contracts.offers(save: PlayerSave, now: number, bonus: number?): { Offe
 			uncappedReward = uncappedReward,
 		})
 	end
-	return offers
+	-- Pano bütçesi: slot sırasıyla, ödül toplamı bütçeyi aşmayan teklifler kalır (ilk teklif her zaman); sığmayan sonraki daha ucuz bir teklife yer bırakır.
+	local kept: { Offer } = {}
+	local spent = 0
+	for _, offer in offers do
+		if #kept == 0 or spent + offer.reward <= budget then
+			table.insert(kept, offer)
+			spent += offer.reward
+		end
+	end
+	return kept
 end
 
 -- Bu pencerede teslim edilmiş mi

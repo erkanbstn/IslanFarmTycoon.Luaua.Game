@@ -55,7 +55,9 @@ return function(createService: any, Logic: any, Config: any)
 	for _ in Logic.CUSTOM_EVENTS do
 		customCount += 1
 	end
-	assert(customCount <= 100, "özel olay adı sınırı 100")
+	assert(customCount <= Logic.CUSTOM_EVENT_CAP and Logic.CUSTOM_EVENT_CAP == 100, "özel olay adı sınırı 100")
+	assert(customCount == 20, `özel olay sayısı belgeyle aynı olmalı (20): {customCount}`)
+	assert(Logic.CUSTOM_EVENTS.ItemAcquired == true, "ItemAcquired özel olay listesinde")
 	-- Hayvan kimlikleri ve yükseltmeler (ada/ahır/bölge kimliğiyle, diğerleri türüyle: Config.getUpgradeSku) SKU olarak gider (eşya, genişletme, tesis SKU'suz); deneyim başına 100 sınırı.
 	local skus: { [string]: boolean } = {}
 	for animalId in Config.ANIMALS do
@@ -79,6 +81,72 @@ return function(createService: any, Logic: any, Config: any)
 	for number = 1, steps do
 		assert(seen[number], "huni adımları ardışık")
 	end
+	-- İlk dört adım öğreticiyle (OnboardingSteps) aynı sıradadır: hayvan -> toplama -> yükseltme -> üretim.
+	assert(
+		Logic.FUNNEL.first_animal.step == 1
+			and Logic.FUNNEL.first_collect.step == 2
+			and Logic.FUNNEL.first_upgrade.step == 3
+			and Logic.FUNNEL.first_production.step == 4,
+		"huni sırası öğreticiyle aynı"
+	)
+	assert(steps == 6, "altı huni adımı: dört öğretici + ada + ahır")
+	for _, name in
+		{
+			"RebirthAvailable",
+			"RebirthDone",
+			"RebirthPerk",
+			"GoldGained",
+			"GoldSpent",
+			"SessionSeconds",
+			"OfflineSeconds",
+		}
+	do
+		assert(Logic.CUSTOM_EVENTS[name] == true, `{name} özel olay listesinde`)
+	end
+
+	-- Rebirth hunisi ve altın akışı: yalnızca iki görüntü arasındaki fark olay olur
+	local function observation(gold: number, rebirths: number, canRebirth: boolean, perks: any?): any
+		return {
+			gold = gold,
+			rebirths = rebirths,
+			canRebirth = canRebirth,
+			perks = perks or {},
+			perkOrder = { "income", "growth", "starting_cash" },
+		}
+	end
+	assert(
+		#Logic.progressEvents(nil, observation(500, 2, true)) == 0,
+		"ilk görüntü yalnızca başlangıç çizgisidir"
+	)
+	assert(
+		#Logic.progressEvents(observation(10, 0, false), observation(10, 0, false)) == 0,
+		"değişmeyen durum olay üretmez"
+	)
+	local available = Logic.progressEvents(observation(10, 3, false), observation(10, 3, true))
+	assert(
+		#available == 1 and available[1].name == "RebirthAvailable" and available[1].value == 4,
+		"rebirth hazır olunca bir kez, sıradaki rebirth numarasıyla"
+	)
+	assert(
+		#Logic.progressEvents(observation(10, 3, true), observation(10, 3, true)) == 0,
+		"hazır kalmak yeniden olay üretmez"
+	)
+	local done = Logic.progressEvents(
+		observation(10, 3, true, { income = 1 }),
+		observation(760, 4, false, { income = 1, growth = 1 })
+	)
+	assert(#done == 3, "rebirth: tamamlandı + etki + altın kazancı")
+	assert(done[1].name == "RebirthDone" and done[1].value == 4, "tamamlanan rebirth sayısı")
+	assert(done[2].name == "RebirthPerk" and done[2].value == 2, "seçilen etkinin perkOrder sırası")
+	assert(done[3].name == "GoldGained" and done[3].value == 750, "rebirth altın ödülü kazanç olarak görünür")
+	local spent = Logic.progressEvents(observation(100, 1, false), observation(70.4, 1, false))
+	assert(#spent == 1 and spent[1].name == "GoldSpent" and spent[1].value == 30, "altın harcaması (yuvarlanır)")
+	assert(
+		#Logic.progressEvents(observation(100, 1, false), observation(100.2, 1, false)) == 0,
+		"1'in altı gönderilmez"
+	)
+	local unknownPerk = Logic.progressEvents(observation(0, 1, false), observation(0, 2, false))
+	assert(unknownPerk[2].name == "RebirthPerk" and unknownPerk[2].value == 0, "etki bulunamazsa 0")
 
 	local aggregator = Logic.newAggregator()
 	Logic.add(aggregator, "collect", 10, 100)
@@ -119,6 +187,11 @@ return function(createService: any, Logic: any, Config: any)
 		{ animals = {}, purchased = {}, unlockedIslands = { home = true, poultry = true }, barnLevel = 2 },
 	})
 	local reached = Logic.funnelReached(facts)
+	assert(not reached.first_production, "üretim partisi yoksa üretim adımı geçilmemiştir")
+	assert(
+		Logic.funnelReached(Logic.factsFromViews({ { production = { milk = { uid = "x" } } } })).first_production,
+		"çalışan üretim partisi olan kayıtta üretim adımı geçilmiştir"
+	)
 	assert(
 		reached.first_collect
 			and reached.first_animal
@@ -130,6 +203,44 @@ return function(createService: any, Logic: any, Config: any)
 	assert(
 		not Logic.funnelReached(Logic.factsFromViews({ { unlockedIslands = { home = true }, barnLevel = 1 } })).first_island,
 		"home ada sayılmaz"
+	)
+
+	-- Eşya edinimi alanları: bilinmeyen kanal gönderilmez; slot sınırlı biçimde (eşya kimliği yok)
+	for _, channel in { "cash", "gold", "robux", "merchant", "reward" } do
+		local fields = Logic.acquiredFields(channel, "charm")
+		assert(
+			fields and fields.CustomField01 == channel and fields.CustomField02 == "charm",
+			`{channel}: kanal ve slot alanı`
+		)
+	end
+	assert(Logic.acquiredFields("hack", "charm") == nil and Logic.acquiredFields(5, "charm") == nil, "bilinmeyen kanal")
+	assert(
+		Logic.cleanSlot("Weird Slot!") == "other"
+			and Logic.cleanSlot("a_very_long_slot_name_here") == "other"
+			and Logic.cleanSlot(nil) == "other"
+			and Logic.cleanSlot("back") == "back",
+		"slot adı temizlenir"
+	)
+	-- Altın harcaması kaynaklara bölünür: bildirilen tutarlar toplamı aşamaz, kalan "other"
+	local function splitText(total: number, reported: any): string
+		local parts = {}
+		for _, part in Logic.splitGoldSpent(total, reported) do
+			table.insert(parts, `{part.source}={part.amount}`)
+		end
+		return table.concat(parts, ",")
+	end
+	assert(splitText(30, nil) == "other=30", "bildirimsiz harcama other")
+	assert(splitText(100, { item = 60, finish = 10 }) == "item=60,finish=10,other=30", "kaynaklar ve kalan")
+	assert(splitText(50, { item = 80 }) == "item=50", "bildirilen tutar toplamı aşamaz")
+	assert(splitText(10, { convert = -5, item = 0 / 0, other = 9 }) == "other=10", "geçersiz tutar yok sayılır")
+	local splitEvents = Logic.progressEvents(observation(100, 1, false), observation(40, 1, false), { item = 45 })
+	assert(
+		#splitEvents == 2
+			and splitEvents[1].value == 45
+			and splitEvents[1].fields.CustomField01 == "item"
+			and splitEvents[2].value == 15
+			and splitEvents[2].fields.CustomField01 == "other",
+		"GoldSpent kaynak alanıyla bölünür"
 	)
 
 	-- ── Servis ───────────────────────────────────────────────────────────────
@@ -207,6 +318,7 @@ return function(createService: any, Logic: any, Config: any)
 		end)
 		return {
 			service = service,
+			analytics = analytics,
 			calls = calls,
 			metrics = metrics,
 			spawned = spawned,
@@ -271,7 +383,7 @@ return function(createService: any, Logic: any, Config: any)
 	-- Huni: bir kez; kayıttan geçilmiş adım tekrar gönderilmez.
 	live.service.funnel(player, "first_animal")
 	live.service.funnel(player, "first_animal")
-	assert(#ofKind(live, "funnel") == 1 and ofKind(live, "funnel")[1].args[2] == 2, "adım bir kez, doğru numara")
+	assert(#ofKind(live, "funnel") == 1 and ofKind(live, "funnel")[1].args[2] == 1, "adım bir kez, doğru numara")
 	local returning = newPlayer()
 	live.service.onLoaded(returning, {
 		{ lifetimeEarned = 10, animals = { {} }, purchased = {}, unlockedIslands = { home = true }, barnLevel = 1 },
@@ -307,6 +419,109 @@ return function(createService: any, Logic: any, Config: any)
 	)
 	live.service.custom(player, "BilinmeyenOlay")
 	assert(live.metrics.TelemetryUnknownCustom == 1, "izinsiz özel olay adı gönderilmez")
+
+	-- Gözlem: ilk görüntü sessiz, sonraki farklar özel olay; çıkmış oyuncu için durum açılmaz.
+	local watcher = build(false)
+	local watched = newPlayer()
+	local function snapshot(gold: number, rebirths: number, canRebirth: boolean, perks: any): any
+		return {
+			gold = gold,
+			rebirths = rebirths,
+			canRebirth = canRebirth,
+			perks = perks,
+			perkOrder = { "income", "growth" },
+		}
+	end
+	watcher.service.observe(watched, snapshot(0, 0, false, {}))
+	assert(#ofKind(watcher, "custom") == 0, "ilk gözlem olay göndermez")
+	watcher.service.observe(watched, snapshot(0, 0, true, {}))
+	watcher.service.observe(watched, snapshot(750, 1, false, { growth = 1 }))
+	watcher.service.observe(watched, snapshot(720, 1, false, { growth = 1 }))
+	local watchedEvents = ofKind(watcher, "custom")
+	local names = {}
+	for _, call in watchedEvents do
+		table.insert(names, `{call.args[2]}={call.args[3]}`)
+	end
+	assert(
+		table.concat(names, ",") == "RebirthAvailable=1,RebirthDone=1,RebirthPerk=2,GoldGained=750,GoldSpent=30",
+		`rebirth hunisi ve altın olayları: {table.concat(names, ",")}`
+	)
+	local gone = newPlayer()
+	gone.Parent = nil
+	watcher.service.observe(gone, snapshot(0, 0, false, {}))
+	watcher.service.observe(gone, snapshot(99, 0, false, {}))
+	assert(#ofKind(watcher, "custom") == #watchedEvents, "çıkmış oyuncu için gözlem durumu açılmaz")
+	local studioWatch = build(true)
+	local devWatcher = newPlayer()
+	studioWatch.service.observe(devWatcher, snapshot(0, 0, false, {}))
+	studioWatch.service.observe(devWatcher, snapshot(10, 0, false, {}))
+	assert(#studioWatch.calls == 0, "Studio'da gözlem olayı gönderilmez")
+
+	-- Eşya edinimi: bir çağrı = bir olay (kanal + slot alanı); bilinmeyen kanal düşer, Studio'da gönderilmez.
+	local acquire = build(false)
+	local buyer = newPlayer()
+	acquire.service.acquired(buyer, "cash", "charm")
+	acquire.service.acquired(buyer, "robux", "back")
+	acquire.service.acquired(buyer, "bogus", "back")
+	local acquiredCalls = ofKind(acquire, "custom")
+	assert(#acquiredCalls == 2, "iki geçerli edinim iki olay üretir")
+	assert(
+		acquiredCalls[1].args[2] == "ItemAcquired"
+			and acquiredCalls[1].args[3] == 1
+			and acquiredCalls[1].args[4].CustomField01 == "cash"
+			and acquiredCalls[1].args[4].CustomField02 == "charm",
+		"ItemAcquired değeri 1, alanlar kanal ve slot"
+	)
+	assert(acquiredCalls[2].args[4].CustomField01 == "robux", "kanal ayrımı")
+	assert(acquire.metrics.TelemetryUnknownCustom == 1, "bilinmeyen kanal sayılır, gönderilmez")
+	local studioAcquire = build(true)
+	studioAcquire.service.acquired(newPlayer(), "cash", "charm")
+	assert(#studioAcquire.calls == 0, "Studio'da edinim olayı gönderilmez")
+
+	-- Alanlı gönderim reddedilirse alansız bir kez gönderilir (olay kaybolmaz)
+	local picky = build(false)
+	local pickyPlayer = newPlayer()
+	local pickyCalls = 0
+	local analyticsFake = picky.analytics
+	analyticsFake.LogCustomEvent = function(_self: any, _player: any, name: string, value: number, fields: any)
+		pickyCalls += 1
+		if fields ~= nil then
+			error("alan reddedildi")
+		end
+		table.insert(picky.calls, { kind = "custom", args = table.pack(_player, name, value) })
+	end
+	picky.service.acquired(pickyPlayer, "gold", "tool")
+	assert(pickyCalls == 2 and #ofKind(picky, "custom") == 1, "alan reddedilirse alansız gönderilir")
+	assert(picky.metrics.TelemetryFieldsRejected == 1, "reddedilen alan sayılır")
+
+	-- Altın harcaması: kanalların bildirdiği tutar bir sonraki gözlemde kaynak olarak ayrışır; tüketilen tutar taşınmaz
+	local spender = build(false)
+	local spenderPlayer = newPlayer()
+	spender.service.observe(spenderPlayer, snapshot(500, 0, false, {}))
+	spender.service.goldSpent(spenderPlayer, "item", 300)
+	spender.service.goldSpent(spenderPlayer, "finish", 20)
+	spender.service.goldSpent(spenderPlayer, "bogus", 99)
+	spender.service.goldSpent(spenderPlayer, "convert", 0)
+	spender.service.observe(spenderPlayer, snapshot(150, 0, false, {}))
+	local spendText = {}
+	for _, call in ofKind(spender, "custom") do
+		table.insert(spendText, `{call.args[2]}={call.args[3]}/{call.args[4].CustomField01}`)
+	end
+	assert(
+		table.concat(spendText, ",") == "GoldSpent=300/item,GoldSpent=20/finish,GoldSpent=30/other",
+		`altın harcama kaynakları: {table.concat(spendText, ",")}`
+	)
+	assert(spender.metrics.TelemetryUnknownCustom == 1, "bilinmeyen altın kaynağı sayılır")
+	spender.service.observe(spenderPlayer, snapshot(100, 0, false, {}))
+	local lastSpend = ofKind(spender, "custom")
+	assert(
+		#lastSpend == 4 and lastSpend[4].args[3] == 50 and lastSpend[4].args[4].CustomField01 == "other",
+		"önceki pencerenin kaynakları sonrakine taşınmaz"
+	)
+	-- Çıkmış oyuncu için kaynak durumu açılmaz
+	local goneSpender = newPlayer()
+	goneSpender.Parent = nil
+	spender.service.goldSpent(goneSpender, "item", 5)
 
 	-- Çıkış: birikenler, oturum süresi, depo dolu süresi.
 	local leaving = newPlayer()

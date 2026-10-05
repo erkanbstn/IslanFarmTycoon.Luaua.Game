@@ -76,15 +76,16 @@ Para/ürün akışlarının büyüklüğü tek bir kuralla bağlıdır; "bu say�
 
 - **Kök neden (eski)**: ürünün para değeri sabitti, onu üreten ve ödeyen formüller oyuncunun ANLIK gelirine bağlıydı. Parti miktarı `(kaçırılan gelir + başlatma) x MIN_RETURN / değer`
   tabanıyla gelirle şişiyor (21 birime kadar), sipariş ödülü `max(değer, gelir x 300 sn x ...)` tabanıyla değerin yüzlerce katına çıkıyordu (ödül/değer 240-1000x, satır 30 birim).
-- **Ürün değeri hesapla bulunur** (`Config/Goods.luau` "DEĞER KURALI"): tam yükseltilmiş çiftlikte merkezin asgari parti getirisi x ~9 (`audit-economy.py` bölüm D; testte 6-14 bandı).
+- **Ürün değeri hesapla bulunur** (`Config/Goods.luau` "DEĞER KURALI"): tam yükseltilmiş çiftlikte merkezin asgari parti getirisi x ~2,3 (`audit-economy.py` bölüm D; testte `ECONOMY_LIMITS.valueToFloorMin/Max` = 1,8-3,2 bandı).
   Böylece taban miktar (2 birim) bile asgari getiriyi aşar; asgari getiri miktarı şişirerek değil değerle sağlanır.
 - **Parti küçüktür**: `FarmMath.getGoodsYield` yetişkin bonusu + tesis verimi + muskayı TOPLAR (çarpmaz), toplam `PRODUCTION_YIELD_MAX_MULT`i, miktar `PRODUCTION_MAX_BATCH_UNITS`i aşamaz.
   Kaçırılan gelir tabanı kalır ama artık yalnızca bu sınıra kadar yükseltir.
 - **Sipariş ödülü = ürün değeri x kademe çarpanı (1,05-2) x sipariş bonusu**; gelir tabanı kaldırıldı. Satır birimi kademe değeridir (pahalı üründe `unitRefValue / değer` ile küçülür),
-  depo büyüklüğüne ya da gelire bağlı değildir. Sonuç: ödül/değer 1-2,2; ödül ortanca ~0,5-4 dk gelir (en çok ~14 dk, yalnızca orta evre fixture'ında).
+  depo büyüklüğüne ya da gelire bağlı değildir. Sonuç (5 Ekim 2026, `audit-economy.py` bölüm B): ödül/değer 1,05-1,87; ödül ortanca ~0,2-1,5 dk gelir, en çok ~3-5,5 dk (tek sipariş).
+- **Sipariş bonusu tavanı, pano boyutu ve bütçesi** (5 Ekim 2026): toplam bonus `GOODS_CONTRACTS.maxBonus` 0,6 ile sınırlıdır (2,0 x 1,6 = 3,2 = `maxRewardRatio`); pano `ceil(ürün x 6)` teklif (6-12); pano ödül toplamı, referans gelir 900/sn'yi aşınca, gelirin 2,5 (erken) - 12 (geç) dakikasını geçmez (`windowBudget`). Hardcore ilk saat sipariş payı %59,6 -> %43,6, 7 gün casual/hardcore %7,4/%12,2 -> %5,0/%9,0; keçi adası (hardcore, kesintisiz) 44,9 -> 55,0 dk, süt fabrikası 45,2 -> 59,4 dk (keçi adası <= ~55 hedefi korunur; pay <= %35 ile tempo hedefi birlikte sağlanamaz, tarama tablosu `docs/URETIM_VE_UZMAN_ADALAR.md` "Sipariş bütçesi"). Günlük ödül: 2,5 dk x en çok 5 (7. gün 12,5 dk gelir; hafta bir günün %2,8'i).
 - **Hızlı satış/takas oranı** (`GOODS_SELL/BARTER.rate`) ürün değerinin ölçeğini yansıtır (değer ~2,3x asgari getiri): bir partiyi satmak `PRODUCTION_MAX_RETURN`ı aşmaz, takas satışı aşmaz.
 - **Ürün merkezi tarifinin `reward` alanı tesis ölçeğidir** (geliştirme fiyatı tabanı); değerden bağımsız olduğundan değer ayarı fiyat temposunu (Çiftlik 1 referansı) bozmaz.
-- **Bilinen denge bedeli**: sipariş payı (casual, 7 gün) ~%9,3'ten ~%5'e indi (değer çarpanı ~2,3: en pahalı ürün ~130K; 1 et 1M gibi uçuk fiyat çıkmasın diye bilinçli); hardcore payı ~%9. Gelir tabanı kalktığı için pay artık yalnızca değer çarpanıyla ayarlanır; çarpan büyüdükçe
+- **Bilinen denge bedeli** (ilk ölçüm; güncel pay aşağıda "Denetim" bölümünde ve `docs/URETIM_VE_UZMAN_ADALAR.md`): sipariş payı (casual, 7 gün) ~%9,3'ten ~%5'e indi (değer çarpanı ~2,3: en pahalı ürün ~130K; 1 et 1M gibi uçuk fiyat çıkmasın diye bilinçli); hardcore payı ~%9. Gelir tabanı kalktığı için pay artık yalnızca değer çarpanıyla ayarlanır; çarpan büyüdükçe
   tek tek sipariş gelirin dakikalarına yaklaşır (güncel tavan Config.GOODS_CONTRACTS içindedir) (git geçmişindeki eski üretim-tüccar denge notu).
 
 ## Hayvan büyümesi (4 Ekim 2026)
@@ -106,3 +107,45 @@ Para/ürün akışlarının büyüklüğü tek bir kuralla bağlıdır; "bu say�
 ## Pano ürünleri (yalnızca üretilebilenler)
 `Contracts.availableGoods`: pano yalnızca etkin çiftlikte ŞU AN üretilebilen ürünü ister: merkez kurulu, adası açık, tarif çiftliğin temasında ve merkezin gerektirdiği kadar o türden hayvan açık bölgede.
 Açılmamış ada, kurulmamış merkez, başka temanın ya da park edilmiş çiftliğin ürünü sipariş edilmez (çiftlik değişince pano değişir). Stoktaki başka çiftlik ürünü "Hepsini/Yarısını sat" ile paraya çevrilir.
+
+## Ekipman gücü ölçümü (5 Ekim 2026)
+
+`python scripts/simulate-items.py` (gerçek Config/FarmMath; ~42 dk, 14 paralel koşu; `--probe` koşusuz akış/tavan denetimi, `--what-if` Config'e dokunmadan etki dener, `--reanalyze` kayıtlı ölçümden analizi yeniler). Tek eşya = yalın tabana (R5'te ücretsiz R1-5 eşyaları çıkarılmış) tek eşya takılı; ölçü = altı çiftlik temel turun takvim günü. Taban (gün): ideal R0 5,26 / R5 4,57; casual R5 17,0-17,3 (kaynak sürümüne göre; eşzamanlı Config değişimleri casual'ı ±0,3 gün oynatır). Çözünürlük: ideal ±%0,4; casual 8 sa kuantalı (tek eşya ±%2 gürültü); idle ölçülmedi (`--idle`). Hareket hızı, hayvan satış geliri (`sellBonus`) ve asa güçleri modellenmez: 70 eşyadan 43'ünün değeri alt sınırdır. Etki akışı: 164/164 etki gerçek tüketiciye beklenen oranda ulaşıyor; tavanlar (hareket %25, tesis %50, gelir x3, ödeme %90) tutuyor.
+
+| Takım (yuva başına ölçülmüş en iyi) | altın eşd. | ideal R5 | casual R5 | ideal R0 | kaç rebirth altını |
+|---|---|---|---|---|---|
+| starter (yalnız nakit) | 1150 | %2,8 (0,13 g) | %17 (offline) | %1,9 | 2 |
+| mid (nakit+nakit/altın) | 1810 | %12 (0,55 g) | %37 | %12 | 3 |
+| premium (en iyi satılanlar) | 4350 | %60 (2,7 g) | %69 (12 g) | %60 | 6 |
+| endgame (+ödüller) | 3800 | %60 | %69 | %60 | 5 |
+
+Ücretsiz R1-R5 eşyaları: ideal %-0,1, casual %+3,8 (Rüzgar Muskası ve Tüccar Şapkası tempoya katkı vermez; değerleri hareket/sipariş).
+
+Bulgular (ideal R5, tek eşya):
+- **Altın formülü fayda ile uyumsuz**: Spearman 0,36; kademe 1-2 ortanca fayda %0 (25 eşya), kademe 3-5 ortanca %0,1-0,2; 70 eşyadan 29'u hiçbir kişide %0,5'i geçmiyor. Ölçülen kabaca değer: 1 puan tempo ≈ 36 altın (uyum doğrusu `fayda = -3 + 0,028 x altın`). Alet yuvası tutarlı (Bakır 2,8 < Demir 5,5 < Altın 10,8 < Elmas 12,1 < Ustabaşı 12,6); diğer yuvalar değil.
+- **Fazla güçlü (>%10)**: Altın Taç %50 (gelir +%100, 1500 altın; adil bedeli ~1900 altın), Ustalık Tacı (R30) %20, Ustabaşı Tokmağı %12,6, Elmas Çekiç %12,1, Mühendis Anahtarı %11,7, Altın Çekiç %10,8. Gün/100 altın: Altın Taç 0,154; çekiçler 0,075-0,083; Demir Çekiç 0,064; en kötüler (≈0): Tüccar Mührü, Kaptan Şapkası, Kervan Çantası, Ulak Çantası, Tüccar Tacı, Pazarlık Muskası, Ambar Çantası.
+- **Ölü yük (<%0,5 her kişide; 29 eşya)**: dört mevsim asası, Çırak/Ebedi hava asası, iki büyüme tılsımı, Bilge Tılsımı, Çiftçi/Kasket/Tavuk/Kovboy/Hasır şapka, çanta/sepet, Tüccar Şapkası, Pazarlık Muskası, Tüccar Tacı, Kervan/Ulak Çantası. Nedenleri: `contractBonus` sipariş payı ~%5 olduğundan sıfır; büyüme hızı R5'te doygun; `goodsYield` tüm tariflerde taban 2 birim olduğundan `floor(2 x çarpan)` yalnız toplam >=+%50'de artar (Altın Ambar Anahtarı +%25 bile ≈0); asa güçleri ve satış/hareket modellenmez.
+- **Offline eşyaları casual'a ait**: `offlineBonus` ideal'de 0, casual'da en güçlü kol: Gece Nöbeti Muskası (+0,45) %24-25 (450 altın), Servet Tılsımı %25, Büyük Depo Muskası (ücretsiz R3 ödülü, 350 altın) %12-13, Keşif/Ambar Çantası %13. Tek 350 altınlık eşya 740 altınlık Elmas Çekiç'in (casual %16) yarısı kadar tempo verir.
+- **Kademe/yuva ihlalleri**: asa yuvası (Kademe 4 Üretim Asası %0,3 < Kademe 2-3 hava asaları %7-9 (offline)), baş yuvası (Kademe 1 %3,8 > Kademe 2-4 %0), sırt/tılsım yuvası (dar fiyat bandında 5-6 eşya birbirinden ayrışmıyor); aynı yuvada 60 pahalı-ucuzdan-zayıf çifti.
+- **Bütçe**: bir rebirth 750-880 altın (R30 1260). Yuva başına tek eşya kuralıyla en çok kazandıran sıra: R1 Ustabaşı (700), R2 Altın Kanatlar, R3 Altın Bereket Muskası, R4 Üstat Çoban Asası, R6 Altın Taç; yani ~üç rebirth'te %12'lik orta takım, altı rebirth'te ~%60'lık premium takım. Kazançlar toplanmaz, çarpılır (tek tek toplam %79, ölçülen %60).
+
+Uygulanan değişiklikler (5 Ekim 2026, ikinci tur): `simulate-items.py --items ... --states ideal:5,casual:5` ile gerçek Config'te yeniden ölçüldü (taban ideal R5 4,57 g, casual R5 17,0 g; casual bu turda 17,33 yerine 17,0 ölçüldü, bu yüzden casual sütunları ±%2 gürültülüdür). Yüzde = tek eşya tur kısalması.
+| Eşya | Etki (eski -> yeni) | ideal R5 önce -> sonra | casual R5 önce -> sonra | Altın önce -> sonra |
+|---|---|---|---|---|
+| Altın Taç | `incomeBonus` 1,0 -> 0,4 | %50,5 -> %29,0 | %48,1 -> %27,4 | 1500 -> 1180 |
+| Elmas Çekiç | `upgradeDiscount` 0,20 -> 0,15 (referans fiyat 3,5M -> 2,3M) | %12,1 -> %10,9 | %17,3 -> %13,7 | 740 -> 750 |
+| Altın Çekiç | `upgradeDiscount` 0,15 -> 0,14 (aile sırası) | %10,8 -> %8,7 | %13,5 -> %11,8 | 600 -> 680 |
+| Atölye Çekici | + `upgradeDiscount` 0,10 | %3,7 -> %11,7 | %7,6 -> %13,7 | 550 -> 730 |
+| Gece Nöbeti Muskası | `offlineBonus` 0,45 -> 0,25 | %0 -> %0 | %25,0 -> %13,7 | 450 -> 320 |
+| Büyük Depo Muskası | `offlineBonus` 0,20 -> 0,10 | %0 -> %0 | %13,5 -> %5,9 | 350 -> 200 |
+| Tüccar Şapkası | + `incomeBonus` 0,04 | %0 -> %4,3 | %1,9 -> %3,9 | 340 -> 250 |
+| Pazarlık Muskası | + `incomeBonus` 0,06 | %-0,1 -> %6,0 | %1,9 -> %5,9 | 650 -> 560 |
+| Bilge Tılsımı | + `incomeBonus` 0,05 | %0,2 -> %4,8 | %1,9 -> %5,8 | 620 -> 540 |
+| Tüccar Tacı | + `incomeBonus` 0,08 | %0 -> %7,7 | %1,9 -> %7,8 | 890 -> 620 |
+| Kaptan Şapkası | + `incomeBonus` 0,04 | %0 -> %4,3 | %1,9 -> %3,9 | 640 -> 400 |
+| Ulak Çantası | + `offlineBonus` 0,05 | %0 -> %0 | %1,9 -> %3,9 | 600 -> 400 |
+| Kervan Çantası | + `offlineBonus` 0,10 | %0,1 -> %0,1 | %1,9 -> %5,9 | 770 -> 470 |
+
+Altın bedeli kuralı artık ölçülen faydadan türer: `min(1500, yuvarla10(taban + 28 x puan))`; taban cashGold 150, goldRobux/gold 400; puan = (ideal R5 % + max(casual R5 % - 2, 0)) / 2 + 15 x hareket + 8 x satış (hareket/satış simüle edilmediği için küçük sabit kredi). Ölçüm tablosu `tests/config.spec.luau` `TEMPO_POINTS`, kural Progression.luau yorumunda; aynı kanalda daha çok tempo veren eşya daha ucuz olamaz (test). Sonuç: ölü yük eşya taban fiyatta (150-160 cashGold, 400-420 premium), Altın Çekiç/Elmas/Mühendis/Ustabaşı 680-790, Servet Tılsımı 830, Altın Taç 1180 (~1,5 rebirth). Değişmeyen ölçümler eski koşudan alındı (casual ±%2). Henüz kalan: mevsim/hava asaları ve büyüme tılsımı ölü (taban fiyatta), `contractBonus` ve `goodsYield` mekaniği bilerek düzeltilmedi. `scripts/simulate-items.py` içindeki eski `formula_gold` artık "uyumsuz" bildirir (bilgi amaçlı).
+
+Ek: tarif `goodsAmount`'ı 2 iken `goodsYield` anlamsız; ya miktarı artır ya etkiyi `PRODUCTION_BONUS_PER_ADULT` basamağına (0,25) bağla.

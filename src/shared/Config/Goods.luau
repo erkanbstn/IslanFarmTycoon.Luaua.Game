@@ -39,16 +39,39 @@ local data = {
 		-- (pencere numarası ve sıra ile türetilir; sunucu ve client aynı sonucu bulur). Birim sayısı kademe değerinin
 		-- ± variation oranında değişir.
 		slots = 12,
+		-- `slots` YALNIZ üst sınırdır: panodaki teklif sayısı şu an üretilebilen ürün sayısına bağlıdır (`ceil(ürün x slotsPerGoods)`, en az `minSlots`,
+		-- en çok `slots`). Az üründe 12 teklif az çeşide yığılıp ürün başına talebi şişiriyordu (1 ürün 6, 2+ ürün 12). 4/4 (1 ürün 4, 2 ürün 8) denendi: idle oyuncuda Tema 2 süresi Tema 1'e eşitlenip simulate-tiers monotonluğunu bozdu, 6/6 bozmaz.
+		slotsPerGoods = 6,
+		minSlots = 6,
+		-- Toplam sipariş bonusu (eşya + ada + yükseltme + kalıcı etki + kilometre taşı + mevsim) bu değeri aşamaz: en yüksek kademe (rewardFactor 2) x (1 + 0,6)
+		-- = 3,2 = ECONOMY_LIMITS.maxRewardRatio; yani bonuslar dahil de ödül/değer sınırı korunur (tests/contracts.spec "bonus tavanı").
+		maxBonus = 0.6,
+		-- Pano başına ödeme bütçesi (referans gelirin dakikası): penceredeki tekliflerin ödül toplamı bunu aşmaz (slot sırasıyla, sığmayan teklif panoya girmez; ilk teklif
+		-- her zaman kalır). Ürün değeri TAM yükseltilmiş çiftliğe göre ölçülü olduğundan erken evrede pano gelirin katlarıydı (ilk saat siparişler gelirin ~%60'ı).
+		-- Bütçe evreye bağlıdır: referans gelir (sn başına) `lowIncome` ve altındaysa `lowMinutes`, `highIncome` ve üstündeyse `highMinutes` (log ölçekte `curve` üssüyle
+		-- artar). `graceIncome` (sn başına) altında bütçe yoktur: ilk ürün merkezlerinin kurulum evresinde (hardcore ~ilk 40 dk) erken ilerleme siparişlerle hızlanır, keçi adası ~55 dk'da açılır; bu eşiği ~950'ye çekmek keçi adasını 45,5 dk'ya iter ama ilk saat payı ~%52'ye çıkar. Tam yükseltilmiş çiftlikte pano toplamı ~5-6 dk olduğundan `highMinutes` orada bağlamaz. Ölçüm: docs/URETIM_VE_UZMAN_ADALAR.md "Sipariş bütçesi".
+		windowBudget = {
+			lowMinutes = 2.5,
+			highMinutes = 12,
+			lowIncome = 500,
+			highIncome = 5000,
+			curve = 2,
+			graceIncome = 900,
+		},
 		guaranteedTier = "quick", -- her üretilebilir ürün için bir erişilebilir teklif; kalan slotlar ağırlıklı dağıtılır
 		reserveBatches = 2, -- ürün yardımcısı kalan siparişler ve bu kadar yedek parti için üretir
 		variation = 0.34,
 		-- Pahalı üründe satır birimi `unitRefValue / değer` ile küçülür (en az 1): tek satırın değeri ürünler arasında benzer kalır.
 		unitRefValue = 15000,
-		-- Bir satırdaki en çok birim (okunabilirlik)
-		-- Pahalı üründe de bu adede kadar talep oluşur; gelir tavanı aşılıyorsa önce adet düşürülür, tek birim de pahalıysa ödül sınırlanır.
+		-- Bir satırın adet aralığının ÜST sınırının tabanı: her kademede ve pahalı üründe de 1..4 birim istenebilir (kademenin `units` değeri bu
+		-- yüzden yalnızca ucuz üründe toptan/tüccar toptan kademelerini büyütür; hızlı/küçük aynı aralıktadır). Gelir tavanı aşılıyorsa önce adet
+		-- düşürülür, tek birim de pahalıysa ödül sınırlanır.
 		minHighUnits = 4,
-		-- Bir siparişin ödülü gelirin en çok bu kadar dakikasıdır (ECONOMY_LIMITS.maxRewardMinutes'tan küçük: test sınırı aşılmaz)
+		-- Bir siparişin ödülü gelirin en çok bu kadar dakikasıdır (ECONOMY_LIMITS.maxRewardMinutes'tan küçük: test sınırı aşılmaz).
+		-- Sınır TEK SİPARİŞ içindir; pano toplamını (12 slot) sınırlamaz: ürün değeri tam yükseltilmiş çiftliğe göre ölçülü olduğundan erken evrede
+		-- (ilk ürün merkezleri) pano geliri çiftlik gelirinin katlarına çıkabilir, bkz. docs/URETIM_VE_UZMAN_ADALAR.md "Denetim (5 Ekim 2026)".
 		rewardCapMinutes = 6,
+		-- Bir satırdaki en çok birim (okunabilirlik); en küçük ahır deposu (BARN_LEVELS[1].goodsCap) bundan küçük olamaz (tests/goods.spec)
 		maxLineUnits = 12,
 		tiers = {
 			{
@@ -124,7 +147,8 @@ local data = {
 
 	-- Hızlı boşaltma ("Hepsini sat" / "Yarısını sat"): depodaki ürün, değerinin `rate` katına paraya çevrilir. Sipariş ödülü her zaman en az
 	-- değer x 1.05 olduğundan sipariş hâlâ en iyi seçenektir; üretimin depoya sığmayan fazlası da aynı oranla paraya çevrilir (kaçak olmasın).
-	-- Oran ürün değerinin asgari getiriye göre ölçeğini yansıtır: bir parti (2 birim) satılınca ~asgari getiri (PRODUCTION_MIN_RETURN) kadar para gelir.
+	-- Oran ürün değerinin asgari getiriye göre ölçeğini yansıtır: tam parti (6 birim) satılınca kaçırılan gelir + başlatmanın ~1,1 katı gelir (ölçüm:
+	-- scripts/audit-economy.py bölüm F); taban partide (2 birim) yalnızca ~%37'si: ürünün değeri siparişle çıkar, satış taşan fazlanın çıkışıdır.
 	GOODS_SELL = {
 		rate = 0.06,
 	},

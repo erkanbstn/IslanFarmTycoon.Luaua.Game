@@ -67,7 +67,11 @@ return function(codec: any, config: any, farmMath: any, profiles: any)
 		animal.bornAt = 0
 	end
 	local earlyOffers = farmMath.getContractOffers(early, now, 0)
-	assert(#earlyOffers == config.GOODS_CONTRACTS.slots, "the first producible item receives immediate orders")
+	print(`MEASURE early offers={#earlyOffers} slots={farmMath.getContractSlotCount(1)}`)
+	assert(
+		#earlyOffers >= 1 and #earlyOffers <= farmMath.getContractSlotCount(1),
+		"the first producible item receives immediate orders (few goods mean few slots)"
+	)
 	local earlyIncome = farmMath.getReferenceIncome(early, now)
 	local capped = false
 	for _, offer in earlyOffers do
@@ -94,14 +98,29 @@ return function(codec: any, config: any, farmMath: any, profiles: any)
 
 	-- Teklifler: kademe başına bir teklif; satır sayısı kademeyle artar, ödül ürün değerinin üstündedir
 	local save = newSave(true)
+	-- Geç oyun referansı (tam yükseltilmiş çiftlik ~5.000/sn): pano bütçesi ve ödül tavanı bağlamaz, tam ızgara görünür.
+	save.parkedIncomeBest = 6000
 	local islandBonus = farmMath.getBonus(save, "contractBonus") -- ada yükseltmelerinden gelen sipariş bonusu (At Adası)
 	local offers = farmMath.getContractOffers(save, now, 0)
-	for index, goodsId in farmMath.getContractGoods(save, now) do
-		assert(offers[index].lines[1].goodsId == goodsId, "each producible item has an immediate guaranteed order")
+	local function slotOf(offer: any): number
+		return tonumber(string.match(offer.key, "^%d+:(%d+)")) :: number
 	end
-	assert(#offers == config.GOODS_CONTRACTS.slots, "one offer per grid slot")
+	print(
+		`MEASURE full-build offers={#offers} slots={farmMath.getContractSlotCount(#farmMath.getContractGoods(save, now))}`
+	)
+	for index, goodsId in farmMath.getContractGoods(save, now) do
+		for _, offer in offers do
+			if slotOf(offer) == index then
+				assert(offer.lines[1].goodsId == goodsId, "each producible item has an immediate guaranteed order")
+			end
+		end
+	end
+	assert(
+		#offers == farmMath.getContractSlotCount(#farmMath.getContractGoods(save, now)),
+		"one offer per grid slot (slots follow the producible goods)"
+	)
 	local cap = farmMath.getGoodsCap(save)
-	for index, offer in offers do
+	for _, offer in offers do
 		local tier: any = nil
 		for _, candidate in config.GOODS_CONTRACTS.tiers do
 			if candidate.id == offer.tier then
@@ -110,7 +129,7 @@ return function(codec: any, config: any, farmMath: any, profiles: any)
 		end
 		assert(tier, "every offer uses a configured tier")
 		assert(
-			string.match(offer.key, "^(%d+:%d+):%d+$") == `{farmMath.getContractWindow(now)}:{index}`
+			string.match(offer.key, "^(%d+:%d+):%d+$") == `{farmMath.getContractWindow(now)}:{slotOf(offer)}`
 				and #offer.key <= 24,
 			"keys carry the window, slot and bounded quote fingerprint"
 		)
@@ -215,7 +234,7 @@ return function(codec: any, config: any, farmMath: any, profiles: any)
 	local clientView = profiles.clientState(large, {}, {})
 	local serverOffers = farmMath.getContractOffers(large, now, 0.25)
 	local clientOffers = farmMath.getContractOffers(clientView, now, 0.25)
-	assert(#serverOffers == #clientOffers and #serverOffers == settings.slots, "the client sees every slot")
+	assert(#serverOffers == #clientOffers and #serverOffers >= 1, "the client sees every offered slot")
 	for index, offer in serverOffers do
 		local mirror = clientOffers[index]
 		assert(
@@ -245,7 +264,7 @@ return function(codec: any, config: any, farmMath: any, profiles: any)
 			for _, line in offer.lines do
 				goodsSeen[line.goodsId] = true
 			end
-			if offer.tier ~= offers[index].tier or offer.worth ~= offers[index].worth then
+			if offers[index] == nil or offer.tier ~= offers[index].tier or offer.worth ~= offers[index].worth then
 				differentWindows = true
 			end
 		end
@@ -265,7 +284,10 @@ return function(codec: any, config: any, farmMath: any, profiles: any)
 	)
 	local seasonal = farmMath.getContractOffers(save, now, 0.5)
 	assert(
-		seasonal[1].reward == math.floor(offers[1].worth * offers[1].rewardFactor * (1.5 + islandBonus)),
+		seasonal[1].reward
+			== math.floor(
+				offers[1].worth * offers[1].rewardFactor * (1 + math.min(0.5 + islandBonus, settings.maxBonus))
+			),
 		"season bonus applies"
 	)
 	-- Takılı muskalar: sipariş ödülü ve ürün merkezi verimi artar
@@ -282,7 +304,10 @@ return function(codec: any, config: any, farmMath: any, profiles: any)
 			== math.floor(
 				offers[1].worth
 					* offers[1].rewardFactor
-					* (1 + config.ITEMS.contract_charm_2.effects.contractBonus + islandBonus)
+					* (
+						1
+						+ math.min(config.ITEMS.contract_charm_2.effects.contractBonus + islandBonus, settings.maxBonus)
+					)
 			),
 		"exact charm bonus"
 	)
@@ -378,5 +403,150 @@ return function(codec: any, config: any, farmMath: any, profiles: any)
 	end
 	assert(kept <= config.GOODS_CONTRACTS.slots, "delivered keys are bounded")
 	assert(repaired.contracts.window == 0 and repaired.contracts.completed <= 1e9, "numbers are clamped")
+	-- Bonus tavanı: eşya + ada + yükseltme + kalıcı etki + kilometre taşı + mevsim toplamı `maxBonus`'u aşamaz; en kötü yığında
+	-- (tüm yuvalar en iyi eşya, etkiler tam seviye, R30 kilometre taşları, en iyi mevsim) ödül/değer ECONOMY_LIMITS.maxRewardRatio'yu aşmaz.
+	local maxFactor = 0
+	for _, tier in settings.tiers do
+		maxFactor = math.max(maxFactor, tier.rewardFactor)
+	end
+	assert(
+		maxFactor * (1 + settings.maxBonus) <= limits.maxRewardRatio + 1e-9,
+		"the highest tier with the maximum bonus stays within the declared reward/worth limit"
+	)
+	local worst = newSave(true)
+	worst.parkedIncomeBest = 6000
+	local equipped: { [string]: string } = {}
+	local bestItem: { [string]: number } = {}
+	for id, item in config.ITEMS do
+		local value = if item.effects then item.effects.contractBonus or 0 else 0
+		if value > (bestItem[item.slot] or -1) then
+			bestItem[item.slot] = value
+			equipped[item.slot] = id
+		end
+	end
+	local itemsOwned: { [string]: boolean } = {}
+	for _, id in equipped do
+		itemsOwned[id] = true
+	end
+	worst.inventory = { items = itemsOwned, equipped = equipped }
+	local perks: { [string]: number } = {}
+	for id, definition in config.PROGRESSION.perks do
+		perks[id] = definition.maxLevel
+	end
+	worst.progression = {
+		count = config.PROGRESSION.maxRebirth,
+		perks = perks,
+		startedAt = 0,
+		returnEndsAt = 0,
+		returnEnded = true,
+	}
+	local bestSeason = 0
+	for _, season in config.SEASONS do
+		bestSeason = math.max(bestSeason, season.orderBonus or 0)
+	end
+	local stack = farmMath.getBonus(worst, "contractBonus") + bestSeason
+	print(`MEASURE worst-case order bonus stack={stack} cap={settings.maxBonus}`)
+	assert(stack > settings.maxBonus, "the worst-case stack exceeds the cap, so the clamp is exercised")
+	assert(
+		farmMath.getContractTotalBonus(worst, bestSeason) == settings.maxBonus
+			and farmMath.getBonus(worst, "contractBonus") + bestSeason > settings.maxBonus,
+		"the total bonus is clamped to the maximum"
+	)
+	assert(
+		farmMath.getContractTotalBonus(worst, -5) >= 0,
+		"a negative season value cannot reduce the reward below the worth"
+	)
+	local worstRatio = 0
+	for window = 0, 80 do
+		for _, offer in farmMath.getContractOffers(worst, now + window * settings.seconds, bestSeason) do
+			worstRatio = math.max(worstRatio, offer.uncappedReward / offer.worth)
+			assert(
+				offer.uncappedReward <= offer.worth * limits.maxRewardRatio and offer.reward <= offer.uncappedReward,
+				"even the worst-case bonus stack cannot push an order above maxRewardRatio x worth"
+			)
+		end
+	end
+	assert(
+		worstRatio > 1.05 * (1 + settings.maxBonus) - 0.2,
+		"the worst-case fixture really pays near the capped factor"
+	)
+
+	-- Slot sayısı üretilebilir ürün sayısıyla artar (en az minSlots, en çok slots): talep ürün başına benzer kalır
+	local lastSlots = 0
+	assert(farmMath.getContractSlotCount(0) == 0, "no goods, no board")
+	for producible = 1, 12 do
+		local slotCount = farmMath.getContractSlotCount(producible)
+		assert(
+			slotCount >= lastSlots and slotCount <= settings.slots,
+			"the slot count never shrinks as goods are added"
+		)
+		assert(
+			slotCount >= math.min(settings.minSlots, settings.slots)
+				and slotCount >= math.min(producible, settings.slots),
+			"every good keeps a slot"
+		)
+		lastSlots = slotCount
+	end
+	assert(farmMath.getContractSlotCount(1) < settings.slots, "few goods show a smaller board")
+	assert(farmMath.getContractSlotCount(1) < farmMath.getContractSlotCount(2), "a second good widens the board")
+	assert(farmMath.getContractSlotCount(5) == settings.slots, "five goods fill the full board")
+
+	-- Pano bütçesi: referans gelirle büyür; penceredeki ödül toplamı bütçeyi (ilk teklif hariç) aşmaz; teklifler pencere ve oyuncu için kesindir
+	local lastBudget = 0
+	local grace = settings.windowBudget.graceIncome
+	assert(
+		farmMath.getContractBudgetMinutes(grace - 1) == math.huge,
+		"a starting farm below graceIncome has no board budget"
+	)
+	for _, perSecond in { grace, 1000, 2000, 5000, 20000 } do
+		local minutes = farmMath.getContractBudgetMinutes(perSecond)
+		assert(minutes >= lastBudget, "the board budget never shrinks as the farm grows")
+		lastBudget = minutes
+	end
+	assert(
+		farmMath.getContractBudgetMinutes(grace) >= settings.windowBudget.lowMinutes
+			and farmMath.getContractBudgetMinutes(grace) < settings.windowBudget.highMinutes
+			and farmMath.getContractBudgetMinutes(1e9) == settings.windowBudget.highMinutes,
+		"the budget is bounded by its low and high minutes"
+	)
+	for _, perSecond in { 20, 150, 640, 1900, 6000 } do -- 850 altı bütçesizdir (allowed = sonsuz)
+		local budgetSave = newSave(true)
+		budgetSave.parkedIncomeBest = perSecond
+		local reference = farmMath.getContractReferenceIncome(budgetSave, now)
+		local allowed = reference * 60 * farmMath.getContractBudgetMinutes(reference)
+		for window = 0, 40 do
+			local at = now + window * settings.seconds
+			local list = farmMath.getContractOffers(budgetSave, at, 0)
+			local sum = 0
+			for _, offer in list do
+				sum += offer.reward
+			end
+			assert(#list >= 1, "the board is never empty while a center produces")
+			assert(
+				sum <= math.max(allowed, list[1].reward) + 1,
+				"the window's offered rewards fit the income-scaled budget"
+			)
+			local repeated = farmMath.getContractOffers(budgetSave, at, 0)
+			assert(
+				#repeated == #list and repeated[#repeated].key == list[#list].key,
+				"the budgeted board is deterministic per window"
+			)
+		end
+	end
+	-- Erken evrede pano tavanı gelirin birkaç dakikasıdır (geç oyun referansında bağlamaz)
+	local earlyBoard = newSave(true)
+	earlyBoard.parkedIncomeBest = 640
+	local lateBoard = newSave(true)
+	lateBoard.parkedIncomeBest = 6000
+	local earlyTotal, lateTotal = 0, 0
+	for window = 0, 40 do
+		for _, offer in farmMath.getContractOffers(earlyBoard, now + window * settings.seconds, 0) do
+			earlyTotal += offer.reward
+		end
+		for _, offer in farmMath.getContractOffers(lateBoard, now + window * settings.seconds, 0) do
+			lateTotal += offer.reward
+		end
+	end
+	assert(lateTotal / 41 > earlyTotal / 41, "a late farm's board is richer than an early one's")
 	print("PASS contracts: offers, atomic delivery, windows, season bonus and save repairs")
 end

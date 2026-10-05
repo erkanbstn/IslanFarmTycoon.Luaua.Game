@@ -119,6 +119,7 @@ local onboarding = Onboarding.create({
 	shop = menu.shopButton,
 	upgrades = menu.upgradesButton,
 	production = menu.productionButton,
+	rebirth = menu.rebirthButton,
 })
 local onboardingBanner = OnboardingBanner.create(hudRoot, Onboarding.skip)
 local goal = GoalCard.create(statsHud.frame, onboarding, onboardingBanner)
@@ -433,6 +434,8 @@ onOpened(upgradesWindow, function(state)
 	local step = Onboarding.stepFor(state)
 	if step == 3 then
 		upgradesHud.focus("upgrades")
+	elseif step == 6 then
+		upgradesHud.focus("expansions") -- ilk geliştirme adımı: Geliştirmeler sekmesi açılır
 	end
 	upgradesHud.update(state, true)
 	upgradesDirty = false

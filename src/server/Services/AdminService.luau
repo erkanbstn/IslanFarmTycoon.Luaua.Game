@@ -18,6 +18,7 @@ local SaveCodec = require(script.Parent.Parent:WaitForChild("Modules"):WaitForCh
 local FarmProfiles = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("FarmProfiles"))
 local AdminPolicy = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("AdminPolicy"))
 local RateLimiter = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("RateLimiter"))
+local TutorialProgress = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("TutorialProgress"))
 
 local AdminService = {}
 local highWater: { [Player]: number } = {}
@@ -335,6 +336,9 @@ local function execute(player: Player, action: string, value: unknown): (boolean
 				message = "Bütün hayvanlar yetişkin oldu"
 			end
 		end
+		-- Yönetici test eylemleri başlangıç öğreticisini bitirir: para harcamadan adalar/hayvanlar açıldığı için kazanç sayacı
+		-- değişmez ve öğretici (para toplama, üretim adımı) yöneticide sonsuza dek kalırdı. Yalnız bu yöneticinin profili.
+		TutorialProgress.markDone(data, player)
 		PlayerDataService.pushState(player)
 		PlayerDataService.requestSave(player)
 		PlotService.refreshPlayerWorld(player)

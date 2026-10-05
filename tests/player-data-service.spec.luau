@@ -665,6 +665,42 @@ return function(createService: any, Config: any, saveVersion: number)
 	idle()
 	assert(#push.sent == 3, "firstPacket call after a quiet period is not delayed")
 
+	-- Öğretici aşaması: durum itilirken kalıcı aşama yükselir, pakete girer ve durum geri gitse de düşmez (ayrı oturum)
+	local tutorial = loaded()
+	local function tutorialIdle()
+		tutorial.call(function()
+			return nil
+		end)
+	end
+	local tutorialData = tutorial.service.tryGet(tutorial.player)
+	tutorial.service.pushState(tutorial.player)
+	tutorialIdle()
+	assert(tutorial.sent[1].payload.tutorialStage == nil, "değişmeyen yeni hesapta aşama alanı yok")
+	tutorialData.lifetimeEarned = 40
+	table.insert(
+		tutorialData.animals,
+		{ uid = "tutorial-a", animalId = "cow", zoneId = "starter", bornAt = 0, stage = "adult" }
+	)
+	tutorial.advance(5)
+	tutorial.service.pushState(tutorial.player)
+	tutorialIdle()
+	assert(
+		tutorialData.tutorialStage ~= nil
+			and tutorialData.tutorialStage >= 2
+			and tutorial.sent[2].payload.tutorialStage == tutorialData.tutorialStage,
+		"state push persists the observed tutorial stage and sends it"
+	)
+	local reachedStage = tutorialData.tutorialStage
+	tutorialData.lifetimeEarned = 0
+	tutorialData.animals = {}
+	tutorial.advance(5)
+	tutorial.service.pushState(tutorial.player)
+	tutorialIdle()
+	assert(
+		tutorialData.tutorialStage == reachedStage and tutorial.sent[3].payload.tutorialStage == reachedStage,
+		"tutorial stage never decreases when the state regresses"
+	)
+
 	-- Bekleyen PlayerState varken pushEconomy ek paket (ve revizyon boşluğu) üretmez.
 	push.advance(5)
 	push.service.pushState(push.player)

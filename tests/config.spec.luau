@@ -727,28 +727,105 @@ return function(Config: any, FarmMath: any)
 			end
 		end
 
-		-- Altın bedeli tek formülden gelir (Progression.luau açıklaması); fiyat arttıkça azalmaz
-		local function goldFor(price: number): number
-			return math.min(1500, math.floor((150 + 100 * math.sqrt(price / 100000)) / 10 + 0.5) * 10)
+		-- Altın bedeli ölçülen tempo kazancından türer (Progression.luau açıklaması):
+		--   goldCost = min(1500, yuvarla10(taban(kanal) + 28 * puan)), puan = TEMPO_POINTS + 15 x hareket + 8 x satış.
+		-- TEMPO_POINTS = `python scripts/simulate-items.py` tek eşya ölçümü: (ideal R5 % + max(casual R5 % - 2, 0)) / 2
+		-- (casual 8 sa kuantasından gelen ~%2 gürültü çıkarılır). Hareket/satış simüle edilmez, bu yüzden küçük sabit kredi alır.
+		-- Eşya etkisi değişince önce ölç, tabloyu güncelle; tablo olmayan bir teklif testi bilerek düşürür.
+		local TEMPO_POINTS: { [string]: number } = {
+			wind_charm = 0.9,
+			iron_hammer = 5.7,
+			gold_hammer = 9.2,
+			diamond_hammer = 11.3,
+			season_staff_3 = 0.0,
+			season_staff_5 = 0.0,
+			season_staff_inf = 0.0,
+			weather_staff_3 = 2.8,
+			weather_staff_5 = 4.2,
+			weather_staff_inf = 0.1,
+			storage_charm_2 = 1.9,
+			growth_charm_2 = 0.1,
+			income_charm_2 = 5.9,
+			income_charm_3 = 9.5,
+			golden_crown = 27.2,
+			angel_wings = 5.3,
+			golden_wings = 9.6,
+			barn_charm_2 = 4.0,
+			contract_charm_2 = 0.9,
+			peacock_tail = 0.0,
+			artisan_hammer = 11.7,
+			artisan_staff = 0.1,
+			night_charm = 5.9,
+			logistics_charm = 2.8,
+			orchard_charm = 0.4,
+			merchant_hat = 3.1,
+			expedition_pack = 5.7,
+			artisan_cape = 0.0,
+			trade_charm = 4.9,
+			warehouse_pack = 5.7,
+			breeder_staff = 0.1,
+			foreman_mallet = 13.9,
+			fortune_charm = 15.4,
+			tycoon_crown = 6.8,
+			caravan_satchel = 2.0,
+			eternal_shepherd_staff = 7.7,
+			crystal_wings = 5.9,
+			engineer_wrench = 12.5,
+			scholar_charm = 4.3,
+			captain_hat = 3.1,
+			courier_pack = 1.0,
+			merchant_seal = 2.8,
+		}
+		local GOLD_BASE = { cashGold = 150, goldRobux = 400, gold = 400 } -- kanal tabanı: ucuz yararlı eşya, premium en az 400
+		local GOLD_PER_POINT = 28
+		local function tempoPoints(itemId: string): number
+			local effects = Config.ITEMS[itemId].effects
+			return assert(TEMPO_POINTS[itemId], `{itemId}: missing measured tempo points`)
+				+ 15 * (effects.movementSpeed or 0)
+				+ 8 * (effects.sellBonus or 0)
+		end
+		local function goldFor(itemId: string): number
+			local channel = Config.getItemChannel(itemId)
+			return math.min(
+				1500,
+				math.floor((GOLD_BASE[channel] + GOLD_PER_POINT * tempoPoints(itemId)) / 10 + 0.5) * 10
+			)
 		end
 		local priced = {}
 		for _, itemId in Config.ITEM_ORDER do
 			local offer = offers[itemId]
 			if offer then
-				local item = Config.ITEMS[itemId]
-				assert(offer.goldCost == goldFor(item.price), `{itemId}: gold cost must follow the price formula`)
-				table.insert(priced, { price = item.price, gold = offer.goldCost, id = itemId })
+				assert(
+					offer.goldCost == goldFor(itemId),
+					`{itemId}: gold cost must follow the tempo rule ({goldFor(itemId)})`
+				)
+				table.insert(priced, {
+					id = itemId,
+					gold = offer.goldCost,
+					points = tempoPoints(itemId),
+					channel = Config.getItemChannel(itemId),
+				})
 			end
 		end
-		table.sort(priced, function(a, b)
-			return a.price < b.price
-		end)
-		for index = 2, #priced do
-			assert(
-				priced[index].gold >= priced[index - 1].gold,
-				`gold cost must not fall with price: {priced[index].id} vs {priced[index - 1].id}`
-			)
+		-- Aynı kanalda daha çok tempo veren eşya daha ucuz olamaz (altın fayda ile birlikte artar)
+		for _, a in priced do
+			for _, b in priced do
+				if a.channel == b.channel and a.points > b.points then
+					assert(a.gold >= b.gold, `gold cost must not fall with benefit: {a.id} vs {b.id}`)
+				end
+			end
 		end
+		-- En çok tempo veren eşya (Altın Taç) en pahalı tekliftir
+		local maxPoints, maxId = -1, ""
+		for _, row in priced do
+			if row.points > maxPoints then
+				maxPoints, maxId = row.points, row.id
+			end
+		end
+		assert(
+			maxId == "golden_crown" and offers.golden_crown.goldCost >= 1000,
+			"the crown is still the priciest, strongest offer"
+		)
 		local gold = Config.PROGRESSION.gold
 		local runGold = gold.rebirthBase -- bir rebirth'in tek altın ödülü (R1; sonrası hafifçe artar)
 		assert(
@@ -761,7 +838,36 @@ return function(Config: any, FarmMath: any)
 				assert(row.gold <= runGold * 1.25, `{row.id}: only the crown may exceed about one rebirth run of gold`)
 			end
 		end
-		assert(Config.ITEMS.golden_crown.price == priced[#priced].price, "the crown is the most valuable offer")
+		-- Tek bir mağaza/kalıcı eşya gelir tavanını tek başına kırmaz (x3 sert tavan çok eşyayla birleşir)
+		for _, itemId in Config.ITEM_ORDER do
+			local item = Config.ITEMS[itemId]
+			if not item.rewardOnly then
+				assert(
+					(item.effects.incomeBonus or 0) <= 0.5,
+					`{itemId}: a single shop item stays at or under +50% income`
+				)
+			end
+		end
+		assert(
+			Config.ITEMS.golden_crown.effects.incomeBonus >= 0.3
+				and Config.ITEMS.golden_crown.effects.incomeBonus <= 0.5,
+			"the crown stays the strongest income item without doubling income"
+		)
+		-- Ölü yük artık yok: ana etkisi sipariş/ürün verimi olan her satılık ekipman gerçek ikinci bir etki taşır
+		for _, itemId in { "merchant_hat", "trade_charm", "scholar_charm", "tycoon_crown", "captain_hat" } do
+			assert(Config.ITEMS[itemId].effects.incomeBonus, `{itemId}: trade gear carries a real income effect`)
+		end
+		assert(
+			Config.ITEMS.artisan_hammer.effects.upgradeDiscount
+				and Config.ITEMS.night_charm.effects.offlineBonus <= 0.25,
+			"specialist tools keep a measurable effect and the night charm stays bounded"
+		)
+		for _, itemId in Config.ITEM_ORDER do
+			assert(
+				Config.ITEMS[itemId].price <= Config.ITEMS.golden_crown.price,
+				"the crown keeps the top reference price"
+			)
+		end
 
 		-- Prim ekipman kendi yuvasındaki başlangıç (yalnız nakit) ekipmanından açıkça güçlüdür
 		for _, slotId in { "tool", "staff", "charm", "head", "back" } do
@@ -799,7 +905,10 @@ return function(Config: any, FarmMath: any)
 				item.slot == slotId and Config.getItemChannel(itemId) == "gold",
 				`{itemId}: gold-only in slot {slotId}`
 			)
-			assert(offers[itemId].goldCost >= 600 and offers[itemId].goldCost <= 950, `{itemId}: about one run of gold`)
+			assert(
+				offers[itemId].goldCost >= 400 and offers[itemId].goldCost <= 950,
+				`{itemId}: at most about one run of gold`
+			)
 			assert((item.effects.movementSpeed or 0) <= 0.06, `{itemId}: movement stays small under the 25 percent cap`)
 			assert((item.effects.incomeBonus or 0) <= 0.1, `{itemId}: income stays below the top charm`)
 		end
@@ -868,7 +977,7 @@ return function(Config: any, FarmMath: any)
 				`{itemId}: gold-only in slot {slotId}`
 			)
 			assert(offer.kind == "item" and offer.robuxProductId == nil, `{itemId}: gold only, no Robux product`)
-			assert(offer.goldCost >= 500 and offer.goldCost <= 800, `{itemId}: priced at under one run of gold`)
+			assert(offer.goldCost >= 400 and offer.goldCost <= 800, `{itemId}: priced at under one run of gold`)
 			assert((item.effects.movementSpeed or 0) < 0.12, `{itemId}: movement below the golden wings`)
 			assert((item.effects.incomeBonus or 0) <= 0.1, `{itemId}: income stays below the top charm`)
 			assert(not Config.isCashItem(item), `{itemId}: merchant and cash shop never offer it`)

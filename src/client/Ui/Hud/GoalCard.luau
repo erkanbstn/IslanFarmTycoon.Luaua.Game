@@ -15,6 +15,7 @@ local IslandContext = require(script.Parent.Parent.Parent:WaitForChild("Core"):W
 local UiKit = require(script.Parent.Parent:WaitForChild("UiKit"))
 local HudCommon = require(script.Parent:WaitForChild("HudCommon"))
 local Onboarding = require(script.Parent:WaitForChild("Onboarding"))
+local OnboardingSteps = require(Shared:WaitForChild("Modules"):WaitForChild("OnboardingSteps"))
 local OnboardingBanner = require(script.Parent:WaitForChild("OnboardingBanner"))
 
 type PlayerSave = GameTypes.PlayerSave
@@ -92,22 +93,6 @@ function GoalCard.create(stats: Frame, onboarding: Onboarding.Hud, banner: Onboa
 
 	local function updateGoalMain(state: PlayerSave, income: number)
 		goalTitle.Text = "SIRADAKİ HEDEF"
-		local progress = Progression.progress(state)
-		if progress.canRebirth then
-			goalTitle.Text = "REBIRTH HAZIR"
-			goalLabel.Text = "Altı çiftliği tamamladın"
-			goalDetail.Text = "Rebirth menüsünden kalıcı ödülünü seçerek yeni tura başlayabilirsin."
-			return
-		elseif
-			state.progression
-			and state.progression.count >= Config.PROGRESSION.maxRebirth
-			and progress.farmsComplete == progress.farmsTotal
-		then
-			goalTitle.Text = "YOLCULUK TAMAMLANDI"
-			goalLabel.Text = "Tüm rebirth seviyelerini ve çiftliklerini tamamladın"
-			goalDetail.Text = "Siparişlere, üretime ve çiftliğini kişiselleştirmeye devam edebilirsin."
-			return
-		end
 		-- İlk adımlar: hayvan al → parayı topla → ilk yükseltme (durumdan türetilir, vurgular Onboarding'de)
 		local cheapest: Config.UpgradeConfig? = nil
 		for _, upgrade in Config.UPGRADES do
@@ -124,26 +109,72 @@ function GoalCard.create(stats: Frame, onboarding: Onboarding.Hud, banner: Onboa
 			if cheapest then cheapest.id else nil
 		)
 		if step == 2 then
-			goalTitle.Text = "İLK ADIMLAR 2/4"
+			goalTitle.Text = "İLK ADIMLAR 2/8"
 			goalLabel.Text = "Yeşil platforma basıp parayı topla"
 			goalDetail.Text = "Hayvanların depoya para üretir; platforma basınca kasana geçer."
 			return
 		elseif step == 3 and cheapest then
-			goalTitle.Text = "İLK ADIMLAR 3/4"
+			goalTitle.Text = "İLK ADIMLAR 3/8"
 			goalLabel.Text = `İlk yükseltme: {cheapest.displayName} · {FarmMath.formatMoney(
 				FarmMath.getUpgradeCost(state, cheapest)
 			)}`
 			goalDetail.Text = purchaseHint(state, FarmMath.getUpgradeCost(state, cheapest), income, cheapest)
 			return
 		elseif step == 4 then
-			goalTitle.Text = "İLK ADIMLAR 4/4"
+			goalTitle.Text = "İLK ADIMLAR 4/8"
 			goalLabel.Text = "Üretim penceresinden ilk partini başlat"
 			goalDetail.Text =
 				"Tesis hayvanlarının ürününü paraya çevirir; sonra Yol Haritası'ndan yeni yatırımlar seçersin."
 			return
+		elseif step == 5 then
+			goalTitle.Text = "İLK ADIMLAR 5/8"
+			goalLabel.Text = "Meydandaki Sipariş Panosu'ndan ilk siparişini teslim et"
+			goalDetail.Text = "Depodaki ürünlerin siparişi karşılar; teslim edince ödül kasana geçer."
+			return
+		elseif step == 6 then
+			goalTitle.Text = "İLK ADIMLAR 6/8"
+			local targetId = OnboardingSteps.affordableExpansion(state)
+			if targetId then
+				local _, _, cost = FarmMath.getExpansionStatus(state, targetId)
+				goalLabel.Text =
+					`İlk geliştirme: {Config.getBuildTargetName(targetId, state.activeMainFarmId)} · {FarmMath.formatMoney(
+						cost
+					)}`
+			else
+				goalLabel.Text = "Yükseltmeler'deki Geliştirmeler sekmesinden ilk yapını geliştir"
+			end
+			goalDetail.Text = "Geliştirme kapasiteyi ya da verimi kalıcı artırır."
+			return
+		elseif step == 7 then
+			goalTitle.Text = "İLK ADIMLAR 7/8"
+			goalLabel.Text = "Meydandaki Usta Ömer'den ilk eşyanı al"
+			goalDetail.Text = "Eşyalar gelir ve büyümeyi kalıcı olarak güçlendirir."
+			return
+		elseif step == 8 then
+			goalTitle.Text = "İLK ADIMLAR 8/8"
+			goalLabel.Text = "İlerleme menüsünden Rebirth'i incele"
+			goalDetail.Text =
+				"Rebirth penceresindeki 'Bu rebirth'te kazanacakların' bölümünde altın ve eşya ödüllerini gör."
+			return
+		end
+		local progress = Progression.progress(state)
+		if progress.canRebirth then
+			goalTitle.Text = "REBIRTH HAZIR"
+			goalLabel.Text = "Altı çiftliği tamamladın"
+			goalDetail.Text = "Rebirth menüsünden kalıcı ödülünü seçerek yeni tura başlayabilirsin."
+			return
+		elseif
+			state.progression
+			and state.progression.count >= Config.PROGRESSION.maxRebirth
+			and progress.farmsComplete == progress.farmsTotal
+		then
+			goalTitle.Text = "YOLCULUK TAMAMLANDI"
+			goalLabel.Text = "Tüm rebirth seviyelerini ve çiftliklerini tamamladın"
+			goalDetail.Text = "Siparişlere, üretime ve çiftliğini kişiselleştirmeye devam edebilirsin."
+			return
 		end
 		if step == 1 then
-			goalTitle.Text = "İLK ADIMLAR 1/4"
+			goalTitle.Text = "İLK ADIMLAR 1/8"
 			local homeAnimal = Config.getHomeAnimal(state.activeMainFarmId)
 			-- Hayvansız başlanır: ilk hayvan başlangıç parasıyla alınır
 			local homeName = Config.ANIMALS[homeAnimal].displayName

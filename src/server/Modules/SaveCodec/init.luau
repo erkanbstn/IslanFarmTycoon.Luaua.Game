@@ -171,6 +171,7 @@ function SaveCodec.encode(save: any, now: number): { [string]: any }
 		audio = save.audio,
 		reducedMotion = save.reducedMotion,
 		tutorialDone = save.tutorialDone,
+		tutorialStage = Account.encodeStage(save.tutorialStage),
 		lifetimeEarned = Common.amount(save.lifetimeEarned, 0),
 		daily = save.daily,
 		achievements = save.achievements,

@@ -34,7 +34,12 @@ return function(Config: any, FarmMath: any, SaveCodec: any, Inventory: any)
 		assert(offer.itemId == id and offer.goldCost > 0, "each new item has a free permanent gold route")
 		assert(product.effect == "permanentOffer" and product.offerId == id, "Robux grants the same permanent right")
 		assert(product.id == (offer.robuxProductId or 0), "Robux catalogue uses the permanent offer's configured ID")
-		assert(Config.ITEMS[id].effects.incomeBonus == nil, "specialist choices do not add an income stack")
+		-- Tüccar Şapkası ölü yük olmasın diye küçük gelir taşır (ölçüm: docs/ZORLUK_VE_FIYAT.md); diğer uzman seçimler gelir yığmaz
+		local income = Config.ITEMS[id].effects.incomeBonus
+		assert(
+			income == nil or (id == "merchant_hat" and income <= 0.05),
+			"specialist choices do not add an income stack beyond the merchant hat's small bonus"
+		)
 	end
 	local save = fresh()
 	local baseIncome = FarmMath.computeIncomePerSecond(save, now)
@@ -46,10 +51,18 @@ return function(Config: any, FarmMath: any, SaveCodec: any, Inventory: any)
 	equip(save, "night_charm")
 	assert(FarmMath.getStorageCap(save) == baseStorage, "switching the charm removes the old storage bonus")
 	local rate = FarmMath.getOfflineTerms(save)
-	assert(math.abs(rate - Config.OFFLINE_EARNING_RATE * 1.45) < 1e-6, "night charm increases actual offline earnings")
+	local night = Config.ITEMS.night_charm.effects.offlineBonus
+	local expedition = Config.ITEMS.expedition_pack.effects.offlineBonus
+	assert(
+		math.abs(rate - Config.OFFLINE_EARNING_RATE * (1 + night)) < 1e-6,
+		"night charm increases actual offline earnings"
+	)
 	equip(save, "expedition_pack")
 	local combinedRate = FarmMath.getOfflineTerms(save)
-	assert(math.abs(combinedRate - Config.OFFLINE_EARNING_RATE * 1.65) < 1e-6, "offline equipment bonuses add")
+	assert(
+		math.abs(combinedRate - Config.OFFLINE_EARNING_RATE * (1 + night + expedition)) < 1e-6,
+		"offline equipment bonuses add"
+	)
 	assert(combinedRate <= Config.OFFLINE_MAX_TOTAL_RATE, "offline cap is preserved")
 	equip(save, "orchard_charm")
 	assert(
@@ -90,14 +103,19 @@ return function(Config: any, FarmMath: any, SaveCodec: any, Inventory: any)
 			== math.clamp(math.floor(recipe.goodsAmount * 1.2), 1, Config.PRODUCTION_MAX_BATCH_UNITS),
 		"workshop goods bonus reaches the real delivery calculation without bypassing the batch cap"
 	)
+	assert(
+		FarmMath.computeIncomePerSecond(productionSave, now) == baseIncome,
+		"a specialist setup leaves animal income unchanged"
+	)
 	equip(productionSave, "merchant_hat")
 	assert(
 		FarmMath.getEquippedBonus(productionSave, "contractBonus") == 0.1,
 		"merchant hat affects the contract formula"
 	)
+	local hatIncome = FarmMath.computeIncomePerSecond(productionSave, now)
 	assert(
-		FarmMath.computeIncomePerSecond(productionSave, now) == baseIncome,
-		"a specialist setup leaves animal income unchanged"
+		hatIncome > baseIncome and hatIncome <= baseIncome * (1 + Config.ITEMS.merchant_hat.effects.incomeBonus) + 1e-9,
+		"the merchant hat adds only its small income bonus"
 	)
 	for _, id in newItems do
 		Inventory.grant(productionSave, id)

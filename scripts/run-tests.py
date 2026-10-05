@@ -214,6 +214,7 @@ def main(argv: list[str] | None = None, dependency_reporter=None) -> int:
     parser.add_argument("--luau", help="Path to the standalone Luau interpreter (not Lua)")
     parser.add_argument("--check-dependencies", action="store_true", help="Check actual harness imports and lexical module order without running Luau or writing generated files")
     parser.add_argument("--only", action="append", default=[], metavar="SPEC", help="Run only these specs (repeatable or comma separated; e.g. --only hud-layout,admin). Subset result is not the full suite")
+    parser.add_argument("--out", metavar="PATH", help="Generated Luau file (default .test-build/run.luau); use a unique path when several runs happen in parallel")
     parser.add_argument("--list", action="store_true", help="List spec names accepted by --only and exit (no Luau needed)")
     args = parser.parse_args(argv)
     executable = args.luau or shutil.which("luau")
@@ -234,6 +235,7 @@ def main(argv: list[str] | None = None, dependency_reporter=None) -> int:
         "local Environment = { getIncomeMultiplier = function() return 1 end }\n",
         farm_math_bundle(),
         module("Progression", "src/shared/Modules/Progression.luau", {"Config", "FarmMath"}),
+        module("OnboardingSteps", "src/shared/Modules/OnboardingSteps.luau", {"Config", "FarmMath", "Progression"}),
         module("RebirthTitles", "src/shared/Modules/RebirthTitles.luau"),
         module("rebirthTitlesSpec", "tests/rebirth-titles.spec.luau"),
         module("RebirthTitleServiceFactory", "src/server/Presentation/RebirthTitleService.luau", {"RebirthTitles", "WorldUi"}, "game, task, Vector3, RebirthTitles, WorldUi"),
@@ -248,7 +250,7 @@ def main(argv: list[str] | None = None, dependency_reporter=None) -> int:
                {"Config", "GameTypes", "FarmMath", "IslandContext", "UiKit"},
                "game, UiKit, IslandContext, Instance, UDim2, Vector2, Enum"),
         module("GoalCardFactory", "src/client/Ui/Hud/GoalCard.luau",
-               {"Config", "GameTypes", "FarmMath", "Progression", "IslandContext", "UiKit", "HudCommon", "Onboarding", "OnboardingBanner"},
+               {"Config", "GameTypes", "FarmMath", "Progression", "OnboardingSteps", "IslandContext", "UiKit", "HudCommon", "Onboarding", "OnboardingBanner"},
                "game, UiKit, Instance, UDim2, Enum, HudCommon, IslandContext, Onboarding"),
         module("hudLayoutSpec", "tests/hud-layout.spec.luau"),
         module("BridgeSurface", "src/client/Core/BridgeSurface.luau"),
@@ -372,8 +374,9 @@ def main(argv: list[str] | None = None, dependency_reporter=None) -> int:
         module("inventorySpec", "tests/inventory.spec.luau"),
         module("Golden", "src/shared/Modules/Golden.luau", {"Config", "FarmMath", "Merchant"}),
         module("goldenSpec", "tests/golden.spec.luau"),
-        module("OnboardingSteps", "src/shared/Modules/OnboardingSteps.luau", {"Config", "FarmMath"}),
         module("onboardingSpec", "tests/onboarding.spec.luau"),
+        module("TutorialProgress", "src/server/Modules/TutorialProgress.luau", {"Preferences"}),
+        module("tutorialProgressSpec", "tests/tutorial-progress.spec.luau"),
         module("OnboardingBannerFactory", "src/client/Ui/Hud/OnboardingBanner.luau", {"UiKit"}, "UiKit, Instance, UDim2, Vector2, Enum"),
         module("onboardingBannerSpec", "tests/onboarding-banner.spec.luau"),
         module("OnboardingFactory", "src/client/Ui/Hud/Onboarding.luau", {"GameTypes", "OnboardingSteps", "Remotes", "UiKit"}, "game, UiKit, OnboardingSteps, Remotes, Instance"),
@@ -388,12 +391,16 @@ def main(argv: list[str] | None = None, dependency_reporter=None) -> int:
         module("TelemetryServiceFactory", "src/server/Services/TelemetryService.luau", {"TelemetryLogic", "Metrics"},
                "game, task, os, Enum, Metrics, warn, print"),
         module("telemetrySpec", "tests/telemetry.spec.luau"),
+        module("OfflineBrief", "src/server/Modules/OfflineBrief.luau"),
+        module("offlineBriefSpec", "tests/offline-brief.spec.luau"),
+        module("WelcomeBackLines", "src/client/Ui/Hud/WelcomeBackLines.luau"),
+        module("welcomeBackLinesSpec", "tests/welcome-back-lines.spec.luau"),
         # DataStore katmanı (SaveStore) her fixture'da sahte game/task/os ile kurulur; PlayerDataService onu kullanır.
         module("SaveStoreFactory", "src/server/Services/SaveStore.luau",
                {"Config", "SessionLock", "Metrics", "SaveBackup", "TransferLedger", "Leaderboard"},
                "game, task, os, Metrics, warn, Enum"),
         module("PlayerDataFactoryBody", "src/server/Services/PlayerDataService.luau",
-               {"Config", "GameTypes", "Remotes", "FarmMath", "Progression", "SessionLock", "SaveCodec", "FarmProfiles", "Metrics", "SaveBackup", "Preferences", "TelemetryService", "SaveStore"},
+               {"Config", "GameTypes", "Remotes", "FarmMath", "Progression", "SessionLock", "SaveCodec", "FarmProfiles", "Metrics", "SaveBackup", "Preferences", "TelemetryService", "SaveStore", "TutorialProgress", "OnboardingSteps"},
                "game, task, Instance, os, Remotes, DateTime, Metrics, warn, SaveStore"),
         "local function PlayerDataFactory(game, task, Instance, os, Remotes, DateTime, Metrics, warn)\n"
         "\treturn PlayerDataFactoryBody(game, task, Instance, os, Remotes, DateTime, Metrics, warn,\n"
@@ -414,7 +421,7 @@ def main(argv: list[str] | None = None, dependency_reporter=None) -> int:
         module("islandTravelSpec", "tests/island-travel.spec.luau"),
         module("AdminPolicy", "src/server/Modules/AdminPolicy.luau"),
         module("AdminServiceFactory", "src/server/Services/AdminService.luau",
-               {"Config", "GameTypes", "Remotes", "FarmMath", "PlayerDataService", "EconomyService", "PlotService", "SeasonService", "SaveCodec", "FarmProfiles", "AdminPolicy", "RateLimiter", "DataResetService", "Golden"},
+               {"Config", "GameTypes", "Remotes", "FarmMath", "PlayerDataService", "EconomyService", "PlotService", "SeasonService", "SaveCodec", "FarmProfiles", "AdminPolicy", "RateLimiter", "DataResetService", "Golden", "TutorialProgress"},
                "game, Remotes, PlayerDataService, EconomyService, PlotService, FarmMath, SeasonService, RateLimiter, DataResetService, Golden, warn"),
         module("adminSpec", "tests/admin.spec.luau"),
         module("transferSpec", "tests/transfer.spec.luau"),
@@ -456,9 +463,19 @@ def main(argv: list[str] | None = None, dependency_reporter=None) -> int:
                {"Config", "Remotes", "FarmMath", "Environment", "Rewards", "PlayerDataService", "RateLimiter", "Metrics", "RequestGuard"},
                "game, Remotes, FarmMath, Environment, Rewards, PlayerDataService, RateLimiter, Metrics, DateTime, RequestGuard"),
         module("contractServiceSpec", "tests/contract-service.spec.luau"),
+        module("GoodsDiscard", "src/shared/Modules/GoodsDiscard.luau"),
+        module("goodsDiscardSpec", "tests/goods-discard.spec.luau"),
+        module("GoodsDiscardServiceFactory", "src/server/Services/GoodsDiscardService.luau",
+               {"Config", "Remotes", "FarmMath", "GoodsDiscard", "PlayerDataService", "RateLimiter", "Metrics", "RequestGuard"},
+               "game, Remotes, FarmMath, GoodsDiscard, PlayerDataService, RateLimiter, Metrics, RequestGuard"),
+        module("goodsDiscardServiceSpec", "tests/goods-discard-service.spec.luau"),
+        module("GoodsDiscardPromptFactory", "src/client/Ui/Hud/GoodsDiscardPrompt.luau",
+               {"Config", "FarmMath", "GoodsDiscard", "UiKit", "PurchaseController", "HudCommon"},
+               "game, Config, FarmMath, GoodsDiscard, UiKit, PurchaseController, HudCommon, Vector2, UDim2, Instance, Enum"),
+        module("goodsDiscardUiSpec", "tests/goods-discard-ui.spec.luau"),
         module("ProductionServiceFactory", "src/server/Services/ProductionService.luau",
-               {"Config", "Remotes", "FarmMath", "PlayerDataService", "EconomyService", "PlotService", "Preferences", "ProductionRules", "ProductionLogic", "RateLimiter"},
-               "game, Remotes, PlayerDataService, EconomyService, PlotService, RateLimiter, DateTime, warn, ProductionLogic, Preferences"),
+               {"Config", "Remotes", "FarmMath", "PlayerDataService", "EconomyService", "PlotService", "TutorialProgress", "OnboardingSteps", "ProductionRules", "ProductionLogic", "RateLimiter", "TelemetryService"},
+               "game, Remotes, PlayerDataService, EconomyService, PlotService, RateLimiter, DateTime, warn, ProductionLogic"),
         module("productionSpec", "tests/production.spec.luau"),
         module("ExtensionServiceFactory", "src/server/Services/ExtensionService.luau",
                {"Config", "Remotes", "FarmMath", "PlayerDataService", "EconomyService", "PlotService", "RateLimiter"},
@@ -507,11 +524,11 @@ def main(argv: list[str] | None = None, dependency_reporter=None) -> int:
                "game, Remotes, PlayerDataService, PlotService, EconomyService, RateLimiter, Metrics, DateTime, RequestGuard"),
         module("upgradeServiceSpec", "tests/upgrade-service.spec.luau"),
         module("InventoryServiceFactory", "src/server/Services/InventoryService.luau",
-               {"Config", "Remotes", "FarmMath", "Environment", "Inventory", "PlayerDataService", "PlotService", "EconomyService", "RateLimiter", "Metrics", "RequestGuard", "ModelAssets", "Merchant", "SeasonService", "WearableFit", "StaffPowers"},
-               "game, Remotes, PlayerDataService, PlotService, EconomyService, RateLimiter, Metrics, DateTime, task, os, Environment, RequestGuard, ModelAssets, Merchant, SeasonService, StaffPowers"),
+               {"Config", "Remotes", "FarmMath", "Environment", "Inventory", "PlayerDataService", "PlotService", "EconomyService", "RateLimiter", "Metrics", "RequestGuard", "ModelAssets", "Merchant", "SeasonService", "WearableFit", "StaffPowers", "TelemetryService"},
+               "game, Remotes, PlayerDataService, PlotService, EconomyService, RateLimiter, Metrics, DateTime, task, os, Environment, RequestGuard, ModelAssets, Merchant, SeasonService, StaffPowers, TelemetryService"),
         module("inventoryServiceSpec", "tests/inventory-service.spec.luau"),
         module("EngagementServiceFactory", "src/server/Services/EngagementService.luau",
-               {"Config", "Remotes", "FarmMath", "Rewards", "Golden", "PlayerDataService", "EconomyService", "PlotService", "RateLimiter", "Metrics", "RequestGuard"},
+               {"Config", "Remotes", "FarmMath", "Rewards", "Golden", "Progression", "PlayerDataService", "EconomyService", "PlotService", "TelemetryService", "RateLimiter", "Metrics", "RequestGuard"},
                "game, Remotes, PlayerDataService, EconomyService, PlotService, RateLimiter, Metrics, DateTime, task, warn, RequestGuard"),
         module("engagementServiceSpec", "tests/engagement-service.spec.luau"),
         module("MonetizationServiceFactory", "src/server/Services/MonetizationService.luau",
@@ -519,8 +536,8 @@ def main(argv: list[str] | None = None, dependency_reporter=None) -> int:
                "game, Remotes, PlayerDataService, RateLimiter, Metrics, Enum, warn, task, TelemetryService, EconomyService, PlotService"),
         module("monetizationServiceSpec", "tests/monetization-service.spec.luau"),
         module("ProgressionServiceFactory", "src/server/Services/ProgressionService.luau",
-               {"Config", "Remotes", "FarmMath", "Progression", "SaveCodec", "Rebirth", "PlayerDataService", "PlotService", "EconomyService", "RequestGuard", "RateLimiter"},
-               "game, Remotes, PlayerDataService, PlotService, EconomyService, RequestGuard, RateLimiter, DateTime, task, warn"),
+               {"Config", "Remotes", "FarmMath", "Progression", "SaveCodec", "Rebirth", "PlayerDataService", "PlotService", "EconomyService", "RequestGuard", "RateLimiter", "TelemetryService"},
+               "game, Remotes, PlayerDataService, PlotService, EconomyService, RequestGuard, RateLimiter, DateTime, task, warn, TelemetryService"),
         module("progressionServiceSpec", "tests/progression-service.spec.luau"),
         module("BuyPadServiceFactory", "src/server/Services/BuyPadService.luau",
                {"Config", "Remotes", "FarmMath", "RateLimiter", "UiTheme", "WorldUi", "ModelAssets", "PlayerDataService", "PlotService", "UpgradeService", "UpgradeVisualService"},
@@ -576,7 +593,8 @@ def main(argv: list[str] | None = None, dependency_reporter=None) -> int:
         "rebirthTitleServiceSpec(RebirthTitleServiceFactory, RebirthTitles)\n",
         "merchantUiSpec(MerchantWindowFactory, Merchant, Config, FarmMath)\n",
         "goldenSpec(Golden, Config, FarmMath)\n",
-        "onboardingSpec(OnboardingSteps, Config, FarmMath)\n",
+        "onboardingSpec(OnboardingSteps, Config, FarmMath, SaveCodec)\n",
+        "tutorialProgressSpec(OnboardingSteps, TutorialProgress, Preferences, Config, FarmMath)\n",
         "onboardingBannerSpec(OnboardingBannerFactory)\n",
         "configSpec(Config, FarmMath)\n",
         "inventorySpec(Inventory, Config, FarmMath, SaveCodec, SessionLock, FarmProfiles)\n",
@@ -589,7 +607,7 @@ def main(argv: list[str] | None = None, dependency_reporter=None) -> int:
         "adminSpec(AdminPolicy, AdminServiceFactory, RateLimiterFactory, Config, FarmMath)\n",
         "seasonAdminSpec(SeasonServiceFactory, EnvironmentFactory, RateLimiterFactory, Config)\n",
         "weatherQueueSpec(SeasonServiceFactory, EnvironmentFactory, RateLimiterFactory, Config)\n",
-        "productionSpec(ProductionServiceFactory, RateLimiterFactory, ProductionRules, SaveCodec, Config, FarmMath, ProductionLogic, Preferences)\n",
+        "productionSpec(ProductionServiceFactory, RateLimiterFactory, ProductionRules, SaveCodec, Config, FarmMath, ProductionLogic)\n",
         "mainFarmSpec(MainFarmServiceFactory, EconomyServiceFactory, RateLimiterFactory, FarmProfiles, SaveCodec, Config, FarmMath)\n",
         "economyServiceSpec(EconomyServiceFactory, RateLimiterFactory, SaveCodec, Config, FarmMath)\n",
         "tasksSpec(ExtensionServiceFactory, AnimalTaskServiceFactory, RateLimiterFactory, SaveCodec, Config, FarmMath)\n",
@@ -603,6 +621,9 @@ def main(argv: list[str] | None = None, dependency_reporter=None) -> int:
         "uiScaleSpec(UiScale)\n",
         "preferencesSpec(Preferences, SaveCodec, Config, FarmMath)\n",
         "contractServiceSpec(ContractServiceFactory, RateLimiterFactory, SaveCodec, Config, FarmMath, RequestGuardFactory, Rewards)\n",
+        "goodsDiscardSpec(GoodsDiscard)\n",
+        "goodsDiscardServiceSpec(GoodsDiscardServiceFactory, RateLimiterFactory, SaveCodec, Config, FarmMath, RequestGuardFactory, GoodsDiscard)\n",
+        "goodsDiscardUiSpec(GoodsDiscardPromptFactory, Config, FarmMath, GoodsDiscard)\n",
         "clientFarmStateSpec(ClientStateFactory)\n",
         "clientLocalizerSpec(LocalizerFactory)\n",
         "clientJobProgressSpec(JobProgressFactory)\n",
@@ -610,6 +631,8 @@ def main(argv: list[str] | None = None, dependency_reporter=None) -> int:
         "extensionVisualSpec(ExtensionVisualFactory)\n",
         "seasonSignalSpec(SeasonSignalFactory)\n",
         "telemetrySpec(TelemetryServiceFactory, TelemetryLogic, Config)\n",
+        "offlineBriefSpec(OfflineBrief, FarmMath, Rewards, Merchant, Golden)\n",
+        "welcomeBackLinesSpec(WelcomeBackLines)\n",
         "animalServiceSpec(AnimalServiceFactory, serviceHarness, RateLimiterFactory, SaveCodec, Config, FarmMath)\n",
         "upgradeServiceSpec(UpgradeServiceFactory, serviceHarness, RateLimiterFactory, SaveCodec, Config, FarmMath)\n",
         "inventoryServiceSpec(InventoryServiceFactory, serviceHarness, RateLimiterFactory, EnvironmentFactory, SaveCodec, Config, FarmMath, Inventory, Merchant, StaffPowers)\n",
@@ -636,7 +659,7 @@ def main(argv: list[str] | None = None, dependency_reporter=None) -> int:
             print(f"Unknown spec(s): {', '.join(unknown)}. Use --list.", file=sys.stderr)
             return 2
     pieces = compact_spec_locals(pieces)
-    output = ROOT / ".test-build" / "run.luau"
+    output = (ROOT / args.out) if args.out else ROOT / ".test-build" / "run.luau"
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text("\n".join(pieces), encoding="utf-8")
     result = subprocess.run([executable, str(output)], cwd=ROOT, check=False)

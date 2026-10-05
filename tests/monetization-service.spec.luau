@@ -57,7 +57,13 @@ return function(createService: any, createHarness: any, createLimiter: any, code
 		h.dataService.markDirty = function()
 			h.dirtyCount += 1
 		end
-		h.telemetry = { economy = function() end }
+		h.acquired = {}
+		h.telemetry = {
+			economy = function() end,
+			acquired = function(_player: any, channel: string, slot: string)
+				table.insert(h.acquired, { channel = channel, slot = slot })
+			end,
+		}
 		h.service = createService(
 			h.game,
 			h.remotes,
@@ -318,6 +324,44 @@ return function(createService: any, createHarness: any, createLimiter: any, code
 		"duplicate is acknowledged at capacity"
 	)
 	assert(capacity.data.cash == 0, "old receipts can be acknowledged even at capacity")
+
+	-- Kalıcı teklif makbuzu: ilk makbuz bir robux edinimi bildirir; tekrar gelen makbuz ve sahip olunan hak bildirmez.
+	do
+		local permanent = products.permanent_iron_hammer
+		local savedPermanentId = permanent.id
+		permanent.id = 9003
+		local robux = setup()
+		robux.data.owned = nil
+		assert(
+			robux.service.processReceipt(robux.receipt("perm-1", 9003)) == decision.PurchaseGranted,
+			"permanent receipt is granted"
+		)
+		assert(
+			#robux.acquired == 1
+				and robux.acquired[1].channel == "robux"
+				and robux.acquired[1].slot == config.ITEMS.iron_hammer.slot,
+			"first permanent receipt reports one robux acquisition"
+		)
+		assert(
+			robux.service.processReceipt(robux.receipt("perm-1", 9003)) == decision.PurchaseGranted
+				and #robux.acquired == 1,
+			"a replayed receipt reports no second acquisition"
+		)
+		local owner = setup()
+		owner.data.owned = { items = { iron_hammer = true }, conveniences = {} }
+		assert(
+			owner.service.processReceipt(owner.receipt("perm-owned", 9003)) == decision.PurchaseGranted
+				and #owner.acquired == 0,
+			"a receipt for an already owned right (refund path) reports no acquisition"
+		)
+		local unsaved = setup()
+		unsaved.saveOk = false
+		unsaved.service.processReceipt(unsaved.receipt("perm-unsaved", 9003))
+		unsaved.saveOk = true
+		unsaved.service.processReceipt(unsaved.receipt("perm-unsaved", 9003))
+		assert(#unsaved.acquired <= 1, "a save-failure retry never duplicates the acquisition event")
+		permanent.id = savedPermanentId
+	end
 
 	-- Ürün istemi: istemci yalnızca anahtar gönderir; kimlik sunucuda çözülür
 	local prompt = setup()

@@ -4,7 +4,9 @@
 -- Tanımları `items` ve `order` tablolarına ekler (Config.ITEMS / Config.ITEM_ORDER).
 -- Satış kanalı `price` (nakit referans) ve `noCash` ile belirlenir (Config.getItemChannel): ~150k ve altı yalnız nakit,
 -- ~150k-1.5M nakit + kalıcı teklif, üst kademe `noCash` (yalnız Progression.permanentOffers: altın, Robux kimliği varsa Robux).
--- Altın bedeli fiyattan tek formülle türer (Progression.luau). Yuva rolleri: alet = maliyet indirimi, başlık = ticaret,
+-- Altın bedeli ölçülen tempo kazancından türer (Progression.luau açıklaması; `price` yalnız kanal/sıralama referansıdır).
+-- 5 Ekim 2026 ölçümü (scripts/simulate-items.py): ölü yük etkiler (`contractBonus`, <+%50 `goodsYield`) tek başına değer
+-- üretmediği için ana faydası bunlar olan eşyalara gerçek bir ikinci etki (gelir/çevrimdışı) eklendi. Yuva rolleri: alet = maliyet indirimi, başlık = ticaret,
 -- sırt = lojistik, muska = ekonomi, asa = güç + pasif.
 
 local Types = require(script.Parent:WaitForChild("Types"))
@@ -145,7 +147,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		slot = "tool",
 		price = 2000000,
 		noCash = true,
-		effects = { upgradeDiscount = 0.15, expansionDiscount = 0.09, sellBonus = 0.08, facilitySpeed = 0.05 },
+		effects = { upgradeDiscount = 0.14, expansionDiscount = 0.09, sellBonus = 0.08, facilitySpeed = 0.05 },
 		look = { attach = "hip" },
 	})
 	add({
@@ -153,11 +155,13 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		displayName = "Elmas Çekiç",
 		icon = "🔨",
 		slot = "tool",
-		price = 3500000,
+		-- Ölçüm: upgradeDiscount 0,20 -> 0,15 (ideal R5 %12,1 -> ~%10,9). `price` referansı Ustabaşı/Mühendis'in altına çekildi:
+		-- aile testi (pahalı kademe daha güçlü) için sıra Altın Çekiç .14 < Elmas .15 < Mühendis .16 < Ustabaşı .17.
+		price = 2300000,
 		noCash = true,
 		effects = {
 			movementSpeed = 0.02,
-			upgradeDiscount = 0.2,
+			upgradeDiscount = 0.15,
 			expansionDiscount = 0.12,
 			sellBonus = 0.12,
 			facilitySpeed = 0.08,
@@ -265,7 +269,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "📿",
 		slot = "charm",
 		price = 400000,
-		effects = { storageBonus = 0.35, offlineBonus = 0.2 },
+		effects = { storageBonus = 0.35, offlineBonus = 0.1 }, -- ölçüm: 0,20 casual'da %12 (ücretsiz R3 ödülü için fazla)
 		look = { attach = "chest" },
 	})
 	add({
@@ -359,7 +363,8 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		slot = "head",
 		price = 30000000,
 		noCash = true,
-		effects = { movementSpeed = 0.03, incomeBonus = 1, sellBonus = 0.04 },
+		-- Ölçüm: incomeBonus 1,0 tek başına tur süresini %50 kısaltıyordu (oyun kırıcı); 0,4 ≈ %29 (0,35 -> %26): hâlâ en güçlü ekipman.
+		effects = { movementSpeed = 0.03, incomeBonus = 0.4, sellBonus = 0.04 },
 		look = { attach = "head" },
 	})
 
@@ -506,7 +511,8 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		slot = "tool",
 		price = 1600000,
 		noCash = true,
-		effects = { expansionDiscount = 0.18, facilitySpeed = 0.18 },
+		-- Ölçüm: yalnız genişleme+tesis hızı ideal R5'te %3,7 idi; upgradeDiscount eklendi (0,10 -> ~%11,7).
+		effects = { upgradeDiscount = 0.1, expansionDiscount = 0.18, facilitySpeed = 0.18 },
 		look = { attach = "hip" },
 	})
 	add({
@@ -526,7 +532,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "📿",
 		slot = "charm",
 		price = 900000,
-		effects = { offlineBonus = 0.45, contractBonus = 0.05 },
+		effects = { offlineBonus = 0.25, contractBonus = 0.05 }, -- ölçüm: 0,45 casual'da %25 (450 altın) tek başına fazlaydı
 		look = { attach = "chest" },
 	})
 	add({
@@ -555,7 +561,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🎩",
 		slot = "head",
 		price = 350000,
-		effects = { contractBonus = 0.1, sellBonus = 0.08 },
+		effects = { incomeBonus = 0.04, contractBonus = 0.1, sellBonus = 0.08 }, -- ölçüm: contractBonus tek başına ~0, gelir eklendi
 		look = { attach = "head" },
 	})
 	add({
@@ -584,7 +590,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		slot = "charm",
 		price = 2500000,
 		noCash = true,
-		effects = { contractBonus = 0.25, sellBonus = 0.12 },
+		effects = { incomeBonus = 0.06, contractBonus = 0.25, sellBonus = 0.12 }, -- gelir eklendi (sipariş payı ~%5, tek başına ölü)
 		tradeoffs = { goodsYield = 0.06 },
 		look = { attach = "chest" },
 	})
@@ -639,7 +645,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		slot = "head",
 		price = 5500000,
 		noCash = true,
-		effects = { contractBonus = 0.18, sellBonus = 0.14 },
+		effects = { incomeBonus = 0.08, contractBonus = 0.18, sellBonus = 0.14 }, -- gelir eklendi (yalnız-altın başlık)
 		look = { attach = "head" },
 	})
 	add({
@@ -649,7 +655,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		slot = "back",
 		price = 3800000,
 		noCash = true,
-		effects = { storageBonus = 0.6, goodsYield = 0.15, movementSpeed = 0.03 },
+		effects = { storageBonus = 0.6, goodsYield = 0.15, movementSpeed = 0.03, offlineBonus = 0.1 }, -- depo/üretim tek başına ölü: çevrimdışı eklendi
 		look = { attach = "back" },
 	})
 	add({
@@ -734,7 +740,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		slot = "charm",
 		price = 2200000,
 		noCash = true,
-		effects = { growthSpeed = 1.6, facilitySpeed = 0.12, goodsYield = 0.05 },
+		effects = { incomeBonus = 0.05, growthSpeed = 1.6, facilitySpeed = 0.12, goodsYield = 0.05 }, -- büyüme R5'te doygun: gelir eklendi
 		look = { attach = "chest" },
 	})
 	add({
@@ -744,7 +750,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		slot = "head",
 		price = 2400000,
 		noCash = true,
-		effects = { contractBonus = 0.14, sellBonus = 0.1, goodsYield = 0.04 },
+		effects = { incomeBonus = 0.04, contractBonus = 0.14, sellBonus = 0.1, goodsYield = 0.04 }, -- gelir eklendi (ölü yük)
 		look = { attach = "head" },
 	})
 	add({
@@ -754,7 +760,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		slot = "back",
 		price = 2000000,
 		noCash = true,
-		effects = { movementSpeed = 0.06, storageBonus = 0.5, goodsYield = 0.08 },
+		effects = { movementSpeed = 0.06, storageBonus = 0.5, goodsYield = 0.08, offlineBonus = 0.05 }, -- depo/üretim tek başına ölü: çevrimdışı eklendi
 		look = { attach = "back" },
 	})
 	add({

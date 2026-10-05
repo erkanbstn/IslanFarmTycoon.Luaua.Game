@@ -28,6 +28,7 @@ local HubBoardService = {}
 local REFRESH_SECONDS = 3
 local GLOBAL_STEP_SECONDS = 5
 local NAME_RETRY_SECONDS = 120
+local MAX_TRACKED_PLAYERS = 64
 local initialized = false
 
 type Entry = { name: string, cash: number, farms: number, rebirth: number }
@@ -148,8 +149,9 @@ local function publishStep(now: number)
 		if data then
 			for _, board in GLOBAL_BOARDS do
 				local score = Leaderboard.score(board.id, data, Progression.progress(data), isExcluded(player.UserId))
-				if score ~= nil then
-					local schedule = scheduleFor(player.UserId, board.id)
+				local schedule = if score ~= nil then scheduleFor(player.UserId, board.id) else nil
+				-- Sıfır değer boş satır olur ve yazım bütçesini harcar: daha önce yazılmış bir değer yoksa yazılmaz
+				if score ~= nil and schedule and not (score == 0 and schedule.lastValue() == nil) then
 					if Leaderboard.shouldPublish(schedule, score, now) then
 						local ok = SaveStore.publishRank(board.id, player.UserId, score)
 						if ok then
@@ -159,6 +161,22 @@ local function publishStep(now: number)
 						end
 					end
 				end
+			end
+		end
+	end
+	-- Ayrılan oyuncuların takvimleri sınırsız büyümesin (yeniden girişte hemen yazma önlemi için kısa süre tutulur)
+	local tracked = 0
+	for _ in publishSchedules do
+		tracked += 1
+	end
+	if tracked > MAX_TRACKED_PLAYERS then
+		local present: { [number]: boolean } = {}
+		for _, player in Players:GetPlayers() do
+			present[player.UserId] = true
+		end
+		for userId in publishSchedules do
+			if not present[userId] then
+				publishSchedules[userId] = nil
 			end
 		end
 	end

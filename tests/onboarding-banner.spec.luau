@@ -93,19 +93,19 @@ return function(createBanner: any)
 
 	-- Gösterme/gizleme ve atla/tekrar göster
 	assert(not frame.Visible, "banner starts hidden")
-	banner.show("İLK ADIMLAR 1/4", "Pazar'ı aç ve ilk hayvanını satın al")
+	banner.show("İLK ADIMLAR 1/8", "Pazar'ı aç ve ilk hayvanını satın al")
 	assert(frame.Visible, "show makes the banner visible")
 	local shown = {}
 	for _, label in texts do
 		table.insert(shown, label.Text)
 	end
 	assert(
-		table.find(shown, "İLK ADIMLAR 1/4") and table.find(shown, "Pazar'ı aç ve ilk hayvanını satın al"),
+		table.find(shown, "İLK ADIMLAR 1/8") and table.find(shown, "Pazar'ı aç ve ilk hayvanını satın al"),
 		"texts"
 	)
 	skipButton.Activated.fire()
 	assert(not frame.Visible and skipped == 1, "skip hides the banner and notifies the server path")
-	banner.show("İLK ADIMLAR 2/4", "Yeşil platforma basıp parayı topla")
+	banner.show("İLK ADIMLAR 2/8", "Yeşil platforma basıp parayı topla")
 	assert(frame.Visible, "banner can show again after the tutorial is replayed")
 	banner.hide()
 	assert(not frame.Visible, "hide removes the banner when no step remains")

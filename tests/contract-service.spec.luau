@@ -57,6 +57,7 @@ return function(
 		end
 	end
 	data.cash = 0
+	data.parkedIncomeBest = 6000 -- geç oyun referansı: pano bütçesi tam ızgarayı bağlamaz
 	local worldReady = true
 	local player: any = {
 		GetAttribute = function(_self: any, name: string): any
@@ -204,7 +205,14 @@ return function(
 	assert(
 		data.cash - cashBefore == small.reward
 			and small.reward
-				== math.floor(small.worth * small.rewardFactor * (1.5 + farmMath.getBonus(data, "contractBonus"))),
+				== math.floor(
+					small.worth
+						* small.rewardFactor
+						* (
+							1
+							+ math.min(0.5 + farmMath.getBonus(data, "contractBonus"), config.GOODS_CONTRACTS.maxBonus)
+						)
+				),
 		"the season bonus applies"
 	)
 	assert(cashReasons[#cashReasons] == "order", "delivery is credited as order income, not a refundable sale")

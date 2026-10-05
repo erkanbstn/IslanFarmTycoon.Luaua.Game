@@ -240,7 +240,29 @@ return function(createStats: any, createGoal: any)
 		inventory = { items = {}, equipped = {}, uses = {} },
 		progression = { count = 0 },
 	}, 0)
-	assert(not goal.card.Visible and bannerTitle == "İLK ADIMLAR 1/4", "fresh goal updates the onboarding banner")
+	assert(not goal.card.Visible and bannerTitle == "İLK ADIMLAR 1/8", "fresh goal updates the onboarding banner")
+	-- 5-8. adımlar kendi başlık ve cümlelerini gösterir (başlık n/8)
+	for _, lateStep in { 5, 6, 7, 8 } do
+		step = lateStep
+		bannerTitle = ""
+		goal.updateGoal({
+			cash = 75,
+			stored = 0,
+			barnLevel = 1,
+			activeMainFarmId = "1",
+			purchased = {},
+			animals = {},
+			unlockedZones = {},
+			unlockedIslands = { home = true },
+			expansions = {},
+			lineage = {},
+			production = {},
+			inventory = { items = {}, equipped = {}, uses = {} },
+			progression = { count = 0 },
+		}, 0)
+		assert(bannerTitle == `İLK ADIMLAR {lateStep}/8` and not goal.card.Visible, `step {lateStep} banner title`)
+	end
+	step = 1
 	step = 0
 	local complete: any = {
 		activeMainFarmId = "1",

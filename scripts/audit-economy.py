@@ -129,8 +129,10 @@ end
 
 print("")
 print("== B) SİPARİŞLER (her evrede " .. WINDOWS .. " pencere; en çok/ortanca) ==")
-print("çiftlik evre  gelir/dk  cap  ödül/değer(ort/en çok)  ödül dk-gelir(ort/en çok)  satır birimi(en çok)  en büyük ödül")
+print("çiftlik evre  gelir/dk  cap  ödül/değer(ort/en çok)  ödül dk-gelir(ort/en çok)  satır birimi(en çok)  en büyük ödül  pano(teklif/slot)  pano dk-gelir/pencere  bütçe dk")
 local worstRatio, worstMinutes, worstLine = 0, 0, 0
+local worstBonusRatio = 0
+local lateTruncated = 0
 for _, farm in FARMS do
 	for _, phase in PHASES do
 		local save = buildSave(farm, phase[2])
@@ -138,8 +140,25 @@ for _, farm in FARMS do
 		local cap = FarmMath.getGoodsCap(save)
 		local ratios, minutes = {}, {}
 		local maxRatio, maxMinutes, maxLine, maxReward = 0, 0, 0, 0
+		local boardCount, boardSlots, boardMinutes = 0, 0, 0
+		local refPerSecond = FarmMath.getContractReferenceIncome(save, now)
 		for window = 0, WINDOWS - 1 do
-			for _, offer in FarmMath.getContractOffers(save, now + window * Config.GOODS_CONTRACTS.seconds, 0) do
+			local at = now + window * Config.GOODS_CONTRACTS.seconds
+			local board = FarmMath.getContractOffers(save, at, 0)
+			local slotsNow = FarmMath.getContractSlotCount(#FarmMath.getContractGoods(save, at))
+			boardCount += #board
+			boardSlots += slotsNow
+			if phase[2] >= 1.0 and #board < slotsNow then
+				lateTruncated += 1
+			end
+			-- Bonuslar dahil üst sınır: dev bonus (eşya + ada + mevsim yığını) verilse de ödül/değer maxRewardRatio'yu aşmaz
+			for _, offer in FarmMath.getContractOffers(save, at, 10) do
+				worstBonusRatio = math.max(worstBonusRatio, offer.uncappedReward / offer.worth)
+			end
+			for _, offer in board do
+				boardMinutes += offer.reward / math.max(income * 60, 1)
+			end
+			for _, offer in board do
 				local ratio = offer.reward / offer.worth
 				local mins = offer.reward / math.max(income * 60, 1)
 				table.insert(ratios, ratio)
@@ -155,7 +174,7 @@ for _, farm in FARMS do
 		worstRatio = math.max(worstRatio, maxRatio)
 		worstMinutes = math.max(worstMinutes, maxMinutes)
 		worstLine = math.max(worstLine, maxLine)
-		print(string.format("Ç%d %-5s %8s %4d  %6.2f / %6.2f          %7.2f / %7.2f            %4d            %10s", farm, phase[1], fmt(income * 60), cap, median(ratios), maxRatio, median(minutes), maxMinutes, maxLine, fmt(maxReward)))
+		print(string.format("Ç%d %-5s %8s %4d  %6.2f / %6.2f          %7.2f / %7.2f            %4d            %10s      %5.1f/%4.1f          %6.1f            %4.1f", farm, phase[1], fmt(income * 60), cap, median(ratios), maxRatio, median(minutes), maxMinutes, maxLine, fmt(maxReward), boardCount / WINDOWS, boardSlots / WINDOWS, boardMinutes / WINDOWS, FarmMath.getContractBudgetMinutes(refPerSecond)))
 	end
 end
 
@@ -207,6 +226,169 @@ for _, farm in FARMS do
 end
 
 print("")
+print("== F) ÜRÜN MERKEZİ EKONOMİSİ (tam yükseltilmiş çiftlik; tek parti: 2 birim = taban miktar; tam parti = getGoodsYield) ==")
+print("çiftlik merkez           ürün            süre(taban) yet. kaçırılan  başl.  birim değer  sipariş(2b,x1.2)/maliyet  satış(tam parti)/maliyet  merkez fiyatı  geri ödeme(dk, 2b)")
+local settingsF = Config.GOODS_CONTRACTS
+local cheapestFactor = math.huge
+for _, tier in settingsF.tiers do
+	cheapestFactor = math.min(cheapestFactor, tier.rewardFactor)
+end
+if cheapestFactor / Config.GOODS_SELL.rate < 10 then
+	problem(`sipariş/satış oranı {cheapestFactor / Config.GOODS_SELL.rate} < 10 (satış siparişe rakip olmasın)`)
+end
+if Config.GOODS_BARTER.rate > Config.GOODS_SELL.rate then
+	problem("takas oranı satış oranını aşıyor")
+end
+for _, farm in FARMS do
+	local save = buildSave(farm, 1.0)
+	local reference = { farmId = tostring(farm), activeMainFarmId = tostring(farm), purchased = {} }
+	for _, recipeId in Config.PRODUCTION_ORDER do
+		local recipe = Config.PRODUCTION_RECIPES[recipeId]
+		if recipe.output ~= "goods" or not save.purchased[recipe.upgradeId] or not save.unlockedIslands[recipe.island] then
+			continue
+		end
+		local picked = FarmMath.pickProductionAnimals(save, recipe, now, nil)
+		if not picked then
+			continue
+		end
+		local duration = FarmMath.getFacilityDuration(save, recipe, nil)
+		local forgone = FarmMath.estimateForgoneIncome(save, picked, duration)
+		local start = FarmMath.getFacilityCost(save, recipe)
+		local good = Config.GOODS[recipe.goodsId]
+		local full = FarmMath.getGoodsYield(save, recipe, now, { uid = "x", readyAt = now, startedAt = now, forgone = forgone })
+		local centerPrice = FarmMath.getUpgradeCost(reference, Config.getUpgrade(recipe.upgradeId))
+		local netPerMinute = (recipe.goodsAmount * good.value * 1.2 - forgone - start) / duration * 60
+		print(string.format("Ç%d %-16s %-15s %4d(%4d) %d %9s %6s %8s        %6.1f                    %6.2f              %9s     %8.1f", farm, recipeId, good.id, duration, recipe.duration, recipe.requiredAdults, fmt(forgone), fmt(start), fmt(good.value), recipe.goodsAmount * good.value * 1.2 / (forgone + start), full * good.value * Config.GOODS_SELL.rate / (forgone + start), fmt(centerPrice), centerPrice / math.max(netPerMinute, 1)))
+	end
+end
+
+print("")
+print("== G) SİPARİŞ KARŞILANABİLİRLİĞİ (satır ≤ depo sınırı; talep ve üretim birim/pencere) ==")
+local capBarn1 = Config.BARN_LEVELS[1].goodsCap
+local fromEmptyWorst, fromEmptyWho = 0, ""
+for _, recipe in Config.PRODUCTION_RECIPES do
+	if recipe.output ~= "goods" then
+		continue
+	end
+	local maxAmount = 0
+	for _, tier in settingsF.tiers do
+		local base = FarmMath.getContractBaseUnits(tier, recipe.goodsId)
+		local high = math.max(math.floor(base * (1 + settingsF.variation) + 0.5), settingsF.minHighUnits)
+		maxAmount = math.max(maxAmount, math.min(high, settingsF.maxLineUnits))
+	end
+	if maxAmount > capBarn1 then
+		problem(`{recipe.id}: en büyük satır {maxAmount} > en küçük ahır deposu {capBarn1}`)
+	end
+	local fromEmpty = math.ceil(maxAmount / recipe.goodsAmount) * recipe.duration
+	if fromEmpty > fromEmptyWorst then
+		fromEmptyWorst, fromEmptyWho = fromEmpty, recipe.id
+	end
+	if fromEmpty > 2 * settingsF.seconds then
+		problem(`{recipe.id}: en büyük satır ({maxAmount} birim) boştan {fromEmpty} sn sürer (> 2 pencere)`)
+	end
+end
+print(string.format("en küçük ahır deposu %d birim; en büyük satır tabandaki merkezle boştan en uzun %d sn (%s; pencere %d sn)", capBarn1, fromEmptyWorst, fromEmptyWho, settingsF.seconds))
+print("çiftlik evre  ürün talep ort/en çok (birim/pencere) ve üretim (birim/pencere)")
+for _, farm in FARMS do
+	for _, phase in { { "orta", 0.6 }, { "son", 1.0 } } do
+		local save = buildSave(farm, phase[2])
+		local income = FarmMath.computeIncomePerSecond(save, now)
+		local demand: { [string]: { number } } = {}
+		local rewardTotal = 0
+		for window = 0, WINDOWS - 1 do
+			local perGoods: { [string]: number } = {}
+			for _, offer in FarmMath.getContractOffers(save, now + window * settingsF.seconds, 0) do
+				rewardTotal += offer.reward
+				for _, line in offer.lines do
+					perGoods[line.goodsId] = (perGoods[line.goodsId] or 0) + line.amount
+					if line.amount > FarmMath.getGoodsCap(save) then
+						problem(`Ç{farm} {phase[1]}: {line.goodsId} satırı {line.amount} > depo {FarmMath.getGoodsCap(save)}`)
+					end
+				end
+			end
+			for goodsId, amount in perGoods do
+				demand[goodsId] = demand[goodsId] or {}
+				table.insert(demand[goodsId], amount)
+			end
+		end
+		local parts: { string } = {}
+		for _, recipeId in Config.PRODUCTION_ORDER do
+			local recipe = Config.PRODUCTION_RECIPES[recipeId]
+			local list = if recipe.goodsId then demand[recipe.goodsId] else nil
+			if recipe.output ~= "goods" or not list then
+				continue
+			end
+			local picked = FarmMath.pickProductionAnimals(save, recipe, now, nil)
+			if not picked then
+				continue
+			end
+			local duration = FarmMath.getFacilityDuration(save, recipe, nil)
+			local forgone = FarmMath.estimateForgoneIncome(save, picked, duration)
+			local yield = FarmMath.getGoodsYield(save, recipe, now, { uid = "x", readyAt = now, startedAt = now, forgone = forgone })
+			local sum, top = 0, 0
+			for _, amount in list do
+				sum += amount
+				top = math.max(top, amount)
+			end
+			table.insert(parts, string.format("%s %.1f/%d üretim %d", recipe.goodsId, sum / WINDOWS, top, math.floor(settingsF.seconds / duration) * yield))
+		end
+		print(string.format("Ç%d %-5s %s · sipariş değeri %.1f dk gelir/pencere", farm, phase[1], table.concat(parts, " | "), rewardTotal / WINDOWS / math.max(income * 60, 1)))
+	end
+end
+
+print("")
+print("== H) PARA TESİSİ GETİRİSİ (parti ödülü / (kaçırılan gelir + başlatma); sınır: PRODUCTION_MAX_RETURN x 1.15 yuvarlama payı) ==")
+local worstReturn: { [string]: number } = {}
+for _, farm in FARMS do
+	for _, fraction in { 0.4, 0.6, 1.0 } do
+		local save = buildSave(farm, fraction)
+		for _, recipeId in Config.PRODUCTION_ORDER do
+			local base = Config.PRODUCTION_RECIPES[recipeId]
+			local upgrade = Config.getUpgrade(base.upgradeId)
+			if
+				base.output ~= "cash"
+				or not base.options
+				or not upgrade
+				or not Config.upgradeInTheme(upgrade, tostring(farm))
+				or not save.unlockedIslands[base.island]
+			then
+				continue
+			end
+			local owned = save.purchased[base.upgradeId]
+			save.purchased[base.upgradeId] = true
+			for _, option in base.options do
+				local picked = FarmMath.pickProductionAnimals(save, base, now, option.id)
+				if picked then
+					local recipe = FarmMath.resolveRecipe(base, option.id)
+					local duration = FarmMath.getFacilityDuration(save, recipe, nil)
+					local forgone = FarmMath.estimateForgoneIncome(save, picked, duration)
+					local reward = FarmMath.getProductionReward(save, base, now, { uid = "x", readyAt = now, startedAt = now, forgone = forgone, optionId = option.id })
+					local ratio = reward / math.max(forgone + FarmMath.getFacilityCost(save, recipe), 1)
+					local key = `{recipeId}/{option.id}`
+					worstReturn[key] = math.max(worstReturn[key] or 0, ratio)
+				end
+			end
+			save.purchased[base.upgradeId] = owned
+		end
+	end
+end
+local returnKeys: { string } = {}
+for key in worstReturn do
+	table.insert(returnKeys, key)
+end
+table.sort(returnKeys)
+local returnParts: { string } = {}
+for _, key in returnKeys do
+	if worstReturn[key] > Config.PRODUCTION_MAX_RETURN * 1.05 or string.sub(key, -6) == "/large" then
+		table.insert(returnParts, string.format("%s %.2f", key, worstReturn[key]))
+	end
+	if worstReturn[key] > Config.PRODUCTION_MAX_RETURN * 1.15 then
+		problem(`{key}: getiri {worstReturn[key]} > PRODUCTION_MAX_RETURN x 1.15`)
+	end
+end
+print("en yüksek getiri (tüm çiftlik/evre; büyük parti ve sınırı aşanlar):", table.concat(returnParts, " · "))
+
+print("")
 print("== C) BÜYÜK SAYILAR ==")
 local biggest, biggestWhat = 0, ""
 for _, farm in FARMS do
@@ -250,6 +432,20 @@ for _, farm in FARMS do
 	end
 end
 print(`en pahalı kalem: {fmt(biggest)} ({biggestWhat})`)
+print(`bonus tavanı: dev bonusla (+10) ödül/değer en çok {string.format("%.2f", worstBonusRatio)} (sınır {Config.ECONOMY_LIMITS.maxRewardRatio}); geç evrede kırpılan pencere: {lateTruncated}`)
+do
+	local parts: { string } = {}
+	local week = 0
+	for day, multiplier in Config.DAILY_REWARD_MULTIPLIERS do
+		week += multiplier * Config.DAILY_MINUTES
+		table.insert(parts, string.format("g%d %.1f", day, multiplier * Config.DAILY_MINUTES))
+	end
+	table.insert(parts, string.format("hafta %.1f dk = bir günün %%%.2f'si", week, week / 1440 * 100))
+	if week > 0.03 * 1440 then
+		problem(`günlük ödül haftası {week} dk > bir günün %3'ü`)
+	end
+	print("günlük ödül (gelir dakikası): " .. table.concat(parts, " · "))
+end
 print(`en büyük parti: {maxYield} ürün; sipariş ödül/değer en çok {string.format("%.2f", worstRatio)}; ödül en çok {string.format("%.1f", worstMinutes)} dk gelir; satır en çok {worstLine}`)
 
 local limits = Config.ECONOMY_LIMITS
@@ -258,6 +454,11 @@ if limits then
 	if worstRatio > limits.maxRewardRatio then problem(`ödül/değer {worstRatio} > {limits.maxRewardRatio}`) end
 	if worstMinutes > limits.maxRewardMinutes then problem(`ödül {worstMinutes} dk > {limits.maxRewardMinutes}`) end
 	if worstLine > limits.maxLineUnits then problem(`satır {worstLine} > {limits.maxLineUnits}`) end
+	local budgetCfg = Config.GOODS_CONTRACTS.windowBudget
+	if budgetCfg.graceIncome > 0.25 * budgetCfg.highIncome then problem(`pano bütçesiz başlangıç aralığı {budgetCfg.graceIncome}/sn geç oyuna taşıyor`) end
+	if budgetCfg.highMinutes < 8 then problem(`pano bütçesi üst sınırı {budgetCfg.highMinutes} dk tam panoyu (~5-6 dk) bağlayabilir`) end
+	if worstBonusRatio > limits.maxRewardRatio + 1e-9 then problem(`bonus yığınıyla ödül/değer {worstBonusRatio} > {limits.maxRewardRatio}`) end
+	if lateTruncated > 0 then problem(`geç oyunda (tam yükseltilmiş çiftlik) pano bütçesi {lateTruncated} pencerede panoyu kırptı`) end
 	if biggest > limits.maxDisplayValue then problem(`fiyat {biggest} > {limits.maxDisplayValue}`) end
 end
 for _, text in problems do

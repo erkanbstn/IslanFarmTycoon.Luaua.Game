@@ -103,6 +103,7 @@ export type PlayerSave = {
 	audio: { sfx: number?, ambience: number?, music: number? }?, -- Ses düzeyleri 0..1 (SFX / Ortam / Müzik); nil = varsayılan (Config.AUDIO_DEFAULTS)
 	reducedMotion: boolean?, -- Hareketi azalt tercihi; nil = kapalı
 	tutorialDone: boolean?, -- Başlangıç öğreticisi atlandı ya da tamamlandı (sunucu yazar); nil/false = adımlar durumdan türer
+	tutorialStage: number?, -- Öğreticide tamamlanan en yüksek adım 0..Config.ONBOARDING.TOTAL_STEPS (yalnız artar; sunucu yazar); nil = 0
 	language: string?, -- Seçilen arayüz dili (Config.LANGUAGES kodu); nil = Roblox dilinden algıla
 	mainFarmOffers: { { id: string, name: string, icon: string, ownerUserId: number? } }?,
 	parkedIncomeBest: number?, -- Yalnızca istemci yükü: park edilmiş çiftliklerin en yüksek geliri (FarmMath.getReferenceIncome)

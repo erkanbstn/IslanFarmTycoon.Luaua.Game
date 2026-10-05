@@ -25,6 +25,15 @@ return function(factory: any, harness: any, codec: any, config: any, farmMath: a
 					else nil
 			)
 		end
+		h.acquired, h.goldSpent = {}, {}
+		h.telemetry = {
+			acquired = function(_player: any, channel: string, slot: string)
+				table.insert(h.acquired, { channel = channel, slot = slot })
+			end,
+			goldSpent = function(_player: any, source: string, amount: number)
+				table.insert(h.goldSpent, { source = source, amount = amount })
+			end,
+		}
 		local service = factory(
 			h.game,
 			h.remotes,
@@ -35,7 +44,8 @@ return function(factory: any, harness: any, codec: any, config: any, farmMath: a
 			h.limiter,
 			h.dateTime,
 			h.task,
-			h.warn
+			h.warn,
+			h.telemetry
 		)
 		h.equipmentRefreshes = 0
 		service.configureEquipmentRefresh(function()
@@ -65,10 +75,20 @@ return function(factory: any, harness: any, codec: any, config: any, farmMath: a
 	assert(gold("buy", { expectedRun = 1, offerId = "auto_collect" }).ok, "permanent purchase persists")
 	local boughtBalance = h.data.gold
 	assert(
+		#h.acquired == 1
+			and h.acquired[1].channel == "gold"
+			and h.acquired[1].slot == "convenience"
+			and #h.goldSpent == 1
+			and h.goldSpent[1].source == "item"
+			and h.goldSpent[1].amount == config.PROGRESSION.permanentOffers.auto_collect.goldCost,
+		"one gold purchase reports exactly one acquisition and one item gold spend (rejected attempts report nothing)"
+	)
+	assert(
 		h.data.owned.conveniences.auto_collect and not gold("buy", { expectedRun = 1, offerId = "auto_collect" }).ok,
 		"owned purchase cannot charge twice"
 	)
 	assert(h.data.gold == boughtBalance, "duplicate ownership preserves wallet")
+	assert(#h.acquired == 1 and #h.goldSpent == 1, "a rejected duplicate purchase reports no telemetry")
 	local collector = setup()
 	collector.data.passes = { auto_collector = true }
 	local collectorBalance = collector.data.gold
@@ -104,9 +124,17 @@ return function(factory: any, harness: any, codec: any, config: any, farmMath: a
 		"changed cash preview cannot charge"
 	)
 	local oldCash = h.data.cash
+	local spentBeforeConvert, acquiredBeforeConvert = #h.goldSpent, #h.acquired
 	assert(
 		gold("convert", { expectedRun = 1, amount = 1, expectedCash = cash }).ok and h.data.cash == oldCash + cash,
 		"exact cash quote is delivered"
+	)
+	assert(
+		#h.goldSpent == spentBeforeConvert + 1
+			and h.goldSpent[#h.goldSpent].source == "convert"
+			and h.goldSpent[#h.goldSpent].amount == 1
+			and #h.acquired == acquiredBeforeConvert,
+		"conversion reports a convert gold spend and no acquisition"
 	)
 	-- Üretim hızlı bitirmesi kapalı: sürmekte olan ve zaten hazır partiler ödeme/durum değiştirmez.
 	for _, readyAt in { h.now + 120, h.now - 1 } do
@@ -151,6 +179,7 @@ return function(factory: any, harness: any, codec: any, config: any, farmMath: a
 	)
 	assert(not gold("finish", finishRequest("income", cost - 1)).ok, "higher server cost rejects stale preview")
 	local beforeFinish = h.data.gold
+	local spentBeforeFinish = #h.goldSpent
 	local finishId = h.nextId()
 	assert(
 		h.fire("RequestGoldAction", "finish", finishId, "1", finishRequest("income", cost + 1)).ok,
@@ -164,6 +193,12 @@ return function(factory: any, harness: any, codec: any, config: any, farmMath: a
 		h.fire("RequestGoldAction", "finish", finishId, "1", finishRequest("income", cost + 1)) == nil
 			and h.data.gold == beforeFinish - cost,
 		"same finish request cannot replay"
+	)
+	assert(
+		#h.goldSpent == spentBeforeFinish + 1
+			and h.goldSpent[#h.goldSpent].source == "finish"
+			and h.goldSpent[#h.goldSpent].amount == cost,
+		"finish reports one finish gold spend even when the request is replayed"
 	)
 	assert(
 		not gold("finish", finishRequest("income", cost)).ok and h.data.gold == beforeFinish - cost,
@@ -252,9 +287,20 @@ return function(factory: any, harness: any, codec: any, config: any, farmMath: a
 	h.data.gold = 40
 	assert(not service.collect(h.player) and h.data.gold == 40, "a completed run pays no gold before the rebirth")
 	local rewardBefore = progression.rebirthGoldReward(h.data)
+	local hadMilestoneItem = h.data.owned.items[config.PROGRESSION.milestones[1].itemId] == true
+	local acquiredBeforeRebirth = #h.acquired
 	assert(
 		h.fire("RequestRebirth", "income", h.nextId(), "1", { expectedRun = 1 }).ok,
 		"valid server rebirth still advances below the cap"
+	)
+	local milestoneItem = config.ITEMS[config.PROGRESSION.milestones[1].itemId]
+	assert(
+		#h.acquired == acquiredBeforeRebirth + (if hadMilestoneItem then 0 else 1)
+			and (
+				hadMilestoneItem
+				or (h.acquired[#h.acquired].channel == "reward" and h.acquired[#h.acquired].slot == milestoneItem.slot)
+			),
+		"a new rebirth milestone item reports one reward acquisition"
 	)
 	assert(
 		h.data.gold == 40 + rewardBefore and h.data.gold == 40 + config.PROGRESSION.gold.rebirthBase,
@@ -264,6 +310,10 @@ return function(factory: any, harness: any, codec: any, config: any, farmMath: a
 		not h.fire("RequestRebirth", "growth", h.nextId(), "1", { expectedRun = 1 }).ok
 			and h.data.gold == 40 + rewardBefore,
 		"a lost response replay with the old run cannot pay twice"
+	)
+	assert(
+		#h.acquired == acquiredBeforeRebirth + (if hadMilestoneItem then 0 else 1),
+		"a replayed rebirth reports no second acquisition"
 	)
 	assert(h.equipmentRefreshes == 1, "durable reset refreshes equipment after removing run-only items")
 	-- R30: son tur tamamlanınca aynı tek ödül bir kez verilir (rebirth yoktur).

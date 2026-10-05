@@ -234,6 +234,28 @@ function Rewards.recordInvest(save: any, now: number)
 	end
 end
 
+-- Altın öğretisi: altın yalnız rebirth'te kazanıldığından ilk turda hiç görünmez; ilk başarım ödülüyle küçük, tek
+-- seferlik bir hediye altının ne işe yaradığını (hayvan büyümesini bitirme, nakde çevirme) gösterir. Boyut bir rebirth
+-- ödülünün (Config.PROGRESSION.gold.rebirthBase) %5'ini aşmaz (tests/rewards.spec denetler).
+Rewards.FIRST_ACHIEVEMENT_GOLD = 25
+
+-- Bu başarım alınırken verilecek hediye altın. Kayıt şeması değişmez: tekrar, kayıtlı `achievements` işaretiyle ve ilk
+-- turla (rebirth sayısı 0) sınırlıdır; hiç başarım alınmamış ve hiç altını olmayan hesap yalnız bir kez yararlanır.
+-- Çağıran, `achievements[id] = true` yazmadan ÖNCE sorar.
+function Rewards.firstAchievementGold(save: any): number
+	local state = save.progression
+	if state and (state.count or 0) > 0 then
+		return 0
+	end
+	if (save.gold or 0) > 0 or (save.achievements and next(save.achievements) ~= nil) then
+		return 0
+	end
+	if (save.gold or 0) + Rewards.FIRST_ACHIEVEMENT_GOLD > Config.PROGRESSION.gold.maxBalance then
+		return 0
+	end
+	return Rewards.FIRST_ACHIEVEMENT_GOLD
+end
+
 function Rewards.isComplete(save: any, achievement: Config.AchievementConfig): boolean
 	return Rewards.progress(save, achievement) >= achievement.target
 end

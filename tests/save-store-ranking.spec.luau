@@ -3,6 +3,7 @@
 return function(factory: any)
 	local function fixture(nonpersistent: boolean): (any, any)
 		local state: any = {
+			clock = 1,
 			stores = {}, -- mağaza adı -> { [anahtar] = değer }
 			names = {}, -- açılan mağaza adları (sırayla)
 			failWrite = false,
@@ -102,7 +103,7 @@ return function(factory: any)
 		local noOp = function() end
 		local osFake = {
 			clock = function(): number
-				return 1
+				return state.clock
 			end,
 			time = function(): number
 				return 2000000000
@@ -188,6 +189,21 @@ return function(factory: any)
 	assert(store.publishRank("rebirth", 101, 1), "new epoch accepts writes")
 	assert(state.names[#state.names] == "IslandFarmTycoon_v2_Rank_rebirth_e1", "new epoch uses a new store name")
 	assert(next(state.stores.IslandFarmTycoon_v2_Rank_rebirth_e0) ~= nil, "old epoch data is not deleted")
+
+	-- Başka sunucuda çağ artarsa bu sunucu da en geç 5 dakikada yeni mağazayı kullanır (eski çağ tablosuna yazmaz)
+	state.epoch = 7
+	assert(store.publishRank("rebirth", 101, 3), "writes keep working inside the refresh window")
+	assert(
+		state.stores.IslandFarmTycoon_v2_Rank_rebirth_e7 == nil,
+		"the cached epoch is used inside the refresh window"
+	)
+	state.clock += 301
+	assert(store.publishRank("rebirth", 101, 3), "writes keep working after the refresh window")
+	assert(
+		state.stores.IslandFarmTycoon_v2_Rank_rebirth_e7 ~= nil
+			and next(state.stores.IslandFarmTycoon_v2_Rank_rebirth_e7) ~= nil,
+		"after the refresh interval the new epoch's board is used"
+	)
 
 	-- Studio kayıtsız mod: yalnızca bellek, DataStore'a dokunmaz
 	local memory, memoryState = fixture(true)

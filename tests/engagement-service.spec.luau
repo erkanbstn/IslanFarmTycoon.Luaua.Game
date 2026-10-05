@@ -101,12 +101,44 @@ return function(
 		ach.data.achievements[achievement.id] == true and ach.metricCounts.AchievementsClaimed == 1,
 		"marked and counted"
 	)
+	-- İlk başarım: tek seferlik küçük altın hediyesi (ilk tur), bildirimle; ikinci başarımda tekrar yok
+	assert(ach.data.gold == rewards.FIRST_ACHIEVEMENT_GOLD, "the first achievement gifts the teaching gold")
+	assert(ach.metricCounts.FirstAchievementGoldGifts == 1, "the gift is counted")
+	local giftNotice = nil
+	for _, sent in ach.sent do
+		if sent.remote == "Notify" and string.find(tostring(sent.args[1]), "altın", 1, true) then
+			giftNotice = sent
+		end
+	end
+	assert(giftNotice and giftNotice.args[2] == "success", "the player is told about the gift")
+	assert(done.ok == true and done.remote == "PurchaseResult", "the claim reply still comes last")
 	local twice = claim(ach, "RequestClaimAchievement", achievement.id)
 	assert(
 		twice and twice.ok == false and twice.message == "Bu başarımın ödülü zaten alındı",
 		"no second reward"
 	)
 	assert(ach.data.cash == achievement.reward, "a refused claim pays nothing")
+	assert(ach.data.gold == rewards.FIRST_ACHIEVEMENT_GOLD, "a refused repeat claim gifts nothing more")
+	local second = nil
+	for _, candidate in config.ACHIEVEMENTS do
+		if candidate.id ~= achievement.id and candidate.metric == "home" then
+			second = candidate
+			break
+		end
+	end
+	assert(second, "a second, independent achievement exists")
+	for _ = 1, second.target do
+		table.insert(
+			ach.data.animals,
+			{ uid = `g{#ach.data.animals}`, animalId = "cow", zoneId = "starter", bornAt = 0, stage = "adult" }
+		)
+	end
+	local secondClaim = claim(ach, "RequestClaimAchievement", second.id)
+	assert(secondClaim and secondClaim.ok == true, "the second achievement can be claimed")
+	assert(
+		ach.data.gold == rewards.FIRST_ACHIEVEMENT_GOLD and ach.metricCounts.FirstAchievementGoldGifts == 1,
+		"only the first achievement gifts gold"
+	)
 	local unknown = claim(ach, "RequestClaimAchievement", "no_such_achievement")
 	assert(unknown and unknown.ok == false and unknown.message == "Bilinmeyen başarım", "unknown achievement")
 	local badType = claim(ach, "RequestClaimAchievement", 5)

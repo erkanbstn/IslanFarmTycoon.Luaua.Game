@@ -344,6 +344,8 @@ local data = {
 			reward = 1050, -- tesis ölçeği (yükseltme maliyeti tabanı); parti ödülü seçeneklerde
 			output = "cash",
 			upgradeProfile = "cashFactory",
+			-- Seçenek ödülleri asgari getiri tabanını (returnMultiplier) aşmayacak kadar küçük tutulur: taban belirler, getiri 1,5/1,8/2x kalır
+			-- (eski 1940/6000 değerleri büyük partiyi 2,4-3,5x ödüyordu; tests/goods.spec "maximum return", audit-economy.py bölüm H).
 			options = {
 				{
 					id = "small",
@@ -358,7 +360,7 @@ local data = {
 					displayName = "Standart parti",
 					requiredAdults = 2,
 					duration = 90,
-					reward = 1940,
+					reward = 1100,
 					returnMultiplier = 1.8,
 				},
 				{
@@ -366,7 +368,7 @@ local data = {
 					displayName = "Büyük parti",
 					requiredAdults = 4,
 					duration = 125,
-					reward = 6000,
+					reward = 2400,
 					returnMultiplier = 2,
 				},
 			},

@@ -1,5 +1,6 @@
 --!strict
--- İlk adımların dünya işareti: Onboarding `TutorialMarker` özniteliğine hedefi yazar ("market" ya da "pad:<yükseltme>"),
+-- İlk adımların dünya işareti: Onboarding `TutorialMarker` özniteliğine hedefi yazar ("market", "pad:<yükseltme>" ya da meydandaki
+-- satıcı için "vendor:<eylem>": orders = Sipariş Panosu, store = Eşya Dükkânı),
 -- burada hedefin üstüne "Buraya gel" etiketi ve karakterden hedefe altın bir ışın çizilir (CollectorGuide kalıbı).
 -- Yalnızca bu oyuncunun ekranında görünür; satın alma yine sunucudaki ProximityPrompt ile yapılır.
 
@@ -44,8 +45,25 @@ local function ownPlot(): Instance?
 	return nil
 end
 
--- Hedef parça: pazar tezgâhının önü ya da alınabilir yükseltmenin kaidesindeki halka
+-- Meydandaki satıcı NPC'nin etkileşim noktası (HubNpc etiketli model, `Action` özniteliği eylemi söyler)
+local function findVendor(action: string): BasePart?
+	for _, model in CollectionService:GetTagged("HubNpc") do
+		if model:GetAttribute("Action") == action then
+			local anchor = model:FindFirstChild("VendorPromptAnchor")
+			if anchor and anchor:IsA("BasePart") then
+				return anchor
+			end
+		end
+	end
+	return nil
+end
+
+-- Hedef parça: pazar tezgâhının önü, alınabilir yükseltmenin kaidesindeki halka ya da meydandaki satıcı
 local function findTarget(key: string): BasePart?
+	local vendorAction = string.match(key, "^vendor:(.+)$")
+	if vendorAction then
+		return findVendor(vendorAction)
+	end
 	local plot = ownPlot()
 	if not plot then
 		return nil

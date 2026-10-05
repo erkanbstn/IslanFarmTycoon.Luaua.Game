@@ -292,7 +292,8 @@ return function(factory: any, config: any, codec: any, farmMath: any, createOnbo
 		return { Connect = function() end }
 	end
 	local onboarding = createOnboarding(guidanceGame, guidanceUi, steps, fakeRemotes, fakeInstance)
-	local guide = onboarding.create({ shop = "shop", upgrades = "upgrades", production = "production" })
+	local guide =
+		onboarding.create({ shop = "shop", upgrades = "upgrades", production = "production", rebirth = "rebirth" })
 	assert(
 		guide.apply(save, false, nil) == 1 and highlights.shop and attributes.TutorialMarker == "market",
 		"fresh tutorial guides to market"
@@ -318,5 +319,27 @@ return function(factory: any, config: any, codec: any, farmMath: any, createOnbo
 		#sent == 2 and sent[2].value == false and onboarding.isActive() and onboarding.stepFor(save) == 1,
 		"replay re-enables the tutorial from saved progress"
 	)
+	-- 5-8. adımlar: dünya işareti satıcıya ("vendor:<eylem>") ya da menü düğmesine gider; kayıtlı aşama adımı kapatır
+	local late = table.clone(save)
+	late.lifetimeEarned = steps.SKIP_BASICS_EARNED + 100
+	late.cash = 1e9
+	late.expansions = { starter = 1 } -- 6. adım tamamlanmış (gerçek durum); 5. adım için ürün merkezi yok
+	late.tutorialStage = 6
+	assert(
+		guide.apply(late, false, nil) == 7 and attributes.TutorialMarker == "vendor:store" and not highlights.shop,
+		"step 7 marks the item vendor in the plaza and clears older highlights"
+	)
+	assert(not highlights.rebirth and not highlights["pointer:rebirth"], "rebirth button is quiet before step 8")
+	late.tutorialStage = 7
+	late.progressionStatus = { canRebirth = true }
+	assert(
+		guide.apply(late, false, nil) == 8
+			and highlights.rebirth
+			and highlights["pointer:rebirth"]
+			and attributes.TutorialMarker == "",
+		"step 8 pulses the Rebirth menu button without a world marker"
+	)
+	late.tutorialStage = 8
+	assert(guide.apply(late, false, nil) == 0 and not highlights.rebirth, "completed stage clears every highlight")
 	print("PASS roadmap UI: centered layout, single-stage navigation, wallet stability and island context reset")
 end

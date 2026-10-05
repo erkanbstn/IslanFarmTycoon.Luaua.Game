@@ -12,10 +12,12 @@ local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath")
 local PlayerDataService = require(script.Parent:WaitForChild("PlayerDataService"))
 local EconomyService = require(script.Parent:WaitForChild("EconomyService"))
 local PlotService = require(script.Parent:WaitForChild("PlotService"))
-local Preferences = require(script.Parent.Parent.Modules.Preferences)
+local TutorialProgress = require(script.Parent.Parent.Modules.TutorialProgress)
+local OnboardingSteps = require(Shared:WaitForChild("Modules"):WaitForChild("OnboardingSteps"))
 local ProductionRules = require(script.Parent.Parent.Modules.ProductionRules)
 local ProductionLogic = require(script.Parent.Parent.Modules.ProductionLogic)
 local RateLimiter = require(script.Parent.Parent.Modules.RateLimiter)
+local TelemetryService = require(script.Parent:WaitForChild("TelemetryService"))
 
 local ProductionService = {}
 local highestRequest: { [Player]: number } = {}
@@ -102,12 +104,10 @@ local function act(player: Player, action: unknown, recipeId: unknown, detail: u
 		if not ok then
 			return false, reason or "Üretim başlatılamadı."
 		end
-		-- İlk parti başlayınca başlangıç öğreticisi tamamlanmış sayılır (işaret hesaba yazılır, yeniden girişte kalır)
-		if Preferences.apply(data, "tutorialDone", true) then
-			for name, attribute in Preferences.attributes(data) do
-				player:SetAttribute(name, attribute)
-			end
-		end
+		TelemetryService.funnel(player, "first_production") -- oyuncu başına bir kez (servis kendisi tekrarı eler)
+		-- İlk parti başlayınca öğretici 4. adımı geçer (aşama hesaba yazılır, parti bitip alınsa da geri gelmez); öğreticiyi bitirmez:
+		-- sonraki adımlar (sipariş, geliştirme, eşya, rebirth) sürer.
+		TutorialProgress.observe(data, OnboardingSteps, player)
 		-- Tekrar açıksa son elle seçilen parti tekrarlanır
 		if data.autoRepeat[recipe.id] ~= nil and data.autoRepeat[recipe.id] ~= "fill" then
 			data.autoRepeat[recipe.id] = optionId or "default"

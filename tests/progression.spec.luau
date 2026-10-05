@@ -111,9 +111,9 @@ return function(Progression: any, FarmMath: any, Config: any, SaveCodec: any)
 	near(FarmMath.getPermanentReferenceIncome(save), baseline * 2)
 	save.inventory = { items = {}, equipped = { head = "golden_crown" } }
 	save.owned.items.golden_crown = true
-	near(FarmMath.getPermanentReferenceIncome(save), baseline * 4)
+	near(FarmMath.getPermanentReferenceIncome(save), baseline * 2 * (1 + Config.ITEMS.golden_crown.effects.incomeBonus))
 	save.inventory.items.golden_crown = true
-	near(FarmMath.getPermanentReferenceIncome(save), baseline * 4)
+	near(FarmMath.getPermanentReferenceIncome(save), baseline * 2 * (1 + Config.ITEMS.golden_crown.effects.incomeBonus))
 	save.inventory = { items = {}, equipped = {} }
 	-- Büyüme hızının süresi dolunca geçmiş ilerleme korunur; tek aralık ve bölünmüş hesap aynı.
 	save.passes = {}

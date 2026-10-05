@@ -59,6 +59,28 @@ return function(Rewards: any, Config: any, FarmMath: any)
 		"later streak days pay more"
 	)
 	assert(Rewards.dailyAmount(rich, 99) == Rewards.dailyAmount(rich, length), "unknown streak clamps to the last day")
+	-- Günlük ödül tavanı: geç oyunda 8 dk'lık ödül hissedilmiyordu; yeni ödül en çok 12,5 dk (7. gün) ve 7 günlük toplam bir günün gelirinin %3'ünden azdır
+	-- (rebirth temposunu kaydırmaz); seri çarpanları azalmaz, son gün en büyüktür.
+	local weekMinutes, lastMultiplier = 0, 0
+	for _, multiplier in Config.DAILY_REWARD_MULTIPLIERS do
+		assert(multiplier >= lastMultiplier, "the streak never pays less on a later day")
+		lastMultiplier = multiplier
+		weekMinutes += multiplier * Config.DAILY_MINUTES
+	end
+	assert(
+		Config.DAILY_MINUTES * lastMultiplier >= 10,
+		"the last streak day is meaningful in the late game (>= 10 income minutes)"
+	)
+	assert(Config.DAILY_MINUTES * lastMultiplier <= 15, "the last streak day stays a bonus, not a main income source")
+	assert(weekMinutes <= 0.03 * 24 * 60, "a full week of daily rewards stays under 3% of one day's income")
+	local lateIncome = FarmMath.getReferenceIncome(rich)
+	assert(
+		math.abs(
+			Rewards.dailyAmount(rich, length)
+				- math.floor(math.max(lateIncome * 60 * Config.DAILY_MINUTES, Config.DAILY_MIN_REWARD) * lastMultiplier)
+		) <= 1,
+		"the daily reward scales with the reference income"
+	)
 
 	-- Başarım ilerlemesi
 	local player = save()
@@ -95,6 +117,63 @@ return function(Rewards: any, Config: any, FarmMath: any)
 	for _, entry in Config.ACHIEVEMENTS do
 		assert(entry.reward > 0 and entry.target > 0 and entry.id ~= "", "achievement config must be sane")
 	end
+	-- Ödül merdiveni tutarlı: aynı metrikte hedef büyüdükçe ödül büyür; başarımlar yalnız nakit öder (altın yalnız rebirth'te)
+	do
+		local ladders: { [string]: { any } } = {}
+		for _, entry in Config.ACHIEVEMENTS do
+			assert((entry :: any).gold == nil, `achievement {entry.id} must not pay gold`)
+			ladders[entry.metric] = ladders[entry.metric] or {}
+			table.insert(ladders[entry.metric], entry)
+		end
+		for metric, ladder in ladders do
+			table.sort(ladder, function(a: any, b: any): boolean
+				return a.target < b.target
+			end)
+			for index = 2, #ladder do
+				assert(
+					ladder[index].target > ladder[index - 1].target and ladder[index].reward > ladder[index - 1].reward,
+					`{metric}: {ladder[index].id} must pay more than {ladder[index - 1].id}`
+				)
+			end
+		end
+		-- İlk dakikalar: ilk günlük ödülle (en az DAILY_MIN_REWARD) alınabilen küçük bir kazanım vardır
+		local quick = achievement("home_3")
+		local firstHerdCost = quick.target * Config.ANIMALS.cow.price * Config.ANIMAL_PRICE_GROWTH ^ (quick.target - 1)
+		assert(
+			firstHerdCost <= Config.DAILY_MIN_REWARD + Config.STARTING_CASH,
+			"the first herd fits the first daily reward"
+		)
+		assert(
+			achievement("earned_1k").target == 1000
+				and achievement("earned_1k").reward < achievement("earned_10k").reward,
+			"a quick earnings milestone exists below the first 10K"
+		)
+	end
+
+	-- Altın öğretisi: yalnız hiç başarım almamış, altını olmayan, ilk turdaki hesaba bir kez; boyut rebirth ödülünün %5'i içinde
+	do
+		local gift = Rewards.FIRST_ACHIEVEMENT_GOLD
+		assert(
+			gift > 0 and gift <= Config.PROGRESSION.gold.rebirthBase * 0.05,
+			"the gold gift stays within 5% of a rebirth"
+		)
+		local fresh = save()
+		fresh.gold = 0
+		assert(Rewards.firstAchievementGold(fresh) == gift, "a fresh account receives the gift")
+		fresh.progression = { count = 0 }
+		assert(Rewards.firstAchievementGold(fresh) == gift, "run 1 with zero rebirths receives the gift")
+		fresh.achievements = { home_3 = true }
+		assert(Rewards.firstAchievementGold(fresh) == 0, "a claimed achievement ends the gift")
+		local reborn = save()
+		reborn.gold = 0
+		reborn.progression = { count = 1 }
+		assert(Rewards.firstAchievementGold(reborn) == 0, "after a rebirth (claims reset) the gift never returns")
+		local funded = save()
+		funded.gold = 10
+		assert(Rewards.firstAchievementGold(funded) == 0, "an account that already has gold needs no lesson")
+		assert(Config.PROGRESSION.gold.maxBalance > gift, "the wallet cap leaves room for the gift")
+	end
+
 	-- Mevsim hedefi: mevsim numarası/tanımı, canlı kazanç, yatırım sayacı, ödül ve yenilenme
 	do
 		local season = Config.SEASON_SECONDS

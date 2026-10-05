@@ -338,6 +338,13 @@ return function(policy: any, createService: any, createLimiter: any, config: any
 		"light level"
 	)
 	now += 1
+	-- Yönetici test eylemleri başlangıç öğreticisini bitirir (kazanç sayacı değişmediği için öğretici yöneticide kalırdı); yabancı etkilenmez
+	assert(
+		data.tutorialDone == nil
+			and owner.attributes.SavedTutorialDone == nil
+			and stranger.attributes.SavedTutorialDone == nil,
+		"test araçlarından önce öğretici bitmemiş"
+	)
 	data.animals = { { animalId = "cow", zoneId = "starter", bornAt = 123, stage = "calf", uid = "a" } }
 	data.purchased = {}
 	local growthTraceStart = #trace
@@ -347,9 +354,22 @@ return function(policy: any, createService: any, createLimiter: any, config: any
 		data.animals[1].stage == "adult" and data.animals[1].bornAt == 0 and refreshes == 1 and results[#results].ok,
 		"growAll makes own animals adult and refreshes the world"
 	)
+	assert(
+		data.tutorialDone == true
+			and owner.attributes.SavedTutorialDone == true
+			and stranger.attributes.SavedTutorialDone == nil,
+		"growAll finishes the admin's own tutorial and publishes the attribute"
+	)
+	assert(data.tutorialStage == nil, "admin finish flag leaves the persisted stage alone")
 	now += 1
 	owner.attributes.SelectedFarmIsland = "poultry"
+	data.tutorialDone = nil
+	owner.attributes.SavedTutorialDone = nil
 	fire(owner, "unlockIslands", "now", 208)
+	assert(
+		data.tutorialDone == true and owner.attributes.SavedTutorialDone == true,
+		"unlockIslands finishes the admin tutorial"
+	)
 	assert(
 		data.purchased.island_poultry == true and data.derived == true and refreshes == 2 and results[#results].ok,
 		"unlock opens the selected island and derives state"
@@ -358,7 +378,13 @@ return function(policy: any, createService: any, createLimiter: any, config: any
 	assert(data.purchased.island_horse == nil, "unlock must not open other islands")
 	now += 1
 	data.animals = {}
+	data.tutorialDone = nil
+	owner.attributes.SavedTutorialDone = nil
 	fire(owner, "fillSlots", "now", 209)
+	assert(
+		data.tutorialDone == true and owner.attributes.SavedTutorialDone == true,
+		"fillSlots finishes the admin tutorial"
+	)
 	local poultryZone, extensionCount = 0, 0
 	for _, animal in data.animals do
 		assert(animal.stage == "adult" and animal.bornAt == 0, "filled animals must be adult")
@@ -464,7 +490,13 @@ return function(policy: any, createService: any, createLimiter: any, config: any
 	data.animals = {}
 	-- Verify maxAll with the real derived island/zone mapping, beyond the narrow command mock.
 	farmMath.applyDerived = realFarmMath.applyDerived
+	data.tutorialDone = nil
+	owner.attributes.SavedTutorialDone = nil
 	fire(owner, "maxAll", "now", 221)
+	assert(
+		data.tutorialDone == true and owner.attributes.SavedTutorialDone == true,
+		"maxAll finishes the admin tutorial"
+	)
 	assert(results[#results].ok and #data.animals > 0, "maxAll opens, grows and fills every island")
 	local farmCount = 0
 	for _ in data.mainFarms do

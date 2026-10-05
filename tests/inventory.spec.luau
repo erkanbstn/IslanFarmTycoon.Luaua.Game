@@ -48,8 +48,15 @@ return function(Inventory: any, Config: any, FarmMath: any, SaveCodec: any, Sess
 		assert(Config.ITEM_SLOTS[slotId], `ITEM_SLOT_ORDER lists unknown slot {slotId}`)
 	end
 	-- Aileler: fiyat arttıkça fayda da artar (aksi halde ucuz kademe pahalıyı gereksiz kılar)
-	-- Aileler muskalar içindedir: şapka/sırt eşyaları farklı slotta oldukları için ayrı kurala (config.spec) bağlıdır
-	local function family(filter: (any) -> number?): { { price: number, value: number } }
+	-- Aileler muskalar içindedir: şapka/sırt eşyaları farklı slotta oldukları için ayrı kurala (config.spec) bağlıdır.
+	-- İkinci etki olarak eklenen küçük değerler (ölü yük eşyasını canlandırmak için) kendi hattının merdivenine girmez:
+	-- Pazarlık/Bilge Tılsımı geliri ve Atölye Çekici indirimi ana rolleri başka olduğu için ailenin dışında tutulur.
+	local SECONDARY: { [string]: string } = {
+		trade_charm = "incomeBonus",
+		scholar_charm = "incomeBonus",
+		artisan_hammer = "upgradeDiscount",
+	}
+	local function family(filter: (any) -> number?, key: string): { { price: number, value: number } }
 		local list = {}
 		for _, itemId in Config.ITEM_ORDER do
 			local item = Config.ITEMS[itemId]
@@ -57,6 +64,7 @@ return function(Inventory: any, Config: any, FarmMath: any, SaveCodec: any, Sess
 					or item.rewardOnly
 					or item.slot == "back"
 					or (item.slot == "staff" and (not item.power or Config.ITEM_POWER_SETTINGS[item.power.kind] ~= nil))
+					or SECONDARY[item.id] == key
 				then nil
 				else filter(item)
 			if value then
@@ -71,19 +79,19 @@ return function(Inventory: any, Config: any, FarmMath: any, SaveCodec: any, Sess
 	local families = {
 		family(function(item)
 			return item.effects and item.effects.upgradeDiscount
-		end),
+		end, "upgradeDiscount"),
 		family(function(item)
 			return item.effects and item.effects.storageBonus
-		end),
+		end, "storageBonus"),
 		family(function(item)
 			return item.effects and item.effects.growthSpeed
-		end),
+		end, "growthSpeed"),
 		family(function(item)
 			return item.effects and item.effects.incomeBonus
-		end),
+		end, "incomeBonus"),
 		family(function(item)
 			return if item.power and item.power.kind == "season" then item.power.usesPerDay or 1000 else nil
-		end),
+		end, "contractBonus"),
 	}
 	for index, list in families do
 		assert(#list >= 2, `family {index} needs several tiers`)
@@ -301,9 +309,10 @@ return function(Inventory: any, Config: any, FarmMath: any, SaveCodec: any, Sess
 	)
 	assert(
 		math.abs(
-			FarmMath.getAnimalMultiplier(crown, "cow", true) / FarmMath.getAnimalMultiplier(plain, "cow", true) - 2
+			FarmMath.getAnimalMultiplier(crown, "cow", true) / FarmMath.getAnimalMultiplier(plain, "cow", true)
+				- (1 + Config.ITEMS.golden_crown.effects.incomeBonus)
 		) < 1e-9,
-		"a crown doubles every animal's income"
+		"a crown raises every animal's income by its configured bonus"
 	)
 	-- Takılı şapka + sırt etkileri toplanır
 	local worn = newSave()
@@ -337,10 +346,10 @@ return function(Inventory: any, Config: any, FarmMath: any, SaveCodec: any, Sess
 			assert(Inventory.equip(maxed, best.id), `{best.id} can be equipped`)
 		end
 	end
-	assert(FarmMath.getEquippedBonus(maxed, "incomeBonus") <= 1.2, "all-equipped income bonus stays capped")
+	assert(FarmMath.getEquippedBonus(maxed, "incomeBonus") <= 0.6, "all-equipped income bonus stays capped")
 	assert(FarmMath.getEquippedBonus(maxed, "sellBonus") <= 0.35, "all-equipped sell bonus stays capped")
 	assert(FarmMath.getEquippedBonus(maxed, "upgradeDiscount") <= 0.2, "all-equipped upgrade discount stays capped")
-	assert(FarmMath.getBonus(maxed, "expansionDiscount") <= 0.12, "all-equipped expansion discount stays capped")
+	assert(FarmMath.getBonus(maxed, "expansionDiscount") <= 0.15, "all-equipped expansion discount stays capped")
 	assert(FarmMath.getBonus(maxed, "contractBonus") <= 0.3, "all-equipped contract bonus stays capped")
 	assert(FarmMath.getBonus(maxed, "goodsYield") <= 0.25, "all-equipped goods yield stays capped")
 	assert(FarmMath.getGrowthSpeed(maxed, "cow") < Config.GROWTH_SPEED_CAP, "all-equipped growth stays under the cap")

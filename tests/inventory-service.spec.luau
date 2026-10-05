@@ -24,6 +24,12 @@ return function(
 			return if attributes[name] ~= nil then attributes[name] else originalGet(player, name)
 		end
 		local environment = createEnvironment(h.game)
+		h.acquired = {}
+		h.telemetry = {
+			acquired = function(_player: any, channel: string, slot: string)
+				table.insert(h.acquired, { channel = channel, slot = slot })
+			end,
+		}
 		local sharedWeatherCalls = 0
 		local sharedWeatherId: string? = nil
 		h.seasonService = {
@@ -92,7 +98,8 @@ return function(
 			},
 			merchant,
 			h.seasonService,
-			staffPowers
+			staffPowers,
+			h.telemetry
 		)
 		service.configureMerchantProximity(function(): boolean
 			return h.near ~= false
@@ -136,6 +143,13 @@ return function(
 		local speed = setup()
 		speed.data.cash = 1e9
 		assert(buy(speed, "wind_charm").ok, "speed item can be earned with regular cash")
+		assert(
+			#speed.acquired == 1
+				and speed.acquired[1].channel == "cash"
+				and speed.acquired[1].slot == config.ITEMS.wind_charm.slot,
+			"a cash purchase reports one cash acquisition with the item slot"
+		)
+		assert(not buy(speed, "wind_charm").ok and #speed.acquired == 1, "a rejected repeat purchase reports nothing")
 		assert(speed.player:GetAttribute("MovementSpeedMultiplier") == 1.15, "server publishes owned equipped speed")
 		assert(speed.fire("RequestEquipItem", "wind_charm", speed.nextId()).ok, "speed item can be removed")
 		assert(speed.player:GetAttribute("MovementSpeedMultiplier") == 1, "server removes speed when unequipped")
@@ -193,6 +207,12 @@ return function(
 	assert(
 		not trade(trader, offer.itemId, quote).ok and tdata.cash == afterTrade,
 		"replay and second visit purchase cannot duplicate"
+	)
+	assert(
+		#trader.acquired == 1
+			and trader.acquired[1].channel == "merchant"
+			and trader.acquired[1].slot == config.ITEMS[offer.itemId].slot,
+		"a merchant purchase reports exactly one merchant acquisition (rejected attempts and replays report nothing)"
 	)
 	local savedTrader =
 		assert(codec.decode(codec.encode(tdata, trader.now), config, farmMath, trader.now, function(): string

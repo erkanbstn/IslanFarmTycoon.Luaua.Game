@@ -227,7 +227,7 @@ return function(createService: any, config: any, leaderboard: any, adminPolicy: 
 		"farm score adds past runs and current completed farms"
 	)
 	assert(store.readCalls == 2, "each board reads once on startup")
-	assert(#store.published == 4, "every present player's value is published once per board")
+	assert(#store.published == 3, "present players publish once per board, except a first zero score")
 	assert(
 		rows.RebirthBoard[3].name == "" and rows.RebirthBoard[3].value == "",
 		"empty rows are blank when the list loaded"
@@ -236,15 +236,18 @@ return function(createService: any, config: any, leaderboard: any, adminPolicy: 
 	-- Yazma: aynı değer tekrar yazılmaz, değişim aralığı bekler, başarısızlıkta geri çekilir
 	clock += 5
 	tick(2)
-	assert(#store.published == 4, "unchanged values are not rewritten")
+	assert(#store.published == 3, "unchanged values are not rewritten")
 	saves[players[2]].progression = { count = 3 }
 	clock += 5
 	tick(2)
-	assert(#store.published == 4, "a change inside the interval waits")
+	assert(
+		#store.published == 4 and store.published[4].board == "rebirth" and store.published[4].userId == 2,
+		"a first non-zero score publishes at once while a changed value (farms) waits for the interval"
+	)
 	clock += leaderboard.PUBLISH_INTERVAL
 	tick(2)
 	-- Rebirth değişimi iki tabloyu da etkiler (çiftlik değeri tur sayısını içerir): iki yazma
-	assert(#store.published == 6, "the changed value publishes on both boards once the interval passes")
+	assert(#store.published == 5, "the changed value publishes on both boards once the interval passes")
 	local function lastFor(board: string, userId: number): any
 		for index = #store.published, 1, -1 do
 			local item = store.published[index]
@@ -260,17 +263,14 @@ return function(createService: any, config: any, leaderboard: any, adminPolicy: 
 	store.publishFails = true
 	clock += leaderboard.PUBLISH_INTERVAL
 	tick(2)
-	assert(#store.published == 8, "failing writes are attempted once per board")
+	assert(#store.published == 7, "failing writes are attempted once per board")
 	clock += 10
 	tick(2)
-	assert(#store.published == 8, "a failed write backs off instead of retrying immediately")
+	assert(#store.published == 7, "a failed write backs off instead of retrying immediately")
 	store.publishFails = false
 	clock += leaderboard.PUBLISH_INTERVAL * 4
 	tick(2)
-	assert(
-		#store.published == 10 and lastFor("rebirth", 2).score == 4,
-		"the writes retry after the backoff and succeed"
-	)
+	assert(#store.published == 9 and lastFor("rebirth", 2).score == 4, "the writes retry after the backoff and succeed")
 
 	-- Okuma: genel satırlar, canlı değer ezmesi, ad çözümü, uzun ad, geçersiz satırlar, yönetici
 	store.rows.rebirth = {

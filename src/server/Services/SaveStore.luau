@@ -434,13 +434,21 @@ end
 local RANK_MAX_READ = 25
 local rankStores: { [string]: OrderedDataStore } = {}
 local memoryRanks: { [string]: { [number]: number } } = {}
+-- Veri çağı başka bir sunucuda artırılmış olabilir (yönetici sıfırlaması): tablo mağazası seçerken çağ bu aralıkla yeniden okunur
+local RANK_EPOCH_REFRESH_SECONDS = 300
+local rankEpochCheckedAt = -math.huge
 
 -- Bu tablonun mağazası; çağ okunamıyorsa (nil) kullanılamaz sayılır. Çağ okuması bekleyebilir.
 local function rankStoreFor(boardId: string): OrderedDataStore?
 	if not Leaderboard.isBoard(boardId) then
 		return nil
 	end
-	local epoch = knownEpoch or SaveStore.getEpoch()
+	local epoch = knownEpoch
+	local clock = os.clock()
+	if epoch == nil or clock - rankEpochCheckedAt >= RANK_EPOCH_REFRESH_SECONDS then
+		rankEpochCheckedAt = clock
+		epoch = SaveStore.getEpoch() -- okunamazsa son bilinen değer (bayat ama güvenli)
+	end
 	if epoch == nil then
 		return nil
 	end

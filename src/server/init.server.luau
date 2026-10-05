@@ -19,6 +19,7 @@ local EconomyService = require(Services:WaitForChild("EconomyService"))
 local SeasonService = require(Services:WaitForChild("SeasonService"))
 local ShoreIceService = require(Services:WaitForChild("ShoreIceService"))
 local ContractService = require(Services:WaitForChild("ContractService"))
+local GoodsDiscardService = require(Services:WaitForChild("GoodsDiscardService"))
 local MainFarmService = require(Services:WaitForChild("MainFarmService"))
 local ProductionService = require(Services:WaitForChild("ProductionService"))
 local PetService = require(Services:WaitForChild("PetService"))
@@ -41,6 +42,9 @@ local RebirthTitleService = require(script:WaitForChild("Presentation"):WaitForC
 local TelemetryService = require(Services:WaitForChild("TelemetryService"))
 local Rewards = require(Shared:WaitForChild("Modules"):WaitForChild("Rewards"))
 local Merchant = require(Shared:WaitForChild("Modules"):WaitForChild("Merchant"))
+local Golden = require(Shared:WaitForChild("Modules"):WaitForChild("Golden"))
+local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
+local OfflineBrief = require(script:WaitForChild("Modules"):WaitForChild("OfflineBrief"))
 local RateLimiter = require(script:WaitForChild("Modules"):WaitForChild("RateLimiter"))
 local SessionLock = require(script:WaitForChild("Modules"):WaitForChild("SessionLock"))
 local Preferences = require(script:WaitForChild("Modules"):WaitForChild("Preferences"))
@@ -112,6 +116,7 @@ RebirthTitleService.init(function(player: Player): number?
 	return if data and data.progression then data.progression.count else nil
 end)
 ContractService.init()
+GoodsDiscardService.init()
 AdminService.init()
 DataResetService.init()
 AdminPlayerService.init()
@@ -337,7 +342,14 @@ local function onPlayerAdded(player: Player)
 	-- Dönüş özeti: sen yokken kazanılan para ve büyüyen hayvanlar (client küçük bir pencere gösterir)
 	local offline, grown = PlayerDataService.takeOfflineSummary(player)
 	if offline > 0 or grown > 0 then
-		Remotes.get("OfflineSummary"):FireClient(player, offline, grown)
+		-- Ek satırlar (günlük ödül, hazır sipariş, tüccar, altın hayvan) sunucuda kayıttan hesaplanır; hata özeti engellemez.
+		local okBrief, brief = pcall(OfflineBrief.build, data, player.UserId, DateTime.now().UnixTimestamp, {
+			Rewards = Rewards,
+			FarmMath = FarmMath,
+			Merchant = Merchant,
+			Golden = Golden,
+		})
+		Remotes.get("OfflineSummary"):FireClient(player, offline, grown, if okBrief then brief else nil)
 	end
 	if Rewards.dailyStatus(data.daily, DateTime.now().UnixTimestamp).canClaim then
 		Remotes.get("Notify"):FireClient(player, "Günlük ödülün hazır! Ödüller menüsünden al.", "info")

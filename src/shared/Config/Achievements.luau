@@ -6,6 +6,25 @@ local Types = require(script.Parent:WaitForChild("Types"))
 return {
 	-- Başarımlar: her birinin tek seferlik para ödülü var. metric hesabı Rewards.progress içindedir.
 	ACHIEVEMENTS = {
+		-- İlk dakikalar için hızlı kazanımlar: ilk günlük ödülle (en az 250) alınan 3 hayvan ve ilk bin kazanç.
+		{
+			id = "home_3",
+			displayName = "İlk sürü",
+			description = "Ana adada 3 hayvana sahip ol",
+			icon = "🐮",
+			metric = "home",
+			target = 3,
+			reward = 150,
+		},
+		{
+			id = "earned_1k",
+			displayName = "İlk bin",
+			description = "Toplam 1.000 kazan",
+			icon = "🪙",
+			metric = "earned",
+			target = 1000,
+			reward = 200,
+		},
 		{
 			id = "home_10",
 			displayName = "İlk 10 ana hayvan",
@@ -180,7 +199,7 @@ return {
 		{
 			id = "expansions_60",
 			displayName = "Kusursuz çiftlik",
-			description = "Toplam 60 geliştirme seviyesi",
+			description = "Toplam 36 geliştirme seviyesi",
 			icon = "🌟",
 			metric = "expansions",
 			target = 36,

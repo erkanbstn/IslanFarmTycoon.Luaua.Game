@@ -1,14 +1,5 @@
 --!strict
-return function(
-	createService: any,
-	createLimiter: any,
-	rules: any,
-	codec: any,
-	config: any,
-	farmMath: any,
-	logic: any,
-	preferences: any
-)
+return function(createService: any, createLimiter: any, rules: any, codec: any, config: any, farmMath: any, logic: any)
 	local function signal(): any
 		local callbacks = {}
 		return {
@@ -162,8 +153,7 @@ return function(
 			end,
 		},
 		function() end,
-		logic,
-		preferences
+		logic
 	)
 	service.init()
 	service.init()
@@ -206,13 +196,14 @@ return function(
 	)
 	local idleIncome = farmMath.computeIncomePerSecond(data, now)
 	assert(
-		data.tutorialDone == nil and playerAttributes.SavedTutorialDone == nil,
-		"rejected starts never finish the tutorial"
+		data.tutorialDone == nil and data.tutorialStage == nil and playerAttributes.SavedTutorialDone == nil,
+		"rejected starts never advance the tutorial"
 	)
 	assert(fire("start", "packed_milk", "medium").ok, "qualified dairy starts")
+	-- Çok adımlı öğretici: ilk parti yalnız 4. adımı kalıcı geçer; öğreticiyi bitirmez (sipariş/geliştirme/eşya/rebirth sürer)
 	assert(
-		data.tutorialDone == true and playerAttributes.SavedTutorialDone == true,
-		"first production start persists tutorial completion and tells the client"
+		data.tutorialStage == 4 and data.tutorialDone == nil and playerAttributes.SavedTutorialDone == nil,
+		"first production start persists tutorial stage 4 without finishing the tutorial"
 	)
 	local job = data.production.packed_milk
 	assert(

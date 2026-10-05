@@ -11,6 +11,7 @@ local Remotes = require(Shared:WaitForChild("Remotes"))
 local PlayerDataService = require(script.Parent:WaitForChild("PlayerDataService"))
 local PlotService = require(script.Parent:WaitForChild("PlotService"))
 local EconomyService = require(script.Parent:WaitForChild("EconomyService"))
+local TelemetryService = require(script.Parent:WaitForChild("TelemetryService"))
 local RequestGuard = require(script.Parent:WaitForChild("RequestGuard"))
 local RateLimiter = require(script.Parent.Parent.Modules.RateLimiter)
 local SaveCodec = require(script.Parent.Parent.Modules.SaveCodec)
@@ -74,7 +75,12 @@ function ProgressionService.tryGoldAction(
 	end
 	local request = detail :: any
 	EconomyService.settlePlayer(player)
-	return PlayerDataService.transactAccount(player, function(data: any): (boolean, string?)
+	-- Telemetri yalnızca işlem kalıcı olarak tamamlanınca (bir işlem = bir olay) gönderilir.
+	local spentSource: string? = nil
+	local spentGold = 0
+	local acquiredSlot: string? = nil
+	local success, message = PlayerDataService.transactAccount(player, function(data: any): (boolean, string?)
+		spentSource, spentGold, acquiredSlot = nil, 0, nil
 		if data.activeMainFarmId ~= expectedFarmId or data.progression.run ~= request.expectedRun then
 			return false, "İşlem bağlamı değişti; yeniden seç."
 		end
@@ -99,6 +105,7 @@ function ProgressionService.tryGoldAction(
 			state.convertedRunGold += request.amount
 			data.gold -= request.amount
 			data.cash += cash
+			spentSource, spentGold = "convert", request.amount
 			return true, "Altın paraya çevrildi."
 		elseif action == "buy" then
 			if typeof(request.offerId) ~= "string" then
@@ -120,6 +127,9 @@ function ProgressionService.tryGoldAction(
 			if offer.kind == "item" then
 				data.inventory.items[offer.itemId] = true
 			end
+			local boughtItem = if offer.kind == "item" and offer.itemId then Config.ITEMS[offer.itemId] else nil
+			spentSource, spentGold = "item", offer.goldCost
+			acquiredSlot = if boughtItem then boughtItem.slot else "convenience"
 			return true, "Kalıcı ürün satın alındı."
 		elseif action == "finish" then
 			local target = if request.targetKind == "production"
@@ -178,6 +188,7 @@ function ProgressionService.tryGoldAction(
 				end
 			end
 			data.gold -= cost
+			spentSource, spentGold = "finish", cost
 			return true, "Bekleme tamamlandı."
 		end
 		return false, "Geçersiz altın işlemi."
@@ -185,6 +196,13 @@ function ProgressionService.tryGoldAction(
 		EconomyService.startPlayer(owner)
 		refresh(owner)
 	end)
+	if success and spentSource then
+		TelemetryService.goldSpent(player, spentSource, spentGold)
+		if acquiredSlot then
+			TelemetryService.acquired(player, "gold", acquiredSlot)
+		end
+	end
+	return success, message
 end
 
 function ProgressionService.tryRebirth(
@@ -200,15 +218,24 @@ function ProgressionService.tryRebirth(
 		return false, "İşlem bağlamı değişti; yeniden seç."
 	end
 	EconomyService.settlePlayer(player)
-	return PlayerDataService.transactAccount(player, function(data: any): (boolean, string?)
+	local rewardSlot: string? = nil
+	local success, message = PlayerDataService.transactAccount(player, function(data: any): (boolean, string?)
+		rewardSlot = nil
 		if data.progression.run ~= (detail :: any).expectedRun then
 			return false, "İşlem bağlamı değişti; yeniden seç."
 		end
 		if data.transfers and next(data.transfers.outbox) ~= nil then
 			return false, "Bekleyen aktarım tamamlanmadan rebirth yapılamaz."
 		end
+		-- Kilometre taşı eşyası yeni verildiyse (daha önce sahip değilse) edinim olarak sayılır.
+		local milestone = Config.PROGRESSION.milestones[data.progression.count + 1]
+		local milestoneItem = if milestone then milestone.itemId else nil
+		local alreadyOwned = milestoneItem ~= nil and data.owned.items[milestoneItem] == true
 		if not Rebirth.apply(data, Config, FarmMath, Progression, SaveCodec, nowSeconds(), uid, perkId :: string) then
 			return false, "Rebirth hazır değil veya bu etki seçilemiyor."
+		end
+		if milestoneItem and not alreadyOwned and Config.ITEMS[milestoneItem] then
+			rewardSlot = Config.ITEMS[milestoneItem].slot
 		end
 		return true, "Rebirth tamamlandı. Yeni turun hazır!"
 	end, function(owner: Player)
@@ -224,6 +251,10 @@ function ProgressionService.tryRebirth(
 		end
 		PlayerDataService.pushState(owner)
 	end)
+	if success and rewardSlot then
+		TelemetryService.acquired(player, "reward", rewardSlot)
+	end
+	return success, message
 end
 
 local function reconcilePermanent(data: any): boolean

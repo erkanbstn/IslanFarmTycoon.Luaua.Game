@@ -29,6 +29,10 @@ return function(EffectSummary: any, Config: any, FarmMath: any, SaveCodec: any, 
 	save.progression = Progression.defaults(now)
 	save.progression.count = 5
 	save.progression.perks.income = 5
+	-- Altın Taç %100 -> %40 inince üç eşya + kalıcı gelir x3 tavanına ulaşamaz (güvenlik ağı); sınırlama dalını denemek için
+	-- tavan bu bölümde geçici olarak düşürülür ve geri yüklenir.
+	local realCap = Config.PROGRESSION.permanentIncomeCap
+	Config.PROGRESSION.permanentIncomeCap = 2.3
 	local equippedId = save.inventory.equipped.back
 	local capped = EffectSummary.snapshot(save, now, true)
 	assert(
@@ -82,6 +86,7 @@ return function(EffectSummary: any, Config: any, FarmMath: any, SaveCodec: any, 
 		not EffectSummary.snapshot(save, now).returnActive,
 		"a purchased second farm ends Return even before the timer"
 	)
+	Config.PROGRESSION.permanentIncomeCap = realCap
 	Inventory.unequip(save, "charm")
 	Inventory.grant(save, "night_charm")
 	assert(Inventory.equip(save, "night_charm"), "offline charm equips")

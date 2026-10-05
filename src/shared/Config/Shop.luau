@@ -162,9 +162,11 @@ return {
 
 	-- Günlük giriş ödülü: 7 günlük seri; bozulursa baştan başlar. Ödül, oyuncunun o anki gelirinin
 	-- DAILY_MINUTES dakikalık karşılığı x seri çarpanıdır (en az DAILY_MIN_REWARD): geç oyunda da anlamlı kalır.
-	DAILY_REWARD_MULTIPLIERS = { 1, 1.2, 1.5, 2, 2.5, 3, 4 },
+	-- Geç oyunda eski ödül (2 dk x en çok 4 = 8 dk gelir) hissedilmiyordu: dakika 2 -> 2,5, 7. gün çarpanı 4 -> 5 (en çok 12,5 dk; 7 günlük seri 28,4 -> 40,5 gelir dakikası).
+	-- Tavan bilinçlidir: haftalık toplam, tek bir günün gelirinin %3'ünden azdır (tests/rewards.spec "günlük ödül tavanı"); rebirth temposunu kaydırmaz.
+	DAILY_REWARD_MULTIPLIERS = { 1, 1.2, 1.5, 2, 2.5, 3, 5 },
 
-	DAILY_MINUTES = 2,
+	DAILY_MINUTES = 2.5,
 
 	DAILY_MIN_REWARD = 250,
 

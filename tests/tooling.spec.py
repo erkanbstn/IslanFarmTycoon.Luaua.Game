@@ -446,5 +446,178 @@ class AiDocsSingleSourceTests(unittest.TestCase):
         self.assertIn("scripts/smoke-quick.py komutunu listelemiyor", out)
 
 
+ITEMS = load("simulate_items_fixture", "scripts/simulate-items.py")
+LUAU_EXECUTABLE = ITEMS.find_luau(None)
+
+
+class SimulateItemsTests(unittest.TestCase):
+    """Ekipman gücü ölçüm betiği: saf yardımcılar, argüman ayrıştırma, sonuç şeması ve ekipman akışı (koşusuz, saniyeler)."""
+
+    def test_gold_formula_matches_documented_rule(self):
+        self.assertEqual(ITEMS.formula_gold(3_500_000), 740)
+        self.assertEqual(ITEMS.formula_gold(30_000_000), 1500)
+        self.assertEqual(ITEMS.formula_gold(40_000), 210)
+        self.assertGreaterEqual(ITEMS.formula_gold(2_000_000), ITEMS.formula_gold(1_000_000))
+
+    def test_round_robin_perks_sum_to_count_and_respect_level_cap(self):
+        order = ["income", "growth", "starting_cash", "upgrade_discount", "facility_speed", "offline", "contract", "ready_start"]
+        self.assertEqual(ITEMS.perks_for(0, order), "")
+        self.assertEqual(ITEMS.perks_for(5, order), "income:1,growth:1,starting_cash:1,upgrade_discount:1,facility_speed:1")
+        for count in (8, 17, 30):
+            levels = [int(part.split(":")[1]) for part in ITEMS.perks_for(count, order).split(",")]
+            self.assertEqual(sum(levels), count)
+            self.assertLessEqual(max(levels), 5)
+
+    def test_state_and_argument_parsing(self):
+        self.assertEqual(ITEMS.parse_states("ideal:5, casual:5,ideal:0,ideal:5"), [("ideal", 5), ("casual", 5), ("ideal", 0)])
+        for bad in ("", "robot:1", "ideal", "ideal:31", "ideal:x"):
+            with self.assertRaises(ValueError):
+                ITEMS.parse_states(bad)
+        args = ITEMS.build_parser().parse_args([])
+        self.assertEqual((args.states, args.workers, args.probe, args.idle, args.skip_singles), (ITEMS.DEFAULT_STATES, 12, False, False, False))
+        args = ITEMS.build_parser().parse_args(["--probe", "--items", "iron_hammer", "--no-cache"])
+        self.assertTrue(args.probe and args.no_cache)
+        self.assertEqual(args.items, "iron_hammer")
+
+    def test_classification_thresholds(self):
+        self.assertEqual([ITEMS.classify(value) for value in (None, 0.0, 0.49, 0.5, 10.0, 10.01)], ["unmeasured", "dead", "dead", "ok", "ok", "strong"])
+
+    def test_rank_correlation(self):
+        self.assertAlmostEqual(ITEMS.spearman([1, 2, 3, 4], [10, 20, 30, 40]), 1.0)
+        self.assertAlmostEqual(ITEMS.spearman([1, 2, 3, 4], [4, 3, 2, 1]), -1.0)
+        self.assertIsNone(ITEMS.spearman([1, 2, 3], [5, 5, 5]))
+        self.assertIsNone(ITEMS.spearman([1, 2], [1, 2]))
+
+    def test_ordering_inversions_are_per_slot_and_tolerant(self):
+        rows = [{"id": "a", "slot": "tool", "cost": 300, "pct": 4.0}, {"id": "b", "slot": "tool", "cost": 600, "pct": 1.0},
+                {"id": "c", "slot": "charm", "cost": 900, "pct": 0.1}, {"id": "d", "slot": "tool", "cost": 700, "pct": 3.9}]
+        found = ITEMS.ordering_inversions(rows)
+        self.assertEqual([(row["cheap"], row["dear"]) for row in found], [("a", "b")])
+        self.assertEqual(ITEMS.ordering_inversions(rows, tolerance=5), [])
+
+    def test_gold_accumulation_and_greedy_purchases(self):
+        rewards = [750, 760, 770]
+        cumulative = ITEMS.cumulative_gold(rewards, 4)
+        self.assertEqual(cumulative, [750, 1510, 2280, 3050])
+        self.assertEqual((ITEMS.rebirth_to_afford(cumulative, 1500), ITEMS.rebirth_to_afford(cumulative, 9999)), (2, None))
+        options = [{"id": "x", "gold": 700, "savedDays": 1.4, "slot": "tool"}, {"id": "y", "gold": 500, "savedDays": 0.5, "slot": "head"},
+                   {"id": "w", "gold": 100, "savedDays": 0.2, "slot": "tool"}, {"id": "z", "gold": 100, "savedDays": 0, "slot": "back"}]
+        timeline = ITEMS.greedy_purchases(options, rewards, 2)
+        self.assertEqual(timeline[0]["bought"], ["x"])  # aynı yuvadaki daha zayıf w, x varken alınmaz
+        self.assertEqual(timeline[1]["bought"], ["y"])
+        self.assertAlmostEqual(timeline[1]["savedDays"], 1.9)
+        self.assertEqual(ITEMS.scale_for_target(0.1, 2.0, 5.0), 0.25)
+        self.assertIsNone(ITEMS.scale_for_target(0.1, 0.0, 5.0))
+
+    def test_loadout_selection_uses_channel_tier_and_measured_score(self):
+        items = [{"id": "cheap", "slot": "tool", "channel": "cash", "price": 1000, "goldCost": None, "noCash": False},
+                 {"id": "mid", "slot": "tool", "channel": "cashGold", "price": 600000, "goldCost": 390, "noCash": False},
+                 {"id": "top", "slot": "tool", "channel": "gold", "price": 2000000, "goldCost": 600, "noCash": True},
+                 {"id": "dud", "slot": "head", "channel": "cash", "price": 5000, "goldCost": None, "noCash": False}]
+        score = {"cheap": 1.0, "mid": 3.0, "top": 5.0, "dud": 0.0}
+        self.assertEqual(ITEMS.best_per_slot(items, "starter", score, ["tool", "head"]), ["cheap"])
+        self.assertEqual(ITEMS.best_per_slot(items, "mid", score, ["tool", "head"]), ["mid"])
+        self.assertEqual(ITEMS.best_per_slot(items, "premium", score, ["tool", "head"]), ["top"])
+
+    def test_report_schema_with_synthetic_catalog(self):
+        catalog = {"rewards": [750, 760, 770] * 11, "maxRebirth": 30, "slotOrder": ["tool", "head"],
+                   "items": [{"id": "iron", "name": "Demir", "slot": "tool", "level": 2, "channel": "cashGold", "price": 600000, "noCash": False,
+                              "effects": {"upgradeDiscount": 0.1}, "tradeoffs": {}, "power": None, "goldCost": 390, "robux": False},
+                             {"id": "cap", "name": "Kep", "slot": "head", "level": 1, "channel": "cash", "price": 15000, "noCash": False,
+                              "effects": {"movementSpeed": 0.05}, "tradeoffs": {}, "power": None, "goldCost": None, "robux": False}],
+                   "conveniences": [{"id": "auto_collect", "goldCost": 300, "robux": False}]}
+        states = [("ideal", 5)]
+        key = ITEMS.state_key("ideal", 5)
+        singles = {"iron": {key: ITEMS.measure(5.0, 4.4, "ideal")}, "cap": {key: ITEMS.measure(5.0, 5.0, "ideal")},
+                   "auto_collect": {key: ITEMS.measure(5.0, 4.0, "ideal")}}
+        rows = ITEMS.build_item_rows(catalog, singles, states)
+        self.assertEqual([row["id"] for row in rows], ["iron", "cap", "auto_collect"])
+        self.assertEqual(rows[1]["unmodeled"], ["movementSpeed"])
+        self.assertTrue(rows[1]["goldDerived"] and not rows[0]["goldDerived"])
+        loadouts = ITEMS.loadouts_for(rows, catalog, states)
+        self.assertEqual(sorted(loadouts), ["endgame", "mid", "premium", "starter"])
+        self.assertEqual(loadouts["mid"]["items"], ["iron"])
+        analysis = ITEMS.analyze(rows, loadouts, catalog, states, {key: 5.0})
+        for field in ("primary", "dead", "deadAll", "unmeasurable", "strong", "byLevel", "goldFormulaMismatches", "inversionsByGold", "rebirthGold", "greedy",
+                      "tierInversions", "fit", "suggestions", "perItem"):
+            self.assertIn(field, analysis)
+        self.assertEqual(analysis["strong"], ["iron"])
+        self.assertEqual(analysis["unmeasurable"], ["cap"])
+        report = {"states": states, "baseline": {key: 5.0}, "items": rows, "loadouts": {}, "analysis": analysis, "freeLoadout": {}}
+        json.dumps(report)
+        self.assertIn("iron", ITEMS.render(report))
+        self.assertEqual(ITEMS.measure(4.0, 3.0, "casual")["pct"], 25.0)
+        self.assertTrue(ITEMS.measure(16.0, 15.9, "casual")["belowResolution"])
+
+    @unittest.skipUnless(LUAU_EXECUTABLE, "Luau yorumlayıcısı yok")
+    def test_every_equipped_effect_reaches_the_real_farmmath_consumer(self):
+        catalog = ITEMS.run_bridge(LUAU_EXECUTABLE, {})
+        items = [item for item in catalog["items"] if item["channel"] != "none"]
+        flow = ITEMS.flow_audit(catalog["probe"], items)
+        self.assertGreater(len(flow), 60)
+        self.assertEqual([row for row in flow if not row["ok"]], [])
+        self.assertTrue({"incomeBonus", "upgradeDiscount", "facilitySpeed", "offlineBonus", "storageBonus", "growthSpeed", "contractBonus", "goodsYield"}
+                        <= {row["key"] for row in flow})
+
+    @unittest.skipUnless(LUAU_EXECUTABLE, "Luau yorumlayıcısı yok")
+    def test_caps_hold_for_the_most_stacked_loadout(self):
+        base = ITEMS.run_bridge(LUAU_EXECUTABLE, {})
+        items = [item for item in base["items"] if item["channel"] != "none"]
+        stacked = [max((item for item in items if item["slot"] == slot), key=lambda item: sum(max(value, 0) for key, value in item["effects"].items() if key != "growthSpeed"))
+                   for slot in base["slotOrder"]]
+        loadouts = {"stacked": [item["id"] for item in stacked]}
+        probe = ITEMS.run_bridge(LUAU_EXECUTABLE, loadouts)
+        rows = ITEMS.cap_audit(probe["probe"], items, loadouts, probe["limits"])
+        self.assertTrue(rows and all(row["ok"] for row in rows), rows)
+
+    @unittest.skipUnless(LUAU_EXECUTABLE, "Luau yorumlayıcısı yok")
+    def test_simulation_rejects_two_items_in_one_slot_and_clears_free_equipment(self):
+        simulation = ROOT / "scripts" / "simulate-economy.py"
+        conflict = subprocess.run([sys.executable, str(simulation), "--luau", LUAU_EXECUTABLE, "--hours", "0.02", "--json", "--equipment", "diamond_hammer,gold_hammer"],
+                                  cwd=ROOT, capture_output=True, check=False)
+        self.assertNotEqual(conflict.returncode, 0)
+        self.assertIn("Equipment slot conflict", conflict.stdout.decode(errors="replace") + conflict.stderr.decode(errors="replace"))
+        common = [sys.executable, str(simulation), "--luau", LUAU_EXECUTABLE, "--hours", "0.02", "--json", "--rebirth", "5",
+                  "--perks", "income:1,growth:1,starting_cash:1,upgrade_discount:1,facility_speed:1"]
+        free = subprocess.run(common, cwd=ROOT, capture_output=True, check=True)
+        cleared = subprocess.run(common + ["--clear-equipment", "--equipment", "diamond_hammer"], cwd=ROOT, capture_output=True, check=True)
+        self.assertEqual(sorted(json.loads(free.stdout.decode("utf-8-sig"))["loadout"]["equipped"]), ["charm", "head"])
+        loadout = json.loads(cleared.stdout.decode("utf-8-sig"))["loadout"]
+        self.assertEqual(loadout["equipped"], {"tool": "diamond_hammer"})
+        # Beklenen indirim Config'ten okunur (denge değişince test kırılmasın)
+        items_source = (ROOT / "src/shared/Config/Items.luau").read_text(encoding="utf-8")
+        match = re.search(r'id = "diamond_hammer",.*?upgradeDiscount = ([0-9.]+)', items_source, re.S)
+        self.assertIsNotNone(match)
+        discount = float(match.group(1))
+        self.assertAlmostEqual(loadout["effects"]["upgradeDiscount"], discount)
+        self.assertAlmostEqual(loadout["movementMultiplier"], 1.02)
+
+    def test_what_if_parsing_and_effective_noise_floor(self):
+        self.assertEqual(ITEMS.parse_what_if("a:incomeBonus=0.3,offlineBonus=0.1; b:upgradeDiscount=0.12"),
+                         {"a": [("incomeBonus", 0.3), ("offlineBonus", 0.1)], "b": [("upgradeDiscount", 0.12)]})
+        for bad in ("", "a", "a:x", "a:x=y", ":x=1"):
+            with self.assertRaises(ValueError):
+                ITEMS.parse_what_if(bad)
+        args = ITEMS.build_parser().parse_args(["--what-if", "a:incomeBonus=0.3", "--reanalyze", "x.json"])
+        self.assertEqual((args.what_if, args.reanalyze), ("a:incomeBonus=0.3", "x.json"))
+        one_session = {"pct": 1.9, "savedDays": 0.33}
+        self.assertEqual(ITEMS.effective_pct(one_session, "casual:R5"), 0.0)
+        self.assertEqual(ITEMS.effective_pct({"pct": 5.0, "savedDays": 0.9}, "casual:R5"), 5.0)
+        self.assertEqual(ITEMS.effective_pct({"pct": 0.2, "savedDays": 0.01}, "ideal:R5"), 0.0)
+        self.assertIsNone(ITEMS.effective_pct(None, "ideal:R5"))
+        self.assertEqual(ITEMS.ols([1, 2, 3], [2, 4, 6]), (0.0, 2.0))
+
+    @unittest.skipUnless(LUAU_EXECUTABLE, "Luau yorumlayıcısı yok")
+    def test_item_effect_override_reaches_farmmath_without_touching_config(self):
+        simulation = ROOT / "scripts" / "simulate-economy.py"
+        command = [sys.executable, str(simulation), "--luau", LUAU_EXECUTABLE, "--hours", "0.02", "--json", "--equipment", "golden_crown"]
+        plain = json.loads(subprocess.run(command, cwd=ROOT, capture_output=True, check=True).stdout.decode("utf-8-sig"))
+        tuned = json.loads(subprocess.run(command + ["--item-effect", "golden_crown:incomeBonus=0.25"], cwd=ROOT, capture_output=True, check=True).stdout.decode("utf-8-sig"))
+        self.assertNotAlmostEqual(plain["loadout"]["effects"]["incomeBonus"], 0.25)
+        self.assertAlmostEqual(tuned["loadout"]["effects"]["incomeBonus"], 0.25)
+        bad = subprocess.run(command + ["--item-effect", "oops"], cwd=ROOT, capture_output=True, check=False)
+        self.assertEqual(bad.returncode, 2)
+
+
 if __name__ == "__main__":
     unittest.main()

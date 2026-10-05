@@ -19,6 +19,7 @@ local RequestGuard = require(script.Parent:WaitForChild("RequestGuard"))
 local PlotService = require(script.Parent:WaitForChild("PlotService"))
 local EconomyService = require(script.Parent:WaitForChild("EconomyService"))
 local SeasonService = require(script.Parent:WaitForChild("SeasonService"))
+local TelemetryService = require(script.Parent:WaitForChild("TelemetryService"))
 local RateLimiter = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("RateLimiter"))
 local Metrics = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("Metrics"))
 local ModelAssets = require(script.Parent.Parent:WaitForChild("World"):WaitForChild("ModelAssets"))
@@ -280,6 +281,7 @@ function InventoryService.tryBuy(player: Player, itemId: unknown): (boolean, str
 		end
 	end)
 	Metrics.increment("ItemsPurchased")
+	TelemetryService.acquired(player, "cash", item.slot)
 	return true, nil
 end
 
@@ -319,6 +321,7 @@ function InventoryService.tryBuyMerchantOffer(player: Player, itemId: unknown, q
 		end
 	end)
 	Metrics.increment("MerchantOffersBought")
+	TelemetryService.acquired(player, "merchant", item.slot)
 	return true, nil
 end
 

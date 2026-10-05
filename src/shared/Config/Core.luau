@@ -69,6 +69,11 @@ return {
 	-- ilk hayvan, çiftliğin ana hayvanını (inek/tavuk/ördek) tam alacak kadar parayla alınır (Config.getStartingCash).
 	STARTING_COW_COUNT = 0,
 
+	-- Başlangıç öğreticisi (Modules/OnboardingSteps, SaveCodec/Account ve AdminService aynı sayıları okur):
+	-- SKIP_BASICS_EARNED kazanmış hesap temel adımları (1-3), SKIP_ALL_EARNED kazanmış hesap bütün adımları istemez.
+	-- TOTAL_STEPS adım sayısıdır; kayıtlı `tutorialStage` bu değerle sınırlanır.
+	ONBOARDING = { SKIP_BASICS_EARNED = 1500, SKIP_ALL_EARNED = 20000, TOTAL_STEPS = 8 },
+
 	-- Her TÜRÜN çiftlikteki ilk bu kadar hayvanı yetişkin doğar (bornAt = 0): ilk dakikada "vay" anı, her yeni adada üretim hemen başlar.
 	-- Yalnızca o türden sahip olunan sayı bunun altındayken alınanlara uygulanır; kayıt şeması değişmez (bornAt = 0 zaten yetişkin demektir).
 	STARTER_ADULT_ANIMALS = 3,

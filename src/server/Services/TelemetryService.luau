@@ -16,6 +16,8 @@ type PlayerState = {
 	funnel: { [string]: boolean },
 	joinedAt: number,
 	storageFullSeconds: number,
+	observed: TelemetryLogic.Observation?,
+	goldSources: { [string]: number }, -- kanalların bildirdiği altın harcaması; bir sonraki observe'da tüketilir
 }
 
 export type OfflineReport = { earned: number, awaySeconds: number, capped: boolean, balance: number }
@@ -52,6 +54,8 @@ local function stateFor(player: Player): PlayerState?
 		funnel = {},
 		joinedAt = os.time(),
 		storageFullSeconds = 0,
+		observed = nil,
+		goldSources = {},
 	}
 	states[player] = state
 	return state
@@ -138,15 +142,81 @@ function TelemetryService.funnel(player: Player, id: string)
 	end
 end
 
-function TelemetryService.custom(player: Player, name: string, value: number?)
+-- `fields`: isteğe bağlı özel alanlar (CustomField01..03 -> kısa metin). Alanlı gönderim reddedilirse alansız bir kez daha denenir.
+function TelemetryService.custom(player: Player, name: string, value: number?, fields: TelemetryLogic.Fields?)
 	if TelemetryLogic.CUSTOM_EVENTS[name] ~= true then
 		Metrics.increment("TelemetryUnknownCustom")
 		return
 	end
 	local amount = value or 1
-	dispatch("Custom", `{name} {amount}`, function()
+	local label = `{name} {amount}`
+	if fields then
+		local parts: { string } = {}
+		for key, text in fields do
+			table.insert(parts, `{key}={text}`)
+		end
+		table.sort(parts)
+		label ..= ` [{table.concat(parts, " ")}]`
+	end
+	dispatch("Custom", label, function()
+		if fields then
+			local ok = pcall(function()
+				analytics:LogCustomEvent(player, name, amount, fields)
+			end)
+			if ok then
+				return
+			end
+			Metrics.increment("TelemetryFieldsRejected")
+		end
 		analytics:LogCustomEvent(player, name, amount)
 	end)
+end
+
+-- Eşya edinimi (bir edinim = bir olay; çağıran yalnızca başarılı ve kalıcı işlemden sonra çağırır).
+-- channel: cash | merchant | gold | robux | reward; slot: eşyanın slotu (kimlik değil).
+function TelemetryService.acquired(player: Player, channel: string, slot: string?)
+	local fields = TelemetryLogic.acquiredFields(channel, slot)
+	if not fields then
+		Metrics.increment("TelemetryUnknownCustom")
+		return
+	end
+	if not stateFor(player) then
+		return
+	end
+	TelemetryService.custom(player, "ItemAcquired", 1, fields)
+end
+
+-- Altın harcaması kaynağı (item | convert | finish): işlem başarılı olunca çağrılır; GoldSpent net farkı bu tutarlarla bölünür.
+-- Bildirilmeyen harcama "other" görünür. Gözlemde tüketilmeyen tutar bir sonraki pencereye kalmaz (observe sıfırlar).
+function TelemetryService.goldSpent(player: Player, source: string, amount: number)
+	local state = stateFor(player)
+	if not state or typeof(amount) ~= "number" or amount ~= amount or amount < 1 then
+		return
+	end
+	local known = false
+	for _, name in TelemetryLogic.GOLD_SOURCES do
+		known = known or name == source
+	end
+	if not known then
+		Metrics.increment("TelemetryUnknownCustom")
+		return
+	end
+	state.goldSources[source] = (state.goldSources[source] or 0) + math.floor(amount)
+end
+
+-- Rebirth hunisi ve altın akışı: çağıran (EngagementService) birkaç saniyede bir anlık görüntü verir, farklar özel olay olur.
+function TelemetryService.observe(player: Player, observation: TelemetryLogic.Observation)
+	local state = stateFor(player)
+	if not state then
+		return
+	end
+	local previous = state.observed
+	state.observed = observation
+	local sources = state.goldSources
+	state.goldSources = {}
+	for _, event in TelemetryLogic.progressEvents(previous, observation, sources) do
+		TelemetryService.custom(player, event.name, event.value, event.fields)
+	end
 end
 
 -- Ada / çiftlik / ahır seviyesi açılışı. kind: "island" | "farm" | "barn"; level: sıra (ada/çiftlik sayısı, ahır seviyesi).

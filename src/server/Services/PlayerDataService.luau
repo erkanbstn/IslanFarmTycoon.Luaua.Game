@@ -17,6 +17,8 @@ local SaveBackup = require(script.Parent.Parent.Modules.SaveBackup)
 local SaveStore = require(script.Parent.SaveStore)
 local TelemetryService = require(script.Parent.TelemetryService)
 local Preferences = require(script.Parent.Parent.Modules.Preferences)
+local TutorialProgress = require(script.Parent.Parent.Modules.TutorialProgress)
+local OnboardingSteps = require(Shared:WaitForChild("Modules"):WaitForChild("OnboardingSteps"))
 local Progression = require(Shared:WaitForChild("Modules"):WaitForChild("Progression"))
 
 type PlayerSave = GameTypes.PlayerSave
@@ -658,6 +660,8 @@ local function sendState(player: Player, session: Session)
 		return
 	end
 	session.lastStateAt = os.clock()
+	-- Öğretici: tamamlanan adım kalıcı olur (aşama yalnız artar); durum zaten değiştiği için kayıt kirli sayılır
+	TutorialProgress.observe(data, OnboardingSteps, player)
 	local summaries = FarmProfiles.summaries(data, function(id: string): string?
 		return if farmPlotResolver then farmPlotResolver(player, id) else nil
 	end)

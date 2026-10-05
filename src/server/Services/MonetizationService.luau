@@ -276,13 +276,31 @@ function MonetizationService.processReceipt(receiptInfo: any): Enum.ProductPurch
 	-- Ödül verilemezse makbuz günlükten çıkar; Roblox yeniden denediğinde ödül gerçekten verilir.
 	EconomyService.settlePlayer(player)
 	local outcome = "failed"
+	local acquiredSlot: string? = nil
 	local persisted = PlayerDataService.transactAccount(player, function(current: any): (boolean, string?)
+		acquiredSlot = nil
 		if current.transfers and current.transfers.quarantined then
 			return false, nil
+		end
+		-- Kalıcı teklif ilk kez veriliyorsa edinim sayılır (zaten sahipse iade yolu: edinim yok).
+		local fresh: string? = nil
+		if product.effect == "permanentOffer" and product.offerId then
+			local offer = Config.PROGRESSION.permanentOffers[product.offerId]
+			if offer then
+				local owned = current.owned
+				local rights = if owned then (if offer.kind == "item" then owned.items else owned.conveniences) else nil
+				if not (rights and rights[offer.id]) then
+					local item = if offer.kind == "item" then Config.ITEMS[offer.itemId or offer.id] else nil
+					fresh = if item then item.slot else "convenience"
+				end
+			end
 		end
 		outcome = ReceiptLog.grant(current, id, function(): boolean
 			return applyProduct(current, product)
 		end)
+		if outcome == "granted" then
+			acquiredSlot = fresh
+		end
 		return outcome == "granted" or outcome == "duplicate", nil
 	end, function()
 		EconomyService.startPlayer(player)
@@ -298,6 +316,10 @@ function MonetizationService.processReceipt(receiptInfo: any): Enum.ProductPurch
 	elseif outcome == "granted" then
 		if persisted then
 			presentProduct(player, data, product)
+			-- Yalnızca ilk işlenen makbuz buraya gelir; tekrar gelen makbuz yukarıdaki "duplicate" yolunda döner.
+			if acquiredSlot then
+				pcall(TelemetryService.acquired, player, "robux", acquiredSlot)
+			end
 		end
 	end
 	-- PurchaseGranted yalnızca kayıt diske yazıldıysa; yazılamazsa Roblox makbuzu yeniden gönderir

@@ -11,11 +11,13 @@ local Remotes = require(Shared:WaitForChild("Remotes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 local Rewards = require(Shared:WaitForChild("Modules"):WaitForChild("Rewards"))
 local Golden = require(Shared:WaitForChild("Modules"):WaitForChild("Golden"))
+local Progression = require(Shared:WaitForChild("Modules"):WaitForChild("Progression"))
 
 local PlayerDataService = require(script.Parent:WaitForChild("PlayerDataService"))
 local RequestGuard = require(script.Parent:WaitForChild("RequestGuard"))
 local EconomyService = require(script.Parent:WaitForChild("EconomyService"))
 local PlotService = require(script.Parent:WaitForChild("PlotService"))
+local TelemetryService = require(script.Parent:WaitForChild("TelemetryService"))
 local RateLimiter = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("RateLimiter"))
 local Metrics = require(script.Parent.Parent:WaitForChild("Modules"):WaitForChild("Metrics"))
 
@@ -89,8 +91,19 @@ function EngagementService.tryClaimAchievement(player: Player, achievementId: un
 	if not Rewards.isComplete(data, found) then
 		return false, "Bu başarım henüz tamamlanmadı"
 	end
+	-- Altın öğretisi hediyesi (ilk başarım, ilk tur): işaret yazılmadan önce sorulur; aynı kayıt anlık görüntüsüyle kalıcıdır.
+	local goldGift = Rewards.firstAchievementGold(data)
 	achievements[found.id] = true
 	PlayerDataService.addCash(player, found.reward, "achievement")
+	if goldGift > 0 then
+		data.gold = (data.gold or 0) + goldGift
+		Metrics.increment("FirstAchievementGoldGifts")
+		Remotes.get("Notify"):FireClient(
+			player,
+			`İlk başarım hediyesi: +{goldGift} altın. Hayvan büyümesini hızlandırmakta kullan.`,
+			"success"
+		)
+	end
 	PlayerDataService.pushState(player)
 	PlayerDataService.requestSave(player)
 	Metrics.increment("AchievementsClaimed")
@@ -157,11 +170,30 @@ end
 -- kazanç ilerlemesi sunucuda birikir, client yalnızca yapısal durum paketlerinde yeni değeri görür.
 local SEASONAL_REFRESH_SECONDS = 5
 
+-- Ürün soruları (rebirth hunisi, altın kazanç/harcama) için küçük anlık görüntü: TelemetryService farkları olaya çevirir.
+local function observeTelemetry(player: Player, data: any)
+	local state = data.progression
+	local perks: { [string]: number } = {}
+	if state then
+		for id, level in state.perks do
+			perks[id] = level
+		end
+	end
+	TelemetryService.observe(player, {
+		gold = data.gold or 0,
+		rebirths = if state then state.count else 0,
+		canRebirth = Progression.canRebirth(data),
+		perks = perks,
+		perkOrder = Config.PROGRESSION.perkOrder,
+	})
+end
+
 local function refreshSeasonal(player: Player, lastSent: { [Player]: string })
 	local data = ready(player)
 	if not data then
 		return
 	end
+	pcall(observeTelemetry, player, data) -- ölçüm hatası mevsim hedefini durdurmaz
 	local now = nowSeconds()
 	local created = Rewards.ensureSeasonal(data, now)
 	if data.adminForce and data.adminForce.completeSeason then

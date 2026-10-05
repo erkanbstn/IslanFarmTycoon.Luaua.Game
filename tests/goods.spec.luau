@@ -522,6 +522,47 @@ return function(codec: any, config: any, farmMath: any, rules: any, logic: any)
 					`{recipeId} theme {farm} x{fraction}: bulk selling a batch stays within the maximum return`
 				)
 			end
+			-- Para tesisleri: hiçbir parti seçeneği, hayvanları yerinde bırakmanın PRODUCTION_MAX_RETURN katını (%15 yuvarlama ve tesis verimi payıyla)
+			-- aşmaz. Seçeneğin yazılı `reward` değeri asgari getiri tabanının üstüne çıkamaz (eski balık sevkiyatı büyük parti 3,5x ödüyordu).
+			for _, cashId in config.PRODUCTION_ORDER do
+				local cashRecipe = config.PRODUCTION_RECIPES[cashId]
+				local cashUpgrade = config.getUpgrade(cashRecipe.upgradeId)
+				if
+					cashRecipe.output ~= "cashRecipe"
+					or not cashRecipe.options
+					or not cashUpgrade
+					or not config.upgradeInTheme(cashUpgrade, tostring(farm))
+					or not eco.unlockedIslands[cashRecipe.island]
+				then
+					continue
+				end
+				local owned = eco.purchased[cashRecipe.upgradeId]
+				eco.purchased[cashRecipe.upgradeId] = true
+				for _, option in cashRecipe.options do
+					local picked = farmMath.pickProductionAnimals(eco, cashRecipe, now, option.id)
+					if picked then
+						local resolved = farmMath.resolveRecipe(cashRecipe, option.id)
+						local duration = farmMath.getFacilityDuration(eco, resolved, nil)
+						local forgone = farmMath.estimateForgoneIncome(eco, picked, duration)
+						local batchReward = farmMath.getProductionReward(
+							eco,
+							cashRecipe,
+							now,
+							{ uid = "j", readyAt = now, startedAt = now, forgone = forgone, optionId = option.id }
+						)
+						local cost = forgone + farmMath.getFacilityCost(eco, resolved)
+						assert(
+							batchReward >= cost * option.returnMultiplier - 1,
+							`{cashId}/{option.id} theme {farm} x{fraction}: the batch keeps its minimum return`
+						)
+						assert(
+							batchReward <= cost * config.PRODUCTION_MAX_RETURN * 1.15,
+							`{cashId}/{option.id} theme {farm} x{fraction}: returns {batchReward / cost}x, over the maximum return`
+						)
+					end
+				end
+				eco.purchased[cashRecipe.upgradeId] = owned
+			end
 			for window = 0, 30 do
 				for _, offer in farmMath.getContractOffers(eco, now + window * config.GOODS_CONTRACTS.seconds, 0) do
 					local ratio = offer.reward / offer.worth
@@ -574,6 +615,102 @@ return function(codec: any, config: any, farmMath: any, rules: any, logic: any)
 		end
 	end
 	assert(checkedBatches >= 30, "the economy invariants checked many production batches")
+	-- Sipariş satırı her merkez için karşılanabilir: en büyük satır en küçük ahır deposuna sığar ve tabandaki merkezle (taban hız ve miktar)
+	-- boştan en geç iki sipariş penceresinde üretilir (stok kalıcıdır, ürün bir sonraki pencereye taşınır).
+	do
+		local settings = config.GOODS_CONTRACTS
+		local smallestBarn = config.BARN_LEVELS[1].goodsCap
+		local checkedCenters = 0
+		for _, center in config.PRODUCTION_RECIPES do
+			if center.output ~= "goods" then
+				continue
+			end
+			local maxAmount = 0
+			for _, tier in settings.tiers do
+				local unitBase = farmMath.getContractBaseUnits(tier, center.goodsId)
+				local high = math.max(math.floor(unitBase * (1 + settings.variation) + 0.5), settings.minHighUnits)
+				maxAmount = math.max(maxAmount, math.min(high, settings.maxLineUnits))
+			end
+			assert(
+				maxAmount <= smallestBarn,
+				`{center.id}: the largest order line ({maxAmount}) fits the smallest barn`
+			)
+			local fromEmpty = math.ceil(maxAmount / center.goodsAmount) * center.duration
+			assert(
+				fromEmpty <= 2 * settings.seconds,
+				`{center.id}: the largest line needs {fromEmpty}s of base production, over two order windows`
+			)
+			checkedCenters += 1
+		end
+		assert(checkedCenters >= 25, "every goods center was checked for order fulfillability")
+		-- Her teklifin her satırı o ürün için açık bir merkezden gelir ve depo sınırını aşmaz (en küçük ahır dahil)
+		local small = economySave(1, 1.0)
+		small.barnLevel = 1
+		small.mainFarms = nil
+		for window = 0, 30 do
+			for _, offer in farmMath.getContractOffers(small, now + window * settings.seconds, 0) do
+				local available = farmMath.getContractGoods(small, now + window * settings.seconds)
+				for _, line in offer.lines do
+					assert(
+						table.find(available, line.goodsId),
+						`{line.goodsId} is ordered only while it can be produced`
+					)
+					assert(
+						line.amount >= 1 and line.amount % 1 == 0 and line.amount <= farmMath.getGoodsCap(small),
+						`{line.goodsId} line of {line.amount} fits the goods cap {farmMath.getGoodsCap(small)}`
+					)
+				end
+				assert(offer.reward > 0 and offer.reward == offer.reward, "an order always pays a real amount")
+			end
+		end
+	end
+	-- Kanal sıralaması: sipariş > satış >= takas. En düşük sipariş ödülü bile birim başına satışın en az 10 katıdır (satış siparişe rakip olmaz)
+	do
+		local cheapest = math.huge
+		for _, tier in config.GOODS_CONTRACTS.tiers do
+			cheapest = math.min(cheapest, tier.rewardFactor)
+		end
+		assert(cheapest / config.GOODS_SELL.rate >= 10, "even the lowest order tier pays 10x the bulk-sale price")
+		for goodsId, good in config.GOODS do
+			assert(
+				math.floor(good.value * config.GOODS_BARTER.rate) <= math.floor(good.value * config.GOODS_SELL.rate)
+					and farmMath.getGoodsSellValue(goodsId, 1) >= 1,
+				`{goodsId}: barter never beats selling and one unit sells for at least 1`
+			)
+		end
+	end
+	-- Sipariş bonus tavanı ve pano bütçesi ayarları tutarlı: en yüksek kademe x (1 + maxBonus) ilan edilen oran sınırını aşmaz; bütçe tek siparişin tavanından
+	-- (rewardCapMinutes) küçük ya da ona yakın kalır ve geç oyunda (pano toplamı ~5-6 dk) bağlamayacak kadar büyük biter.
+	do
+		local settings = config.GOODS_CONTRACTS
+		local highest = 0
+		for _, tier in settings.tiers do
+			highest = math.max(highest, tier.rewardFactor)
+		end
+		assert(
+			settings.maxBonus >= 0 and highest * (1 + settings.maxBonus) <= limits.maxRewardRatio + 1e-9,
+			"bonuses cannot lift an order above the declared reward/worth ratio"
+		)
+		assert(settings.rewardCapMinutes <= limits.maxRewardMinutes, "the per-order cap stays inside the global limit")
+		local budget = settings.windowBudget
+		assert(budget.lowMinutes > 0 and budget.highMinutes >= budget.lowMinutes, "the budget ramps up, never down")
+		assert(
+			budget.graceIncome >= 0 and budget.graceIncome <= budget.highIncome,
+			"the unbudgeted starting range ends before the late game"
+		)
+		assert(
+			budget.lowIncome > 0 and budget.highIncome > budget.lowIncome and budget.curve >= 1,
+			"the budget ramp has a valid income range"
+		)
+		assert(
+			budget.highMinutes >= 8,
+			"the late-game budget is above a full board (~5-6 income minutes at the full-farm reference)"
+		)
+		assert(
+			settings.minSlots >= 1 and settings.minSlots <= settings.slots and settings.slotsPerGoods > 0,
+			"slot settings are valid"
+		)
+	end
 	assert(
 		config.BARN_LEVELS[1].goodsCap >= 2 * config.PRODUCTION_MAX_BATCH_UNITS,
 		"even the smallest barn holds two full batches"

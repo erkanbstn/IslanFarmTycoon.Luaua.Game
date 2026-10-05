@@ -83,6 +83,19 @@ local function decodeGolden(golden: any): any?
 	return nil
 end
 
+-- Öğretici aşaması: sonlu sayı -> 0..sınır arası tam sayı; başka her şey nil (alan yoksa 0 sayılır). Kayda yazarken
+-- (`encodeStage`) yalnız sonlu, negatif olmayan tam sayı ve sert üst sınır uygulanır; asıl sınır okurken Config'ten gelir.
+function Account.decodeStage(value: unknown, total: number): number?
+	if typeof(value) ~= "number" or not SessionLock.isFinite(value) then
+		return nil
+	end
+	return math.clamp(math.floor(value), 0, total)
+end
+
+function Account.encodeStage(value: unknown): number?
+	return Account.decodeStage(value, 100)
+end
+
 -- `source` ham kök kayıt; sonuçlar `data` köküne yazılır.
 function Account.decode(source: any, data: any, config: any)
 	-- Arayüz dili: yalnızca Config.LANGUAGES'taki kodlar kabul edilir; bilinmeyen değer yok sayılır.
@@ -95,9 +108,16 @@ function Account.decode(source: any, data: any, config: any)
 	end
 	-- Ses düzeyleri ve hareket azaltma: yalnızca geçerli değerler; bozuk alan yok sayılır
 	data.audio, data.reducedMotion = Preferences.decode(source)
-	data.tutorialDone = Preferences.decodeTutorialDone(source)
 	-- Hesap düzeyi ilerleme: ömür boyu kazanç, günlük ödül serisi ve alınmış başarımlar (hepsi isteğe bağlı).
 	data.lifetimeEarned = Common.amount(source.lifetimeEarned, 0)
+	-- Öğretici: işaret yoksa ve hesap temel adımları çoktan geçmişse (öğretici işaretinden önceki kayıt) bitmiş sayılır.
+	-- Açık true/false korunur; bozuk değer yok sayılır (yeni hesap ve eşik altı eski kayıt etkilenmez). Sürüm artmaz.
+	local tutorialDone = Preferences.decodeTutorialDone(source)
+	if tutorialDone == nil and data.lifetimeEarned >= config.ONBOARDING.SKIP_BASICS_EARNED then
+		tutorialDone = true
+	end
+	data.tutorialDone = tutorialDone
+	data.tutorialStage = Account.decodeStage(source.tutorialStage, config.ONBOARDING.TOTAL_STEPS)
 	local daily = decodeDaily(source.daily, config)
 	if daily then
 		data.daily = daily

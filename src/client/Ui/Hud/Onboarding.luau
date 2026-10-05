@@ -1,12 +1,17 @@
 --!strict
--- İlk adımlar yönlendirmesi: adım kayıt durumundan türetilir (mantık Modules/OnboardingSteps); kapatma işareti hesaba kayıtlıdır.
+-- İlk adımlar yönlendirmesi: adım kayıt durumundan türetilir (mantık Modules/OnboardingSteps); kapatma işareti (`tutorialDone`)
+-- ve tamamlanan en yüksek adım (`tutorialStage`, oyuncu durumuyla gelir) hesaba kayıtlıdır.
 --   1) İlk hayvanı al        Pazar düğmesi + dünyada pazar tezgâhı işareti (para şartı yok: oyuncu hayvanı kendi alır)
 --   2) Parayı topla          yeşil platforma ışın çizgisi (CollectorGuide)
 --   3) İlk yükseltmeyi al    Yükseltmeler düğmesi + dünyada ilgili yapım alanı işareti
 --   4) Üretimde ilk parti    Üretim düğmesi
+--   5) İlk siparişi teslim   meydandaki Sipariş Panosu satıcısı işareti ("vendor:orders")
+--   6) İlk geliştirme        Yükseltmeler düğmesi (pencere Geliştirmeler sekmesinde açılır)
+--   7) İlk eşya              meydandaki Eşya satıcısı işareti ("vendor:store")
+--   8) Rebirth tanıtımı      İlerleme (Rebirth) düğmesi
 -- Her vurgulu düğmede ayrıca zıplayan "Buraya dokun" oku vardır (UiKit.pointer); üst ortadaki görev şeridi OnboardingBanner.
 -- Atla ve "tekrar göster" sunucuya RequestSetPreference("tutorialDone") ile gider; kayıtlı değer SavedTutorialDone özniteliğidir.
--- Dünya işareti `TutorialMarker` özniteliğiyle bildirilir ("market" ya da "pad:<yükseltme>"); çizimi Interaction/TutorialMarker.
+-- Dünya işareti `TutorialMarker` özniteliğiyle bildirilir ("market", "pad:<yükseltme>" ya da "vendor:<eylem>"); çizimi Interaction/TutorialMarker.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -27,6 +32,7 @@ export type Buttons = {
 	shop: GuiObject,
 	upgrades: GuiObject,
 	production: GuiObject,
+	rebirth: GuiObject,
 }
 
 export type Hud = {
@@ -78,9 +84,9 @@ localPlayer:GetAttributeChangedSignal("SavedTutorialDone"):Connect(function()
 	changed:Fire()
 end)
 
--- 0 = bitti; 1..4 = sıradaki adım
+-- 0 = bitti; 1..Onboarding.TOTAL = sıradaki adım (kayıtlı aşama `state.tutorialStage` tamamlanan adımı geri getirmez)
 function Onboarding.stepFor(state: PlayerSave): number
-	return OnboardingSteps.stepFor(state, { skipped = isSkipped() })
+	return OnboardingSteps.stepFor(state, { skipped = isSkipped(), stage = state.tutorialStage })
 end
 
 -- Temel adımlar (1-3) tamamlandı mı: Adalar gibi sonraki menü karoları buna bakar
@@ -99,17 +105,21 @@ function Onboarding.create(buttons: Buttons): Hud
 	local pulseShop = UiKit.pulse(buttons.shop)
 	local pulseUpgrades = UiKit.pulse(buttons.upgrades)
 	local pulseProduction = UiKit.pulse(buttons.production)
+	local pulseRebirth = UiKit.pulse(buttons.rebirth)
 	-- Parlayan düğmenin yanında "Buraya dokun" oku (yalnızca ilk adımlarda)
 	local pointShop = UiKit.pointer(buttons.shop, "Buraya dokun")
 	local pointUpgrades = UiKit.pointer(buttons.upgrades, "Buraya dokun")
 	local pointProduction = UiKit.pointer(buttons.production, "Buraya dokun")
+	local pointRebirth = UiKit.pointer(buttons.rebirth, "Buraya dokun")
 	cancelGuidance = function()
 		pulseShop(false)
 		pulseUpgrades(false)
 		pulseProduction(false)
+		pulseRebirth(false)
 		pointShop(false)
 		pointUpgrades(false)
 		pointProduction(false)
+		pointRebirth(false)
 		setAttributeIfChanged("TutorialMarker", "")
 		setAttributeIfChanged("TutorialGuide", false)
 	end
@@ -120,15 +130,21 @@ function Onboarding.create(buttons: Buttons): Hud
 			marker = "market"
 		elseif step == 3 and canAffordUpgrade and upgradeId then
 			marker = `pad:{upgradeId}`
+		elseif step == 5 then
+			marker = "vendor:orders"
+		elseif step == 7 then
+			marker = "vendor:store"
 		end
 		-- İlk hayvan oyuncunun kendi seçimidir: Pazar, parası olsun olmasın (başlangıç parası hayvana yeter) işaretlenir
-		local upgradesTarget = step == 3 and canAffordUpgrade
+		local upgradesTarget = (step == 3 and canAffordUpgrade) or step == 6
 		pulseShop(step == 1)
 		pulseUpgrades(upgradesTarget)
 		pulseProduction(step == 4)
 		pointShop(step == 1)
 		pointUpgrades(upgradesTarget)
 		pointProduction(step == 4)
+		pulseRebirth(step == 8)
+		pointRebirth(step == 8)
 		setAttributeIfChanged("TutorialMarker", marker)
 		-- CollectorGuide: yeşil platforma giden ışın
 		setAttributeIfChanged("TutorialGuide", step == 2)

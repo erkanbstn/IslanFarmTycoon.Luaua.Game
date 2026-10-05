@@ -1,6 +1,7 @@
 --!strict
--- Dönüş özeti: oyuna girince "Sen yokken" penceresi. Sunucu para ve büyüyen hayvan sayısını gönderir
--- (OfflineSummary); hazır üretim partileri client'ta kayıttan sayılır. Bildirim yerine tek pencere.
+-- Dönüş özeti: oyuna girince "Sen yokken" penceresi. Sunucu para ve büyüyen hayvan sayısını (ve isteğe bağlı günlük ödül,
+-- hazır sipariş, gezgin tüccar, altın hayvan bilgisini) gönderir (OfflineSummary); hazır üretim partileri client'ta
+-- kayıttan sayılır. Satır seçimi Ui/Hud/WelcomeBackLines'tadır (boş satır gösterilmez). Bildirim yerine tek pencere.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -12,6 +13,8 @@ local Remotes = require(Shared:WaitForChild("Remotes"))
 local FarmMath = require(Shared:WaitForChild("Modules"):WaitForChild("FarmMath"))
 local ClientState = require(script.Parent.Parent:WaitForChild("Core"):WaitForChild("ClientState"))
 local UiKit = require(script.Parent.Parent:WaitForChild("Ui"):WaitForChild("UiKit"))
+local WelcomeBackLines =
+	require(script.Parent.Parent:WaitForChild("Ui"):WaitForChild("Hud"):WaitForChild("WelcomeBackLines"))
 
 local player = Players.LocalPlayer
 
@@ -34,7 +37,7 @@ local function readyRecipes(): { string }
 	return result
 end
 
-local function show(earned: number, grown: number)
+local function show(earned: number, grown: number, extras: WelcomeBackLines.Extras)
 	local gui = Instance.new("ScreenGui")
 	gui.Name = "WelcomeBack"
 	gui.ResetOnSpawn = false
@@ -53,28 +56,26 @@ local function show(earned: number, grown: number)
 	UiKit.text(window.list, "Sen yokken çiftliğinde olanlar", "Caption").LayoutOrder = 1
 
 	local order = 2
-	local function line(icon: string, text: string, detail: string?)
-		local card = UiKit.card(window.list, order, icon)
-		card.title.Text = text
-		card.detail.Text = detail or ""
-		card.detail.Visible = detail ~= nil
+	local summaryState = ClientState.get()
+	local lines = WelcomeBackLines.build({
+		earned = earned,
+		earnedText = FarmMath.formatMoney(earned),
+		grown = grown,
+		animalIcon = Config.getHomeAnimalIcon(if summaryState then summaryState.activeMainFarmId else nil),
+		recipes = readyRecipes(),
+		daily = extras.daily,
+		orders = extras.orders,
+		merchant = extras.merchant,
+		golden = extras.golden,
+	})
+	local details = WelcomeBackLines.showDetails(#lines)
+	for _, entry in lines do
+		local card = UiKit.card(window.list, order, entry.icon)
+		card.title.Text = entry.text
+		card.detail.Text = entry.detail or ""
+		card.detail.Visible = details and entry.detail ~= nil
 		card.action.Visible = false
 		order += 1
-	end
-	if earned > 0 then
-		line("💰", `+{FarmMath.formatMoney(earned)} kazandın`, "Kasana eklendi")
-	end
-	if grown > 0 then
-		local summaryState = ClientState.get()
-		line(
-			Config.getHomeAnimalIcon(if summaryState then summaryState.activeMainFarmId else nil),
-			`{grown} hayvan büyüdü`,
-			"Yetişkin hayvanlar daha çok kazandırır"
-		)
-	end
-	local recipes = readyRecipes()
-	if #recipes > 0 then
-		line("🏭", `{table.concat(recipes, ", ")} hazır`, "Üretim menüsünden topla")
 	end
 
 	local close = UiKit.button(window.list, "Devam et", "primary")
@@ -89,7 +90,7 @@ local function show(earned: number, grown: number)
 	window.open()
 end
 
-Remotes.get("OfflineSummary").OnClientEvent:Connect(function(earned: unknown, grown: unknown)
+Remotes.get("OfflineSummary").OnClientEvent:Connect(function(earned: unknown, grown: unknown, extras: unknown)
 	if typeof(earned) ~= "number" or typeof(grown) ~= "number" then
 		return
 	end
@@ -99,5 +100,5 @@ Remotes.get("OfflineSummary").OnClientEvent:Connect(function(earned: unknown, gr
 		task.wait(0.25)
 		waited += 0.25
 	end
-	show(earned, grown)
+	show(earned, grown, WelcomeBackLines.readExtras(extras))
 end)
