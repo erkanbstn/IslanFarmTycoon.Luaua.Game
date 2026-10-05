@@ -11,24 +11,15 @@ Progression.getMilestoneBonus = FarmMath.getMilestoneBonus
 Progression.isReturnActive = FarmMath.isReturnActive
 
 local requiredByFarm: { [string]: { string } } = {}
-local requiredByIsland: { [string]: { [string]: { string } } } = {}
 for index = 1, Config.MAIN_FARM_LIMIT do
 	local id = tostring(index)
 	local required: { string } = {}
-	local islands: { [string]: { string } } = {}
 	for _, upgrade in Config.UPGRADES do
 		if not upgrade.leveled and not upgrade.optionalForCompletion and Config.upgradeInTheme(upgrade, id) then
 			table.insert(required, upgrade.id)
-			local island = Config.getUpgradeIsland(upgrade)
-			if island then
-				local list = islands[island] or {}
-				islands[island] = list
-				table.insert(list, upgrade.id)
-			end
 		end
 	end
 	requiredByFarm[id] = required
-	requiredByIsland[id] = islands
 end
 
 function Progression.defaults(now: number, lifetime: number?): any
@@ -36,7 +27,7 @@ function Progression.defaults(now: number, lifetime: number?): any
 		run = 1,
 		count = 0,
 		perks = {},
-		claims = {},
+		claims = {}, -- yalnız `terminal` (R30 son tur ödülü); eski ada/çiftlik anahtarları okunurken atılır
 		startedAt = now,
 		returnEndsAt = 0,
 		returnEnded = true,
@@ -143,21 +134,6 @@ function Progression.grantRebirthRewards(root: any): boolean
 	return changed
 end
 
-function Progression.isIslandComplete(save: any, islandId: string, farmId: string?): boolean
-	local id = farmId or save.farmId or save.activeMainFarmId
-	local farm = if id then farmView(save, id) else nil
-	local required = if requiredByIsland[id] then requiredByIsland[id][islandId] else nil
-	if not farm or not farm.purchased or not required or #required == 0 then
-		return false
-	end
-	for _, upgradeId in required do
-		if not farm.purchased[upgradeId] then
-			return false
-		end
-	end
-	return true
-end
-
 function Progression.isFarmComplete(save: any, farmId: string?): boolean
 	local id = farmId or save.farmId or save.activeMainFarmId
 	local required = requiredByFarm[id]
@@ -226,50 +202,45 @@ function Progression.getIncomeMultiplier(save: any, itemMultiplier: number): num
 	)
 end
 
-function Progression.collectGold(root: any, now: number): number
-	local state = root.progression
-	if not state then
-		state = Progression.defaults(now, root.lifetimeEarned)
-		root.progression = state
-	end
-	local bonus = Progression.getMilestoneBonus(root, "goldBonus")
-	local earned = 0
-	local balance = root.gold or 0
+-- Tek altın ödülü: rebirth ile (Rebirth.apply) ya da R30'da turun tamamlanmasıyla verilir; ada/çiftlik başına altın yoktur.
+-- Tutar o ana kadarki rebirth sayısıyla hafifçe artar ve tamamlama altını (goldBonus) kilometre taşlarını içerir.
+function Progression.rebirthGoldReward(save: any): number
+	local state = save.progression
+	local count = if state
+			and typeof(state.count) == "number"
+			and state.count == state.count
+		then math.clamp(math.floor(state.count), 0, Config.PROGRESSION.maxRebirth)
+		else 0
+	local gold = Config.PROGRESSION.gold
+	local base = gold.rebirthBase + gold.rebirthPerLevel * count
+	return math.floor(base * (1 + Progression.getMilestoneBonus(save, "goldBonus")) + 0.5)
+end
+
+-- Altı çiftlik de tur gereksinimlerini bitirmiş mi (R30'dan sonra da hesaplanır; canRebirth ise R30'da kapalıdır).
+function Progression.isRunComplete(root: any): boolean
 	for index = 1, Config.MAIN_FARM_LIMIT do
 		local id = tostring(index)
-		if not farmView(root, id) then
-			continue
-		end
-		local islands = { "home" }
-		for _, islandId in Config.getTheme(id).satellites do
-			table.insert(islands, islandId)
-		end
-		for _, islandId in islands do
-			local key = `island:{id}:{islandId}`
-			local reward = math.floor(Config.PROGRESSION.gold.island * (1 + bonus) + 0.5)
-			if
-				not state.claims[key]
-				and balance + earned + reward <= Config.PROGRESSION.gold.maxBalance
-				and Progression.isIslandComplete(root, islandId, id)
-			then
-				state.claims[key] = true
-				earned += reward
-			end
-		end
-		local key = `farm:{id}`
-		local reward = math.floor(Config.PROGRESSION.gold.farm * (1 + bonus) + 0.5)
-		if
-			not state.claims[key]
-			and balance + earned + reward <= Config.PROGRESSION.gold.maxBalance
-			and Progression.isFarmComplete(root, id)
-		then
-			state.claims[key] = true
-			earned += reward
+		if not farmView(root, id) or not Progression.isRebirthFarmComplete(root, id) then
+			return false
 		end
 	end
-	local previous = root.gold or 0
-	root.gold = math.min(Config.PROGRESSION.gold.maxBalance, previous + earned)
-	return root.gold - previous
+	return true
+end
+
+-- R30'da (başka sıfırlama yok) tamamlanan son tur ödülü bir kez verilir; `claims.terminal` tekrarı engeller.
+function Progression.collectTerminalGold(root: any): number
+	local state = root.progression
+	if not state or state.count < Config.PROGRESSION.maxRebirth or state.claims.terminal then
+		return 0
+	end
+	local reward = Progression.rebirthGoldReward(root)
+	local balance = root.gold or 0
+	if balance + reward > Config.PROGRESSION.gold.maxBalance or not Progression.isRunComplete(root) then
+		return 0
+	end
+	state.claims.terminal = true
+	root.gold = balance + reward
+	return reward
 end
 
 function Progression.goldCashQuote(save: any, amount: unknown, now: number): (number?, string?)

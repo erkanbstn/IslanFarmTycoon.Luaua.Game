@@ -22,32 +22,16 @@ function Rebirth.apply(
 		return false
 	end
 	local state = data.progression
-	local milestone = progression.getMilestone(state.count + 1)
-	local reward = if milestone then milestone.goldReward or 0 else 0
+	-- Tek altın ödülü rebirth işlemiyle birlikte (aynı atomik kayıt) verilir; tekrar oynatma `expectedRun` ile reddedilir.
+	local reward = progression.rebirthGoldReward(data)
 	local terminalCredits = if state.count + 1 == config.PROGRESSION.maxRebirth
 		then math.max(0, (state.doubleCredits or 0) - 1)
 		else 0
-	if
-		(data.gold or 0) + reward + terminalCredits * config.PROGRESSION.terminalDoubleGold
-		> config.PROGRESSION.gold.maxBalance
-	then
+	local total = reward + terminalCredits * config.PROGRESSION.terminalDoubleGold
+	if (data.gold or 0) + total > config.PROGRESSION.gold.maxBalance then
 		return false
 	end
-	progression.collectGold(data, now)
-	local claimed = 0
-	for _ in state.claims do
-		claimed += 1
-	end
-	if claimed < config.MAIN_FARM_LIMIT * 5 then
-		return false
-	end
-	if
-		data.gold + reward + terminalCredits * config.PROGRESSION.terminalDoubleGold
-		> config.PROGRESSION.gold.maxBalance
-	then
-		return false
-	end
-	data.gold += reward + terminalCredits * config.PROGRESSION.terminalDoubleGold
+	data.gold = (data.gold or 0) + total
 	state.count += 1
 	state.run += 1
 	if perkId ~= "prestige" then

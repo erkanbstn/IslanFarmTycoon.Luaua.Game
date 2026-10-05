@@ -519,6 +519,36 @@ for id, offer in Config.PROGRESSION.permanentOffers do
 	}
 end
 
+-- Eşyanın satış kanalı (tek kaynak): `reward` (rebirth ödülü), `cash` (yalnız nakit, tur içi), `cashGold` (nakit tur içi ya da kalıcı teklif),
+-- `goldRobux` (nakit yok; kalıcı teklif altın ya da Robux), `gold` (nakit yok; yalnız altın). Kalıcı teklif `Config/Progression.permanentOffers`.
+local offerByItem: { [string]: any } = {}
+for _, offer in Config.PROGRESSION.permanentOffers do
+	if offer.kind == "item" then
+		offerByItem[(offer :: any).itemId] = offer
+	end
+end
+
+-- Nakitle satın alınabilir mi (tur içi satış; gezgin tüccar ve Pazar'ın nakit listesi de bunu kullanır)
+function Config.isCashItem(item: ItemConfig): boolean
+	return not item.rewardOnly and not item.noCash and item.price > 0
+end
+
+function Config.getItemChannel(itemId: string): string
+	local item = Config.ITEMS[itemId]
+	if not item then
+		return "none"
+	end
+	if item.rewardOnly then
+		return "reward"
+	end
+	local offer = offerByItem[itemId]
+	local robux = offer ~= nil and (offer.robuxProductId or 0) ~= 0
+	if item.noCash then
+		return if robux then "goldRobux" elseif offer then "gold" else "none"
+	end
+	return if offer then "cashGold" else "cash"
+end
+
 function Config.getUpgrade(id: string): UpgradeConfig?
 	for _, upgrade in Config.UPGRADES do
 		if upgrade.id == id then

@@ -1,0 +1,594 @@
+<roblox version="4">
+  <Item class="Model" referent="cowboy_hat">
+    <Properties>
+      <string name="Name">tycoon_crown</string>
+      <BinaryString name="AttributesSerialize">AQAAAAYAAABBdHRhY2gCBAAAAGhlYWQ=</BinaryString>
+      <OptionalCoordinateFrame name="WorldPivotData">
+        <CFrame>
+          <X>0.00000000</X>
+          <Y>0.00000000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CFrame>
+      </OptionalCoordinateFrame>
+    </Properties>
+    <Item class="Part" referent="cowboy_hat_0">
+      <Properties>
+        <string name="Name">FrontBrim</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.09411764705882353</R>
+          <G>0.3058823529411765</G>
+          <B>0.18823529411764706</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>3.05</X>
+          <Y>0.12</Y>
+          <Z>0.625</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.57000000</Y>
+          <Z>-0.98750000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="cowboy_hat_1">
+      <Properties>
+        <string name="Name">RearBrim</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.09411764705882353</R>
+          <G>0.3058823529411765</G>
+          <B>0.18823529411764706</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>3.05</X>
+          <Y>0.12</Y>
+          <Z>0.625</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.57000000</Y>
+          <Z>0.98750000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="cowboy_hat_2">
+      <Properties>
+        <string name="Name">CurledBrim</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.09411764705882353</R>
+          <G>0.3058823529411765</G>
+          <B>0.18823529411764706</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.7749999999999999</X>
+          <Y>0.14</Y>
+          <Z>2.6</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-1.31250000</X>
+          <Y>0.64000000</Y>
+          <Z>0.00000000</Z>
+          <R00>0.9659258263</R00>
+          <R01>0.2588190451</R01>
+          <R02>0.0000000000</R02>
+          <R10>-0.2588190451</R10>
+          <R11>0.9659258263</R11>
+          <R12>-0.0000000000</R12>
+          <R20>-0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="cowboy_hat_3">
+      <Properties>
+        <string name="Name">CurledBrim</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.09411764705882353</R>
+          <G>0.3058823529411765</G>
+          <B>0.18823529411764706</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.7749999999999999</X>
+          <Y>0.14</Y>
+          <Z>2.6</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>1.31250000</X>
+          <Y>0.64000000</Y>
+          <Z>0.00000000</Z>
+          <R00>0.9659258263</R00>
+          <R01>-0.2588190451</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.2588190451</R10>
+          <R11>0.9659258263</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="cowboy_hat_4">
+      <Properties>
+        <string name="Name">HollowCrownFront</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.10980392156862745</R>
+          <G>0.35294117647058826</G>
+          <B>0.2196078431372549</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>1.85</X>
+          <Y>1.45000000</Y>
+          <Z>0.13</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>1.36500000</Y>
+          <Z>-0.78500000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="cowboy_hat_5">
+      <Properties>
+        <string name="Name">HollowCrownBack</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.10980392156862745</R>
+          <G>0.35294117647058826</G>
+          <B>0.2196078431372549</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>1.85</X>
+          <Y>1.45000000</Y>
+          <Z>0.13</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>1.36500000</Y>
+          <Z>0.78500000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="cowboy_hat_6">
+      <Properties>
+        <string name="Name">HollowCrownLeft</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.10980392156862745</R>
+          <G>0.35294117647058826</G>
+          <B>0.2196078431372549</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.13</X>
+          <Y>1.45000000</Y>
+          <Z>1.44</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.86000000</X>
+          <Y>1.36500000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="cowboy_hat_7">
+      <Properties>
+        <string name="Name">HollowCrownRight</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.10980392156862745</R>
+          <G>0.35294117647058826</G>
+          <B>0.2196078431372549</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.13</X>
+          <Y>1.45000000</Y>
+          <Z>1.44</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.86000000</X>
+          <Y>1.36500000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="cowboy_hat_8">
+      <Properties>
+        <string name="Name">RibbonFront</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.8862745098039215</R>
+          <G>0.7058823529411765</G>
+          <B>0.2549019607843137</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>1.89</X>
+          <Y>0.18</Y>
+          <Z>0.14</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.76000000</Y>
+          <Z>-0.80000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="cowboy_hat_9">
+      <Properties>
+        <string name="Name">RibbonBack</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.8862745098039215</R>
+          <G>0.7058823529411765</G>
+          <B>0.2549019607843137</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>1.89</X>
+          <Y>0.18</Y>
+          <Z>0.14</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.76000000</Y>
+          <Z>0.80000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="cowboy_hat_10">
+      <Properties>
+        <string name="Name">RibbonLeft</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.8862745098039215</R>
+          <G>0.7058823529411765</G>
+          <B>0.2549019607843137</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.14</X>
+          <Y>0.18</Y>
+          <Z>1.46</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.87500000</X>
+          <Y>0.76000000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="cowboy_hat_11">
+      <Properties>
+        <string name="Name">RibbonRight</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.8862745098039215</R>
+          <G>0.7058823529411765</G>
+          <B>0.2549019607843137</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.14</X>
+          <Y>0.18</Y>
+          <Z>1.46</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.87500000</X>
+          <Y>0.76000000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="cowboy_hat_12">
+      <Properties>
+        <string name="Name">CreasedCrownTop</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.0784313725490196</R>
+          <G>0.25882352941176473</G>
+          <B>0.1568627450980392</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.94</X>
+          <Y>0.16000000</Y>
+          <Z>1.72</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.44000000</X>
+          <Y>2.11000000</Y>
+          <Z>0.00000000</Z>
+          <R00>0.9743700648</R00>
+          <R01>0.2249510543</R01>
+          <R02>0.0000000000</R02>
+          <R10>-0.2249510543</R10>
+          <R11>0.9743700648</R11>
+          <R12>-0.0000000000</R12>
+          <R20>-0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="cowboy_hat_13">
+      <Properties>
+        <string name="Name">CreasedCrownTop</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.0784313725490196</R>
+          <G>0.25882352941176473</G>
+          <B>0.1568627450980392</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.94</X>
+          <Y>0.16000000</Y>
+          <Z>1.72</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.44000000</X>
+          <Y>2.11000000</Y>
+          <Z>0.00000000</Z>
+          <R00>0.9743700648</R00>
+          <R01>-0.2249510543</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.2249510543</R10>
+          <R11>0.9743700648</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="cowboy_hat_14">
+      <Properties>
+        <string name="Name">RibbonBuckle</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.9803921568627451</R>
+          <G>0.8784313725490196</G>
+          <B>0.47058823529411764</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.27</X>
+          <Y>0.23</Y>
+          <Z>0.08</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.42000000</X>
+          <Y>0.76000000</Y>
+          <Z>-0.91000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+  </Item>
+</roblox>

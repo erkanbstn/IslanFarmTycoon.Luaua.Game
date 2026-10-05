@@ -41,7 +41,7 @@ def run(persona: str, scenario: str, extra: list[str]) -> dict:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--personas", default="ideal,casual,idle")
-    parser.add_argument("--scenarios", default="free_save,free_equipment,r1_income,r1_saved_equipment,permanent_fast")
+    parser.add_argument("--scenarios", default="free_save,free_equipment,r1_income,r1_reward_equipment,permanent_fast")
     parser.add_argument("--output", default=".test-build/rebirth-comparison.json")
     args = parser.parse_args()
     personas = [part.strip() for part in args.personas.split(",") if part.strip()]
@@ -50,7 +50,7 @@ def main() -> int:
         "free_equipment": ["--gold-policy", "equipment"],
         "free_convert": ["--gold-policy", "convert"],
         "r1_income": ["--rebirth", "1", "--perks", "income:1"],
-        "r1_saved_equipment": ["--rebirth", "1", "--perks", "income:1", "--starting-gold", "780", "--gold-policy", "equipment"],
+        "r1_reward_equipment": ["--rebirth", "1", "--perks", "income:1", "--starting-gold", "750", "--gold-policy", "equipment"],
         "permanent_fast": ["--rebirth", "10", "--perks", "income:5,growth:5", "--run-double",
                            "--equipment", "diamond_hammer,golden_crown,income_charm_3,golden_wings",
                            "--conveniences", "auto_collect,pet_cash,pet_goods"],

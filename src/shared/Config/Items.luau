@@ -2,6 +2,10 @@
 -- Eşya tanımları. Fiyatlar toplam yükseltme harcamasına (≈12 milyon) ve gelir tempo hedeflerine göre ayarlıdır:
 -- çekiç indirimleri, ilk saatte alınırsa büyük tasarruf sağlar; pahalı kademeler geç oyun içindir.
 -- Tanımları `items` ve `order` tablolarına ekler (Config.ITEMS / Config.ITEM_ORDER).
+-- Satış kanalı `price` (nakit referans) ve `noCash` ile belirlenir (Config.getItemChannel): ~150k ve altı yalnız nakit,
+-- ~150k-1.5M nakit + kalıcı teklif, üst kademe `noCash` (yalnız Progression.permanentOffers: altın, Robux kimliği varsa Robux).
+-- Altın bedeli fiyattan tek formülle türer (Progression.luau). Yuva rolleri: alet = maliyet indirimi, başlık = ticaret,
+-- sırt = lojistik, muska = ekonomi, asa = güç + pasif.
 
 local Types = require(script.Parent:WaitForChild("Types"))
 
@@ -56,6 +60,8 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 			"angel_wings",
 			"artisan_cape",
 			"expedition_pack",
+			"lucky_clover",
+			"harvest_sickle",
 		},
 		{
 			"diamond_hammer",
@@ -69,8 +75,25 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 			"warehouse_pack",
 			"night_cape",
 			"master_crown",
+			"foreman_mallet",
+			"fortune_charm",
+			"caravan_satchel",
+			"victory_laurel",
+			"phoenix_wings",
+			"crystal_wings",
+			"engineer_wrench",
+			"scholar_charm",
+			"captain_hat",
+			"courier_pack",
+			"merchant_seal",
 		},
-		{ "season_staff_inf", "weather_staff_inf", "golden_crown" },
+		{
+			"season_staff_inf",
+			"weather_staff_inf",
+			"golden_crown",
+			"eternal_shepherd_staff",
+			"tycoon_crown",
+		},
 	}
 	for level, ids in tiers do
 		for _, id in ids do
@@ -121,6 +144,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🔨",
 		slot = "tool",
 		price = 2000000,
+		noCash = true,
 		effects = { upgradeDiscount = 0.15, expansionDiscount = 0.09, sellBonus = 0.08, facilitySpeed = 0.05 },
 		look = { attach = "hip" },
 	})
@@ -129,7 +153,8 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		displayName = "Elmas Çekiç",
 		icon = "🔨",
 		slot = "tool",
-		price = 2500000,
+		price = 3500000,
+		noCash = true,
 		effects = {
 			movementSpeed = 0.02,
 			upgradeDiscount = 0.2,
@@ -147,7 +172,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🪄",
 		slot = "staff",
 		price = 150000,
-		effects = { contractBonus = 0.02 },
+		effects = { contractBonus = 0.03 },
 		power = { kind = "season", usesPerDay = 1 },
 		look = { attach = "hand" },
 	})
@@ -157,7 +182,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🪄",
 		slot = "staff",
 		price = 600000,
-		effects = { contractBonus = 0.04 },
+		effects = { contractBonus = 0.05, sellBonus = 0.03 },
 		power = { kind = "season", usesPerDay = 3 },
 		look = { attach = "hand" },
 	})
@@ -166,8 +191,8 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		displayName = "Büyücü Mevsim Asası",
 		icon = "🪄",
 		slot = "staff",
-		price = 1500000,
-		effects = { contractBonus = 0.06 },
+		price = 1200000,
+		effects = { contractBonus = 0.08, sellBonus = 0.05, goodsYield = 0.04 },
 		power = { kind = "season", usesPerDay = 5 },
 		look = { attach = "hand" },
 	})
@@ -177,7 +202,8 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🪄",
 		slot = "staff",
 		price = 6000000,
-		effects = { movementSpeed = 0.03, contractBonus = 0.1 },
+		noCash = true,
+		effects = { movementSpeed = 0.03, contractBonus = 0.12, goodsYield = 0.06 },
 		power = { kind = "season" },
 		look = { attach = "hand" },
 	})
@@ -188,6 +214,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		slot = "staff",
 		price = 100000,
 		effects = { facilitySpeed = 0.03, storageBonus = 0.05 },
+		power = { kind = "collect", usesPerDay = 3 },
 		look = { attach = "hand" },
 	})
 	add({
@@ -197,6 +224,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		slot = "staff",
 		price = 400000,
 		effects = { facilitySpeed = 0.05, offlineBonus = 0.08 },
+		power = { kind = "collect", usesPerDay = 6 },
 		look = { attach = "hand" },
 	})
 	add({
@@ -206,6 +234,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		slot = "staff",
 		price = 1000000,
 		effects = { facilitySpeed = 0.07, offlineBonus = 0.1, expansionDiscount = 0.04 },
+		power = { kind = "collect", usesPerDay = 12 },
 		look = { attach = "hand" },
 	})
 	add({
@@ -214,7 +243,8 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🪄",
 		slot = "staff",
 		price = 4000000,
-		effects = { movementSpeed = 0.03, goodsYield = 0.1 },
+		noCash = true,
+		effects = { movementSpeed = 0.03, goodsYield = 0.12, facilitySpeed = 0.06 },
 		power = { kind = "weather", usesPerDay = 1 },
 		look = { attach = "hand" },
 	})
@@ -280,6 +310,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "📿",
 		slot = "charm",
 		price = 5000000,
+		noCash = true,
 		effects = { incomeBonus = 0.1, sellBonus = 0.15 },
 		look = { attach = "chest" },
 	})
@@ -309,7 +340,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🎩",
 		slot = "head",
 		price = 30000,
-		effects = { goodsYield = 0.03 },
+		effects = { goodsYield = 0.02, sellBonus = 0.015 },
 		look = { attach = "head" },
 	})
 	add({
@@ -327,6 +358,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🎩",
 		slot = "head",
 		price = 30000000,
+		noCash = true,
 		effects = { movementSpeed = 0.03, incomeBonus = 1, sellBonus = 0.04 },
 		look = { attach = "head" },
 	})
@@ -355,8 +387,8 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		displayName = "Melek Kanatları",
 		icon = "🧥",
 		slot = "back",
-		price = 250000,
-		effects = { incomeBonus = 0.05 },
+		price = 300000,
+		effects = { incomeBonus = 0.05, movementSpeed = 0.06 },
 		look = { attach = "back" },
 	})
 	add({
@@ -364,8 +396,9 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		displayName = "Altın Kanatlar",
 		icon = "🧥",
 		slot = "back",
-		price = 1000000,
-		effects = { movementSpeed = 0.1, incomeBonus = 0.06, offlineBonus = 0.1 },
+		price = 1600000,
+		noCash = true,
+		effects = { movementSpeed = 0.12, incomeBonus = 0.08, offlineBonus = 0.1 },
 		look = { attach = "back" },
 	})
 
@@ -403,7 +436,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "📿",
 		slot = "charm",
 		price = 800000,
-		effects = { contractBonus = 0.14, sellBonus = 0.07 },
+		effects = { contractBonus = 0.17, sellBonus = 0.08 },
 		look = { attach = "chest" },
 	})
 
@@ -452,7 +485,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🧥",
 		slot = "back",
 		price = 90000,
-		effects = { growthSpeed = 1.08 },
+		effects = { growthSpeed = 1.08, offlineBonus = 0.02 },
 		look = { attach = "back" },
 	})
 	add({
@@ -472,6 +505,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🔨",
 		slot = "tool",
 		price = 1600000,
+		noCash = true,
 		effects = { expansionDiscount = 0.18, facilitySpeed = 0.18 },
 		look = { attach = "hip" },
 	})
@@ -481,6 +515,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🪄",
 		slot = "staff",
 		price = 1800000,
+		noCash = true,
 		effects = { facilitySpeed = 0.18, goodsYield = 0.12 },
 		power = { kind = "rush", usesPerDay = 3 },
 		look = { attach = "hand" },
@@ -500,7 +535,8 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "📿",
 		slot = "charm",
 		price = 1800000,
-		effects = { movementSpeed = 0.04, storageBonus = 0.6, goodsYield = 0.08 },
+		noCash = true,
+		effects = { movementSpeed = 0.06, storageBonus = 0.7, goodsYield = 0.12, offlineBonus = 0.1 },
 		look = { attach = "chest" },
 	})
 	add({
@@ -509,6 +545,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "📿",
 		slot = "charm",
 		price = 1500000,
+		noCash = true,
 		effects = { growthSpeed = 1.5, sellBonus = 0.06 },
 		look = { attach = "chest" },
 	})
@@ -527,6 +564,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🧥",
 		slot = "back",
 		price = 1800000,
+		noCash = true,
 		effects = { movementSpeed = 0.08, offlineBonus = 0.2, storageBonus = 0.25 },
 		look = { attach = "back" },
 	})
@@ -545,8 +583,9 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "📿",
 		slot = "charm",
 		price = 2500000,
-		effects = { contractBonus = 0.25, sellBonus = 0.05 },
-		tradeoffs = { goodsYield = 0.1 },
+		noCash = true,
+		effects = { contractBonus = 0.25, sellBonus = 0.12 },
+		tradeoffs = { goodsYield = 0.06 },
 		look = { attach = "chest" },
 	})
 	add({
@@ -555,7 +594,8 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		icon = "🧥",
 		slot = "back",
 		price = 2600000,
-		effects = { storageBonus = 0.5, offlineBonus = 0.15 },
+		noCash = true,
+		effects = { storageBonus = 0.6, offlineBonus = 0.2 },
 		tradeoffs = { facilitySpeed = 0.05 },
 		look = { attach = "back" },
 	})
@@ -569,6 +609,163 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		tradeoffs = { offlineBonus = 0.15 },
 		power = { kind = "growth", usesPerDay = 3 },
 		look = { attach = "hand" },
+	})
+	-- Yalnız altınla alınan ekipmanlar (noCash, Robux kimliği yok): fiyat yalnızca değer/sıralama referansıdır.
+	-- Her biri kendi yuvasında benzersiz bir rol taşır ve üst sınırların (hız %25, gelir x3) altında kalır.
+	add({
+		id = "foreman_mallet",
+		displayName = "Ustabaşı Tokmağı",
+		icon = "🔨",
+		slot = "tool",
+		price = 3000000,
+		noCash = true,
+		effects = { upgradeDiscount = 0.17, expansionDiscount = 0.14, facilitySpeed = 0.12 },
+		look = { attach = "hip" },
+	})
+	add({
+		id = "fortune_charm",
+		displayName = "Servet Tılsımı",
+		icon = "📿",
+		slot = "charm",
+		price = 4000000,
+		noCash = true,
+		effects = { incomeBonus = 0.08, offlineBonus = 0.3 },
+		look = { attach = "chest" },
+	})
+	add({
+		id = "tycoon_crown",
+		displayName = "Tüccar Tacı",
+		icon = "🎩",
+		slot = "head",
+		price = 5500000,
+		noCash = true,
+		effects = { contractBonus = 0.18, sellBonus = 0.14 },
+		look = { attach = "head" },
+	})
+	add({
+		id = "caravan_satchel",
+		displayName = "Kervan Çantası",
+		icon = "🧥",
+		slot = "back",
+		price = 3800000,
+		noCash = true,
+		effects = { storageBonus = 0.6, goodsYield = 0.15, movementSpeed = 0.03 },
+		look = { attach = "back" },
+	})
+	add({
+		id = "eternal_shepherd_staff",
+		displayName = "Ebedi Çoban Asası",
+		icon = "🪄",
+		slot = "staff",
+		price = 4500000,
+		noCash = true,
+		effects = { facilitySpeed = 0.12, offlineBonus = 0.25 },
+		power = { kind = "collect" },
+		look = { attach = "hand" },
+	})
+	-- Yeni rebirth ödülleri (R9/R15/R21/R27): kendi yuvalarındaki satılık ekipmandan güçlü, R30 ödüllerinden (Ustalık Tacı,
+	-- Gece Pelerini) zayıftır. Fiyat 1 yalnız referanstır; satılmaz. Kanat merdiveni: Melek .06 < Kristal .09 < Altın .12 < Anka .15.
+	add({
+		id = "lucky_clover",
+		displayName = "Şans Yoncası",
+		icon = "📿",
+		slot = "charm",
+		price = 1,
+		rewardOnly = true,
+		effects = { incomeBonus = 0.06, sellBonus = 0.12, contractBonus = 0.1, goodsYield = 0.05 },
+		look = { attach = "chest" },
+	})
+	add({
+		id = "harvest_sickle",
+		displayName = "Hasat Orağı",
+		icon = "🔨",
+		slot = "tool",
+		price = 1,
+		rewardOnly = true,
+		effects = { upgradeDiscount = 0.13, expansionDiscount = 0.1, sellBonus = 0.06 },
+		look = { attach = "hip" },
+	})
+	add({
+		id = "victory_laurel",
+		displayName = "Zafer Çelengi",
+		icon = "🎩",
+		slot = "head",
+		price = 1,
+		rewardOnly = true,
+		effects = { incomeBonus = 0.08, contractBonus = 0.14, sellBonus = 0.12 },
+		look = { attach = "head" },
+	})
+	add({
+		id = "phoenix_wings",
+		displayName = "Anka Kanatları",
+		icon = "🧥",
+		slot = "back",
+		price = 1,
+		rewardOnly = true,
+		effects = { movementSpeed = 0.15, incomeBonus = 0.1, offlineBonus = 0.2 },
+		look = { attach = "back" },
+	})
+	-- Yeni yalnız-altın ekipmanlar (noCash, Robux kimliği yok). Kristal Kanatlar fiyatı Altın Kanatlar'ın (1,6M) hemen altında
+	-- ve Atölye Pelerini'nin (1,3M) üstündedir: kanat merdiveni ile slot içi fiyat-güç sırası birlikte korunur.
+	add({
+		id = "crystal_wings",
+		displayName = "Kristal Kanatlar",
+		icon = "🧥",
+		slot = "back",
+		price = 1550000,
+		noCash = true,
+		effects = { movementSpeed = 0.09, incomeBonus = 0.06, storageBonus = 0.16 },
+		look = { attach = "back" },
+	})
+	add({
+		id = "engineer_wrench",
+		displayName = "Mühendis Anahtarı",
+		icon = "🔨",
+		slot = "tool",
+		price = 2700000,
+		noCash = true,
+		effects = { upgradeDiscount = 0.16, expansionDiscount = 0.1, facilitySpeed = 0.1 },
+		look = { attach = "hip" },
+	})
+	add({
+		id = "scholar_charm",
+		displayName = "Bilge Tılsımı",
+		icon = "📿",
+		slot = "charm",
+		price = 2200000,
+		noCash = true,
+		effects = { growthSpeed = 1.6, facilitySpeed = 0.12, goodsYield = 0.05 },
+		look = { attach = "chest" },
+	})
+	add({
+		id = "captain_hat",
+		displayName = "Kaptan Şapkası",
+		icon = "🎩",
+		slot = "head",
+		price = 2400000,
+		noCash = true,
+		effects = { contractBonus = 0.14, sellBonus = 0.1, goodsYield = 0.04 },
+		look = { attach = "head" },
+	})
+	add({
+		id = "courier_pack",
+		displayName = "Ulak Çantası",
+		icon = "🧥",
+		slot = "back",
+		price = 2000000,
+		noCash = true,
+		effects = { movementSpeed = 0.06, storageBonus = 0.5, goodsYield = 0.08 },
+		look = { attach = "back" },
+	})
+	add({
+		id = "merchant_seal",
+		displayName = "Tüccar Mührü",
+		icon = "📿",
+		slot = "charm",
+		price = 3200000,
+		noCash = true,
+		effects = { contractBonus = 0.2, sellBonus = 0.15, offlineBonus = 0.1 },
+		look = { attach = "chest" },
 	})
 	-- Başarım ekipmanları para ile satılmaz; tek yuvayı kullanarak diğer ekipmanlardan vazgeçmeyi gerektirir.
 	add({

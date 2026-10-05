@@ -59,6 +59,8 @@ function StoreSection.create(list: GuiObject, category: string?): ((PlayerSave) 
 		product: Config.ProductConfig,
 		card: UiKit.Card,
 		goldButton: TextButton?,
+		robuxNote: TextLabel?,
+		goldOnly: boolean,
 		details: any,
 		detailsLabel: TextLabel,
 	}
@@ -89,7 +91,11 @@ function StoreSection.create(list: GuiObject, category: string?): ((PlayerSave) 
 			local ia = if oa and oa.itemId then Config.ITEMS[oa.itemId] else nil
 			local ib = if ob and ob.itemId then Config.ITEMS[ob.itemId] else nil
 			local la, lb = if ia then ia.level or 1 else 0, if ib then ib.level or 1 else 0
-			return if la ~= lb then la < lb else a < b
+			if la ~= lb then
+				return la < lb
+			end
+			local ca, cb = if oa then oa.goldCost else 0, if ob then ob.goldCost else 0
+			return if ca ~= cb then ca < cb else a < b
 		end)
 		for _, key in keys do
 			local product = group.items[key]
@@ -106,9 +112,19 @@ function StoreSection.create(list: GuiObject, category: string?): ((PlayerSave) 
 			local details = UiKit.disclosure(card.frame, 6, "Ayrıntılar")
 			local detailsLabel = UiKit.text(details.body, "", "Caption")
 			detailsLabel.LayoutOrder = 1
+			-- Yalnız altınla satılan eşyada Robux yolu yoktur: düğme gizlenir, açıklama kurulmaz.
+			local goldOnly = offer ~= nil and offer.itemId ~= nil and Config.getItemChannel(offer.itemId) == "gold"
+			local robuxNote: TextLabel? = nil
 			if offer then
 				card.action.Parent = details.body
-				card.action.LayoutOrder = 2
+				card.action.LayoutOrder = 3
+				if goldOnly then
+					card.action.Visible = false
+				else
+					local note = UiKit.text(details.body, "Altın biriktirmeden hemen almak için Robux", "Caption")
+					note.LayoutOrder = 2
+					robuxNote = note
+				end
 			end
 			details.body:GetPropertyChangedSignal("Visible"):Connect(function()
 				if current then
@@ -146,6 +162,8 @@ function StoreSection.create(list: GuiObject, category: string?): ((PlayerSave) 
 				product = product,
 				card = card,
 				goldButton = goldButton,
+				robuxNote = robuxNote,
+				goldOnly = goldOnly,
 				details = details,
 				detailsLabel = detailsLabel,
 			}
@@ -218,10 +236,11 @@ function StoreSection.create(list: GuiObject, category: string?): ((PlayerSave) 
 			detail = "Bu turdaki 2x ile çarpılmaz. Rebirth sonrasında da 2x gelir sağlar."
 		elseif offer then
 			local item = if offer.itemId then Config.ITEMS[offer.itemId] else nil
+			local cashAlternative = if item and Config.isCashItem(item)
+				then `\nNakit alternatif: {FarmMath.formatMoney(item.price)} · Bu tur`
+				else ""
 			detail = if item
-				then `{ItemText.slotNotice(item)}\n{ItemText.additional(item)}\nNakit alternatif: {FarmMath.formatMoney(
-					item.price
-				)} · Bu tur`
+				then `{ItemText.channelNotice(item)}\n{ItemText.slotNotice(item)}\n{ItemText.additional(item)}{cashAlternative}`
 				else if offer.id == "pet_cash" or offer.id == "pet_goods"
 					then "Otomatik tekrar açıksa yeni parti başlatır. Hayvan ve depo koşulları yine gerekir."
 					else "Bütün açık çiftliklerinde çalışır. Kalıcı sahiplik rebirth'te korunur."
@@ -237,7 +256,7 @@ function StoreSection.create(list: GuiObject, category: string?): ((PlayerSave) 
 		local item = if offer and offer.itemId then Config.ITEMS[offer.itemId] else nil
 		UiKit.setText(entry.detailsLabel, detail)
 		local summary = if item
-			then `Kalıcı · {string.match(ItemText.describe(item), "[^\n]+") or ""}`
+			then `Kalıcı · {string.match(ItemText.describe(item), "[^\n]+") or ""}\n{ItemText.channelNotice(item)}`
 			elseif offer then `Kalıcı · {CONVENIENCE_BENEFITS[offer.id] or product.description}`
 			elseif product.effect == "incomePack" then `{FarmMath.formatMoney(cashAmount or 0)} · Bu tur`
 			elseif product.effect == "runDouble" then "Bu tur · 2x gelir"
@@ -248,7 +267,7 @@ function StoreSection.create(list: GuiObject, category: string?): ((PlayerSave) 
 		UiKit.setText(entry.card.detail, summary)
 		local price: number? = nil
 		local priceStatus: ProductPrices.Status = "loading"
-		if not owned and product.id ~= 0 and list.Visible ~= false then
+		if not owned and not entry.goldOnly and product.id ~= 0 and list.Visible ~= false then
 			price, priceStatus = ProductPrices.get(entry.kind, product.id)
 		end
 		local paidLabel = if priceStatus == "ready"
@@ -256,7 +275,13 @@ function StoreSection.create(list: GuiObject, category: string?): ((PlayerSave) 
 			elseif priceStatus == "unavailable" then "Satışta değil"
 			elseif priceStatus == "failed" then "Fiyatı Roblox'ta gör"
 			else "Fiyat yükleniyor"
-		UiKit.setText(entry.card.action, if label == "Robux ile al" then paidLabel else label)
+		if entry.robuxNote then
+			entry.robuxNote.Visible = not owned and product.id ~= 0
+		end
+		UiKit.setText(
+			entry.card.action,
+			if entry.goldOnly then "" elseif label == "Robux ile al" then paidLabel else label
+		)
 		UiKit.setVariant(
 			entry.card.action,
 			if owned

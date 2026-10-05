@@ -20,6 +20,19 @@ function ItemText.slotNotice(item: Config.ItemConfig): string
 	return `Yuva: {if slot then slot.displayName else item.slot} · Takılı eşyanın yerine geçer.`
 end
 
+-- Satış kanalı notu (Config.getItemChannel tek kaynak); tanımsız kanal boş metin döner.
+local CHANNEL_NOTICES: { [string]: string } = {
+	cash = "Bu tur · nakit",
+	cashGold = "Nakit (bu tur) ya da altın/Robux (kalıcı)",
+	goldRobux = "Altın ya da Robux ile · kalıcı",
+	gold = "Yalnızca altınla · kalıcı",
+	reward = "Rebirth ödülü",
+}
+
+function ItemText.channelNotice(item: Config.ItemConfig): string
+	return CHANNEL_NOTICES[Config.getItemChannel(item.id)] or ""
+end
+
 function ItemText.describe(item: Config.ItemConfig): string
 	local parts: { string } = {}
 	local effects = item.effects
@@ -79,6 +92,8 @@ function ItemText.describe(item: Config.ItemConfig): string
 				parts,
 				`{uses}: yavru hayvanların kalan büyümesini %{math.round((settings.fraction or 0) * 100)} kısalt`
 			)
+		elseif power.kind == "collect" and settings then
+			table.insert(parts, `{uses}: depodaki parayı platforma gitmeden topla`)
 		elseif power.kind == "rush" and settings then
 			table.insert(
 				parts,

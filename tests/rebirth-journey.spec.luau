@@ -50,8 +50,8 @@ return function(Config: any, FarmMath: any, Progression: any, SaveCodec: any, In
 					"optional garden has a real price and roadmap stage"
 				)
 				assert(
-					Progression.isIslandComplete(root, Config.getUpgradeIsland(upgrade), id),
-					"optional garden does not withhold island completion gold"
+					Progression.isRebirthFarmComplete(root, id) or Progression.isFarmComplete(root, id),
+					"optional garden does not withhold farm completion"
 				)
 			end
 		end
@@ -116,13 +116,70 @@ return function(Config: any, FarmMath: any, Progression: any, SaveCodec: any, In
 				data.owned.items[milestone.itemId] and Inventory.owns(data, milestone.itemId),
 				"free rewards survive rebirth via permanent rights"
 			)
+			local item = Config.ITEMS[milestone.itemId]
 			assert(
-				Config.ITEMS[milestone.itemId].rewardOnly and not Config.PROGRESSION.permanentOffers[milestone.itemId],
-				"earned items are never paid prerequisites"
+				(item.rewardOnly and not Config.PROGRESSION.permanentOffers[milestone.itemId])
+					or Config.getItemChannel(milestone.itemId) == "cashGold",
+				"earned items are either reward-only or an early cash+gold shop item"
 			)
 		end
 	end
-	assert(rewards == 5, "five milestone equipment alternatives")
+	assert(rewards == 14, "nine later milestone items plus five early R1-R5 items")
+	local seen: { [string]: number } = {}
+	for _, milestone in Config.PROGRESSION.milestones do
+		if milestone.itemId then
+			seen[milestone.itemId] = (seen[milestone.itemId] or 0) + 1
+			assert(seen[milestone.itemId] == 1, `{milestone.itemId} is granted by only one milestone`)
+		end
+	end
+	-- Erken ödüller: R1..R5 hem sabit etki hem kalıcı eşya verir; bir önceki seviyede eşya yoktur.
+	for level, expected in
+		{
+			[1] = "wind_charm",
+			[2] = "merchant_hat",
+			[3] = "storage_charm_2",
+			[4] = "growth_charm_2",
+			[5] = "contract_charm_2",
+		}
+	do
+		local milestone = assert(Config.PROGRESSION.milestones[level], "milestone exists")
+		assert(milestone.itemId == expected and milestone.effects, `R{level} grants {expected} and keeps its stat`)
+		assert(string.find(milestone.description, " · Kalıcı ", 1, true), `R{level} description names the item`)
+		local before = fresh()
+		before.progression.count = level - 1
+		Progression.grantRebirthRewards(before)
+		assert(not Inventory.owns(before, expected), `{expected} is not granted before R{level}`)
+		local reached = fresh()
+		reached.progression.count = level
+		assert(Progression.grantRebirthRewards(reached), `R{level} grants ownership`)
+		assert(
+			reached.owned.items[expected] and reached.inventory.items[expected] and Inventory.owns(reached, expected),
+			`{expected} is owned at R{level}`
+		)
+		assert(Inventory.equip(reached, expected), `{expected} equips`)
+		assert(not Progression.grantRebirthRewards(reached), `{expected} grant is idempotent`)
+		assert(Config.PROGRESSION.permanentOffers[expected], `{expected} stays a shop item (duplicates refund in gold)`)
+	end
+	-- Yeni ara ödüller: ilgili seviyede hem sabit etki hem eşya verilir; bir önceki seviyede eşya yoktur.
+	for level, expected in
+		{ [9] = "lucky_clover", [15] = "harvest_sickle", [21] = "victory_laurel", [27] = "phoenix_wings" }
+	do
+		local milestone = assert(Config.PROGRESSION.milestones[level], "milestone exists")
+		assert(milestone.itemId == expected and milestone.effects, `R{level} grants {expected} and keeps its stat`)
+		local before = fresh()
+		before.progression.count = level - 1
+		Progression.grantRebirthRewards(before)
+		assert(not Inventory.owns(before, expected), `{expected} is not granted before R{level}`)
+		local reached = fresh()
+		reached.progression.count = level
+		assert(Progression.grantRebirthRewards(reached), `R{level} grants ownership`)
+		assert(
+			reached.owned.items[expected] and reached.inventory.items[expected] and Inventory.owns(reached, expected),
+			`{expected} is owned and in the inventory at R{level}`
+		)
+		assert(Inventory.equip(reached, expected), `{expected} equips`)
+		assert(not Progression.grantRebirthRewards(reached), `{expected} grant is idempotent`)
+	end
 	assert(
 		math.abs(Progression.getMilestoneBonus(data, "goldBonus") - 0.2) < 1e-6,
 		"completion gold bonus bounded at20 percent"

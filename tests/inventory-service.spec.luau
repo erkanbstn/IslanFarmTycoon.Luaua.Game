@@ -113,6 +113,25 @@ return function(
 	local function buy(h: any, itemId: any, requestId: any?): any
 		return h.fire("RequestBuyItem", itemId, requestId or h.nextId())
 	end
+	-- Nakitsiz (noCash) eşya: sunucu nakit satın almayı hiçbir parayla kabul etmez, para ve sahiplik değişmez
+	do
+		local premium = setup()
+		premium.data.cash = 1e15
+		local checked = 0
+		for _, itemId in config.ITEM_ORDER do
+			local candidate = config.ITEMS[itemId]
+			if candidate.noCash then
+				checked += 1
+				local denied = buy(premium, itemId)
+				assert(
+					denied and denied.ok == false and not inventory.owns(premium.data, itemId),
+					`{itemId}: noCash items cannot be bought with cash`
+				)
+			end
+		end
+		assert(checked >= 10 and premium.data.cash == 1e15, "rejected noCash purchases take no money")
+		assert(premium.counters.saves == 0, "rejected noCash purchases persist nothing")
+	end
 	do
 		local speed = setup()
 		speed.data.cash = 1e9
@@ -225,7 +244,7 @@ return function(
 	rewardShop.data.cash = 1e12
 	local rewardCash = rewardShop.data.cash
 	for _, milestone in config.PROGRESSION.milestones do
-		if milestone.itemId then
+		if milestone.itemId and config.ITEMS[milestone.itemId].rewardOnly then
 			assert(
 				not buy(rewardShop, milestone.itemId).ok,
 				"earned-only reward cannot be forged through the cash remote"
@@ -244,7 +263,7 @@ return function(
 	local h = setup()
 	local data = h.data
 	local item = itemOf(function(candidate: any): boolean
-		return candidate.price > 0
+		return config.isCashItem(candidate)
 	end)
 	data.cash = item.price + 3
 	local reply = buy(h, item.id)
@@ -300,7 +319,7 @@ return function(
 	local limited = setup()
 	limited.data.cash = 1e12
 	local second = itemOf(function(candidate: any): boolean
-		return candidate.id ~= item.id and candidate.price > 0
+		return candidate.id ~= item.id and config.isCashItem(candidate)
 	end)
 	assert(buy(limited, item.id).ok == true, "first purchase passes the limiter")
 	local cashBefore = limited.data.cash
@@ -335,7 +354,7 @@ return function(
 	local power = setup()
 	power.data.cash = 1e12
 	local staff = itemOf(function(candidate: any): boolean
-		return candidate.power ~= nil and candidate.power.kind == "season" and candidate.price > 0
+		return candidate.power ~= nil and candidate.power.kind == "season" and config.isCashItem(candidate)
 	end)
 	local current = power.environment.getSeason(power.data.envOverride)
 	local target = nil
@@ -392,7 +411,12 @@ return function(
 			)
 		end
 		assert(not useWeather().ok and weather.weatherCalls() == 0, "unowned weather staff cannot mutate the server")
-		assert(buy(weather, weatherStaff.id).ok, "weather staff bought and equipped")
+		assert(not buy(weather, weatherStaff.id).ok, "the eternal weather staff is not sold for cash")
+		inventory.grant(weather.data, weatherStaff.id)
+		assert(
+			weather.fire("RequestEquipItem", weatherStaff.id, weather.nextId()).ok,
+			"weather staff owned through the permanent route and equipped"
+		)
 		weather.weatherRejected = true
 		assert(
 			not useWeather().ok and weather.metricCounts.ItemPowersUsed == nil,
@@ -410,7 +434,8 @@ return function(
 		local queuedStaff = itemOf(function(candidate: any): boolean
 			return candidate.power ~= nil and candidate.power.kind == "weather" and candidate.price > 0
 		end)
-		assert(buy(queued, queuedStaff.id).ok, "queue staff acquired")
+		inventory.grant(queued.data, queuedStaff.id)
+		assert(queued.fire("RequestEquipItem", queuedStaff.id, queued.nextId()).ok, "queue staff acquired and equipped")
 		queued.weatherBusy = true
 		local function request(detail: any, farm: string?): any
 			return queued.fire(
@@ -513,6 +538,29 @@ return function(
 		assert(
 			not noJob.ok and inventory.usesLeft(idle.data, "artisan_staff", idle.now) == 3,
 			"no running production: refused and no use is consumed"
+		)
+
+		-- Uzaktan toplama (Çoban Asaları): depo doluysa topla, boşsa hak harcama
+		local collect = setup()
+		equipOwned(collect, "weather_staff_1")
+		local empty = ability(collect, "weather_staff_1", "use")
+		assert(
+			not empty.ok and inventory.usesLeft(collect.data, "weather_staff_1", collect.now) == 3,
+			"an empty barn is refused and consumes no use"
+		)
+		collect.collectAmount = 1234
+		local collected = ability(collect, "weather_staff_1", "use")
+		assert(
+			collected.ok
+				and collect.collectAmount == 0
+				and inventory.usesLeft(collect.data, "weather_staff_1", collect.now) == 2,
+			"a stocked barn is collected remotely and the use is charged once"
+		)
+		assert(
+			inventory.usesPerDay(config.ITEMS.weather_staff_1) < inventory.usesPerDay(config.ITEMS.weather_staff_3)
+				and inventory.usesPerDay(config.ITEMS.weather_staff_3)
+					< inventory.usesPerDay(config.ITEMS.weather_staff_5),
+			"higher shepherd staffs allow more collections"
 		)
 
 		-- Bakım (Bakıcı Asası)

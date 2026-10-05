@@ -37,6 +37,7 @@ local EngagementService = require(Services:WaitForChild("EngagementService"))
 local MonetizationService = require(Services:WaitForChild("MonetizationService"))
 local InventoryService = require(Services:WaitForChild("InventoryService"))
 local MerchantVisualService = require(script:WaitForChild("Presentation"):WaitForChild("MerchantVisualService"))
+local RebirthTitleService = require(script:WaitForChild("Presentation"):WaitForChild("RebirthTitleService"))
 local TelemetryService = require(Services:WaitForChild("TelemetryService"))
 local Rewards = require(Shared:WaitForChild("Modules"):WaitForChild("Rewards"))
 local Merchant = require(Shared:WaitForChild("Modules"):WaitForChild("Merchant"))
@@ -101,7 +102,15 @@ if mapReady then
 end
 InventoryService.configureMerchantProximity(MerchantVisualService.isNear)
 InventoryService.init()
-ProgressionService.configureEquipmentRefresh(InventoryService.applyVisuals)
+ProgressionService.configureEquipmentRefresh(function(player: Player)
+	InventoryService.applyVisuals(player)
+	RebirthTitleService.refresh(player)
+end)
+-- Kafa üstü rebirth ünvanı: sayı yalnızca sunucu kaydından okunur; rebirth sonrası yukarıdaki bağdan yenilenir.
+RebirthTitleService.init(function(player: Player): number?
+	local data = PlayerDataService.tryGet(player)
+	return if data and data.progression then data.progression.count else nil
+end)
 ContractService.init()
 AdminService.init()
 DataResetService.init()

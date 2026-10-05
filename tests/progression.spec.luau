@@ -35,26 +35,39 @@ return function(Progression: any, FarmMath: any, Config: any, SaveCodec: any)
 		save.mainFarms[tostring(index)] = completeFarm(tostring(index))
 	end
 	assert(Progression.canRebirth(save), "six complete base farms permit rebirth")
-	assert(Progression.collectGold(save, now) == 780, "24 islands plus six farms award 780 gold")
-	assert(Progression.collectGold(save, now) == 0, "completion claims idempotent")
-	local claims = 0
-	for _ in save.progression.claims do
-		claims += 1
-	end
-	assert(claims == 30, "exactly thirty bounded claim keys")
-	for count, expected in { [3] = 858, [10] = 936 } do
-		save.progression.claims = {}
+	assert(save.gold == 1000, "completing islands and farms awards no gold before the rebirth")
+	assert(Progression.isRunComplete(save), "six complete farms complete the run")
+	local base = Config.PROGRESSION.gold
+	assert(Progression.rebirthGoldReward(save) == base.rebirthBase, "R1 pays the base reward")
+	assert(Progression.collectTerminalGold(save) == 0, "no terminal reward below the thirty rebirth cap")
+	for count, expected in { [1] = 760, [3] = 858, [10] = 1020, [29] = 1248, [30] = 1260 } do
 		save.progression.count = count
-		assert(Progression.collectGold(save, now) == expected, "rebirth completion reward bonus")
+		assert(Progression.rebirthGoldReward(save) == expected, `rebirth reward at count {count} includes goldBonus`)
 	end
-	save.progression.claims = {}
-	save.gold = Config.PROGRESSION.gold.maxBalance
+	save.progression.count = 0
+	local noProgression: any = { gold = 5 }
+	assert(Progression.rebirthGoldReward(noProgression) == base.rebirthBase, "missing progression uses the base reward")
 	assert(
-		Progression.collectGold(save, now) == 0 and next(save.progression.claims) == nil,
-		"wallet cap retains unclaimed rewards"
+		Progression.rebirthGoldReward({ progression = { count = 999 } })
+			== Progression.rebirthGoldReward({ progression = { count = 30 } }),
+		"out of range counts clamp to the terminal level"
 	)
-	save.gold -= 936
-	assert(Progression.collectGold(save, now) == 936, "rewards collectible after making wallet room")
+	for _, premiumItem in { "diamond_hammer", "foreman_mallet", "gold_hammer" } do
+		local offer = Config.PROGRESSION.permanentOffers[premiumItem]
+		assert(
+			base.rebirthBase >= offer.goldCost * 0.8 and base.rebirthBase <= offer.goldCost * 1.5,
+			`one first rebirth reward buys about one premium item ({premiumItem})`
+		)
+	end
+	-- R30: son tur tamamlanınca aynı ödül bir kez verilir.
+	local terminal = completeFarm("1")
+	terminal.progression.count, terminal.progression.run = 30, 31
+	assert(not Progression.isRunComplete(terminal), "other farms are missing")
+	assert(Progression.collectTerminalGold(terminal) == 0 and terminal.gold == 1000, "incomplete R30 run pays nothing")
+	terminal.progression.count, terminal.progression.run = 0, 1
+	save.progression.claims = { terminal = true }
+	save.progression.count = 30
+	assert(Progression.collectTerminalGold(save) == 0, "claimed terminal reward never repeats")
 	save = fresh()
 	save.animals = { { uid = "cow", animalId = "cow", zoneId = "starter", bornAt = 0, stage = "adult" } }
 	FarmMath.applyDerived(save)
@@ -132,7 +145,10 @@ return function(Progression: any, FarmMath: any, Config: any, SaveCodec: any)
 	end)
 	assert(#save.animals == 3 and FarmMath.hasAutoCollect(save), "ready start adults and auto collection")
 	assert(save.unlockedIslands[Config.getTheme("1").satellites[1]], "ready start first island")
-	assert(Progression.collectGold(save, now) == 0, "opening first island does not complete its upgrades")
+	assert(
+		save.gold == 1000 and not Progression.isFarmComplete(save),
+		"opening first island does not complete its upgrades or pay gold"
+	)
 	save.animals[1].task = { kind = "extension", id = "barn", startedAt = now, endsAt = now + 61 }
 	assert(
 		Progression.finishGoldQuote(save, "extension", save.animals[1].uid, now) == 1,

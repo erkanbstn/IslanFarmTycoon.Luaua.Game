@@ -693,7 +693,7 @@ end
 -- Yatırım: aç gözlü (hayvan > çiftlik > alan/yükseltme > ırk)
 ---------------------------------------------------------------------------
 local function progressionTick()
-	goldEarned += Progression.collectGold(save, now)
+	goldEarned += Progression.collectTerminalGold(save) -- tur içi altın yok; yalnız R30 son tur ödülü
 	if S.goldPolicy == "convert" then
 		local state = save.progression
 		local today = math.floor(now / 86400)

@@ -51,7 +51,7 @@ function MerchantWindow.create(parent: Instance): { window: UiKit.Window, update
 	local update: (PlayerSave) -> ()
 	for index, itemId in Config.ITEM_ORDER do
 		local item = Config.ITEMS[itemId]
-		if item.rewardOnly or item.price <= 0 then
+		if not Config.isCashItem(item) then
 			continue
 		end
 		local card = UiKit.autoTile(grid, index, item.icon, { compact = true })
@@ -59,7 +59,11 @@ function MerchantWindow.create(parent: Instance): { window: UiKit.Window, update
 		card.frame.LayoutOrder = (item.level or 1) * 1000 + index
 		UiKit.setText(card.title, `{item.displayName} · Sv.{item.level or 1}`)
 		local details = UiKit.disclosure(card.frame, 6, "Ayrıntılar")
-		UiKit.text(details.body, `{ItemText.slotNotice(item)}\n{ItemText.additional(item)}`, "Caption")
+		UiKit.text(
+			details.body,
+			`{ItemText.channelNotice(item)}\n{ItemText.slotNotice(item)}\n{ItemText.additional(item)}`,
+			"Caption"
+		)
 		local entry = { card = card, details = details, quote = nil :: Merchant.Offer? }
 		entries[itemId] = entry
 		details.body:GetPropertyChangedSignal("Visible"):Connect(function()

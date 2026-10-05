@@ -172,15 +172,41 @@ return function(createController: any, createRebirthWindow: any)
 			permanentIncomeCap = 3,
 			returnSeconds = 86400,
 			perkOrder = { "income", "growth" },
+			permanentOffers = {
+				cheap = { itemId = "cheap_item", goldCost = 100 },
+				mid = { itemId = "mid_item", goldCost = 300 },
+				rich = { itemId = "rich_item", goldCost = 500 },
+				owned = { itemId = "owned_item", goldCost = 50 },
+				extra = { itemId = "extra_item", goldCost = 350 },
+				unreachable = { itemId = "far_item", goldCost = 5000 },
+			},
 			perks = {
 				income = { maxLevel = 5, effects = { incomeBonus = 0.08 } },
 				growth = { maxLevel = 5, effects = { growthExcess = 0.06 } },
 			},
 		},
 	}
+	definition.ITEMS = {
+		cheap_item = { displayName = "Cheap Item" },
+		mid_item = { displayName = "Mid Item" },
+		rich_item = { displayName = "Rich Item" },
+		owned_item = { displayName = "Owned Item" },
+		extra_item = { displayName = "Extra Item" },
+		far_item = { displayName = "Far Item" },
+		reward_item = { displayName = "Reward Item" },
+	}
 	local progression = {
+		rebirthGoldReward = function(save: any): number
+			return save.reward or 400
+		end,
 		getMilestone = function(level: number): any
-			return if level > 0 then { displayName = `Milestone {level}`, description = `Reward {level}` } else nil
+			return if level > 0
+				then {
+					displayName = `Milestone {level}`,
+					description = `Reward {level}`,
+					itemId = if level == 2 then "reward_item" else nil,
+				}
+				else nil
 		end,
 		getCompletionRequirements = function(): any
 			return { description = "Meaningful farm requirements" }
@@ -279,11 +305,55 @@ return function(createController: any, createRebirthWindow: any)
 			journeyCount += 1
 		end
 		if label.Name == "NextMilestone" then
+			assert(string.find(label.Text, "Milestone 1", 1, true), "earned milestone is shown as latest reward")
+		end
+		if label.Name == "RebirthNextReward" then
 			assert(string.find(label.Text, "R2", 1, true), "next reward follows current rebirth count")
-			assert(string.find(label.Text, "Milestone 1", 1, true), "earned milestone is shown beside the next reward")
+			assert(string.find(label.Text, "Milestone 2", 1, true), "next milestone name is shown before confirming")
+			assert(string.find(label.Text, "Reward Item", 1, true), "next milestone item is named")
 		end
 	end
 	assert(journeyCount == 30, "all 30 earned milestones can be inspected")
+	local function labelText(name: string): any
+		for _, label in labels do
+			if label.Name == name then
+				return label
+			end
+		end
+		error(`missing label {name}`)
+	end
+	-- Rebirth altın paneli: ödül yardımcıdan gelir, alınabilir liste sahip olunanları dışlar
+	local owned: any = { items = { owned_item = true } }
+	local offers = rebirth.affordableOffers({ owned = owned } :: any, 450)
+	assert(#offers.affordable == 3, "affordable list is capped at three")
+	assert(
+		offers.affordable[1].itemId == "cheap_item"
+			and offers.affordable[2].itemId == "mid_item"
+			and offers.affordable[3].itemId == "extra_item",
+		"cheapest unowned offers come first and owned items are excluded"
+	)
+	local none = rebirth.affordableOffers({ owned = owned } :: any, 40)
+	assert(
+		#none.affordable == 0 and none.nearest and none.nearest.itemId == "cheap_item",
+		"nearest unowned offer shown when nothing is affordable"
+	)
+	panel.update({ ready = true, gold = 50, reward = 400, owned = owned, progression = { run = 40, count = 1 } } :: any)
+	local gainReward = labelText("RebirthGoldReward").Text
+	assert(string.find(gainReward, "+400", 1, true), "gold reward comes from Progression.rebirthGoldReward")
+	local gainList = labelText("RebirthAffordable").Text
+	assert(
+		string.find(gainList, "Cheap Item", 1, true)
+			and string.find(gainList, "Mid Item", 1, true)
+			and not string.find(gainList, "Owned Item", 1, true)
+			and not string.find(gainList, "Far Item", 1, true),
+		"panel lists affordable unowned items only"
+	)
+	panel.update({ ready = false, gold = 0, reward = 20, owned = owned, progression = { run = 41, count = 1 } } :: any)
+	local missingText = labelText("RebirthAffordable").Text
+	assert(
+		string.find(missingText, "Cheap Item", 1, true) and string.find(missingText, "80 altın eksik", 1, true),
+		"nothing affordable shows the cheapest item and the missing gold"
+	)
 	local maxed: any = { ready = false, allMax = true, progression = { run = 31, count = 30 } }
 	panel.update(maxed)
 	assert(panel.window.isOpen(), "R30 journey remains available after completion")
@@ -294,6 +364,12 @@ return function(createController: any, createRebirthWindow: any)
 		end
 		if label.Name == "NextMilestone" then
 			assert(string.find(label.Text, "Milestone 30", 1, true), "final milestone replaces unavailable R31 reward")
+		end
+		if label.Name == "RebirthGoldReward" then
+			assert(
+				string.find(label.Text, "Milestone", 1, true) == nil,
+				"R30 shows no next milestone in the gold reward line"
+			)
 		end
 	end
 	confirm.Activated.fire()

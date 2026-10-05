@@ -99,53 +99,67 @@ return function(createMerchant: any, merchant: any, config: any, farmMath: any)
 		return window
 	end
 	local dimensions = { new = function() end, fromScale = function() end }
-	local source = createMerchant(
-		engine,
-		config,
-		merchant,
-		farmMath,
-		{
-			get = function(): any
-				return {
-					FireServer = function(_self: any, destination: string)
-						table.insert(travels, destination)
-					end,
-				}
-			end,
-		},
-		ui,
-		{
-			submit = function(remote: string, itemId: string, quote: any)
-				table.insert(requests, { remote = remote, itemId = itemId, quote = quote })
-			end,
-		},
-		{
-			setPurchaseButton = function(button: any, text: string, variant: string)
-				button.Text = text
-				button.variant = variant
-				button.Active = variant == "primary"
-			end,
-		},
-		{
-			mount = function(_parent: any, itemId: string)
-				table.insert(previews, itemId)
-			end,
-		},
-		{
-			describe = function(): string
-				return "Üretim süresi: -%15\nÜrün merkezi verimi: -%5"
-			end,
-			additional = function(): string
-				return "Ürün merkezi verimi: -%5"
-			end,
-			slotNotice = function(): string
-				return "Yuva: Asa · Takılı eşyanın yerine geçer."
-			end,
-		},
-		dimensions,
-		dimensions
-	)
+	local function build(cfg: any): any
+		return createMerchant(
+			engine,
+			cfg,
+			merchant,
+			farmMath,
+			{
+				get = function(): any
+					return {
+						FireServer = function(_self: any, destination: string)
+							table.insert(travels, destination)
+						end,
+					}
+				end,
+			},
+			ui,
+			{
+				submit = function(remote: string, itemId: string, quote: any)
+					table.insert(requests, { remote = remote, itemId = itemId, quote = quote })
+				end,
+			},
+			{
+				setPurchaseButton = function(button: any, text: string, variant: string)
+					button.Text = text
+					button.variant = variant
+					button.Active = variant == "primary"
+				end,
+			},
+			{
+				mount = function(_parent: any, itemId: string)
+					table.insert(previews, itemId)
+				end,
+			},
+			{
+				describe = function(): string
+					return "Üretim süresi: -%15\nÜrün merkezi verimi: -%5"
+				end,
+				additional = function(): string
+					return "Ürün merkezi verimi: -%5"
+				end,
+				slotNotice = function(): string
+					return "Yuva: Asa · Takılı eşyanın yerine geçer."
+				end,
+				channelNotice = function(): string
+					return "Nakit (bu tur) ya da altın/Robux (kalıcı)"
+				end,
+			},
+			dimensions,
+			dimensions
+		)
+	end
+	local source = build(config)
 	local panel = source.create(root)
+	local cashCount, hidden: string? = 0, nil
+	for _, itemId in config.ITEM_ORDER do
+		if config.isCashItem(config.ITEMS[itemId]) then
+			cashCount += 1
+			hidden = hidden or itemId
+		end
+	end
+	assert(#cards == cashCount, "merchant window builds one card per cash item only")
 	local state: any = {
 		cash = 1e12,
 		activeMainFarmId = "1",
@@ -232,6 +246,18 @@ return function(createMerchant: any, merchant: any, config: any, farmMath: any)
 	end
 	panel.update(state)
 	assert(empty.frame.Visible and empty.title.Text == "Tüccar yolda", "absent merchant has its own empty state")
+	-- noCash eşya hiçbir koşulda tüccar kartı olmaz: ilk nakit eşyayı noCash sayan vekil Config ile bir pencere daha kur.
+	local proxy = setmetatable({
+		isCashItem = function(item: any): boolean
+			return item.id ~= hidden and config.isCashItem(item)
+		end,
+	}, { __index = config })
+	local cardsBeforeProxy = #cards
+	build(proxy).create(root)
+	assert(
+		#cards - cardsBeforeProxy == cashCount - 1,
+		"an item that stops being a cash item never gets a merchant card"
+	)
 	print(
 		"PASS merchant UI: finite live catalog, lazy previews, explicit review, exact quote, travel and exhausted visit"
 	)

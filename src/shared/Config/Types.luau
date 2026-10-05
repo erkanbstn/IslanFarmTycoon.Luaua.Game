@@ -167,6 +167,7 @@ export type ItemConfig = {
 	effects: ItemEffects?,
 	tradeoffs: { [string]: number }?, -- Takılıyken bu faydalardan düşülen pozitif fırsat bedeli.
 	rewardOnly: boolean?, -- Yalnızca rebirth başarımıyla kazanılır; para/altın/Robux ile satılmaz.
+	noCash: boolean?, -- Nakit satışı yok: yalnız kalıcı teklifle (altın ya da varsa Robux) alınır. `price` bu durumda sıralama/değer referansıdır.
 	power: ItemPower?,
 	look: ItemLook?,
 }

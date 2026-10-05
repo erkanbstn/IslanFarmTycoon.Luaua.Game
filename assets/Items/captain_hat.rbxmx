@@ -1,0 +1,633 @@
+<?xml version='1.0' encoding='utf-8'?>
+<roblox version="4">
+  <Item class="Model" referent="captain_hat">
+    <Properties>
+      <string name="Name">captain_hat</string>
+      <BinaryString name="AttributesSerialize">AQAAAAYAAABBdHRhY2gCBAAAAGhlYWQ=</BinaryString>
+      <OptionalCoordinateFrame name="WorldPivotData">
+        <CFrame>
+          <X>0.00000000</X>
+          <Y>0.00000000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CFrame>
+      </OptionalCoordinateFrame>
+    </Properties>
+    <Item class="Part" referent="captain_hat_0">
+      <Properties>
+        <string name="Name">CapShellFront</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.08627450980392157</R>
+          <G>0.14901960784313725</G>
+          <B>0.32941176470588235</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>1.92</X>
+          <Y>0.42</Y>
+          <Z>0.13</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.79000000</Y>
+          <Z>-0.76000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="captain_hat_1">
+      <Properties>
+        <string name="Name">CapShellBack</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.08627450980392157</R>
+          <G>0.14901960784313725</G>
+          <B>0.32941176470588235</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>1.92</X>
+          <Y>0.42</Y>
+          <Z>0.13</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.79000000</Y>
+          <Z>0.76000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="captain_hat_2">
+      <Properties>
+        <string name="Name">CapShellLeft</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.08627450980392157</R>
+          <G>0.14901960784313725</G>
+          <B>0.32941176470588235</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.13</X>
+          <Y>0.42</Y>
+          <Z>1.39</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.90000000</X>
+          <Y>0.79000000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="captain_hat_3">
+      <Properties>
+        <string name="Name">CapShellRight</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.08627450980392157</R>
+          <G>0.14901960784313725</G>
+          <B>0.32941176470588235</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.13</X>
+          <Y>0.42</Y>
+          <Z>1.39</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.90000000</X>
+          <Y>0.79000000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="captain_hat_4">
+      <Properties>
+        <string name="Name">FlaredTop</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.08627450980392157</R>
+          <G>0.14901960784313725</G>
+          <B>0.32941176470588235</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>2.3</X>
+          <Y>0.16</Y>
+          <Z>2.1</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>1.08000000</Y>
+          <Z>-0.03000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="captain_hat_5">
+      <Properties>
+        <string name="Name">CrownTop</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.054901960784313725</R>
+          <G>0.10196078431372549</G>
+          <B>0.24313725490196078</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>1.8</X>
+          <Y>0.14</Y>
+          <Z>1.6</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>1.22000000</Y>
+          <Z>-0.03000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="captain_hat_6">
+      <Properties>
+        <string name="Name">PeakVisor</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.047058823529411764</R>
+          <G>0.07058823529411765</G>
+          <B>0.1411764705882353</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>1.5</X>
+          <Y>0.1</Y>
+          <Z>0.8</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.60000000</Y>
+          <Z>-1.08000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>0.9876883406</R11>
+          <R12>0.1564344650</R12>
+          <R20>0.0000000000</R20>
+          <R21>-0.1564344650</R21>
+          <R22>0.9876883406</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="captain_hat_7">
+      <Properties>
+        <string name="Name">VisorTrim</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.9254901960784314</R>
+          <G>0.7450980392156863</G>
+          <B>0.23529411764705882</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>1.54</X>
+          <Y>0.05</Y>
+          <Z>0.1</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.50000000</Y>
+          <Z>-1.46000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>0.9876883406</R11>
+          <R12>0.1564344650</R12>
+          <R20>0.0000000000</R20>
+          <R21>-0.1564344650</R21>
+          <R22>0.9876883406</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="captain_hat_8">
+      <Properties>
+        <string name="Name">BadgeDisc</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">2</token>
+        <Color3 name="Color">
+          <R>0.054901960784313725</R>
+          <G>0.10196078431372549</G>
+          <B>0.24313725490196078</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.05</X>
+          <Y>0.4</Y>
+          <Z>0.4</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.80000000</Y>
+          <Z>-0.86000000</Z>
+          <R00>0.0000000000</R00>
+          <R01>0.0000000000</R01>
+          <R02>1.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>-1.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>0.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="captain_hat_9">
+      <Properties>
+        <string name="Name">AnchorShank</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>1.0</R>
+          <G>0.8549019607843137</G>
+          <B>0.3764705882352941</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.05</X>
+          <Y>0.3</Y>
+          <Z>0.04</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.80000000</Y>
+          <Z>-0.90000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="captain_hat_10">
+      <Properties>
+        <string name="Name">AnchorStock</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>1.0</R>
+          <G>0.8549019607843137</G>
+          <B>0.3764705882352941</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.2</X>
+          <Y>0.045</Y>
+          <Z>0.04</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.88000000</Y>
+          <Z>-0.90000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="captain_hat_11">
+      <Properties>
+        <string name="Name">AnchorArm</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>1.0</R>
+          <G>0.8549019607843137</G>
+          <B>0.3764705882352941</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.04</X>
+          <Y>0.2</Y>
+          <Z>0.04</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.09000000</X>
+          <Y>0.70000000</Y>
+          <Z>-0.90000000</Z>
+          <R00>0.6156614753</R00>
+          <R01>0.7880107536</R01>
+          <R02>0.0000000000</R02>
+          <R10>-0.7880107536</R10>
+          <R11>0.6156614753</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="captain_hat_12">
+      <Properties>
+        <string name="Name">AnchorArm</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>1.0</R>
+          <G>0.8549019607843137</G>
+          <B>0.3764705882352941</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.04</X>
+          <Y>0.2</Y>
+          <Z>0.04</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.09000000</X>
+          <Y>0.70000000</Y>
+          <Z>-0.90000000</Z>
+          <R00>0.6156614753</R00>
+          <R01>-0.7880107536</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.7880107536</R10>
+          <R11>0.6156614753</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="captain_hat_13">
+      <Properties>
+        <string name="Name">AnchorRing</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>1.0</R>
+          <G>0.8549019607843137</G>
+          <B>0.3764705882352941</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.1</X>
+          <Y>0.1</Y>
+          <Z>0.1</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.97000000</Y>
+          <Z>-0.90000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="captain_hat_14">
+      <Properties>
+        <string name="Name">SideButton</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.9254901960784314</R>
+          <G>0.7450980392156863</G>
+          <B>0.23529411764705882</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.12</X>
+          <Y>0.12</Y>
+          <Z>0.12</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.93000000</X>
+          <Y>0.72000000</Y>
+          <Z>-0.62000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="captain_hat_15">
+      <Properties>
+        <string name="Name">SideButton</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.9254901960784314</R>
+          <G>0.7450980392156863</G>
+          <B>0.23529411764705882</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.12</X>
+          <Y>0.12</Y>
+          <Z>0.12</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.93000000</X>
+          <Y>0.72000000</Y>
+          <Z>-0.62000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+  </Item>
+</roblox>

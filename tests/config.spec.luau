@@ -671,6 +671,219 @@ return function(Config: any, FarmMath: any)
 				)
 			end
 		end
+
+		-- Satış kanalları: her ekipman bir yoldan alınabilir; kanal fiyat kademesinden ve teklif tablosundan türer
+		local CASH_ONLY_MAX = 150000 -- bu referans fiyata kadar yalnız nakit (teklif yok)
+		local PREMIUM_MIN = 1500000 -- bundan pahalı ekipman nakitle satılmaz (noCash)
+		local offers = Config.PROGRESSION.permanentOffers
+		local channelCounts = { reward = 0, cash = 0, cashGold = 0, goldRobux = 0, gold = 0 }
+		local robuxSeen: { [number]: string } = {}
+		for _, itemId in Config.ITEM_ORDER do
+			local item = Config.ITEMS[itemId]
+			local channel = Config.getItemChannel(itemId)
+			local offer = offers[itemId]
+			assert(channelCounts[channel] ~= nil, `item {itemId} must be obtainable somewhere (channel {channel})`)
+			channelCounts[channel] += 1
+			if item.rewardOnly then
+				assert(
+					channel == "reward" and offer == nil and not Config.isCashItem(item),
+					`{itemId}: earned-only is never sold`
+				)
+			elseif channel == "cash" then
+				assert(offer == nil and Config.isCashItem(item), `{itemId}: cash-only items have no permanent offer`)
+				assert(item.price <= CASH_ONLY_MAX, `{itemId}: cash-only items stay in the early price band`)
+			elseif channel == "cashGold" then
+				assert(offer ~= nil and Config.isCashItem(item), `{itemId}: cashGold sells for cash and has an offer`)
+				assert(
+					item.price > CASH_ONLY_MAX and item.price < PREMIUM_MIN,
+					`{itemId}: cashGold items sit in the middle price band`
+				)
+			else
+				assert(item.noCash and not Config.isCashItem(item), `{itemId}: premium items are not sold for cash`)
+				assert(offer ~= nil and offer.kind == "item", `{itemId}: noCash items need a permanent offer`)
+				assert(item.price >= PREMIUM_MIN, `{itemId}: noCash items are top gear`)
+				if channel == "gold" then
+					assert(offer.robuxProductId == nil, `{itemId}: gold-only offers must not carry a Robux product`)
+				else
+					assert((offer.robuxProductId or 0) ~= 0, `{itemId}: goldRobux offers keep a Robux product`)
+				end
+			end
+			if offer and offer.robuxProductId then
+				assert(robuxSeen[offer.robuxProductId] == nil, `Robux product of {itemId} is reused`)
+				robuxSeen[offer.robuxProductId] = itemId
+			end
+		end
+		assert(
+			channelCounts.reward == 9 and channelCounts.cash > 0 and channelCounts.cashGold > 0,
+			"all sales bands are populated"
+		)
+		assert(channelCounts.goldRobux >= 10 and channelCounts.gold >= 5, "premium gear has Robux and gold-only lanes")
+		for offerId, offer in offers do
+			if offer.kind == "item" then
+				assert(
+					Config.ITEMS[offer.itemId] and offer.id == offerId,
+					`offer {offerId} must point at a defined item`
+				)
+			end
+		end
+
+		-- Altın bedeli tek formülden gelir (Progression.luau açıklaması); fiyat arttıkça azalmaz
+		local function goldFor(price: number): number
+			return math.min(1500, math.floor((150 + 100 * math.sqrt(price / 100000)) / 10 + 0.5) * 10)
+		end
+		local priced = {}
+		for _, itemId in Config.ITEM_ORDER do
+			local offer = offers[itemId]
+			if offer then
+				local item = Config.ITEMS[itemId]
+				assert(offer.goldCost == goldFor(item.price), `{itemId}: gold cost must follow the price formula`)
+				table.insert(priced, { price = item.price, gold = offer.goldCost, id = itemId })
+			end
+		end
+		table.sort(priced, function(a, b)
+			return a.price < b.price
+		end)
+		for index = 2, #priced do
+			assert(
+				priced[index].gold >= priced[index - 1].gold,
+				`gold cost must not fall with price: {priced[index].id} vs {priced[index - 1].id}`
+			)
+		end
+		local gold = Config.PROGRESSION.gold
+		local runGold = gold.rebirthBase -- bir rebirth'in tek altın ödülü (R1; sonrası hafifçe artar)
+		assert(
+			gold.island == nil and gold.farm == nil and gold.rebirthBase > 0 and gold.rebirthPerLevel >= 0,
+			"per-island and per-farm gold awards no longer exist"
+		)
+		for _, row in priced do
+			assert(row.gold >= 100, `{row.id}: gold cost out of range`)
+			if row.id ~= "golden_crown" then
+				assert(row.gold <= runGold * 1.25, `{row.id}: only the crown may exceed about one rebirth run of gold`)
+			end
+		end
+		assert(Config.ITEMS.golden_crown.price == priced[#priced].price, "the crown is the most valuable offer")
+
+		-- Prim ekipman kendi yuvasındaki başlangıç (yalnız nakit) ekipmanından açıkça güçlüdür
+		for _, slotId in { "tool", "staff", "charm", "head", "back" } do
+			local bestStarter, weakestPremium = 0, math.huge
+			local starterId, premiumId = "", ""
+			for _, itemId in Config.ITEM_ORDER do
+				local item = Config.ITEMS[itemId]
+				local channel = Config.getItemChannel(itemId)
+				if item.slot == slotId then
+					local value = power(item)
+					if channel == "cash" and value > bestStarter then
+						bestStarter, starterId = value, itemId
+					elseif item.noCash and value < weakestPremium then
+						weakestPremium, premiumId = value, itemId
+					end
+				end
+			end
+			assert(
+				weakestPremium > bestStarter,
+				`slot {slotId}: premium {premiumId} must out-power starter {starterId}`
+			)
+		end
+
+		-- Altın-yalnız beş ekipman: rol, kanal ve üst sınırlar
+		local goldOnly = {
+			foreman_mallet = "tool",
+			fortune_charm = "charm",
+			tycoon_crown = "head",
+			caravan_satchel = "back",
+			eternal_shepherd_staff = "staff",
+		}
+		for itemId, slotId in goldOnly do
+			local item = assert(Config.ITEMS[itemId], `{itemId} exists`)
+			assert(
+				item.slot == slotId and Config.getItemChannel(itemId) == "gold",
+				`{itemId}: gold-only in slot {slotId}`
+			)
+			assert(offers[itemId].goldCost >= 600 and offers[itemId].goldCost <= 950, `{itemId}: about one run of gold`)
+			assert((item.effects.movementSpeed or 0) <= 0.06, `{itemId}: movement stays small under the 25 percent cap`)
+			assert((item.effects.incomeBonus or 0) <= 0.1, `{itemId}: income stays below the top charm`)
+		end
+		local shepherd = Config.ITEMS.eternal_shepherd_staff
+		assert(
+			shepherd.power.kind == "collect" and shepherd.power.usesPerDay == nil,
+			"the eternal shepherd staff collects without a daily limit"
+		)
+
+		-- Ek on ekipman: dört rebirth ödülü ve altı yalnız-altın ürün (kanal, rol ve üst sınırlar)
+		local newRewards = {
+			lucky_clover = { slot = "charm", level = 9 },
+			harvest_sickle = { slot = "tool", level = 15 },
+			victory_laurel = { slot = "head", level = 21 },
+			phoenix_wings = { slot = "back", level = 27 },
+		}
+		for itemId, expected in newRewards do
+			local item = assert(Config.ITEMS[itemId], `{itemId} exists`)
+			assert(
+				item.slot == expected.slot and item.rewardOnly and item.noCash == nil,
+				`{itemId}: reward in its slot`
+			)
+			assert(Config.getItemChannel(itemId) == "reward" and offers[itemId] == nil, `{itemId}: never sold`)
+			assert(not Config.isCashItem(item), `{itemId}: not a cash item (merchant never offers it)`)
+			assert(
+				Config.PROGRESSION.milestones[expected.level].itemId == itemId,
+				`{itemId}: granted by the R{expected.level} milestone`
+			)
+			assert(power(item) < power(Config.ITEMS.master_crown), `{itemId}: weaker than the final reward`)
+			assert(
+				power(item) < power(Config.ITEMS.night_cape) or itemId ~= "phoenix_wings",
+				"phoenix wings stay below the night cape"
+			)
+			for _, otherId in Config.ITEM_ORDER do
+				local other = Config.ITEMS[otherId]
+				if other.slot == item.slot and Config.getItemChannel(otherId) == "cashGold" then
+					assert(power(item) > power(other), `{itemId}: out-powers cash+gold {otherId}`)
+				end
+			end
+		end
+		-- Her rebirth ödül eşyası tam olarak bir kilometre taşından gelir
+		local milestoneItems: { [string]: number } = {}
+		for _, milestone in Config.PROGRESSION.milestones do
+			if milestone.itemId then
+				milestoneItems[milestone.itemId] = (milestoneItems[milestone.itemId] or 0) + 1
+			end
+		end
+		for _, itemId in Config.ITEM_ORDER do
+			if Config.ITEMS[itemId].rewardOnly then
+				assert(milestoneItems[itemId] == 1, `{itemId}: reward item has exactly one milestone`)
+			end
+		end
+		local newGold = {
+			crystal_wings = "back",
+			engineer_wrench = "tool",
+			scholar_charm = "charm",
+			captain_hat = "head",
+			courier_pack = "back",
+			merchant_seal = "charm",
+		}
+		for itemId, slotId in newGold do
+			local item = assert(Config.ITEMS[itemId], `{itemId} exists`)
+			local offer = assert(offers[itemId], `{itemId} has an offer`)
+			assert(
+				item.slot == slotId and item.noCash and not item.rewardOnly and Config.getItemChannel(itemId) == "gold",
+				`{itemId}: gold-only in slot {slotId}`
+			)
+			assert(offer.kind == "item" and offer.robuxProductId == nil, `{itemId}: gold only, no Robux product`)
+			assert(offer.goldCost >= 500 and offer.goldCost <= 800, `{itemId}: priced at under one run of gold`)
+			assert((item.effects.movementSpeed or 0) < 0.12, `{itemId}: movement below the golden wings`)
+			assert((item.effects.incomeBonus or 0) <= 0.1, `{itemId}: income stays below the top charm`)
+			assert(not Config.isCashItem(item), `{itemId}: merchant and cash shop never offer it`)
+		end
+		assert(
+			Config.ITEMS.crystal_wings.effects.movementSpeed > Config.ITEMS.angel_wings.effects.movementSpeed
+				and Config.ITEMS.crystal_wings.effects.movementSpeed
+					< Config.ITEMS.golden_wings.effects.movementSpeed,
+			"crystal wings sit between angel and golden wings"
+		)
+		assert(
+			Config.ITEMS.courier_pack.effects.storageBonus and Config.ITEMS.courier_pack.effects.movementSpeed,
+			"the courier pack is movement plus storage"
+		)
+		print("PASS config: item sales channels, gold formula and premium power tiers")
 	end
 	print("PASS config: cross-references, prerequisite graph, seasonal goals and start state")
 end

@@ -25,6 +25,7 @@ return {
 	ITEM_POWER_SETTINGS = {
 		growth = { fraction = 0.2 }, -- Etkin çiftliğin yavru/genç hayvanlarının kalan büyüme süresi bu pay kadar kısalur
 		rush = { fraction = 0.25 }, -- Çalışan üretim partilerinin kalan süresi bu pay kadar kısalur
+		collect = {}, -- Depodaki parayi platforma gitmeden toplar (ayar yok; hak ve bekleme ortak)
 		care = { seconds = 600, bonus = 0.15 }, -- Tüm hayvanların geliri bu süre boyunca +bonus (çalışma anı; kaydedilmez)
 	} :: { [string]: { fraction: number?, seconds: number?, bonus: number? } },
 

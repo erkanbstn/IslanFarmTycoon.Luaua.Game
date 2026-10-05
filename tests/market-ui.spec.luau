@@ -199,6 +199,25 @@ return function(createStore: any, createMarket: any, createItemShop: any)
 			perkOrder = {},
 		},
 	}
+	-- Config.getItemChannel / isCashItem ile aynı sözleşme (gerçek Config'i tests/config.spec.luau denetler)
+	definition.isCashItem = function(item: any): boolean
+		return not item.rewardOnly and not item.noCash and item.price > 0
+	end
+	definition.getItemChannel = function(itemId: string): string
+		local item = definition.ITEMS[itemId]
+		if not item then
+			return "none"
+		end
+		if item.rewardOnly then
+			return "reward"
+		end
+		local offer = definition.PROGRESSION.permanentOffers[itemId]
+		local robux = offer ~= nil and (offer.robuxProductId or 0) ~= 0
+		if item.noCash then
+			return if robux then "goldRobux" elseif offer then "gold" else "none"
+		end
+		return if offer then "cashGold" else "cash"
+	end
 	local requests = {}
 	local prompts = {}
 	local controller = {
@@ -279,6 +298,9 @@ return function(createStore: any, createMarket: any, createItemShop: any)
 			end,
 			slotNotice = function(): string
 				return "Yuva: Asa · Takılı eşyanın yerine geçer."
+			end,
+			channelNotice = function(item: any): string
+				return `[{definition.getItemChannel(item.id)}]`
 			end,
 		},
 		controller,
@@ -397,6 +419,24 @@ return function(createStore: any, createMarket: any, createItemShop: any)
 		collectorCard.action.variant == "owned",
 		"permanent gold collector also owns equivalent gamepass functionality"
 	)
+	definition.ITEMS.foreman_mallet = {
+		id = "foreman_mallet",
+		slot = "staff",
+		price = 0,
+		noCash = true,
+		level = 5,
+		displayName = "Ustabaşı Çekici",
+		icon = "staff",
+	}
+	definition.ITEMS.tycoon_crown = {
+		id = "tycoon_crown",
+		slot = "staff",
+		price = 0,
+		noCash = true,
+		level = 5,
+		displayName = "Patron Tacı",
+		icon = "staff",
+	}
 	definition.ITEMS.apprentice_staff =
 		{ id = "apprentice_staff", slot = "staff", price = 500, displayName = "Çırak Asası", icon = "staff" }
 	local itemText = {
@@ -409,10 +449,19 @@ return function(createStore: any, createMarket: any, createItemShop: any)
 		slotNotice = function(): string
 			return "Yuva: Asa · Takılı eşyanın yerine geçer."
 		end,
+		channelNotice = function(item: any): string
+			return `[{definition.getItemChannel(item.id)}]`
+		end,
 		itemsOfSlot = function(): any
-			return { definition.ITEMS.artisan_staff, definition.ITEMS.apprentice_staff }
+			return {
+				definition.ITEMS.artisan_staff,
+				definition.ITEMS.apprentice_staff,
+				definition.ITEMS.foreman_mallet,
+				definition.ITEMS.tycoon_crown,
+			}
 		end,
 	}
+	local cardsBeforeShop = #cards
 	local cashShop = createItemShop(
 		engine,
 		definition,
@@ -443,6 +492,18 @@ return function(createStore: any, createMarket: any, createItemShop: any)
 		inventory = { items = {} },
 	}
 	cashPanel.update(cashState)
+	assert(
+		#cards == cardsBeforeShop + 2,
+		"noCash items never get a card in the cash list (no dead button, no zero price)"
+	)
+	for index = cardsBeforeShop + 1, #cards do
+		assert(
+			not string.find(cards[index].action.Text, "$ 0", 1, true)
+				and not string.find(cards[index].title.Text, "Ustabaşı", 1, true)
+				and not string.find(cards[index].title.Text, "Patron", 1, true),
+			"cash list shows neither noCash titles nor a zero cash price"
+		)
+	end
 	local cashCard = cards[#cards - 1]
 	local otherCashCard = cards[#cards]
 	assert(
@@ -464,8 +525,9 @@ return function(createStore: any, createMarket: any, createItemShop: any)
 		fullCashDetail
 			and string.find(fullCashDetail.Text, "Ürün merkezi verimi: -%5", 1, true)
 			and string.find(fullCashDetail.Text, "Rebirth yapınca bu eşya silinir.", 1, true)
-			and string.find(fullCashDetail.Text, "Takılı eşyanın yerine geçer.", 1, true),
-		"review preserves real penalty and slot replacement notice"
+			and string.find(fullCashDetail.Text, "Takılı eşyanın yerine geçer.", 1, true)
+			and string.find(fullCashDetail.Text, "[cashGold]", 1, true),
+		"review preserves real penalty and slot replacement notice and names the sale channel"
 	)
 	assert(
 		not string.find(fullCashDetail.Text, "Üretim süresi: -%15", 1, true),
@@ -488,6 +550,119 @@ return function(createStore: any, createMarket: any, createItemShop: any)
 	cashState.progression.run = 2
 	cashPanel.update(cashState)
 	assert(not disclosures[cashCard.frame].isExpanded(), "cash review collapses after a new run")
+	-- Kalıcı teklifler: yalnız altın (kimlik 0) tek altın düğmesi gösterir; altın+Robux ikisini de korur
+	definition.PROGRESSION.permanentOffers.foreman_mallet =
+		{ id = "foreman_mallet", kind = "item", itemId = "foreman_mallet", goldCost = 1500 }
+	definition.PROGRESSION.permanentOffers.tycoon_crown =
+		{ id = "tycoon_crown", kind = "item", itemId = "tycoon_crown", goldCost = 1200, robuxProductId = 555 }
+	definition.PRODUCTS.products.permanent_foreman_mallet = {
+		id = 0,
+		effect = "permanentOffer",
+		offerId = "foreman_mallet",
+		displayName = "Ustabaşı Çekici",
+		description = "Kalıcı",
+		icon = "staff",
+	}
+	definition.PRODUCTS.products.permanent_tycoon_crown = {
+		id = 555,
+		effect = "permanentOffer",
+		offerId = "tycoon_crown",
+		displayName = "Patron Tacı",
+		description = "Kalıcı",
+		icon = "staff",
+	}
+	local priceLookups: { number } = {}
+	local channelStore = createStore(
+		engine,
+		definition,
+		remotes,
+		mathModule,
+		progression,
+		ui,
+		{ mount = function() end },
+		itemText,
+		controller,
+		common,
+		dimensions,
+		{
+			Changed = signal(),
+			get = function(_kind: string, id: number): (number, string)
+				table.insert(priceLookups, id)
+				return 149, "ready"
+			end,
+		}
+	)
+	local channelBase = #cards
+	local channelList = node()
+	local updateChannel = channelStore.create(channelList, "permanent")
+	local channelSave: any = {
+		gold = 5000,
+		owned = { items = {}, conveniences = {} },
+		passes = {},
+		progression = { count = 0, run = 1, convertedRunGold = 0 },
+		production = {},
+		animals = {},
+	}
+	updateChannel(channelSave)
+	local malletCard, crownCard, malletOrder, crownOrder = nil, nil, 0, 0
+	for index = channelBase + 1, #cards do
+		local card = cards[index]
+		if card.frame.Name == "permanent_foreman_mallet" then
+			malletCard, malletOrder = card, index
+		elseif card.frame.Name == "permanent_tycoon_crown" then
+			crownCard, crownOrder = card, index
+		end
+	end
+	assert(malletCard and crownCard, "gold-only and gold+Robux offers are both listed on the permanent tab")
+	assert(crownOrder < malletOrder, "within one catalogue level offers are ordered by gold cost")
+	local function actionsOf(card: any): { any }
+		local found = {}
+		for _, button in buttons do
+			if button.Parent == card.frame then
+				table.insert(found, button)
+			end
+		end
+		return found
+	end
+	local function noteOf(card: any): any
+		for _, label in labels do
+			if
+				label.Parent == disclosures[card.frame].body
+				and label.Text == "Altın biriktirmeden hemen almak için Robux"
+			then
+				return label
+			end
+		end
+		return nil
+	end
+	local malletButtons = actionsOf(malletCard)
+	assert(
+		#malletButtons == 1 and malletButtons[1].Text == "İncele · 1500 altın · Kalıcı",
+		"gold-only offer exposes one exterior gold button"
+	)
+	assert(malletCard.action.Visible == false, "gold-only offer hides its Robux button")
+	assert(noteOf(malletCard) == nil, "gold-only offer has no fast-Robux caption")
+	assert(malletCard.action.Text == "", "gold-only offer has no Robux label text such as Robux ile al")
+	assert(string.find(malletCard.detail.Text, "[gold]", 1, true), "gold-only card names its channel in the summary")
+	for _, id in priceLookups do
+		assert(id ~= 0, "closed product ids never trigger a price lookup")
+	end
+	assert(#priceLookups >= 1, "gold+Robux offer still asks the platform price")
+	assert(
+		crownCard.action.Visible ~= false and crownCard.action.Text == "İncele · 149 Robux",
+		"gold+Robux offer keeps its Robux action with the platform price"
+	)
+	local crownNote = noteOf(crownCard)
+	assert(crownNote and crownNote.Visible ~= false, "Robux is presented as the fast alternative for gold prices")
+	assert(string.find(crownCard.detail.Text, "[goldRobux]", 1, true), "gold+Robux card names its channel")
+	definition.PRODUCTS.products.permanent_tycoon_crown.id = 0
+	updateChannel(channelSave)
+	assert(
+		crownCard.action.variant == "disabled" and crownCard.action.Text == "Robux · Yakında",
+		"a closed Robux id disables the Robux action exactly like other closed products"
+	)
+	assert(crownNote.Visible == false, "closed Robux hides the fast-Robux caption")
+	definition.PRODUCTS.products.permanent_tycoon_crown.id = 555
 	local market = createMarket(
 		engine,
 		definition,

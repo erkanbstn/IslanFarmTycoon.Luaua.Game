@@ -179,6 +179,36 @@ def select_specs(pieces: list[str], only: list[str]) -> tuple[list[str], list[st
     return kept, unknown
 
 
+HARNESS_META = re.compile(r"^-- Harness module: (\{.*\})\n")
+
+
+def compact_spec_locals(pieces: list[str]) -> list[str]:
+    """Luau allows at most 200 locals per function: spec modules become fields of one SPECS table.
+
+    Only the generated file changes (dependency checks and --list read the original pieces); spec bodies and
+    their invocation lines are otherwise untouched.
+    """
+    result: list[str] = []
+    names: set[str] = set()
+    for piece in pieces:
+        meta = HARNESS_META.match(piece)
+        if meta:
+            info = json.loads(meta.group(1))
+            if info["name"].endswith("Spec") and info["path"].startswith("tests/"):
+                marker = f"\nlocal {info['name']} = "
+                if marker in piece:
+                    piece = piece.replace(marker, f"\nSPECS.{info['name']} = ", 1)
+                    names.add(info["name"])
+        result.append(piece)
+    final: list[str] = []
+    for piece in result:
+        call = SPEC_CALL.match(piece)
+        if call and call.group(1) in names:
+            piece = "SPECS." + piece
+        final.append(piece)
+    return ["local SPECS = {}\n"] + final
+
+
 def main(argv: list[str] | None = None, dependency_reporter=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--luau", help="Path to the standalone Luau interpreter (not Lua)")
@@ -204,6 +234,10 @@ def main(argv: list[str] | None = None, dependency_reporter=None) -> int:
         "local Environment = { getIncomeMultiplier = function() return 1 end }\n",
         farm_math_bundle(),
         module("Progression", "src/shared/Modules/Progression.luau", {"Config", "FarmMath"}),
+        module("RebirthTitles", "src/shared/Modules/RebirthTitles.luau"),
+        module("rebirthTitlesSpec", "tests/rebirth-titles.spec.luau"),
+        module("RebirthTitleServiceFactory", "src/server/Presentation/RebirthTitleService.luau", {"RebirthTitles", "WorldUi"}, "game, task, Vector3, RebirthTitles, WorldUi"),
+        module("rebirthTitleServiceSpec", "tests/rebirth-title-service.spec.luau"),
         module("EffectSummary", "src/shared/Modules/EffectSummary.luau", {"Config", "FarmMath", "Progression", "GameTypes"}),
         module("effectSummarySpec", "tests/effect-summary.spec.luau"),
         module("EffectsSectionFactory", "src/client/Ui/Hud/EffectsSection.luau",
@@ -538,6 +572,8 @@ def main(argv: list[str] | None = None, dependency_reporter=None) -> int:
         "rewardsSpec(Rewards, Config, FarmMath)\n",
         "merchantSpec(Merchant, Config, FarmMath)\n",
         "merchantVisualSpec(MerchantVisualFactory, Config, Merchant)\n",
+        "rebirthTitlesSpec(RebirthTitles)\n",
+        "rebirthTitleServiceSpec(RebirthTitleServiceFactory, RebirthTitles)\n",
         "merchantUiSpec(MerchantWindowFactory, Merchant, Config, FarmMath)\n",
         "goldenSpec(Golden, Config, FarmMath)\n",
         "onboardingSpec(OnboardingSteps, Config, FarmMath)\n",
@@ -599,6 +635,7 @@ def main(argv: list[str] | None = None, dependency_reporter=None) -> int:
         if unknown:
             print(f"Unknown spec(s): {', '.join(unknown)}. Use --list.", file=sys.stderr)
             return 2
+    pieces = compact_spec_locals(pieces)
     output = ROOT / ".test-build" / "run.luau"
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text("\n".join(pieces), encoding="utf-8")

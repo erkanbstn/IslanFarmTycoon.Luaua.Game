@@ -1,0 +1,481 @@
+<?xml version='1.0' encoding='utf-8'?>
+<roblox version="4">
+  <Item class="Model" referent="merchant_seal">
+    <Properties>
+      <string name="Name">merchant_seal</string>
+      <BinaryString name="AttributesSerialize">AQAAAAYAAABBdHRhY2gCBQAAAGNoZXN0</BinaryString>
+      <OptionalCoordinateFrame name="WorldPivotData">
+        <CFrame>
+          <X>0.00000000</X>
+          <Y>0.00000000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CFrame>
+      </OptionalCoordinateFrame>
+    </Properties>
+    <Item class="Part" referent="merchant_seal_0">
+      <Properties>
+        <string name="Name">SealDisc</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">2</token>
+        <Color3 name="Color">
+          <R>0.6901960784313725</R>
+          <G>0.09411764705882353</G>
+          <B>0.17254901960784313</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.07</X>
+          <Y>0.52</Y>
+          <Z>0.52</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.78000000</Y>
+          <Z>-0.68000000</Z>
+          <R00>0.0000000000</R00>
+          <R01>0.0000000000</R01>
+          <R02>1.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>-1.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>0.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="merchant_seal_1">
+      <Properties>
+        <string name="Name">SealScallop</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.6901960784313725</R>
+          <G>0.09411764705882353</G>
+          <B>0.17254901960784313</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.15</X>
+          <Y>0.15</Y>
+          <Z>0.15</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.23382686</X>
+          <Y>0.91500000</Y>
+          <Z>-0.68000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="merchant_seal_2">
+      <Properties>
+        <string name="Name">SealScallop</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.6901960784313725</R>
+          <G>0.09411764705882353</G>
+          <B>0.17254901960784313</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.15</X>
+          <Y>0.15</Y>
+          <Z>0.15</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>1.05000000</Y>
+          <Z>-0.68000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="merchant_seal_3">
+      <Properties>
+        <string name="Name">SealScallop</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.6901960784313725</R>
+          <G>0.09411764705882353</G>
+          <B>0.17254901960784313</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.15</X>
+          <Y>0.15</Y>
+          <Z>0.15</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.23382686</X>
+          <Y>0.91500000</Y>
+          <Z>-0.68000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="merchant_seal_4">
+      <Properties>
+        <string name="Name">SealScallop</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.6901960784313725</R>
+          <G>0.09411764705882353</G>
+          <B>0.17254901960784313</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.15</X>
+          <Y>0.15</Y>
+          <Z>0.15</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.23382686</X>
+          <Y>0.64500000</Y>
+          <Z>-0.68000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="merchant_seal_5">
+      <Properties>
+        <string name="Name">SealScallop</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.6901960784313725</R>
+          <G>0.09411764705882353</G>
+          <B>0.17254901960784313</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.15</X>
+          <Y>0.15</Y>
+          <Z>0.15</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.00000000</X>
+          <Y>0.51000000</Y>
+          <Z>-0.68000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="merchant_seal_6">
+      <Properties>
+        <string name="Name">SealScallop</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.6901960784313725</R>
+          <G>0.09411764705882353</G>
+          <B>0.17254901960784313</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.15</X>
+          <Y>0.15</Y>
+          <Z>0.15</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.23382686</X>
+          <Y>0.64500000</Y>
+          <Z>-0.68000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="merchant_seal_7">
+      <Properties>
+        <string name="Name">SealRing</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">2</token>
+        <Color3 name="Color">
+          <R>0.9254901960784314</R>
+          <G>0.7450980392156863</G>
+          <B>0.23529411764705882</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.04</X>
+          <Y>0.4</Y>
+          <Z>0.4</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.78000000</Y>
+          <Z>-0.71500000</Z>
+          <R00>0.0000000000</R00>
+          <R01>0.0000000000</R01>
+          <R02>1.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>-1.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>0.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="merchant_seal_8">
+      <Properties>
+        <string name="Name">SealInner</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">2</token>
+        <Color3 name="Color">
+          <R>0.5176470588235295</R>
+          <G>0.054901960784313725</G>
+          <B>0.12549019607843137</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.04</X>
+          <Y>0.3</Y>
+          <Z>0.3</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.78000000</Y>
+          <Z>-0.73500000</Z>
+          <R00>0.0000000000</R00>
+          <R01>0.0000000000</R01>
+          <R02>1.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>-1.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>0.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="merchant_seal_9">
+      <Properties>
+        <string name="Name">SealStar</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>1.0</R>
+          <G>0.8549019607843137</G>
+          <B>0.3764705882352941</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.15</X>
+          <Y>0.15</Y>
+          <Z>0.04</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.78000000</Y>
+          <Z>-0.76500000</Z>
+          <R00>0.7071067812</R00>
+          <R01>-0.7071067812</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.7071067812</R10>
+          <R11>0.7071067812</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="merchant_seal_10">
+      <Properties>
+        <string name="Name">RibbonLeft</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.5882352941176471</R>
+          <G>0.07058823529411765</G>
+          <B>0.14901960784313725</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.13</X>
+          <Y>0.46</Y>
+          <Z>0.03</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.10000000</X>
+          <Y>0.28000000</Y>
+          <Z>-0.65000000</Z>
+          <R00>0.9781476007</R00>
+          <R01>0.2079116908</R01>
+          <R02>0.0000000000</R02>
+          <R10>-0.2079116908</R10>
+          <R11>0.9781476007</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="merchant_seal_11">
+      <Properties>
+        <string name="Name">RibbonRight</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.5882352941176471</R>
+          <G>0.07058823529411765</G>
+          <B>0.14901960784313725</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.13</X>
+          <Y>0.46</Y>
+          <Z>0.03</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.10000000</X>
+          <Y>0.28000000</Y>
+          <Z>-0.65000000</Z>
+          <R00>0.9781476007</R00>
+          <R01>-0.2079116908</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.2079116908</R10>
+          <R11>0.9781476007</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+  </Item>
+</roblox>

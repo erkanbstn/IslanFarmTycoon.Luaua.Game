@@ -261,6 +261,9 @@ function InventoryService.tryBuy(player: Player, itemId: unknown): (boolean, str
 	if item.rewardOnly then
 		return false, "Bu eşya yalnızca rebirth ilerlemesiyle kazanılır."
 	end
+	if not Config.isCashItem(item) then
+		return false, "Bu eşya nakitle satılmaz; Pazar'daki Kalıcı sekmesinden alınır."
+	end
 	if Inventory.owns(data, itemId) then
 		return false, "Bu eşyaya zaten sahipsin"
 	end
@@ -376,6 +379,12 @@ local function useAbility(
 		end
 		message = `{count} hayvanın büyümesi hızlandı`
 		PlotService.refreshPlayerWorld(player)
+	elseif kind == "collect" then
+		local amount = EconomyService.collectRemote(player)
+		if amount <= 0 then
+			return false, "Toplanacak para yok"
+		end
+		message = `+{FarmMath.formatMoney(amount)} toplandı`
 	elseif kind == "rush" then
 		local count = StaffPowers.rush(data, now, settings.fraction :: number)
 		if count == 0 then
@@ -410,7 +419,7 @@ function InventoryService.tryUse(player: Player, itemId: unknown, argument: unkn
 	end
 	local item = Config.ITEMS[itemId]
 	local abilityKind = if item.power then item.power.kind else nil
-	if abilityKind == "growth" or abilityKind == "rush" or abilityKind == "care" then
+	if abilityKind == "growth" or abilityKind == "rush" or abilityKind == "care" or abilityKind == "collect" then
 		return useAbility(player, data, itemId, abilityKind, argument)
 	end
 	local queueDetail = if typeof(argument) == "table" then argument :: any else nil

@@ -25,7 +25,14 @@ function Inventory.decode(rawInventory: any, config: any): any
 		if typeof(rawInventory.uses) == "table" then
 			for kind, entry in rawInventory.uses do
 				if
-					(kind == "season" or kind == "weather" or kind == "growth" or kind == "rush" or kind == "care")
+					(
+						kind == "season"
+						or kind == "weather"
+						or kind == "growth"
+						or kind == "rush"
+						or kind == "care"
+						or kind == "collect"
+					)
 					and typeof(entry) == "table"
 					and SessionLock.isFinite(entry.day)
 					and SessionLock.isFinite(entry.count)

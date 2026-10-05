@@ -225,8 +225,14 @@ return function(createLimiter: any, codec: any, config: any, farmMath: any, crea
 				h.counters.refreshes += 1
 			end,
 		}
+		h.collectAmount = 0
 		h.economyService = {
 			startPlayer = function() end,
+			collectRemote = function(): number
+				local amount = h.collectAmount
+				h.collectAmount = 0
+				return amount
+			end,
 			settlePlayer = function()
 				h.counters.settles += 1
 			end,

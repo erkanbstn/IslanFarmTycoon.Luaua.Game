@@ -243,6 +243,7 @@ return function(Merchant: any, Config: any, FarmMath: any)
 		sample.adminForce = { merchantUntil = epoch + cycle * settings.cycleSeconds + 10 }
 		for _, entry in Merchant.status(sample, userId, epoch + cycle * settings.cycleSeconds).offers do
 			assert(not Config.ITEMS[entry.itemId].rewardOnly, "rebirth rewards cannot be sold by the merchant")
+			assert(Config.isCashItem(Config.ITEMS[entry.itemId]), "premium noCash gear is never a merchant offer")
 			assert(entry.price >= 1 and entry.price < entry.fullPrice, "discount remains positive and real")
 		end
 	end

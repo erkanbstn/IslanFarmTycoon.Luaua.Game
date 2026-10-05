@@ -31,6 +31,7 @@ local ABILITY_LABELS: { [string]: string } = {
 	growth = "Büyümeyi hızlandır",
 	rush = "Üretimi hızlandır",
 	care = "Sürü bakımını başlat",
+	collect = "Parayı topla",
 }
 
 export type Panel = {

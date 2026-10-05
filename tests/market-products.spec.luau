@@ -42,7 +42,7 @@ return function(Config: any, FarmMath: any, SaveCodec: any, Inventory: any)
 	Inventory.grant(save, "logistics_charm")
 	assert(FarmMath.getStorageCap(save) == baseStorage, "owned but unequipped gear gives no passive bonus")
 	equip(save, "logistics_charm")
-	assert(FarmMath.getStorageCap(save) == math.floor(baseStorage * 1.6), "logistics increases the cash storage cap")
+	assert(FarmMath.getStorageCap(save) == math.floor(baseStorage * 1.7), "logistics increases the cash storage cap")
 	equip(save, "night_charm")
 	assert(FarmMath.getStorageCap(save) == baseStorage, "switching the charm removes the old storage bonus")
 	local rate = FarmMath.getOfflineTerms(save)
@@ -113,6 +113,40 @@ return function(Config: any, FarmMath: any, SaveCodec: any, Inventory: any)
 		assert(loaded.owned.items[id] and Inventory.owns(loaded, id), `permanent ownership for {id} survives reload`)
 	end
 	assert(loaded.inventory.equipped.tool == "artisan_hammer", "new equipped models retain their IDs after reload")
+	-- Altın-yalnız ekipman gerçek hesaplara bağlanır: Robux ürünü kapalı (kimlik 0), sahiplik altın teklifinden gelir
+	local goldOnlyIds =
+		{ "foreman_mallet", "fortune_charm", "tycoon_crown", "caravan_satchel", "eternal_shepherd_staff" }
+	for _, id in goldOnlyIds do
+		assert(Config.PRODUCTS.products[`permanent_{id}`].id == 0, `{id}: no Robux product exists`)
+	end
+	local foreman = fresh()
+	local plainCost = FarmMath.getUpgradeCost(foreman, Config.getUpgrade("barn_2"))
+	equip(foreman, "foreman_mallet")
+	assert(
+		FarmMath.getUpgradeCost(foreman, Config.getUpgrade("barn_2")) < plainCost,
+		"foreman mallet discounts upgrades through the shared formula"
+	)
+	local fortune = fresh()
+	equip(fortune, "fortune_charm")
+	assert(
+		FarmMath.computeIncomePerSecond(fortune, now) > FarmMath.computeIncomePerSecond(fresh(), now),
+		"fortune charm raises income"
+	)
+	assert(
+		math.abs(FarmMath.getEquippedBonus(fortune, "offlineBonus") - Config.ITEMS.fortune_charm.effects.offlineBonus)
+			< 1e-9,
+		"fortune charm adds offline earnings"
+	)
+	local caravan = fresh()
+	local caravanBase = FarmMath.getStorageCap(caravan)
+	equip(caravan, "caravan_satchel")
+	assert(FarmMath.getStorageCap(caravan) > caravanBase, "caravan satchel raises storage")
+	local tycoon = fresh()
+	equip(tycoon, "tycoon_crown")
+	assert(
+		FarmMath.getEquippedBonus(tycoon, "contractBonus") > Config.ITEMS.merchant_hat.effects.contractBonus,
+		"tycoon crown is the strongest non-golden trade hat"
+	)
 	local products = Config.PRODUCTS.products
 	assert(
 		products.income_pack_small.incomeHours == 0.25 and products.income_pack.incomeHours == 1,

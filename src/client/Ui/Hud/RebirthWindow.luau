@@ -50,6 +50,33 @@ local function describe(id: string, nextLevel: number): string
 		else "Yeni turlarda bir yetişkin hayvan daha eklenir."
 end
 
+-- Rebirth altınıyla (mevcut + ödül) alınabilen, sahip olunmayan kalıcı teklifler; en ucuz önce.
+-- Hiçbiri alınamıyorsa `affordable` boş, `nearest` en ucuz sahip olunmayan teklif olur.
+function RebirthWindow.affordableOffers(state: PlayerSave, budget: number): { affordable: { any }, nearest: any? }
+	local owned = if state.owned then state.owned.items else nil
+	local unowned = {}
+	for _, offer in Config.PROGRESSION.permanentOffers do
+		local itemId = offer.itemId
+		local item = if itemId then Config.ITEMS[itemId] else nil
+		if itemId and item and offer.goldCost and not (owned and owned[itemId] == true) then
+			table.insert(unowned, { itemId = itemId, name = item.displayName, goldCost = offer.goldCost })
+		end
+	end
+	table.sort(unowned, function(a: any, b: any): boolean
+		if a.goldCost ~= b.goldCost then
+			return a.goldCost < b.goldCost
+		end
+		return a.itemId < b.itemId
+	end)
+	local affordable = {}
+	for _, entry in unowned do
+		if entry.goldCost <= budget and #affordable < 3 then
+			table.insert(affordable, entry)
+		end
+	end
+	return { affordable = affordable, nearest = if #affordable == 0 then unowned[1] else nil }
+end
+
 function RebirthWindow.create(parent: Instance): { window: UiKit.Window, update: (PlayerSave) -> () }
 	local window = UiKit.window(parent, {
 		title = "İlerleme",
@@ -103,12 +130,35 @@ function RebirthWindow.create(parent: Instance): { window: UiKit.Window, update:
 	local milestone = UiKit.text(rebirthPage, "", "Body", UiKit.Color.Green)
 	milestone.Name = "NextMilestone"
 	milestone.LayoutOrder = 2
+	local gains = Instance.new("Frame")
+	gains.Name = "RebirthGains"
+	gains.BackgroundTransparency = 1
+	gains.Size = UDim2.new(1, 0, 0, 0)
+	gains.AutomaticSize = Enum.AutomaticSize.Y
+	gains.LayoutOrder = 3
+	gains.Parent = rebirthPage
+	UiKit.list(gains, 4)
+	local gainsHeading = UiKit.text(gains, "Bu rebirth'te kazanacakların", "Heading", UiKit.Color.Gold)
+	gainsHeading.Name = "RebirthGainsHeading"
+	gainsHeading.LayoutOrder = 0
+	local goldReward = UiKit.text(gains, "", "Body", UiKit.Color.Gold)
+	goldReward.Name = "RebirthGoldReward"
+	goldReward.LayoutOrder = 1
+	local affordableText = UiKit.text(gains, "", "Body")
+	affordableText.Name = "RebirthAffordable"
+	affordableText.LayoutOrder = 2
+	local nextReward = UiKit.text(gains, "", "Body", UiKit.Color.Green)
+	nextReward.Name = "RebirthNextReward"
+	nextReward.LayoutOrder = 3
+	local perkLine = UiKit.text(gains, "", "Body")
+	perkLine.Name = "RebirthPerkLine"
+	perkLine.LayoutOrder = 4
 	local choicePage = Instance.new("Frame")
 	choicePage.Name = "PerkChoices"
 	choicePage.BackgroundTransparency = 1
 	choicePage.Size = UDim2.new(1, 0, 0, 0)
 	choicePage.AutomaticSize = Enum.AutomaticSize.Y
-	choicePage.LayoutOrder = 4
+	choicePage.LayoutOrder = 5
 	choicePage.Parent = rebirthPage
 	UiKit.list(choicePage, 8)
 	local journeyPage = Instance.new("Frame")
@@ -116,11 +166,11 @@ function RebirthWindow.create(parent: Instance): { window: UiKit.Window, update:
 	journeyPage.BackgroundTransparency = 1
 	journeyPage.Size = UDim2.new(1, 0, 0, 0)
 	journeyPage.AutomaticSize = Enum.AutomaticSize.Y
-	journeyPage.LayoutOrder = 4
+	journeyPage.LayoutOrder = 5
 	journeyPage.Visible = false
 	journeyPage.Parent = rebirthPage
 	UiKit.list(journeyPage, 8)
-	UiKit.tabs(rebirthPage, 3, {
+	UiKit.tabs(rebirthPage, 4, {
 		{ id = "choice", label = "Etki Seç" },
 		{ id = "journey", label = "30 Rebirth Yolculuğu" },
 	}, function(id: string)
@@ -273,14 +323,46 @@ function RebirthWindow.create(parent: Instance): { window: UiKit.Window, update:
 		local currentMilestone = Progression.getMilestone(count)
 		UiKit.setText(
 			milestone,
-			if nextMilestone
-				then if currentMilestone
-					then `Son kazanım: {currentMilestone.displayName}\n{currentMilestone.description}\nSonraki ödül R{count + 1}: {nextMilestone.displayName}\n{nextMilestone.description}`
-					else `Sonraki ödül R{count + 1}: {nextMilestone.displayName}\n{nextMilestone.description}`
-				else if currentMilestone
-					then `Son kazanım: {currentMilestone.displayName}\n{currentMilestone.description}`
-					else ""
+			if currentMilestone
+				then `Son kazanım: {currentMilestone.displayName}\n{currentMilestone.description}`
+				else ""
 		)
+		milestone.Visible = currentMilestone ~= nil
+		gains.Visible = not complete
+		if not complete then
+			local reward = Progression.rebirthGoldReward(state)
+			UiKit.setText(goldReward, `Altın ödülü: +{reward} altın`)
+			local offers = RebirthWindow.affordableOffers(state, (state.gold or 0) + reward)
+			local lines = {}
+			if #offers.affordable > 0 then
+				table.insert(lines, "Bu altınla alabileceğin kalıcı eşyalar:")
+				for _, entry in offers.affordable do
+					table.insert(lines, `{entry.name} · {entry.goldCost} altın`)
+				end
+			elseif offers.nearest then
+				local missing = offers.nearest.goldCost - ((state.gold or 0) + reward)
+				table.insert(
+					lines,
+					`En yakın kalıcı eşya: {offers.nearest.name} ({offers.nearest.goldCost} altın, {missing} altın eksik)`
+				)
+			else
+				table.insert(lines, "Alınabilecek yeni kalıcı eşya kalmadı.")
+			end
+			UiKit.setText(affordableText, table.concat(lines, "\n"))
+			if nextMilestone then
+				local text = `Sonraki ödül R{count + 1}: {nextMilestone.displayName}\n{nextMilestone.description}`
+				if nextMilestone.itemId and Config.ITEMS[nextMilestone.itemId] then
+					text ..= `\nKalıcı eşya: {Config.ITEMS[nextMilestone.itemId].displayName}`
+				end
+				UiKit.setText(nextReward, text)
+			end
+			nextReward.Visible = nextMilestone ~= nil
+			perkLine.Visible = selected ~= nil
+			if selected then
+				local perkName = PERK_NAMES[selected] or "Prestij"
+				UiKit.setText(perkLine, `Seçtiğin etki: {perkName}`)
+			end
+		end
 		choiceGrid.Visible = not complete
 		-- Son seviyede seçilecek etki kalmaz: sekme boş görünmesin diye tek satır açıklama gösterilir
 		UiKit.setText(

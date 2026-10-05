@@ -248,13 +248,84 @@ return function(factory: any, harness: any, codec: any, config: any, farmMath: a
 	assert(not service.collect(h.player), "legacy credit recovery cannot replay")
 	assert(h.equipmentRefreshes == 0, "rejected terminal resets never change equipped presentation")
 	h.data.progression.count, h.data.progression.run, h.data.progression.perks = 0, 1, {}
+	h.data.progression.claims = {}
+	h.data.gold = 40
+	assert(not service.collect(h.player) and h.data.gold == 40, "a completed run pays no gold before the rebirth")
+	local rewardBefore = progression.rebirthGoldReward(h.data)
 	assert(
 		h.fire("RequestRebirth", "income", h.nextId(), "1", { expectedRun = 1 }).ok,
 		"valid server rebirth still advances below the cap"
 	)
+	assert(
+		h.data.gold == 40 + rewardBefore and h.data.gold == 40 + config.PROGRESSION.gold.rebirthBase,
+		"the single reward is part of the atomic rebirth and equals the shared helper"
+	)
+	assert(
+		not h.fire("RequestRebirth", "growth", h.nextId(), "1", { expectedRun = 1 }).ok
+			and h.data.gold == 40 + rewardBefore,
+		"a lost response replay with the old run cannot pay twice"
+	)
 	assert(h.equipmentRefreshes == 1, "durable reset refreshes equipment after removing run-only items")
+	-- R30: son tur tamamlanınca aynı tek ödül bir kez verilir (rebirth yoktur).
+	local function terminalReady(data: any)
+		for index = 1, config.MAIN_FARM_LIMIT do
+			local id = tostring(index)
+			local farm = codec.newFarm(config, farmMath, h.now, function(): string
+				return `terminal-{id}`
+			end, id)
+			for _, upgrade in config.UPGRADES do
+				if not upgrade.leveled and config.upgradeInTheme(upgrade, id) then
+					farm.purchased[upgrade.id] = true
+				end
+			end
+			for target in config.BUILD_TARGETS do
+				farm.expansions[target] = config.BUILD_UPGRADES.maxLevel
+			end
+			farm.lineage[config.getTheme(id).homeAnimal] = config.LINEAGE.maxLevel
+			farmMath.applyDerived(farm)
+			data.mainFarms = data.mainFarms or {}
+			data.mainFarms[id] = farm
+		end
+		for key, value in data.mainFarms["1"] do
+			data[key] = value
+		end
+		data.progression.count, data.progression.run, data.progression.claims = 30, 31, {}
+		data.progression.perks = {}
+		for index = 1, 6 do
+			data.progression.perks[config.PROGRESSION.perkOrder[index]] = 5
+		end
+		data.gold = 0
+	end
+	local t, terminalService = setup()
+	terminalReady(t.data)
+	local terminalReward = progression.rebirthGoldReward(t.data)
+	assert(
+		terminalReward > config.PROGRESSION.gold.rebirthBase,
+		"R30 reward scales with level and goldBonus milestones"
+	)
+	assert(terminalService.collect(t.player), "the completed R30 run pays")
+	assert(t.data.gold == terminalReward and t.data.progression.claims.terminal, "terminal reward is exact and flagged")
+	local terminalSaves = t.counters.saves
+	for _ = 1, 5 do
+		assert(not terminalService.collect(t.player), "terminal reward cannot repeat")
+	end
+	assert(t.data.gold == terminalReward and t.counters.saves == terminalSaves, "no extra gold or checkpoint on replay")
+	local incomplete, incompleteService = setup()
+	terminalReady(incomplete.data)
+	incomplete.data.mainFarms["2"].lineage[config.getTheme("2").homeAnimal] = 0
+	incompleteService.collect(incomplete.player)
+	assert(
+		incomplete.data.gold == 0 and not incomplete.data.progression.claims.terminal,
+		"an unfinished R30 run pays no gold"
+	)
+	local full, fullService = setup()
+	terminalReady(full.data)
+	full.data.gold = config.PROGRESSION.gold.maxBalance
+	fullService.collect(full.player)
+	assert(not full.data.progression.claims.terminal, "a full wallet keeps the terminal reward unclaimed")
 	-- Gerçek döngü ve collect: bir oyuncunun kalıcı yazımı yield ederken diğeri tamamlanır.
 	local slow = harness.new({ unlockAll = true })
+	terminalReady(slow.data)
 	local secondData =
 		assert(codec.decode(codec.encode(slow.data, slow.now), config, farmMath, slow.now, function(): string
 			return "second-profile"

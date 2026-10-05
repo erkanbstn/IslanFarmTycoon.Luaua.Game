@@ -58,13 +58,18 @@ function ItemShopWindow.create(screenGui: Instance, openPermanent: (() -> ())?):
 	local fullLabels: { [string]: TextLabel } = {}
 	local grids: { [string]: Frame } = {}
 	local tabEntries: { { id: string, label: string } } = {}
-	for slotIndex, slotId in Config.ITEM_SLOT_ORDER do
+	for _, slotId in Config.ITEM_SLOT_ORDER do
 		local slot = Config.ITEM_SLOTS[slotId]
-		table.insert(tabEntries, { id = slotId, label = slot.displayName })
 		local grid = UiKit.autoGrid(window.list, 10, 2)
-		grid.Visible = slotIndex == 1
+		grid.Visible = false
 		grids[slotId] = grid
-		for position, item in ItemText.itemsOfSlot(slotId) do
+		-- Nakit listesi: yalnız nakitle alınabilen eşyalar (+ bilgi amaçlı rebirth ödülleri); noCash eşya Market > Kalıcı'dadır.
+		local position = 0
+		for _, item in ItemText.itemsOfSlot(slotId) do
+			if not (item.rewardOnly or Config.isCashItem(item)) then
+				continue
+			end
+			position += 1
 			local card = UiKit.autoTile(grid, position, item.icon, { compact = true })
 			ItemPreview.mount(card.icon, item.id)
 			card.title.Text = `{item.displayName} · Sv.{item.level or 1}`
@@ -88,6 +93,14 @@ function ItemShopWindow.create(screenGui: Instance, openPermanent: (() -> ())?):
 				end
 			end)
 		end
+		if position == 0 then
+			-- Bu kategoride nakit eşya kalmadıysa boş sekme gösterme.
+			grids[slotId] = nil
+			grid:Destroy()
+		else
+			table.insert(tabEntries, { id = slotId, label = slot.displayName })
+			grid.Visible = #tabEntries == 1
+		end
 	end
 	UiKit.tabs(window.list, 5, tabEntries, function(slotId: string)
 		for _, details in detailsById do
@@ -104,7 +117,11 @@ function ItemShopWindow.create(screenGui: Instance, openPermanent: (() -> ())?):
 		local item = Config.ITEMS[itemId]
 		local permanent = state.owned ~= nil and state.owned.items[itemId] == true
 		local lifetime = if permanent or item.rewardOnly then "" else "\nRebirth yapınca bu eşya silinir."
-		UiKit.setText(fullLabels[itemId], `{ItemText.slotNotice(item)}\n{ItemText.additional(item)}{lifetime}`)
+		local channel = ItemText.channelNotice(item)
+		UiKit.setText(
+			fullLabels[itemId],
+			`{channel}\n{ItemText.slotNotice(item)}\n{ItemText.additional(item)}{lifetime}`
+		)
 		UiKit.setText(
 			card.detail,
 			`{if permanent then "Kalıcı" elseif item.rewardOnly then "Rebirth ödülü" else "Bu tur"} · {string.match(
@@ -120,7 +137,7 @@ function ItemShopWindow.create(screenGui: Instance, openPermanent: (() -> ())?):
 				"owned"
 			)
 		elseif item.rewardOnly then
-			UiKit.setText(fullLabels[itemId], `{ItemText.slotNotice(item)}\n{ItemText.additional(item)}`)
+			UiKit.setText(fullLabels[itemId], `{channel}\n{ItemText.slotNotice(item)}\n{ItemText.additional(item)}`)
 			setPurchaseButton(card.action, `R{rewardLevels[itemId] or 0} ödülü · Oynayarak kazan`, "disabled")
 		else
 			setPurchaseButton(

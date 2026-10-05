@@ -16,7 +16,25 @@ Durum: **çekirdek uygulandı**, 4 Ekim 2026. Güncel teslim ve doğrulama kayd�
 
 ## Süre kararı
 
-İlk hedef yüzde 75–85, otomatik garanti değildir. Yalnız +%8 gelir seçimi, simülasyonda turu yaklaşık yüzde 7–8 kısaltır. Önceki turdan saklanan 780 altınla Elmas Çekiç edinmek ve aynı gelir etkisi, günlük bir saat oynayan senaryoyu 19 günden 15 güne indirir. Böylece ücretsiz birikim sonraki turu da hızlandırır. Tam koşullar ve hızlandırılmış senaryolar geliştirme raporundadır; canlı oyuncu verisi henüz yoktur.
+İlk hedef yüzde 75–85, otomatik garanti değildir. Yalnız +%8 gelir seçimi, simülasyonda turu yaklaşık yüzde 7–8 kısaltır. Altın artık tur içinde kazanılmaz; tek ödül rebirth ile gelir (aşağıda). Birinci tur hızı altından etkilenmediği için aynıdır; ikinci turdan itibaren R1 ödülüyle alınan kalıcı eşya turu kısaltır. Canlı oyuncu verisi henüz yoktur.
+
+## Altın yalnız rebirth'te (5 Ekim 2026)
+
+Ada başına 20 / çiftlik başına 50 altın (tur başı 780) kaldırıldı. Altın, bütün tur bitince (altı çiftlik tamam, rebirth hazır) rebirth işlemiyle bir kez ve atomik verilir: `gold.rebirthBase` 750 + `gold.rebirthPerLevel` 10 × o ana kadarki rebirth sayısı, `goldBonus` kilometre taşları (R3/R10, +%10'ar) çarpanıyla yuvarlanır (R1 750, R4 858, R11 1020, 30. rebirth 1248). Amaç: bir rebirth ~bir kalıcı prim eşya (350-900; Elmas Çekiç 740, altın taç 1500 hariç); daha hızlısı Robux altın paketleridir. R30'da son tur tamamlanınca aynı ödül (1260) `progression.claims.terminal` ile bir kez verilir (`ProgressionService.collect` → `Progression.collectTerminalGold`; cüzdan tavanında ertelenir). Tekrar oynatma `expectedRun` ile reddedilir. Eski kayıtlarda `island:*`/`farm:*` hak anahtarları okunurken atılır; tur ortasında tahsil edilmiş altın bakiyede kalır, tahsil edilmemiş ada/çiftlik altını artık yoktur (çifte ödeme yok). Ortak saf yardımcı `Progression.rebirthGoldReward(save)`.
+
+Altınla bitirme (büyüme/genişletme) ve altın→nakit çevirme mantığı değişmedi; yeni oyuncuda ilk rebirth'e kadar altın yoktur, bu özellikler ilk rebirth'ten sonra ya da satın alınan altınla çalışır. Kilitlenme yoktur: rebirth altına bağlı değildir.
+
+Erken kilometre taşları da kalıcı eşya verir (etkileri korunur): R1 Rüzgar Muskası, R2 Tüccar Şapkası, R3 Büyük Depo Muskası, R4 Büyük Büyüme Muskası, R5 Usta Tüccar Defteri (hepsi nakit+altın mağaza eşyası; çift sahiplikte Robux teslimi altın eşdeğerini öder).
+
+Ölçüm (`scripts/simulate-rebirth.py`, aynı koşullar, takvim günü; kaynak `.test-build/rebirth-before.json` / `rebirth-after.json`):
+
+| Oyuncu | Senaryo | Önce | Sonra |
+|---|---|---|---|
+| ideal / casual / idle | 1. tur (altın politikası fark etmez) | 5,26 / 19,33 / 34,00 | 5,26 / 19,33 / 34,00 |
+| ideal / casual / idle | R1 sonrası tur, +%8 gelir (`r1_income`) | 4,83 / 17,67 / 29,00 | 4,83 / 17,33 / 28,00 |
+| ideal / casual / idle | R1 sonrası tur, saklanan altınla ekipman | 4,23 / 15,00 / 27,00 (780 altın) | 4,23 / 14,67 / 26,50 (750 altın, `r1_reward_equipment`) |
+
+Eski modelde ilk tur 780 altın biriktirip ilk turda zaten harcayamıyordu; yeni modelde aynı miktar rebirth anında tek seferde gelir, yani ikinci tura aynı gücü taşır (Elmas Çekiç 740 alınır, 10 altın kalır). Kampanya (casual, 3 tur, gerçek `Rebirth.apply` taşıma): ücretsiz 19,33 / 14,67 / 14,67 gün; hızlandırılmış 3,67 / 3,66 / 3,67 gün; R1 ödülü Elmas Çekiç'e gider. `r1_income` farkı R1 kilometre taşı eşyalarının modele girmesindendir. Simülasyon eşya gücünü sınırlı modeller; Studio'da gerçek oyun hissi denenmedi.
 
 `python scripts/simulate-rebirth.py` gerçek Config/FarmMath ile yeni tur başlangıçlarını karşılaştırır. Tarihsel `simulate-tiers.py` tüm yükseltme ölçüsü ayrı kalır; rebirth koşuluyla aynı sayılmaz.
 

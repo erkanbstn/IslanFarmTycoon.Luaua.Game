@@ -1,0 +1,481 @@
+<?xml version='1.0' encoding='utf-8'?>
+<roblox version="4">
+  <Item class="Model" referent="lucky_clover">
+    <Properties>
+      <string name="Name">lucky_clover</string>
+      <BinaryString name="AttributesSerialize">AQAAAAYAAABBdHRhY2gCBQAAAGNoZXN0</BinaryString>
+      <OptionalCoordinateFrame name="WorldPivotData">
+        <CFrame>
+          <X>0.00000000</X>
+          <Y>0.00000000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CFrame>
+      </OptionalCoordinateFrame>
+    </Properties>
+    <Item class="Part" referent="lucky_clover_0">
+      <Properties>
+        <string name="Name">CloverLeaf</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.20392156862745098</R>
+          <G>0.6901960784313725</G>
+          <B>0.2901960784313726</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.2</X>
+          <Y>0.2</Y>
+          <Z>0.07</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.67000000</Y>
+          <Z>-0.66000000</Z>
+          <R00>0.7071067812</R00>
+          <R01>-0.7071067812</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.7071067812</R10>
+          <R11>0.7071067812</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="lucky_clover_1">
+      <Properties>
+        <string name="Name">CloverLobe</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.20392156862745098</R>
+          <G>0.6901960784313725</G>
+          <B>0.2901960784313726</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.2</X>
+          <Y>0.2</Y>
+          <Z>0.2</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.79000000</Y>
+          <Z>-0.66000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="lucky_clover_2">
+      <Properties>
+        <string name="Name">CloverLeaf</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.32941176470588235</R>
+          <G>0.807843137254902</G>
+          <B>0.3764705882352941</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.2</X>
+          <Y>0.2</Y>
+          <Z>0.07</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.15000000</X>
+          <Y>0.52000000</Y>
+          <Z>-0.66000000</Z>
+          <R00>0.7071067812</R00>
+          <R01>-0.7071067812</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.7071067812</R10>
+          <R11>0.7071067812</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="lucky_clover_3">
+      <Properties>
+        <string name="Name">CloverLobe</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.32941176470588235</R>
+          <G>0.807843137254902</G>
+          <B>0.3764705882352941</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.2</X>
+          <Y>0.2</Y>
+          <Z>0.2</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.27000000</X>
+          <Y>0.52000000</Y>
+          <Z>-0.66000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="lucky_clover_4">
+      <Properties>
+        <string name="Name">CloverLeaf</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.20392156862745098</R>
+          <G>0.6901960784313725</G>
+          <B>0.2901960784313726</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.2</X>
+          <Y>0.2</Y>
+          <Z>0.07</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.37000000</Y>
+          <Z>-0.66000000</Z>
+          <R00>0.7071067812</R00>
+          <R01>-0.7071067812</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.7071067812</R10>
+          <R11>0.7071067812</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="lucky_clover_5">
+      <Properties>
+        <string name="Name">CloverLobe</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.20392156862745098</R>
+          <G>0.6901960784313725</G>
+          <B>0.2901960784313726</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.2</X>
+          <Y>0.2</Y>
+          <Z>0.2</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.25000000</Y>
+          <Z>-0.66000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="lucky_clover_6">
+      <Properties>
+        <string name="Name">CloverLeaf</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.32941176470588235</R>
+          <G>0.807843137254902</G>
+          <B>0.3764705882352941</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.2</X>
+          <Y>0.2</Y>
+          <Z>0.07</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.15000000</X>
+          <Y>0.52000000</Y>
+          <Z>-0.66000000</Z>
+          <R00>0.7071067812</R00>
+          <R01>-0.7071067812</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.7071067812</R10>
+          <R11>0.7071067812</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="lucky_clover_7">
+      <Properties>
+        <string name="Name">CloverLobe</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.32941176470588235</R>
+          <G>0.807843137254902</G>
+          <B>0.3764705882352941</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.2</X>
+          <Y>0.2</Y>
+          <Z>0.2</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.27000000</X>
+          <Y>0.52000000</Y>
+          <Z>-0.66000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="lucky_clover_8">
+      <Properties>
+        <string name="Name">CloverCenter</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>1.0</R>
+          <G>0.8549019607843137</G>
+          <B>0.3764705882352941</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.16</X>
+          <Y>0.16</Y>
+          <Z>0.16</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.52000000</Y>
+          <Z>-0.73000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="lucky_clover_9">
+      <Properties>
+        <string name="Name">CloverStem</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.1568627450980392</R>
+          <G>0.5019607843137255</G>
+          <B>0.2196078431372549</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.045</X>
+          <Y>0.25</Y>
+          <Z>0.04</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.12500000</X>
+          <Y>0.12000000</Y>
+          <Z>-0.66000000</Z>
+          <R00>-0.8000000000</R00>
+          <R01>0.6000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>-0.6000000000</R10>
+          <R11>-0.8000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="lucky_clover_10">
+      <Properties>
+        <string name="Name">CordLeft</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.47058823529411764</R>
+          <G>0.3215686274509804</G>
+          <B>0.1803921568627451</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.035</X>
+          <Y>0.25807</Y>
+          <Z>0.03</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.11500000</X>
+          <Y>0.99500000</Y>
+          <Z>-0.66000000</Z>
+          <R00>0.8137334712</R00>
+          <R01>-0.5812381937</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.5812381937</R10>
+          <R11>0.8137334712</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="lucky_clover_11">
+      <Properties>
+        <string name="Name">CordRight</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.47058823529411764</R>
+          <G>0.3215686274509804</G>
+          <B>0.1803921568627451</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.035</X>
+          <Y>0.25807</Y>
+          <Z>0.03</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.11500000</X>
+          <Y>0.99500000</Y>
+          <Z>-0.66000000</Z>
+          <R00>0.8137334712</R00>
+          <R01>0.5812381937</R01>
+          <R02>0.0000000000</R02>
+          <R10>-0.5812381937</R10>
+          <R11>0.8137334712</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+  </Item>
+</roblox>

@@ -62,7 +62,11 @@ function Financial.decode(source: any, config: any, now: number): any?
 	}
 	if source.progression ~= nil then
 		local raw: any = source.progression
-		if typeof(raw) ~= "table" or typeof(raw.perks) ~= "table" or typeof(raw.claims) ~= "table" then
+		if
+			typeof(raw) ~= "table"
+			or typeof(raw.perks) ~= "table"
+			or (raw.claims ~= nil and typeof(raw.claims) ~= "table")
+		then
 			return nil
 		end
 		local bounds: { [string]: { number } } = {
@@ -108,33 +112,15 @@ function Financial.decode(source: any, config: any, now: number): any?
 		if perkTotal ~= math.min(raw.count, 40) then
 			return nil
 		end
-		local count = 0
-		for id, done in raw.claims do
-			count += 1
-			if typeof(id) ~= "string" or #id == 0 or #id > 64 or done ~= true or count > 30 then
+		-- Eski ada/çiftlik hak anahtarları (`island:*`, `farm:*`) artık anlam taşımaz; zararsızca atılır.
+		-- Yalnız R30 son tur ödülü işareti (`terminal`) korunur.
+		for id, done in (raw.claims or {}) :: { [any]: any } do
+			if typeof(id) ~= "string" then
 				return nil
 			end
-			local farmId = string.match(id, "^farm:(%d+)$")
-			local islandFarm, islandId = string.match(id, "^island:(%d+):([%w_]+)$")
-			local owner = tonumber(farmId or islandFarm or "")
-			if
-				not owner
-				or owner < 1
-				or owner > config.MAIN_FARM_LIMIT
-				or tostring(owner) ~= (farmId or islandFarm)
-			then
-				return nil
+			if id == "terminal" and done == true and raw.count >= config.PROGRESSION.maxRebirth then
+				progression.claims.terminal = true
 			end
-			if
-				islandId
-				and (
-					not config.FARM_ISLANDS[islandId]
-					or (islandId ~= "home" and not table.find(config.getTheme(tostring(owner)).satellites, islandId))
-				)
-			then
-				return nil
-			end
-			progression.claims[id] = true
 		end
 	end
 	return { gold = gold, owned = owned, progression = progression }

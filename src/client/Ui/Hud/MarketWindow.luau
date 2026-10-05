@@ -89,7 +89,7 @@ function MarketWindow.create(
 	local conversionGuide = UiKit.disclosure(pages.convert, 9, "Altın nasıl çalışır?")
 	UiKit.text(
 		conversionGuide.body,
-		`İlk ücretsiz altın: bir adanın tüm yükseltmelerini tamamla. Ada başına {Config.PROGRESSION.gold.island} altın, tamamlanan çiftlik için ayrıca {Config.PROGRESSION.gold.farm} altın kazanırsın.`,
+		"Altın, rebirth yaptığında bir kez kazanılır. Kalıcı eşyalar için harcayabilirsin.",
 		"Body"
 	).LayoutOrder =
 		0

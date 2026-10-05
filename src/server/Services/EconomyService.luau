@@ -107,6 +107,25 @@ function EconomyService.collect(player: Player)
 	Remotes.get("Notify"):FireClient(player, `+{FarmMath.formatMoney(amount)} toplandı`, "money", amount)
 end
 
+-- Uzaktan toplama (Çoban Asası yeteneği): platform ve mesafe şartı yok, kasaya geçiş `collect` ile aynı; bildirimi çağıran verir.
+-- Toplanan tutar döner (depo boşsa 0, hiçbir şey değişmez).
+function EconomyService.collectRemote(player: Player): number
+	local data = PlayerDataService.tryGet(player)
+	if not data then
+		return 0
+	end
+	EconomyService.settlePlayer(player)
+	local amount = math.floor(data.stored)
+	if amount <= 0 then
+		return 0
+	end
+	data.stored -= amount
+	PlayerDataService.addCash(player, amount, "collect")
+	Metrics.increment("Collections")
+	updateCollector(player)
+	return amount
+end
+
 function EconomyService.startPlayer(player: Player)
 	lastIncomeAt[player] = os.clock()
 end

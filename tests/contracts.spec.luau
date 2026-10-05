@@ -278,7 +278,12 @@ return function(codec: any, config: any, farmMath: any, profiles: any)
 	local charmed = farmMath.getContractOffers(save, now, 0)
 	assert(charmed[1].reward > offers[1].reward, "the merchant ledger raises delivery rewards")
 	assert(
-		charmed[1].reward == math.floor(offers[1].worth * offers[1].rewardFactor * (1 + 0.14 + islandBonus)),
+		charmed[1].reward
+			== math.floor(
+				offers[1].worth
+					* offers[1].rewardFactor
+					* (1 + config.ITEMS.contract_charm_2.effects.contractBonus + islandBonus)
+			),
 		"exact charm bonus"
 	)
 	save.inventory.equipped = { charm = "barn_charm_2" }

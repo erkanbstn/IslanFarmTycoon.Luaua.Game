@@ -81,7 +81,7 @@ function Merchant.status(save: any, userId: number, now: number): Status
 	local ranks: { [string]: number } = {}
 	for index, itemId in Config.ITEM_ORDER do
 		local item = Config.ITEMS[itemId]
-		if item and not item.rewardOnly and item.price > 0 and not Inventory.owns(save, itemId) then
+		if item and Config.isCashItem(item) and not Inventory.owns(save, itemId) then
 			table.insert(candidates, itemId)
 			ranks[itemId] = rand(userId, visit.cycle, 100 + index)
 		end

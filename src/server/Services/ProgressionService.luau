@@ -247,7 +247,6 @@ function ProgressionService.collect(player: Player): boolean
 	if not data or not state or player:GetAttribute("WorldReady") ~= true then
 		return false
 	end
-	local now = nowSeconds()
 	-- Önce saf bir görünümde kontrol: değişiklik yokken DataStore'a yazma.
 	local candidate: any = table.clone(data)
 	candidate.progression = table.clone(state)
@@ -257,7 +256,7 @@ function ProgressionService.collect(player: Player): boolean
 	candidate.owned = { items = table.clone(owned.items), conveniences = table.clone(owned.conveniences) }
 	candidate.inventory = table.clone(inventory)
 	candidate.inventory.items = table.clone(inventory.items)
-	local earned = Progression.collectGold(candidate, now)
+	local earned = Progression.collectTerminalGold(candidate)
 	local reconciled = reconcilePermanent(candidate)
 	if earned <= 0 and not reconciled then
 		return false
@@ -265,7 +264,7 @@ function ProgressionService.collect(player: Player): boolean
 	EconomyService.settlePlayer(player)
 	local gained = 0
 	local accepted = PlayerDataService.transactAccount(player, function(current: any): (boolean, string?)
-		gained = Progression.collectGold(current, now)
+		gained = Progression.collectTerminalGold(current)
 		local repaired = reconcilePermanent(current)
 		return gained > 0 or repaired, nil
 	end, function(owner: Player)

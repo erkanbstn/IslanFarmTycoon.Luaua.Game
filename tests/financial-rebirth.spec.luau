@@ -39,8 +39,29 @@ return function(codec: any, config: any, farmMath: any, progression: any, rebirt
 	raw.progression.count = 1
 	assert(codec.decode(raw, config, farmMath, now, uid) == nil, "run and perk count must agree")
 	raw = codec.encode(migrated, now)
+	-- Eski ada/çiftlik hak anahtarları (ve bilinmeyen anahtarlar) zararsızca atılır; altın artık hak anahtarına bağlı değil.
 	raw.progression.claims["unknown-reward"] = true
-	assert(codec.decode(raw, config, farmMath, now, uid) == nil, "unknown gold claims are rejected")
+	raw.progression.claims["island:1:home"] = true
+	raw.progression.claims["farm:1"] = true
+	raw.progression.claims.terminal = true
+	local legacyClaims =
+		assert(codec.decode(raw, config, farmMath, now, uid), "legacy per-island claim keys decode harmlessly")
+	assert(next(legacyClaims.progression.claims) == nil, "old claims are dropped; terminal needs R30")
+	raw.progression.claims = nil
+	assert(codec.decode(raw, config, farmMath, now, uid), "claims table is optional")
+	raw.progression.claims = "bad"
+	assert(codec.decode(raw, config, farmMath, now, uid) == nil, "a non-table claims value is still rejected")
+	raw = codec.encode(migrated, now)
+	raw.progression.count, raw.progression.run = config.PROGRESSION.maxRebirth, config.PROGRESSION.maxRebirth + 1
+	raw.progression.perks =
+		{ income = 5, growth = 5, starting_cash = 5, upgrade_discount = 5, facility_speed = 5, offline = 5 }
+	raw.progression.claims = { terminal = true, ["farm:2"] = true }
+	local terminal = assert(codec.decode(raw, config, farmMath, now, uid), "terminal claim decodes at R30")
+	local kept = 0
+	for _ in terminal.progression.claims do
+		kept += 1
+	end
+	assert(terminal.progression.claims.terminal and kept == 1, "only terminal survives")
 	migrated.gold = 1000
 	migrated.owned.items.golden_crown = true
 	migrated.inventory.items.golden_crown = true
@@ -69,6 +90,9 @@ return function(codec: any, config: any, farmMath: any, progression: any, rebirt
 		migrated[key] = value
 	end
 	assert(progression.canRebirth(migrated), "completed six-farm fixture unlocks rebirth")
+	assert(migrated.gold == 1000, "completing the run grants no gold before the rebirth itself")
+	local rebirthReward = progression.rebirthGoldReward(migrated)
+	assert(rebirthReward == config.PROGRESSION.gold.rebirthBase, "R1 reward is the base amount")
 	local before = codec.encode(migrated, now)
 	local pending = assert(codec.decode(before, config, farmMath, now, uid), "pending profile decodes")
 	pending.transfers.outbox.pending = { senderId = 1, targetId = 2, amount = 100, epoch = 0 }
@@ -91,8 +115,8 @@ return function(codec: any, config: any, farmMath: any, progression: any, rebirt
 		"rebirth records one selection and generation"
 	)
 	assert(
-		migrated.gold > 1000 and #migrated.receipts == 1 and migrated.transfers.received.completed,
-		"unclaimed completion gold and financial tombstones survive"
+		migrated.gold == 1000 + rebirthReward and #migrated.receipts == 1 and migrated.transfers.received.completed,
+		"the single rebirth reward is granted atomically and financial tombstones survive"
 	)
 	assert(
 		migrated.owned.items.golden_crown
@@ -182,7 +206,11 @@ return function(codec: any, config: any, farmMath: any, progression: any, rebirt
 		if level == config.PROGRESSION.maxRebirth then
 			journey.progression.doubleCredits = 5
 		end
+		local goldBefore = journey.gold
+		local expectedReward = progression.rebirthGoldReward(journey)
+			+ (if level == config.PROGRESSION.maxRebirth then 4 * config.PROGRESSION.terminalDoubleGold else 0)
 		assert(rebirth.apply(journey, config, farmMath, progression, codec, now, uid, perk), `rebirth {level} applies`)
+		assert(journey.gold == goldBefore + expectedReward, `rebirth {level} pays exactly the helper amount once`)
 		assert(
 			journey.progression.count == level and journey.progression.run == level + 1,
 			"exactly one generation advances"

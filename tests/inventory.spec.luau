@@ -200,6 +200,53 @@ return function(Inventory: any, Config: any, FarmMath: any, SaveCodec: any, Sess
 		Inventory.grant(movement, "season_staff_inf")
 		Inventory.equip(movement, "season_staff_inf")
 		assert(FarmMath.getMovementSpeedMultiplier(movement) == 1.25, "combined gear is capped")
+		-- Kanatlar: seviye ve fiyat yükseldikçe hız da yükselir; en iyi kanat en çok artır
+		local angel = Config.ITEMS.angel_wings.effects.movementSpeed
+		local golden = Config.ITEMS.golden_wings.effects.movementSpeed
+		assert(
+			angel > 0 and golden > angel and Config.ITEMS.golden_wings.price > Config.ITEMS.angel_wings.price,
+			"every wing speeds the character up and the best wing the most"
+		)
+		-- Kanat merdiveni: Melek < Kristal < Altın < Anka (en iyi kanat ödüldür); fiyatlar aynı sırada, sert tavan korunur
+		local ladder = { "angel_wings", "crystal_wings", "golden_wings", "phoenix_wings" }
+		for rank = 2, #ladder do
+			local lower, higher = Config.ITEMS[ladder[rank - 1]], Config.ITEMS[ladder[rank]]
+			assert(
+				higher.effects.movementSpeed > lower.effects.movementSpeed,
+				`{higher.id} must be faster than {lower.id}`
+			)
+			if not higher.rewardOnly then
+				assert(higher.price > lower.price, `{higher.id} keeps the wing price order`)
+			end
+		end
+		for _, itemId in Config.ITEM_ORDER do
+			local item = Config.ITEMS[itemId]
+			if item.slot == "back" and item.id ~= "phoenix_wings" and item.effects.movementSpeed then
+				assert(
+					item.effects.movementSpeed < Config.ITEMS.phoenix_wings.effects.movementSpeed,
+					`phoenix_wings is the fastest back item, not {itemId}`
+				)
+			end
+		end
+		assert(
+			Config.ITEMS.phoenix_wings.rewardOnly and Config.getItemChannel("phoenix_wings") == "reward",
+			"the best wing is earned at the rebirth milestone, never sold"
+		)
+		do
+			local capped = newSave()
+			for _, itemId in { "phoenix_wings", "wind_charm", "season_staff_inf", "diamond_hammer", "golden_crown" } do
+				Inventory.grant(capped, itemId)
+				assert(Inventory.equip(capped, itemId), `{itemId} equips`)
+			end
+			assert(
+				FarmMath.getMovementSpeedMultiplier(capped) == 1 + Config.MOVEMENT_SPEED_BONUS_CAP,
+				"phoenix wings stack under the same movement cap"
+			)
+		end
+		local wings = newSave()
+		Inventory.grant(wings, "angel_wings")
+		Inventory.equip(wings, "angel_wings")
+		assert(FarmMath.getMovementSpeedMultiplier(wings) == 1 + angel, "wings alone change movement speed")
 		Inventory.unequip(movement, "back")
 		Inventory.unequip(movement, "staff")
 		Inventory.unequip(movement, "charm")
@@ -378,12 +425,12 @@ return function(Inventory: any, Config: any, FarmMath: any, SaveCodec: any, Sess
 			end
 		end
 	end
-	assert(powered > 0 and powerless > 0, "both power and power-less staffs exist, so the hidden section matters")
+	assert(powered > 0 and powerless == 0, "every staff has a usable power, so no empty power section exists")
 	assert(
 		Inventory.hasPower(Config.ITEMS.artisan_staff)
 			and Inventory.hasPower(Config.ITEMS.weather_staff_inf)
-			and not Inventory.hasPower(Config.ITEMS.weather_staff_1),
-		"artisan staff has a power; the first shepherd staff stays passive"
+			and Inventory.hasPower(Config.ITEMS.weather_staff_1),
+		"every staff has a usable power"
 	)
 	assert(not Inventory.hasPower(nil), "no equipped item has no power")
 	print("PASS inventory: definitions, equipping, staff uses, economy effects and save validation")

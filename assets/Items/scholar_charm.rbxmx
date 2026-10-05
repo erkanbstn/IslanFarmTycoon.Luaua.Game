@@ -1,0 +1,519 @@
+<?xml version='1.0' encoding='utf-8'?>
+<roblox version="4">
+  <Item class="Model" referent="scholar_charm">
+    <Properties>
+      <string name="Name">scholar_charm</string>
+      <BinaryString name="AttributesSerialize">AQAAAAYAAABBdHRhY2gCBQAAAGNoZXN0</BinaryString>
+      <OptionalCoordinateFrame name="WorldPivotData">
+        <CFrame>
+          <X>0.00000000</X>
+          <Y>0.00000000</Y>
+          <Z>0.00000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>-0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>-0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CFrame>
+      </OptionalCoordinateFrame>
+    </Properties>
+    <Item class="Part" referent="scholar_charm_0">
+      <Properties>
+        <string name="Name">BookCoverL</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.09411764705882353</R>
+          <G>0.20392156862745098</G>
+          <B>0.48627450980392156</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.34</X>
+          <Y>0.5</Y>
+          <Z>0.05</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.17000000</X>
+          <Y>0.62000000</Y>
+          <Z>-0.61000000</Z>
+          <R00>0.9702957263</R00>
+          <R01>0.0000000000</R01>
+          <R02>-0.2419218956</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.2419218956</R20>
+          <R21>0.0000000000</R21>
+          <R22>0.9702957263</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="scholar_charm_1">
+      <Properties>
+        <string name="Name">BookPageL</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.9411764705882353</R>
+          <G>0.8941176470588236</G>
+          <B>0.7686274509803922</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.28</X>
+          <Y>0.42</Y>
+          <Z>0.04</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.16500000</X>
+          <Y>0.62000000</Y>
+          <Z>-0.65000000</Z>
+          <R00>0.9702957263</R00>
+          <R01>0.0000000000</R01>
+          <R02>-0.2419218956</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.2419218956</R20>
+          <R21>0.0000000000</R21>
+          <R22>0.9702957263</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="scholar_charm_2">
+      <Properties>
+        <string name="Name">PageLineL</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.054901960784313725</R>
+          <G>0.12549019607843137</G>
+          <B>0.34509803921568627</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.18</X>
+          <Y>0.025</Y>
+          <Z>0.045</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.17000000</X>
+          <Y>0.68000000</Y>
+          <Z>-0.67400000</Z>
+          <R00>0.9702957263</R00>
+          <R01>0.0000000000</R01>
+          <R02>-0.2419218956</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.2419218956</R20>
+          <R21>0.0000000000</R21>
+          <R22>0.9702957263</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="scholar_charm_3">
+      <Properties>
+        <string name="Name">CornerTopL</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.9254901960784314</R>
+          <G>0.7450980392156863</G>
+          <B>0.23529411764705882</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.07</X>
+          <Y>0.07</Y>
+          <Z>0.07</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.34000000</X>
+          <Y>0.87000000</Y>
+          <Z>-0.67000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="scholar_charm_4">
+      <Properties>
+        <string name="Name">CornerLowL</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.9254901960784314</R>
+          <G>0.7450980392156863</G>
+          <B>0.23529411764705882</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.07</X>
+          <Y>0.07</Y>
+          <Z>0.07</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>-0.34000000</X>
+          <Y>0.37000000</Y>
+          <Z>-0.67000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="scholar_charm_5">
+      <Properties>
+        <string name="Name">BookCoverR</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.09411764705882353</R>
+          <G>0.20392156862745098</G>
+          <B>0.48627450980392156</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.34</X>
+          <Y>0.5</Y>
+          <Z>0.05</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.17000000</X>
+          <Y>0.62000000</Y>
+          <Z>-0.61000000</Z>
+          <R00>0.9702957263</R00>
+          <R01>0.0000000000</R01>
+          <R02>0.2419218956</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>-0.2419218956</R20>
+          <R21>0.0000000000</R21>
+          <R22>0.9702957263</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="scholar_charm_6">
+      <Properties>
+        <string name="Name">BookPageR</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.9411764705882353</R>
+          <G>0.8941176470588236</G>
+          <B>0.7686274509803922</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.28</X>
+          <Y>0.42</Y>
+          <Z>0.04</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.16500000</X>
+          <Y>0.62000000</Y>
+          <Z>-0.65000000</Z>
+          <R00>0.9702957263</R00>
+          <R01>0.0000000000</R01>
+          <R02>0.2419218956</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>-0.2419218956</R20>
+          <R21>0.0000000000</R21>
+          <R22>0.9702957263</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="scholar_charm_7">
+      <Properties>
+        <string name="Name">PageLineR</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.054901960784313725</R>
+          <G>0.12549019607843137</G>
+          <B>0.34509803921568627</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.18</X>
+          <Y>0.025</Y>
+          <Z>0.045</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.17000000</X>
+          <Y>0.68000000</Y>
+          <Z>-0.67400000</Z>
+          <R00>0.9702957263</R00>
+          <R01>0.0000000000</R01>
+          <R02>0.2419218956</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>-0.2419218956</R20>
+          <R21>0.0000000000</R21>
+          <R22>0.9702957263</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="scholar_charm_8">
+      <Properties>
+        <string name="Name">CornerTopR</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.9254901960784314</R>
+          <G>0.7450980392156863</G>
+          <B>0.23529411764705882</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.07</X>
+          <Y>0.07</Y>
+          <Z>0.07</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.34000000</X>
+          <Y>0.87000000</Y>
+          <Z>-0.67000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="scholar_charm_9">
+      <Properties>
+        <string name="Name">CornerLowR</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.9254901960784314</R>
+          <G>0.7450980392156863</G>
+          <B>0.23529411764705882</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.07</X>
+          <Y>0.07</Y>
+          <Z>0.07</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.34000000</X>
+          <Y>0.37000000</Y>
+          <Z>-0.67000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="scholar_charm_10">
+      <Properties>
+        <string name="Name">BookSpine</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1088</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.9254901960784314</R>
+          <G>0.7450980392156863</G>
+          <B>0.23529411764705882</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.05</X>
+          <Y>0.54</Y>
+          <Z>0.07</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.62000000</Y>
+          <Z>-0.63000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="scholar_charm_11">
+      <Properties>
+        <string name="Name">Bookmark</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">1312</token>
+        <token name="Shape">1</token>
+        <Color3 name="Color">
+          <R>0.7450980392156863</R>
+          <G>0.1568627450980392</G>
+          <B>0.20392156862745098</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.06</X>
+          <Y>0.26</Y>
+          <Z>0.025</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.24000000</Y>
+          <Z>-0.68000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+    <Item class="Part" referent="scholar_charm_12">
+      <Properties>
+        <string name="Name">WisdomGem</string>
+        <bool name="Anchored">true</bool>
+        <bool name="Massless">true</bool>
+        <bool name="CanCollide">false</bool>
+        <bool name="CanTouch">false</bool>
+        <bool name="CanQuery">false</bool>
+        <bool name="CastShadow">false</bool>
+        <token name="Material">272</token>
+        <token name="Shape">0</token>
+        <Color3 name="Color">
+          <R>0.47058823529411764</R>
+          <G>0.8235294117647058</G>
+          <B>1.0</B>
+        </Color3>
+        <Vector3 name="Size">
+          <X>0.1</X>
+          <Y>0.1</Y>
+          <Z>0.1</Z>
+        </Vector3>
+        <CoordinateFrame name="CFrame">
+          <X>0.00000000</X>
+          <Y>0.96000000</Y>
+          <Z>-0.67000000</Z>
+          <R00>1.0000000000</R00>
+          <R01>0.0000000000</R01>
+          <R02>0.0000000000</R02>
+          <R10>0.0000000000</R10>
+          <R11>1.0000000000</R11>
+          <R12>0.0000000000</R12>
+          <R20>0.0000000000</R20>
+          <R21>0.0000000000</R21>
+          <R22>1.0000000000</R22>
+        </CoordinateFrame>
+        <float name="Transparency">0</float>
+      </Properties>
+    </Item>
+  </Item>
+</roblox>
