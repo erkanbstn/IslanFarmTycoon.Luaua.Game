@@ -108,6 +108,7 @@ hatasından ayrıdır.
 
 Çevrimdışı kazanç büyüme aşamalarını kullanır ve doğrudan kasaya eklenir: gelirin `Config.OFFLINE_EARNING_RATE` oranı, en çok
 `Config.OFFLINE_MAX_HOURS` saat için; Pasif Gelir yükseltmesi oranı ve süreyi `Config.OFFLINE_UPGRADED_*` değerlerine çıkarır. Sınır depoya değil süreye bağlıdır.
+Tam bölgeden sonra kesinti yoktur: `Config.OFFLINE_TAIL` azalan dilimler öder ve `Config.OFFLINE_RETURN_CHEST` 4-8 saatlik ayrılığa küçük, durumsuz bir dönüş sandığı ekler (kayıt alanı yok).
 Geçmiş hava kaydı tutulmadığından nötr hava/mevsim üzerinden hesaplanır. Otomatik Toplayıcı
 yalnızca çevrimiçiyken kasaya aktarır.
 

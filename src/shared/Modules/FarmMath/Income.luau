@@ -460,14 +460,50 @@ function Income.getOfflineTerms(save: PlayerSave): (number, number)
 	return math.min(Config.OFFLINE_MAX_TOTAL_RATE, rate), hours
 end
 
--- Sınır depoya değil süreye bağlıdır: en çok `hours` saatlik gelirin `rate` oranı kasaya yatar.
+-- Dönüş sandığı (dakika cinsinden güncel gelir): OFFLINE_RETURN_CHEST.minAwayHours altında 0, sonra uzak saat başına
+-- referenceMinutesPerHour, maxAwayHours'ta durur ve capMinutes'i aşmaz.
+function Income.getReturnChestMinutes(awaySeconds: number): number
+	local chest = Config.OFFLINE_RETURN_CHEST
+	local awayHours = awaySeconds / 3600
+	if not isFinite(awayHours) or awayHours < chest.minAwayHours then
+		return 0
+	end
+	return math.min(chest.capMinutes, chest.referenceMinutesPerHour * math.min(awayHours, chest.maxAwayHours))
+end
+
+-- Sınır depoya değil süreye bağlıdır: ilk `hours` saatlik gelirin `rate` oranı, ardından azalan kuyruk dilimleri
+-- (OFFLINE_TAIL: oranın `factor` katı) ve uzun ayrılık için dönüş sandığı kasaya yatar.
 function Income.computeOfflineEarnings(save: PlayerSave, lastSeen: number, now: number): number
-	if not isFinite(lastSeen) or not isFinite(now) then
+	if not isFinite(lastSeen) or not isFinite(now) or now <= lastSeen then
 		return 0
 	end
 	local rate, hours = Income.getOfflineTerms(save)
-	local endedAt = math.min(now, lastSeen + hours * 3600)
-	return math.floor(math.max(0, Income.computeIncomeOverInterval(save, lastSeen, endedAt, true) * rate))
+	local segmentStart = lastSeen
+	local segmentEnd = math.min(now, lastSeen + hours * 3600)
+	local total = Income.computeIncomeOverInterval(save, segmentStart, segmentEnd, true) * rate
+	for _, slice in Config.OFFLINE_TAIL do
+		segmentStart = segmentEnd
+		segmentEnd = math.min(now, segmentStart + slice.hours * 3600)
+		if segmentEnd <= segmentStart then
+			break
+		end
+		total += Income.computeIncomeOverInterval(save, segmentStart, segmentEnd, true) * rate * slice.factor
+	end
+	local chestMinutes = Income.getReturnChestMinutes(now - lastSeen)
+	if chestMinutes > 0 then
+		local window = 600
+		total += Income.computeIncomeOverInterval(save, now, now + window, true) / window * 60 * chestMinutes
+	end
+	return math.floor(math.max(0, total))
+end
+
+-- Dönüşte kazanç hâlâ sınırlı mı? (Tam bölge ve tüm kuyruk dolduktan sonra ek kazanç yok.)
+function Income.isOfflineEarningsCapped(save: PlayerSave, awaySeconds: number): boolean
+	local _, hours = Income.getOfflineTerms(save)
+	for _, slice in Config.OFFLINE_TAIL do
+		hours += slice.hours
+	end
+	return awaySeconds > hours * 3600
 end
 
 return Income

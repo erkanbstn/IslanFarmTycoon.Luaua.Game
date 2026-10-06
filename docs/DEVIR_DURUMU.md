@@ -1,5 +1,8 @@
 # Güncel devir durumu
 
+## Uzun ayrılıktan dönüş (6 Ekim 2026)
+Şikâyet: 5-10 saat sonra dönünce yalnız 2 yükseltme. Neden ve ölçüm `docs/ZORLUK_VE_FIYAT.md` "Uzun süre sonra dönen oyuncu". Çevrimdışı kazançtaki sert kesinti kaldırıldı: tam bölgeden (2 sa, Pasif Gelirle 5 sa) sonra `OFFLINE_TAIL` (4 sa x0,30, 4 sa x0,15) ve 4-8 saatlik ayrılıkta durumsuz `OFFLINE_RETURN_CHEST` (uzak saat başına 2 dk gelir, tavan 16 dk). Kayıt/Remote değişmedi; dönüş penceresi sınır aşıldığında açıklama gösterir (5 dil). Geç evrede dönüşte ~2 yükseltme sürer (bedel yapısı, çevrimdışı ayarıyla çözülmez). Studio'da bekleyen: dönüş penceresindeki `capped` açıklaması (20+ saat ayrılıklı kayıtla).
+
 ## Oyuncu metni sadeleştirme (5 Ekim 2026)
 Yardımcı (Para/Ürün), Otomatik Toplayıcı, Market sekme girişleri, ürün/paket açıklamaları, satış kanalı notları, Üretim "Otomatik üretim" durumları, Rebirth "Sıfırlanacak/Kalacak", Envanter başlığı ve Ayarlar kalite açıklamaları kısa Türkçeye çevrildi. Terimler: "Kalıcı" = rebirth'ten sonra da kalır, "Bu tur" = rebirth'te biter (Market sekme girişleri ve Envanter başlığı bir kez açıklar). Yasak sözcükler (koşul, referans, partilerini, teslim alır, dahil değil) ve 100 karakter sınırı `tests/market-products.spec` içinde ürün/paket/yardımcı açıklamalarında denetlenir. Bekleyen (Studio): dar ekranda Market kart ayrıntıları, Üretim kartındaki "Otomatik üretim" durum satırı, Rebirth uzun Sıfırlanacak/Kalacak satırları ve de/ru çevirilerin taşması gözle bakılmalı.
 

@@ -67,6 +67,7 @@ local function show(earned: number, grown: number, extras: WelcomeBackLines.Extr
 		orders = extras.orders,
 		merchant = extras.merchant,
 		golden = extras.golden,
+		capped = extras.capped,
 	})
 	local details = WelcomeBackLines.showDetails(#lines)
 	for _, entry in lines do

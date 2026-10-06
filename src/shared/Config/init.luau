@@ -89,6 +89,8 @@ local Config = {
 	OFFLINE_UPGRADED_EARNING_RATE = Economy.OFFLINE_UPGRADED_EARNING_RATE,
 	OFFLINE_UPGRADED_MAX_HOURS = Economy.OFFLINE_UPGRADED_MAX_HOURS,
 	OFFLINE_MAX_TOTAL_RATE = Economy.OFFLINE_MAX_TOTAL_RATE,
+	OFFLINE_TAIL = Economy.OFFLINE_TAIL,
+	OFFLINE_RETURN_CHEST = Economy.OFFLINE_RETURN_CHEST,
 	PRODUCTION_BONUS_PER_ADULT = Economy.PRODUCTION_BONUS_PER_ADULT,
 	PRODUCTION_MAX_BONUS_ADULTS = Economy.PRODUCTION_MAX_BONUS_ADULTS,
 	PRODUCTION_YIELD_MAX_MULT = Economy.PRODUCTION_YIELD_MAX_MULT,
@@ -286,7 +288,7 @@ local LEVEL_CHAINS: { LevelChain } = {
 		displayName = "Pasif Gelir",
 		description = `Çevrimdışı kazanç %{math.floor(Economy.OFFLINE_EARNING_RATE * 100 + 0.5)}'ten %{math.floor(
 			Economy.OFFLINE_UPGRADED_EARNING_RATE * 100 + 0.5
-		)}'ye, süre {Economy.OFFLINE_MAX_HOURS} saatten {Economy.OFFLINE_UPGRADED_MAX_HOURS} saate çıkar`,
+		)}'ye, tam süre {Economy.OFFLINE_MAX_HOURS} saatten {Economy.OFFLINE_UPGRADED_MAX_HOURS} saate çıkar; sonrası azalarak sürer`,
 		icon = "💤",
 		requires = "barn_2",
 		costs = { 6000 },

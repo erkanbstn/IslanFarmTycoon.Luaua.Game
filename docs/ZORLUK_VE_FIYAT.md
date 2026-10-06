@@ -149,3 +149,39 @@ Uygulanan değişiklikler (5 Ekim 2026, ikinci tur): `simulate-items.py --items 
 Altın bedeli kuralı artık ölçülen faydadan türer: `min(1500, yuvarla10(taban + 28 x puan))`; taban cashGold 150, goldRobux/gold 400; puan = (ideal R5 % + max(casual R5 % - 2, 0)) / 2 + 15 x hareket + 8 x satış (hareket/satış simüle edilmediği için küçük sabit kredi). Ölçüm tablosu `tests/config.spec.luau` `TEMPO_POINTS`, kural Progression.luau yorumunda; aynı kanalda daha çok tempo veren eşya daha ucuz olamaz (test). Sonuç: ölü yük eşya taban fiyatta (150-160 cashGold, 400-420 premium), Altın Çekiç/Elmas/Mühendis/Ustabaşı 680-790, Servet Tılsımı 830, Altın Taç 1180 (~1,5 rebirth). Değişmeyen ölçümler eski koşudan alındı (casual ±%2). Henüz kalan: mevsim/hava asaları ve büyüme tılsımı ölü (taban fiyatta), `contractBonus` ve `goodsYield` mekaniği bilerek düzeltilmedi. `scripts/simulate-items.py` içindeki eski `formula_gold` artık "uyumsuz" bildirir (bilgi amaçlı).
 
 Ek: tarif `goodsAmount`'ı 2 iken `goodsYield` anlamsız; ya miktarı artır ya etkiyi `PRODUCTION_BONUS_PER_ADULT` basamağına (0,25) bağla.
+
+## Uzun süre sonra dönen oyuncu (6 Ekim 2026)
+
+Şikayet: "5-10 saat sonra dönünce yalnız 2 yükseltme alabiliyorum, sıkıcı". Ölçüm: gerçek Config/FarmMath, `simulate-economy.py` düzeni + geçici ölçüm kancaları (repoya eklenmedi; Config'e dokunulmadı). Kesintisiz casual yolunda ara anlarda "X saat uzakta kalsaydı" hesabı (tüm çiftlikler ayrı ayrı çevrimdışı öder; yardımcı/üretim çevrimdışı çalışmaz). Gelir dakikası = tüm çiftliklerin toplam gelirinin dakikası; "sıradaki yükseltme" = etkin çiftlik gelirinin dakikası.
+
+| Evre (kesintisiz yolun saati) | Sıradaki yükseltme | 1 sa | 5 sa | 8 sa | 24 sa | Dönüşte alınan (5 sa / 8 sa) |
+|---|---|---|---|---|---|---|
+| 1 sa, Çiftlik 1 (Pasif Gelir yok) | 2 dk | 19 dk | 38 | 38 | 38 | 20 yükseltme + 8 hayvan |
+| 8 sa, Çiftlik 3 | 34 dk | 21 | 104 | 104 | 104 | 10 + 6 |
+| 24 sa, Çiftlik 4 | 136 dk | 21 | 105 | 105 | 105 | 3 + 1 |
+| 48 sa, Çiftlik 5 | 406 dk | 22 | 109 | 109 | 109 | 1 + 2 |
+| 72-96 sa, Çiftlik 6 | 529-707 dk | 22 | 108-115 | aynı | aynı | 2 + 0-6 |
+
+Sürekli çevrimiçi oyuna göre dönüş değeri (tüm çiftlikler, Pasif Gelir varken): 1 sa %35, 5 sa %35, 8 sa %22, 12 sa %15, 24 sa %7; Pasif Gelir yokken 5/8/24 sa %10/%7/%2. Kök nedenler, ağırlık sırasıyla:
+1. **Yükseltme bedeli geç evrede saatlerce gelir** (etkin çiftlik geliri: 2 dk -> 116 -> 406 -> 707 dk; Çiftlik 6 sonunda 2267 dk); dönüş ise en çok ~105-115 toplam gelir dakikası. Alım sayısı = dönüş değeri / bedel; çevrimdışı ayarı bunu geç evrede düzeltemez (bedel-tempo takası, bilinçli tasarım: Çiftlik n+1 süresi 1,5x).
+2. **Sert süre kesintisi**: 2 sa (Pasif Gelir 5 sa) sonrası kazanç sabit; 5 sa = 8 sa = 24 sa. 8 sa uzakta kalan temel katmanda ~30 dk (%6), Pasif Gelirle 90 dk gelir kazanır.
+3. **Ürün darboğazı yeni çiftlikte**: Çiftlik 2 alındıktan 24 sa sonra 1 sa dönüşte 2 yükseltme (ürün yetmiyor) vs ürün istenmeseydi 13; 5 sa'te 6 vs 39. Üretim ve yardımcılar çevrimdışı çalışmaz; 3-47 hazır parti dönüşte elle toplanmayı bekler.
+4. **Dönüş ekranı bilgi vermiyor**: yalnız "+X kazandın"; süre sınırı, Pasif Gelir farkı gösterilmiyor (`capped` yalnız telemetride). Sipariş panosu 7 dk'lık pencere olduğundan çevrimdışıyken birikmez.
+5. Erken oyun şikayet kaynağı değil (dönüşte 11-20 yükseltme); günlük ödül küçük (2,5 dk x seri) ve bir gün atlanınca seri sıfırlanır.
+
+Çözüm paketleri (`--persona X --farms 6 --finish-first --completion basic --stop-at-rebirth`, ilk tur takvim günü, 4 faz ortalaması; casual 8 sa, idle 12 sa, hardcore 6 sa oturum aralığı). Hardcore ilk saat aynı (ada 0,13/0,39/0,92 sa her pakette; çevrimdışı kalmaz).
+
+| Paket | hardcore | casual | idle | çevrimdışı gelir payı c/i | dönüş değeri c/i (dk) |
+|---|---|---|---|---|---|
+| Mevcut | 10,10 | 19,46 | 34,19 | %77/%88 | 98/95 |
+| A kuyruk: tam bölgeden sonra +4 sa %30, +4 sa %15 | 10,04 | 17,63 | 27,06 | %80/%90 | 112/128 |
+| **A + C-hafif (önerilen)**: A + dönüş sandığı 2 dk/uzak saat (4-8 sa, tavan 16 dk referans gelir) | 9,85 | 16,79 | 26,19 | %78/%88 | 117/133 |
+| A + C-güçlü (4 dk/sa, tavan 32) | 9,84 | 16,46 | 25,19 | %76/%86 | 122/141 |
+| B-hafif: taban 3 sa, Pasif 6 sa/%35 | 9,34 | 15,13 | 26,19 | %83/%91 | 134/133 |
+| B: taban 4 sa/%30, Pasif 8 sa/%40 | 8,78 | 11,38 | 19,19 | %88/%94 | 197/199 |
+| C yalnız sandık (5 dk/sa, tavan 40) | 9,74 | 18,13 | 30,81 | %72/%80 | 108/108 |
+| D çevrimdışı yardımcı 1 sa / 4 sa | 9,35 / 8,04 | 18,54 / 16,63 | 32,06 / 27,69 | %73/%81 · %63/%67 | 98 |
+
+Önerilen paketin dönüş etkisi (5/8/12 sa, gelir dk -> alım): Çiftlik 1: 38 -> 65/82/88 dk, 20+8 -> 28+10/32+15/33+15; Çiftlik 3: 104 -> 108/129/145, 10 -> 10/11/12; Çiftlik 5-6: 108 -> 111-112/132-133/148-149, geç evrede alım sayısı değişmez (2). Açık sınır: geç evre için bedel/adım yapısı (daha çok, daha ucuz adım) ya da daha yüksek tempo gerekir; yalnız çevrimdışı ayarıyla çözülmez. Tuzak: `simulate-tiers.py --assert-monotonic` idle'da ince ayara duyarlı (A+C-güçlü Tema 3 < Tema 2; önerilen paket geçer); uygulamadan sonra yeniden çalıştır. D hardcore tempoyu da bozduğu için (yardımcı üretimi çevrimdışı çarpılır) önerilmez.
+
+Uygulandı (6 Ekim 2026, A + hafif sandık): `Config/Economy.luau` `OFFLINE_TAIL` (4 sa x0,30 + 4 sa x0,15 çevrimdışı oran) ve `OFFLINE_RETURN_CHEST` (>=4 sa uzakta: uzak saat başına 2 dk güncel gelir, 8 saatte durur, tavan 16 dk). Sandık durumsuzdur, `FarmMath.computeOfflineEarnings` içinde hesaplanır (yeni kayıt alanı/Remote yok); dönüş ekranı, kazanç sınırı aşıldığında (`FarmMath.isOfflineEarningsCapped`) süre sınırını açıklar. Testler: `economy.spec` (kuyruk, sandık, tavan), `data.spec`, `welcome-back-lines.spec`.

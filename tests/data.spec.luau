@@ -330,11 +330,18 @@ return function(lock: any, codec: any, config: any, farmMath: any)
 	assert(awayShort.stored == plain.stored, "and never touch the storage")
 	local _, earnedAtLimit =
 		codec.decode(plainSnap, config, farmMath, now + config.OFFLINE_MAX_HOURS * 3600, offlineUid)
+	local tailHours = 0
+	for _, slice in config.OFFLINE_TAIL do
+		tailHours += slice.hours
+	end
 	local awayLong, earnedLong = codec.decode(plainSnap, config, farmMath, now + 20 * 3600, offlineUid)
+	local _, earnedAtTailEnd =
+		codec.decode(plainSnap, config, farmMath, now + (config.OFFLINE_MAX_HOURS + tailHours) * 3600, offlineUid)
 	assert(
-		awayLong and earnedLong == earnedAtLimit and earnedLong > earnedShort,
-		"without the upgrade only OFFLINE_MAX_HOURS of income counts"
+		awayLong and earnedLong > earnedAtLimit and earnedLong > earnedShort,
+		"time after the full zone keeps earning through the tail and the return chest"
 	)
+	assert(earnedLong == earnedAtTailEnd, "once the tail is used up a longer absence adds nothing")
 
 	local perk = farmWithAnimals()
 	perk.purchased.offline_income_lv1 = true
@@ -352,10 +359,18 @@ return function(lock: any, codec: any, config: any, farmMath: any)
 	local expectedGain = (config.OFFLINE_UPGRADED_EARNING_RATE * config.OFFLINE_UPGRADED_MAX_HOURS)
 		/ (config.OFFLINE_EARNING_RATE * config.OFFLINE_MAX_HOURS)
 	assert(expectedGain >= 2.5, "Passive Income stays a meaningful upgrade (rate x hours gain)")
-	assert(
-		paidLong == paidAtLimit and paidAtLimit >= earnedLong * expectedGain * 0.99,
-		"with the upgrade up to OFFLINE_UPGRADED_MAX_HOURS of income counts at the higher rate"
+	local _, paidAtTailEnd = codec.decode(
+		perkSnap,
+		config,
+		farmMath,
+		now + (config.OFFLINE_UPGRADED_MAX_HOURS + tailHours) * 3600,
+		offlineUid
 	)
+	assert(
+		paidLong == paidAtTailEnd and paidAtLimit >= earnedAtLimit * expectedGain * 0.99,
+		"with the upgrade the full-rate zone is longer and pays at the higher rate"
+	)
+	assert(paidAtTailEnd > earnedAtTailEnd, "Passive Income still beats the plain offline earnings")
 
 	-- Veri çağı (yönetici "herkesi sıfırla"): çağı uyuşmayan kayıt temiz yeni oyun olur; uyuşan ve çağ verilmeyen korunur
 	local function progressed(epoch: number?): any

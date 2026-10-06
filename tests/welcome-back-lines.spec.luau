@@ -74,4 +74,16 @@ return function(Lines: any)
 	assert(Lines.readExtras({ orders = -2 }).orders == nil, "negatif sipariş atılır")
 	assert(Lines.readExtras({ orders = math.huge }).orders == nil, "sonsuz sipariş atılır")
 	assert(Lines.readExtras({ orders = 100000 }).orders == 99, "sipariş üst sınırlı")
+
+	-- Sınır ipucu: yalnızca sunucu `capped = true` derse kazanç satırında görünür; yanlış türlü değer atılır
+	assert(Lines.readExtras({ capped = true }).capped == true, "capped okunur")
+	assert(Lines.readExtras({ capped = "yes" }).capped == nil, "yanlış türlü capped atılır")
+	local plainLine = Lines.build({ earned = 10, earnedText = "10", grown = 0, animalIcon = "🐄", recipes = {} })[1]
+	local cappedLine =
+		Lines.build({ earned = 10, earnedText = "10", grown = 0, animalIcon = "🐄", recipes = {}, capped = true })[1]
+	assert(plainLine.detail == "Kasana eklendi", "sınır yokken ayrıntı kısa kalır")
+	assert(
+		cappedLine.text == plainLine.text and cappedLine.detail ~= plainLine.detail,
+		"sınırda aynı kazanç satırı, ek açıklamayla"
+	)
 end

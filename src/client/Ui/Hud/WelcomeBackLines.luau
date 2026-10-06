@@ -5,7 +5,7 @@
 
 export type Line = { icon: string, text: string, detail: string? }
 
-export type Extras = { daily: boolean?, orders: number?, merchant: boolean?, golden: boolean? }
+export type Extras = { daily: boolean?, orders: number?, merchant: boolean?, golden: boolean?, capped: boolean? }
 
 export type Input = {
 	earned: number,
@@ -17,6 +17,7 @@ export type Input = {
 	orders: number?,
 	merchant: boolean?,
 	golden: boolean?,
+	capped: boolean?, -- ayrılık kazancın sayıldığı süreyi aştı
 }
 
 local WelcomeBackLines = {}
@@ -49,13 +50,22 @@ function WelcomeBackLines.readExtras(value: unknown): Extras
 	if raw.golden == true then
 		extras.golden = true
 	end
+	if raw.capped == true then
+		extras.capped = true
+	end
 	return extras
 end
 
 function WelcomeBackLines.build(input: Input): { Line }
 	local lines: { Line } = {}
 	if input.earned > 0 then
-		table.insert(lines, { icon = "💰", text = `+{input.earnedText} kazandın`, detail = "Kasana eklendi" })
+		table.insert(lines, {
+			icon = "💰",
+			text = `+{input.earnedText} kazandın`,
+			detail = if input.capped == true
+				then "Kasana eklendi. Çok uzun kaldın: kazanç belli bir süreden sonra artmaz"
+				else "Kasana eklendi",
+		})
 	end
 	if input.grown > 0 then
 		table.insert(lines, {

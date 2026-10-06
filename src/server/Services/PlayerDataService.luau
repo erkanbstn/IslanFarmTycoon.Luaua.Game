@@ -39,6 +39,7 @@ type Session = {
 	saveFailing: boolean, -- son kayıt denemesi aktarım hatasıyla başarısız oldu (kira dolsa da oturum düşmez)
 	offlineEarned: number,
 	offlineGrown: number, -- Çevrimdışıyken yetişkin olan hayvan sayısı (dönüş özeti)
+	offlineCapped: boolean, -- ayrılık, çevrimdışı kazancın sayıldığı süreyi (kuyruk dahil) aştı (dönüş özeti)
 	cashStat: IntValue?,
 	saveScheduled: boolean,
 	lastBackupAt: number, -- son yedek yazma zamanı (os.time)
@@ -226,13 +227,13 @@ local function reportLoaded(player: Player, session: Session, raw: unknown)
 	local lastSeen = if typeof(raw) == "table" then (raw :: any).lastSeen else nil
 	local offline = nil
 	if session.offlineEarned > 0 and typeof(lastSeen) == "number" and lastSeen >= 0 and lastSeen <= now then
-		local _, hours = FarmMath.getOfflineTerms(data)
 		offline = {
 			earned = session.offlineEarned,
 			awaySeconds = now - lastSeen,
-			capped = now - lastSeen > hours * 3600,
+			capped = FarmMath.isOfflineEarningsCapped(data, now - lastSeen),
 			balance = data.cash,
 		}
+		session.offlineCapped = offline.capped
 	end
 	TelemetryService.onLoaded(player, views, offline)
 end
@@ -256,6 +257,7 @@ function PlayerDataService.load(player: Player): PlayerSave?
 		saveFailing = false,
 		offlineEarned = 0,
 		offlineGrown = 0,
+		offlineCapped = false,
 		cashStat = nil,
 		saveScheduled = false,
 		statePending = false,
@@ -393,15 +395,15 @@ function PlayerDataService.load(player: Player): PlayerSave?
 	return session.data
 end
 
--- Dönüş özeti için: çevrimdışıyken kazanılan para ve yetişkin olan hayvan sayısı (bir kez okunur)
-function PlayerDataService.takeOfflineSummary(player: Player): (number, number)
+-- Dönüş özeti için: çevrimdışıyken kazanılan para, yetişkin olan hayvan sayısı ve kazancın sınıra ulaşıp ulaşmadığı (bir kez okunur)
+function PlayerDataService.takeOfflineSummary(player: Player): (number, number, boolean)
 	local session = sessions[player]
 	if not session then
-		return 0, 0
+		return 0, 0, false
 	end
-	local earned, grown = session.offlineEarned, session.offlineGrown
-	session.offlineEarned, session.offlineGrown = 0, 0
-	return earned, grown
+	local earned, grown, capped = session.offlineEarned, session.offlineGrown, session.offlineCapped
+	session.offlineEarned, session.offlineGrown, session.offlineCapped = 0, 0, false
+	return earned, grown, capped
 end
 
 function PlayerDataService.save(player: Player): boolean

@@ -12,6 +12,12 @@ return {
 	OFFLINE_UPGRADED_MAX_HOURS = 5,
 	-- Eşya/yükseltme çevrimdışı bonusları dahil toplam oran bunu aşamaz (aktif oyun çevrimdışından değerli kalsın).
 	OFFLINE_MAX_TOTAL_RATE = 0.5,
+	-- Tam bölgeden (OFFLINE_MAX_HOURS / Pasif Gelir süresi) sonra kesinti yerine azalan kuyruk: her dilim `hours` saat boyunca
+	-- çevrimdışı oranın `factor` katını öder. Uzun ayrılık da bir şey kazandırır, ama ilk bölge her zaman en değerlisidir.
+	OFFLINE_TAIL = { { hours = 4, factor = 0.3 }, { hours = 4, factor = 0.15 } },
+	-- Dönüş sandığı: en az `minAwayHours` uzakta kalana, uzak her saat için `referenceMinutesPerHour` dakikalık güncel gelir
+	-- (en çok `capMinutes`); `maxAwayHours` sonrası artmaz. Durumsuzdur: kayıt alanı gerekmez, dönüşte kasaya yatar.
+	OFFLINE_RETURN_CHEST = { minAwayHours = 4, maxAwayHours = 8, referenceMinutesPerHour = 2, capMinutes = 16 },
 
 	-- Üretimde gerekenden fazla her yetişkin hayvan satış ödülünü bu oranda artırır (en fazla MAX kadar hayvan).
 	PRODUCTION_BONUS_PER_ADULT = 0.25,

@@ -340,7 +340,7 @@ local function onPlayerAdded(player: Player)
 
 	Remotes.get("Notify"):FireClient(player, `{Config.GAME_NAME}'a hoş geldin! Yol Haritası'ndan ilerle.`, "info")
 	-- Dönüş özeti: sen yokken kazanılan para ve büyüyen hayvanlar (client küçük bir pencere gösterir)
-	local offline, grown = PlayerDataService.takeOfflineSummary(player)
+	local offline, grown, capped = PlayerDataService.takeOfflineSummary(player)
 	if offline > 0 or grown > 0 then
 		-- Ek satırlar (günlük ödül, hazır sipariş, tüccar, altın hayvan) sunucuda kayıttan hesaplanır; hata özeti engellemez.
 		local okBrief, brief = pcall(OfflineBrief.build, data, player.UserId, DateTime.now().UnixTimestamp, {
@@ -349,7 +349,11 @@ local function onPlayerAdded(player: Player)
 			Merchant = Merchant,
 			Golden = Golden,
 		})
-		Remotes.get("OfflineSummary"):FireClient(player, offline, grown, if okBrief then brief else nil)
+		local extras: any = if okBrief then brief else {}
+		if capped and offline > 0 then
+			extras.capped = true
+		end
+		Remotes.get("OfflineSummary"):FireClient(player, offline, grown, extras)
 	end
 	if Rewards.dailyStatus(data.daily, DateTime.now().UnixTimestamp).canClaim then
 		Remotes.get("Notify"):FireClient(player, "Günlük ödülün hazır! Ödüller menüsünden al.", "info")

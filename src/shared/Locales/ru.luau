@@ -476,6 +476,7 @@ return {
 	["Sen yokken çiftliğinde olanlar"] = "Что произошло на ферме, пока тебя не было",
 	["+{} kazandın"] = "Ты заработал +{1}",
 	["Kasana eklendi"] = "Добавлено в кассу",
+	["Kasana eklendi. Çok uzun kaldın: kazanç belli bir süreden sonra artmaz"] = "Добавлено в кассу. Ты долго отсутствовал: после определённого времени доход перестаёт расти",
 	["{} hayvan büyüdü"] = "Выросло животных: {1}",
 	["Yetişkin hayvanlar daha çok kazandırır"] = "Взрослые животные приносят больше",
 	["{} hazır"] = "{1}: готово",
@@ -1013,7 +1014,7 @@ return {
 	-- Pasif Gelir (çevrimdışı kazanç)
 	["Pasif Gelir"] = "Пассивный доход",
 	["Pasif Gelir Sv.1"] = "Пассивный доход ур.1",
-	["Çevrimdışı kazanç %{}'ten %{}'ye, süre {} saatten {} saate çıkar"] = "Доход в офлайне растёт с {1}% до {2}%, а время — с {3} до {4} часов",
+	["Çevrimdışı kazanç %{}'ten %{}'ye, tam süre {} saatten {} saate çıkar; sonrası azalarak sürer"] = "Доход в офлайне растёт с {1}% до {2}%, а полное время — с {3} до {4} часов; дальше он идёт, но слабее",
 
 	-- Meydan sıralama panosu
 	["Sunucu Sıralaması"] = "Рейтинг сервера",

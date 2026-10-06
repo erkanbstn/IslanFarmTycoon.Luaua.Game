@@ -154,6 +154,8 @@ FarmMath.getPermanentParkedIncomeBest = Income.getPermanentParkedIncomeBest
 FarmMath.getPermanentIncomePerSecond = Income.getPermanentIncomePerSecond
 FarmMath.computeOfflineEarnings = Income.computeOfflineEarnings
 FarmMath.getOfflineTerms = Income.getOfflineTerms
+FarmMath.getReturnChestMinutes = Income.getReturnChestMinutes
+FarmMath.isOfflineEarningsCapped = Income.isOfflineEarningsCapped
 -- Animals
 FarmMath.getAnimalPrice = Animals.getAnimalPrice
 FarmMath.getSellPrice = Animals.getSellPrice

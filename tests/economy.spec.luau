@@ -76,8 +76,44 @@ return function(FarmMath: any, Config: any, Environment: any)
 		atLimit,
 		math.floor(FarmMath.computeIncomeOverInterval(crowded, start, start + baseHours * 3600, true) * baseRate)
 	)
-	near(FarmMath.computeOfflineEarnings(crowded, start, start + 100 * 3600), atLimit)
 	assert(atLimit > 0, "an away player without the upgrade still earns")
+	-- Tam bölgeden sonra kesinti yok: azalan kuyruk dilimleri ve dönüş sandığı ek kazanç verir, ama her dilim tam orandan düşüktür.
+	local tailTotal = 0
+	for _, slice in Config.OFFLINE_TAIL do
+		assert(slice.factor > 0 and slice.factor < 1 and slice.hours > 0, "tail slices pay less than the full rate")
+		tailTotal += slice.hours
+	end
+	local fullEnd = start + baseHours * 3600
+	local tailEnd = fullEnd + tailTotal * 3600
+	local firstSliceHours = Config.OFFLINE_TAIL[1].hours
+	local oneSlice = FarmMath.computeOfflineEarnings(crowded, start, fullEnd + firstSliceHours * 3600)
+	assert(oneSlice > atLimit, "time after the full zone keeps earning")
+	local sliceIncome = FarmMath.computeIncomeOverInterval(crowded, fullEnd, fullEnd + firstSliceHours * 3600, true)
+	local chestMinutes = FarmMath.getReturnChestMinutes((baseHours + firstSliceHours) * 3600)
+	local chestIncomePerMinute = FarmMath.computeIncomeOverInterval(
+		crowded,
+		fullEnd + firstSliceHours * 3600,
+		fullEnd + firstSliceHours * 3600 + 600,
+		true
+	) / 10
+	near(
+		oneSlice,
+		math.floor(
+			FarmMath.computeIncomeOverInterval(crowded, start, fullEnd, true) * baseRate
+				+ sliceIncome * baseRate * Config.OFFLINE_TAIL[1].factor
+				+ chestIncomePerMinute * chestMinutes
+		)
+	)
+	-- Kuyruk ve sandık biter: sonrasında ek kazanç yok (kesintisiz oyundan her zaman daha az).
+	local atCap = FarmMath.computeOfflineEarnings(crowded, start, tailEnd)
+	assert(atCap > oneSlice, "the whole tail pays more than one slice")
+	near(FarmMath.computeOfflineEarnings(crowded, start, start + 100 * 3600), atCap)
+	assert(
+		atCap < FarmMath.computeIncomeOverInterval(crowded, start, tailEnd, true),
+		"offline never beats staying online"
+	)
+	assert(FarmMath.isOfflineEarningsCapped(crowded, (baseHours + tailTotal) * 3600 + 1), "past the tail is capped")
+	assert(not FarmMath.isOfflineEarningsCapped(crowded, baseHours * 3600), "inside the full zone is not capped")
 	-- Pasif Gelir: oran ve süre artar; sınır yine saat x gelirdir (depo büyüklüğü fark etmez).
 	crowded.purchased.offline_income_lv1 = true
 	local upgradedRate, upgradedHours = FarmMath.getOfflineTerms(crowded)
@@ -105,15 +141,38 @@ return function(FarmMath: any, Config: any, Environment: any)
 			"offline rate including bonuses is capped"
 		)
 	end
-	local upgradedLimit = FarmMath.computeOfflineEarnings(crowded, start, start + upgradedHours * 3600)
+	local upgradedEnd = start + upgradedHours * 3600
+	local upgradedLimit = FarmMath.computeOfflineEarnings(crowded, start, upgradedEnd)
+	local upgradedChest = FarmMath.getReturnChestMinutes(upgradedHours * 3600)
+		* FarmMath.computeIncomeOverInterval(crowded, upgradedEnd, upgradedEnd + 600, true)
+		/ 10
 	near(
 		upgradedLimit,
-		math.floor(
-			FarmMath.computeIncomeOverInterval(crowded, start, start + upgradedHours * 3600, true) * upgradedRate
-		)
+		math.floor(FarmMath.computeIncomeOverInterval(crowded, start, upgradedEnd, true) * upgradedRate + upgradedChest)
 	)
-	near(FarmMath.computeOfflineEarnings(crowded, start, start + 100 * 3600), upgradedLimit)
+	local upgradedTail = 0
+	for _, slice in Config.OFFLINE_TAIL do
+		upgradedTail += slice.hours
+	end
+	near(
+		FarmMath.computeOfflineEarnings(crowded, start, start + 100 * 3600),
+		FarmMath.computeOfflineEarnings(crowded, start, upgradedEnd + upgradedTail * 3600)
+	)
 	assert(upgradedLimit > atLimit * 2, "the upgraded limit is far above the base limit")
+
+	-- Dönüş sandığı: 4 saatin altında yok, sonra uzak saat başına artar, tavanda durur.
+	local chest = Config.OFFLINE_RETURN_CHEST
+	near(FarmMath.getReturnChestMinutes((chest.minAwayHours - 0.01) * 3600), 0)
+	near(FarmMath.getReturnChestMinutes(chest.minAwayHours * 3600), chest.referenceMinutesPerHour * chest.minAwayHours)
+	near(
+		FarmMath.getReturnChestMinutes(chest.maxAwayHours * 3600),
+		math.min(chest.capMinutes, chest.referenceMinutesPerHour * chest.maxAwayHours)
+	)
+	near(
+		FarmMath.getReturnChestMinutes(100 * 3600),
+		math.min(chest.capMinutes, chest.referenceMinutesPerHour * chest.maxAwayHours)
+	)
+	near(FarmMath.getReturnChestMinutes(0 / 0), 0)
 	crowded.purchased.offline_income_lv1 = nil
 
 	-- Üretim ödülü (seçeneksiz tarif): gerekenden fazla her yetişkin bonus verir, üst sınırda durur.

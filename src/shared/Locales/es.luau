@@ -476,6 +476,7 @@ return {
 	["Sen yokken çiftliğinde olanlar"] = "Lo que pasó en tu granja mientras no estabas",
 	["+{} kazandın"] = "Ganaste +{1}",
 	["Kasana eklendi"] = "Añadido a tu dinero",
+	["Kasana eklendi. Çok uzun kaldın: kazanç belli bir süreden sonra artmaz"] = "Añadido a tu dinero. Estuviste mucho tiempo fuera: las ganancias dejan de crecer pasado un punto",
 	["{} hayvan büyüdü"] = "{1} animales crecieron",
 	["Yetişkin hayvanlar daha çok kazandırır"] = "Los animales adultos ganan más",
 	["{} hazır"] = "{1} listo",
@@ -1015,7 +1016,7 @@ return {
 	-- Pasif Gelir (çevrimdışı kazanç)
 	["Pasif Gelir"] = "Ingresos pasivos",
 	["Pasif Gelir Sv.1"] = "Ingresos pasivos Nv.1",
-	["Çevrimdışı kazanç %{}'ten %{}'ye, süre {} saatten {} saate çıkar"] = "Las ganancias sin conexión suben de {1}% a {2}% y el tiempo de {3} a {4} horas",
+	["Çevrimdışı kazanç %{}'ten %{}'ye, tam süre {} saatten {} saate çıkar; sonrası azalarak sürer"] = "Las ganancias sin conexión suben de {1}% a {2}% y el tiempo completo de {3} a {4} horas; después siguen, pero reducidas",
 
 	-- Meydan sıralama panosu
 	["Sunucu Sıralaması"] = "Ranking del servidor",

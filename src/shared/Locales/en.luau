@@ -476,6 +476,7 @@ return {
 	["Sen yokken çiftliğinde olanlar"] = "What happened on your farm while you were away",
 	["+{} kazandın"] = "You earned +{1}",
 	["Kasana eklendi"] = "Added to your cash",
+	["Kasana eklendi. Çok uzun kaldın: kazanç belli bir süreden sonra artmaz"] = "Added to your cash. You were away a long time: earnings stop growing after a point",
 	["{} hayvan büyüdü"] = "{1} animals grew up",
 	["Yetişkin hayvanlar daha çok kazandırır"] = "Adult animals earn more",
 	["{} hazır"] = "{1} ready",
@@ -1015,7 +1016,7 @@ return {
 	-- Pasif Gelir (çevrimdışı kazanç)
 	["Pasif Gelir"] = "Passive Income",
 	["Pasif Gelir Sv.1"] = "Passive Income Lv.1",
-	["Çevrimdışı kazanç %{}'ten %{}'ye, süre {} saatten {} saate çıkar"] = "Offline earnings rise from {1}% to {2}% and the time from {3} to {4} hours",
+	["Çevrimdışı kazanç %{}'ten %{}'ye, tam süre {} saatten {} saate çıkar; sonrası azalarak sürer"] = "Offline earnings rise from {1}% to {2}% and the full-rate time from {3} to {4} hours; after that they keep coming at a lower rate",
 
 	-- Meydan sıralama panosu
 	["Sunucu Sıralaması"] = "Server Ranking",
