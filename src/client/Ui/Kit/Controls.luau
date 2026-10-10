@@ -478,6 +478,28 @@ function Controls.badge(target: GuiObject, _inline: boolean?): (count: number) -
 	badge.Parent = target
 	Base.corner(badge, BADGE_SIZE // 2)
 
+	-- Hedefte UIPadding varsa çocukların konumu dolgunun İÇİNDEN hesaplanır; rozet köşeden dolgu kadar içeri kayar
+	-- (sekmede sayı gelince sağ dolgu 14 -> 34 olur). Dolguyu telafi edip rozeti her zaman gerçek köşeye oturtur.
+	local watched: UIPadding? = nil
+	local function reposition()
+		local padding = target:FindFirstChildOfClass("UIPadding")
+		if padding ~= watched then
+			watched = padding
+			if padding then
+				padding:GetPropertyChangedSignal("PaddingRight"):Connect(function()
+					reposition()
+				end)
+				padding:GetPropertyChangedSignal("PaddingTop"):Connect(function()
+					reposition()
+				end)
+			end
+		end
+		local right = if padding then padding.PaddingRight.Offset else 0
+		local top = if padding then padding.PaddingTop.Offset else 0
+		badge.Position = UDim2.new(1, right - 3, 0, 3 - top)
+	end
+	reposition()
+
 	local highlight = Instance.new("UIStroke")
 	highlight.Color = Tokens.Color.Gold
 	highlight.Thickness = 2
@@ -486,6 +508,7 @@ function Controls.badge(target: GuiObject, _inline: boolean?): (count: number) -
 	highlight.Parent = target
 
 	return function(count: number)
+		reposition() -- dolgu sonradan eklenmiş/değişmiş olabilir
 		badge.Visible = count > 0
 		badge.Text = if count > 9 then "9+" else tostring(count)
 		highlight.Enabled = count > 0

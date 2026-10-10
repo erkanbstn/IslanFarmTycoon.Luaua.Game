@@ -82,11 +82,36 @@ return function(createControls: any)
 		}
 	)
 	for _, inline in { true, false } do
-		local setBadge = controls.badge({}, inline)
+		local setBadge = controls.badge({
+			FindFirstChildOfClass = function(): any
+				return nil
+			end,
+		}, inline)
 		local badge = created[#created - 1]
 		assert(
 			badge.Position[1] == 1 and badge.Position[2] <= 0 and badge.Position[3] == 0 and badge.Position[4] >= 0,
 			"Tab and menu counts sit fully inside the upper-right corner (never clipped by tab rows or scroll frames)"
+		)
+		-- Hedefteki UIPadding çocukları içeri iter: rozet dolguyu telafi edip yine gerçek köşede durur (sekmede sayı gelince sağ dolgu 14 -> 34)
+		local padding: any = {
+			PaddingRight = { Offset = 34 },
+			PaddingTop = { Offset = 6 },
+			GetPropertyChangedSignal = function(): any
+				return {
+					Connect = function() end,
+				}
+			end,
+		}
+		controls.badge({
+			FindFirstChildOfClass = function(): any
+				return padding
+			end,
+		}, inline)
+		local padded = created[#created - 1]
+		assert(
+			padded.Position[2] - padding.PaddingRight.Offset <= 0
+				and padded.Position[4] + padding.PaddingTop.Offset >= 0,
+			"Padding on the target never moves the badge away from the real corner"
 		)
 		setBadge(12)
 		assert(badge.Visible and badge.Text == "9+", "Corner badges retain bounded counts")
