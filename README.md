@@ -2,7 +2,15 @@
 
 AI ile devralma: önce [AGENTS.md](AGENTS.md), ardından [devir rehberi](docs/AI_DEVIR_REHBERI.md) ve [güncel durum](docs/DEVIR_DURUMU.md). Günlük kontrol `powershell -ExecutionPolicy Bypass -File scripts/verify-fast.ps1 -RequireTypes`; son teslimde `scripts/verify.ps1 -Mode Full -RequireTypes`.
 
-Rojo + Luau ile yazılan Roblox çiftlik tycoon oyunu. Her oyuncunun kendi adası var.
+Her oyuncunun kendi adasında çiftlik kurduğu Roblox oyunu. Rojo ile Luau yazılır; kayıt DataStore'dadır.
+
+## Ne var
+
+Sunucu oyun kurallarını, istemci arayüzünü ve ortak denge ayarlarını tutar. Hayvan, bina ve harita modelleri `assets` altındadır. Kurulum, oynanış ve doğrulama bu dosyanın devamındadır.
+
+## Yığın
+
+Roblox, Rojo 7.4.4, Luau ve DataStore. İstemci ile sunucu ayrıdır. Araç sürümleri `rokit.toml` içindedir.
 
 ## Kurulum (bir kez)
 
