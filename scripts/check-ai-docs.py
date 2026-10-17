@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""Yapay zeka rehber dosyalarının (AGENTS.md, CLAUDE.md, .cursorrules, Copilot, kurallar, skill'ler) tutarlılığını denetler.
+"""Yapay zeka rehberinin (CLAUDE.md, .claude/rules, .claude/skills, devir belgeleri) tutarlılığını denetler.
 
 Denetimler:
-  * Yönlendirme dosyaları AGENTS.md'ye referans verir; CLAUDE.md `@AGENTS.md` içe aktarır.
-  * Her .cursor/rules/*.mdc: description + globs var, her glob en az bir dosyayla eşleşir, AGENTS.md tablosunda geçer.
-  * Her .cursor/skills/<ad>/SKILL.md ile .claude/skills/<ad>/SKILL.md eşleşir (aynı ad/açıklama, doğru yönlendirme).
-  * AGENTS.md ve CLAUDE.md tüm skill adlarını listeler.
-  * Rehber dosyalarında geçen repo yolları (src/..., tests/..., .cursor/... ) gerçekten vardır.
-  * Tek kaynak: kural/skill yalnız .cursor altında; .claude/skills kısa yönlendirme; giriş dosyaları ortak çıpaları (triage, HIZLI_AKSIYON, MIMARI) anar;
-    AGENTS.md hızlı kontrol tablosu bütün giriş komutlarını listeler. Test için kök AI_DOCS_ROOT ile değiştirilebilir.
+  * CLAUDE.md tek giriş dosyasıdır; kural tablosu, skill listesi, çıpalar ve "Hızlı kontrol komutları" bölümü vardır.
+  * Her .claude/rules/*.md: description + boş olmayan `paths:` listesi var, her glob en az bir dosyayla eşleşir, CLAUDE.md'de anılır.
+  * Her .claude/skills/<ad>/SKILL.md: name == klasör adı, description var, yönlendirme değil tam metin; CLAUDE.md `ad` ile listeler.
+  * Rehber dosyalarında geçen repo yolları (src/..., tests/..., .claude/...) gerçekten vardır.
+  * Tek kaynak: kural/skill yalnız .claude altında; .cursor, .cursorrules, AGENTS.md, .github/copilot-instructions.md,
+    .github/instructions, .github/prompts ve herhangi bir .mdc dosyası yoktur.
+Test için kök AI_DOCS_ROOT ile değiştirilebilir.
 """
 
 from __future__ import annotations
@@ -23,6 +23,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 ROOT = Path(os.environ.get("AI_DOCS_ROOT") or Path(__file__).resolve().parent.parent)
 errors: list[str] = []
+FRONTMATTER = re.compile(r"^---\r?\n(.*?)\r?\n---\r?\n", re.S)
 
 
 def fail(message: str) -> None:
@@ -33,43 +34,54 @@ def read(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
 
-def frontmatter(text: str) -> dict[str, str]:
-    match = re.match(r"^---\n(.*?)\n---\n", text, re.S)
+def frontmatter(text: str) -> dict[str, str | list[str]]:
+    """Basit YAML alt kümesi: `anahtar: değer` ve `anahtar:` + `  - "öğe"` listeleri."""
+    match = FRONTMATTER.match(text)
     if not match:
         return {}
-    fields: dict[str, str] = {}
+    fields: dict[str, str | list[str]] = {}
+    current: str | None = None
     for line in match.group(1).splitlines():
-        if ":" in line:
+        item = re.match(r"^\s+-\s+(.*?)\s*$", line)
+        if item and current is not None:
+            value = item.group(1).strip("\"'")
+            existing = fields.get(current)
+            if isinstance(existing, list):
+                existing.append(value)
+            continue
+        if ":" in line and not line.startswith((" ", "\t")):
             key, value = line.split(":", 1)
-            fields[key.strip()] = value.strip()
+            current = key.strip()
+            fields[current] = value.strip() if value.strip() else []
     return fields
 
 
-# ---------------------------------------------------------------- giriş dosyaları
-agents = ROOT / "AGENTS.md"
-if not agents.exists():
-    fail("AGENTS.md yok")
-    agents_text = ""
+def text_field(fields: dict[str, str | list[str]], key: str) -> str:
+    value = fields.get(key, "")
+    return value if isinstance(value, str) else ""
+
+
+def list_field(fields: dict[str, str | list[str]], key: str) -> list[str]:
+    value = fields.get(key, [])
+    return value if isinstance(value, list) else []
+
+
+# ---------------------------------------------------------------- giriş dosyası
+claude_md = ROOT / "CLAUDE.md"
+if not claude_md.exists():
+    fail("CLAUDE.md yok")
+    claude_text = ""
 else:
-    agents_text = read(agents)
+    claude_text = read(claude_md)
 
-for name in ("CLAUDE.md", ".cursorrules", ".github/copilot-instructions.md"):
-    path = ROOT / name
-    if not path.exists():
-        fail(f"{name} yok (AGENTS.md'ye yönlendirmeli)")
-    elif "AGENTS.md" not in read(path):
-        fail(f"{name} AGENTS.md'ye referans vermiyor")
-claude = ROOT / "CLAUDE.md"
-if claude.exists() and "@AGENTS.md" not in read(claude):
-    fail("CLAUDE.md '@AGENTS.md' içe aktarmıyor")
-
-# ---------------------------------------------------------------- kurallar
-rules_dir = ROOT / ".cursor" / "rules"
-rule_files = sorted(rules_dir.glob("*.mdc"))
-if not rule_files:
-    fail(".cursor/rules altında kural yok")
 all_files = [p for p in ROOT.rglob("*") if p.is_file() and ".git" not in p.parts and ".test-build" not in p.parts and ".tools" not in p.parts]
 relative_files = [p.relative_to(ROOT).as_posix() for p in all_files]
+
+# ---------------------------------------------------------------- kurallar
+rules_dir = ROOT / ".claude" / "rules"
+rule_files = sorted(rules_dir.glob("*.md")) if rules_dir.exists() else []
+if not rule_files:
+    fail(".claude/rules altında kural yok")
 
 
 def glob_matches(pattern: str) -> bool:
@@ -82,60 +94,48 @@ def glob_matches(pattern: str) -> bool:
 for rule in rule_files:
     fields = frontmatter(read(rule))
     rel = rule.relative_to(ROOT).as_posix()
-    if not fields.get("description"):
+    if not text_field(fields, "description"):
         fail(f"{rel}: description eksik")
-    globs = fields.get("globs", "")
-    if not globs:
-        fail(f"{rel}: globs eksik")
-    for pattern in [g.strip() for g in globs.split(",") if g.strip()]:
+    patterns = list_field(fields, "paths")
+    if not patterns:
+        fail(f"{rel}: paths listesi eksik veya boş")
+    for pattern in patterns:
         if not glob_matches(pattern):
             fail(f"{rel}: glob hiçbir dosyayla eşleşmiyor: {pattern}")
-    if rel not in agents_text:
-        fail(f"AGENTS.md tablosunda {rel} geçmiyor")
+    if rel not in claude_text:
+        fail(f"CLAUDE.md tablosunda {rel} geçmiyor")
 
 # ---------------------------------------------------------------- skill'ler
-cursor_skills = ROOT / ".cursor" / "skills"
-claude_skills = ROOT / ".claude" / "skills"
-names = sorted(p.name for p in cursor_skills.iterdir() if p.is_dir()) if cursor_skills.exists() else []
+skills_dir = ROOT / ".claude" / "skills"
+names = sorted(p.name for p in skills_dir.iterdir() if p.is_dir()) if skills_dir.exists() else []
 if not names:
-    fail(".cursor/skills altında skill yok")
+    fail(".claude/skills altında skill yok")
+MIN_SKILL_BODY_LINES = 12  # bundan kısa gövde yönlendirme taslağıdır; talimat burada yaşamalı
 for name in names:
-    source = cursor_skills / name / "SKILL.md"
-    redirect = claude_skills / name / "SKILL.md"
-    if not source.exists():
-        fail(f".cursor/skills/{name}/SKILL.md yok")
+    skill = skills_dir / name / "SKILL.md"
+    rel = f".claude/skills/{name}/SKILL.md"
+    if not skill.exists():
+        fail(f"{rel} yok")
         continue
-    src_fields = frontmatter(read(source))
-    if src_fields.get("name") != name:
-        fail(f".cursor/skills/{name}: name alanı klasör adıyla eşleşmiyor")
-    if not src_fields.get("description"):
-        fail(f".cursor/skills/{name}: description eksik")
-    if not redirect.exists():
-        fail(f".claude/skills/{name}/SKILL.md yok")
-    else:
-        text = read(redirect)
-        red_fields = frontmatter(text)
-        if red_fields.get("name") != name:
-            fail(f".claude/skills/{name}: name uyuşmuyor")
-        if red_fields.get("description") != src_fields.get("description"):
-            fail(f".claude/skills/{name}: description .cursor kaynağıyla aynı değil")
-        if f".cursor/skills/{name}/SKILL.md" not in text:
-            fail(f".claude/skills/{name}: kaynak skill'e yönlendirmiyor")
-    for doc in ("AGENTS.md", "CLAUDE.md"):
-        path = ROOT / doc
-        if path.exists() and f"`{name}`" not in read(path):
-            fail(f"{doc} skill'i listelemiyor: {name}")
-if claude_skills.exists():
-    for path in claude_skills.iterdir():
-        if path.is_dir() and path.name not in names:
-            fail(f".claude/skills/{path.name}: kaynağı .cursor/skills altında yok")
+    text = read(skill)
+    fields = frontmatter(text)
+    if text_field(fields, "name") != name:
+        fail(f"{rel}: name alanı klasör adıyla eşleşmiyor")
+    if not text_field(fields, "description"):
+        fail(f"{rel}: description eksik")
+    body = FRONTMATTER.sub("", text, count=1).strip()
+    body_lines = [line for line in body.splitlines() if line.strip()]
+    if len(body_lines) < MIN_SKILL_BODY_LINES:
+        fail(f"{rel}: gövde {len(body_lines)} satır (< {MIN_SKILL_BODY_LINES}); yönlendirme taslağı değil tam talimat olmalı")
+    for other in re.findall(r"[\w./-]*SKILL\.md", body):
+        if other not in (rel, "SKILL.md") and not other.startswith(".claude/skills/"):
+            fail(f"{rel}: başka bir kaynak skill dosyasına yönlendiriyor: {other}")
+    if claude_md.exists() and f"`{name}`" not in claude_text:
+        fail(f"CLAUDE.md skill'i listelemiyor: {name}")
 
 # ---------------------------------------------------------------- yol referansları
-PATH_PATTERN = re.compile(r"`((?:src|tests|scripts|plugin|docs|assets|\.cursor|\.claude|\.github)/[A-Za-z0-9_./-]+\.(?:luau|mdc|md|py|ps1|json|toml))`")
-guide_files = [ROOT / "AGENTS.md", ROOT / "CLAUDE.md", ROOT / ".github" / "copilot-instructions.md"]
-guide_files += rule_files
-guide_files += sorted(cursor_skills.glob("*/SKILL.md")) if cursor_skills.exists() else []
-guide_files += sorted(claude_skills.glob("*/SKILL.md")) if claude_skills.exists() else []
+PATH_PATTERN = re.compile(r"`((?:src|tests|scripts|plugin|docs|assets|\.claude)/[A-Za-z0-9_./-]+\.(?:luau|md|py|ps1|json|toml))`")
+guide_files = [claude_md, *rule_files, *sorted(skills_dir.glob("*/SKILL.md"))]
 for doc in guide_files:
     if not doc.exists():
         continue
@@ -152,10 +152,8 @@ if not architecture.exists():
     fail("docs/MIMARI.md yok")
 else:
     architecture_text = read(architecture)
-    for doc in ("AGENTS.md", "CLAUDE.md", ".cursorrules", ".github/copilot-instructions.md"):
-        path = ROOT / doc
-        if path.exists() and "MIMARI.md" not in read(path):
-            fail(f"{doc} docs/MIMARI.md'ye referans vermiyor")
+    if claude_md.exists() and "MIMARI.md" not in claude_text:
+        fail("CLAUDE.md docs/MIMARI.md'ye referans vermiyor")
     for side in ("server", "client"):
         for directory in sorted((ROOT / "src" / side).iterdir()):
             if directory.is_dir() and f"`{directory.name}/`" not in architecture_text:
@@ -201,39 +199,34 @@ if architecture.exists():
                 if name[:1].isupper() and name.lower() not in existing_everywhere:
                     fail(f"docs/MIMARI.md: {directory.name}/ satırındaki `{name}` src altında yok (silinmiş ya da yeniden adlandırılmış)")
 
-# ---------------------------------------------------------------- tek kaynak: kural/skill yalnız .cursor altında
-# Başka yerde kural/skill kaynağı açılırsa AI'lar farklı yerlere bakar; yönlendirmeler de kaynağın kopyasına dönüşmemeli.
-STRAY_DIRS = (".claude/rules", ".claude/commands", ".claude/agents", ".cursor/commands", ".github/instructions", ".github/prompts")
-for stray in STRAY_DIRS:
+# ---------------------------------------------------------------- tek kaynak: kural/skill yalnız .claude altında
+# Başka yerde kural/skill kaynağı açılırsa AI'lar farklı yerlere bakar; eski Cursor/Copilot/AGENTS kalıntıları geri gelmemeli.
+STRAY_PATHS = (".cursor", ".cursorrules", "AGENTS.md", ".github/copilot-instructions.md", ".github/instructions", ".github/prompts")
+for stray in STRAY_PATHS:
     if (ROOT / stray).exists():
-        fail(f"{stray}: ikinci kural/skill kaynağı; içeriği .cursor/rules veya .cursor/skills altına taşı")
+        fail(f"{stray}: ikinci kural/skill kaynağı; tek kaynak CLAUDE.md + .claude/rules + .claude/skills")
 for path in relative_files:
-    if path.endswith(".mdc") and not path.startswith(".cursor/rules/"):
-        fail(f"{path}: kural dosyası .cursor/rules dışında")
-    if path.endswith("/SKILL.md") and not path.startswith((".cursor/skills/", ".claude/skills/")):
-        fail(f"{path}: skill dosyası .cursor/skills dışında")
+    if path.endswith(".mdc"):
+        fail(f"{path}: .mdc (Cursor) kural biçimi yasak; kural .claude/rules/*.md olmalı")
+    if path.endswith("/SKILL.md") and not path.startswith(".claude/skills/"):
+        fail(f"{path}: skill dosyası .claude/skills dışında")
+    if path.endswith(".md") and not path.startswith(".claude/rules/") and "paths" in frontmatter(read(ROOT / path)):
+        fail(f"{path}: kural dosyası .claude/rules dışında")
     if path.startswith(".claude/skills/") and not path.endswith("/SKILL.md"):
-        fail(f"{path}: .claude/skills altında yalnız SKILL.md yönlendirmesi olmalı")
-    if path.startswith(".cursor/skills/") and path.count("/") == 2:
+        fail(f"{path}: .claude/skills altında yalnız SKILL.md olmalı")
+    if path.startswith(".claude/skills/") and path.count("/") == 2:
         fail(f"{path}: skill klasörü dışında dosya")
-REDIRECT_BODY_LINES = 10
-if claude_skills.exists():
-    for redirect in sorted(claude_skills.glob("*/SKILL.md")):
-        body = re.sub(r"^---\n.*?\n---\n", "", read(redirect), count=1, flags=re.S).strip().splitlines()
-        if len(body) > REDIRECT_BODY_LINES:
-            fail(f"{redirect.relative_to(ROOT).as_posix()}: yönlendirme {len(body)} satır (> {REDIRECT_BODY_LINES}); talimatı .cursor/skills altında tut")
+    if path.startswith(".claude/rules/") and (not path.endswith(".md") or path.count("/") != 2):
+        fail(f"{path}: .claude/rules altında yalnız düz *.md kural dosyası olmalı")
 
-# ---------------------------------------------------------------- giriş dosyaları ortak çıpaları göstermeli
-ANCHORS = (".cursor/rules", ".cursor/skills", "scripts/triage.py", "docs/HIZLI_AKSIYON.md", "docs/AI_DEVIR_REHBERI.md", "docs/MIMARI.md")
-for name in ("CLAUDE.md", ".cursorrules", ".github/copilot-instructions.md"):
-    path = ROOT / name
-    if path.exists():
-        text = read(path)
-        for anchor in ANCHORS:
-            if anchor not in text:
-                fail(f"{name}: '{anchor}' çıpasını anmıyor (tek kaynağa yönlendirmeli)")
+# ---------------------------------------------------------------- CLAUDE.md ortak çıpaları göstermeli
+ANCHORS = (".claude/rules", ".claude/skills", "scripts/triage.py", "docs/HIZLI_AKSIYON.md", "docs/AI_DEVIR_REHBERI.md", "docs/MIMARI.md")
+if claude_md.exists():
+    for anchor in ANCHORS:
+        if anchor not in claude_text:
+            fail(f"CLAUDE.md: '{anchor}' çıpasını anmıyor")
 
-# ---------------------------------------------------------------- AGENTS.md hızlı kontrol tablosu
+# ---------------------------------------------------------------- CLAUDE.md hızlı kontrol tablosu
 QUICK_COMMANDS = (
     "scripts/triage.py",
     "scripts/doctor.py",
@@ -244,14 +237,14 @@ QUICK_COMMANDS = (
     "scripts/verify.ps1",
     "scripts/check-assets.py",
 )
-if agents.exists():
+if claude_md.exists():
     for command in QUICK_COMMANDS:
-        if command not in agents_text:
-            fail(f"AGENTS.md hızlı kontrol tablosu {command} komutunu listelemiyor")
+        if command not in claude_text:
+            fail(f"CLAUDE.md hızlı kontrol tablosu {command} komutunu listelemiyor")
         elif not (ROOT / command).exists():
-            fail(f"AGENTS.md: {command} dosyası yok")
-    if "Hızlı kontrol komutları" not in agents_text or "Tek kaynak haritası" not in agents_text:
-        fail("AGENTS.md 'Tek kaynak haritası' veya 'Hızlı kontrol komutları' bölümü eksik")
+            fail(f"CLAUDE.md: {command} dosyası yok")
+    if "Hızlı kontrol komutları" not in claude_text:
+        fail("CLAUDE.md 'Hızlı kontrol komutları' bölümü eksik")
     for doc in ("docs/HIZLI_AKSIYON.md", "docs/AI_DEVIR_REHBERI.md", "docs/DEVIR_DURUMU.md"):
         if not (ROOT / doc).exists():
             fail(f"{doc} yok")
@@ -267,4 +260,4 @@ if errors:
     for message in errors:
         print(f"  - {message}")
     sys.exit(1)
-print(f"AI docs OK: {len(rule_files)} kural, {len(names)} skill, yönlendirme dosyaları tutarlı.")
+print(f"AI docs OK: {len(rule_files)} kural, {len(names)} skill, CLAUDE.md tek kaynak olarak tutarlı.")

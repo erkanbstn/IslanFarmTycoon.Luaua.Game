@@ -1,7 +1,7 @@
 ---
 description: Sunucu tarafı güvenlik, remote doğrulama ve servis kalıpları
-globs: src/server/**/*.luau
-alwaysApply: false
+paths:
+  - "src/server/**/*.luau"
 ---
 
 # Sunucu güvenliği

@@ -100,7 +100,7 @@ class DependencyTests(unittest.TestCase):
 
 class DoctorTests(unittest.TestCase):
     def fixture(self, root: Path):
-        for path in ("AGENTS.md", "docs/MIMARI.md", ".cursor/rules/tests-tooling.mdc", ".cursor/skills/roblox-verify/SKILL.md", "scripts/verify.ps1", "scripts/types-baseline.json", "rokit.toml"):
+        for path in ("CLAUDE.md", "docs/MIMARI.md", ".claude/rules/tests-tooling.md", ".claude/skills/roblox-verify/SKILL.md", "scripts/verify.ps1", "scripts/types-baseline.json", "rokit.toml"):
             target = root / path
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_text("{}" if path.endswith("json") else "fixture", encoding="utf-8")
@@ -175,9 +175,9 @@ class HygieneTests(unittest.TestCase):
 
     def test_dead_path_and_broken_link_are_reported_but_prefix_and_history_are_not(self):
         out = self.findings({
-            "AGENTS.md": "`docs/GONE.md` ve [x](docs/MISSING.md) ve `assets/Pets/Pet_`\n`docs/OLD.md` (git geçmişinde).\n",
+            "CLAUDE.md": "`docs/GONE.md` ve [x](docs/MISSING.md) ve `assets/Pets/Pet_`\n`docs/OLD.md` (git geçmişinde).\n",
             "assets/Pets/Pet_cow.rbxmx": "<roblox/>",
-            "docs/LIVE.md": "AGENTS.md anar\n",
+            "docs/LIVE.md": "CLAUDE.md anar\n",
         })
         self.assertIn("var olmayan yol: docs/GONE.md", out)
         self.assertIn("kırık bağlantı: docs/MISSING.md", out)
@@ -186,7 +186,7 @@ class HygieneTests(unittest.TestCase):
 
     def test_orphan_doc_script_and_module_are_reported(self):
         out = self.findings({
-            "AGENTS.md": "`docs/USED.md` `scripts/used.py` `UsedModule`\n",
+            "CLAUDE.md": "`docs/USED.md` `scripts/used.py` `UsedModule`\n",
             "docs/USED.md": "x", "docs/ORPHAN.md": "x",
             "scripts/used.py": "", "scripts/orphan.py": "",
             "src/server/Services/UsedModule.luau": "return {}", "src/server/Services/DeadModule.luau": "return {}",
@@ -200,7 +200,7 @@ class HygieneTests(unittest.TestCase):
 
     def test_luau_dead_function_commented_code_and_remote_gaps_are_reported(self):
         out = self.findings({
-            "AGENTS.md": "x",
+            "CLAUDE.md": "x",
             "src/server/Services/Svc.luau": "local Svc = {}\nfunction Svc.used() end\nfunction Svc.dead() end\n-- local old = 1\n-- Svc.old()\n-- normal açıklama metni\nreturn Svc\n",
             "src/client/Ui/Caller.luau": "local Svc = require(x)\nSvc.used()\nremote.get('Both')\nremote.get('OnlyClient')\n",
             "src/server/Services/Handler.luau": "remote.get('Both')\nlocal map = { Mapped = f }\n",
@@ -216,7 +216,7 @@ class HygieneTests(unittest.TestCase):
         self.assertNotIn("`Both`", out)
 
     def test_dead_locale_key_is_reported_but_atoms_and_escapes_are_not(self):
-        files = {"AGENTS.md": "x", "src/server/Cfg.luau": 'return { name = "Et Tütsühanesi", t = "Aktif ürün", u = "Tekrar" }'}
+        files = {"CLAUDE.md": "x", "src/server/Cfg.luau": 'return { name = "Et Tütsühanesi", t = "Aktif ürün", u = "Tekrar" }'}
         locale = 'return {\n\t["Tütsühane"] = "a",\n\t["Aktif ürün\\nTekrar"] = "b",\n\t["Ölü kaldırılmış"] = "c",\n}\n'
         for code in ("en", "de", "ru", "es", "pt"):
             files[f"src/shared/Locales/{code}.luau"] = locale
@@ -226,20 +226,20 @@ class HygieneTests(unittest.TestCase):
         self.assertNotIn("Aktif", out)
 
     def test_oversized_doc_is_reported(self):
-        out = self.findings({"AGENTS.md": "docs/BIG.md docs/SMALL.md", "docs/BIG.md": "satır\n" * 401, "docs/SMALL.md": "satır\n" * 400})
+        out = self.findings({"CLAUDE.md": "docs/BIG.md docs/SMALL.md", "docs/BIG.md": "satır\n" * 401, "docs/SMALL.md": "satır\n" * 400})
         self.assertIn("docs/BIG.md: 401 satır", out)
         self.assertNotIn("docs/SMALL.md:", out)
 
     def test_unknown_handover_commit_is_reported(self):
-        out = self.findings({"AGENTS.md": "docs/DEVIR_DURUMU.md", "docs/DEVIR_DURUMU.md": "Main `abc1234` ve 12345678 sayısı\n"}, git=True)
+        out = self.findings({"CLAUDE.md": "docs/DEVIR_DURUMU.md", "docs/DEVIR_DURUMU.md": "Main `abc1234` ve 12345678 sayısı\n"}, git=True)
         self.assertIn("depoda olmayan commit kimliği: abc1234", out)
         self.assertNotIn("12345678", out)
 
     def test_tracked_junk_is_reported_only_when_git_tracks_it(self):
-        out = self.findings({"AGENTS.md": "x", "render.log": "x", "scripts/__pycache__/a.pyc": "x"}, git=True)
+        out = self.findings({"CLAUDE.md": "x", "render.log": "x", "scripts/__pycache__/a.pyc": "x"}, git=True)
         self.assertIn("render.log: git'te izlenen", out)
         self.assertIn("scripts/__pycache__/a.pyc: git'te izlenen", out)
-        self.assertNotIn("AGENTS.md:", out)
+        self.assertNotIn("CLAUDE.md:", out)
 
 
 def changed(path: str, deleted: bool = False) -> dict:
@@ -247,19 +247,23 @@ def changed(path: str, deleted: bool = False) -> dict:
 
 
 class TriageTests(unittest.TestCase):
-    def agents_rules(self) -> set[str]:
-        text = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
-        section = text.split("## Dokunduğun yere göre okunacak kural dosyası", 1)[1].split("\n## ", 1)[0]
-        return set(re.findall(r"\.cursor/rules/[\w-]+\.mdc", section))
+    def claude_rules(self) -> set[str]:
+        text = (ROOT / "CLAUDE.md").read_text(encoding="utf-8")
+        section = text.split("## Kurallar ve skill'ler", 1)[1].split("\n## ", 1)[0]
+        return set(re.findall(r"\.claude/rules/[\w-]+\.md", section))
 
-    def test_mapping_matches_agents_table_rule_globs_and_skills(self):
-        self.assertEqual({rule for rule, _ in TRIAGE.RULES}, self.agents_rules())
+    def test_mapping_matches_claude_table_rule_paths_and_skills(self):
+        on_disk = {path.relative_to(ROOT).as_posix() for path in (ROOT / ".claude/rules").glob("*.md")}
+        self.assertEqual({rule for rule, _ in TRIAGE.RULES}, self.claude_rules())
+        self.assertEqual({rule for rule, _ in TRIAGE.RULES}, on_disk)
         for rule, patterns in TRIAGE.RULES:
-            text = (ROOT / rule).read_text(encoding="utf-8")
-            globs = re.search(r"^globs:\s*(.+)$", text, re.MULTILINE)
-            self.assertIsNotNone(globs, rule)
-            self.assertEqual(sorted(patterns), sorted(g.strip() for g in globs.group(1).split(",") if g.strip()), rule)
-        skills = {path.name for path in (ROOT / ".cursor/skills").iterdir() if path.is_dir()}
+            text = (ROOT / rule).read_text(encoding="utf-8").replace("\r\n", "\n")
+            block = re.match(r"^---\n(.*?)\n---\n", text, re.S)
+            self.assertIsNotNone(block, rule)
+            listed = re.findall(r'^\s+-\s+"([^"]+)"\s*$', block.group(1), re.MULTILINE)
+            self.assertTrue(listed, rule)
+            self.assertEqual(sorted(patterns), sorted(listed), rule)
+        skills = {path.name for path in (ROOT / ".claude/skills").iterdir() if path.is_dir()}
         self.assertLessEqual({skill for skill, _ in TRIAGE.SKILLS}, skills)
         self.assertIn("roblox-verify", skills)
 
@@ -272,9 +276,9 @@ class TriageTests(unittest.TestCase):
 
     def test_ui_change_maps_rules_skill_spec_and_commands(self):
         plan = TRIAGE.build_plan(ROOT, [changed("src/client/Ui/Hud/GoalCard.luau")])
-        self.assertIn(".cursor/rules/client-ui.mdc", plan["rules"])
-        self.assertIn(".cursor/rules/luau-style.mdc", plan["rules"])
-        self.assertNotIn(".cursor/rules/server-security.mdc", plan["rules"])
+        self.assertIn(".claude/rules/client-ui.md", plan["rules"])
+        self.assertIn(".claude/rules/luau-style.md", plan["rules"])
+        self.assertNotIn(".claude/rules/server-security.md", plan["rules"])
         self.assertEqual(plan["skills"][0], "roblox-add-ui")
         self.assertEqual(plan["skills"][-1], "roblox-verify")
         ids = [item["id"] for item in plan["commands"]]
@@ -320,7 +324,7 @@ class TriageTests(unittest.TestCase):
     def test_json_schema_and_stable_keys(self):
         output = io.StringIO()
         with contextlib.redirect_stdout(output):
-            code = TRIAGE.main(["--json", "--skip-health", "--files", "AGENTS.md", "scripts/triage.py"])
+            code = TRIAGE.main(["--json", "--skip-health", "--files", "CLAUDE.md", "scripts/triage.py"])
         self.assertEqual(code, 0)
         plan = json.loads(output.getvalue())
         self.assertEqual(plan["schema"], 1)
@@ -407,39 +411,86 @@ class AiDocsSingleSourceTests(unittest.TestCase):
     def test_pristine_copy_passes_when_assets_present(self):
         # assets/ kopyalanmadığı için glob eşleşmesi kural dosyalarında bildirilebilir; yalnız tek kaynak hatası olmamalı.
         _, out = self.run_checker()
-        for phrase in ("ikinci kural/skill kaynağı", "kural dosyası .cursor/rules dışında", "skill dosyası .cursor/skills dışında", "çıpasını anmıyor", "hızlı kontrol tablosu"):
+        for phrase in ("ikinci kural/skill kaynağı", "Cursor", "dışında", "çıpasını anmıyor", "hızlı kontrol tablosu", "yönlendirme taslağı", "paths listesi"):
             self.assertNotIn(phrase, out)
 
-    def test_second_rule_or_skill_source_is_rejected(self):
+    def test_leftover_cursor_agents_and_copilot_sources_are_rejected(self):
         def mutate(copy: Path):
-            (copy / ".claude" / "rules").mkdir(parents=True)
-            (copy / ".claude" / "rules" / "x.md").write_text("x", encoding="utf-8")
+            (copy / ".cursor" / "rules").mkdir(parents=True)
+            (copy / ".cursor" / "rules" / "x.mdc").write_text("---\n---\n", encoding="utf-8")
+            (copy / ".cursorrules").write_text("x", encoding="utf-8")
+            (copy / "AGENTS.md").write_text("x", encoding="utf-8")
+            (copy / ".github" / "instructions").mkdir(parents=True)
+            (copy / ".github" / "copilot-instructions.md").write_text("x", encoding="utf-8")
+
+        code, out = self.run_checker(mutate)
+        self.assertEqual(code, 1)
+        for stray in (".cursor", ".cursorrules", "AGENTS.md", ".github/copilot-instructions.md"):
+            self.assertIn(f"{stray}: ikinci kural/skill kaynağı", out)
+        self.assertIn(".cursor/rules/x.mdc: .mdc (Cursor) kural biçimi yasak", out)
+
+    def test_rule_or_skill_outside_claude_and_stray_files_are_rejected(self):
+        def mutate(copy: Path):
             (copy / "docs" / "stray.mdc").write_text("---\n---\n", encoding="utf-8")
             (copy / "docs" / "SKILL.md").write_text("x", encoding="utf-8")
+            (copy / "docs" / "stray-rule.md").write_text('---\ndescription: x\npaths:\n  - "src/**"\n---\n', encoding="utf-8")
             (copy / ".claude" / "skills" / "roblox-verify" / "extra.md").write_text("x", encoding="utf-8")
+            (copy / ".claude" / "rules" / "nested").mkdir()
+            (copy / ".claude" / "rules" / "nested" / "y.md").write_text("x", encoding="utf-8")
 
         code, out = self.run_checker(mutate)
         self.assertEqual(code, 1)
-        self.assertIn(".claude/rules: ikinci kural/skill kaynağı", out)
-        self.assertIn("docs/stray.mdc: kural dosyası .cursor/rules dışında", out)
-        self.assertIn("docs/SKILL.md: skill dosyası .cursor/skills dışında", out)
+        self.assertIn("docs/stray.mdc: .mdc (Cursor) kural biçimi yasak", out)
+        self.assertIn("docs/SKILL.md: skill dosyası .claude/skills dışında", out)
+        self.assertIn("docs/stray-rule.md: kural dosyası .claude/rules dışında", out)
         self.assertIn("roblox-verify/extra.md: .claude/skills altında yalnız SKILL.md", out)
+        self.assertIn(".claude/rules/nested/y.md: .claude/rules altında yalnız düz *.md", out)
 
-    def test_redirect_that_grew_into_a_copy_and_missing_anchors_are_rejected(self):
+    def test_rule_frontmatter_and_globs_are_validated(self):
         def mutate(copy: Path):
-            redirect = copy / ".claude" / "skills" / "roblox-verify" / "SKILL.md"
-            redirect.write_text(redirect.read_text(encoding="utf-8") + "\n" + "satır\n" * 20, encoding="utf-8")
-            (copy / ".cursorrules").write_text("AGENTS.md bak. .cursor/rules ve .cursor/skills\n", encoding="utf-8")
+            rules = copy / ".claude" / "rules"
+            (rules / "luau-style.md").write_text("---\ndescription: x\n---\nbody\n", encoding="utf-8")
+            (rules / "server-security.md").write_text('---\ndescription: x\npaths:\n  - "yok/hicbir/**"\n---\nbody\n', encoding="utf-8")
+            (rules / "client-ui.md").write_text('---\npaths:\n  - "src/**"\n---\nbody\n', encoding="utf-8")
 
         code, out = self.run_checker(mutate)
         self.assertEqual(code, 1)
-        self.assertIn("roblox-verify/SKILL.md: yönlendirme", out)
-        self.assertIn(".cursorrules: 'scripts/triage.py' çıpasını anmıyor", out)
+        self.assertIn(".claude/rules/luau-style.md: paths listesi eksik veya boş", out)
+        self.assertIn(".claude/rules/server-security.md: glob hiçbir dosyayla eşleşmiyor: yok/hicbir/**", out)
+        self.assertIn(".claude/rules/client-ui.md: description eksik", out)
 
-    def test_agents_quick_command_table_must_list_every_entry_command(self):
+    def test_skill_stub_name_mismatch_and_missing_listing_are_rejected(self):
         def mutate(copy: Path):
-            agents = copy / "AGENTS.md"
-            agents.write_text(agents.read_text(encoding="utf-8").replace("scripts/smoke-quick.py", "scripts/yok.py"), encoding="utf-8")
+            skills = copy / ".claude" / "skills"
+            (skills / "roblox-verify" / "SKILL.md").write_text(
+                "---\nname: roblox-verify\ndescription: x\n---\n\nTam metin: `.cursor/skills/roblox-verify/SKILL.md` içindedir.\n", encoding="utf-8")
+            localize = skills / "roblox-localize" / "SKILL.md"
+            localize.write_text(localize.read_text(encoding="utf-8").replace("name: roblox-localize", "name: baska-ad", 1), encoding="utf-8")
+            claude = copy / "CLAUDE.md"
+            claude.write_text(claude.read_text(encoding="utf-8").replace("`roblox-add-ui`", "roblox-add-ui"), encoding="utf-8")
+
+        code, out = self.run_checker(mutate)
+        self.assertEqual(code, 1)
+        self.assertIn("roblox-verify/SKILL.md: gövde", out)
+        self.assertIn("roblox-verify/SKILL.md: başka bir kaynak skill dosyasına yönlendiriyor", out)
+        self.assertIn("roblox-localize/SKILL.md: name alanı klasör adıyla eşleşmiyor", out)
+        self.assertIn("CLAUDE.md skill'i listelemiyor: roblox-add-ui", out)
+
+    def test_missing_anchor_and_quick_commands_section_are_rejected(self):
+        def mutate(copy: Path):
+            claude = copy / "CLAUDE.md"
+            text = claude.read_text(encoding="utf-8").replace("docs/HIZLI_AKSIYON.md", "docs/baska.md").replace("Hızlı kontrol komutları", "Komutlar")
+            claude.write_text(text, encoding="utf-8")
+
+        code, out = self.run_checker(mutate)
+        self.assertEqual(code, 1)
+        self.assertIn("CLAUDE.md: 'docs/HIZLI_AKSIYON.md' çıpasını anmıyor", out)
+        self.assertIn("CLAUDE.md 'Hızlı kontrol komutları' bölümü eksik", out)
+
+    def test_claude_quick_command_table_must_list_every_entry_command(self):
+        def mutate(copy: Path):
+            claude = copy / "CLAUDE.md"
+            claude.write_text(claude.read_text(encoding="utf-8").replace("scripts/smoke-quick.py", "scripts/yok.py"), encoding="utf-8")
 
         code, out = self.run_checker(mutate)
         self.assertEqual(code, 1)

@@ -1,6 +1,6 @@
 # AI devir rehberi
 
-Bu belge yeni bir AI oturumunun kısa başlangıç kapısıdır. Temel kaynak `AGENTS.md`; mimari `docs/MIMARI.md`. Tüm kuralları/raporları peşinen okumak yerine görevle ilgili kaynak, tüketici ve testten ilerle.
+Bu belge yeni bir AI oturumunun kısa başlangıç kapısıdır. Temel kaynak `CLAUDE.md`; mimari `docs/MIMARI.md`. Tüm kuralları/raporları peşinen okumak yerine görevle ilgili kaynak, tüketici ve testten ilerle.
 
 ## Başlangıç
 
@@ -9,8 +9,8 @@ Devralırken `docs/DEVIR_DURUMU.md` içindeki güncel dal, doğrulama ve açık 
 0. **İlk komut:** `python scripts/triage.py` (salt okunur): dal, değişen dosyalar, doctor/hijyen özeti, ilgili kural + skill ve çalıştırılacak en küçük kontroller. `--run` ucuz olanları çalıştırır, `--json` makine çıktısıdır; görev→komut yemek kitabı `docs/HIZLI_AKSIYON.md`. Hızlı spec alt kümesi: `python scripts/smoke-quick.py --only <ad>`.
 1. Kullanıcının son isteğini ve oturumda verilmiş yayın/git/veri yetkisini belirle. Çalışan yerin doğru depo olduğunu doğrula: `git branch --show-current`, `git status --short`, `git diff --stat`. Mevcut kullanıcı değişikliklerini bir başlangıç notunda işaretle; temizlemek için reset/stash yapma.
 2. `python scripts/doctor.py` ile kurulu araç/yerel durum teşhisini al. Teşhis tek başına test değildir; kurulum ve ağ mutasyonu yapmaz.
-3. `AGENTS.md` tablosundan yalnız ilgili kuralları aç. Dosya eklemeden veya katman sınırı değişmeden önce MIMARI'nin ilgili bölümünü oku. Ekonomi/model işinde yalnız ilgili sözleşmeyi yükle.
-4. `.cursor/skills/roblox-verify/SKILL.md` hızlı döngüsünü başlangıçta çalıştır (depo hijyeni dahil). Bir dosyayı silince/yeniden adlandırınca veya yeni belge/betik eklenince `python scripts/check-repo-hygiene.py` ile hemen doğrula. Önceden var olan başarısızlıkları kendi değişikliğinle ayır; eksik aracı veya atlanan kontrolü başarı sayma.
+3. Kurallar `.claude/rules/` altındadır ve eşleşen dosyaya dokununca Claude tarafından yüklenir; `CLAUDE.md` tablosundan yalnız ilgili olanı oku. Dosya eklemeden veya katman sınırı değişmeden önce MIMARI'nin ilgili bölümünü oku. Ekonomi/model işinde yalnız ilgili sözleşmeyi yükle.
+4. `.claude/skills/roblox-verify/SKILL.md` hızlı döngüsünü başlangıçta çalıştır (depo hijyeni dahil). Bir dosyayı silince/yeniden adlandırınca veya yeni belge/betik eklenince `python scripts/check-repo-hygiene.py` ile hemen doğrula. Önceden var olan başarısızlıkları kendi değişikliğinle ayır; eksik aracı veya atlanan kontrolü başarı sayma.
 5. Güvenle kanıtlanmış sorunu küçük değişiklikle çöz, gerçek davranış testini güncelle. Para/ödül/bekleme dengesi değiştiyse aynı koşullu önce/sonra ölçümünü kaydet. Sonunda gerekli Full ve Studio kanıtını topla.
 
 ## Hangi kaynak neyi söyler?

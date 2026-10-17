@@ -1,7 +1,17 @@
 ---
 description: Oyun dengesi (Config), paylaşılan hesaplar (FarmMath) ve kayıt şeması
-globs: src/shared/Config/**,src/shared/GameTypes.luau,src/shared/Modules/FarmMath/**,src/server/Services/AnimalService.luau,src/server/Services/UpgradeService.luau,src/server/Modules/SaveCodec/**,src/server/Modules/SessionLock.luau,src/server/Modules/FarmProfiles.luau,src/server/Services/PlayerDataService.luau,src/server/Services/SaveStore.luau,src/server/Services/EconomyService.luau
-alwaysApply: false
+paths:
+  - "src/shared/Config/**"
+  - "src/shared/GameTypes.luau"
+  - "src/shared/Modules/FarmMath/**"
+  - "src/server/Services/AnimalService.luau"
+  - "src/server/Services/UpgradeService.luau"
+  - "src/server/Modules/SaveCodec/**"
+  - "src/server/Modules/SessionLock.luau"
+  - "src/server/Modules/FarmProfiles.luau"
+  - "src/server/Services/PlayerDataService.luau"
+  - "src/server/Services/SaveStore.luau"
+  - "src/server/Services/EconomyService.luau"
 ---
 
 # Ekonomi ve veri

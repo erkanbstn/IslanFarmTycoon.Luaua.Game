@@ -1,7 +1,10 @@
 ---
 description: Harita üretimi, dünya görselleri, gece ışıkları ve Lighting sahipliği
-globs: src/server/World/**,src/server/Presentation/**,plugin/**,src/client/Effects/**
-alwaysApply: false
+paths:
+  - "src/server/World/**"
+  - "src/server/Presentation/**"
+  - "plugin/**"
+  - "src/client/Effects/**"
 ---
 
 # Harita ve dünya

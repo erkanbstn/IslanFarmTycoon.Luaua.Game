@@ -1,6 +1,6 @@
 # Hızlı aksiyon yemek kitabı
 
-Görev -> dosyalar -> komut. Yalnız gerçek, bu depoda çalışan komutlar. Ayrıntı için ilgili skill (`.cursor/skills/<ad>/SKILL.md`) ve kural (`AGENTS.md` tablosu). Bu belge doğrulama yerine geçmez; Full ve Studio kanıtı `roblox-verify` skill'indedir.
+Görev -> dosyalar -> komut. Yalnız gerçek, bu depoda çalışan komutlar. Ayrıntı için ilgili skill (`.claude/skills/<ad>/SKILL.md`) ve kural (`.claude/rules/`, tablo `CLAUDE.md`'de). Bu belge doğrulama yerine geçmez; Full ve Studio kanıtı `roblox-verify` skill'indedir.
 
 ## 0. Her işte: 10 saniyelik döngü
 
@@ -18,39 +18,39 @@ python scripts/run-tests.py --list        # --only adları (aynı filtre: run-te
 ## 1. Yeni remote (istemci -> sunucu işlemi)
 
 - Dosyalar: `src/shared/Remotes.luau` (EventName + EVENTS), ilgili `src/server/Services/*.luau` (işleyici, `RequestGuard`/RateLimiter), `src/client/**` çağrı, `tests/<servis>.spec.luau`.
-- Skill: `roblox-add-remote`; kural: `server-security.mdc`.
+- Skill: `roblox-add-remote`; kural: `server-security.md`.
 - Komut: `python scripts/smoke-quick.py --only <servis-spec>` -> `python scripts/check-test-dependencies.py` -> `python scripts/check-locales.py --strict-literals`.
 
 ## 2. Ekran / pencere / HUD
 
 - Dosyalar: `src/client/Ui/**` (UiKit bileşenleri), tema `src/shared/UiTheme.luau`, dünya yazıları `src/shared/WorldUi.luau`; test `tests/hud-layout.spec.luau`, `tests/ui-kit-layout.spec.luau`, `tests/market-ui.spec.luau`.
-- Skill: `roblox-add-ui`; kural: `client-ui.mdc` (+ efekt/LocalScript ise `client-performance.mdc`).
+- Skill: `roblox-add-ui`; kural: `client-ui.md` (+ efekt/LocalScript ise `client-performance.md`).
 - Komut: `python scripts/smoke-quick.py` -> `python scripts/check-locales.py --strict-literals` -> `python scripts/check-architecture.py`.
 - Elle: telefon/masaüstü, uzun çeviri, gamepad Studio'da görülmeden "bitti" deme.
 
 ## 3. İçerik, fiyat, denge (hayvan, ada, yükseltme, tarif)
 
 - Dosyalar: `src/shared/Config/**`, hesap `src/shared/Modules/FarmMath/**`; testler `tests/config.spec.luau`, `tests/economy.spec.luau`, `tests/golden.spec.luau`.
-- Skill: `roblox-add-content`; kural: `economy-data.mdc`. Sayıları kodda sabitleme; Config/FarmMath tek kaynak.
+- Skill: `roblox-add-content`; kural: `economy-data.md`. Sayıları kodda sabitleme; Config/FarmMath tek kaynak.
 - Komut: `python scripts/smoke-quick.py --all` -> `python scripts/check-config-locales.py` -> `python scripts/audit-economy.py --luau .tools/luau/luau.exe --check` -> `python scripts/simulate-tiers.py --luau .tools/luau/luau.exe --personas ideal,casual,idle --assert-monotonic`.
 
 ## 4. Çeviri / oyuncuya görünen metin
 
 - Dosyalar: kaynak Türkçe metin kodda; sözlükler `src/shared/Locales/**` (en/de/ru/es/pt), `src/shared/Localization.luau`.
-- Skill: `roblox-localize`; kural: `localization.mdc`.
+- Skill: `roblox-localize`; kural: `localization.md`.
 - Komut: `python scripts/check-locales.py --strict-literals` ve `python scripts/check-config-locales.py`.
 
 ## 5. Harita, model, ışık
 
 - Dosyalar: `src/server/World/**`, `src/server/Presentation/**`, `plugin/**`, modeller `assets/**` ve `client-assets/**`; sözleşme `docs/MODEL_SOZLESMESI.md`.
-- Skill: `roblox-map-change`; kural: `world-map.mdc`.
+- Skill: `roblox-map-change`; kural: `world-map.md`.
 - Komut: `python scripts/check-assets.py` -> `python scripts/test-check-assets.py`; plugin/ değiştiyse `rojo build plugin.project.json --plugin IslandFarmTycoonHarita.rbxm` (Studio'yu yeniden aç).
 - Elle: Studio'da haritayı kur + doğrula (`MapToolRun=buildverify`), sonra place'i kaydet.
 
 ## 6. Kayıt şeması / mali veri
 
 - Dosyalar: `src/shared/GameTypes.luau`, `src/server/Modules/SaveCodec/**`, `SessionLock.luau`, `src/server/Services/PlayerDataService.luau`, `SaveStore.luau`; testler `tests/data.spec.luau`, `tests/player-data-service.spec.luau`, `tests/save-store-transfer.spec.luau`, `tests/financial-rebirth.spec.luau`.
-- Skill: `roblox-save-schema`; kural: `economy-data.mdc`. Geri alınamaz dönüşümde ve canlı veride açık onay iste.
+- Skill: `roblox-save-schema`; kural: `economy-data.md`. Geri alınamaz dönüşümde ve canlı veride açık onay iste.
 - Komut: `python scripts/smoke-quick.py --only data,player-data-service,save-store-transfer,financial-rebirth,transfer-ledger`, sonra `--all`.
 - Elle: ayrı test DataStore'unda yeniden giriş/makbuz/kapanış; QA fixture'ı kayıt yazmaz.
 

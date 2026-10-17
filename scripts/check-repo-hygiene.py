@@ -27,14 +27,14 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
 DEFAULT_ROOT = Path(__file__).resolve().parent.parent
-TEXT_SUFFIXES = {".md", ".mdc", ".py", ".ps1", ".luau", ".json", ".toml", ".txt"}
+TEXT_SUFFIXES = {".md", ".py", ".ps1", ".luau", ".json", ".toml", ".txt"}
 SKIP_PARTS = {".git", ".tools", ".test-build", ".cleanup-archive", "build", "__pycache__", "node_modules"}
 SKIP_FILES = {"sourcemap.json"}
 # Sahte yol içeren bilinçli fixture'lar; yalnız bu dosyalar atlanır.
 FIXTURE_FILES = {"scripts/check-repo-hygiene.py", "scripts/check-ai-docs.py", "tests/tooling.spec.py", "scripts/test-check-types.py", "scripts/test-compare-economy.py", "scripts/test-studio-qa.py", "scripts/test-check-assets.py"}
 HISTORICAL_MARK = re.compile(r"git ge[çc]mi[şs]|git history|ar[şs]iv|archived|silindi", re.I)
 PATH_REF = re.compile(
-    r"(?<![\w/.\-])((?:src|tests|scripts|plugin|docs|assets|client-assets|tools|artwork|\.cursor|\.claude|\.github)/[A-Za-z0-9_./\-]*[A-Za-z0-9_])"
+    r"(?<![\w/.\-])((?:src|tests|scripts|plugin|docs|assets|client-assets|tools|artwork|\.claude)/[A-Za-z0-9_./\-]*[A-Za-z0-9_])"
 )
 MD_LINK = re.compile(r"\]\(([^)\s]+)\)")
 JUNK_SUFFIXES = {".log", ".tmp", ".bak", ".orig", ".rej", ".swp", ".pyc"}
@@ -147,7 +147,7 @@ def check(root: Path) -> list[str]:
                 errors.append(f"{name}: hiçbir dosyada anılmıyor (yetim betik; bağla ya da kaldır)")
 
     # 4) yetim Luau modülleri
-    luau_pool = {p: t for p, t in texts.items() if p.suffix in {".luau", ".json", ".py", ".ps1", ".md", ".mdc"}}
+    luau_pool = {p: t for p, t in texts.items() if p.suffix in {".luau", ".json", ".py", ".ps1", ".md"}}
     for path in files:
         name = rel(root, path)
         if not name.startswith("src/") or path.suffix != ".luau" or path.name.endswith((".client.luau", ".server.luau")):

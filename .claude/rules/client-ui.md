@@ -1,7 +1,10 @@
 ---
 description: Ekran arayüzü (UiKit), HUD yerleşimi ve dünya tabelaları (WorldUi)
-globs: src/client/**/*.luau,src/shared/UiTheme.luau,src/shared/WorldUi.luau,src/first/**/*.luau
-alwaysApply: false
+paths:
+  - "src/client/**/*.luau"
+  - "src/shared/UiTheme.luau"
+  - "src/shared/WorldUi.luau"
+  - "src/first/**/*.luau"
 ---
 
 # Arayüz standardı

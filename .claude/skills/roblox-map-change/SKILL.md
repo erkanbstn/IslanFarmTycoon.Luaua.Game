@@ -3,7 +3,47 @@ name: roblox-map-change
 description: Changes the generated island map, decor, lamps or build spots in MapBuilder/WorldDecor for this Roblox project, including MAP_VERSION bumps, the Studio map plugin rebuild, the validate() contract and night light tagging. Use when editing map layout, bridges, islands, decor, street lamps, windows, lighting or when the game says the map version is mismatched.
 ---
 
-# roblox-map-change
+# Harita değişikliği
 
-Tam talimatlar tek kaynakta tutulur: `.cursor/skills/roblox-map-change/SKILL.md`.
-İşe başlamadan önce o dosyayı oku ve adımlarını uygula. İlgili kapsamlı kurallar `.cursor/rules/` altındadır (bkz. `CLAUDE.md`).
+## Karar: place'e kaydedilen mi, çalışma anında mı?
+- `src/server/World/` (MapBuilder, MapLayout, MapParts, MapMountains, IslandBuilder (+ IslandLayout/IslandSiteParts), SatelliteBuilder, HubBuilder, WorldDecor (cephe; parçalar `Decor*`), HomeBuildings, HubNpcs, IslandSpecialization) → place'e kaydedilir →
+  **`MapBuilder.luau` içindeki `MAP_VERSION` +1** ve Studio'da yeniden kurulum gerekir. Sunucu açılışında tema şablonları (`ServerStorage.ThemeTemplates`) sürüme bağlı yeniden kurulur.
+- `src/server/Presentation/` (hayvan, bölge, yükseltme, eklenti, toplama görselleri; tesis seviye halkaları, bölge bayrakları) → sunucu her oturumda
+  kurar → sürüm gerekmez.
+- Klasör adı/yapısı ya da `plugin/` değiştiyse eklentiyi yeniden üret: `rojo build plugin.project.json --plugin IslandFarmTycoonHarita.rbxm` (Studio'yu yeniden başlat; eklenti yalnızca açılışta yüklenir).
+- Yalnızca `src/`/`tests/`/`assets/` değiştiyse eklenti ve Studio yeniden açılmaz (Rojo senkronu yeter; testler `ServerStorage.MapSpecs`'ten gelir).
+- Görsel (geometri) **modelden** gelir: yeni/değişen şekil için `assets/` modeli (`docs/MODEL_SOZLESMESI.md` iş akışı), kodda `ModelAssets.clone/place`; kodda `makePart` ile geometri yazma (bkz. `world-map.md` "Model tabanlı görseller").
+
+## Adımlar
+```
+- [ ] 1. Değişikliği yap (Shared'ı `World/SharedRef` üzerinden al; World yalnızca World/Shared require eder)
+- [ ] 2. MAP_VERSION +1 (yalnızca place'e kaydedilen değişiklikte)
+- [ ] 3. Yeni zorunlu parça → MapBuilder.validate() + tests/world.spec.luau / tests/map-structure.spec.luau
+- [ ] 3a. Yeni avlu/dekor parçası: önce model (`assets/CommonDecor` vb.) + `check-assets.py` beklentisi, sonra `WorldDecor` yardımcısı/`ModelAssets.place`; yer `decorateHome` koordinatlarına/çim kaçınma listesine göre; yön tabelalarında `yaw` ve metin çevirisi
+- [ ] 3b. Dekor bitince WorldDecor.optimize; tabela eklediysen uzun direk + CanCollide=false (yüksekliği map-structure denetler)
+- [ ] 4. rojo build (verify.ps1) + selene
+- [ ] 5. Haritayı Kur + Doğrula: Studio MCP varsa kendin tetikle (`ServerStorage` özniteliği `MapToolRun` = `buildverify`, çıktı `get_console_output`; ayrıntı `tests-tooling.md`), yoksa kullanıcıya: eklenti paneli → "Haritayı Kur" → "Haritayı Doğrula". Sonra kullanıcı place'i kaydeder (Ctrl+S); kayıtsız Studio kapatılırsa kurulum boşa gider
+```
+
+## Gece ışığı ekleme
+```luau
+-- Hazır: WorldDecor.lamp(parent, cf) / WorldDecor.smallLamp(parent, cf) / WorldDecor.markNightWindow(part)
+-- Elle:
+lantern:SetAttribute("NightColor", Color3.fromRGB(255, 214, 130))
+CollectionService:AddTag(lantern, "NightLight") -- pencere için "NightWindow"
+local light = Instance.new("PointLight")
+light.Brightness = 3 -- taban; DayNight rampa ve yönetici çarpanıyla ölçekler
+light.Range = 24
+light.Shadows = false
+light.Enabled = false
+light.Parent = lantern
+```
+Etiket olmadan ışık hep açık kalır ve yönetici panelinden kontrol edilemez.
+
+## Sorun giderme
+- "Harita sürümü uyumsuz" → place eski; "Haritayı Kur" + kaydet.
+- Işık görünmüyor → etiket var mı, `PointLight` parçanın doğrudan çocuğu mu, gece gerçekten
+  karanlık mı (`Lighting.Presets` ve `Environment.NIGHT_CURVE`), Bloom eşiği Neon'u bastırıyor mu.
+- Yönetici paneli: Saat = Gece, Işıklar = hep açık, Parlaklık = Güçlü ile hızlı test.
+
+Çalışma anı tüccar tezgâhı gibi durum görselleri Presentation katmanındadır; kayıtlı harita sürümünü yalnız gerçek statik içerik değişirse artır. Ayrı test place'indeki kurulum canlı place kaydını güncellemez; test/publish sınırları `roblox-verify` içinde.

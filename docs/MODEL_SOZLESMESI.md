@@ -35,11 +35,11 @@ Kural dili: **ZORUNLU** (ihlal = hata/bozuk görünüm), **YASAK**, **ÖNERİ** 
 |---|---|---|
 | Tüm `LuaSourceContainer` silinir | `AssetSanitizer.luau:8-9` | Script koyma (YASAK; boşa gider) |
 | Her BasePart `Anchored=true`, `CanTouch=false` | `AssetSanitizer.luau:11-13` | Kaynak/weld gerekmez |
-| Bina: **her parça `CanCollide=true`** | `AssetSanitizer.luau:12` (`collide=true`) | Tabela tahtası, ince süs de çarpışır → `world-map.mdc:26,33-34` ile çelişir (bkz. plan K1) |
+| Bina: **her parça `CanCollide=true`** | `AssetSanitizer.luau:12` (`collide=true`) | Tabela tahtası, ince süs de çarpışır → `world-map.md:26,33-34` ile çelişir (bkz. plan K1) |
 | Hayvan: her parça `CanCollide=false`, `CanQuery=false` | `AssetSanitizer.luau:12-16` | — |
 | `WorldDecor.optimize`: çarpışmayan → `CanQuery=false`; en büyük boyu < 1.6 → `CastShadow=false` | `DecorProps.luau:42-54`, çağrı `UpgradeVisualService.luau:98` | Elle ayarlama gerekmez |
 | Adı `Window` içeren **ve** `Material=Glass` parça → `NightColor` + `NightWindow` etiketi + kapalı `PointLight` | `UpgradeVisualService.luau:89-97`, `DecorLights.luau:46-56` | Gece penceresi için tek şart: ad + cam. Etiketi/ışığı elle ekleme |
-| Gece ışığını yalnızca `DayNight.client` yakar; etiketsiz ışık sürülmez | `DayNight.client.luau:229-235`, `world-map.mdc:49-53` | Modele açık `PointLight`/`SpotLight` koyma (YASAK); lamba gerekiyorsa `NightLight` + `NightColor` + `Enabled=false` |
+| Gece ışığını yalnızca `DayNight.client` yakar; etiketsiz ışık sürülmez | `DayNight.client.luau:229-235`, `world-map.md:49-53` | Modele açık `PointLight`/`SpotLight` koyma (YASAK); lamba gerekiyorsa `NightLight` + `NightColor` + `Enabled=false` |
 | Bina sonrası öznitelikler: `UpgradeVisualVersion`, `PartCount`, `VisualCreatedAt`; ad = `upgradeId` | `UpgradeVisualService.luau:87-88,143-153` | Modelde bu adlarla öznitelik bırakma |
 | Hayvan sonrası: ad `{id}_{uid}`, `ModelStreamingMode=Atomic`, `Animal` etiketi, `AreaCFrame/AreaSize/HeightOffset/Uid/Stage/ZoneId/PartCount...` | `AnimalVisualService.luau:49-90` | Hiçbirini modele koyma; servis yazar |
 | StreamingEnabled açık (Min 160 / Target 1024: uzaklaştırınca deniz Terrain'i de yüklü olsun) | `default.project.json:62-69` | Bina şablonunda `ModelStreamingMode` ayarlanmaz (koddaki binalar da Default; yalnızca tekne Atomic `:116`) |
@@ -55,7 +55,7 @@ Kural dili: **ZORUNLU** (ihlal = hata/bozuk görünüm), **YASAK**, **ÖNERİ** 
 | Yön | ZORUNLU: kapı/ön yüz **-Z** | `UpgradeSites.luau` |
 | Gövde kutusu | ZORUNLU: gövde 10 x 8 (X x Z), çatı taşması dahil ≤ 11.4 x 9.4. Seviye süsleri bu kutunun dışına (x ±7.2, z 5-8.2, z -5.6) kurulur, taşan model süsle iç içe girer | `UpgradeSites.luau` (kod kurucusu `UpgradeBuildersGoods` silindi; kutu kuralı modeller için geçerli) |
 | Yükseklik | ÖNERİ: ≤ 12 stud (ör. ördek evinin çatı heykeli ~y12). İş çubuğu kutunun 6 üstüne kurulur | `UpgradeVisualService.luau` |
-| Kapı | ZORUNLU: ≥ 4.6 x 6.6 açıklık; kapı önü (-Z) boş | `world-map.mdc:22` |
+| Kapı | ZORUNLU: ≥ 4.6 x 6.6 açıklık; kapı önü (-Z) boş | `world-map.md:22` |
 | Üretim prompt'u | YASAK: modele `ProductionPromptAnchor`/`ProductionPrompt` koyma; servis her zaman `base * (0, 2.5, -6)`'ya ekler (çift olur). ZORUNLU: o nokta duvar içinde kalmasın (gövde z ≥ -4) | `UpgradeVisualService.luau:122-139` |
 | `JobAnchor` | İSTEĞE BAĞLI: modelde bu adda parça varsa iş çubuğu ona bağlanır; yoksa kutu üstü +6 | `JobMarks.luau:17-36` |
 | Tabela | ÖNERİ (üretim binaları): ön sağ dışta, zeminde iki direkli `SignBoard` (6 x 1.7 x 0.16, ön yüz -Z; merkez x 9.4, z = en öndeki parça - 1, alt kenar y 2.45) + 2 `SignPost` (0.25 x 2.45 x 0.25). Kapı önü (|x| < 5.6) boş kalır; seviye süsleri sol-ön köşe (x -6.4) ve fener direkleri (x ±4.4) ile çakışmaz. Yazıyı kod ekler (`UpgradeParts.faceSign`); tahta adı koddan sonra `ProductionSign` olur, `CanCollide` kapatılır | `UpgradeVisualService.luau`, `UpgradeParts.luau` |

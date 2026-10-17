@@ -114,7 +114,7 @@ Başlangıç temiz `main` (`7f269d1`). HUD artık isteğe bağlı kuluçka yerin
 
 Doğrulama: `.test-build/completed-ui-fast.log` (Fast, zorunlu tip analizi). Full ve Studio görsel kontrolü bu görevde çalıştırılmadı. Rojo sonrası rebirth hazır/R30, tüccarın boş durumları ve dar ekranda uzun çeviriler gözle kontrol edilmeli. Değişiklikler yerel; bu görevde commit/push/publish yapılmadı.
 
-4 Ekim 2026. Başlangıç rehberi `AGENTS.md` ve `AI_DEVIR_REHBERI.md`; güncel davranış kaynağı Config, FarmMath, servisler ve testlerdir.
+4 Ekim 2026. Başlangıç rehberi `CLAUDE.md` ve `AI_DEVIR_REHBERI.md`; güncel davranış kaynağı Config, FarmMath, servisler ve testlerdir.
 
 ## Teslim edilen yapı
 
@@ -150,7 +150,7 @@ Skill-creator quick_validate PyYAML bulunmadığından çalışmadı; proje rehb
 
 ## Devralma promptu
 
-“Bu Roblox/Luau projesini devral. Önce AGENTS.md, docs/AI_DEVIR_REHBERI.md ve docs/DEVIR_DURUMU.md dosyalarını oku; mevcut dalı ve kullanıcı değişikliklerini koruyarak doctor ve hızlı doğrulamayı çalıştır. Verdiğim görevi ilgili skill/rule'lara göre uygula, davranış testleriyle doğrula ve sonunda gerekli Full/Studio kontrollerini yap. Commit, push, merge, publish veya canlı veri sıfırlamasını yalnızca açık talebimle yap; kısa Türkçe sonuç ver. Görevim: [buraya yapılacak işi yaz].”
+“Bu Roblox/Luau projesini devral. Önce CLAUDE.md, docs/AI_DEVIR_REHBERI.md ve docs/DEVIR_DURUMU.md dosyalarını oku; mevcut dalı ve kullanıcı değişikliklerini koruyarak doctor ve hızlı doğrulamayı çalıştır. Verdiğim görevi ilgili skill/rule'lara göre uygula, davranış testleriyle doğrula ve sonunda gerekli Full/Studio kontrollerini yap. Commit, push, merge, publish veya canlı veri sıfırlamasını yalnızca açık talebimle yap; kısa Türkçe sonuç ver. Görevim: [buraya yapılacak işi yaz].”
 
 ## Son arayüz çalışması
 

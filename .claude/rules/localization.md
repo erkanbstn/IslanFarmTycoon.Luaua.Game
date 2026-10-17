@@ -1,7 +1,9 @@
 ---
 description: Yeni oyuncuya görünen metin eklerken çeviri kuralları (tr kaynak; en, de, ru, es, pt)
-globs: src/client/**/*.luau,src/server/**/*.luau,src/shared/**/*.luau
-alwaysApply: false
+paths:
+  - "src/client/**/*.luau"
+  - "src/server/**/*.luau"
+  - "src/shared/**/*.luau"
 ---
 
 # Yerelleştirme

@@ -76,7 +76,7 @@ def diagnose(root: Path, luau_directory: Path | None = None, *, require_types: b
     except (OSError, ValueError):
         known_findings = None
         issues.append({"code": "DR006", "severity": "error", "message": "Type baseline missing or invalid"})
-    guides = {path: (root / path).is_file() for path in ("AGENTS.md", "docs/MIMARI.md", ".cursor/rules/tests-tooling.mdc", ".cursor/skills/roblox-verify/SKILL.md")}
+    guides = {path: (root / path).is_file() for path in ("CLAUDE.md", "docs/MIMARI.md", ".claude/rules/tests-tooling.md", ".claude/skills/roblox-verify/SKILL.md")}
     for path, exists in guides.items():
         if not exists:
             issues.append({"code": "DR007", "severity": "error", "message": f"Guide missing: {path}"})

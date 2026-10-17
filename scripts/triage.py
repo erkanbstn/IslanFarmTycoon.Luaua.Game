@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Salt okunur durum özeti: "ne değişti, hangi kural/skill, en küçük hangi kontrol?".
 
-Git'teki değişen dosyalardan (veya --files ile verilenlerden) AGENTS.md tablosundaki kural dosyalarını,
+Git'teki değişen dosyalardan (veya --files ile verilenlerden) `.claude/rules/*.md` dosyalarının `paths:` alanından kural dosyalarını,
 ilgili skill'i ve çalıştırılacak EN KÜÇÜK hedefli test/denetim komutlarını türetir; doctor ve depo hijyeni
 özetini tek ekranda gösterir. Kurulum, ağ, Git değişikliği ve dosya yazımı yapmaz.
 --run yalnız ucuz önerileri sırayla çalıştırır (verify.ps1 değildir); yavaş olanlar --include-slow ile.
@@ -33,25 +33,22 @@ SCHEMA = 1
 MAX_TARGETED_SPECS = 12  # bunun üstünde hedefli yerine tüm saf Luau paketi önerilir
 
 # ---------------------------------------------------------------------------------------------------
-# Eşleme tablosu: TEK YER. AGENTS.md "Dokunduğun yere göre okunacak kural dosyası" tablosu ve
-# .cursor/rules/*.mdc `globs` alanlarıyla tutarlılığı tests/tooling.spec.py doğrular.
+# Kural tablosu: .claude/rules/*.md dosyalarının `paths:` listesinden türetilir (tek kaynak; elle kopya yok).
+# CLAUDE.md kural tablosuyla tutarlılığı tests/tooling.spec.py ve scripts/check-ai-docs.py doğrular.
 # ---------------------------------------------------------------------------------------------------
-RULES: list[tuple[str, tuple[str, ...]]] = [
-    (".cursor/rules/luau-style.mdc", ("**/*.luau",)),
-    (".cursor/rules/server-security.mdc", ("src/server/**/*.luau",)),
-    (".cursor/rules/client-ui.mdc", ("src/client/**/*.luau", "src/shared/UiTheme.luau", "src/shared/WorldUi.luau", "src/first/**/*.luau")),
-    (".cursor/rules/localization.mdc", ("src/client/**/*.luau", "src/server/**/*.luau", "src/shared/**/*.luau")),
-    (".cursor/rules/world-map.mdc", ("src/server/World/**", "src/server/Presentation/**", "plugin/**", "src/client/Effects/**")),
-    (".cursor/rules/economy-data.mdc", (
-        "src/shared/Config/**", "src/shared/GameTypes.luau", "src/shared/Modules/FarmMath/**",
-        "src/server/Services/AnimalService.luau", "src/server/Services/UpgradeService.luau", "src/server/Modules/SaveCodec/**",
-        "src/server/Modules/SessionLock.luau", "src/server/Modules/FarmProfiles.luau", "src/server/Services/PlayerDataService.luau",
-        "src/server/Services/SaveStore.luau", "src/server/Services/EconomyService.luau")),
-    (".cursor/rules/client-performance.mdc", (
-        "src/client/**/*.client.luau", "src/client/Ui/Hud/MerchantBadge.luau",
-        "src/client/Effects/SeasonalScenery.luau", "src/client/Effects/WeatherPrecip.luau")),
-    (".cursor/rules/tests-tooling.mdc", ("tests/**", "scripts/**", "*.project.json", "selene.toml", "stylua.toml", "rokit.toml")),
-]
+def load_rules(root: Path) -> list[tuple[str, tuple[str, ...]]]:
+    rules: list[tuple[str, tuple[str, ...]]] = []
+    for path in sorted((root / ".claude" / "rules").glob("*.md")):
+        text = path.read_text(encoding="utf-8-sig").replace("\r\n", "\n")
+        match = re.match(r"^---\n(.*?)\n---", text, re.S)
+        block = re.search(r"^paths:[ \t]*\n((?:[ \t]+-[^\n]*\n?)+)", match.group(1) + "\n", re.M) if match else None
+        patterns = tuple(item.strip("\"'") for item in re.findall(r"^[ \t]+-\s*(.+?)\s*$", block.group(1), re.M)) if block else ()
+        if patterns:
+            rules.append((path.relative_to(root).as_posix(), patterns))
+    return rules
+
+
+RULES: list[tuple[str, tuple[str, ...]]] = load_rules(ROOT)
 
 # Dosya yolu -> skill (bir dosya birden çok skill'e girebilir). roblox-verify her zaman eklenir.
 SKILLS: list[tuple[str, tuple[str, ...]]] = [
@@ -68,7 +65,7 @@ SKILLS: list[tuple[str, tuple[str, ...]]] = [
 AREAS: list[tuple[str, str]] = [
     ("src/server/", "sunucu"), ("src/client/", "istemci"), ("src/shared/", "ortak"), ("src/first/", "ilk-yükleme"),
     ("tests/", "test"), ("scripts/", "betik"), ("docs/", "belge"), ("assets/", "model"), ("client-assets/", "model"),
-    ("plugin/", "eklenti"), ("tools/", "araç"), (".cursor/", "kural"), (".claude/", "kural"), (".github/", "kural"),
+    ("plugin/", "eklenti"), ("tools/", "araç"), ("CLAUDE.md", "kural"), (".claude/", "kural"),
 ]
 
 # Elle Studio kanıtı gerektiren alanlar (roblox-verify "Studio'da kalan kanıt").
@@ -256,7 +253,7 @@ def build_plan(root: Path, changed: list[dict], *, git_available: bool = True, b
                      "rules": [rule for rule, patterns in RULES if matches(path, patterns)],
                      "skills": [skill for skill, patterns in SKILLS if matches(path, patterns)]})
     unmapped = [row["path"] for row in rows if not row["rules"] and not row["skills"] and row["area"] == "kök"
-                and not row["path"].endswith((".md", ".json", ".toml", ".gitignore", ".cursorrules"))]
+                and not row["path"].endswith((".md", ".json", ".toml", ".gitignore"))]
 
     luau = [path for path in live if path.endswith(".luau") and path.startswith(("src/", "plugin/", "tests/"))]
     src_luau = [path for path in luau if path.startswith("src/")]
@@ -280,7 +277,7 @@ def build_plan(root: Path, changed: list[dict], *, git_available: bool = True, b
         commands.append(command("audit-economy", ["python", "scripts/audit-economy.py", "--luau", "{luau}", "--check"], "uçuk değer denetimi", "medium"))
     if any(path.startswith(("assets/", "client-assets/", "tools/models/", "docs/MODEL_SOZLESMESI", "src/server/World/", "src/server/Presentation/")) for path in live):
         commands.append(command("assets", ["python", "scripts/check-assets.py"], "model sözleşmesi/kapsamı", "medium"))
-    if any(path.startswith(("docs/", ".cursor/", ".claude/", ".github/")) or path in ("AGENTS.md", "CLAUDE.md", ".cursorrules") for path in paths):
+    if any(path.startswith(("docs/", ".claude/")) or path == "CLAUDE.md" for path in paths):
         commands.append(command("ai-docs", ["python", "scripts/check-ai-docs.py"], "rehber/kural/skill tutarlılığı"))
     if any(path.startswith(("scripts/", "tests/")) and path.endswith(".py") for path in live):
         commands.append(command("tooling", ["python", "tests/tooling.spec.py"], "araç regresyonları"))
@@ -392,9 +389,9 @@ def render(plan: dict) -> str:
     if len(plan["changed"]) > 8:
         lines.append(f"  ... +{len(plan['changed']) - 8} dosya daha")
     if plan["rules"]:
-        lines.append("OKU (kural): " + ", ".join(rule.removeprefix(".cursor/rules/") for rule in plan["rules"]))
+        lines.append("OKU (kural): " + ", ".join(rule.removeprefix(".claude/rules/") for rule in plan["rules"]))
     if plan["skills"]:
-        lines.append("SKILL: " + ", ".join(plan["skills"]) + "  (.cursor/skills/<ad>/SKILL.md)")
+        lines.append("SKILL: " + ", ".join(plan["skills"]) + "  (.claude/skills/<ad>/SKILL.md)")
     if plan["commands"]:
         lines.append("ÇALIŞTIR (küçükten büyüğe):")
         for index, item in enumerate(plan["commands"], 1):

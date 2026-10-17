@@ -1,7 +1,10 @@
 ---
 description: Client görsel/efekt scriptlerinde kare başı maliyet ve streaming kuralları
-globs: src/client/**/*.client.luau,src/client/Ui/Hud/MerchantBadge.luau,src/client/Effects/SeasonalScenery.luau,src/client/Effects/WeatherPrecip.luau
-alwaysApply: false
+paths:
+  - "src/client/**/*.client.luau"
+  - "src/client/Ui/Hud/MerchantBadge.luau"
+  - "src/client/Effects/SeasonalScenery.luau"
+  - "src/client/Effects/WeatherPrecip.luau"
 ---
 
 # Client performansı

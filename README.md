@@ -1,6 +1,6 @@
 # Island Farm Tycoon
 
-AI ile devralma: önce [AGENTS.md](AGENTS.md), ardından [devir rehberi](docs/AI_DEVIR_REHBERI.md) ve [güncel durum](docs/DEVIR_DURUMU.md). Günlük kontrol `powershell -ExecutionPolicy Bypass -File scripts/verify-fast.ps1 -RequireTypes`; son teslimde `scripts/verify.ps1 -Mode Full -RequireTypes`.
+AI ile devralma: önce [CLAUDE.md](CLAUDE.md), ardından [devir rehberi](docs/AI_DEVIR_REHBERI.md) ve [güncel durum](docs/DEVIR_DURUMU.md). Günlük kontrol `powershell -ExecutionPolicy Bypass -File scripts/verify-fast.ps1 -RequireTypes`; son teslimde `scripts/verify.ps1 -Mode Full -RequireTypes`.
 
 Her oyuncunun kendi adasında çiftlik kurduğu Roblox oyunu. Rojo ile Luau yazılır; kayıt DataStore'dadır.
 
@@ -21,7 +21,7 @@ Roblox, Rojo 7.4.4, Luau ve DataStore. İstemci ile sunucu ayrıdır. Araç sür
    ```
    Bu komut `rojo`, `stylua` ve `selene` araçlarını kurar (sürümler `rokit.toml`'da sabitlidir).
    Doğrulama için ayrıca Luau araçları (`.tools/luau`) ve isteğe bağlı tip analizi (`.tools/luau-lsp`) gerekir; bkz. "Doğrulama ve geliştirme durumu".
-3. VS Code / Cursor'da önerilen eklentileri kur (klasörü açınca sorar):
+3. VS Code'da önerilen eklentileri kur (klasörü açınca sorar):
    Rojo, Luau Language Server, StyLua, Selene.
 4. Roblox Studio'da **Rojo** eklentisini kur (Plugins → Manage Plugins veya `rojo plugin install`).
 
@@ -210,7 +210,7 @@ Sol paneldeki küçük hava kartı ilerleme çubuğu, kalan dakika/saniye ve hav
 geniş ekranda sıradaki mevsim de görünür. Bildirimler ayrı alandadır.
 
 HUD yerleşimi: sol ortada para/depo/mevsim/hedef paneli (sola kayarak kapanır); üst ortada menü çubuğu (Pazar, Yükseltmeler, Yol Haritası, Üretim, Adalar),
-sağ ortada menü sütunu (Envanter, Ödüller, Adama Dön, Ayarlar, yetkili hesapta Yönetici). Karolar kademeli açılır. Ayrıntı: `.cursor/rules/client-ui.mdc`.
+sağ ortada menü sütunu (Envanter, Ödüller, Adama Dön, Ayarlar, yetkili hesapta Yönetici). Karolar kademeli açılır. Ayrıntı: `.claude/rules/client-ui.md`.
 
 Mevsimlerin hayvan gelir çarpanları (`incomeModifiers`), olası hava türleri (`weather`) ve sipariş bonusu `Config.SEASONS`'tadır;
 havanın gelir etkisi `Config.WEATHER`'dadır. Sayılar bu belgede tutulmaz.
@@ -265,7 +265,7 @@ docs/     → mimari ve konu belgeleri (telemetri, sesler, yayın...)
 
 Ayrıntı ve bağımlılık kuralları: [docs/MIMARI.md](docs/MIMARI.md).
 
-AI araçları için kurallar: `AGENTS.md` (kurallar `.cursor/rules`, skill'ler `.cursor/skills`; oturum başı `python scripts/triage.py`, görev tarifleri `docs/HIZLI_AKSIYON.md`).
+AI araçları için kurallar: `CLAUDE.md` (kurallar `.claude/rules`, skill'ler `.claude/skills`; oturum başı `python scripts/triage.py`, görev tarifleri `docs/HIZLI_AKSIYON.md`).
 
 ## Doğrulama ve geliştirme durumu
 
