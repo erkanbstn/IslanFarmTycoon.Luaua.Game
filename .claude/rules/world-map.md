@@ -9,106 +9,14 @@ paths:
 
 # Harita ve dünya
 
-- Harita `MapBuilder.build()` ile üretilir; Studio'da `plugin/` "Haritayı Kur" butonu düzenleme
-  modunda kurar, place kaydedilir. Sunucu `MapBuilder.validate()` ile `MapVersion`'ı doğrular:
-  uyuşmazsa oyun açılmaz.
-- MapBuilder/WorldDecor ile üretilen (place'e kaydedilen) her şeyde değişiklik → `MAP_VERSION` +1
-  ve kullanıcıya "Haritayı Kur + place kaydet" hatırlat. `src/server/Presentation/*` (çalışma anı görselleri) sürüm gerektirmez.
-- Klasörler: `World/` = place'e kaydedilen statik harita (oyun servislerine bağlanmaz; eklenti bu klasörü kopyalayıp çalıştırır, klasör adı/yapısı
-  değişirse `plugin/MapTool.server.luau` ve `test.project.json` güncellenir, eklenti yeniden üretilir); `Presentation/` = oyuncu durumundan çalışma anında çizilenler.
-- Harita sözleşmesi (Plots/Zones/Islands/BuildSpots/HubSpawn) `validate()` içindedir; yeni zorunlu
-  parça eklersen oraya ve `tests/world.spec.luau` / `tests/map-structure.spec.luau`'ya ekle (Studio düzenleme modu).
+Harita sözleşmesi, model tabanlı görseller, ana ada, gece ışıkları ve Lighting sahipliği. Ayrıntı konu dosyalarına bölündü (her biri kendi dar `paths` eşleşmesiyle yüklenir); ilgili konuyu aşağıdan seç, hepsini okuma.
 
-## Çalışma anında ana çiftlik geçişi
-- `MapBuilder.applyTheme` mevcut ağacı `ThemePatch` ile uzlaştırır; ortak ada tabanı/çit/dekor kimliği korunur. Büyük tema ağacını tek `Clone()` ile değiştirme.
-- Geçişler `MainFarmService` kuyruğunda, `VisualWorkBudget` ortak kare bütçesiyle işler; bekleme sonrası sahiplik/kayıt koruması yeniden kontrol edilir. `WorldTransition` süresince normal görsel yenilemeleri ve kurulum efektleri durur.
-- Bu çalışma anı yükleme düzeni, yerleşim veya place geometrisi değişmiyorsa MAP_VERSION artışı gerektirmez.
-
-## Model tabanlı görseller (kod geometri çizmez)
-- Oyunda görünen her şeyin geometrisi `assets/<klasör>/<ad>.rbxmx` (sunucu: `ServerStorage.Assets`, `World/ModelAssets`; istemci efektleri: `client-assets/` → `ReplicatedStorage.ClientAssets`, `Core/ClientModelAssets`)
-  modelinden gelir. Kod yalnızca model dosyasında olamayanı ekler: yazı/ikon (`WorldUi`), prompt/etkileşim, gece ışığı etiketi (`ModelAssets.markLantern/markGlowWindow`), parçacık, öznitelik/etiket,
-  boyuta/yerleşime bağlı ölçekleme. **Yeni görsel için `makePart`/`Instance.new("Part")` ile geometri yazma**: modeli `docs/MODEL_SOZLESMESI.md` iş akışıyla `assets/`a koy, `scripts/check-assets.py` beklenen listesine ekle, kodda `ModelAssets.clone/place` ile yerleştir.
-  İsteğe bağlı model yoksa kod bir kez `warn` verir ve o görseli çizmez (yedek kod kurucusu yoktur); `check-assets.py` eksikte `verify.ps1`'i kırmızı yapar.
-- İstemci efektleri `client-assets/` şablonlarından kurulur (`Core/ClientModelAssets`, model yoksa bir kez `warn`, çizilmez): `Birds` (kuş), `Fish` (`ReefFish` deniz dibi, `ShoreFish_A/B` yüzey sürüleri), `Sea` (mercan, kaya, yıldız, denizanası, `KelpBlade_A–C`
-  (Lower/Upper alt modelleri; alt pivot 0, üst pivot y=4; hareket her karede `pivot * ofset`), `Seagrass_A–C`, `SeaAnemone`, `ShellCluster`, `Bubble`, `SurfaceWake`, `BoatFoam`, parçacık şablonları `AmbientBubbles/VentBubbles/EntryBubbles/SwimBubbles/Splash`
-  (görünmez parça + kapalı `Rate=0` emitter; kod Enabled/Rate/ömür ve Emit'i yönetir) ve `UnderwaterAtmosphere` (tam güç `UnderwaterGrade`/`UnderwaterBlur` değerleri; kod 0..1 güçle ölçekler)). Seyrek dip yapıları `DiverChest`/`ReefArch` ayrı tohumlu RNG ile (orta/yüksek kalite) yerleşir. Yardımcının taşıdığı hayvan `assets/Animals` tek kaynağından `ClientAssets.Animals` olarak da çoğaltılır. `PetCargo` gerçek üretim görevindeki tür/ağılı seçer; `PetService` model/bölge özniteliklerini yayınlar. `PetAnimator` modeli ölçüsüne göre küçültüp yardımcı gövdesinin üstüne yerleştirir; taşıma nesnesi hareket gövde ölçüsüne katılmaz. Sandık/para `client-assets/PetProps/CarryCrate|CarryCoins` kullanır; tüm yük modelleri en büyük kenarı 1.8 stud olacak şekilde sınırlanır, yardımcı gövdesinin üstüne kutu ölçüsünden yerleştirilir. Yeni istemci efekt şablonu `check-assets.py` `CLIENT_EXPECTED` listesine, sunucu modeli `expected()` listesine girer.
-- Model sözleşmesi `docs/MODEL_SOZLESMESI.md` / `docs/GPT_MODEL_IS_LISTESI.md`: yalnızca Part/WedgePart (+ elips için Block + `SpecialMesh` MeshType=Sphere), `WorldPivotData` zorunlu, Script/ışık/GUI/prompt/MeshPart yok.
-  `PrimaryPart` verilmiş modelde pivot **PrimaryPart merkezidir** (Roblox WorldPivotData'yı yok sayar): yalnızca hayvan/yardımcı/kuş/balık/denizanasında kullan, tabela/dekor/zemin modülünde verme.
-- Modeller doğrudan değil sarmalayıcıyla yerleşirse (ör. tabela, toplayıcı, meydan tahtaları) parçaları plot/hub modeline düz taşı; servisler ve testler `PlotSign`, `Collector`, `PlayerBoard`, `TravelBoard`, `IslandSign`, `SignPost` gibi adları doğrudan çocuk olarak arar.
-- Ölçeklenen/dizilen modüller: köprü (`BridgeModels/BridgeModule_8/_2`, `MapParts.buildBridgeBetween`), iskele güvertesi (`ShoreModels/DockDeck_5` + kazık `Pile` boyu koddan, kazık katıdır), bölge çiti (`ZoneBases/ZoneFence_Segment_4/Corner`, ray boyu bölüme göre),
-  balık yolu (`FishWalkway_Module` Deck'i boyutlandırılır), sandık (`Crate_16/20/24`).
-- Çeşitlilik: ağaç/çalı/çiçek varyantları (`OakTree_A–D`, `PineTree_A–C`, `Bush_A/B/Berry`, `FlowerPatch_*`) tohumla seçilir (`DecorNature.placeVaried`); yerleşen modelin adı türün adıdır (`OakTree`, `PineTree`, `Bush`, `Flowers`) çünkü
-  `SeasonalScenery` (client) mevsim rengini bu ad + parça adlarıyla (`Trunk`, `Leaves`, `Needles`, `Berry`, `Bloom`, `Stem`) bulur: yeni varyant bu adları korumalı. Ağaç/çalıya gizli `SnowCap` (assets/SeasonModels) oturur, kardan adam `Nature.scatterProps` ile serpiştirilir;
-  ikisi de Transparency=1 gelir, client karlı mevsimde açar. Adalara serpiştirilen süsler (`Nature.scatterProps`: kaya, saz, kütük, mantar, kabak, ayçiçeği, huş, palmiye) `addIslandGrass` kaçınma listesine uyar.
-- Tohum konuma bağlıdır (`MapParts.seedFrom`): şablon başka konumda kurulduğu için ağaç/çim/serpiştirme sayıları plot ile şablon arasında oynar; `tests/map-structure.spec` bunları (ScatterProps, GrassTufts, SnowCap, ağaç yolları) sayım dışı bırakır. Yeni tohumlu süs ekleyince aynı muafiyeti düşün.
-
-## Ana ada yapıları
-- `HomeBuildings.luau` (geometri `assets/HomeModels` modellerinden gelir; kod yalnızca gece ışığı, duman, değirmen kanatları ve pazar etkileşimini ekler): pazar tezgâhı (`MarketPrompt` → Hayvan Pazarı penceresi), çiftlik evi, yel değirmeni
-  (kanatlar `Windmill` etiketi, döndürme `Windmill.client`), kuyu, sebze bahçesi, meyve bahçesi, arı kovanları, ambar.
-  `IslandBuilder` (`decorateHome`) çağırır; yerleri `addIslandGrass` kaçınma listesinde de tutulur. Kapılar >= 4.6 x 6.6 stud.
-- Meydan (`HubBuilder.buildHub`; modeller `assets/HubProps` + `assets/HubModels`: satıcı tezgâhları, çeşme, bank, çiçeklik, karşılama/sıralama/adalar tahtaları, heykel): doğma noktası, Adalar tabelası ve `HubNpcs.vendor` ile 4 satıcı (`VendorPrompt`, `Action`:
-  `orders`/`store`/`roadmap`/`travel`; client `FarmHud.client` ilgili pencereyi açar). Satıcı doğma noktasından >= 15 stud uzakta durur. Düzen kenar halkasıdır (`HubBuilder` buildHub başındaki açıklama): tahtalar ve satıcılar köprü aralarında merkeze bakar, köprü eksenleri boş kalır; merkezde yalnız çeşme.
-- Ana ada avlusu (`IslandBuilder.decorateHome`): ana yolu çerçeveleyen çitler, saman balyaları, korkuluk, el arabası, kavşak yön tabelası (`buildSignpost`, ok yönleri `yaw` ile).
-  Yeni avlu parçası bir `assets/CommonDecor` modeli olarak eklenir ve `WorldDecor` yardımcısıyla (`fenceRun/hayBale/scarecrow/wheelbarrow/barrel/crate/mailbox`, hepsi `DecorProps.placeDecor`) yerleştirilir; çarpışma modeldeki `CanCollide` değerinden gelir (çit/dekor çarpışmaz).
-- Çalışma anı seviye işaretleri: `UpgradeSites.applyLevelMarks` (UpgradeVisualService çağırır) (tesis dibinde altın halkalar + "Sv.N" etiketi), `ZoneVisualService.applyLevelFlags` (bölge bayrakları).
-- NPC tabelasında `title` + işlev satırı (`blurb`) vardır; NPC adı etkileşim ipucunda (`ObjectText`). Yeni satıcıya `blurb` zorunlu.
-- Yapım alanları (`UpgradeSites.buildSite`): `UpgradeVisualService.apply` satın alınabilen ama alınmamış, karada yapı noktası olan binaların yerine `plot.Sites` altında toprak zemin +
-  kazık + sarı şerit + fiyatlı tabela koyar (çalışma anında, harita sürümü gerekmez); alınınca kaldırılır ve bina kurulur. Denizdeki nokta (`BoatPatrolX`) atlanır.
-- Meydan dekoru (`HubNpcs.fountain/bench/planter`): köprü ışınlarından (0°, 60°, ...) ve doğma noktasından uzak tut; satıcılar `HubNpc` etiketi taşır,
-  `src/client/Interaction/HubNpcs.client.luau` onları canlandırır (göz teması, el sallama, selam balonu; yalnızca client'ta CFrame yazılır).
-- Tabelalar (giriş `PlotSign`, ada `IslandSign`, yön `Signpost_Direction`, uzman/satılık `SpecialtySign`, ahır `LevelSign`; hepsi `assets/SignModels` ya da ahır modelinde, yazı kodla): uzun direk, tahta alt kenarı yerden >= 10 stud, tahta `CanCollide=false` (yolu kapatmaz).
-  Yeni tabela eklerken `tests/map-structure.spec.luau` bu yüksekliği denetler.
-- Ahır sandığı: `BarnVisualService.addStorageChest` (kapının sağı; `BarnChestPrompt` → Envanter/Ahır Deposu). Ürün merkezleri (Species satırlarından türeyen binalar): ilk temada süt merkezi ahırın arkasında, balık merkezi iskelenin yanında (`HOME_BUILD_SPOTS.milk_center/fish_cannery`, kapısı iskeleye bakar; iskele başında küçük balıkçı kulübesi `Shore.dock` → `ShoreModels/FisherHut_Lv1`),
-  küçük adalarda `SATELLITE_TYPES[...].buildSpot/itemSpot` (±18, 0, 37; `SATELLITE_TYPES` `Config.FARM_ISLANDS` + `World/IslandLooks` satırından türer: yeni ada = `Config/Species.luau` satırı + bir `IslandLooks` satırı, `MAP_VERSION` +1; ana ada hayvanlarının yuvaları `Config.SPECIES` home satırlarından `HOME_BUILD_SPOTS`'a eklenir). Küçük adalar yarıçap 52'dir; yuvalar (`SATELLITE_SLOTS`) komşu çiftliklerle arada en az ~24 stud su kalacak biçimde hesaplıdır
-  (yarıçap/yuva değişirse 6'lı halka için yeniden hesapla). Adadaki ağaç/çalı süsleri bina yerlerinden (`addIslandGrass` kaçınma dikdörtgenleri) uzak tutulur; yeni bina yeri eklerken kaçınma listesini de güncelle.
-  Yeni bir "boost" yükseltmesi için yapı noktası zorunludur.
-- Dekor bitince `WorldDecor.optimize(root)`: küçük parçalar gölge düşürmez, çarpışmayanlar `CanQuery=false` olur.
-- Ana ada düzeni temaya göre değişir: `MapLayout.homePlacements(plotIndex)` batı kümesinde bahçe↔ambar ve değirmen↔kovan, doğuda çiftlik evi↔meyve bahçesi yer
-  değiştirir, kuyu iki yandan birinde durur (6 düzen, yuvalar sabit; yol/bölge/yapı noktaları değişmez). Çim kaçınma dikdörtgenleri aynı yerleşimden türer
-  (`homeBuildingAvoidRects`): yeni yapı eklersen `homePlacements`'a koy. Her temanın doğu kıyıda kendi işaret yapısı vardır (`Config.THEMES[n].landmark` →
-  `HomeBuildings.landmark` (`HomeModels/Landmark_<tür>`): daisy/tulip/sunflower/rose/pine/cherry). `tests/map-structure.spec.luau` işaret yapısını ve >= 5 farklı yerleşimi denetler.
-- Kayıtlı harita bütün fiziksel adaları 1. temayla kurar (`ThemeIndex` özniteliği); tema içeriği (BuildSpots, Decor, Islands + uzman bölgeler) `IslandBuilder.buildThemeContent` ile,
-  her tema için sunucu açılışında bir kez `ServerStorage.ThemeTemplates/Theme<n>` şablonuna kurulur (`MapBuilder.prepareTemplates`, `ensure` çağırır; eklentide/place'te değil) ve çalışma anında `MapBuilder.applyTheme(plot, tema)` şablon farkını ThemePatch ile mevcut adaya uygular (PlotService çağırır; önce `DecorReveal.reset`). Mutlak konum taşıyan öznitelikler basılırken aynı farkla taşınır: yeni mutlak CFrame/Vector3 öznitelik eklersen `MapBuilder.POSITION_CFRAME_ATTRIBUTES` / `POSITION_VECTOR_ATTRIBUTES` beyaz listesine koy. Şablonlardaki etiketler sunucu `CollectionService`'inde de görünür: sunucuda `GetTagged` kullanan kod `Workspace.Plots` altını süzmeli (`IsDescendantOf`). `applyThemeProcedural` eski yordamsal yoldur, yalnızca `tests/map-structure.spec` karşılaştırması için referanstır. Boş ada temasını korur. Temaya bağlı kod `PlotId` değil `ThemeIndex` okur; yeni temaya bağlı parçayı `buildThemeContent` içine koy.
-- Çimen yüzeyi ana/küçük ada ve çimenli bölgelerde `LeafyGrass` kullanır. Kilit/tema güncellemesi dokuyu eski `Grass` değerine çevirmemeli; mevsim kodu kar eriyince kaynağın özgün malzemesini geri yükler. Düz ton yamaları da aynı mevsim renklendirmesine katılır.
-- Ada temaları çiftlik numarasına bağlanır (Çiftlik 1 = Papatya ...); genel ada çekirdeği hepsinde ortaktır; ağıl/otlak görünümü temaya göre değişir (`assets/ZoneDecor/Decor_pasture_T<1-6>`, `Decor_starter_T<1-6>`).
-
-## Gece ışıkları
-- Işık kaynağı parçası `NightLight` (fener, Neon) veya `NightWindow` (pencere, SmoothPlastic)
-  etiketi + `NightColor` özniteliği + `Enabled = false` bir `PointLight` alır.
-  Hazır yardımcılar: `WorldDecor.lamp`, `WorldDecor.smallLamp`, `WorldDecor.markNightWindow`.
-- `DayNight.client` bu parçaları yakar/söndürür; parlaklık = taban × rampa × yönetici çarpanı,
-  menzil de çarpanla ölçeklenir (≤ 60). Etiketsiz ışık gece/gündüz ve yönetici ayarından etkilenmez.
-- Taban değer ışığın yerel `BaseBrightness`/`BaseRange` özniteliğinde tutulur. Instance anahtarlı
-  zayıf (`__mode = "k"`) tabloya koyma: sarmalayıcı toplanır, gündüz 0'a çekilmiş değer taban sanılır.
-- Genel yoğunluk ince ayarı `DayNight` içindeki `LIGHT_BRIGHTNESS_SCALE` / `LIGHT_RANGE_SCALE`
-  (harita yeniden kurulmaz). Yanma zamanı `Environment.getLightFactor` = gecenin karanlığından
-  türetilir; ayrı saat aralığı yazma (gündüz ışık yanar).
-- Gece payı eğrisi tek kaynaktan `Environment.NIGHT_CURVE` (saat/pay anahtarları, smoothstep; saatler artan, 0 ve 24 uçları aynı). Işık rampası takvim saatine değil gökyüzünün kararmasına bağlıdır:
-  yeni gece davranışı eğriden türer, ayrı saat yazma. Orta kalitede ışık bütçesi histerezislidir (seçili parça sıralamada düşse de hemen bırakılmaz, titreme yok); düşükte gerçek ışık yok, fenerde
-  ucuz `NightHalo` parıltısı görünür (`DayNight` `HALO_*`).
-- Teşhis: yönetici paneli "Gece ışıkları" satırı bu ekranda izlenen lamba/ışık sayısını gösterir.
-
-## Lighting sahipliği (iki script aynı özelliğe yazmasın)
-| Özellik | Sahibi |
+| Konu dosyası | Ne zaman |
 |---|---|
-| ClockTime, Brightness, Ambient, OutdoorAmbient, ExposureCompensation, Bloom, NightGrade | DayNight |
-| Bulutlar, Atmosphere Haze/Density, SunRays (yoğunluk), WeatherGrade | WeatherEffects |
-| Bloom/SunRays/Clouds `Enabled`, GlobalShadows, ShadowSoftness, EnvironmentSpecularScale, Terrain su/süs, DepthOfField | Graphics (kalite profili) |
-| UnderwaterGrade, UnderwaterBlur, `SoundService.AmbientReverb`, `Submerged` özniteliği | Underwater |
-- Değerlerin kaynağı Studio'daki `Lighting.Presets` klasörüdür (`src/lighting/Presets.rbxmx`: Day, Night, Twilight, Lights, Weather/<id>, Season/<id>; `Core/LightingPresets` okur). Rengi/parlaklığı değiştirmek kod değil preset değeri düzenlemektir; yeni hava/mevsim = klasöre ilgili değer klasörü eklemek.
-- Hava pozlaması: WeatherEffects `Lighting:SetAttribute("WeatherExposure", n)` yazar, DayNight
-  yumuşatıp gece payıyla birlikte uygular. Yeni efekt bu tabloya uymalı.
-- **Geliştirmeyle beliren yapılar**: haritaya kaydedilen süs yapıları `RevealGate` etiketli Model olarak kurulur (`RevealBarnLevel = n` ya da `RevealZoneId` + `RevealZoneLevel = n`;
-  ana ada: kuyu/tarla ahır Sv.2, değirmen/kovan/ambar Sv.3, meyve bahçesi/anıt Sv.4, çiftlik evi otlak Sv.1; iskele kulübesi balık kafesi Sv.1). `Presentation/DecorReveal.apply` (UpgradeVisualService'ten çağrılır)
-  hak edilmeyeni `ServerStorage.HiddenDecor`a alır, hak edilince eski yerine koyar; yeni bir kapılı yapıda yalnızca öznitelik + etiket yeter.
-- **Seviyeli yükseltmelerin görünen karşılığı**: bölge/tesis seviyeleri `assets/ZoneLevels` / `assets/FacilityProps`, Yem Kalitesi / Depo Genişletme / Hızlı Büyüme zincirleri
-  `Presentation/UpgradeLevelProps` (yem istasyonu, depo yığını, büyüme feneri) ile çizilir; her seviye yeni bir şey ekler (çarpışan parçalar katıdır, ince süsler geçilir).
-- Streaming: `default.project.json` Workspace `StreamingMinRadius`/`StreamingTargetRadius`: adalar arası görünürlük ve uzaklaştırınca denizin (Terrain) dolu görünmesi bu değerlere bağlıdır (Target 448 iken kameradan uzak su parçaları yüklenmeyip karanlık "delik" gibi görünüyordu; şimdi 1024), harita yarıçapını büyütürsen ikisini de gözden geçir.
-- Eklenti kapasitesi 3/4 olunca alanın arka kenarına su teknesi + saman, gölgelik + fener eklenir (`ExtensionVisualService.addCapacityProps`); ırk geliştirme (Irk Sv.1+) ana adada "ırk anıtı"
-  olarak görünür (`UpgradeLevelProps.lineageMonument`: tür başına kaide, Sv.1-3 bronz top, 4-6 gümüş kupa, 7-9 altın kupa, 10 taç ve ışık). Meydan/pazar tezgâhlarının yanları panelle kapalıdır.
-- **Harita çevresi**: `World/MapMountains` iki sıra Terrain dağı (iç sıra ~505, dış sıra ~575 yarıçap, karlı doruklar) ve `MapRim` (aynı dosyada) görünmez dairesel duvar (yarıçap 452, yükseklik 320) kurar;
-  denizin sonuna yüzülemez. Oyun alanı ~435 yarıçaptadır (ada halkası 175 + küçük ada yuvası 200 + yarıçap 52 + kum): bu sınırları değiştirirsen dağ/duvar yarıçaplarını da kaydır.
+| `.claude/rules/world-map-harita.md` | Harita üretimi/sözleşmesi, çalışma anı çiftlik geçişi, taş yollar ve zemin modelleri |
+| `.claude/rules/world-map-model-gorseller.md` | Model tabanlı görseller: geometri assets modellerinden gelir, kod çizmez |
+| `.claude/rules/world-map-ana-ada.md` | Ana ada yapıları, meydan, tabelalar, yapım alanları, sandık ve küçük ada yerleşimi |
+| `.claude/rules/world-map-ana-ada-duzen.md` | Ana ada düzeni/temaları, geliştirmeyle beliren yapılar, streaming, harita çevresi |
+| `.claude/rules/world-map-isik.md` | Gece ışıkları ve Lighting özellik sahipliği |
 
-- Taş yollar `Shared/MapPaths` içindeki listeden çizilir (`homeSegments`); yardımcıların rotası aynı listeyi (`route`) kullanır, yol eklerken yalnızca oraya ekle. Haritada yardımcılar için öznitelikler: plot `HomeFrame`/`HomeRadius`, uzman ada modeli `IslandFrame`/`PathStart`/`PathEnd`. Yardımcılar ada başına (tür, ada) yuvasıdır (`ProductionLogic.petSlots`; tür/renk `UpgradeLevelProps.PET_SPECIES`).
-
-- Tek parçalı görünür zeminler `SurfaceModels` (GroundDisc/GroundBlock/StonePath/GrassPatch/BeachDisc) üzerinden `ModelAssets.part` ile alınır; zorunlu yüzey eksik/bozuksa kurulum durur. Kod yalnız boyut/yerleşim uygular. İstemci havuz geometrisi `ClientModelAssets.clonePart` ile `client-assets/Effects` şablonlarından gelir. Yeniden üretim: `tools/models/generate_surfaces_effects.py`; işlevsiz Part yedeği ekleme. Terrain ve görünmez fizik/emitter çapaları kodda kalabilir.
+Eşleşen dosyaya dokununca ilgili konu dosyası otomatik yüklenir; yüklenmediyse tablodan elle oku. Yeni kural eklerken en uygun konu dosyasına yaz, yeni parça gerekirse bu tabloyu güncelle.

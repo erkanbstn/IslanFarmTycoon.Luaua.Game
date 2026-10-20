@@ -1,0 +1,24 @@
+---
+description: Envanter, eşyalar, asa yetenekleri ve yardımcılar (pet)
+paths:
+  - "src/shared/Config/**"
+  - "src/shared/Modules/FarmMath/**"
+  - "src/server/Services/EconomyService.luau"
+---
+
+# Ekonomi ve veri: Envanter Yardimci
+
+Giriş dosyası: `.claude/rules/economy-data.md` (konu haritası).
+
+- **Envanter ve eşyalar**: `Config.ITEM_SLOTS/ITEMS/ITEM_ORDER` (`effects` = kalıcı fayda, `power` = asa gücü, `look` = karakterde görünen parça; Vector3 yerine `{x, y, z}`). Hesap alanı
+  `inventory { items, equipped, uses }` (`SaveCodec/Inventory`: tanınmayan eşya atılır, takılı eşya sahipli ve kendi slotunda olmalı). Saf mantık `Modules/Inventory` (haklar **güç türüne** göre, UTC gün).
+  Ekonomik etkiler **yalnızca** `FarmMath`'te: `getUpgradeCost(save, upgrade)` (`upgrade.cost` doğrudan okunmaz), `getStorageCap`, `getGrowthSpeed`, `getAnimalMultiplier`; yeni etki
+  `FarmMath.getEquippedBonus/getEquippedMultiplier` ile okunur. Sunucu `InventoryService` (`RequestBuyItem/EquipItem/UseItem`): fiyat ve haklar sunucuda doğrulanır; takma/çıkarma
+  `changeEquipment` ile geçen süreyi eski etkiyle kapatır. Mevsim asası oyuncuya özel çalışma anı `envOverride { seasonId, seasonEndsAt }` tutar; hava asası `SeasonService.setPlayerWeather` üzerinden tüm sunucuyu etkiler ve normal `WEATHER_SECONDS_MIN..MAX` süresi sonunda doğal döngü sürer. Eski kişisel hava alanları uyumluluk için tutulsa da uygulanmaz. Global hava değişiminden önce bütün oyuncuların eski gelirleri hesaplanır; aktif asa havası kişisel mevsim havasını da aşar. Yönetici hava sabitlemesi oyuncu asasıyla değiştirilemez.
+  Tüketiciler `Environment.getSeason/getWeather/getIncomeMultiplier/getSeasonEndsAt/getNextSeason(override?)` kullanır; kişisel mevsim sunucuda `save.envOverride`, client'ta `Environment.setClientOverride` ile kurulur. Global hava seçimi `Environment.getSeason({})` havuzundan gelir. Dünya mevsimini yalnızca `SeasonService` (ve yönetici araçları) değiştirir. Yeni eşya ailesi: `tests/inventory.spec.luau` (pahalı kademe daha
+  güçlü) + çeviri (ad + şablon açıklama). Her eşyanın en az bir etkisi vardır (etkisiz eşya satılmaz; slot rolü: şapka = ticari, sırt = lojistik); anahtar listesi ve şapka/sırt
+  slotunda fiyat ↔ güç sırası `tests/config.spec.luau` (etki bölümü), "hepsi takılı" üst sınırları `tests/inventory.spec.luau` içindedir; değerler `Config/Items.luau`'dadır (burada sayı yazma).
+- **Asa yetenekleri**: `Items.power.kind` `season`/`weather` (mevcut) ile `growth` (Yetiştirici: yavru/genç hayvanın kalan büyümesi kısaltılır), `rush` (Üretim: çalışan partilerin kalan süresi kısaltılır) ve `care` (Bakıcı: süreli +gelir) ve `collect` (Çoban asaları: depodaki parayı uzaktan toplar, `EconomyService.collectRemote`; depo boşsa hak harcanmaz). Her satılık asanın bir gücü vardır (`tests/inventory.spec`). Ayarlar `Config.ITEM_POWER_SETTINGS`, saf mantık `Modules/StaffPowers` (değişen öğe sayısını döner; 0 ise InventoryService hak harcamaz), sunucu `InventoryService.tryUse` (argüman `"use"`, `settlePlayer` önce). Günlük hak/bekleme tüm güçlerde ortak (`Inventory.canUse`). Bakım `careBoost {startedAt,endsAt,bonus}` çalışma anı alanıdır (kaydedilmez; `FarmProfiles.view`, `Rebirth` ve `Income` park görünümü taşır); gelir `Income.computeIncomeOverInterval` pencere kesişimine ek hesaplanır, anlık oran `getCareMultiplier` ile. Test: `tests/staff-powers.spec.luau`, `tests/inventory-service.spec.luau`.
+- **Yardımcılar (pet)**: `pet_cash_lv1`, `pet_goods_lv1` yükseltmeleri (`FarmMath.hasPet(save, "cash"|"goods")`); hazır partiyi ürün merkezinde depoda yer varsa kendisi teslim alır ve
+  `autoRepeat[tarifId]` varsa yeniden başlatır; ürün merkezinde `getGoodsProductionTarget` varsayılan `"default"` modunda mevcut sipariş talebi + `reserveBatches` stoğunu karşılıyorsa bekler ve tüketilince devam eder; isteğe bağlı `"fill"` ürün modu kök depo kapasitesine kadar tam parti üretir (başlatma ücreti ve hayvan meşguliyeti devam eder); `"fill"` para/kuluçka tarifinde geçersizdir ve decode bunu atar; yardımcı türü tek kaynaktan `FarmMath.petKindFor(recipe)` (ürün merkezi "goods", para fabrikası ve kuluçka "cash"; kuluçka dolu kümeste teslim bekler) (`RequestProductionAction("auto", ...)`; yardımcısı olmayan çiftlikte reddedilir, decode bilinmeyen girdiyi atar). `PetService` park edilmiş dahil TÜM
+  çiftliklerde, yalnızca çevrimiçi oyuncu için çalışır; elle işlem ve yardımcı aynı `ProductionLogic` kuralını kullanır. `getGoodsProductionTarget` çiftlik siparişini hesaplarken ortak depo için kök hesap görünümünü alır; kapasiteden büyük parti hedefi kapasiteyle sınırlanır. Otomatik açma üretim binası/ada kilidini de doğrular; kapatma hazır işin yardımcıyla teslimini durdurmaz. `ProductionPanel` ana kartındaki durum `Hud/ProductionAutomation` üzerinden gelir; ayarın açık olmasıyla çalışma/bekleme nedeni ayrı gösterilir. Test: `tests/pets.spec.luau`, `tests/production.spec.luau`, `tests/production-automation-ui.spec.luau`.

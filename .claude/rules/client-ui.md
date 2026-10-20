@@ -9,84 +9,13 @@ paths:
 
 # Arayüz standardı
 
-Katman: `src/client/Ui/` (UiKit, FarmHud, `Hud/*`, paneller, `IslandManager`, `IncomeBubbles`) yalnızca `Core/` ve `Effects/`'e bağlanır (bkz. `docs/MIMARI.md`).
+UiKit bileşenleri, bilgiyi gerektiğinde gösterme, HUD bölgeleri, mobil/gamepad, ses/para biçimi. Ayrıntı konu dosyalarına bölündü (her biri kendi dar `paths` eşleşmesiyle yüklenir); ilgili konuyu aşağıdan seç, hepsini okuma.
 
-- Bileşenler `src/client/Ui/UiKit.luau` (cephe; gövde `Ui/Kit/`: Tokens, Base, Controls, Grid, Flags, Windows, Toasts, Screen — yeni bileşeni uygun dosyaya yaz, `UiKit`'e ekle): panel, window, card, button, menuButton (karo), closeButton,
-  badge, progressBar, sectionHeader, toastHost, iconChip, flag, textInput, slider, pulse, screenRoot.
-  Sık güncellenen metni `UiKit.setText` ile yaz (aynı kaynak metni tekrar yazmaz; Localizer'la çift yazım olmaz).
-- **Kalabalık pencereler** dikey kart listesi yerine kategori sekmesi + ızgara kullanır: `UiKit.tabs` (sekme), `UiKit.grid` (kap) ve `UiKit.tile` (ölçüler `Kit/Grid.luau`'da; `UiKit.card` ile aynı alanlar
-  — frame/icon/title/detail/action — olduğu için kart güncelleme kodu karoyla aynen çalışır; kart metni doğal yükseklikle büyür; fiyat/aksiyon kırpılmaz). Genişliğe göre sütun sayan hali: `UiKit.autoGrid` / `autoTile`. Örnekler: Eşya Dükkânı (slot sekmeleri), Envanter (Ahır Deposu | Takılı | Eşyalarım),
-  Yükseltmeler (Yapılar | Geliştirmeler). Uzun açıklamalı ya da çok düğmeli kartlar (Pazar, Üretim) liste kalır.
-- **Pencere davranışı tek kaynak** (`Ui/Kit/Windows`): fareli geniş ekranda birden çok pencere açık kalır; yalnız başlıktan sürüklenir ve güvenli ekran sınırına sıkıştırılır. `UiKit.toggleWindow` menü/kısayolda açık pencereyi kapatır, kapalı pencereyi varsayılan konumunda açar. Dar veya fare olmayan ekranda tek pencere korunur. `showWindow` dünya etkileşiminde açık pencerenin konumunu koruyarak öne getirir. X yalnız kendi penceresini; ESC/gamepad B yalnız en öndeki açık pencereyi kapatır. Kamera yakınlaştırma çalışır (`Interaction/MenuZoom.client`).
-- Pencereler ortak Windows ScreenGui katmanındadır (DisplayOrder 10), bildirimlerin (20) altında kalır. ZIndex kayıt sırasıyla sınırlı tutulur; ayrı ekranlardaki pencereler de doğru sıralanır. Orijinal host `window.ownerParent` ile izlenir; host yok edilince pencere ve bağlantıları temizlenir. Kendi toggle/tek pencere listesi yazma. Konum oturum içidir; kayıt şeması eklenmez.
-- Renk/yazı/boyut `UiKit.Color / UiKit.Font / UiKit.TextSize / UiKit.Radius`. Renk ve yazı tipinin kaynağı `UiTheme`; **ekran arayüzünün yazı boyutları** `Kit/Tokens.luau`'da (`UiTheme.TextSize`'dan Body/Caption +2, diğerleri +1 px büyük, `Button` = Body-1; dünyadaki tabelalar `UiTheme.TextSize`'ı olduğu gibi kullanır).
-  Elle sayı yazma (`TextSize = 13` yok): `UiKit.TextSize.Button/Caption/Body` kullan; sekme başlıkları `UiKit.TextSize.Tab` (içerik yazısından büyük; `UiKit.tabs` ve ada sekmeleri kullanır). Yazı büyüyünce düğme/karo yüksekliği ve satır kırpması gözle denenir.
-  Elle `Color3.fromRGB` veya font yazma.
-- Emoji yalnızca `iconChip` (ve WorldUi `icon` alanı) içinde. Buton ve metinde emoji yok.
-- Buton varyantı: primary=alınabilir, warning=para yetmiyor, disabled=kilitli/dolu, owned=alındı.
-- Dünyadaki tabela: `WorldUi.tag` / `WorldUi.sign`, güncelleme `setTag` / `setSignText`.
-
-## Bilgiyi gerektiğinde göster
-
-- İlk görünümde başlık, kısa sonuç, fiyat ve ana aksiyon kalır. Açıklama, ayrıntılı formül ve ikincil işlemler `UiKit.disclosure(parent, order, title)` içinde varsayılan kapalıdır; mevcut kart açıklaması için `UiKit.cardDetails` kullanılabilir.
-- Detay düğmesi dokunma/gamepad hedefini korur. İncelenen çiftlik, tur veya ürün değişince eski inceleme kapatılır. Para/ürün gereksinimi, gerçek eşya eksileri ve geri alınamaz işlem uyarıları ilgili işlemden önce gösterilir.
-- Ayrıntı gövdesi ortak `DisclosureBody` stilini kullanır: mint yüzey, ince kenar, iç boşluk ve rahat satır aralığı. `UiKit.text(details.body, ..., "Caption")` içeride Body boyutuna ve ana metin rengine yükselir; özel uyarı/fiyat renkleri korunur. `cardDetails` taşınan kart açıklamasını aynı okunabilir stile getirir. Ayrıntıya elle küçük yazı boyutu verme.
-- Aktif etkiler ve 30 seviye kazanımları aynı **İlerleme** penceresinin Etkiler/Rebirth sekmelerindedir. Sahip olunan fakat takılı olmayan ekipman aktif bonus diye sunulmaz. Ayrıntılı kaynak hesapları yalnız ilgili bölüm açılınca yapılır.
-- Yeni oyuncunun görev şeridi ile sol hedef kartında aynı talimatı iki kez gösterme; görev şeridi açıkken sol hedef kartı gizlenir.
-- Kart ayrıntısı tüm kart genişliğine yayılır. Esnek ızgaralarda satır hizalaması `ItemLineAlignment.Stretch` kullanır; kaydırmalı otomatik içerik yüksekliğini sıkıştıran `VerticalFlex.Fill` kullanılmaz. Eşitlik için boş düğme veya sabit büyük yükseklik ekleme.
-- Aynı karttaki alternatif/ikincil işlemler `UiKit.actionRow` + `actionButton` kullanır: genişliğe göre 2/4 sütun, dar kartta 1 sütun; gizli düğme yer ayırmaz, son eksik satır kalan alanı paylaşır. Metin küçültülmez, doğal yükseklik ve TouchTarget korunur. Ana satın alma/teslim ve geri alınamaz onay tek satır genişliğinde kalabilir. `ProductionContext` dünya üzerinden açılan üretimde aynı ada + aynı bina veya ortak hayvan grubunun ilgili tariflerini gösterir; kilit/tema/ücret sunucu ve mevcut görünüm kurallarından gelir.
-- Bir ürünün karttaki ana faydasını ayrıntıda tekrar etme. Alternatif ödeme ayrıntıda gösterilebilir; ana fiyat ve inceleme/satın alma niyeti ilk bakışta anlaşılır kalır.
-
-## HUD yerleşim bölgeleri (FarmHud) — çakışma olmasın
-| Bölge | İçerik |
+| Konu dosyası | Ne zaman |
 |---|---|
-| Sol orta | `Stats` paneli (sola kayarak kapanır; sağ kenarında sekme): ada adı, para+gelir, ahır, depo, mevsim/hava kartı, sıradaki hedef ve sıradaki ada |
-| Üst orta | `MenuTop` karo çubuğu: Pazar, Yükseltmeler, Yol Haritası, Üretim, Adalar (bildirimler bunun altında) |
-| Sağ orta | `MenuSide` karo sütunu: Envanter, Ödüller, Market (kimlik 0 iken katalog görünür, ödeme kapalı), İlerleme (ilk hayvan veya rebirth sonrası), Adama Dön, Ayarlar, (yönetici) Yönetici |
-| Orta (pencere) | Pazar / Yol Haritası / Yükseltmeler: ortak merkez, geniş içerik; Yol Haritası ada içinde aşama sekmeleri kullanır |
-| Orta (pencere) | Ödüller, Sipariş Panosu, Market (Robux katalog, kalıcı altın teklifleri, altın çevirme ve hızlı bitirme), Eşya Dükkânı, Envanter. Dar ekranda UiKit pencere kaydıyla birbirini kapatır; meydan satıcıları ve pazar tezgâhı ilgili pencereyi açar |
-| Üst orta | Bildirimler (toast) |
-| Sağ üst / sol üst | Roblox oyuncu listesi ve sohbet — HUD buraya bir şey koymaz |
+| `.claude/rules/client-ui-kit.md` | UiKit bileşenleri, tema, pencere davranışı, mobil, güvenli alan ve gamepad |
+| `.claude/rules/client-ui-bilgi.md` | Bilgiyi gerektiğinde göster: ayrıntı aç/kapa, kart düzeni, sekme ve işlem rozetleri |
+| `.claude/rules/client-ui-hud.md` | HUD yerleşim bölgeleri, menü kademeleri, Hud modülleri, ada bağlamı, mevsim/hava |
+| `.claude/rules/client-ui-ses-para.md` | Ses (Sfx), para biçimi, bildirimler ve UI performansı |
 
-- **Menü kademeli açılır** (`Hud/MenuBar` içinde `updateVisibility` / `setMenuTile`): yeni oyuncu yalnızca temel karoları görür; diğerleri ihtiyaç doğunca (onboarding adımı, kazanç, sahip olunan tesis/eşya) belirir ve kısa süre vurgulanır (`UNLOCK_NOTICES`).
-  Yeni karo eklerken ne zaman görüneceğini `updateVisibility`'de belirle; hepsini baştan gösterme.
-- Sol panel: ipucu satırı (`StatsPanel` içinde `hintWanted`) yalnızca sorun varken görünür; hedef kartı (`Hud/GoalCard`) tek hedef gösterir, deneyimli oyuncuda altına "bekleyen iş" satırları (`pendingChores`) ve büyük hedef için biriktirirken "Hızlı kazanç" önerisi gelir.
-- Yeni yapı/geliştirme kilometre taşı kutlaması `Hud/Celebration` ile (durum farkından `detectMilestone`); yeni kilometre taşı türü eklersen oraya ekle.
-- Yeni menü girişi: `Hud/MenuBar` içinde `UiKit.menuButton` kur, `topOrder`/`sideOrder` listesine (gamepad zinciri ve sıra) ve `updateVisibility`'e ekle. Ayrıntılı/az kullanılan bilgi ana HUD'a değil ilgili pencereye gider (ödül ve başarımlar "Ödüller" penceresinde).
-- Pencere açılınca `redraw`; kapalı pencere içeriği `*Dirty` bayraklarıyla ertelenir.
-- Her yeni ekran metni için çeviri gerekir (localization rule). Kısa etiket seç; menü karosu `UiKit.MenuTileSize` genişliğindedir.
-
-## Mobil, güvenli alan ve gamepad
-- Tam ekran her `ScreenGui` `UiKit.screenRoot(gui)` ile kurulur (`ScreenInsets = DeviceSafeInsets` + ekran boyutuna bağlı kök `UIScale`; kademeler `shared/Modules/UiScale`); pencere/paneller dönen kökün altına konur, doğrudan ScreenGui'ye değil. Ekrana sığdırma için `camera.ViewportSize` değil `UiKit.viewport()` (ölçek uygulanmış) kullan.
-- Dokunma hedefi >= `UiKit.TouchTarget` (görünen şekil küçük olsa da tıklama alanı büyük olur), yazı alt sınırı `UiKit.MinTextSize` (değerler `Kit/Tokens.luau`).
-- Gamepad: DPad menü kısayolları `FarmHud.client` içinde (`HudGamepadMenu`; tuş eşlemesi o dosyada) ve yalnızca arayüz seçimi boşken çalışır; menü karolarında `NextSelection*` zinciri `MenuBar` içindeki `linkSelection` ile görünür karolara göre kurulur — yeni karo eklersen `topOrder`/`sideOrder` listesine koy.
-
-## Ses ve para biçimi
-- Robux düğmeleri `Core/ProductPrices` üzerinden istemcide `GetProductInfoAsync` fiyatını gösterir (GamePass/Product türü ayrı). Fiyatı Config'e kopyalama; bölgesel fiyat korunur. Sorgular katalogla sınırlı, tek kuyruk ve süreli önbellekle yapılır; yükleme menüyü bekletmez. Başarısızlık fiyat uydurmaz, Roblox ekranında kontrol seçeneği verir. StoreSection fiyat dinleyicisi sayfa yok edilince kopar.
-- Sesler `src/client/Core/Sfx.luau` üzerinden çalınır (`Sfx.play("coin")`, `Sfx.playAt`); kimlikler
-  `Config.SOUNDS / AMBIENCE / ANIMAL_SOUNDS / MUSIC`. Boş `id` = ses yok. Üç SoundGroup (`SfxMaster`, `AmbienceMaster`, `MusicMaster`): efekt (`SoundVolume`), ortam + hayvan (`AmbienceVolume`),
-  müzik (`MusicVolume`); varsayılanlar `Config.AUDIO_DEFAULTS`; Ayarlar'da üç `UiKit.slider`. Ses düzeyleri ve `ReducedMotion` hesaba kaydedilir (`Core/Preferences.client`,
-  remote `RequestSetPreference`, sunucu `Modules/Preferences`): yeni tercih eklerken oraya ekle (roblox-save-schema + roblox-add-remote).
-  Ortam, hayvan ve müzik `Soundscape.client`.
-- Para her yerde `FarmMath.formatMoney` ile yazılır (küçük tutarlar tam, büyükler `$12.4K`/`$3.1M` gibi kısaltılır; eşik fonksiyonda). Kendi biçimlendiricini yazma.
-- Altın cüzdanı `UiKit.iconChip` içinde `🪙` ile gösterilir; bileşen bu simgeyi GUI şekilleriyle çizer (platformun emoji/Robux glifine güvenmez). Uzun fiyat ve açıklama doğal büyür; kullanıcıya görünen miktarı taşırma.
-- Bildirimler `toastHost` ile tek ortak Notifications katmanında gösterilir (menülerin üstünde). En fazla iki görünür, altı bekleyen bildirim tutulur; taşmada en eski bekleyen çıkarılır. Aynı metin/tür ×N ile birleştirilir. İsteğe bağlı görünür engeller (üst menü, öğretici, tüccar rozeti) gerçek yükseklikleriyle alan ayırır; kök yok edilince kuyruk ve zamanlayıcılar temizlenir. Ayrı konumlama/tekrar süzme kodu yazma.
-
-## Performans
-- Durum güncellemesi yapısal (`structural`) ve para değişimi ayrı ele alınır; aynı metni tekrar yazma
-  (`buttonStates` imza kalıbı). Her karede UI güncelleme yok; 0.25–1 sn aralık yeterli.
-
-- HUD ana betiği `src/client/Ui/FarmHud.client.luau` yalnızca orkestrasyondur (ekranı kurar, modülleri bağlar, durumu dağıtır). Pencereler ve
-  bölümler `src/client/Ui/Hud/` altındadır: `StatsPanel` (sol panel), `GoalCard` (hedef/ada kartları), `MenuBar` (üst menü çubuğu + sağ sütun + rozetler), `Celebration`, `ShopWindow`, `RoadmapWindow`, `UpgradesWindow`, `IslandTabs`, `StoreSection`,
-  `RewardsSection`, `BoardSection`, `MarketWindow` (StoreSection katalog, altın cüzdanı/çevirme/hızlı bitirme), `ItemShopWindow` + `InventoryWindow` (+ ortak `ItemText`), `MerchantWindow` (kişisel ziyaretin nakit/tur kataloğu), `SeasonBar`, `Onboarding` (ilk adımlar: `shared/Modules/OnboardingSteps` ile durumdan türetilir, kayıt alanı yok; `UiKit.pulse` vurgusu + `TutorialGuide` özniteliğiyle CollectorGuide ışını), ortak `HudCommon` (`setPurchaseButton`, `purchaseHint`). Yeni pencere/bölüm
-  eklerken ana betiğe yığmak yerine buraya `create(...)` + `update(state)` kalıbıyla yeni modül yaz.
-- Mevsim/hava: ReplicatedStorage attribute'larını doğrudan okuma/dinleme; `Environment.getSeason()/getWeather()` ve `Environment.onChanged` kullan (asa ile oyuncuya özel katman otomatik uygulanır).
-- Ada bağlamı: Yol Haritası/Yükseltmeler/Üretim `IslandTabs.add` ile pencereye özel önizleme tutar. Sekme tıklaması ortak `IslandContext` veya sunucu seçimini değiştirmez; her pencere kendi içeriğini tazeler. Elle seçilmemiş pencereler dünya adasını takip eder; çiftlik/rebirth değişince yerel seçim temizlenir. Üretim dünya promptu yalnız kendi penceresini ilgili adaya odaklar. Diğer HUD parçaları `IslandContext.get()` adasını gösterir. Açık adaya girince `IslandAutoSelect` sunucuda gerçek seçim yapar; kilitli adaya girince yalnızca
-  client'ta önizleme (`IslandContext.setPreview`) kurar (sunucu kilitli adayı seçmeyi reddeder). Sunucuya giden hiçbir karar `get()` değerine dayanmamalı; sunucunun
-  bildiği seçim `IslandContext.selected()`.
-- Kartta durum bildirimi ("Dolu", "Kilitli", "Dolunca açılır") ölü bir düğme olarak değil, kartın sağ üstünde kırmızı yazı olarak gösterilir: `UiKit.setCardStatus(card, metin)` (yazı varken aksiyon düğmesi gizlenir, kart büyümez; metin yoksa `nil`). "Alındı"/"En üst seviye" gibi olumlu durumlar düğmede kalır.
-- Para her yerde YEŞİLdir (kasa, gelir baloncukları, para bildirimi, depo etiketi, satın alma kaidesi etiketi/halkası); altın sarısı (`Color.Gold`) yalnızca başlık/vurgu içindir, para yazısında kullanılmaz.
-
-- Sekme seçimi seçili sekmede tekrar çalışmaz. Ayrıntı aç/kapa yalnız ilgili kartı günceller; gizli sayfanın teklif/ayrıntı hesabını yapma. Pencere açılışında yalnız o pencereyi tazele; çoklu açık katalogları yeniden çizme.
-- İşlem rozetleri menüden ilgili sekmeye kadar aynı anlamı taşır: `Hud/ActionBadges` üretimde hazır parti, yükseltmelerde karşılanabilen yatırım, ödüllerde alınabilir ödül sayar. Ada sayaçları `IslandTabs.setBadges`, kategori sayaçları `UiKit.tabs` üçüncü dönüşüyle güncellenir; sıfır gizlenir, bakmak sayacı tüketmez. Ödüllerde mevsim hedefi Günlük sekmesine aittir; Başarımlar sayısına eklenmez. Envanterde dolu ürün türleri Ahır Deposu sekmesinde gösterilir. Sayı için başlık metnini değiştirip çeviriyi bozma; inline rozet metne alan ayırır.
-	Rozet tüm girişlerde sağ üst köşededir; merkezdeki sekme metninin üzerine yerleştirme. Eşya kartlarında Config.ITEMS.level katalog kademesi gösterilir; kategori içinde seviye, fiyat ve kimlik sırası kullanılır. Katalog seviyesi oyuncu seviyesi veya satın alma kilidi değildir; farklı fayda ve eksiler kartta korunur. ITEM_ORDER sunucunun tüccar seçim sözleşmesi için değiştirilmez.
+Eşleşen dosyaya dokununca ilgili konu dosyası otomatik yüklenir; yüklenmediyse tablodan elle oku. Yeni kural eklerken en uygun konu dosyasına yaz, yeni parça gerekirse bu tabloyu güncelle.

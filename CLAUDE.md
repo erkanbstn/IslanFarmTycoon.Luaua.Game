@@ -38,6 +38,10 @@ Taşınan projede `CLAUDE.md`, `.claude/`, `scripts/` ve `docs/` birlikte alın�
 | `.claude/rules/client-performance.md` | istemci efekt/görsel LocalScript'leri |
 | `.claude/rules/tests-tooling.md` | tests, scripts, mimari belgesi, araç/proje ayarları |
 
+- **Konu dosyaları** (giriş kuralı tabloyu verir): `.claude/rules/economy-data-denge.md`, `.claude/rules/economy-data-kayit.md`, `.claude/rules/economy-data-ada-yapi.md`, `.claude/rules/economy-data-fiyat-gorev.md`, `.claude/rules/economy-data-urun-siparis.md`, `.claude/rules/economy-data-olaylar-hedef.md`, `.claude/rules/economy-data-envanter-yardimci.md`, `.claude/rules/economy-data-rebirth.md`, `.claude/rules/world-map-harita.md`, `.claude/rules/world-map-model-gorseller.md`, `.claude/rules/world-map-ana-ada.md`, `.claude/rules/world-map-ana-ada-duzen.md`, `.claude/rules/world-map-isik.md`, `.claude/rules/client-ui-kit.md`, `.claude/rules/client-ui-bilgi.md`, `.claude/rules/client-ui-hud.md`, `.claude/rules/client-ui-ses-para.md`.
+
+- Büyük dosya satır haritası `.claude/docs/hot-files.md`; tuzaklar `.claude/docs/pitfalls.md`.
+
 - **Skill'ler** `.claude/skills/<ad>/SKILL.md` (tam metin burada; başka kopya yok):
   - `roblox-add-remote`: istemci/sunucu işlem sözleşmesi.
   - `roblox-add-ui`: ekran, pencere, HUD ve menü değişikliği.
