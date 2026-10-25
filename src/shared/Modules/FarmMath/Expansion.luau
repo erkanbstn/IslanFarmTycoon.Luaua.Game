@@ -5,7 +5,6 @@
 local Config = require(script.Parent.Parent.Parent:WaitForChild("Config"))
 local GameTypes = require(script.Parent.Parent.Parent:WaitForChild("GameTypes"))
 local Core = require(script.Parent:WaitForChild("Core"))
-local Counts = require(script.Parent:WaitForChild("Counts"))
 local Recipes = require(script.Parent:WaitForChild("Recipes"))
 local Pricing = require(script.Parent:WaitForChild("Pricing"))
 
@@ -143,7 +142,7 @@ function Expansion.getExpansionCost(save: PlayerSave, targetId: string): number
 	return Pricing.getPrice(save, "expansion", targetId)
 end
 
--- Geliştirme durumu. Bölge açık olmalı; kapasite veren bir seviye için bölge dolu olmalı. Tesis kurulu olmalı.
+-- Geliştirme durumu. Bölge açık, tesis kurulu olmalı; bölgenin dolu olması gerekmez (hayvan sayısı tamamlanmayı etkilemez).
 -- Üçüncü değer: sonraki seviye maliyeti.
 function Expansion.getExpansionStatus(save: PlayerSave, targetId: string): (ExpansionStatus, string?, number)
 	local zone = Config.ZONES[targetId]
@@ -158,14 +157,6 @@ function Expansion.getExpansionStatus(save: PlayerSave, targetId: string): (Expa
 	if zone then
 		if not save.unlockedZones[targetId] then
 			return "locked", "Bölge henüz açık değil", cost
-		end
-		local nextLevel = Expansion.getNextBuildLevel(save, targetId)
-		if
-			nextLevel
-			and (nextLevel.capacity or 0) > 0
-			and Counts.countInZone(save, targetId) < Expansion.getZoneCapacity(save, targetId)
-		then
-			return "locked", "Önce bölgeyi hayvanla doldur", cost
 		end
 		return "available", nil, cost
 	end

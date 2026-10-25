@@ -144,52 +144,6 @@ function AnimalService.tryBarter(player: Player, animalId: unknown, count: unkno
 	return true, nil
 end
 
-function AnimalService.tryReplaceFish(player: Player, uid: unknown): (boolean, string?)
-	if not RateLimiter.allow(player, "purchase", 0.2) then
-		return false, nil
-	end
-	if typeof(uid) ~= "string" or not RateLimiter.validId(uid) then
-		return false, "Geçersiz balık"
-	end
-	local data = PlayerDataService.tryGet(player)
-	if not data or player:GetAttribute("WorldReady") ~= true or not PlotService.getPlot(player) then
-		return false, "Veri henüz yüklenmedi"
-	end
-	for index, animal in data.animals do
-		if animal.uid ~= uid then
-			continue
-		end
-		local zone = Config.ZONES[animal.zoneId]
-		if
-			animal.animalId ~= "anchovy"
-			or FarmMath.getActiveTask(animal, DateTime.now().UnixTimestampMillis / 1000) ~= nil
-			or not zone
-			or not data.unlockedZones[animal.zoneId]
-			or not FarmMath.zoneAllows(data, zone, "seabass")
-		then
-			return false, "Bu balık büyük balıkla değiştirilemez"
-		end
-		local price = FarmMath.getFishReplacementPrice(data)
-		EconomyService.settlePlayer(player)
-		if not PlayerDataService.trySpend(player, price, "animal", "seabass") then
-			return false, `Yeterli para yok ({FarmMath.formatMoney(price)})`
-		end
-		data.animals[index] = {
-			uid = HttpService:GenerateGUID(false),
-			animalId = "seabass",
-			zoneId = animal.zoneId,
-			stage = "calf",
-			bornAt = DateTime.now().UnixTimestampMillis / 1000,
-		}
-		PlayerDataService.pushState(player)
-		PlayerDataService.requestSave(player)
-		Metrics.increment("FishReplaced")
-		PlotService.refreshPlayerWorld(player)
-		return true, nil
-	end
-	return false, "Balık artık bulunamıyor"
-end
-
 -- Hayvan satışı: aynı türün en genci satılır, fiyatın yarısı geri gelir (kazanç sayılmaz). Çiftlikte son hayvan satılmaz.
 function AnimalService.trySell(player: Player, animalId: unknown): (boolean, string?)
 	if not RateLimiter.allow(player, "purchase", 0.2) then
@@ -202,12 +156,13 @@ function AnimalService.trySell(player: Player, animalId: unknown): (boolean, str
 	if not data or player:GetAttribute("WorldReady") ~= true or not PlotService.getPlot(player) then
 		return false, "Veri henüz yüklenmedi"
 	end
+	local blocked = FarmMath.getSellBlockReason(data, animalId)
+	if blocked then
+		return false, blocked
+	end
 	local animal = FarmMath.findSellableAnimal(data, animalId)
 	if not animal then
-		return false,
-			if FarmMath.countAnimals(data, animalId) > 0
-				then "Çiftlikteki son hayvanı satamazsın"
-				else "Bu hayvandan yok"
+		return false, "Hayvan artık bulunamıyor"
 	end
 	local refund = FarmMath.getSellPrice(data, animalId)
 	EconomyService.settlePlayer(player)
@@ -317,19 +272,6 @@ function AnimalService.init()
 				else 0
 			local ok, err = AnimalService.trySell(player, animalId)
 			reply(player, requestId, ok, if ok then `Hayvan satıldı: +{FarmMath.formatMoney(refund)}` else err)
-		end)
-
-	Remotes.get("RequestReplaceFish").OnServerEvent
-		:Connect(function(player: Player, uid: unknown, requestId: unknown, expectedFarmId: unknown)
-			if not RateLimiter.acceptRequest(player, requestId) then
-				return
-			end
-			local data = RequestGuard.activeFarm(player, requestId, expectedFarmId, FARM_GUARD)
-			if not data then
-				return
-			end
-			local ok, err = AnimalService.tryReplaceFish(player, uid)
-			reply(player, requestId, ok, if ok then "Küçük balık yavru büyük balıkla değiştirildi!" else err)
 		end)
 
 	task.spawn(function()

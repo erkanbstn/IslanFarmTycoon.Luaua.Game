@@ -75,7 +75,7 @@ return {
 	BULK_MULTIPLIERS = { 1, 2, 3, 5 }, -- Pazarda toplu alım çarpanları
 
 	-- Yapı geliştirme (bölgeler ve tesisler): seviye n -> n+1 maliyeti, bölgede bölgedeki hayvanın taban fiyatı, tesiste tarifin satış ödülü
-	-- x çarpan x büyüme^n (2 anlamlı basamak). Kapasite adımı = max(2, taban kapasite / 4). Bir seviye kapasite veriyorsa bölge dolu olmalıdır.
+	-- x çarpan x büyüme^n (2 anlamlı basamak). Kapasite adımı = max(2, taban kapasite / 4). Bölgenin dolu olması gerekmez.
 	-- Kayıt: save.expansions[hedefId] = seviye (hedef bölge ya da tarif kimliği).
 	BUILD_UPGRADES = {
 		maxLevel = 5,

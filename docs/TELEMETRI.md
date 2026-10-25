@@ -47,7 +47,7 @@ ilk parti kayıtta iz bırakmaz: yalnızca o sırada çalışan parti olan oyunc
 | Kaynak | Production (toplu, 60 sn) | `ProductionService`, `PetService` (para fabrikası ödülü) |
 | Kaynak | IncomePack | `MonetizationService` (gelir paketi) |
 | Kaynak | Refund | `AnimalService` (hayvan satışı iadesi) |
-| Gider | Animal (hayvan, balık değişimi) | `AnimalService` |
+| Gider | Animal (hayvan alımı/takası) | `AnimalService` |
 | Gider | Upgrade, Lineage, Expansion | `UpgradeService` |
 | Gider | Item (dükkan ve gezgin tüccar) | `InventoryService` |
 | Gider | Farm | `MainFarmService` |

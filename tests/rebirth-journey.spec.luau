@@ -94,6 +94,56 @@ return function(Config: any, FarmMath: any, Progression: any, SaveCodec: any, In
 		local milestone = assert(Progression.getMilestone(count + 1), "next level reward exists")
 		assert(milestone.effects or milestone.itemId, "no empty rebirth rewards")
 	end
+	-- Hayvan sayısı tamamlanmayı etkilemez: ağıl boşken de en üst geliştirme seviyesine çıkılır, hayvan satmak ilerlemeyi bozmaz
+	local sold = fresh()
+	sold.progression.count = 14
+	for _, target in Progression.getRebirthTargets(sold, "1") do
+		if target.kind == "lineage" then
+			sold.lineage[target.id] = target.level
+		else
+			sold.expansions[target.id] = 0
+		end
+	end
+	sold.animals = {}
+	for index = 1, 6 do
+		table.insert(
+			sold.animals,
+			{ uid = `cow-{index}`, animalId = "cow", zoneId = "starter", stage = "adult", bornAt = 0 }
+		)
+	end
+	for _, target in Progression.getRebirthTargets(sold, "1") do
+		if target.kind == "expansion" and Config.ZONES[target.id] then
+			sold.unlockedZones[target.id] = true
+			while FarmMath.getExpansionLevel(sold, target.id) < target.level do
+				assert(
+					FarmMath.getExpansionStatus(sold, target.id) == "available",
+					"a zone that is not full still accepts capacity levels"
+				)
+				sold.expansions[target.id] = FarmMath.getExpansionLevel(sold, target.id) + 1
+			end
+		elseif target.kind == "expansion" then
+			sold.expansions[target.id] = target.level
+		end
+	end
+	assert(
+		FarmMath.countInZone(sold, "starter") < FarmMath.getZoneCapacity(sold, "starter"),
+		"the starter pen is not full at maximum required expansion"
+	)
+	assert(Progression.isRebirthFarmComplete(sold, "1"), "completion needs levels, not animals")
+	local farmsCompleteBefore = Progression.progress(sold).farmsComplete
+	while true do
+		local animal = FarmMath.findSellableAnimal(sold, "cow")
+		if not animal then
+			break
+		end
+		table.remove(sold.animals, assert(table.find(sold.animals, animal)))
+	end
+	assert(#sold.animals == 1, "selling stops at the last animal of the farm")
+	assert(Progression.isRebirthFarmComplete(sold, "1"), "selling animals never undoes farm completion")
+	assert(
+		Progression.progress(sold).farmsComplete == farmsCompleteBefore,
+		"selling animals leaves the completion count unchanged"
+	)
 	local data = fresh()
 	data.progression.count = 30
 	for index = 1, Config.MAIN_FARM_LIMIT do

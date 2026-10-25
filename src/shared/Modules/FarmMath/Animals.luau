@@ -1,5 +1,5 @@
 --!strict
--- Hayvan pazarı: fiyat, satış, boş yuva, toplu alım, balık değiştirme ve bölge seçimi.
+-- Hayvan pazarı: fiyat, satış, boş yuva, toplu alım ve bölge seçimi.
 -- FarmMath cephesi (init.luau) bunları birleştirir; her zaman `FarmMath.<ad>` ile kullan.
 
 local Config = require(script.Parent.Parent.Parent:WaitForChild("Config"))
@@ -58,6 +58,23 @@ function Animals.findSellableAnimal(save: PlayerSave, animalId: string, now: num
 	return best
 end
 
+-- Satışın neden yapılamadığı (kısa Türkçe metin); satılabiliyorsa nil. Sunucu `trySell` ve pazar düğmesi aynı sebebi kullanır.
+function Animals.getSellBlockReason(save: PlayerSave, animalId: string, now: number?): string?
+	if not Config.ANIMALS[animalId] then
+		return "Bilinmeyen hayvan"
+	end
+	if Counts.countAnimals(save, animalId) <= 0 then
+		return "Bu hayvandan yok"
+	end
+	if #save.animals <= 1 then
+		return "Son hayvan satılamaz"
+	end
+	if Animals.findSellableAnimal(save, animalId, now) == nil then
+		return "Hayvan görevde"
+	end
+	return nil
+end
+
 -- Bu türün konabileceği açık bölgelerdeki toplam boş yer
 function Animals.getFreeSlots(save: PlayerSave, animalId: string): number
 	local free = 0
@@ -81,29 +98,6 @@ function Animals.getBulkPrice(save: PlayerSave, animalId: string, count: number)
 		total += Pricing.getPrice(save, "animal", animalId, owned + index)
 	end
 	return total
-end
-
-function Animals.findReplaceableFish(save: PlayerSave, now: number?): GameTypes.AnimalRecord?
-	for _, animal in save.animals do
-		local zone = Config.ZONES[animal.zoneId]
-		if
-			animal.animalId == "anchovy"
-			and Counts.getActiveTask(animal, now) == nil
-			and save.unlockedZones[animal.zoneId]
-			and zone
-			and Counts.zoneAllows(save, zone, "seabass")
-		then
-			return animal
-		end
-	end
-	return nil
-end
-
-function Animals.getFishReplacementPrice(save: PlayerSave): number
-	local price = Animals.getAnimalPrice(save, "seabass")
-	-- Yükselen mevcut hamsi fiyatını iade etme: al-sat döngüsü kâr üretememeli.
-	local refund = math.floor(Pricing.getPrice(save, "animal", "anchovy", 0) * Config.FISH_REPLACEMENT_REFUND_RATE)
-	return math.max(0, price - math.min(price, refund))
 end
 
 -- Bu hayvan türü için en az bir bölge açık mı? (ada seçimi shop'u gizlemesin)

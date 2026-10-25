@@ -12,7 +12,7 @@ paths:
 
 Giriş dosyası: `.claude/rules/economy-data.md` (konu haritası).
 
-- **Hayvan satışı**: `Config.ANIMAL_SELL_FRACTION`, `FarmMath.getSellPrice/findSellableAnimal` (görevdekiler sona, çiftlikte son hayvan satılmaz), `AnimalService.trySell`.
+- **Hayvan satışı**: `Config.ANIMAL_SELL_FRACTION`, `FarmMath.getSellPrice/findSellableAnimal` (görevdekiler sona, çiftlikte son hayvan satılmaz), `AnimalService.trySell`; satılamama nedeni tek yerden `FarmMath.getSellBlockReason` (sunucu mesajı ve pazardaki "Sat" düğmesi). Hamsi-levrek takası yoktur; satış tamamlanma yüzdesini etkilemez (`Progression` yalnız satın alma/geliştirme seviyesine bakar).
 - **Fiyat ve zorluk (tek hesap)**: yükseltme, hayvan, yapı geliştirme ve ana çiftlik fiyatı **yalnızca** `FarmMath.getPrice(save, kind, id, level)` ile (`FarmMath/Pricing.luau`; `getUpgradeCost/getAnimalPrice/getBulkPrice/getExpansionCost`
   ince sarmalayıcıdır); gösterim (arayüz, tabela) ve tahsilat aynı işlevi çağırır, elle çarpan yazma. Fiyat = yazılı taban (Çiftlik 1) x `Config.DIFFICULTY.tiers[tier].costMultiplier` x ada sırası çarpanı
   (`slotSpread`) x n. alım eğrisi. Kademe çiftliğin TEMA numarasıdır (`Pricing.getTier`, eksik/bozuk = 1; kayıtta tier yoktur); ada açılışı ayrıca `DIFFICULTY.islandPremium` ile çarpılır; ırk geliştirme çarpılmaz.

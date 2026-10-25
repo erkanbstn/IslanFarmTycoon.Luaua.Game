@@ -311,44 +311,12 @@ return function(FarmMath: any, Config: any, Environment: any)
 	assert(FarmMath.findSellableAnimal(save, "chicken") == nil, "a missing species cannot be sold")
 	save.animals = { save.animals[1] }
 	assert(FarmMath.findSellableAnimal(save, "cow") == nil, "the last animal of a farm cannot be sold")
+	assert(FarmMath.getSellBlockReason(save, "cow") == "Son hayvan satılamaz", "the last animal reports why")
 	assert(
 		FarmMath.getSellPrice(save, "cow") < FarmMath.getAnimalPrice(save, "cow"),
 		"selling must always lose money versus buying"
 	)
 
-	-- İade taban fiyata bağlı; hamsi sayısını artırmak değişim ücretini düşürmez.
-	save = saveAt(start)
-	save.animals = {}
-	local replacementPrice = FarmMath.getFishReplacementPrice(save)
-	for index = 1, 10 do
-		table.insert(
-			save.animals,
-			{ uid = `fish-{index}`, animalId = "anchovy", zoneId = "fish", bornAt = 0, stage = "adult" }
-		)
-	end
-	near(FarmMath.getFishReplacementPrice(save), replacementPrice)
-	assert(
-		replacementPrice >= Config.ANIMALS.seabass.price - Config.ANIMALS.anchovy.price,
-		"refund must not exceed base cost"
-	)
-	-- Gerçek bölge ID'sini config'ten seç; kilitliyken değişim önerilmez.
-	local fishZone = nil
-	for zoneId, zone in Config.ZONES do
-		if table.find(zone.allowedAnimals, "anchovy") and table.find(zone.allowedAnimals, "seabass") then
-			fishZone = zoneId
-		end
-	end
-	assert(fishZone, "config must have a shared fish zone")
-	for _, animal in save.animals do
-		animal.zoneId = fishZone
-	end
-	assert(FarmMath.findReplaceableFish(save) == nil, "locked zone fish cannot be replaced")
-	save.unlockedZones[fishZone] = true
-	assert(FarmMath.findZoneForAnimal(save, "seabass") == nil, "all 10 fish slots are full")
-	assert(FarmMath.findReplaceableFish(save).uid == "fish-1", "full zone permits replacement")
-	save.animals[1].animalId = "seabass"
-	assert(FarmMath.getFishReplacementPrice(save) > replacementPrice, "next seabass price must grow")
-	assert(#save.animals == 10, "replacement preserves total capacity")
 	-- Büyük sayılar kısaltılır; küçükler tam okunur.
 	local money = {
 		{ 0, "$0" },
@@ -612,25 +580,23 @@ return function(FarmMath: any, Config: any, Environment: any)
 	lineageFarm.lineage = {}
 	lineageFarm.animals = { { uid = "calf", animalId = "cow", zoneId = "starter", bornAt = start, stage = "calf" } }
 	assert(FarmMath.getLineageStatus(lineageFarm, "cow") == "locked", "lineage needs an adult animal of the species")
-	-- Alan genişletme: kapasite, maliyet eğrisi, dolu-bölge şartı ve boş yer hesabı
+	-- Alan genişletme: kapasite, maliyet eğrisi, dolu-bölge şartı olmaması ve boş yer hesabı
 	local expandFarm = saveAt(start)
 	local starterZone = Config.ZONES.starter
 	assert(
 		FarmMath.getZoneCapacity(expandFarm, "starter") == starterZone.capacity,
 		"no expansion keeps the base capacity"
 	)
+	-- Bölgenin dolu olması gerekmez: kapasite veren ilk seviye boş bölgede de alınabilir
 	local expandStatus, _, expandCost = FarmMath.getExpansionStatus(expandFarm, "starter")
 	assert(
-		expandStatus == "locked" and expandCost == FarmMath.getExpansionCost(expandFarm, "starter"),
-		"a non-full zone cannot be expanded"
+		FarmMath.countInZone(expandFarm, "starter") < FarmMath.getZoneCapacity(expandFarm, "starter")
+			and expandStatus == "available"
+			and expandCost == FarmMath.getExpansionCost(expandFarm, "starter"),
+		"a non-full unlocked zone can be expanded"
 	)
-	while FarmMath.countInZone(expandFarm, "starter") < FarmMath.getZoneCapacity(expandFarm, "starter") do
-		table.insert(
-			expandFarm.animals,
-			{ uid = `fill-{#expandFarm.animals}`, animalId = "cow", zoneId = "starter", bornAt = 0, stage = "adult" }
-		)
-	end
-	assert(FarmMath.getExpansionStatus(expandFarm, "starter") == "available", "a full unlocked zone can be expanded")
+	expandFarm.animals = {}
+	assert(FarmMath.getExpansionStatus(expandFarm, "starter") == "available", "an empty unlocked zone can be expanded")
 	local expandFreeBefore = FarmMath.getFreeSlots(expandFarm, "cow")
 	expandFarm.expansions = { starter = 1 }
 	assert(

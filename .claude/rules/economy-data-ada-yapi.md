@@ -30,6 +30,6 @@ Giriş dosyası: `.claude/rules/economy-data.md` (konu haritası).
 - **Yapı geliştirme** (bölge ve üretim tesisi): `Config.BUILD_UPGRADES` (`profiles` = seviye başına fayda), `BUILD_ORDER/BUILD_TARGETS`. Bölge profili `ZONES[x].upgradeProfile`
   (`capacity`, `growthSpeed`, `incomeBonus`, `seasonAffinity`), tesis profili `PRODUCTION_RECIPES[x].upgradeProfile` (`speed`, `yield`, `thrift`; para tesisi `cashFactory`).
   Yardımcıları kullan: `getZoneCapacity`, `getGrowthSpeed(save, animalId, zoneId)`, `getAnimalMultiplier(.., zoneId)`, `getFacilityDuration/getFacilityCost`, `getProductionReward`;
-  büyüme anlık görüntüsü `snapshotGrowthSpeeds` + `preserveGrowthProgress`. Kayıt `expansions { [bölgeVeyaTarifId] = seviye }`; kapasite veren seviye için bölge dolu, tesis kurulu olmalı
+  büyüme anlık görüntüsü `snapshotGrowthSpeeds` + `preserveGrowthProgress`. Kayıt `expansions { [bölgeVeyaTarifId] = seviye }`; bölge açık, tesis kurulu olmalı; bölgenin dolu olması gerekmez, hayvan sayısı tamamlanmayı etkilemez
   (`getExpansionStatus`). Sunucu `UpgradeService.tryExpandZone` (`RequestExpandZone`); bölge ve tarif kimlikleri aynı tabloyu paylaşır, çakışma Config yüklenirken `assert` ile reddedilir.
   Yeni profil/seviye: `tests/economy.spec.luau` + sim kalibrasyonu ("ALAN toplam Sv.N"). Bölge bayrakları: `ZoneVisualService.applyLevelFlags`.

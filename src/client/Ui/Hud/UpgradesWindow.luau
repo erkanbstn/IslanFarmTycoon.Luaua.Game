@@ -153,7 +153,7 @@ function UpgradesWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Upg
 			local target = Config.BUILD_TARGETS[targetId]
 			local card = expansionCards[targetId]
 			local zone = Config.ZONES[targetId]
-			local status, reason, cost = FarmMath.getExpansionStatus(state, targetId)
+			local status, _, cost = FarmMath.getExpansionStatus(state, targetId)
 			-- Tamamlananlar listeden çıkar (alınan yükseltmeler gibi)
 			local shown = target.island == selectedIsland
 				and status ~= "max"
@@ -182,10 +182,7 @@ function UpgradesWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Upg
 				setPurchaseButton(card.action, "En üst seviye", "owned")
 			elseif status == "locked" then
 				-- Kilitli: düğme yerine kartın sağ üstünde kırmızı yazı
-				UiKit.setCardStatus(
-					card,
-					if reason == "Önce bölgeyi hayvanla doldur" then "Dolunca açılır" else "Kilitli"
-				)
+				UiKit.setCardStatus(card, "Kilitli")
 			else
 				UiKit.setCardStatus(card, nil)
 				setPurchaseButton(

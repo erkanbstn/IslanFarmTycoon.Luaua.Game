@@ -1,5 +1,5 @@
 --!strict
--- Hayvan Pazarı penceresi: hayvan listesi, toplu alım çarpanı ve küçük-büyük balık değişimi.
+-- Hayvan Pazarı penceresi: hayvan listesi, toplu alım çarpanı ve kartta doğrudan hayvan satışı.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -83,7 +83,6 @@ function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 		lineageRow.Size = UDim2.new(1, 0, 0, 0)
 		lineageRow.AutomaticSize = Enum.AutomaticSize.Y
 		lineageRow.LayoutOrder = 4
-		card.action.LayoutOrder = 5
 		lineageRow.Visible = false
 		lineageRow.Parent = details.body
 		local lineageButton = UiKit.actionButton(lineageRow, 1, "", "secondary")
@@ -91,11 +90,14 @@ function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 		lineageButton.TextSize = UiKit.TextSize.Button
 		UiKit.padding(lineageButton, 6, 6)
 		lineageButton.LayoutOrder = 1
-		local sellButton = UiKit.actionButton(lineageRow, 2, "", "secondary")
+		-- Satış kartta doğrudan görünür (Ayrıntılar kapalıyken de ulaşılır); alım düğmesinin hemen altındadır.
+		local sellButton = UiKit.button(card.frame, "", "secondary")
+		sellButton.Size = UDim2.new(1, 0, 0, UiKit.TouchTarget)
 		sellButton.AutomaticSize = Enum.AutomaticSize.Y
 		sellButton.TextSize = UiKit.TextSize.Button
 		UiKit.padding(sellButton, 6, 6)
-		sellButton.LayoutOrder = 2
+		sellButton.LayoutOrder = 5
+		sellButton.Visible = false
 		sellButtons[animalId] = sellButton
 		sellButton.Activated:Connect(function()
 			if sellButton.Active then
@@ -135,16 +137,6 @@ function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 		end)
 	end
 
-	local replacementCard = UiKit.card(shopWindow.list, 3 * #Config.ANIMAL_ORDER + 2, Config.ANIMALS.seabass.icon)
-	replacementCard.title.Text = "Küçük balığı büyük balıkla değiştir"
-	replacementCard.action.Activated:Connect(function()
-		local state = ClientState.get()
-		local fish = state and FarmMath.findReplaceableFish(state)
-		if fish and replacementCard.action.Active then
-			PurchaseController.submit("RequestReplaceFish", fish.uid)
-		end
-	end)
-
 	local lastContext: string? = nil
 	local function updateShop(state: PlayerSave, content: boolean)
 		local context =
@@ -169,16 +161,18 @@ function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 			card.icon.Text = animalConfig.icon
 			local lineageLevel = FarmMath.getLineageLevel(state, animalId)
 			local lineageStatus, _, lineageCost = FarmMath.getLineageStatus(state, animalId)
-			lineageRows[animalId].Visible = FarmMath.countAnimals(state, animalId) > 0
-			local sellable = FarmMath.findSellableAnimal(state, animalId)
-			if sellable then
+			local owned = FarmMath.countAnimals(state, animalId) > 0
+			lineageRows[animalId].Visible = owned
+			sellButtons[animalId].Visible = owned
+			local sellBlock = FarmMath.getSellBlockReason(state, animalId)
+			if sellBlock then
+				setPurchaseButton(sellButtons[animalId], sellBlock, "disabled")
+			else
 				setPurchaseButton(
 					sellButtons[animalId],
 					`Sat · {FarmMath.formatMoney(FarmMath.getSellPrice(state, animalId))}`,
 					"secondary"
 				)
-			else
-				setPurchaseButton(sellButtons[animalId], "Sat", "disabled")
 			end
 			if lineageStatus == "max" then
 				setPurchaseButton(lineageButtons[animalId], `Irk Sv.{lineageLevel} · en yüksek`, "owned")
@@ -260,18 +254,6 @@ function ShopWindow.create(screenGui: Instance, WINDOW_POSITION: UDim2): Shop
 		end
 		for multiplier, button in multiplierButtons do
 			UiKit.setVariant(button, if multiplier == shopMultiplier then "primary" else "secondary")
-		end
-		local fish = if IslandContext.get() == "home" then FarmMath.findReplaceableFish(state) else nil
-		replacementCard.frame.Visible = fish ~= nil
-		if fish then
-			local price = FarmMath.getFishReplacementPrice(state)
-			replacementCard.detail.Text =
-				"Küçük bir balık çıkar, yerine yavru büyük balık gelir. Küçük balığın temel fiyatının yarısı bedelden düşülür."
-			setPurchaseButton(
-				replacementCard.action,
-				`Değiştir · {FarmMath.formatMoney(price)}`,
-				if state.cash >= price then "primary" else "warning"
-			)
 		end
 	end
 

@@ -27,7 +27,6 @@ export type EventName =
 	| "RequestUseItem"
 	| "WeatherQueueOffer"
 	| "RequestBuyAnimal"
-	| "RequestReplaceFish"
 	| "RequestSellAnimal"
 	| "PurchaseResult"
 	| "RequestPlayerState"
@@ -88,7 +87,6 @@ local EVENTS = {
 	"WeatherQueueOffer", -- Sunucu -> Client hava sırası önizlemesi/durumu (offer|queued|closed); kullanım hakkı başlamadan harcanmaz
 	"RequestBuyAnimal", -- Client -> Sunucu hayvan satın alma (animalId)
 	"RequestSellAnimal", -- Client -> Sunucu hayvan sat (animalId, requestId, expectedFarmId); fiyat ve hayvan sunucuda seçilir
-	"RequestReplaceFish", -- Client -> Sunucu hamsiyi levrekle değiştir (uid, requestId)
 	"PurchaseResult", -- Sunucu -> Client (requestId, success, message?)
 	"RequestPlayerState", -- Client hazır / tekrar eşitleme
 	"RequestFulfillContract", -- Ahır siparişini depodaki ürünlerle teslim et (offerKey, requestId, expectedFarmId); sonuç PurchaseResult

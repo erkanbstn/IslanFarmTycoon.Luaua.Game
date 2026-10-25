@@ -163,8 +163,7 @@ FarmMath.getNewAnimalBornAt = Animals.getNewAnimalBornAt
 FarmMath.findSellableAnimal = Animals.findSellableAnimal
 FarmMath.getFreeSlots = Animals.getFreeSlots
 FarmMath.getBulkPrice = Animals.getBulkPrice
-FarmMath.findReplaceableFish = Animals.findReplaceableFish
-FarmMath.getFishReplacementPrice = Animals.getFishReplacementPrice
+FarmMath.getSellBlockReason = Animals.getSellBlockReason
 FarmMath.hasUnlockedAnimalZone = Animals.hasUnlockedAnimalZone
 FarmMath.findZoneForAnimal = Animals.findZoneForAnimal
 

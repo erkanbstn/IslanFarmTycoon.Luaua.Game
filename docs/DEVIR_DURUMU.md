@@ -1,5 +1,8 @@
 # Güncel devir durumu
 
+## Hayvan sat/al ve doluluk şartı (25 Ekim 2026)
+Şikâyet: ilk adada tek küçük balık satılmıyor, ada tamamlanmıyor. Hamsi-levrek takası (`RequestReplaceFish`, `findReplaceableFish`, `FISH_REPLACEMENT_REFUND_RATE`, "FishReplaced") tamamen kaldırıldı. Kapasite veren yapı geliştirmesi artık bölgenin dolu olmasını istemez (`Expansion.getExpansionStatus`; "Önce bölgeyi hayvanla doldur" kalktı), böylece geliştirme seviyeleri ve tamamlanma hayvan sayısına bağlı değil. Satış tek sebep kaynağına bağlandı: `FarmMath.getSellBlockReason` (`AnimalService.trySell` + pazar kartındaki "Sat" düğmesi; düğme artık Ayrıntılar kapalıyken de kartta görünür). Çiftlikteki son hayvan hâlâ satılmaz. Testler: `animal-service` (hamsi satışı), `economy` (boş bölge genişler), `rebirth-journey` (satış tamamlanmayı bozmaz). Studio'da bekleyen: Pazar kartı yerleşimi (Sat düğmesi, dar/mobil) göz kontrolü.
+
 ## Uzun ayrılıktan dönüş (6 Ekim 2026)
 Şikâyet: 5-10 saat sonra dönünce yalnız 2 yükseltme. Neden ve ölçüm `docs/ZORLUK_VE_FIYAT.md` "Uzun süre sonra dönen oyuncu". Çevrimdışı kazançtaki sert kesinti kaldırıldı: tam bölgeden (2 sa, Pasif Gelirle 5 sa) sonra `OFFLINE_TAIL` (4 sa x0,30, 4 sa x0,15) ve 4-8 saatlik ayrılıkta durumsuz `OFFLINE_RETURN_CHEST` (uzak saat başına 2 dk gelir, tavan 16 dk). Kayıt/Remote değişmedi; dönüş penceresi sınır aşıldığında açıklama gösterir (5 dil). Geç evrede dönüşte ~2 yükseltme sürer (bedel yapısı, çevrimdışı ayarıyla çözülmez). Studio'da bekleyen: dönüş penceresindeki `capped` açıklaması (20+ saat ayrılıklı kayıtla).
 

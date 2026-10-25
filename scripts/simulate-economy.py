@@ -808,7 +808,7 @@ local function invest()
 				end
 			end
 		end
-		-- Alan genişletme: en ucuz yükseltmeyle yarışır (dolu bölgeler genişletilebilir)
+		-- Alan genişletme: en ucuz yükseltmeyle yarışır (açık bölgeler dolu olmadan genişletilebilir)
 		local expandZone: string? = nil
 		local expandCost = math.huge
 		for targetId, target in Config.BUILD_TARGETS do

@@ -339,46 +339,89 @@ return function(createService: any, createHarness: any, createLimiter: any, code
 	local notReady = barterBuy(fullBarter, "cow")
 	assert(notReady and notReady.ok == false and farmMath.getGoodsAmount(fdata, "cheese") == cheeseBefore, "not ready")
 
-	-- Balık değiştirme: bilinmeyen kimlik reddedilir (para düşmez)
+	-- Küçük balık satışı: çiftlikte başka hayvan varken tek hamsi de satılır; görevdeki satılmaz ve sebep söylenir
 	local fish = setup()
-	fish.data.cash = 1e6
-	local missing = fish.fire("RequestReplaceFish", "no-such-animal", fish.nextId(), fish.data.activeMainFarmId)
-	assert(missing and missing.ok == false and fish.data.cash == 1e6, "an unknown fish uid is refused")
-	local workingFish: any = {
-		uid = "working-fish",
-		animalId = "anchovy",
-		zoneId = "fishpen",
-		bornAt = 0,
-		stage = "adult",
-	}
-	fish.data.unlockedZones.fishpen = true
-	table.insert(fish.data.animals, workingFish)
+	local fishData = fish.data
+	fishData.unlockedZones.fishpen = true
+	local lone: any = { uid = "lone-fish", animalId = "anchovy", zoneId = "fishpen", bornAt = 0, stage = "adult" }
+	table.insert(
+		fishData.animals,
+		{ uid = "pen-cow", animalId = "cow", zoneId = "starter", stage = "adult", bornAt = 0 }
+	)
+	table.insert(fishData.animals, lone)
+	assert(farmMath.countAnimals(fishData, "anchovy") == 1, "the farm has exactly one small fish")
+	assert(farmMath.getSellBlockReason(fishData, "anchovy") == nil, "a lone small fish is sellable")
+	assert(farmMath.getSellBlockReason(fishData, "seabass") == "Bu hayvandan yok", "an unowned species has no sale")
+	assert(farmMath.getSellBlockReason(fishData, "no-such-animal") == "Bilinmeyen hayvan", "unknown species")
+	local fishRefund = farmMath.getSellPrice(fishData, "anchovy")
+	assert(fishRefund > 0, "the small fish refunds money")
 	for _, kind in { "production", "extension" } do
-		workingFish.task = { kind = kind, id = "fish_dispatch", startedAt = fish.now, endsAt = fish.now + 120 }
-		assert(farmMath.findReplaceableFish(fish.data, fish.now) == nil, "a busy fish is hidden from replacement")
-		local refusedFish = fish.fire("RequestReplaceFish", workingFish.uid, fish.nextId(), fish.data.activeMainFarmId)
+		lone.task = { kind = kind, id = "fish_dispatch", startedAt = 0, endsAt = math.huge }
+		assert(farmMath.getSellBlockReason(fishData, "anchovy") == "Hayvan görevde", "a task animal reports why")
+		local busy = fish.fire("RequestSellAnimal", "anchovy", fish.nextId(), fishData.activeMainFarmId)
 		assert(
-			refusedFish
-				and refusedFish.ok == false
-				and fish.data.cash == 1e6
-				and fish.data.animals[#fish.data.animals] == workingFish
-				and workingFish.task ~= nil,
-			"replacement cannot remove a task animal or spend money"
+			busy
+				and busy.ok == false
+				and busy.message == "Hayvan görevde"
+				and fishData.cash == 0
+				and table.find(fishData.animals, lone) ~= nil,
+			"a busy small fish is refused with the reason and keeps the money"
 		)
 	end
-	workingFish.task.endsAt = fish.now
-	assert(farmMath.findReplaceableFish(fish.data, fish.now) == workingFish, "a returned fish can be replaced")
-	local replacementPrice = farmMath.getFishReplacementPrice(fish.data)
-	local replacedFish = fish.fire("RequestReplaceFish", workingFish.uid, fish.nextId(), fish.data.activeMainFarmId)
+	lone.task = nil
+	local fishSale = fish.fire("RequestSellAnimal", "anchovy", fish.nextId(), fishData.activeMainFarmId)
 	assert(
-		replacedFish
-			and replacedFish.ok == true
-			and fish.data.cash == 1e6 - replacementPrice
-			and fish.data.animals[#fish.data.animals].animalId == "seabass"
-			and fish.data.animals[#fish.data.animals].task == nil,
-		"replacement resumes after the task ends and charges the server price"
+		fishSale
+			and fishSale.ok == true
+			and fishData.cash == fishRefund
+			and farmMath.countAnimals(fishData, "anchovy") == 0
+			and table.find(fishData.animals, lone) == nil,
+		"the lone small fish is sold for the server refund"
+	)
+	local soleFish: any = { uid = "sole-fish", animalId = "anchovy", zoneId = "fishpen", bornAt = 0, stage = "adult" }
+	fishData.animals = { soleFish }
+	assert(farmMath.getSellBlockReason(fishData, "anchovy") == "Son hayvan satılamaz", "the last animal reports why")
+
+	-- Satış tamamlanmayı bozmaz: tamamlanma satın alınan yükseltme/geliştirme/ırk seviyesinden okunur; gerçek servisle satış bunlara dokunmaz
+	local keeper = setup()
+	local kdata = keeper.data
+	for index = 1, 4 do
+		table.insert(
+			kdata.animals,
+			{ uid = `keep-cow-{index}`, animalId = "cow", zoneId = "starter", stage = "adult", bornAt = 0 }
+		)
+	end
+	kdata.expansions = { starter = 2 }
+	kdata.lineage = { cow = 2 }
+	kdata.purchased.keep_marker = true
+	local function levels(): string
+		local parts = {}
+		for purchasedId in kdata.purchased do
+			table.insert(parts, `p:{purchasedId}`)
+		end
+		for zoneKey, level in kdata.expansions do
+			table.insert(parts, `e:{zoneKey}={level}`)
+		end
+		for animalKey, level in kdata.lineage do
+			table.insert(parts, `l:{animalKey}={level}`)
+		end
+		table.sort(parts)
+		return table.concat(parts, ",")
+	end
+	local levelsBefore = levels()
+	local soldCows = 0
+	while farmMath.getSellBlockReason(kdata, "cow") == nil do
+		local saleReply = keeper.fire("RequestSellAnimal", "cow", keeper.nextId(), kdata.activeMainFarmId)
+		assert(saleReply and saleReply.ok == true, "every allowed sale goes through the real service")
+		soldCows += 1
+		assert(soldCows < 100, "selling terminates")
+	end
+	assert(soldCows >= 3 and #kdata.animals == 1, "selling continues down to the farm's last animal")
+	assert(
+		levels() == levelsBefore,
+		"selling animals through the service never changes purchases, expansions or lineage"
 	)
 	print(
-		"PASS animal service: actual service ownership, no-cash, replay, stale farm, throttling, sell and fish guards"
+		"PASS animal service: actual service ownership, no-cash, replay, stale farm, throttling, sell, small-fish sale and completion-safe selling"
 	)
 end

@@ -160,7 +160,8 @@ return function(createService: any, createHarness: any, createLimiter: any, code
 	local badZone = growth.fire("RequestExpandZone", "no_such_zone", growth.nextId(), growth.data.activeMainFarmId)
 	assert(badZone and badZone.ok == false and badZone.message == "Geçersiz istek", "unknown expansion target")
 	local expandStatus, _, expandCost = farmMath.getExpansionStatus(growth.data, "starter")
-	if expandStatus == "available" then
+	assert(expandStatus == "available", "an unlocked zone can be expanded without being full")
+	do
 		growth.data.cash = expandCost - 1
 		local expandBroke = growth.fire("RequestExpandZone", "starter", growth.nextId(), growth.data.activeMainFarmId)
 		assert(expandBroke and expandBroke.ok == false, "expansion without cash is refused")

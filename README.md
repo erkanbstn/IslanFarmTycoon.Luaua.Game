@@ -108,8 +108,10 @@ hatasından ayrıdır.
 5. **Yol Haritası:** Oyuncu sırayı kendi seçer; sadece ön koşulu olanlar kilitlidir.
 6. **Adalar:** Herhangi bir ada tabelasına ya da meydandaki "🧭 Adalar" tabelasına yaklaşıp **E** →
    meydana veya başka bir adaya ışınlan.
-7. **Balık değiştirme:** Pazar'da bir hamsiyi yavru levreğe yükseltebilirsin; yeni levrek fiyatından
-   hamsinin sabit başlangıç fiyatının `Config.FISH_REPLACEMENT_REFUND_RATE` oranı düşülür. Kafes doluyken de çalışır.
+7. **Hayvan sat / al:** Pazar'daki her hayvan kartında **Sat** düğmesi doğrudan görünür (hamsi dahil); aynı türün en genci
+   satılır, `Config.ANIMAL_SELL_FRACTION` kadar iade gelir. Düğme satılamama nedenini yazar (görevdeki hayvan, çiftlikteki son hayvan).
+   Hayvan satmak ada/çiftlik tamamlanmasını etkilemez: tamamlanma satın alınan yükseltmelere ve geliştirme/ırk seviyelerine bağlıdır,
+   bölgenin hayvanla dolu olması gerekmez (kapasite geliştirmesi bölge açık olduğu sürece alınır).
 8. **Yol haritası sonrası:** Tüm alanları yetişkin hayvanlarla doldurma ve 10 levreğe ulaşma
    ustalık hedefleri görünür. Tekrar eden ürün siparişlerinde yetişkin hayvanlar çevrimiçiyken
    üretim yapar; tamamlanan siparişi teslim edince para ve yeni sipariş alınır. Hayvan tüketilmez.
