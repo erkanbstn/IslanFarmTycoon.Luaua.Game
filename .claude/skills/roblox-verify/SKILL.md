@@ -73,7 +73,7 @@ QA place yayınlanmaz; canlı yer/kayıt üzerinde fixture çalıştırılmaz. A
 
 ## Studio'da kalan kanıt
 
-- `test.project.json` dünya testleri ve harita eklentisi `MapToolRun=buildverify`: sözleşme/yapı doğrulaması; statik harita değiştiyse kurulum + place kaydı gerekir. Plugin değiştiyse eklenti yeniden derlenir ve Studio yeniden açılır (`tests-tooling.md`).
+- `test.project.json` dünya testleri ve harita eklentisi `MapToolRun=buildverify`: sözleşme/yapı doğrulaması; statik harita değiştiyse kurulum + place kaydı gerekir. Plugin değiştiyse eklenti yeniden derlenir ve Studio yeniden açılır (`.claude/rules/tests-tooling.md`).
 - Telefon/masaüstü, uzun çeviri, gamepad ve gece ışıklarının gerçek görsel kontrolü; QA inspect veya saf UI mock'u render doğrulaması sayılmaz.
 - İki oyuncu, streaming, uzun kullanım ve MicroProfiler gerekiyorsa aynı senaryoda ölç. Gerçek makbuz/reconnect, canlı DataStore ve ağ hatası, izole nonpersistent QA'da kanıtlanmış değildir.
 

@@ -50,7 +50,7 @@ Taşınan projede `CLAUDE.md`, `.claude/`, `scripts/` ve `docs/` birlikte alın�
   - `roblox-localize`: Türkçe kaynak metin ve beş dil sözlüğü.
   - `roblox-save-schema`: kalıcı kayıt ve finansal veri.
   - `roblox-verify`: hızlı/tam doğrulama ve Studio sınırları.
-- Kural/skill başka yerde (`.cursor`, `.github`, `AGENTS.md`...) açılmaz; `check-ai-docs.py` sapmayı yakalar.
+- Kural/skill başka yerde (`.cursor`, `.github`, eski ajan rehberleri...) açılmaz; `check-ai-docs.py` sapmayı yakalar.
 
 ## Hızlı kontrol komutları (tek yer)
 

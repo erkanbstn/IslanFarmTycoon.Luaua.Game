@@ -11,7 +11,7 @@ paths:
 - Zamanlama: `task.wait/spawn/delay/defer`. `wait()`, `spawn()`, `delay()` yasak.
 - String: `` `Seviye {level}` ``. Diziler 1'den başlar. Girinti tab, StyLua biçimi (`stylua src`).
 - `require` her zaman kendi başına bir deyim: `local X = require(...)` (StyLua satırı bölse de olur); başka ifadenin içine gömme.
-  Test edilen bir modüle yeni require eklersen `run-tests.py` bağımlılık kümesini de güncelle (bkz. `tests-tooling.md`).
+  Test edilen bir modüle yeni require eklersen `run-tests.py` bağımlılık kümesini de güncelle (bkz. `.claude/rules/tests-tooling.md`).
 - Kodun nereye konacağı ve kime bağlanabileceği: `docs/MIMARI.md` (katmanlar). `python scripts/check-architecture.py` yukarı bağımlılığı yakalar.
 - Selene uyarısı bırakma (gölgeleme, kullanılmayan değişken): `selene src plugin tests` 0 uyarı ile bitmeli.
 - Yorumlar Türkçe ve kısa; yalnızca kodun göstermediği kısıtı anlatır.

@@ -12,7 +12,7 @@ description: Changes the generated island map, decor, lamps or build spots in Ma
   kurar → sürüm gerekmez.
 - Klasör adı/yapısı ya da `plugin/` değiştiyse eklentiyi yeniden üret: `rojo build plugin.project.json --plugin IslandFarmTycoonHarita.rbxm` (Studio'yu yeniden başlat; eklenti yalnızca açılışta yüklenir).
 - Yalnızca `src/`/`tests/`/`assets/` değiştiyse eklenti ve Studio yeniden açılmaz (Rojo senkronu yeter; testler `ServerStorage.MapSpecs`'ten gelir).
-- Görsel (geometri) **modelden** gelir: yeni/değişen şekil için `assets/` modeli (`docs/MODEL_SOZLESMESI.md` iş akışı), kodda `ModelAssets.clone/place`; kodda `makePart` ile geometri yazma (bkz. `world-map.md` "Model tabanlı görseller").
+- Görsel (geometri) **modelden** gelir: yeni/değişen şekil için `assets/` modeli (`docs/MODEL_SOZLESMESI.md` iş akışı), kodda `ModelAssets.clone/place`; kodda `makePart` ile geometri yazma (bkz. `.claude/rules/world-map-model-gorseller.md`).
 
 ## Adımlar
 ```
@@ -22,7 +22,7 @@ description: Changes the generated island map, decor, lamps or build spots in Ma
 - [ ] 3a. Yeni avlu/dekor parçası: önce model (`assets/CommonDecor` vb.) + `check-assets.py` beklentisi, sonra `WorldDecor` yardımcısı/`ModelAssets.place`; yer `decorateHome` koordinatlarına/çim kaçınma listesine göre; yön tabelalarında `yaw` ve metin çevirisi
 - [ ] 3b. Dekor bitince WorldDecor.optimize; tabela eklediysen uzun direk + CanCollide=false (yüksekliği map-structure denetler)
 - [ ] 4. rojo build (verify.ps1) + selene
-- [ ] 5. Haritayı Kur + Doğrula: Studio MCP varsa kendin tetikle (`ServerStorage` özniteliği `MapToolRun` = `buildverify`, çıktı `get_console_output`; ayrıntı `tests-tooling.md`), yoksa kullanıcıya: eklenti paneli → "Haritayı Kur" → "Haritayı Doğrula". Sonra kullanıcı place'i kaydeder (Ctrl+S); kayıtsız Studio kapatılırsa kurulum boşa gider
+- [ ] 5. Haritayı Kur + Doğrula: Studio MCP varsa kendin tetikle (`ServerStorage` özniteliği `MapToolRun` = `buildverify`, çıktı `get_console_output`; ayrıntı `.claude/rules/tests-tooling.md`), yoksa kullanıcıya: eklenti paneli → "Haritayı Kur" → "Haritayı Doğrula". Sonra kullanıcı place'i kaydeder (Ctrl+S); kayıtsız Studio kapatılırsa kurulum boşa gider
 ```
 
 ## Gece ışığı ekleme
