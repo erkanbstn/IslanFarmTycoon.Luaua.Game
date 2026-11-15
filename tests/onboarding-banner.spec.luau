@@ -103,6 +103,19 @@ return function(createBanner: any)
 		table.find(shown, "İLK ADIMLAR 1/8") and table.find(shown, "Pazar'ı aç ve ilk hayvanını satın al"),
 		"texts"
 	)
+	local function detailLabel(text: string): any
+		for _, label in texts do
+			if label.Text == text then
+				return label
+			end
+		end
+		return nil
+	end
+	banner.show("İLK ADIMLAR 3/8", "İlk yükseltme: Silo · $970", "12 saniyede hazır")
+	local detail = detailLabel("12 saniyede hazır")
+	assert(detail and detail.Visible, "the hidden goal card's hint (wait time) shows as the banner's third line")
+	banner.show("İLK ADIMLAR 2/8", "Yeşil platforma basıp parayı topla")
+	assert(not detail.Visible, "a step without a hint hides the third line")
 	skipButton.Activated.fire()
 	assert(not frame.Visible and skipped == 1, "skip hides the banner and notifies the server path")
 	banner.show("İLK ADIMLAR 2/8", "Yeşil platforma basıp parayı topla")

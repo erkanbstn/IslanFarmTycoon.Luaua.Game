@@ -252,11 +252,17 @@ end
 
 local function refreshAll()
 	for _, player in Players:GetPlayers() do
-		for farmId, plot in PlotService.getAllOwned(player) do
-			local data = PlayerDataService.getFarmView(player, farmId)
-			if data then
-				BuyPadService.apply(plot, data)
+		-- Oyuncu başına korunur: bir oyuncunun hatası diğerlerinin kaidelerini dondurmasın
+		local ok, err = pcall(function()
+			for farmId, plot in PlotService.getAllOwned(player) do
+				local data = PlayerDataService.getFarmView(player, farmId)
+				if data then
+					BuyPadService.apply(plot, data)
+				end
 			end
+		end)
+		if not ok then
+			warn(`[BuyPad] user={player.UserId}: {err}`)
 		end
 	end
 end

@@ -75,6 +75,7 @@ return function(codec: any, config: any, farmMath: any, progression: any, rebirt
 	migrated.progression.convertedDay, migrated.progression.convertedDayGold = math.floor(now / 86400), 50
 	migrated.progression.doubleCredits = 1
 	migrated.achievements = { earned_1m = true }
+	migrated.seasonal = { key = 7, progress = 3, target = 5, base = 0, claimed = true }
 	for index = 1, config.MAIN_FARM_LIMIT do
 		local id = tostring(index)
 		local farm = codec.newFarm(config, farmMath, now, uid, id)
@@ -127,6 +128,10 @@ return function(codec: any, config: any, farmMath: any, progression: any, rebirt
 	assert(
 		migrated.daily.streak == 3 and migrated.merchant.bought and migrated.golden.key == 1,
 		"real-time claim guards survive"
+	)
+	assert(
+		migrated.seasonal and migrated.seasonal.key == 7 and migrated.seasonal.claimed == true,
+		"a claimed seasonal goal stays claimed: rebirth cannot pay the same season twice"
 	)
 	assert(
 		migrated.progression.convertedDayGold == 50 and migrated.progression.convertedRunGold == 0,

@@ -16,6 +16,28 @@ return function(Config: any, FarmMath: any)
 		)
 	end
 
+	-- Ahır yükseltmesi açıklaması gerçek depo/ürün kapasitesini söyler (eski metin 24.000 yazıp 120.000 veriyordu)
+	local function dotted(value: number): string
+		local text = tostring(math.floor(value))
+		local result = ""
+		while #text > 3 do
+			result = "." .. string.sub(text, -3) .. result
+			text = string.sub(text, 1, -4)
+		end
+		return text .. result
+	end
+	for level = 2, #Config.BARN_LEVELS do
+		local barn = Config.BARN_LEVELS[level]
+		local upgrade = Config.getUpgrade(`barn_{level}`)
+		if upgrade then
+			assert(
+				string.find(upgrade.description, `Depo {dotted(barn.storageCap)}`, 1, true)
+					and string.find(upgrade.description, `Her üründen {barn.goodsCap} yer`, 1, true),
+				`barn_{level} description matches BARN_LEVELS (storage {barn.storageCap}, goods {barn.goodsCap})`
+			)
+		end
+	end
+
 	-- Bölgeler ve adalar
 	local zoneOrder: { [string]: boolean } = {}
 	for _, zoneId in Config.ZONE_ORDER do

@@ -30,6 +30,29 @@ return function(Progression: any, FarmMath: any, Config: any, SaveCodec: any)
 	local save = completeFarm("1")
 	assert(Progression.isFarmComplete(save), "base upgrades complete without leveled builds or animals")
 	assert(not Progression.isFarmComplete(save, "invalid"), "invalid farms cannot complete")
+	-- Otomatik toplama hakkı başka yoldan varsa toplayıcı yükseltmesi tamamlanma için istenmez
+	local noCollector = completeFarm("3")
+	noCollector.purchased.auto_collector = nil
+	assert(
+		not Progression.isFarmComplete(noCollector),
+		"without any auto-collect right the collector upgrade is required"
+	)
+	noCollector.owned.conveniences.auto_collect = true
+	assert(Progression.isFarmComplete(noCollector), "a permanent auto-collect right covers the collector upgrade")
+	noCollector.owned.conveniences.auto_collect = nil
+	noCollector.passes = { auto_collector = true }
+	assert(Progression.isFarmComplete(noCollector), "the auto-collect pass covers the collector upgrade")
+	-- Kilometre taşının ileride ücretsiz vereceği eşya tanınır (arayüz onu altınla önermez)
+	local milestoneItem = Config.PROGRESSION.milestones[2].itemId
+	if milestoneItem then
+		local early = fresh()
+		assert(Progression.upcomingFreeLevel(early, milestoneItem) == 2, "R2 reward is flagged as upcoming before R2")
+		early.progression.count = 2
+		assert(
+			Progression.upcomingFreeLevel(early, milestoneItem) == nil,
+			"a granted milestone item is no longer upcoming"
+		)
+	end
 	save.mainFarms = {}
 	for index = 2, 6 do
 		save.mainFarms[tostring(index)] = completeFarm(tostring(index))

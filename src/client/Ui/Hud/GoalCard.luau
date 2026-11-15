@@ -25,6 +25,12 @@ local purchaseHint = HudCommon.purchaseHint
 
 local GoalCard = {}
 
+-- Önerilecek kadar işe yarar mı: Otlak yalnızca başlangıç ağılı dolunca kapasite kazandırır
+local function isUsefulUpgrade(state: PlayerSave, upgrade: Config.UpgradeConfig): boolean
+	return upgrade.id ~= "zone_pasture"
+		or FarmMath.countInZone(state, "starter") >= FarmMath.getZoneCapacity(state, "starter")
+end
+
 export type Hud = {
 	card: Frame, -- hedef kartı (sol panelde)
 	updateGoal: (state: PlayerSave, income: number) -> (),
@@ -94,10 +100,12 @@ function GoalCard.create(stats: Frame, onboarding: Onboarding.Hud, banner: Onboa
 	local function updateGoalMain(state: PlayerSave, income: number)
 		goalTitle.Text = "SIRADAKİ HEDEF"
 		-- İlk adımlar: hayvan al → parayı topla → ilk yükseltme (durumdan türetilir, vurgular Onboarding'de)
+		-- İlk yükseltme de işe yarar olanlardan seçilir: ağıl dolmadan Otlak boş kapasite olur (aşağıdaki hedef kartıyla aynı kural)
 		local cheapest: Config.UpgradeConfig? = nil
 		for _, upgrade in Config.UPGRADES do
 			if
-				FarmMath.getUpgradeStatus(state, upgrade.id) == "available"
+				isUsefulUpgrade(state, upgrade)
+				and FarmMath.getUpgradeStatus(state, upgrade.id) == "available"
 				and (not cheapest or FarmMath.getUpgradeCost(state, upgrade) < FarmMath.getUpgradeCost(state, cheapest))
 			then
 				cheapest = upgrade
@@ -118,17 +126,27 @@ function GoalCard.create(stats: Frame, onboarding: Onboarding.Hud, banner: Onboa
 			goalLabel.Text = `İlk yükseltme: {cheapest.displayName} · {FarmMath.formatMoney(
 				FarmMath.getUpgradeCost(state, cheapest)
 			)}`
-			goalDetail.Text = purchaseHint(state, FarmMath.getUpgradeCost(state, cheapest), income, cheapest)
+			local upgradeCost = FarmMath.getUpgradeCost(state, cheapest)
+			local hint = purchaseHint(state, upgradeCost, income, cheapest)
+			-- Biriktirirken boş beklemesin: yer varsa ve parası yetiyorsa yeni hayvan geliri artırıp hedefi öne çeker
+			local homeAnimal = Config.getHomeAnimal(state.activeMainFarmId)
+			if
+				state.cash < upgradeCost
+				and FarmMath.getFreeSlots(state, homeAnimal) > 0
+				and state.cash >= FarmMath.getAnimalPrice(state, homeAnimal)
+			then
+				hint = `{hint}\nBeklerken Pazar'dan hayvan al: gelirin artar`
+			end
+			goalDetail.Text = hint
 			return
 		elseif step == 4 then
 			goalTitle.Text = "İLK ADIMLAR 4/8"
 			goalLabel.Text = "Üretim penceresinden ilk partini başlat"
-			goalDetail.Text =
-				"Tesis hayvanlarının ürününü paraya çevirir; sonra Yol Haritası'ndan yeni yatırımlar seçersin."
+			goalDetail.Text = "Tesis hayvanlarının ürününü işler: kasana para ya da ahır deposuna ürün verir."
 			return
 		elseif step == 5 then
 			goalTitle.Text = "İLK ADIMLAR 5/8"
-			goalLabel.Text = "Meydandaki Sipariş Panosu'ndan ilk siparişini teslim et"
+			goalLabel.Text = "Meydandaki Tüccar Tarık'tan ilk siparişini teslim et"
 			goalDetail.Text = "Depodaki ürünlerin siparişi karşılar; teslim edince ödül kasana geçer."
 			return
 		elseif step == 6 then
@@ -187,10 +205,8 @@ function GoalCard.create(stats: Frame, onboarding: Onboarding.Hud, banner: Onboa
 		local best: Config.UpgradeConfig? = nil
 		for _, upgrade in Config.UPGRADES do
 			local status = FarmMath.getUpgradeStatus(state, upgrade.id)
-			local useful = upgrade.id ~= "zone_pasture"
-				or FarmMath.countInZone(state, "starter") >= FarmMath.getZoneCapacity(state, "starter")
 			if
-				useful
+				isUsefulUpgrade(state, upgrade)
 				and status == "available"
 				and (not best or FarmMath.getUpgradeCost(state, upgrade) < FarmMath.getUpgradeCost(state, best))
 			then
@@ -360,7 +376,8 @@ function GoalCard.create(stats: Frame, onboarding: Onboarding.Hud, banner: Onboa
 		-- Üst ortadaki görev şeridi ilk adımlarda aynı metni gösterir (metin kaynağı yukarıdaki kart)
 		if Onboarding.stepFor(state) ~= 0 then
 			goalCard.Visible = false
-			banner.show(goalTitle.Text, goalLabel.Text)
+			-- Hedef kartı gizli: açıklama ve bekleme süresi ("N saniyede hazır") şeridin üçüncü satırında görünür
+			banner.show(goalTitle.Text, goalLabel.Text, goalDetail.Text)
 		else
 			goalCard.Visible = true
 			banner.hide()

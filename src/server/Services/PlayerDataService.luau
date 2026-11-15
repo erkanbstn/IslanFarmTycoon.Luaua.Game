@@ -666,7 +666,7 @@ local function sendState(player: Player, session: Session)
 	TutorialProgress.observe(data, OnboardingSteps, player)
 	local summaries = FarmProfiles.summaries(data, function(id: string): string?
 		return if farmPlotResolver then farmPlotResolver(player, id) else nil
-	end)
+	end, FarmMath.hasAutoCollect)
 	local offers = if mainFarmOffersResolver then mainFarmOffersResolver() else {}
 	local payload = FarmProfiles.clientState(data, summaries, offers, FarmMath.getParkedIncomeBest(data, os.time()))
 	payload.progressionStatus = Progression.progress(data)

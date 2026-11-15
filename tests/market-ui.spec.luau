@@ -256,6 +256,9 @@ return function(createStore: any, createMarket: any, createItemShop: any)
 		canRebirth = function(): boolean
 			return false
 		end,
+		upcomingFreeLevel = function(): number?
+			return nil
+		end,
 		getPerkLevel = function(): number
 			return 0
 		end,

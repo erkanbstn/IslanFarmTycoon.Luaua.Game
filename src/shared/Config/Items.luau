@@ -802,7 +802,7 @@ function Items.install(items: { [string]: Types.ItemConfig }, order: { string })
 		slot = "charm",
 		price = 1,
 		rewardOnly = true,
-		effects = { goodsYield = 0.2, contractBonus = 0.12 },
+		effects = { goodsYield = 0.2, contractBonus = 0.12, offlineBonus = 0.12 }, -- R18 ödülü: ürün/sipariş tek başına ölü yüktü, çevrimdışı eklendi
 		look = { attach = "chest" },
 	})
 	add({

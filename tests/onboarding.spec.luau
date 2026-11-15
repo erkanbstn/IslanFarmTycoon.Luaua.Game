@@ -289,6 +289,15 @@ return function(OnboardingSteps: any, Config: any, FarmMath: any, SaveCodec: any
 		raw.lifetimeEarned = OnboardingSteps.SKIP_BASICS_EARNED
 	end)
 	assert(above.tutorialDone == true, "eşik üstü eski kayıt bitmiş sayılır")
+	local staged = reload(function(raw)
+		raw.tutorialDone = nil
+		raw.tutorialStage = 3
+		raw.lifetimeEarned = OnboardingSteps.SKIP_BASICS_EARNED
+	end)
+	assert(
+		staged.tutorialDone == nil and staged.tutorialStage == 3,
+		"aşaması yazılmış yeni hesap ilk oturumda eşiği geçse de yeniden girişte öğreticide kalır"
+	)
 	local explicitFalse = reload(function(raw)
 		raw.tutorialDone = false
 		raw.lifetimeEarned = OnboardingSteps.SKIP_ALL_EARNED

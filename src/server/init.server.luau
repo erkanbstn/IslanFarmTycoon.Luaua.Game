@@ -254,7 +254,13 @@ local function setupRespawn(player: Player)
 			humanoid.BreakJointsOnDeath = false
 			humanoid.Died:Connect(function()
 				task.wait(Players.RespawnTime)
-				if player.Parent and PlayerDataService.tryGet(player) then
+				-- Hesap işlemi (rebirth, altın, makbuz kaydı) sürerken tryGet nil döner: otomatik doğma kapalı olduğu için
+				-- vazgeçmek oyuncuyu karaktersiz bırakır; kilit açılana kadar kısa aralıkla bekle (sınırlı).
+				local deadline = os.clock() + 60
+				while player.Parent and not PlayerDataService.tryGet(player) and os.clock() < deadline do
+					task.wait(0.5)
+				end
+				if player.Parent and player.Character == character and PlayerDataService.tryGet(player) then
 					local ok, err = pcall(function()
 						player:LoadCharacter()
 					end)
@@ -338,7 +344,15 @@ local function onPlayerAdded(player: Player)
 	EconomyService.startPlayer(player)
 	PlayerDataService.pushState(player)
 
-	Remotes.get("Notify"):FireClient(player, `{Config.GAME_NAME}'a hoş geldin! Yol Haritası'ndan ilerle.`, "info")
+	-- Yeni oyuncuda Yol Haritası düğmesi henüz gizlidir (MenuBar): ilk adım Pazar'dır
+	local isNewPlayer = (data.lifetimeEarned or 0) <= 0 and #data.animals == 0
+	Remotes.get("Notify"):FireClient(
+		player,
+		if isNewPlayer
+			then `{Config.GAME_NAME}'a hoş geldin! Pazar'dan ilk hayvanını al.`
+			else `{Config.GAME_NAME}'a hoş geldin! Yol Haritası'ndan ilerle.`,
+		"info"
+	)
 	-- Dönüş özeti: sen yokken kazanılan para ve büyüyen hayvanlar (client küçük bir pencere gösterir)
 	local offline, grown, capped = PlayerDataService.takeOfflineSummary(player)
 	if offline > 0 or grown > 0 then

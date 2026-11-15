@@ -200,7 +200,14 @@ function ProductionService.init()
 					:FireClient(player, id, false, "Etkin çiftlik değişti; üretimi tekrar seç.")
 				return
 			end
-			local ok, message = act(player, action, recipeId, jobUid)
+			-- Beklenmeyen hata istemciyi 10 sn zaman aşımında bırakmasın; yarım kalan değişiklik de görünsün ve kaydedilsin
+			local called, ok, message = pcall(act, player, action, recipeId, jobUid)
+			if not called then
+				warn(`[Production] {action} {recipeId} user={player.UserId}: {ok}`)
+				PlayerDataService.pushState(player)
+				PlayerDataService.requestSave(player)
+				ok, message = false, "Üretim işlemi tamamlanamadı; tekrar dene."
+			end
 			Remotes.get("ProductionResult"):FireClient(player, id, ok, message)
 		end
 	)

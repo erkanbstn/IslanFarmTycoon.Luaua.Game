@@ -11,7 +11,7 @@ local OnboardingBanner = {}
 
 export type Banner = {
 	frame: Frame,
-	show: (title: string, label: string) -> (),
+	show: (title: string, label: string, detail: string?) -> (),
 	hide: () -> (),
 }
 
@@ -46,11 +46,16 @@ function OnboardingBanner.create(hudRoot: Instance, onSkip: (() -> ())?): Banner
 	label.FontFace = UiKit.Font.Bold
 	label.TextXAlignment = Enum.TextXAlignment.Center
 	label.LayoutOrder = 2
+	-- Açıklama / bekleme süresi (hedef kartı şerit açıkken gizlidir; tek kaynak GoalCard)
+	local detail = UiKit.text(frame, "", "Caption", Color.TextMuted)
+	detail.TextXAlignment = Enum.TextXAlignment.Center
+	detail.LayoutOrder = 3
+	detail.Visible = false
 
 	local skip = UiKit.button(frame, "Atla", "secondary")
 	skip.Size = UDim2.fromOffset(96, UiKit.TouchTarget)
 	skip.TextSize = UiKit.TextSize.Caption
-	skip.LayoutOrder = 3
+	skip.LayoutOrder = 4
 	skip.Activated:Connect(function()
 		frame.Visible = false
 		if onSkip then
@@ -60,9 +65,14 @@ function OnboardingBanner.create(hudRoot: Instance, onSkip: (() -> ())?): Banner
 
 	return {
 		frame = frame,
-		show = function(titleText: string, labelText: string)
+		show = function(titleText: string, labelText: string, detailText: string?)
 			UiKit.setText(title, titleText)
 			UiKit.setText(label, labelText)
+			local hasDetail = detailText ~= nil and detailText ~= ""
+			if hasDetail then
+				UiKit.setText(detail, detailText :: string)
+			end
+			detail.Visible = hasDetail
 			frame.Visible = true
 		end,
 		hide = function()

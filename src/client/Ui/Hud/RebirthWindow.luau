@@ -64,7 +64,14 @@ function RebirthWindow.affordableOffers(state: PlayerSave, budget: number): { af
 	for _, offer in Config.PROGRESSION.permanentOffers do
 		local itemId = offer.itemId
 		local item = if itemId then Config.ITEMS[itemId] else nil
-		if itemId and item and offer.goldCost and not (owned and owned[itemId] == true) then
+		-- Yaklaşan kilometre taşının ücretsiz vereceği eşya önerilmez (altın boşa gitmesin)
+		if
+			itemId
+			and item
+			and offer.goldCost
+			and not (owned and owned[itemId] == true)
+			and Progression.upcomingFreeLevel(state, itemId) == nil
+		then
 			table.insert(unowned, { itemId = itemId, name = item.displayName, goldCost = offer.goldCost })
 		end
 	end

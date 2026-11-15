@@ -63,8 +63,8 @@ local data = {
 		{ displayName = "Takımada Uzmanı", description = "Rebirth altını +%10", effects = { goldBonus = 0.1 } },
 		{
 			displayName = "Hazır Sermaye",
-			description = "Başlangıç parası bir hayvan bedeli artar",
-			effects = { startingAnimals = 1 },
+			description = "Başlangıç parası beş hayvan bedeli artar",
+			effects = { startingAnimals = 5 },
 		},
 		{ displayName = "Bakım Uzmanı", description = "Kalıcı Bakıcı Asası", itemId = "caretaker_staff" },
 		{ displayName = "Usta Üretici", description = "Üretim hızı +%1", effects = { facilitySpeed = 0.01 } },
@@ -81,8 +81,8 @@ local data = {
 		{ displayName = "Güçlü Lojistik", description = "Nakit deposu +%3", effects = { storageBonus = 0.03 } },
 		{
 			displayName = "İkinci Sermaye",
-			description = "Başlangıç parası bir hayvan bedeli artar",
-			effects = { startingAnimals = 1 },
+			description = "Başlangıç parası beş hayvan bedeli artar",
+			effects = { startingAnimals = 5 },
 		},
 		{
 			displayName = "Dinlenen Çiftlik",
@@ -210,7 +210,8 @@ local data = {
 	perks = {
 		income = { maxLevel = 5, effects = { incomeBonus = 0.10 } },
 		growth = { maxLevel = 5, effects = { growthExcess = 0.075 } },
-		starting_cash = { maxLevel = 5, effects = { startingAnimals = 2 } },
+		-- Seviye başına 10 ana hayvan bedeli (Çiftlik 1 inek fiyatı): Sv.5 ilk Otlak + Silo + Ahır Sv.2 kadar; eski 2 bedel (Sv.5 = 750) etkisizdi
+		starting_cash = { maxLevel = 5, effects = { startingAnimals = 10 } },
 		upgrade_discount = { maxLevel = 5, effects = { upgradeDiscount = 0.04 } },
 		facility_speed = { maxLevel = 5, effects = { facilitySpeed = 0.06 } },
 		offline = { maxLevel = 5, effects = { offlineBonus = 0.06, offlineHours = 0.6 } },

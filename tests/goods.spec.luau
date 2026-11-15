@@ -528,7 +528,7 @@ return function(codec: any, config: any, farmMath: any, rules: any, logic: any)
 				local cashRecipe = config.PRODUCTION_RECIPES[cashId]
 				local cashUpgrade = config.getUpgrade(cashRecipe.upgradeId)
 				if
-					cashRecipe.output ~= "cashRecipe"
+					cashRecipe.output ~= "cash"
 					or not cashRecipe.options
 					or not cashUpgrade
 					or not config.upgradeInTheme(cashUpgrade, tostring(farm))

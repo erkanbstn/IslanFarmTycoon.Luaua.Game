@@ -155,9 +155,16 @@ function Production.getProductionReward(
 	local facilityYield = 1 + Expansion.getBuildBonus(save, recipe.id, "yield") -- tesis geliştirmesi
 	local reward = math.floor(recipe.reward * (1 + bonus) * facilityYield)
 	if job and job.forgone then
+		-- Tesis verimi tabana da uygulanır: taban çoğu partide seçenek ödülünü geçtiği için aksi hâlde "Satış +%" geliştirmeleri etkisiz
+		-- kalırdı. Verimli çarpan PRODUCTION_UPGRADED_MAX_RETURN ile sınırlıdır (geliştirme hiçbir partiyi düşürmez).
+		local batchMultiplier =
+			math.min(recipe.returnMultiplier or Config.PRODUCTION_MIN_RETURN, Config.PRODUCTION_MAX_RETURN)
 		local floorReward = math.ceil(
 			(job.forgone + ((job :: any).startCost or Expansion.getFacilityCost(save, recipe)))
-				* math.min(recipe.returnMultiplier or Config.PRODUCTION_MIN_RETURN, Config.PRODUCTION_MAX_RETURN)
+				* math.max(
+					batchMultiplier,
+					math.min(batchMultiplier * facilityYield, Config.PRODUCTION_UPGRADED_MAX_RETURN)
+				)
 		)
 		reward = math.max(reward, floorReward)
 	end

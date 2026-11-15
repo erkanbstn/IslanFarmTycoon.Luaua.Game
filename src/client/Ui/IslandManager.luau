@@ -117,6 +117,7 @@ type MainFarm = {
 	animalCount: number,
 	purchasedCount: number,
 	stored: number,
+	autoCollect: boolean?,
 }
 
 local function update()
@@ -151,8 +152,33 @@ local function summaries(state: any): { MainFarm }
 			animalCount = #state.animals,
 			purchasedCount = purchased,
 			stored = state.stored,
+			autoCollect = FarmMath.hasAutoCollect(state),
 		},
 	}
+end
+
+-- Kart ayrıntısı: otomatik toplayıcıda depo hiç dolmaz ("Depo $0" yanıltır), toplayıcısız park edilmiş çiftlikte depo donuk kalır.
+-- Etkin çiftlik sayıları sunucu özetinden değil canlı durumdan okunur (özet bir push geriden gelebilir).
+local function farmDetail(state: any, farm: MainFarm, isActive: boolean): string
+	local animals, purchased = farm.animalCount, farm.purchasedCount
+	if isActive then
+		animals = #state.animals
+		purchased = 0
+		for _, owned in state.purchased do
+			if owned then
+				purchased += 1
+			end
+		end
+	end
+	local tail
+	if farm.autoCollect == true then
+		tail = "Gelir otomatik kasaya"
+	elseif isActive then
+		tail = `Depo {FarmMath.formatMoney(state.stored)}`
+	else
+		tail = `Park: gelirin %{math.floor(Config.PARKED_FARM_PAY_RATE * 100 + 0.5)} kasaya`
+	end
+	return `{animals} hayvan · {purchased} yatırım · {tail}`
 end
 
 local function submit(action: string, target: string)
@@ -517,11 +543,7 @@ local function create(): UiKit.Window
 			card.frame.Visible = true
 			local isActive = farm.id == activeId
 			card.title.Text = `Ana Çiftlik {farm.id}` .. (if isActive then " · Etkin" else "")
-			local stored = if isActive then state.stored else farm.stored
-			UiKit.setText(
-				card.detail,
-				`{farm.animalCount} hayvan · {farm.purchasedCount} yatırım · Depo {FarmMath.formatMoney(stored)}`
-			)
+			UiKit.setText(card.detail, farmDetail(state, farm, isActive))
 			card.action.Text = if pending
 				then "İşleniyor"
 				elseif isActive then "Etkin çiftliğe dön"

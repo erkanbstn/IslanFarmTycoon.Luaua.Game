@@ -635,6 +635,11 @@ return function(createService: any, Config: any, saveVersion: number)
 		typeof(firstPacket.payload.mainFarmSummaries) == "table" and #firstPacket.payload.mainFarmSummaries == 1,
 		"summaries replace parked farm records"
 	)
+	local summary = firstPacket.payload.mainFarmSummaries[1]
+	assert(
+		typeof(summary.autoCollect) == "boolean" and summary.animalCount == #firstPacket.payload.animals,
+		"the farm card summary carries live counts and whether the storage can fill at all"
+	)
 	assert(
 		firstPacket.payload.cash == Config.STARTING_CASH and firstPacket.payload.animals ~= nil,
 		"active farm fields stay at top level"

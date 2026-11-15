@@ -81,7 +81,12 @@ function FarmProfiles.ids(data: any): { string }
 	return ids
 end
 
-function FarmProfiles.summaries(data: any, plotId: ((string) -> string?)?): { any }
+-- `hasAutoCollect` (FarmMath.hasAutoCollect) çağıran tarafından verilir: otomatik toplayıcılı çiftlikte depo hiç dolmaz, kart bunu söylesin.
+function FarmProfiles.summaries(
+	data: any,
+	plotId: ((string) -> string?)?,
+	hasAutoCollect: ((farm: any) -> boolean)?
+): { any }
 	FarmProfiles.capture(data)
 	local result = {}
 	for _, id in FarmProfiles.ids(data) do
@@ -99,6 +104,7 @@ function FarmProfiles.summaries(data: any, plotId: ((string) -> string?)?): { an
 			animalCount = #farm.animals,
 			purchasedCount = purchasedCount,
 			stored = farm.stored,
+			autoCollect = if hasAutoCollect then hasAutoCollect(FarmProfiles.view(data, id)) else false,
 		})
 	end
 	return result

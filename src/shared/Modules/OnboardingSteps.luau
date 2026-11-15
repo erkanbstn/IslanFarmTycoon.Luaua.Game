@@ -211,7 +211,8 @@ local function completed(step: number, save: any, earned: number): boolean
 	if step == 1 then
 		return #save.animals > Config.STARTING_COW_COUNT
 	elseif step == 2 then
-		return earned > 0
+		-- Hayvansız kazanç (ilk günlük ödül) toplama sayılmaz: aksi hâlde 1. adım atlanır ve oyuncu hayvansız kalır
+		return earned > 0 and #save.animals > Config.STARTING_COW_COUNT
 	elseif step == 3 then
 		return hasAny(save.purchased)
 	elseif step == 4 then

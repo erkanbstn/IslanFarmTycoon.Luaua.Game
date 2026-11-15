@@ -79,6 +79,18 @@ local function findTarget(key: string): BasePart?
 				return ring
 			end
 		end
+		-- Satın alma pedi olmayan bina (Silo, Ahır...) yapım alanındaki tabeladan alınır (Presentation/UpgradeSites)
+		local sites = plot:FindFirstChild("Sites")
+		if sites then
+			for _, site in sites:GetChildren() do
+				if site:GetAttribute("UpgradeId") == upgradeId then
+					local anchor = site:FindFirstChild("SitePromptAnchor", true)
+					if anchor and anchor:IsA("BasePart") then
+						return anchor
+					end
+				end
+			end
+		end
 	end
 	return nil
 end

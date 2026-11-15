@@ -68,16 +68,22 @@ end
 local function refreshAll()
 	local plots, playerData = plotService(), playerDataService()
 	for _, player in Players:GetPlayers() do
-		for farmId, plot in plots.getAllOwned(player) do
-			local data = playerData.getFarmView(player, farmId)
-			if not data then
-				continue
+		-- Oyuncu başına korunur: bir oyuncunun sıra dışı verisi diğerlerinin yığınını dondurmasın
+		local ok, err = pcall(function()
+			for farmId, plot in plots.getAllOwned(player) do
+				local data = playerData.getFarmView(player, farmId)
+				if not data then
+					continue
+				end
+				-- Otomatik toplayıcıda depo hiç dolmaz: yığın da yok
+				local level = if FarmMath.hasAutoCollect(data)
+					then 0
+					else FarmMath.getStorageLevel(data.stored, FarmMath.getStorageCap(data))
+				CollectorVisualService.apply(plot, level)
 			end
-			-- Otomatik toplayıcıda depo hiç dolmaz: yığın da yok
-			local level = if FarmMath.hasAutoCollect(data)
-				then 0
-				else FarmMath.getStorageLevel(data.stored, FarmMath.getStorageCap(data))
-			CollectorVisualService.apply(plot, level)
+		end)
+		if not ok then
+			warn(`[CollectorVisual] user={player.UserId}: {err}`)
 		end
 	end
 end

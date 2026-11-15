@@ -477,11 +477,17 @@ local function create(parent: Instance): UiKit.Window
 				local forgone = if picked then FarmMath.estimateForgoneIncome(state, picked, duration) else 0
 				local preview = { uid = "preview", readyAt = now, forgone = forgone }
 				local hasSpace = true
+				local blockedLabel = "Depo dolu"
 				if isGoods and good then
 					-- Ürün miktarı: kaçırılan gelirin üstündeki garantili taban dahil; depoda yer de gerekir
 					local amount = FarmMath.getGoodsYield(state, recipe, now, preview)
 					local space = FarmMath.getGoodsSpace(state, good.id)
-					hasSpace = space >= math.min(math.max(recipe.goodsAmount or 0, amount), FarmMath.getGoodsCap(state))
+					local needed = math.min(math.max(recipe.goodsAmount or 0, amount), FarmMath.getGoodsCap(state))
+					hasSpace = space >= needed
+					-- Yarı dolu depo "dolu" değildir: kaç yer gerektiğini söyle (sipariş teslimi ya da satış yer açar)
+					if space > 0 then
+						blockedLabel = `Yer yetmiyor: {needed} gerekli, {space} boş`
+					end
 					detailText =
 						`{recipe.description}\n{duration} sn · {good.displayName} · +{amount}\nAhır deposu: {FarmMath.getGoodsAmount(
 							state,
@@ -492,7 +498,7 @@ local function create(parent: Instance): UiKit.Window
 					detailText =
 						`{recipe.description}\n{duration} sn · Satış {FarmMath.formatMoney(shownReward)}\nYetişkin hayvan: {adults}/{recipe.requiredAdults}{bonusLine}{busyLine}\nHayvanlar iş boyunca gelirsiz çalışır, bitince döner.`
 				end
-				card.action.Text = if hasSpace then `Başlat · {FarmMath.formatMoney(startCost)}` else "Depo dolu"
+				card.action.Text = if hasSpace then `Başlat · {FarmMath.formatMoney(startCost)}` else blockedLabel
 				variant = if adults < recipe.requiredAdults or not hasSpace
 					then "disabled"
 					elseif state.cash >= startCost then "primary"

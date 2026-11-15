@@ -32,7 +32,7 @@ local UPGRADES = {
 	{
 		id = "barn_2",
 		displayName = "Ahır Sv.2",
-		description = "Tüm gelir x1.2 · Depo 24.000",
+		description = "Tüm gelir x1.2 · Depo 120.000 · Her üründen 24 yer",
 		icon = "🏚️",
 		stage = 1,
 		cost = 500,
@@ -93,7 +93,7 @@ local UPGRADES = {
 	{
 		id = "barn_3",
 		displayName = "Ahır Sv.3",
-		description = "Tüm gelir x1.4 · Depo 60.000 · Orta adalar için gerekli",
+		description = "Tüm gelir x1.4 · Depo 300.000 · Her üründen 48 yer · Orta adalar için gerekli",
 		icon = "🏠",
 		stage = 1,
 		cost = 1800,
@@ -155,7 +155,7 @@ local UPGRADES = {
 	{
 		id = "barn_4",
 		displayName = "Ahır Sv.4",
-		description = "Tüm gelir x1.7 · Depo 200.000 · Son adalar için gerekli",
+		description = "Tüm gelir x1.7 · Depo 1.000.000 · Her üründen 96 yer · Son adalar için gerekli",
 		icon = "🏰",
 		stage = 1,
 		cost = 4600,

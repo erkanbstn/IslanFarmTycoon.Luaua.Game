@@ -112,8 +112,13 @@ function Account.decode(source: any, data: any, config: any)
 	data.lifetimeEarned = Common.amount(source.lifetimeEarned, 0)
 	-- Öğretici: işaret yoksa ve hesap temel adımları çoktan geçmişse (öğretici işaretinden önceki kayıt) bitmiş sayılır.
 	-- Açık true/false korunur; bozuk değer yok sayılır (yeni hesap ve eşik altı eski kayıt etkilenmez). Sürüm artmaz.
+	-- Eski kayıt = `tutorialStage` alanı da yok: aşaması yazılmış yeni hesap ilk oturumda eşiği geçse de yeniden girişte öğreticide kalır.
 	local tutorialDone = Preferences.decodeTutorialDone(source)
-	if tutorialDone == nil and data.lifetimeEarned >= config.ONBOARDING.SKIP_BASICS_EARNED then
+	if
+		tutorialDone == nil
+		and source.tutorialStage == nil
+		and data.lifetimeEarned >= config.ONBOARDING.SKIP_BASICS_EARNED
+	then
 		tutorialDone = true
 	end
 	data.tutorialDone = tutorialDone

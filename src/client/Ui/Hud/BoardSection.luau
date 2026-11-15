@@ -48,6 +48,19 @@ function BoardSection.create(list: Instance): (PlayerSave?) -> ()
 		end)
 	end
 	local contractSignature = ""
+	-- Merkez kurulu ama pano boş: sipariş yalnızca yetişkin hayvanı olan ürünler için gelir ("merkez kur" demek yanıltır)
+	local function ownsGoodsCenter(state: PlayerSave): boolean
+		for _, recipe in Config.PRODUCTION_RECIPES do
+			if
+				recipe.output == "goods"
+				and state.purchased[recipe.upgradeId]
+				and state.unlockedIslands[recipe.island]
+			then
+				return true
+			end
+		end
+		return false
+	end
 	local function updateContracts(state: PlayerSave)
 		local now = Workspace:GetServerTimeNow()
 		local bonus = Environment.getSeason().orderBonus or 0
@@ -55,6 +68,14 @@ function BoardSection.create(list: Instance): (PlayerSave?) -> ()
 		local hasCenter = #offers > 0
 		information.frame.Visible = hasCenter
 		empty.Visible = not hasCenter
+		if not hasCenter then
+			UiKit.setText(
+				emptyState.description,
+				if ownsGoodsCenter(state)
+					then "Ürün merkezin hazır: hayvanları yetişkin olunca bu çiftliğin siparişleri gelir."
+					else "Bir ürün merkezi kurunca ahır siparişleri açılır (Üretim penceresi)."
+			)
+		end
 		local left = math.ceil(FarmMath.getContractSecondsLeft(now))
 		contractMeta.Text = if hasCenter then `{math.floor(left / 60)}:{string.format("%02d", left % 60)}` else ""
 		local pending = PurchaseController.isPending()

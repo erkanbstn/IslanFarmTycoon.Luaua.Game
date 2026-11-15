@@ -117,6 +117,21 @@ function Progression.isRebirthFarmComplete(root: any, farmId: string): boolean
 	return true
 end
 
+-- Eşyayı ücretsiz veren kilometre taşı (rebirth seviyesi); yoksa nil. Arayüz yakında bedava gelecek eşyayı altınla önermesin.
+local milestoneByItem: { [string]: number } = {}
+for level = 1, Config.PROGRESSION.maxRebirth do
+	local milestone = Config.PROGRESSION.milestones[level]
+	if milestone and milestone.itemId and not milestoneByItem[milestone.itemId] then
+		milestoneByItem[milestone.itemId] = level
+	end
+end
+-- Eşya henüz alınmamış bir sonraki kilometre taşında ücretsiz geliyor mu (o seviye; yoksa nil)
+function Progression.upcomingFreeLevel(root: any, itemId: string): number?
+	local level = milestoneByItem[itemId]
+	local count = if root.progression then root.progression.count else 0
+	return if level and level > count then level else nil
+end
+
 function Progression.grantRebirthRewards(root: any): boolean
 	local changed = false
 	root.owned = root.owned or { items = {}, conveniences = {} }
@@ -141,8 +156,26 @@ function Progression.isFarmComplete(save: any, farmId: string?): boolean
 	if not farm or not farm.purchased or not required or #required == 0 then
 		return false
 	end
+	-- Otomatik toplama başka yoldan (kalıcı hak, oyun geçidi, Hazır Başlangıç) zaten varsa toplayıcı yükseltmesi hiçbir şey kazandırmaz:
+	-- her turda altı çiftlikte boşuna satın aldırılmaz. Hak hesap düzeyindedir; park edilmiş çiftliğe kökten taşınır.
+	local collectorCovered: boolean? = nil
 	for _, upgradeId in required do
 		if not farm.purchased[upgradeId] then
+			local upgrade = Config.getUpgrade(upgradeId)
+			if upgrade and upgrade.autoCollect then
+				if collectorCovered == nil then
+					collectorCovered = FarmMath.hasAutoCollect({
+						farmId = id,
+						purchased = farm.purchased,
+						owned = save.owned,
+						passes = save.passes,
+						progression = save.progression,
+					} :: any)
+				end
+				if collectorCovered then
+					continue
+				end
+			end
 			return false
 		end
 	end

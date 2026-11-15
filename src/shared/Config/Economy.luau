@@ -51,6 +51,9 @@ return {
 	-- Parti çarpanı (seçeneğin returnMultiplier'ı) bunu aşamaz: büyük parti fabrikayı tek başına en iyi yatırım yapmasın
 	-- (en iyi parti sürekli çalışırken geri ödeme ~25-40 dk bandında; `simulate-economy.py` "Tesis geri ödeme").
 	PRODUCTION_MAX_RETURN = 2.0,
+	-- Tesis verimi geliştirmesi ("Satış +%") asgari getiri tabanını da büyütür, ama parti çarpanı x verim bu tavanı aşmaz
+	-- (en büyük parti tam geliştirmede ~%12 kazanır, küçük/orta parti verimin tamamını alır; audit sınırı MAX_RETURN x 1,15).
+	PRODUCTION_UPGRADED_MAX_RETURN = 2.25,
 
 	-- Eklentide duran hayvanlar bu süre (sn) bonus kazanır, sonra ana bölgesine döner; kapasite yükseltmeyle 2 -> 4.
 	EXTENSION_STAY_SECONDS = 360,

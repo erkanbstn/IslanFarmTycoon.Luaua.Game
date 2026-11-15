@@ -243,8 +243,11 @@ function StoreSection.create(list: GuiObject, category: string?): ((PlayerSave) 
 			local cashAlternative = if item and Config.isCashItem(item)
 				then `\nNakit alternatif: {FarmMath.formatMoney(item.price)} · Bu tur`
 				else ""
+			-- Kilometre taşı bu eşyayı ileride ücretsiz verir: satın almadan önce söylenir (altın/Robux iade edilmez)
+			local freeLevel = if item and not owned then Progression.upcomingFreeLevel(state, item.id) else nil
+			local freeNote = if freeLevel then `\nR{freeLevel} rebirth'ünde ücretsiz verilir` else ""
 			detail = if item
-				then `{ItemText.channelNotice(item)}\n{ItemText.slotNotice(item)}\n{ItemText.additional(item)}{cashAlternative}`
+				then `{ItemText.channelNotice(item)}\n{ItemText.slotNotice(item)}\n{ItemText.additional(item)}{cashAlternative}{freeNote}`
 				else CONVENIENCE_DETAILS[offer.id] or "Bütün açık çiftliklerinde çalışır."
 		elseif entry.kind == "pass" then
 			detail = if entry.key == "double_income"

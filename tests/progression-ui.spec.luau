@@ -211,6 +211,9 @@ return function(createController: any, createRebirthWindow: any)
 		getCompletionRequirements = function(): any
 			return { description = "Meaningful farm requirements" }
 		end,
+		upcomingFreeLevel = function(_save: any, itemId: string): number?
+			return if itemId == "reward_item" then 2 else nil
+		end,
 		progress = function(save: any): any
 			return { farmsComplete = if save.ready then 6 else 2, farmsTotal = 6 }
 		end,

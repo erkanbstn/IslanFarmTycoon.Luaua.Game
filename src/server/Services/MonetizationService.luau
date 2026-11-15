@@ -53,10 +53,17 @@ end
 -- PASS_RETRY_SECONDS sonra en çok PASS_RETRY_LIMIT kez yeniden denenir.
 local PASS_RETRY_SECONDS = 30
 local PASS_RETRY_LIMIT = 3
+-- Hesap işlemi (makbuz, altın, rebirth) sürerken tryGet nil döner: geçit hakkı oturum boyunca düşmesin diye kısa aralıkla yeniden denenir
+local PASS_LOCK_RETRY_SECONDS = 2
+local PASS_LOCK_RETRY_LIMIT = 15
 
-function MonetizationService.refreshPasses(player: Player, attempt: number?)
+function MonetizationService.refreshPasses(player: Player, attempt: number?, lockAttempt: number?)
 	local data = PlayerDataService.tryGet(player)
 	if not data then
+		local lockTries = lockAttempt or 0
+		if player.Parent and lockTries < PASS_LOCK_RETRY_LIMIT then
+			task.delay(PASS_LOCK_RETRY_SECONDS, MonetizationService.refreshPasses, player, attempt, lockTries + 1)
+		end
 		return
 	end
 	-- Sorgular yield eder; satın alma olayı aynı tabloyu bu sırada değiştirebilir.
@@ -344,8 +351,13 @@ function MonetizationService.init()
 				return
 			end
 			local key = findPassKey(passId)
+			if not key then
+				return
+			end
 			local data = PlayerDataService.tryGet(player)
-			if not key or not data then
+			if not data then
+				-- Hesap kilitliyken satın alındı: sahiplik kilit açılınca Roblox'tan yeniden okunur
+				MonetizationService.refreshPasses(player)
 				return
 			end
 			local passes: { [string]: boolean } = data.passes or {}

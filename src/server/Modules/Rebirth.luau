@@ -43,7 +43,9 @@ function Rebirth.apply(
 	state.returnEnded = false
 	state.runEarnedBase = data.lifetimeEarned or 0
 	state.convertedRunGold = 0
-	state.runDouble = (state.doubleCredits or 0) > 0
+	-- Kalıcı 2x geçidi varken tur 2x'i etkisizdir (çarpan en büyüğüdür, çarpılmaz): bekleyen hak boşa harcanmaz, sonraki tura kalır
+	local hasDoublePass = data.passes ~= nil and data.passes.double_income == true
+	state.runDouble = not hasDoublePass and (state.doubleCredits or 0) > 0
 	if state.runDouble then
 		state.doubleCredits -= 1
 	end
@@ -58,7 +60,8 @@ function Rebirth.apply(
 	end
 	data.cash = progression.getStartingCash(data, "1")
 	data.goods, data.contracts, data.achievements = {}, { window = 0, done = {}, completed = 0 }, {}
-	data.seasonal, data.envOverride, data.adminForce, data.careBoost = nil, nil, nil, nil
+	-- Mevsim hedefi (hesap alanı) korunur: alınmış ödül aynı mevsimde rebirth ile tekrar alınamaz, yarım hedef de sessizce kaybolmaz
+	data.envOverride, data.adminForce, data.careBoost = nil, nil, nil
 	local previousInventory = data.inventory
 	data.inventory = { items = {}, equipped = {}, uses = if previousInventory then previousInventory.uses else {} }
 	for id in data.owned.items do

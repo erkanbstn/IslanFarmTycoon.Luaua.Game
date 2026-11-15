@@ -45,6 +45,7 @@ export type MainFarmSummary = {
 	animalCount: number,
 	purchasedCount: number,
 	stored: number,
+	autoCollect: boolean?, -- otomatik toplayıcı bu çiftlikte açık (depo hiç dolmaz)
 }
 export type SeasonalGoal = { key: number, progress: number, target: number, base: number, claimed: boolean }
 

@@ -659,6 +659,16 @@ return function(FarmMath: any, Config: any, Environment: any)
 	assert(FarmMath.getFacilityCost(facilityFarm, cheeseGoods) < costBase, "facility levels cut the start cost")
 	assert(FarmMath.getFacilityCost(facilityFarm, cheese) == 0, "a free facility stays free")
 	assert(FarmMath.getProductionReward(facilityFarm, cheese, 0) > rewardBase, "facility levels raise the reward")
+	-- Gerçek partide ödülü çoğunlukla asgari getiri tabanı belirler: verim geliştirmesi tabanı da büyütmeli
+	local flooredJob = { uid = "j", readyAt = 0, startedAt = 0, forgone = 1e6, startCost = 0 }
+	facilityFarm.expansions = {}
+	local flooredBase = FarmMath.getProductionReward(facilityFarm, cheese, 0, flooredJob :: any)
+	facilityFarm.expansions = { cheese = Config.BUILD_UPGRADES.maxLevel }
+	assert(
+		FarmMath.getProductionReward(facilityFarm, cheese, 0, flooredJob :: any) > flooredBase,
+		"yield levels also raise a floor-paid batch"
+	)
+	facilityFarm.expansions = { cheese = Config.BUILD_UPGRADES.maxLevel, cheese_goods = Config.BUILD_UPGRADES.maxLevel }
 	assert(FarmMath.getFacilityCost(facilityFarm, cheeseGoods) >= 1, "a paid start cost stays positive")
 	-- Bir tesis geliştirmesi tesis kurulmadan alınamaz
 	local emptyFarm = saveAt(start)
